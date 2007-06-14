@@ -1,0 +1,51 @@
+
+This directory contains the tutorials for JSE JXTA. 
+ 
+
+Building
+========
+
+- First, Build the JXTA platform ;
+	cd ..
+	ant
+
+- Second, Build the tutorials :
+	cd tutorials
+	ant
+
+
+Running
+=======
+
+Some tutorials are a single class and only require a single command line shell window to run,
+others are composed of client/server and will require two separate command line shell windows to run the complete tutorial.
+
+The ant "run" target expects a system property "APP" which indicates the main class to run. The valid command lines are:
+
+ant run -DAPP=tutorial.advertisement.AdvertisementTutorial
+
+ant run -DAPP=tutorial.bidi.JxtaBidiPipeExample
+ant run -DAPP=tutorial.bidi.JxtaServerPipeExample
+
+ant run -DAPP=tutorial.discovery.DiscoveryClient
+ant run -DAPP=tutorial.discovery.DiscoveryServer
+
+ant run -DAPP=tutorial.helloworld.HelloWorld
+
+ant run -DAPP=tutorial.id.IDTutorial
+
+ant run -DAPP=tutorial.message.MessageTutorial
+
+ant run -DAPP=tutorial.multicast.JxtaMulticastSocketServer
+ant run -DAPP=tutorial.multicast.JxtaMulticastSocketClient
+
+ant run -DAPP=tutorial.pipe.PipeServer
+ant run -DAPP=tutorial.pipe.PipeClient
+
+ant run -DAPP=tutorial.propagated.PropagatedPipeServer
+ant run -DAPP=tutorial.propagated.PropagatedPipeClient
+
+ant run -DAPP=tutorial.psesample.Main
+
+ant run -DAPP=tutorial.socket.SocketServer
+ant run -DAPP=tutorial.socket.SocketClient

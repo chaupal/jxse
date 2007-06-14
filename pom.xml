@@ -1,0 +1,164 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.jxta</groupId>
+  <artifactId>jxta</artifactId>
+  <version>2.4.1</version>
+  <name>JXTA Platform</name>
+  <packaging>jar</packaging>
+  <url>http://platform.jxta.org/</url>
+  
+  <scm>
+    <url>http://platform.jxta.org/source/browse/platform/</url>
+  </scm>
+
+  <organization>
+    <name>Project JXTA</name>
+    <url>http://jxta.org/</url>
+  </organization>
+
+  <description>
+
+    JXTA technology is a set of open protocols that allow any connected
+    device on the network ranging from cell phones and wireless PDAs to PCs
+    and servers to communicate and collaborate in a P2P manner.
+
+    JXTA peers create a virtual network where any peer can interact with
+    other peers and resources directly even when some of the peers and
+    resources are behind firewalls and NATs or are on different network
+    transports.
+
+  </description>
+
+  <issueManagement>
+    <system>Project Issues</system>
+    <url>http://platform.jxta.org/servlets/ProjectIssues</url>
+  </issueManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>cvs</name>
+      <subscribe>
+        cvs@platform.jxta.org
+      </subscribe>
+      <unsubscribe>
+        cvs-unsubscribe@platform.jxta.org
+      </unsubscribe>
+      <archive>
+        http://platform.jxta.org/servlets/SummarizeList?listName=cvs
+      </archive>
+    </mailingList>
+    <mailingList>
+      <name>dev</name>
+      <subscribe>
+        dev@platform.jxta.org
+      </subscribe>
+      <unsubscribe>
+        dev-unsubscribe@platform.jxta.org
+      </unsubscribe>
+      <archive>
+        http://platform.jxta.org/servlets/SummarizeList?listName=dev
+      </archive>
+    </mailingList>
+    <mailingList>
+      <name>issues</name>
+      <subscribe>
+        issues@platform.jxta.org
+      </subscribe>
+      <unsubscribe>
+        issues-unsubscribe@platform.jxta.org
+      </unsubscribe>
+      <archive>
+        http://platform.jxta.org/servlets/SummarizeList?listName=issues
+      </archive>
+    </mailingList>
+  </mailingLists>
+  <developers>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>Project JXTA License</name>
+      <url>http://www.jxta.org/nonav/project/www/jxta_license.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <build>
+    <sourceDirectory>api/src</sourceDirectory>
+    <!--
+    TODO: Figure out how to do multiple source directories in Maven 2.
+    <sourceDirectory>impl/src</sourceDirectory>
+    -->
+    
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.5</source>
+                <target>1.5</target>
+            </configuration>
+         </plugin>
+     </plugins>
+  </build>
+  
+  <dependencies>
+      <!-- JXTA seems to work just fine with the 124 (currently the only available version
+           on ibiblio.org/maven2). However, note that the JAR bundled with the project is 132. -->
+      <dependency>
+        <groupId>bouncycastle</groupId>
+        <artifactId>bcprov-jdk15</artifactId>
+        <version>124</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>2.3</version>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.13</version>
+      </dependency>
+      <dependency>
+        <groupId>jetty</groupId>
+        <artifactId>org.mortbay.jetty</artifactId>
+        <version>4.2.25</version>
+      </dependency>
+      
+      <!-- The following dependencies are not always needed in normal JXTA use, so they
+           have a "provided" scope. Include it manually in your project's pom.xml if you
+           want to use the parts of JXTA that depend on them. -->
+      
+      <dependency>
+        <groupId>jaxen</groupId>
+        <artifactId>jaxen</artifactId>
+        <version>1.0-FCS</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>saxpath</groupId>
+        <artifactId>saxpath</artifactId>
+        <version>1.0-FCS</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>jdom</groupId>
+        <artifactId>jdom</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.swixml</groupId>
+        <artifactId>swixml</artifactId>
+        <version>1.5.144</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>3.8.1</version>
+          <scope>test</scope>
+      </dependency>
+  </dependencies>
+</project>

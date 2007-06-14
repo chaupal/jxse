@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="site"
+  xmlns:maven="jelly:maven"
+  xmlns:ant="jelly:ant"
+  xmlns:j="jelly:core">
+  
+  <preGoal name="java:compile">
+    <ant:mkdir dir="${basedir}/build/classes"/>
+
+    <ant:property file="${build_meter_class}/last.meter.properties"/>		
+    <ant:condition property="meter.uptodate" value="true" else="false">
+      <ant:and>
+        <ant:uptodate targetfile="${build_meter_class}/net/jxta/build/ConditionalBuild.class"
+          srcfile="${build_meter_source}/net/jxta/build/ConditionalBuild.java"/>
+        <ant:uptodate targetfile="impl/src/net/jxta/impl/meter/MeterBuildSettings.java"
+          srcfile="${net.jxta.build.meter.properties}"/>			
+
+<!--
+  Note that on Windows, due to path-escaping issue, the following condition
+  will be false, so the meter settings file will always be regenerated.
+-->
+
+        <ant:equals trim="true" arg1="${net.jxta.build.meter.properties}"
+          arg2="${net.jxta.build.meter.lastfile}"/>
+      </ant:and>
+    </ant:condition>
+	
+    <j:if test="${!meter.uptodate}">
+      <ant:echo file="${build_meter_class}/last.meter.properties">net.jxta.build.meter.lastfile = ${net.jxta.build.meter.properties}</ant:echo>
+			
+      <ant:javac destdir="${build_meter_class}">
+        <ant:src path="${build_meter_source}"/>
+      </ant:javac>
+		
+      <ant:echo message="Generate Metering Settings from : ${net.jxta.build.meter.properties}"/>
+		
+      <ant:java classname="net.jxta.build.ConditionalBuild">
+        <ant:arg file="${net.jxta.build.meter.properties}"/>
+        <ant:arg file="${build_meter_target}"/>
+        <ant:classpath>
+          <ant:pathelement location="${build_meter_class}"/>
+          <ant:pathelement path="${java.class.path}"/>
+        </ant:classpath>
+      </ant:java>
+    </j:if>    
+    
+    <ant:path
+      id="impl.src.dir"
+      location="${basedir}/impl/src"/>
+    <ant:path
+      id="ext.src.dir"
+      location="${basedir}/ext/src"/>
+
+    <maven:addPath
+      id="maven.compile.src.set"
+      refid="impl.src.dir"/>
+    <maven:addPath
+      id="maven.compile.src.set"
+      refid="ext.src.dir"/>
+  </preGoal>
+
+</project>

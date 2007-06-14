@@ -1,0 +1,302 @@
+<?xml version="1.0"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <groupId>jxta</groupId>
+  <id>jxta</id>
+  <name>JXTA Platform</name>
+  <currentVersion>2.3.5</currentVersion>
+  <organization>
+    <name>Project JXTA</name>
+    <url>http://jxta.org/</url>
+  </organization>
+  <inceptionYear>2001</inceptionYear>
+  <package>net.jxta</package>
+
+  <description>
+    &lt;p&gt;
+    JXTA technology is a set of open protocols that allow any connected
+    device on the network ranging from cell phones and wireless PDAs to PCs
+    and servers to communicate and collaborate in a P2P manner.
+    &lt;/p&gt;
+    
+    &lt;p&gt;
+    JXTA peers create a virtual network where any peer can interact with
+    other peers and resources directly even when some of the peers and
+    resources are behind firewalls and NATs or are on different network
+    transports.
+    &lt;/p&gt;
+  </description>
+
+  <shortDescription>
+    JXTA is a language and protocol agnostic network overlay.
+  </shortDescription>
+
+  <url>http://platform.jxta.org/</url>
+  <issueTrackingUrl>
+    http://platform.jxta.org/servlets/ProjectIssues
+  </issueTrackingUrl>
+
+  <repository>
+    <connection>
+      scm:cvs:pserver:guest@cvs.jxta.org:/cvs:platform
+    </connection>
+    <url>
+      http://platform.jxta.org/source/browse/platform/binding/java
+    </url>
+  </repository>
+
+  <versions>
+    <version>
+      <id>main</id>
+      <name>main</name>
+      <tag>HEAD</tag>
+    </version>
+    <version>
+      <id>2.3.5</id>
+      <name>2.3.5</name>
+      <tag>JXTA_JAVA_2_3_5</tag>
+    </version>
+  </versions>
+
+  <mailingLists>
+    <mailingList>
+      <name>cvs</name>
+      <subscribe>
+        cvs@platform.jxta.org
+      </subscribe>
+      <unsubscribe>
+        cvs-unsubscribe@platform.jxta.org
+      </unsubscribe>
+      <archive>
+        http://platform.jxta.org/servlets/SummarizeList?listName=cvs
+      </archive>
+    </mailingList>
+    <mailingList>
+      <name>dev</name>
+      <subscribe>
+        dev@platform.jxta.org
+      </subscribe>
+      <unsubscribe>
+        dev-unsubscribe@platform.jxta.org
+      </unsubscribe>
+      <archive>
+        http://platform.jxta.org/servlets/SummarizeList?listName=dev
+      </archive>
+    </mailingList>
+    <mailingList>
+      <name>issues</name>
+      <subscribe>
+        issues@platform.jxta.org
+      </subscribe>
+      <unsubscribe>
+        issues-unsubscribe@platform.jxta.org
+      </unsubscribe>
+      <archive>
+        http://platform.jxta.org/servlets/SummarizeList?listName=issues
+      </archive>
+    </mailingList>
+  </mailingLists>
+  <developers>
+    <developer>
+      <name>Bernard Traversat</name>
+      <id>tra</id>
+      <email>tra_at_jxta_dot_org</email>
+      <organization>Sun Microsystems, Inc.</organization>
+      <url>http://blogs.sun.com/gonzo</url>
+      <timezone>+8</timezone>
+    </developer>
+    <developer>
+      <name>Mohamed Abdelaziz</name>
+      <id>hamada</id>
+      <email>hamada_at_jxta_dot_org</email>
+      <organization>Sun Microsystems, Inc.</organization>
+      <url>http://blogs.sun.com/hamada</url>
+      <timezone>+8</timezone>
+    </developer>
+    <developer>
+      <name>Mike Duigou</name>
+      <id>bondolo</id>
+      <email>bondolo_at_jxta_dot_org</email>
+      <organization>Sun Microsystems, Inc.</organization>
+      <url>http://blogs.sun.com/bondolo</url>
+      <timezone>+8</timezone>
+    </developer>
+    <developer>
+      <name>Henry Jen</name>
+      <id>slowhog</id>
+      <email>slowhog_at_jxta_dot_org</email>
+      <organization>Sun Microsystems, Inc.</organization>
+      <url>http://blogs.sun.com/slowhog</url>
+      <timezone>+8</timezone>
+    </developer>
+    <developer>
+      <name>James Todd</name>
+      <id>gonzo</id>
+      <email>gonzo@jxta.org</email>
+      <organization>Sun Microsystems, Inc.</organization>
+      <url>http://blogs.sun.com/gonzo</url>
+      <timezone>+8</timezone>
+    </developer>
+  </developers>
+  
+  <licenses>
+    <license>
+      <name>Project JXTA License</name>
+      <url>http://www.jxta.org/nonav/project/www/jxta_license.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <dependencies>
+    <dependency>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bouncycastle</artifactId>
+      <jar>bcprov-jdk14-124.jar</jar>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+    </dependency>
+    <dependency>
+      <groupId>jetty</groupId>
+      <artifactId>org.mortbay.jetty</artifactId>
+      <version>4.2.24</version>
+    </dependency>
+    <dependency>
+      <groupId>jetty</groupId>
+      <artifactId>org.mortbay.jetty</artifactId>
+      <version>5.1.4</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>2.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>1.0-FCS-full</version>
+    </dependency>
+    <dependency>
+      <groupId>saxpath</groupId>
+      <artifactId>saxpath</artifactId>
+      <version>1.0-FCS</version>
+    </dependency>
+    <dependency>
+      <groupId>jdom</groupId>
+      <artifactId>jdom</artifactId>
+      <version>1.0</version>
+    </dependency>
+    
+<!--
+  Note by Peter:
+  SwixML is not hosted in ibibio.org at this point, so you need to put a copy
+  of swixml.jar in ${user}/.maven/repository/swixml/jars/ to make this work.
+  Alternatively, you can change the lines below to get the JAR from somewhere
+  else.
+-->
+    <dependency>
+<!--
+      <groupId>swixml</groupId>
+-->
+      <groupId>jxta</groupId>
+      <artifactId>swixml</artifactId>
+<!--
+      <version>1.1</version>
+-->
+      <jar>swixml.jar</jar>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <nagEmailAddress>
+      gonzo@jxta.org
+    </nagEmailAddress>
+    <sourceDirectory>api/src</sourceDirectory>
+<!--
+  gonzo: disabled for the moment
+    <unitTestSourceDirectory>test/src</unitTestSourceDirectory>
+-->
+    <aspectSourceDirectory/>
+
+<!--
+  gonzo: disabled for the moment
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/RepositoryTest.java</exclude>
+        <exclude>**/ReliableTest.java</exclude>
+      </excludes>
+    </unitTest>
+-->
+
+    <resources>
+      <resource>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>log4j.properties</include>
+          <include>jxta.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/api/src</directory>
+        <includes>
+          <include>**/user.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/impl/src</directory>
+        <includes>
+          <include>**/config.properties</include>
+          <include>**/monitor.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/ext/src</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.xsd</include>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <reports>
+    <report>maven-license-plugin</report>
+    <report>maven-checkstyle-plugin</report>
+    <report>maven-pmd-plugin</report>
+    <report>maven-simian-plugin</report>
+    <report>maven-jdepend-plugin</report>
+    <report>maven-jxr-plugin</report>
+    <report>maven-javadoc-plugin</report>
+<!--
+    <report>maven-junit-report-plugin</report>
+-->
+    <report>maven-clover-plugin</report>    
+    <report>maven-jdepend-plugin</report>
+    <report>maven-changelog-plugin</report>    
+    <report>maven-developer-activity-plugin</report>
+    <report>maven-faq-plugin</report>
+    <report>maven-file-activity-plugin</report>
+    <report>maven-tasklist-plugin</report>
+    <report>maven-dashboard-plugin</report>
+    <report>maven-jcoverage-plugin</report>
+    <!--
+    <report>maven-jalopy-plugin</report>
+    <report>maven-cruise-control-plugin</report>
+    <report>maven-distribution-plugin</report>
+    <report>maven-jnlp-plugin</report>
+    <report>maven-uberjar-plugin</report>
+    -->
+  </reports>
+</project>
