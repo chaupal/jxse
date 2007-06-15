@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux (vers 1 September 2005), see www.w3.org">
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+
+  <title>Participating in the JXTA Java SE Project</title>
+</head>
+
+<body lang="en">
+  <h1>Participating in the JXTA Java SE Project</h1>(Updated 2007-01-18 <a href="mailto:bondolo@jxta.org">bondolo@jxta.org</a>)<br>
+
+  <h2>Introduction</h2>
+
+  <p>We encourage everybody to participate in the project. There are a number of
+  ways community members can contribute to JXTA Java SE. Each level requires 
+  additional commitment of your time. Most people usually start out with smaller 
+  commitments and then work their way up as their personal schedules and 
+  priorities permit.</p>
+
+  <ul>
+    <li>
+      <b>Tester</b> : Found a problem in a previous release? Interested in a 
+      feature in an upcoming release? There is no better way to make sure it's 
+      perfect than to try it out for yourself! You can also contribute by 
+      creating new tests, adding to the benchmarking suite and to the JDF
+      distributed testing project.
+
+      <p>In order to be a tester you should subscribe to the JXTA dev mailing 
+      lists. See 
+      <a href="http://www.jxta.org/project/www/maillist.html">JXTA Mailing Lists</a>.
+      You also want to become a contributor in order to be able to modify the 
+      Issuezila database. See : 
+      <a href="http://www.jxta.org/project/www/govern.html">JXTA Governance</a>
+      or a committer in order to be able to add additional tests or contribute
+      to the <a href="http://bench.jxta.org">JXTA Benchmarking</a> or
+      <a href="http://jdf.jxta.org">Java Distributed Framework</a> projects.</p>
+    </li>
+
+    <li>
+      <b>Reviewer</b> : JXTA expert but don't have a lot of time to work on tasks? Trying to learn more about how JXTA is put
+      together? Become a reviewer! Reviewers commit to devoting time to monitor and provide feedback on specific tasks. The most
+      careful review is usually needed before code is committed for a task, but you can provide insight or comment on the ongoing
+      progress of a task at any time. Scan the <a href="http://platform.jxta.org/issues/query.cgi?component=platform">Issuezilla
+      database</a> for tasks which interest you or look for issues with the keyword "Review". Sign your self up by adding your
+      name to the issue "cc:" list!
+
+      <p>In order to become a reviewer you should be contributer on the JXTA project. See : <a href=
+      "http://www.jxta.org/project/www/govern.html">JXTA Governance</a></p>
+    </li>
+
+    <li>
+      <b>Task Leader</b> : Got a great idea? You can lead tasks for inclusion within a JXTA Java SE release. This usually
+      involves coding, preparing documentation and unit tests, submitting code for pre-commit review and working with testers and
+      community members to integrate your task into the release. You will also normally be expected to be willing to act as a
+      reviewer for other tasks.
+
+      <p>In order to become a task leader you should be committer on the JXTA project. See : <a href=
+      "http://www.jxta.org/project/www/govern.html">JXTA Governance</a></p>
+    </li>
+
+    <li>
+      <b>Release Team</b> : You can join the team which manages the release cycle for JXTA Java SE. This usually involves a lot
+      of regression testing, integration testing, code commit reviews, writing release notes, tracking tasks and bugs. Early in
+      the release cycle you will work with task leaders to establish the tasks to be included in the upcoming release. Most
+      release team members will be task leaders for one or more tasks that will be part of the upcoming release.
+
+      <p>In order to become a member of the release team you should be committer or project owner on the JXTA project. See :
+      <a href="http://www.jxta.org/project/www/govern.html">JXTA Governance</a></p>
+    </li>
+  </ul>
+
+  <h2>Tasks</h2>
+
+  <p>Each JXTA Java SE release will try to advance the project by adding new 
+  features or improving upon existing features. Each improvement is tracked as a
+  task so that it's progress can be monitored and it can be discussed more 
+  effectively by the community.</p>
+
+  <p>Each task is associated with the particular release, the release in which
+  it is expected to be included. Each task also has a leader. The leader of a 
+  task is reponsible for reporting information about the progress of tasks 
+  either to the appropriate JXTA mailing lists or via Issuezilla. The task 
+  leader is also likely the person completing the work.</p>
+
+  <p><b>Any community member can create a new task for a release. For now, 
+  creating new tasks requires that you also commit to leading the task and 
+  completing the work. You can also volunteer to work on existing tasks or 
+  create tasks based upon suggestions by others.</b></p>
+
+  <p>New tasks should be proposed on the 
+  <a href="mailto:discuss@jxta.org">JXTA Discuss mailing list</a>. Discussion 
+  about existing tasks should be discussed on its Issuezilla issue or on the 
+  <a href="mailto:dev@platform.jxta.org">JXTA Java SE DEV mailing list</a>.</p>
+
+  <h2>Committer Policies</h2>
+
+  <p>The JXTA Java SE project has evolved a flexible, informal policy for how code
+  is developed and committed. Most JXTA projects use the 
+  <a href="http://www.apache.org/foundation/voting.html">Apache Voting Rules</a> 
+  process with either a 
+  "<a href="http://www.apache.org/foundation/glossary.html#ReviewThenCommit">Review Then Commit</a>" (RTC) 
+  or 
+  "<a href="http://www.apache.org/foundation/glossary.html#CommitThenReview">Commit Then Review</a>" (CTR) 
+  policy. These "rules" apply to the <b>Platform</b>, <b>CMS</b> and, with 
+  exceptions noted below, to the <b>Shell</b>. All of the JXTA Java SE projects use
+  the CTR process during normal development but between beta and final releases
+  we require that any significant issues be reviewed before commit.</p>
+
+  <p>All code to be committed to the <b>Platform</b>, <b>CMS</b> and <b>Shell</b>
+  projects must be compatible with Java SE 5.0 and with the 
+  <a href="conventions.html">JXTA Java SE Coding Conventions</a>. You are encouraged
+  to test your submissions on a variety of computer platforms and with a variety
+  of Java Virtual Machines.</p>
+
+  <p>These conventions have always been applied informally. Good judgement and 
+  selective application has always been preferred to strict adherence.</p>
+
+  <h2>Creation of Bugzilla Issues</h2>
+
+  <p>Historically, the <b>Platform</b> project has made extensive use of the 
+  Issuezilla database 
+  (<a href="http://platform.jxta.org/issues/">Platform Issue Tracker</a>) as a 
+  focus for development. "Bug" issues are commonly created for defects, new 
+  features, patches and tasks. Issues provide a convenient forum for discussion 
+  of defect reports, design proposals, patches and resolutions.</p>
+
+  <p>There are some types of issues and bugs which traditionally have not 
+  resulted in a formal bugzilla issue being created. These normally include; 
+  updates to JavaDoc, comments, spelling corrections, logging changes, most 
+  <a href="http://pmd.sourceforge.net">PMD</a> nits, web site changes, most 
+  changes to build scripts and packaging.</p>
+
+  <p>For a little larger changes, such as minor code cleanups, some more complex
+  <a href= "http://pmd.sourceforge.net">PMD</a> nits, and very narrow minor bug 
+  fixes (e.g. throw IAE at the beginning of a method rather than allowing an NPE 
+  10 lines later)  we have generally done limited peer reviews and not created a 
+  Bugzilla issue. The peer review is normally done informally via email, IM, IRC, 
+  phone, over the shoulder, etc. These peer reviews are not intended to be a 
+  thorough indepth reviews, rather they are "No, you're not crazy" or "Maybe you 
+  should create an issue for this" checks.</p>
+
+  <p>For any behaviour changes, API signature changes, most bug fixes, anything 
+  potentially warranting discussion a Bugzilla issue must be created. The 
+  discussion and review process varies greatly depending upon the nature and 
+  complexity of the isssue involved. Developers are responsible for seeking 
+  appropriate review and comment before commit as appropriate. When in doubt,
+  seek more review and comment.</p>
+
+  <h2>Important Exceptions and the Shell Project</h2>
+
+  <p>There are some exceptions to the preceeding rules. In particular, the 
+  <b>Shell</b> project has never made much use of the Issuzilla database. 
+  Committers to the <b>Shell</b> project are encouraged to simply follow their
+  best judgement and be mindful not to break features. <b>Shell</b> committers 
+  should also pay attention to release plans and avoid committing big changes 
+  immediately before a planned release.</p>
+
+  <p>Any <tt>test</tt> directories are also special in that unlike all other 
+  portions of a project, you are actively encouraged to commit code which
+  <i>fails</i> against the current source tree. All commits to the <tt>test</tt>
+  directory should indicate a Bugzilla issue which should describe the nature of
+  the test and the cause of the breakage.</p>
+</body>
+</html>
