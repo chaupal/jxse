@@ -104,5 +104,4 @@ public final class IDFormat {
      *  Private Constructor. This class cannot be instantiated.
      **/
     private IDFormat() {}
-    ;
 }

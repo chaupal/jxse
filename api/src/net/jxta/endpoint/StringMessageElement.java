@@ -56,45 +56,42 @@
 package net.jxta.endpoint;
 
 
+import net.jxta.document.MimeMediaType;
+import net.jxta.logging.Logging;
+
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-
-import java.lang.ref.SoftReference;
-
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
-import net.jxta.document.MimeMediaType;
 
 
 /**
  * A Message Element using character strings for the element data.
  */
 public class StringMessageElement extends TextMessageElement {
-    
+
     /**
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(StringMessageElement.class.getName());
 
     /**
-     *  The MIME media type we will be use for encoding {@code String}s when no
-     *  encoding is specified.
+     * The MIME media type we will be use for encoding {@code String}s when no
+     * encoding is specified.
      */
     private static final MimeMediaType DEFAULT_TEXT_ENCODING = new MimeMediaType(MimeMediaType.TEXT_DEFAULTENCODING, "charset=\"" + Charset.defaultCharset().name() + "\"", true).intern();
 
@@ -374,7 +371,6 @@ public class StringMessageElement extends TextMessageElement {
             return new ByteArrayInputStream(cachedBytes);
         } else {
             String charset = type.getParameter("charset");
-
             return new CharSequenceInputStream(data, charset);
         }
     }
@@ -385,7 +381,6 @@ public class StringMessageElement extends TextMessageElement {
      * @return InputStream of the stream containing element data.
      * @throws IOException when there is a problem getting a reader.
      */
-    @Override
     public Reader getReader() throws IOException {
 
         return new StringReader(data);

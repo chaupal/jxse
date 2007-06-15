@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.cm;
-
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -65,6 +63,7 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.XMLDocument;
 import net.jxta.impl.util.JxtaHash;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.xindice.core.DBException;
@@ -72,7 +71,6 @@ import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Record;
 import net.jxta.impl.xindice.core.data.Value;
 import net.jxta.impl.xindice.core.filer.BTreeCallback;
-import net.jxta.impl.xindice.core.filer.BTreeException;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.impl.xindice.core.indexer.NameIndexer;
@@ -100,8 +98,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.document.XMLDocument;
-
 
 /**
  * This class implements a limited document caching mechanism
@@ -125,7 +121,7 @@ public final class Cm implements Runnable {
     /**
      * adv types
      */
-    private static final String[] DIRNAME = { "Peers", "Groups", "Adv", "Raw"};
+    private static final String[] DIRNAME = {"Peers", "Groups", "Adv", "Raw"};
 
     // garbage collect once an hour
     public static final long DEFAULT_GC_MAX_INTERVAL = 1 * TimeUtils.ANHOUR;
@@ -147,7 +143,6 @@ public final class Cm implements Runnable {
      */
     protected File rootDir;
 
-    private ThreadGroup threads = null;
     private Thread gcThread = null;
     private long gcTime = 0;
     private long gcMinInterval = 1000L * 60L;
@@ -180,16 +175,13 @@ public final class Cm implements Runnable {
     /**
      * Constructor for cm
      *
-     * @param threads     the thread group
+     * @param threadGroup     the thread group
      * @param storeRoot   persistance location
      * @param gcinterval  garbage collect max interval
      * @param trackDeltas when true deltas are tracked
      * @param areaName    storage area name
      */
-    public Cm(ThreadGroup threads, URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) {
-
-        this.threads = threads;
-
+    public Cm(ThreadGroup threadGroup, URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) {
         this.trackDeltas = trackDeltas;
         this.gcMaxInterval = gcinterval;
         this.gcTime = System.currentTimeMillis() + gcMaxInterval;
@@ -244,7 +236,7 @@ public final class Cm implements Runnable {
             if (System.getProperty("net.jxta.impl.cm.index.rebuild") != null) {
                 rebuildIndex();
             }
-            gcThread = new Thread(threads, this, "CM GC Thread interval : " + gcMinInterval);
+            gcThread = new Thread(threadGroup, this, "CM GC Thread interval : " + gcMinInterval);
             gcThread.setDaemon(true);
             gcThread.start();
 
@@ -281,7 +273,6 @@ public final class Cm implements Runnable {
         } else if (adv instanceof PeerGroupAdvertisement) {
             return DIRNAME[DiscoveryService.GROUP];
         }
-
         return DIRNAME[DiscoveryService.ADV];
     }
 
@@ -324,12 +315,10 @@ public final class Cm implements Runnable {
      *         files
      */
     public List<InputStream> getRecords(String dn, int threshold, List values, List<Long> expirations) {
-
         return getRecords(dn, threshold, values, expirations, false);
     }
 
     public synchronized List<InputStream> getRecords(String dn, int threshold, List values, List<Long> expirations, boolean purge) {
-
         List<InputStream> res = new ArrayList<InputStream>();
 
         if (dn == null) {
@@ -479,8 +468,8 @@ public final class Cm implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         MessageFormat.format("Record expired lifetime   : {0} expiration: {1} expires in: {2}", life, exp
-                        ,
-                        expiresin));
+                                ,
+                                expiresin));
                 LOG.fine(MessageFormat.format("Record expires on :{0}", new Date(life)));
             }
             return -1;
@@ -502,12 +491,9 @@ public final class Cm implements Runnable {
      * @throws IOException if an I/O error occurs
      */
     public InputStream getInputStream(String dn, String fn) throws IOException {
-
         Key key = new Key(dn + "/" + fn);
-
         try {
             Record record = cacheDB.readRecord(key);
-
             if (record == null) {
                 return null;
             }
@@ -698,10 +684,8 @@ public final class Cm implements Runnable {
                 if (absoluteLifetime < oldLife) {
                     // make sure we don't override the original value
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}"
-                                ,
-                                new Date(oldLife), new Date(absoluteLifetime)));
+                        LOG.fine(MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
+                                                     new Date(oldLife), new Date(absoluteLifetime)));
                     }
                     absoluteLifetime = oldLife;
                 }
@@ -777,10 +761,8 @@ public final class Cm implements Runnable {
                 if (absoluteLifetime < oldLife) {
                     // make sure we don't override the original value
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}"
-                                ,
-                                new Date(oldLife), new Date(absoluteLifetime)));
+                        LOG.fine(MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
+                                                            new Date(oldLife), new Date(absoluteLifetime)));
                     }
                     absoluteLifetime = oldLife;
                 }
@@ -819,10 +801,8 @@ public final class Cm implements Runnable {
         }
         for (String field : fields) {
             Enumeration en = doc.getChildren(field);
-
             while (en.hasMoreElements()) {
                 String val = (String) ((Element) en.nextElement()).getValue();
-
                 if (val != null) {
                     map.put(field, val);
                 }
@@ -875,8 +855,8 @@ public final class Cm implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Found " + val.toString() + " at " + pos);
             }
-            Record record = null;
 
+            Record record = null;
             try {
                 record = cacheDB.readRecord(pos);
             } catch (DBException ex) {
@@ -948,6 +928,7 @@ public final class Cm implements Runnable {
                 }
                 return false;
             }
+
             if (record == null) {
                 return true;
             }
@@ -955,9 +936,7 @@ public final class Cm implements Runnable {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINEST)) {
                 LOG.finest("Search callback record " + record.toString());
             }
-
             long exp = calcExpiration(record);
-
             if (exp < 0) {
                 if (purge) {
                     try {
@@ -1141,7 +1120,6 @@ public final class Cm implements Runnable {
             result.addAll(deltas);
             deltas.clear();
         }
-
         return result;
     }
 
@@ -1212,11 +1190,9 @@ public final class Cm implements Runnable {
         try {
             while (!stop) {
                 try {
-
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("waiting " + gcMinInterval + "ms before garbage collection");
                     }
-
                     wait(gcMinInterval);
                 } catch (InterruptedException woken) {
                     Thread.interrupted();
@@ -1236,7 +1212,6 @@ public final class Cm implements Runnable {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Garbage collection started");
                     }
-
                     garbageCollect();
                     inconvenienceLevel = 0;
                     gcTime = System.currentTimeMillis() + gcMaxInterval;
@@ -1254,7 +1229,7 @@ public final class Cm implements Runnable {
         }
     }
 
-    private synchronized void rebuildIndex() throws BTreeException, DBException, IOException {
+    private synchronized void rebuildIndex() throws DBException, IOException {
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("Rebuilding indices");
@@ -1289,9 +1264,8 @@ public final class Cm implements Runnable {
 
                 InputStream is = record.getValue().getInputStream();
                 Advertisement adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);
-                Map<String, String> indexables = getIndexfields(adv.getIndexFields()
-                        ,
-                        (StructuredDocument) adv.getDocument(MimeMediaType.XMLUTF8));
+                Map<String, String> indexables = getIndexfields(adv.getIndexFields(),
+                                                (StructuredDocument) adv.getDocument(MimeMediaType.XMLUTF8));
 
                 String dn = getDirName(adv);
                 Map<String, String> keyedIdx = addKey(dn, indexables);

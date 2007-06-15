@@ -216,7 +216,7 @@ public abstract class ID implements java.io.Serializable {
     @Deprecated
     public URL getURL() {
         try {
-            return IDFactory.jxtaURL(URIEncodingName, "", URNNamespace + ":" + (String) getUniqueValue());
+            return IDFactory.jxtaURL(URIEncodingName, "", URNNamespace + ":" + getUniqueValue());
         } catch (MalformedURLException caught) {
             IllegalStateException failure = new IllegalStateException("Environment incorrectly intialized.");
 
@@ -273,7 +273,7 @@ public abstract class ID implements java.io.Serializable {
      *  @return	URI Object containing the URI
      */
     public URI toURI() {
-        return URI.create(URIEncodingName + ":" + URNNamespace + ":" + (String) getUniqueValue());
+        return URI.create(URIEncodingName + ":" + URNNamespace + ":" + getUniqueValue());
     }
 }
 
@@ -288,7 +288,7 @@ final class NullID extends ID {
     
     /**
      *  NullID is not intended to be constructed. You should use the
-     *  {@link ID.nullID} constant instead.
+     *  {@link #nullID} constant instead.
      */
     NullID() {}
     

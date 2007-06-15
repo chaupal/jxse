@@ -250,7 +250,6 @@ public class TextDocumentMessageElement extends TextMessageElement {
     /**
      * {@inheritDoc}
      */
-    @Override
     public Reader getReader() throws IOException {
 
         return doc.getReader();

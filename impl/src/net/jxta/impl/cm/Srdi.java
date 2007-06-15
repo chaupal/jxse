@@ -74,6 +74,7 @@ import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.protocol.SrdiMessage;
 import net.jxta.rendezvous.RendezVousService;
+import net.jxta.rendezvous.RendezVousStatus;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.resolver.ResolverService;
@@ -177,7 +178,6 @@ public class Srdi implements Runnable, RendezvousListener {
                 synchronized (Srdi.this) {
                     credential = (Credential) evt.getNewValue();
                     credentialDoc = null;
-
                     if (null != credential) {
                         try {
                             credentialDoc = credential.getDocument(MimeMediaType.XMLUTF8);
@@ -340,7 +340,6 @@ public class Srdi implements Runnable, RendezvousListener {
      * @param srdi SRDI message to send
      */
     public void pushSrdi(ID peer, SrdiMessage srdi) {
-
         try {
             ResolverSrdiMsg resSrdi = new ResolverSrdiMsgImpl(handlername, credential, srdi.toString());
 
@@ -374,7 +373,8 @@ public class Srdi implements Runnable, RendezvousListener {
             return;
         }
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("[{0} / {1}] Forwarding Query to {2}", group.getPeerGroupName(), handlername, peer));
+            LOG.fine(MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
+                    group.getPeerGroupName(), handlername, peer));
         }
         resolver.sendQuery(peer.toString(), query);
     }
@@ -399,10 +399,8 @@ public class Srdi implements Runnable, RendezvousListener {
 
         for (PeerID destPeer : peers) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        MessageFormat.format("[{0} / {1}] Forwarding Query to {2}", group.getPeerGroupName(), handlername
-                        ,
-                        destPeer));
+                LOG.fine(MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
+                        group.getPeerGroupName(), handlername, destPeer));
             }
             resolver.sendQuery(destPeer.toString(), query);
         }
@@ -422,10 +420,8 @@ public class Srdi implements Runnable, RendezvousListener {
 
         if (query.getHopCount() > 2) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        MessageFormat.format("[{0} / {1}] hopCount exceeded ({2}) not forwarding query.", group.getPeerGroupName()
-                        ,
-                        handlername, query.getHopCount()));
+                LOG.fine(MessageFormat.format("[{0} / {1}] hopCount exceeded ({2}) not forwarding query.",
+                        group.getPeerGroupName(), handlername, query.getHopCount()));
             }
             // query has been forwarded too many times
             return;
@@ -516,8 +512,8 @@ public class Srdi implements Runnable, RendezvousListener {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         MessageFormat.format("[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName()
-                        ,
-                        handlername, primaryKey, peerid));
+                                ,
+                                handlername, primaryKey, peerid));
             }
 
             resolver.sendSrdi(peerid.toString(), resSrdi);
@@ -541,48 +537,48 @@ public class Srdi implements Runnable, RendezvousListener {
 
         switch (theEventType) {
 
-        case RendezvousEvent.RDVCONNECT:
-            synchronized (rdvEventLock) {
-                // wake up the publish thread now.
-                rdvEventLock.notify();
-            }
-
-        /*
-         *  FALLSTHRU
-         */
-        case RendezvousEvent.RDVRECONNECT:
-            // No need to wake up the publish thread; reconnect should not force indices to be published.
-            break;
-
-        case RendezvousEvent.CLIENTCONNECT:
-        case RendezvousEvent.CLIENTRECONNECT:
-        case RendezvousEvent.BECAMERDV:
-        case RendezvousEvent.BECAMEEDGE:
-            // XXX 20031110 bondolo@jxta.org perhaps becoming edge one should cause it to wake up so that run() switch to
-            // don't do anything.
-            break;
-
-        case RendezvousEvent.RDVFAILED:
-        case RendezvousEvent.RDVDISCONNECT:
-            republishSignal.set(true);
-            break;
-
-        case RendezvousEvent.CLIENTFAILED:
-        case RendezvousEvent.CLIENTDISCONNECT:
-            // we should flush the cache for the peer
-            synchronized (rdvEventLock) {
-                if (group.isRendezvous() && (srdiIndex != null)) {
-                    srdiIndex.remove((PeerID) event.getPeerID());
+            case RendezvousEvent.RDVCONNECT:
+                synchronized (rdvEventLock) {
+                    // wake up the publish thread now.
+                    rdvEventLock.notify();
                 }
-            }
-            break;
 
-        default:
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning(
-                        MessageFormat.format("[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event));
-            }
-            break;
+                /*
+                *  FALLSTHRU
+                */
+            case RendezvousEvent.RDVRECONNECT:
+                // No need to wake up the publish thread; reconnect should not force indices to be published.
+                break;
+
+            case RendezvousEvent.CLIENTCONNECT:
+            case RendezvousEvent.CLIENTRECONNECT:
+            case RendezvousEvent.BECAMERDV:
+            case RendezvousEvent.BECAMEEDGE:
+                // XXX 20031110 bondolo@jxta.org perhaps becoming edge one should cause it to wake up so that run() switch to
+                // don't do anything.
+                break;
+
+            case RendezvousEvent.RDVFAILED:
+            case RendezvousEvent.RDVDISCONNECT:
+                republishSignal.set(true);
+                break;
+
+            case RendezvousEvent.CLIENTFAILED:
+            case RendezvousEvent.CLIENTDISCONNECT:
+                // we should flush the cache for the peer
+                synchronized (rdvEventLock) {
+                    if (group.isRendezvous() && (srdiIndex != null)) {
+                        srdiIndex.remove((PeerID) event.getPeerID());
+                    }
+                }
+                break;
+
+            default:
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning(
+                            MessageFormat.format("[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event));
+                }
+                break;
         }
     }
 
@@ -602,12 +598,12 @@ public class Srdi implements Runnable, RendezvousListener {
                 // upon connection we will have to republish
                 republish |= republishSignal.compareAndSet(true, false);
 
-                waitingForRdv = group.isRendezvous() || !group.getRendezVousService().isConnectedToRendezVous();
+                waitingForRdv = group.isRendezvous() || !group.getRendezVousService().isConnectedToRendezVous() ||
+                        group.getRendezVousService().getRendezVousStatus() == RendezVousStatus.ADHOC;
 
                 if (!waitingForRdv) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                "[" + group.getPeerGroupName() + " / " + handlername + "] Pushing "
+                        LOG.fine("[" + group.getPeerGroupName() + " / " + handlername + "] Pushing "
                                 + (republish ? "all entries" : "deltas"));
                     }
 
@@ -628,7 +624,7 @@ public class Srdi implements Runnable, RendezvousListener {
                 LOG.log(Level.SEVERE
                         ,
                         "Uncaught Throwable in " + Thread.currentThread().getName() + "[" + group.getPeerGroupName() + " / "
-                        + handlername + "]"
+                                + handlername + "]"
                         ,
                         all);
             }
@@ -663,9 +659,8 @@ public class Srdi implements Runnable, RendezvousListener {
             // produce a vector of Peer IDs
             for (String aSet : set) {
                 try {
-                    PeerID id = (PeerID) IDFactory.fromURI(new URI(aSet));
-
-                    global.add(id);
+                    PeerID peerID = (PeerID) IDFactory.fromURI(new URI(aSet));
+                    global.add(peerID);
                 } catch (URISyntaxException badID) {
                     throw new IllegalArgumentException("Bad PeerID ID in advertisement");
                 } catch (ClassCastException badID) {
