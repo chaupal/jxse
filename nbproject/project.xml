@@ -51,31 +51,26 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
             <!-- Do not use Project Properties customizer when editing this file manually. -->
-            <name>platform</name>
+            <name>jxse</name>
             <properties/>
             <folders>
                 <source-folder>
-                    <label>api/src</label>
+                    <label>API Source</label>
                     <type>java</type>
                     <location>api/src</location>
                 </source-folder>
                 <source-folder>
-                    <label>impl/src</label>
+                    <label>Reference Implementation Source</label>
                     <type>java</type>
                     <location>impl/src</location>
                 </source-folder>
                 <source-folder>
-                    <label>ext/src</label>
-                    <type>java</type>
-                    <location>ext/src</location>
-                </source-folder>
-                <source-folder>
-                    <label>test/src</label>
+                    <label>Unit Tests Source</label>
                     <type>java</type>
                     <location>test/src</location>
                 </source-folder>
                 <source-folder>
-                    <label>tutorials/src</label>
+                    <label>Tutorials Source</label>
                     <type>java</type>
                     <location>tutorials/src</location>
                 </source-folder>
@@ -228,11 +223,6 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                 <build-target>signjar</build-target>
             </export>
             <export>
-                <type>jar</type>
-                <location>dist/jxtaext.jar</location>
-                <build-target>signjar</build-target>
-            </export>
-            <export>
                 <type>folder</type>
                 <location>test_classes/test_classes</location>
                 <build-target>signjar</build-target>
@@ -245,23 +235,19 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             <view>
                 <items>
                     <source-folder style="packages">
-                        <label>api/src</label>
+                        <label>API Source</label>
                         <location>api/src</location>
                     </source-folder>
                     <source-folder style="packages">
-                        <label>impl/src</label>
+                        <label>Reference Implementation Source</label>
                         <location>impl/src</location>
                     </source-folder>
                     <source-folder style="packages">
-                        <label>ext/src</label>
-                        <location>ext/src</location>
-                    </source-folder>
-                    <source-folder style="packages">
-                        <label>test/src</label>
+                        <label>Unit Tests Source</label>
                         <location>test/src</location>
                     </source-folder>
                     <source-folder style="packages">
-                        <label>tutorials/src</label>
+                        <label>Tutorials Source</label>
                         <location>tutorials/src</location>
                     </source-folder>
                     <source-file>
@@ -276,6 +262,10 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     <ide-action name="test"/>
                     <ide-action name="rebuild"/>
                     <ide-action name="debug"/>
+                    <action>
+                        <label>Build Distribution</label>
+                        <target>dist</target>
+                    </action>
                 </context-menu>
             </view>
             <subprojects/>
@@ -294,16 +284,9 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
-                <package-root>ext/src</package-root>
-                <classpath mode="compile">api/src:impl/src:ext/lib/jdom.jar:ext/lib/swixml.jar</classpath>
-                <built-to>dist/jxtaext.jar</built-to>
-                <javadoc-built-to>doc/impl</javadoc-built-to>
-                <source-level>1.5</source-level>
-            </compilation-unit>
-            <compilation-unit>
                 <package-root>test/src</package-root>
                 <unit-tests/>
-                <classpath mode="compile">tools/junit.jar:api/src:impl/src:ext/src</classpath>
+                <classpath mode="compile">tools/junit.jar:api/src:impl/src</classpath>
                 <built-to>test_classes/test_classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
