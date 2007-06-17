@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint.tcp;
 
-
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
@@ -72,7 +71,6 @@ import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This server handles incoming unicast TCP connections
@@ -279,17 +277,13 @@ public class IncomingUnicastServer implements Runnable {
                             try {
                                 transport.executor.execute(builder);
                                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                                    LOG.info(
-                                            MessageFormat.format("Server accepted connection from {0}:{1}"
-                                            ,
+                                    LOG.info(MessageFormat.format("Server accepted connection from {0}:{1}",
                                             inputSocket.socket().getInetAddress().getHostAddress(), inputSocket.socket().getPort()));
                                 }
                                 transport.incrementConnectionsAccepted();
                             } catch (RejectedExecutionException re) {
                                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                    LOG.log(Level.FINE, MessageFormat.format("Executor rejected task : {0}", builder.toString())
-                                            ,
-                                            re);
+                                    LOG.log(Level.FINE, MessageFormat.format("Executor rejected task : {0}", builder.toString()), re);
                                 }
                             }
                         }
@@ -440,9 +434,7 @@ public class IncomingUnicastServer implements Runnable {
                 }
                 closed = true;
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
-                            "Cannot bind ServerSocket on " + serverBindLocalInterface + ":" + serverBindPreferedLocalPort, e0);
+                    LOG.log(Level.SEVERE, "Cannot bind ServerSocket on " + serverBindLocalInterface + ":" + serverBindPreferedLocalPort, e0);
                 }
                 return;
             }

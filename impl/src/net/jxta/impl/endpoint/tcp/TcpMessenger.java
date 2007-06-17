@@ -75,9 +75,9 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.EOFException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -117,15 +117,18 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
      * Description of our current location within the stream.
      */
     private enum readState {
-
         /**
          * Reading the initial welcome
          */
-        WELCOME, /**
+        WELCOME,
+        /**
          * Reading a message header
-         */ HEADER, /**
+         */
+        HEADER,
+        /**
          * Reading a message
-         */ BODY
+         */
+        BODY
     }
 
     /**
@@ -207,13 +210,9 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
      */
     TcpMessenger(SocketChannel socketChannel, TcpTransport transport) throws IOException {
 
-        super(transport.group.getPeerGroupID()
-                ,
-                new EndpointAddress(transport.getProtocolName()
-                ,
-                socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null)
-                ,
-                true);
+        super(transport.group.getPeerGroupID(),
+                new EndpointAddress(transport.getProtocolName(),
+                        socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null), true);
 
         initiator = false;
         this.socketChannel = socketChannel;
@@ -223,9 +222,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
 
         try {
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info(
-                        "Connection from " + socketChannel.socket().getInetAddress().getHostAddress() + ":"
-                        + socketChannel.socket().getPort());
+                LOG.info("Connection from " + socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort());
             }
 
             // Set the socket options.
@@ -246,9 +243,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             socket.setTcpNoDelay(true);
 
             // Temporarily, our address for inclusion in the welcome message response.
-            dstAddress = new EndpointAddress(this.tcpTransport.getProtocolName(), inetAddress.getHostAddress() + ":" + port, null
-                    ,
-                    null);
+            dstAddress = new EndpointAddress(this.tcpTransport.getProtocolName(), inetAddress.getHostAddress() + ":" + port, null, null);
             fullDstAddress = dstAddress;
 
             startMessenger();
@@ -345,8 +340,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
 
         try {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "Connecting to " + inetAddress.getHostAddress() + ":" + port + " via "
+                LOG.fine("Connecting to " + inetAddress.getHostAddress() + ":" + port + " via "
                         + this.tcpTransport.usingInterface.getHostAddress() + ":0");
             }
 
@@ -461,8 +455,8 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info(
                     (closingDueToFailure ? "Failure" : "Normal") + " close (open "
-                    + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), createdAt) + "ms) of socket to : " + dstAddress + " / "
-                    + inetAddress.getHostAddress() + ":" + port);
+                            + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), createdAt) + "ms) of socket to : " + dstAddress + " / "
+                            + inetAddress.getHostAddress() + ":" + port);
             if (closingDueToFailure && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "stack trace", new Throwable("stack trace"));
             }
@@ -566,10 +560,10 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         socketChannel.configureBlocking(true);
 
         // Send the welcome message
-        WelcomeMessage myWelcome = new WelcomeMessage(fullDstAddress, tcpTransport.getPublicAddress()
-                ,
-                tcpTransport.group.getPeerID(), false);
-        long written = write(new ByteBuffer[] { myWelcome.getByteBuffer()});
+        WelcomeMessage myWelcome = new WelcomeMessage(fullDstAddress,
+                                                      tcpTransport.getPublicAddress(),
+                                                      tcpTransport.group.getPeerID(), false);
+        long written = write(new ByteBuffer[]{myWelcome.getByteBuffer()});
 
         tcpTransport.incrementBytesSent(written);
 
@@ -623,7 +617,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         "Sending " + msg + " (" + size + ") to " + dstAddress + " via " + inetAddress.getHostAddress() + ":"
-                        + port);
+                                + port);
             }
 
             List<ByteBuffer> partBuffers = new ArrayList<ByteBuffer>();
@@ -642,9 +636,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             }
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        MessageFormat.format("Sent {0} bytes {1} successfully via {2}:{3}", written, msg
-                        ,
+                LOG.fine(MessageFormat.format("Sent {0} bytes {1} successfully via {2}:{3}", written, msg,
                         inetAddress.getHostAddress(), port));
             }
 
@@ -795,7 +787,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         "Registering Messenger from " + socketChannel.socket().getInetAddress().getHostAddress() + ":"
-                        + socketChannel.socket().getPort());
+                                + socketChannel.socket().getPort());
             }
 
             try {
@@ -835,16 +827,16 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine(
                     MessageFormat.format("{0} Processing message package header, buffer stats:{1}", Thread.currentThread()
-                    ,
-                    buffer.toString()));
+                            ,
+                            buffer.toString()));
         }
         try {
             if (!header.readHeader(buffer)) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine(
                             MessageFormat.format("{0} maintaining current state at header, buffer stats :{1}"
-                            ,
-                            Thread.currentThread(), buffer.toString()));
+                                    ,
+                                    Thread.currentThread(), buffer.toString()));
                 }
                 return false;
             }
@@ -863,8 +855,8 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine(
                     MessageFormat.format("{0} setting current state to body, Buffer stats :{1}, remaining elements {2}:"
-                    ,
-                    Thread.currentThread(), buffer.toString(), buffer.remaining()));
+                            ,
+                            Thread.currentThread(), buffer.toString(), buffer.remaining()));
         }
         return true;
     }
@@ -915,8 +907,8 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         MessageFormat.format("{0} State before read(): {1}, buffer stats : {2}, remaining :{3}"
-                        ,
-                        Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
+                                ,
+                                Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
             }
 
             int read = socketChannel.read(buffer);
@@ -930,7 +922,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                 }
                 return false;
             } else if (read == 0) {
-                return false; 
+                return false;
             }
 
             tcpTransport.incrementBytesReceived(read);
@@ -940,8 +932,8 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         MessageFormat.format("{0} SocketChannel.read() == {1} bytes. Buffer stats:{2}, remaining {3}"
-                        ,
-                        Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
+                                ,
+                                Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
             }
 
             return true;
@@ -956,8 +948,8 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning(
                         MessageFormat.format("tcp receive - interrupted : read() {0} {1}:{2}", woken.bytesTransferred
-                        ,
-                        inetAddress.getHostAddress(), port));
+                                ,
+                                inetAddress.getHostAddress(), port));
             }
         } catch (IOException ioe) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -987,103 +979,102 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         MessageFormat.format("{0} processBuffer({1}). Buffer stats:{2}, elements remaining {3}"
-                        ,
-                        Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
+                                ,
+                                Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
             }
 
             switch (state.get()) {
-            case WELCOME:
-                // Parse Welcome message
-                boolean wseen = processWelcome(buffer);
+                case WELCOME:
+                    // Parse Welcome message
+                    boolean wseen = processWelcome(buffer);
 
-                if (!wseen) {
-                    // prepare the buffer for more data
-                    buffer.compact();
-                    return;
-                }
-                state.set(readState.HEADER);
-
-            /* FALLSTHROUGH */
-            case HEADER:
-                // process the message header
-                boolean hseen = processHeader(buffer);
-
-                if (!hseen) {
-                    buffer.compact();
-                    return;
-                }
-
-                receiveBeginTime = TimeUtils.timeNow();
-                // todo add a check for MTU size
-                if (header.getContentLengthHeader() > buffer.capacity()) {
-                    ByteBuffer src = buffer;
-
-                    // create an array backed buffer
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                MessageFormat.format("{0} Reallocating a new buffer of size {1} to replace :{2}"
-                                ,
-                                Thread.currentThread(), header.getContentLengthHeader(), buffer.toString()));
+                    if (!wseen) {
+                        // prepare the buffer for more data
+                        buffer.compact();
+                        return;
                     }
+                    state.set(readState.HEADER);
 
-                    // This implementation limits the message size to the MTU which is always < 2GB
-                    buffer = ByteBuffer.allocate((int) header.getContentLengthHeader());
-                    buffer.put(src);
-                    buffer.flip();
-                }
+                    /* FALLSTHROUGH */
+                case HEADER:
+                    // process the message header
+                    boolean hseen = processHeader(buffer);
 
-                state.set(readState.BODY);
-
-            /* FALLSTHROUGH */
-            case BODY:
-                // process the message body
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine(
-                            MessageFormat.format(" {0} Proccessing Message Body. expecting {1}, {2} elements remaining {3}"
-                            ,
-                            Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining()));
-                }
-                if (buffer.remaining() >= (int) header.getContentLengthHeader()) {
-                    Message msg;
-
-                    try {
-                        msg = processMessage(buffer, header);
-                    } catch (IOException io) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.log(Level.FINE, "Failed to parse a message from buffer. closing connection", io);
-                        }
-                        closeImpl();
+                    if (!hseen) {
+                        buffer.compact();
                         return;
                     }
 
-                    if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-                        transportBindingMeter.messageReceived(initiator, msg, TimeUtils.timeNow() - receiveBeginTime
-                                ,
-                                header.getContentLengthHeader());
+                    receiveBeginTime = TimeUtils.timeNow();
+                    // todo add a check for MTU size
+                    if (header.getContentLengthHeader() > buffer.capacity()) {
+                        ByteBuffer src = buffer;
+
+                        // create an array backed buffer
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                            LOG.fine(
+                                    MessageFormat.format("{0} Reallocating a new buffer of size {1} to replace :{2}"
+                                            ,
+                                            Thread.currentThread(), header.getContentLengthHeader(), buffer.toString()));
+                        }
+
+                        // This implementation limits the message size to the MTU which is always < 2GB
+                        buffer = ByteBuffer.allocate((int) header.getContentLengthHeader());
+                        buffer.put(src);
+                        buffer.flip();
                     }
 
+                    state.set(readState.BODY);
+
+                    /* FALLSTHROUGH */
+                case BODY:
+                    // process the message body
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine(
-                                MessageFormat.format("{0} calling EndpointService.demux({1}) from {2}:{3}", Thread.currentThread()
-                                ,
-                                msg, inetAddress.getHostAddress(), port));
+                                MessageFormat.format(" {0} Proccessing Message Body. expecting {1}, {2} elements remaining {3}"
+                                        ,
+                                        Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining()));
                     }
+                    if (buffer.remaining() >= (int) header.getContentLengthHeader()) {
+                        Message msg;
 
-                    // Demux the message for the upper layers.
-                    tcpTransport.endpoint.demux(msg);
-                    tcpTransport.incrementMessagesReceived();
-                    setLastUsed(TimeUtils.timeNow());
-                    state.set(readState.HEADER);
-                    header = null;
+                        try {
+                            msg = processMessage(buffer, header);
+                        } catch (IOException io) {
+                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                                LOG.log(Level.FINE, "Failed to parse a message from buffer. closing connection", io);
+                            }
+                            closeImpl();
+                            return;
+                        }
 
-                    // prepare the buffer for more data
-                    buffer.compact();
-                    return;
-                } else {
-                    // prepare the buffer for more data
-                    buffer.compact();
-                    return;
-                }
+                        if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
+                            transportBindingMeter.messageReceived(initiator, msg, TimeUtils.timeNow() - receiveBeginTime
+                                    ,
+                                    header.getContentLengthHeader());
+                        }
+
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                            LOG.fine(MessageFormat.format("{0} calling EndpointService.demux({1}) from {2}:{3}",
+                                    Thread.currentThread(),
+                                    msg, inetAddress.getHostAddress(), port));
+                        }
+
+                        // Demux the message for the upper layers.
+                        tcpTransport.endpoint.demux(msg);
+                        tcpTransport.incrementMessagesReceived();
+                        setLastUsed(TimeUtils.timeNow());
+                        state.set(readState.HEADER);
+                        header = null;
+
+                        // prepare the buffer for more data
+                        buffer.compact();
+                        return;
+                    } else {
+                        // prepare the buffer for more data
+                        buffer.compact();
+                        return;
+                    }
             }
         } // while loop
     }
