@@ -56,7 +56,6 @@
 
 package net.jxta.util;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -86,7 +85,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements server pipes. A server pipe waits for requests to come
@@ -215,12 +213,11 @@ public class JxtaServerPipe implements PipeMsgListener {
         try {
             while (true) {
                 Message msg = queue.poll(timeout, TimeUnit.MILLISECONDS);
-
                 if (msg == null) {
                     throw new SocketTimeoutException("Timeout reached");
                 }
-                JxtaBiDiPipe bidi = processMessage(msg);
 
+                JxtaBiDiPipe bidi = processMessage(msg);
                 // make sure we have a socket returning
                 if (bidi != null) {
                     return bidi;
@@ -348,13 +345,11 @@ public class JxtaServerPipe implements PipeMsgListener {
 
         // deal with messages as they come in
         Message message = event.getMessage();
-
         if (message == null) {
             return;
         }
 
         boolean pushed;
-
         try {
             pushed = queue.offer(message, timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -397,14 +392,12 @@ public class JxtaServerPipe implements PipeMsgListener {
             el = msg.getMessageElement(nameSpace, reqPipeTag);
             if (el != null) {
                 InputStream in = el.getStream();
-
                 outputPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(el.getMimeType(), in);
             }
 
             el = msg.getMessageElement(nameSpace, remPeerTag);
             if (el != null) {
                 InputStream in = el.getStream();
-
                 peerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(el.getMimeType(), in);
             }
 
@@ -454,7 +447,6 @@ public class JxtaServerPipe implements PipeMsgListener {
                 sendResponseMessage(group, msgr, newpipe);
                 return pipe;
             }
-
         } catch (IOException e) {
             // deal with the error
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -483,21 +475,17 @@ public class JxtaServerPipe implements PipeMsgListener {
         }
 
         if (myCredentialDoc != null) {
-            msg.addMessageElement(JxtaServerPipe.nameSpace
-                    ,
+            msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(credTag, (XMLDocument) myCredentialDoc, null));
         }
 
-        msg.addMessageElement(JxtaServerPipe.nameSpace
-                ,
+        msg.addMessageElement(JxtaServerPipe.nameSpace,
                 new StringMessageElement(JxtaServerPipe.directSupportedTag, Boolean.toString(true), null));
 
-        msg.addMessageElement(JxtaServerPipe.nameSpace
-                ,
+        msg.addMessageElement(JxtaServerPipe.nameSpace,
                 new TextDocumentMessageElement(remPipeTag, (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
 
-        msg.addMessageElement(nameSpace
-                ,
+        msg.addMessageElement(nameSpace,
                 new TextDocumentMessageElement(remPeerTag, (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
         msgr.sendMessage(msg);
     }
@@ -551,7 +539,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
         if (!closed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("JxtaServerPipe is being finalized without being previously closed. This is likely a users bug.");
+                LOG.warning("JxtaServerPipe is being finalized without being previously closed. This is likely a user's bug.");
             }
         }
         close();
