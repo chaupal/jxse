@@ -58,14 +58,13 @@
  * This class is used to control the Router route options
  *
  */
-
 package net.jxta.impl.endpoint.router;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerEvent;
+import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
@@ -77,7 +76,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import java.io.IOException;
 
 /**
  * Provides an "IOCTL" style interface to the JXTA router transport
@@ -476,6 +475,30 @@ public class RouteControl {
         }
 
         return router.ensureLocalRoute(destination, (RouteAdvertisement) hint);
+    }
+    /**
+     * Determines whether a connection to a specific node exists, or if one can be created.
+     * This method can block to ensure a usable connection exists, it does so by sending an empty
+     * message.
+     *
+     * @param pid Node ID
+     * @return true, if a connection already exists, or a new was sucessfully created
+     */
+    public boolean isConnected(PeerID pid) {
+        Messenger messenger = getMessengerFor(new EndpointAddress("jxta", pid.getUniqueValue().toString(), null, null), null);
+        if (messenger == null) {
+            return false;
+        }
+        if ((messenger.getState() & Messenger.USABLE) != 0) {
+            try {
+                //ensure it can be used
+                messenger.sendMessageB(new Message(), null, null);
+            } catch (IOException io) {
+                // determine whether it is usable
+                return (messenger.getState() & Messenger.USABLE) != 0;
+            }
+        }
+        return (messenger.getState() & Messenger.CLOSED) != Messenger.CLOSED;
     }
 }
 
