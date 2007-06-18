@@ -441,24 +441,24 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
 
         // we are idle now. Way idle.
         setLastUsed(0);
-
-        // unregister from selector.
-        tcpTransport.unregister(socketChannel);
-        try {
-            socketChannel.close();
-            socketChannel = null;
-        } catch (IOException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to close messenger " + toString(), e);
+        if (socketChannel != null) {
+            // unregister from selector.
+            tcpTransport.unregister(socketChannel);
+            try {
+                socketChannel.close();
+                socketChannel = null;
+            } catch (IOException e) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Failed to close messenger " + toString(), e);
+                }
             }
-        }
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info(
-                    (closingDueToFailure ? "Failure" : "Normal") + " close (open "
-                            + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), createdAt) + "ms) of socket to : " + dstAddress + " / "
-                            + inetAddress.getHostAddress() + ":" + port);
-            if (closingDueToFailure && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "stack trace", new Throwable("stack trace"));
+            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+                LOG.info((closingDueToFailure ? "Failure" : "Normal") + " close (open "
+                        + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), createdAt) + "ms) of socket to : " + dstAddress + " / "
+                        + inetAddress.getHostAddress() + ":" + port);
+                if (closingDueToFailure && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "stack trace", new Throwable("stack trace"));
+                }
             }
         }
 

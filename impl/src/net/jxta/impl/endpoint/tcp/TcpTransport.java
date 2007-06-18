@@ -424,14 +424,12 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
                 if (list.hasMoreElements()) {
                     TextElement pname = (TextElement) list.nextElement();
-
                     protocolName = pname.getTextValue();
                 }
             }
 
             // Get our peer-defined parameters in the configAdv
             param = configAdv.getServiceParam(assignedID);
-
             Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
             // get the TransportAdv
@@ -462,6 +460,14 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
             if (!(paramsAdv instanceof TCPAdv)) {
                 throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
+            }
+
+            try {
+                messengerSelector = SelectorProvider.provider().openSelector();
+            } catch (IOException e) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Could not create a messenger selector", e);
+                }
             }
 
             TCPAdv adv = (TCPAdv) paramsAdv;
@@ -497,22 +503,18 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
             myThreadGroup = new ThreadGroup(group.getHomeThreadGroup(), "TcpTransport " + usingInterface.getHostAddress());
 
             if (adv.isServerEnabled()) {
-                unicastServer = new IncomingUnicastServer(this, usingInterface, serverSocketPort, adv.getStartPort()
-                        ,
-                        adv.getEndPort());
+                unicastServer = new IncomingUnicastServer(this, usingInterface, serverSocketPort, adv.getStartPort(), adv.getEndPort());
                 InetSocketAddress boundAddresss = unicastServer.getLocalSocketAddress();
 
                 // TODO bondolo 20040628 Save the port back as a preference to TCPAdv
 
-                // Build the publicAddresses
-
+                // Build the publicAddresses :
                 // first in the list is the "public server name". We don't try to
                 // resolve this since it might not be resolvable in the context
                 // we are running in, we just assume it's good.
                 if (serverName != null) {
                     // use speced server name.
                     EndpointAddress newAddr = new EndpointAddress(protocolName, serverName, null, null);
-
                     publicAddresses.add(newAddr);
                 }
 
@@ -529,8 +531,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                     while (eachLocal.hasNext()) {
                         InetAddress anAddress = (InetAddress) eachLocal.next();
                         String hostAddress = IPUtils.getHostAddress(anAddress);
-                        EndpointAddress newAddr = new EndpointAddress(protocolName
-                                ,
+                        EndpointAddress newAddr = new EndpointAddress(protocolName,
                                 hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
 
                         // don't add it if its already in the list
@@ -569,9 +570,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                     }
 
                     String hostAddress = IPUtils.getHostAddress(usingInterface);
-
-                    EndpointAddress newAddr = new EndpointAddress(protocolName
-                            ,
+                    EndpointAddress newAddr = new EndpointAddress(protocolName,
                             hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
 
                     // Add public address:
@@ -784,8 +783,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
         }
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING) {
-            TransportServiceMonitor transportServiceMonitor = (TransportServiceMonitor) MonitorManager.getServiceMonitor(group
-                    ,
+            TransportServiceMonitor transportServiceMonitor = (TransportServiceMonitor) MonitorManager.getServiceMonitor(group,
                     MonitorResources.transportServiceMonitorClassID);
 
             if (transportServiceMonitor != null) {
@@ -795,8 +793,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
         if (allowMulticast) {
             if (TransportMeterBuildSettings.TRANSPORT_METERING) {
-                TransportServiceMonitor transportServiceMonitor = (TransportServiceMonitor) MonitorManager.getServiceMonitor(group
-                        ,
+                TransportServiceMonitor transportServiceMonitor = (TransportServiceMonitor) MonitorManager.getServiceMonitor(group,
                         MonitorResources.transportServiceMonitorClassID);
 
                 if (transportServiceMonitor != null) {
@@ -940,8 +937,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("return LoopbackMessenger for addr : " + dst);
             }
-            return new LoopbackMessenger(endpoint, getPublicAddress(), dst
-                    ,
+            return new LoopbackMessenger(endpoint, getPublicAddress(), dst,
                     new EndpointAddress("jxta", group.getPeerID().getUniqueValue().toString(), null, null));
         }
         
@@ -1093,8 +1089,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
             return true;
         } catch (IOException e) {
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.sendFailure(true, message, System.currentTimeMillis() - sendStartTime
-                        ,
+                multicastTransportBindingMeter.sendFailure(true, message, System.currentTimeMillis() - sendStartTime,
                         numBytesInPacket);
             }
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -1256,14 +1251,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
          */
         public void run() {
             try {
-                try {
-                    messengerSelector = SelectorProvider.provider().openSelector();
-                } catch (IOException e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Could not create a messenger selector", e);
-                    }
-                }
-
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                     LOG.info("MessengerSelectorThread polling started");
                 }
@@ -1323,13 +1310,9 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                                         executor.execute(msgr);
                                     } catch (RejectedExecutionException re) {
                                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                            LOG.log(Level.FINE
-                                                    ,
-                                                    MessageFormat.format("Executor rejected task for messenger :{0}"
-                                                    ,
-                                                    msgr.toString())
-                                                    ,
-                                                    re);
+                                            LOG.log(Level.FINE,
+                                                    MessageFormat.format("Executor rejected task for messenger :{0}",
+                                                    msgr.toString()), re);
                                         }
                                     }
                                 }
@@ -1453,7 +1436,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
             synchronized (unregisMap) {
                 List<SocketChannel> allChannels = new ArrayList<SocketChannel>(unregisMap);
-
                 unregisMap.clear();
                 eachChannel = allChannels.iterator();
             }
@@ -1491,9 +1473,9 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
          * Default constructor
          */
         MulticastProcessor() {
-            this.threadPool = new ThreadPoolExecutor(2, MAXPOOLSIZE, 20, TimeUnit.SECONDS
-                    ,
-                    new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2));
+            this.threadPool = new ThreadPoolExecutor(2, MAXPOOLSIZE,
+                                                     20, TimeUnit.SECONDS,
+                                                     new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2));
             threadPool.setRejectedExecutionHandler(new CallerBlocksPolicy(MAXPOOLSIZE));
         }
 
@@ -1572,8 +1554,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                     }
 
                     if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                        multicastTransportBindingMeter.messageReceived(false, msg
-                                ,
+                        multicastTransportBindingMeter.messageReceived(false, msg,
                                 messageReceiveBeginTime - System.currentTimeMillis(), size);
                     }
                     // Demux the message for the upper layers.
@@ -1581,9 +1562,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                 }
             } catch (Throwable e) {
                 if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                    multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - System.currentTimeMillis()
-                            ,
-                            size);
+                    multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - System.currentTimeMillis(), size);
                 }
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, "processMulticast : discard incoming multicast message - exception ", e);
@@ -1597,9 +1576,9 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
         public void run() {
             try {
                 DatagramPacket packet = queue.take();
-
                 processMulticast(packet);
-            } catch (InterruptedException ie) {// we are being interrupted to stop
+            } catch (InterruptedException ie) {
+                // we are being interrupted to stop
             } catch (Throwable all) {
                 if (Logging.SHOW_SEVERE) {
                     LOG.log(Level.SEVERE, "Uncaught Throwable", all);
