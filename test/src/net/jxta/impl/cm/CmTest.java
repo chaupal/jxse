@@ -287,7 +287,7 @@ public class CmTest extends TestCase {
 
     private void searchPeer() {
         long t0 = System.currentTimeMillis();
-        Vector entries = cm.getEntries(dirname[0], false);
+        List<net.jxta.protocol.SrdiMessage.Entry> entries = cm.getEntries(dirname[0], false);
 
         assertTrue("empty keys", entries.size() != 0);
         System.out.println(
@@ -301,14 +301,14 @@ public class CmTest extends TestCase {
         }
 
         t0 = System.currentTimeMillis();
-        Vector searchResults = cm.search(dirname[0], null, null, 10000, null);
+        List searchResults = cm.search(dirname[0], null, null, 10000, null);
 
         System.out.println("non-existent test should find 0, found: " + searchResults.size());
         System.out.println("retrieved " + searchResults.size() + " records in: " + (System.currentTimeMillis() - t0) + " ms");
 
         int threshold = 10;
-        Vector expirations = new Vector();
-        Vector results = cm.getRecords(dirname[0], threshold, null, expirations);
+        List expirations = new Vector();
+        List results = cm.getRecords(dirname[0], threshold, null, expirations);
 
         assertTrue("cm.getRecords failed", threshold == results.size());
         System.out.println("Testing Query for non-existent records");
@@ -321,10 +321,10 @@ public class CmTest extends TestCase {
         long t0 = System.currentTimeMillis();
 
         try {
-            Vector searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + i, 1, null);
+            List searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + i, 1, null);
 
             assertNotNull("Null search result", searchResults);
-            Enumeration result = searchResults.elements();
+            Enumeration result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("empty Search Result for query attr=Name value=CmTestPeer" + i, result.hasMoreElements());
@@ -358,12 +358,12 @@ public class CmTest extends TestCase {
         }
 
         long t0 = System.currentTimeMillis();
-        Vector searchResults = null;
+        List searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "*" + queryString, 10, null);
             assertNotNull("Null search result", searchResults);
-            Enumeration result = searchResults.elements();
+            Enumeration result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("Enumerator empty", result.hasMoreElements());
@@ -399,12 +399,12 @@ public class CmTest extends TestCase {
         }
 
         long t0 = System.currentTimeMillis();
-        Vector searchResults = null;
+        List searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + queryString + "*", 10, null);
             assertNotNull("Null search result", searchResults);
-            Enumeration result = searchResults.elements();
+            Enumeration result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("Enumerator empty", result.hasMoreElements());
@@ -442,12 +442,12 @@ public class CmTest extends TestCase {
         }
 
         long t0 = System.currentTimeMillis();
-        Vector searchResults = null;
+        List searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "*" + queryString + "*", 10, null);
             assertNotNull("Null search result", searchResults);
-            Enumeration result = searchResults.elements();
+            Enumeration result = Collections.enumeration(searchResults);
 
             assertNotNull("Null search enumerator", result);
             assertTrue("Enumerator empty", result.hasMoreElements());
@@ -500,7 +500,7 @@ public class CmTest extends TestCase {
             }
         }
 
-        Vector searchResults = null;
+        List searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "*", ITERATIONS, null);
@@ -654,14 +654,12 @@ public class CmTest extends TestCase {
             for (int i = 0; i < (ITERATIONS / 10) && !failed; i++) {
                 try {
                     synchronized (cm) {
-                        Vector searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + "*", 10, null);
-                        Enumeration result = searchResults.elements();
+                        List searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + "*", 10, null);
+                        Enumeration result = Collections.enumeration(searchResults);
 
                         while (result.hasMoreElements() && !failed) {
                             ByteArrayInputStream dataStream = (ByteArrayInputStream) result.nextElement();
-                            StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
-                                    ,
-                                    dataStream);
+                            StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, dataStream);
                             Enumeration en = doc.getChildren("PID");
 
                             while (en.hasMoreElements() && !failed) {

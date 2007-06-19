@@ -94,8 +94,6 @@ public class AllTests extends TestCase {
         suite.addTest(net.jxta.endpoint.SerializationPerformanceTest.suite());       
         suite.addTest(net.jxta.endpoint.StringMessageElementTest.suite());
         
-        suite.addTest(net.jxta.ext.AllTests.suite());
-
         suite.addTest(net.jxta.id.IDTest.suite());
         
         suite.addTest(net.jxta.peergroup.LightWeightPeerGroupTest.suite());        
