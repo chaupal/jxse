@@ -1,61 +1,61 @@
-/*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
- *  The Sun Project JXTA(TM) Software License
- *  
- *  Redistribution and use in source and binary forms, with or without 
- *  modification, are permitted provided that the following conditions are met:
- *  
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *  
- *  2. Redistributions in binary form must reproduce the above copyright notice, 
- *     this list of conditions and the following disclaimer in the documentation 
- *     and/or other materials provided with the distribution.
- *  
- *  3. The end-user documentation included with the redistribution, if any, must 
- *     include the following acknowledgment: "This product includes software 
- *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
- *     Alternately, this acknowledgment may appear in the software itself, if 
- *     and wherever such third-party acknowledgments normally appear.
- *  
- *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
- *     not be used to endorse or promote products derived from this software 
- *     without prior written permission. For written permission, please contact 
- *     Project JXTA at http://www.jxta.org.
- *  
- *  5. Products derived from this software may not be called "JXTA", nor may 
- *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
- *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
- *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
- *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
- *  States and other countries.
- *  
- *  Please see the license information page at :
- *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
- *  the license in source files.
- *  
- *  ====================================================================
- *  
- *  This software consists of voluntary contributions made by many individuals 
- *  on behalf of Project JXTA. For more information on Project JXTA, please see 
- *  http://www.jxta.org.
- *  
- *  This license is based on the BSD license adopted by the Apache Foundation. 
- */
+/************************************************************************
+ *
+ * $Id: Instantiator.java,v 1.6 2007/03/19 22:38:48 hamada Exp $
+ *
+ * Copyright (c) 2001 Sun Microsystems, Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
+ *       Sun Microsystems, Inc. for Project JXTA."
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA"
+ *    must not be used to endorse or promote products derived from this
+ *    software without prior written permission. For written
+ *    permission, please contact Project JXTA at http://www.jxta.org.
+ *
+ * 5. Products derived from this software may not be called "JXTA",
+ *    nor may "JXTA" appear in their name, without prior written
+ *    permission of Sun.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL SUN MICROSYSTEMS OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of Project JXTA.  For more
+ * information on Project JXTA, please see
+ * <http://www.jxta.org/>.
+ *
+ * This license is based on the BSD license adopted by the Apache Foundation.
+ *********************************************************************************/
 
 package net.jxta.impl.id.CBID;
-
 
 import net.jxta.impl.id.UUID.IDBytes;
 
@@ -66,7 +66,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownServiceException;
-
 
 /**
  * The instantiator for the CBID ID Format.
@@ -93,23 +92,20 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
     public net.jxta.id.ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
 
         // check the protocol
-        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getProtocol())) {
+        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getProtocol()))
             throw new UnknownServiceException("URI protocol type was not as expected.");
-        }
 
         String encoded = source.getFile();
 
         int colonAt = encoded.indexOf(':');
 
         // There's a colon right?
-        if (-1 == colonAt) {
+        if (-1 == colonAt)
             throw new UnknownServiceException("URN namespace was missing.");
-        }
 
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(encoded.substring(0, colonAt))) {
+        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(encoded.substring(0, colonAt)))
             throw new UnknownServiceException("URN namespace was not as expected.");
-        }
 
         // skip the namespace portion and the colon
         encoded = encoded.substring(colonAt + 1);
@@ -117,31 +113,26 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
         int dashAt = encoded.indexOf('-');
 
         // there's a dash, right?
-        if (-1 == dashAt) {
+        if (-1 == dashAt)
             throw new UnknownServiceException("URN Encodingtype was missing.");
-        }
 
-        if (!encoded.substring(0, dashAt).equals(getSupportedIDFormat())) {
+        if (!encoded.substring(0, dashAt).equals(getSupportedIDFormat()))
             throw new UnknownServiceException("JXTA ID Format was not as expected.");
-        }
 
         // skip the dash
         encoded = encoded.substring(dashAt + 1);
 
         // check that the length is even
-        if (0 != (encoded.length() % 2)) {
+        if (0 != (encoded.length() % 2))
             throw new MalformedURLException("URN contains an odd number of chars");
-        }
 
         // check that the length is long enough
-        if (encoded.length() < 2) {
+        if (encoded.length() < 2)
             throw new MalformedURLException("URN does not contain enough chars");
-        }
 
         // check that id is short enough
-        if (IDFormat.IdByteArraySize < (encoded.length() % 2)) {
+        if (IDFormat.IdByteArraySize < (encoded.length() % 2))
             throw new MalformedURLException("URN contains too many chars");
-        }
 
         net.jxta.id.ID result = null;
         IDBytes id = new IDBytes();
@@ -151,7 +142,6 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
             for (int eachByte = 0; eachByte < ((encoded.length() / 2) - IDFormat.flagsSize); eachByte++) {
                 int index = eachByte * 2;
                 String twoChars = encoded.substring(index, index + 2);
-
                 id.bytes[eachByte] = (byte) Integer.parseInt(twoChars, 16);
             }
 
@@ -159,7 +149,6 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
             for (int eachByte = IDFormat.flagsOffset; eachByte < IDFormat.IdByteArraySize; eachByte++) {
                 int index = encoded.length() - (IDFormat.IdByteArraySize - eachByte) * 2;
                 String twoChars = encoded.substring(index, index + 2);
-
                 id.bytes[eachByte] = (byte) Integer.parseInt(twoChars, 16);
             }
         } catch (NumberFormatException caught) {
@@ -167,33 +156,30 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
         }
 
         switch (id.bytes[IDFormat.flagsOffset + IDFormat.flagsIdTypeOffset]) {
-        case IDFormat.flagCodatID:
-            result = new CodatID(id);
-            break;
-
-        case IDFormat.flagPeerGroupID:
-            result = new PeerGroupID(id);
-            result = (PeerGroupID) IDFormat.translateToWellKnown(result);
-            break;
-
-        case IDFormat.flagPeerID:
-            result = new PeerID(id);
-            break;
-
-        case IDFormat.flagPipeID:
-            result = new PipeID(id);
-            break;
-
-        case IDFormat.flagModuleClassID:
-            result = new ModuleClassID(id);
-            break;
-
-        case IDFormat.flagModuleSpecID:
-            result = new ModuleSpecID(id);
-            break;
-
-        default:
-            throw new MalformedURLException("JXTA ID Type not recognized");
+            case IDFormat.flagCodatID:
+                result = new CodatID(id);
+                break;
+            case IDFormat.flagPeerGroupID:
+                result = new PeerGroupID(id);
+                result = (PeerGroupID) IDFormat.translateToWellKnown(result);
+                break;
+            case IDFormat.flagPeerID:
+                result = new PeerID(id);
+                break;
+            case IDFormat.flagPipeID:
+                result = new PipeID(id);
+                break;
+            case IDFormat.flagModuleClassID:
+                result = new ModuleClassID(id);
+                break;
+            case IDFormat.flagModuleSpecID:
+                result = new ModuleSpecID(id);
+                break;
+            case IDFormat.flagContentID :
+                result = new ContentID(id);
+                break;
+            default :
+                throw new MalformedURLException("JXTA ID Type not recognized");
         }
 
         return result;
@@ -238,8 +224,88 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
     /**
      * {@inheritDoc}
      */
-    public net.jxta.peergroup.PeerGroupID newPeerGroupID() {
-        return new PeerGroupID();
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean amStatic) {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID  );
+        return new ContentID( peerGroupID, amStatic );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed) {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, amStatic, indexSeed );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed )
+            throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, amStatic, indexSeed );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed, byte[] variant) {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, amStatic, indexSeed, variant );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed, InputStream variant )
+            throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, amStatic, indexSeed, variant );
+    }
+   
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed, byte[] variant)
+    throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, amStatic, indexSeed, variant );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed, InputStream variant )
+            throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, amStatic, indexSeed, variant );
+    }
+   
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.peergroup.PeerGroupID newPeerGroupID( ) {
+        return new PeerGroupID( );
     }
 
     /**
@@ -328,26 +394,21 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
     public net.jxta.id.ID fromURI(URI source) throws URISyntaxException {
 
         // check the protocol
-        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getScheme())) {
+        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getScheme()))
             throw new URISyntaxException(source.toString(), "URI scheme was not as expected.");
-        }
 
         String decoded = source.getSchemeSpecificPart();
 
         int colonAt = decoded.indexOf(':');
 
         // There's a colon right?
-        if (-1 == colonAt) {
+        if (-1 == colonAt)
             throw new URISyntaxException(source.toString(), "URN namespace was missing.");
-        }
 
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
-            throw new URISyntaxException(source.toString()
-                    ,
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
-                    + ")");
-        }
+        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt)))
+            throw new URISyntaxException(source.toString(), "URN namespace was not as expected. (" +
+                    net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt) + ")");
 
         // skip the namespace portion and the colon
         decoded = decoded.substring(colonAt + 1);
@@ -362,31 +423,26 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
         int dashAt = source.indexOf('-');
 
         // there's a dash, right?
-        if (-1 == dashAt) {
+        if (-1 == dashAt)
             throw new URISyntaxException(source, "URN Encodingtype was missing.");
-        }
 
-        if (!source.substring(0, dashAt).equals(getSupportedIDFormat())) {
+        if (!source.substring(0, dashAt).equals(getSupportedIDFormat()))
             throw new URISyntaxException(source, "JXTA ID Format was not as expected.");
-        }
 
         // skip the dash
         source = source.substring(dashAt + 1);
 
         // check that the length is even
-        if (0 != (source.length() % 2)) {
+        if (0 != (source.length() % 2))
             throw new URISyntaxException(source, "URN contains an odd number of chars");
-        }
 
         // check that the length is long enough
-        if (source.length() < 2) {
+        if (source.length() < 2)
             throw new URISyntaxException(source, "URN does not contain enough chars");
-        }
 
         // check that id is short enough
-        if (IDFormat.IdByteArraySize < (source.length() % 2)) {
+        if (IDFormat.IdByteArraySize < (source.length() % 2))
             throw new URISyntaxException(source, "URN contains too many chars");
-        }
 
         net.jxta.id.ID result = null;
         IDBytes id = new IDBytes();
@@ -396,7 +452,6 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
             for (int eachByte = 0; eachByte < ((source.length() / 2) - IDFormat.flagsSize); eachByte++) {
                 int index = eachByte * 2;
                 String twoChars = source.substring(index, index + 2);
-
                 id.bytes[eachByte] = (byte) Integer.parseInt(twoChars, 16);
             }
 
@@ -404,7 +459,6 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
             for (int eachByte = IDFormat.flagsOffset; eachByte < IDFormat.IdByteArraySize; eachByte++) {
                 int index = source.length() - (IDFormat.IdByteArraySize - eachByte) * 2;
                 String twoChars = source.substring(index, index + 2);
-
                 id.bytes[eachByte] = (byte) Integer.parseInt(twoChars, 16);
             }
         } catch (NumberFormatException caught) {
@@ -412,33 +466,27 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
         }
 
         switch (id.bytes[IDFormat.flagsOffset + IDFormat.flagsIdTypeOffset]) {
-        case IDFormat.flagCodatID:
-            result = new CodatID(id);
-            break;
-
-        case IDFormat.flagPeerGroupID:
-            result = new PeerGroupID(id);
-            result = (PeerGroupID) IDFormat.translateToWellKnown(result);
-            break;
-
-        case IDFormat.flagPeerID:
-            result = new PeerID(id);
-            break;
-
-        case IDFormat.flagPipeID:
-            result = new PipeID(id);
-            break;
-
-        case IDFormat.flagModuleClassID:
-            result = new ModuleClassID(id);
-            break;
-
-        case IDFormat.flagModuleSpecID:
-            result = new ModuleSpecID(id);
-            break;
-
-        default:
-            throw new URISyntaxException(source, "JXTA ID Type not recognized");
+            case IDFormat.flagCodatID:
+                result = new CodatID(id);
+                break;
+            case IDFormat.flagPeerGroupID:
+                result = new PeerGroupID(id);
+                result = (PeerGroupID) IDFormat.translateToWellKnown(result);
+                break;
+            case IDFormat.flagPeerID:
+                result = new PeerID(id);
+                break;
+            case IDFormat.flagPipeID:
+                result = new PipeID(id);
+                break;
+            case IDFormat.flagModuleClassID:
+                result = new ModuleClassID(id);
+                break;
+            case IDFormat.flagModuleSpecID:
+                result = new ModuleSpecID(id);
+                break;
+            default:
+                throw new URISyntaxException(source, "JXTA ID Type not recognized");
         }
         return result;
     }

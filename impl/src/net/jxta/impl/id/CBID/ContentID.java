@@ -1,5 +1,6 @@
 /*
- * $Id: FileDocument.java,v 1.1 2006/06/02 18:31:57 bondolo Exp $
+ *
+ * $Id: CodatID.java,v 1.1 2003/06/23 22:09:24 bondolo Exp $
  *
  * Copyright (c) 2001 Sun Microsystems, Inc.  All rights reserved.
  *
@@ -54,115 +55,90 @@
  * This license is based on the BSD license adopted by the Apache Foundation.
  */
 
-package net.jxta.document;
+package net.jxta.impl.id.CBID;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
-
 import java.io.IOException;
+import java.util.logging.Logger;
+import net.jxta.impl.id.UUID.IDBytes;
 
 /**
- * This class presents a Document interface for a specific file on disk.
- */
-public class FileDocument implements Document {
-    
-    private final static int BUFFER_SIZE = 4096;
-    
+ *  An implementation of the {@link net.jxta.content.ContentID} ID Type.
+ **/
+public class ContentID extends net.jxta.impl.id.UUID.ContentID {
+
     /**
-     * File which backs this document.
+     * {@inheritDoc}
      */
-    private final File file;
-    
-    /**
-     *  MIME media type of this document.
-     **/
-    private final MimeMediaType type;
-    
-    /**
-     * Create a new File Document.
-     **/
-    public FileDocument( File file ) {
-        this( file, StructuredDocumentFactory.getMimeTypeForFileExtension(getFileExtension( file )) );
+    protected ContentID( IDBytes id ) {
+        super( id );
     }
     
+    
     /**
-     * Create a new File Document.
+     * {@inheritDoc}
      */
-    public FileDocument( File file, MimeMediaType type ) {
-        if (file.isDirectory()) {
-            throw(new IllegalArgumentException("File cannot be a directory"));
-        }
-        
-        if (!file.exists()) {
-            throw(new IllegalArgumentException("File must exist"));
-        }
-        
-        if (type == null) {
-            this.type = MimeMediaType.AOS;
-        } else {
-            this.type = type.intern();
-        }
-        
-        this.file = file;
+    public ContentID(
+            PeerGroupID groupID, boolean amStatic) {
+        super(groupID, amStatic);
     }
     
     /**
-     *  {@inheritDoc}
-     *
-     * <p/>Returns everything after the last '.' in the filename, or the
-     * empty string if the file name does not contain a '.'.
-     **/
-    public String getFileExtension() {
-        return getFileExtension( file );
+     * {@inheritDoc}
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed) {
+        super(groupID, amStatic, indexSeed);
     }
     
     /**
-     * <p/>Returns everything after the last '.' in the filename, or the
-     * empty string if the file name does not contain a '.'.
-     **/
-    private static String getFileExtension( File file ) {
-        
-        String fileName = file.getName();
-        int idx = fileName.lastIndexOf('.');
-        if (idx < 0 || idx == fileName.length()) {
-            return "";
-        } else {
-            return fileName.substring(idx + 1);
-        }
+     * {@inheritDoc}
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed)
+            throws IOException {
+        super(groupID, amStatic, indexSeed);
     }
     
     /**
-     *  {@inheritDoc}
-     **/
-    public MimeMediaType getMimeType() {
-        return type;
+     * {@inheritDoc}
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed, byte[] variant) {
+        super(groupID, amStatic, indexSeed, variant);
     }
     
     /**
-     *  {@inheritDoc}
-     **/
-    public InputStream getStream() throws IOException {
-        return new FileInputStream(file);
+     * {@inheritDoc}
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed, byte[] variant)
+            throws IOException {
+        super(groupID, amStatic, indexSeed, variant);
     }
     
     /**
-     *  {@inheritDoc}
-     **/
-    public void sendToStream(OutputStream sink) throws IOException {
-        InputStream source = getStream();
-        int c;
-        byte[] buf = new byte[BUFFER_SIZE];
-        
-        do {
-            c=source.read(buf);
-            
-            if( -1 == c ) {
-                break;
-            }
-            
-            sink.write(buf,0,c);
-        } while( true );
+     * {@inheritDoc}
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed, InputStream variant)
+            throws IOException {
+        super(groupID, amStatic, indexSeed, variant);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed, InputStream variant)
+            throws IOException {
+        super(groupID, amStatic, indexSeed, variant);
+    }
+    
 }

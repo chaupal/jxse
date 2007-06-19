@@ -1,61 +1,59 @@
 /*
-Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
- *  The Sun Project JXTA(TM) Software License
- *  
- *  Redistribution and use in source and binary forms, with or without 
- *  modification, are permitted provided that the following conditions are met:
- *  
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *  
- *  2. Redistributions in binary form must reproduce the above copyright notice, 
- *     this list of conditions and the following disclaimer in the documentation 
- *     and/or other materials provided with the distribution.
- *  
- *  3. The end-user documentation included with the redistribution, if any, must 
- *     include the following acknowledgment: "This product includes software 
- *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
- *     Alternately, this acknowledgment may appear in the software itself, if 
- *     and wherever such third-party acknowledgments normally appear.
- *  
- *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
- *     not be used to endorse or promote products derived from this software 
- *     without prior written permission. For written permission, please contact 
- *     Project JXTA at http://www.jxta.org.
- *  
- *  5. Products derived from this software may not be called "JXTA", nor may 
- *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
- *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
- *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
- *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
- *  States and other countries.
- *  
- *  Please see the license information page at :
- *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
- *  the license in source files.
- *  
- *  ====================================================================
- *  
- *  This software consists of voluntary contributions made by many individuals 
- *  on behalf of Project JXTA. For more information on Project JXTA, please see 
- *  http://www.jxta.org.
- *  
- *  This license is based on the BSD license adopted by the Apache Foundation. 
+ * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
+ *       Sun Microsystems, Inc. for Project JXTA."
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA"
+ *    must not be used to endorse or promote products derived from this
+ *    software without prior written permission. For written
+ *    permission, please contact Project JXTA at http://www.jxta.org.
+ *
+ * 5. Products derived from this software may not be called "JXTA",
+ *    nor may "JXTA" appear in their name, without prior written
+ *    permission of Sun.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL SUN MICROSYSTEMS OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of Project JXTA.  For more
+ * information on Project JXTA, please see
+ * <http://www.jxta.org/>.
+ *
+ * This license is based on the BSD license adopted by the Apache Foundation.
+ *
+ * $Id: IDFactory.java,v 1.47 2007/02/09 21:55:50 bondolo Exp $
  */
 
 package net.jxta.id;
-
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -71,12 +69,12 @@ import java.net.URISyntaxException;
 import java.net.UnknownServiceException;
 import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
-
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 import net.jxta.codat.CodatID;
+import net.jxta.content.ContentID;
 import net.jxta.id.jxta.IDFormat;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -84,7 +82,6 @@ import net.jxta.pipe.PipeID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.util.ClassFactory;
-
 
 /**
  *  A factory class for creating new ID instances and for constructing ID
@@ -157,7 +154,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  a valid, recognized JXTA URL.
          */
         @Deprecated
-        public ID fromURL(URL source) throws MalformedURLException, UnknownServiceException;
+        public ID fromURL( URL source ) throws MalformedURLException, UnknownServiceException;
+        
         
         /**
          *  Construct a new ID instance from a JXTA ID contained in a URI.
@@ -167,7 +165,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @throws URISyntaxException if the URI provided is not a valid,
          *  recognized JXTA URI.
          */
-        public ID fromURI(URI source) throws URISyntaxException;
+        public ID fromURI( URI source ) throws URISyntaxException;
         
         /**
          *  Construct a new ID instance from the scheme specific portion of a jxta
@@ -178,8 +176,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @throws URISyntaxException if the URI provided is not a valid,
          *  recognized JXTA URI.
          */
-        public ID fromURNNamespaceSpecificPart(String source) throws URISyntaxException;
-
+        public ID fromURNNamespaceSpecificPart( String source ) throws URISyntaxException;
+        
         /**
          *  Creates a new CodatID Instance. A new random CodatID is created for
          *  the provided Peer Group. This type of CodatID can be used as a
@@ -190,7 +188,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @param groupID The group to which this content will belong.
          *  @return The newly created CodatID.
          */
-        public CodatID newCodatID(PeerGroupID groupID);
+        public CodatID newCodatID( PeerGroupID groupID );
         
         /**
          *  Creates a new CodatID instance. A new CodatID is created for the
@@ -213,7 +211,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  length, though longer values are better.
          *  @return The newly created CodatID.
          */
-        public CodatID newCodatID(PeerGroupID groupID, byte[] seed);
+        public CodatID newCodatID( PeerGroupID groupID, byte [] seed );
         
         /**
          *  Creates a new CodatID instance. A new random CodatID is created for
@@ -262,7 +260,201 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created CodatID.
          *  @throws IOException I/O Error reading document
          */
-        public CodatID newCodatID(PeerGroupID groupID, byte[] seed, InputStream in) throws IOException;
+        public CodatID newCodatID(PeerGroupID groupID, byte [] seed, InputStream in ) throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated randomly for the
+         * provided PeerGroup.
+         *
+         * @see net.jxta.content.Content
+         *
+         * @param groupID    the group to which this content will belong.
+         * @param amStatic   true if this content is static content,
+         *  false otherwise
+         * @return the newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean amStatic );
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param amStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  data to use in the generation of the portion
+         *                    of the ContentID which uniquely identifies a
+         *                    particular object
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean amStatic,
+                byte[] indexSeed);
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param amStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  stream to use to generate the data used in the
+         *                    generation of the portion of the ContentID
+         *                    which uniquely identifies a particular object
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean amStatic,
+                InputStream indexSeed)
+                throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param amStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  data to use in the generation of the portion
+         *                    of the ContentID which uniquely identifies a
+         *                    particular object
+         *  @param variant    data to use to provide additional object
+         *                    identification, though this information is
+         *                    not used for indexing purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean amStatic,
+                byte[] indexSeed, byte[] variant);
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param amStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  stream to use to generate the data used in the
+         *                    generation of the portion of the ContentID
+         *                    which uniquely identifies a particular object
+         *  @param variant    data to use to provide additional object
+         *                    identification, though this information is
+         *                    not used for indexing purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean amStatic,
+                InputStream indexSeed, byte[] variant)
+                throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param amStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  data to use in the generation of the portion
+         *                    of the ContentID which uniquely identifies a
+         *                    particular object
+         *  @param variant    stream to use to generate the data used to
+         *                    provide additional object identification, though
+         *                    this information is not used for indexing
+         *                    purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean amStatic,
+                byte[] indexSeed, InputStream variant)
+                throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param amStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  stream to use to generate the data used in the
+         *                    generation of the portion of the ContentID
+         *                    which uniquely identifies a particular object
+         *  @param variant    stream to use to generate the data used to
+         *                    provide additional object identification, though
+         *                    this information is not used for indexing
+         *                    purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean amStatic,
+                InputStream indexSeed, InputStream variant)
+                throws IOException;
         
         /**
          *  Creates a new PeerID instance. A new random peer id will be generated.
@@ -287,7 +479,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  though longer values are better.
          *  @return The newly created PeerID.
          */
-        public PeerID newPeerID(PeerGroupID groupID, byte[] seed);
+        public PeerID newPeerID(PeerGroupID groupID, byte [] seed );
         
         /**
          *  Creates a new PeerGroupID instance. A new random peer group id will be
@@ -297,7 +489,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *
          *  @return The newly created PeerGroupID.
          */
-        public PeerGroupID newPeerGroupID();
+        public PeerGroupID newPeerGroupID( );
         
         /**
          *  Creates a new PeerGroupID instance. A new PeerGroupID will be
@@ -320,7 +512,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  length, though longer values are better.
          *  @return The newly created PeerGroupID.
          */
-        public PeerGroupID newPeerGroupID(byte[] seed);
+        public PeerGroupID newPeerGroupID( byte [] seed );
         
         /**
          *  Creates a new PeerGroupID instance with the specified parent group.
@@ -331,7 +523,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @param parent The group which will be the parent of this group.
          *  @return The newly created PeerGroupID.
          */
-        public PeerGroupID newPeerGroupID(PeerGroupID parent);
+        public PeerGroupID newPeerGroupID( PeerGroupID parent );
         
         /**
          *  Creates a new PeerGroupID instance with the specified parent group.
@@ -355,7 +547,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  length, though longer values are better.
          *  @return The newly created PeerGroupID.
          */
-        public PeerGroupID newPeerGroupID(PeerGroupID parent, byte[] seed);
+        public PeerGroupID newPeerGroupID( PeerGroupID parent, byte [] seed );
         
         /**
          *  Creates a new PipeID instance. A new random PipeID will be generated.
@@ -364,7 +556,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @param groupID  The group to which this Pipe ID will belong.
          *  @return The newly created PipeID.
          */
-        public PipeID newPipeID(PeerGroupID groupID);
+        public PipeID newPipeID( PeerGroupID groupID );
         
         /**
          *  Creates a new PipeID instance. A new pipe id will be generated with
@@ -386,7 +578,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  length, though longer values are better.
          *  @return the newly created PipeID.
          */
-        public PipeID newPipeID(PeerGroupID groupID, byte[] seed);
+        public PipeID newPipeID( PeerGroupID groupID, byte [] seed );
         
         /**
          *  Creates a new ModuleClassID instance. A new random ModuleClassID
@@ -399,7 +591,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *
          *  @return The newly created ModuleClassID.
          */
-        public ModuleClassID newModuleClassID();
+        public ModuleClassID newModuleClassID( );
         
         /**
          *  Creates a new ModuleClassID instance. A new random ModuleClassID
@@ -414,7 +606,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  class for this new role value instance.
          *  @return The newly created ModuleClassID.
          */
-        public ModuleClassID newModuleClassID(ModuleClassID baseClass);
+        public ModuleClassID newModuleClassID( ModuleClassID baseClass );
         
         /**
          *  Creates a new  ModuleSpecID instance. A new random ModuleSpecID will
@@ -426,17 +618,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  class for this new ModuleSpecID.
          *  @return The newly created ModuleSpecID.
          */
-        public ModuleSpecID newModuleSpecID(ModuleClassID baseClass);
+        public ModuleSpecID newModuleSpecID( ModuleClassID baseClass );
     }
     
-
     /**
      * @deprecated This interface formerly contained optional URI based
      * construction methods. These have now been moved to the primary
      * instantiator interface in preparation for the removal of the URL
      * based interfaces. This interface will be removed in a future release.
      */
-    public interface URIInstantiator extends Instantiator {}
+    public interface URIInstantiator extends Instantiator {
+    }
     
     /**
      *  Standard Constructor. This class is a singleton so the only constructor
@@ -458,25 +650,24 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     private IDFactory() {
         // required format
-        registerAssoc("net.jxta.id.jxta.IDFormat");
+        registerAssoc( "net.jxta.id.jxta.IDFormat" );
         
         // required by this implementation.
-        registerAssoc("net.jxta.impl.id.unknown.IDFormat");
+        registerAssoc( "net.jxta.impl.id.unknown.IDFormat" );
         
         // Register a list of classes for association with an ID format
         registerProviders(ID.class.getName());
         
         try {
             // Get our resource bundle
-            ResourceBundle jxtaRsrcs = ResourceBundle.getBundle("net.jxta.impl.config");
+            ResourceBundle jxtaRsrcs = ResourceBundle.getBundle( "net.jxta.impl.config" );
             
             // set the default ID Format.
-            idNewInstances = jxtaRsrcs.getString("IDNewInstances").trim();
-        } catch (MissingResourceException notFound) {
+            idNewInstances = jxtaRsrcs.getString( "IDNewInstances" ).trim();
+        } catch ( MissingResourceException notFound ) {
             // This is an error because we can't start without a concept of ID.
             LOG.log(Level.SEVERE, "Could not find net.jxta.impl.config properties file! reason:", notFound);
-            IllegalStateException failure = new IllegalStateException("Could not initialize ID defaults");
-
+            IllegalStateException failure = new IllegalStateException( "Could not initialize ID defaults");
             failure.initCause(notFound);
             
             throw failure;
@@ -489,7 +680,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return the mapping of ID types to instantiators.
      */
     @Override
-    protected Map<String, Instantiator> getAssocTable() {
+    protected Map<String,Instantiator> getAssocTable() {
         return idFormats;
     }
     
@@ -524,55 +715,53 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      * @return boolean true if the class was registered otherwise false.
      */
     @Override
-    public boolean registerAssoc(String className) {
+    public boolean registerAssoc( String className ) {
         boolean registeredSomething = false;
         
         try {
             Class idClass;
-
             try {
-                idClass = Class.forName(className);
+                idClass = Class.forName( className );
                 
-                if (null == idClass) {
-                    throw new ClassNotFoundException("forName() result was null");
+                if( null == idClass ) {
+                    throw new ClassNotFoundException( "forName() result was null" );
                 }
-            } catch (ClassNotFoundException notThere) {
+            } catch( ClassNotFoundException notThere ) {
                 LOG.severe("Could not find class named : " + className);
                 return false;
-            } catch (NoClassDefFoundError notThere) {
+            }  catch( NoClassDefFoundError notThere ) {
                 LOG.severe("Could not find class named : " + className);
                 return false;
             }
             
             Field instantiatorField;
-
             try {
                 instantiatorField = idClass.getField("INSTANTIATOR");
                 
-                if (null == instantiatorField) {
-                    throw new NoSuchFieldException("getField() result was null for field 'INSTANTIATOR'");
+                if( null == instantiatorField ) {
+                    throw new NoSuchFieldException( "getField() result was null for field 'INSTANTIATOR'" );
                     // caught locally
                 }
-            } catch (NoSuchFieldException notThere) {
+            } catch( NoSuchFieldException notThere ) {
                 LOG.severe("Could not find INSTANTIATOR field in class named : " + className);
                 return false;
             }
             
-            if (!Instantiator.class.isAssignableFrom(instantiatorField.getType())) {
-                throw new ClassCastException("INSTANTIATOR is not of type " + Instantiator.class.getName());
+            if( !Instantiator.class.isAssignableFrom( instantiatorField.getType() ) ) {
+                throw new ClassCastException( "INSTANTIATOR is not of type " + Instantiator.class.getName() );
             }
             
             Instantiator instantiator = (Instantiator) instantiatorField.get(null);
             
-            if (null == instantiator) {
-                LOG.severe("INSTANTIATOR field is null for class  : " + className);
+            if( null == instantiator ) {
+                LOG.severe("INSTANTIATOR field is null for class  : " +  className);
                 return false;
             }
             
-            String idFormat = instantiator.getSupportedIDFormat();
+            String idFormat = instantiator.getSupportedIDFormat( );
             
-            registeredSomething = registerAssoc(idFormat, instantiator);
-        } catch (Exception failed) {
+            registeredSomething = registerAssoc( idFormat, instantiator );
+        } catch( Exception failed ) {
             LOG.log(Level.SEVERE, "Failed to register class : " + className, failed);
         }
         
@@ -584,7 +773,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *
      *  @return The current default ID Format.
      */
-    public static String getDefaultIDFormat() {
+    public static String getDefaultIDFormat( ) {
         return factory.idNewInstances;
     }
     
@@ -600,49 +789,46 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         ID result = null;
         
         // check the protocol
-        if (!ID.URIEncodingName.equalsIgnoreCase(source.getScheme())) {
-            throw new URISyntaxException(source.toString(), "URI scheme was not as expected.");
+        if ( !ID.URIEncodingName.equalsIgnoreCase(source.getScheme()) ) {
+            throw new URISyntaxException( source.toString(), "URI scheme was not as expected." );
         }
         
         String decoded = source.getSchemeSpecificPart();
         
-        int colonAt = decoded.indexOf(':');
+        int colonAt = decoded.indexOf( ':' );
         
         // There's a colon right?
-        if (-1 == colonAt) {
-            throw new URISyntaxException(source.toString(), "URN namespace was missing.");
+        if( -1 == colonAt ) {
+            throw new URISyntaxException( source.toString(), "URN namespace was missing." );
         }
         
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
-            throw new URISyntaxException(source.toString()
-                    ,
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
-                    + ")");
+        if ( !net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring( 0, colonAt )) ) {
+            throw new URISyntaxException( source.toString(), "URN namespace was not as expected. (" +
+                    net.jxta.id.ID.URNNamespace + "!=" + decoded.substring( 0, colonAt ) + ")" );
         }
         
         // skip the namespace portion and the colon
-        decoded = decoded.substring(colonAt + 1);
+        decoded = decoded.substring( colonAt + 1 );
         
-        int dashAt = decoded.indexOf('-');
+        int dashAt = decoded.indexOf( '-' );
         
         // there's a dash, right?
-        if (-1 == dashAt) {
-            throw new URISyntaxException(source.toString(), "URN jxta namespace IDFormat was missing.");
+        if( -1 == dashAt ) {
+            throw new URISyntaxException( source.toString(), "URN jxta namespace IDFormat was missing." );
         }
         
         // get the encoding used for this id
-        String format = decoded.substring(0, dashAt);
+        String format = decoded.substring( 0, dashAt );
         
         Instantiator instantiator;
-
         try {
-            instantiator = factory.getInstantiator(format);
-        } catch (NoSuchElementException itsUnknown) {
-            instantiator = factory.getInstantiator("unknown");
+            instantiator = factory.getInstantiator( format );
+        } catch ( NoSuchElementException itsUnknown ) {
+            instantiator = factory.getInstantiator( "unknown" );
         }
         
-        result = instantiator.fromURNNamespaceSpecificPart(decoded);
+        result = instantiator.fromURNNamespaceSpecificPart( decoded );
         
         return result.intern();
     }
@@ -661,56 +847,54 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  a valid, recognized JXTA URI.
      */
     @Deprecated
-    public static ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
+    public static ID fromURL( URL source ) throws MalformedURLException, UnknownServiceException {
         
         ID result = null;
         
         // check the protocol
-        if (!ID.URIEncodingName.equalsIgnoreCase(source.getProtocol())) {
-            throw new UnknownServiceException("URI protocol type was not as expected.");
+        if ( !ID.URIEncodingName.equalsIgnoreCase(source.getProtocol()) ) {
+            throw new UnknownServiceException( "URI protocol type was not as expected." );
         }
         
         String encoded = source.getFile();
         
         // Decode the URN to convert any % encodings and convert it from UTF8.
-        String decoded = sun.net.www.protocol.urn.Handler.decodeURN(encoded);
+        String decoded = sun.net.www.protocol.urn.Handler.decodeURN( encoded );
         
-        int colonAt = decoded.indexOf(':');
+        int colonAt = decoded.indexOf( ':' );
         
         // There's a colon right?
-        if (-1 == colonAt) {
-            throw new MalformedURLException("URN namespace was missing.");
+        if( -1 == colonAt ) {
+            throw new MalformedURLException( "URN namespace was missing." );
         }
         
         // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
-            throw new MalformedURLException(
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
-                    + ")");
+        if ( !net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring( 0, colonAt )) ) {
+            throw new MalformedURLException( "URN namespace was not as expected. (" +
+                    net.jxta.id.ID.URNNamespace + "!=" + decoded.substring( 0, colonAt ) + ")" );
         }
         
         // skip the namespace portion and the colon
-        decoded = decoded.substring(colonAt + 1);
+        decoded = decoded.substring( colonAt + 1 );
         
-        int dashAt = decoded.indexOf('-');
+        int dashAt = decoded.indexOf( '-' );
         
         // there's a dash, right?
-        if (-1 == dashAt) {
-            throw new UnknownServiceException("URN Encodingtype was missing.");
+        if( -1 == dashAt ) {
+            throw new UnknownServiceException( "URN Encodingtype was missing." );
         }
         
         // get the encoding used for this id
-        decoded = decoded.substring(0, dashAt);
+        decoded = decoded.substring( 0, dashAt );
         
         Instantiator instantiator;
-
         try {
-            instantiator = factory.getInstantiator(decoded);
-        } catch (NoSuchElementException itsUnknown) {
-            instantiator = factory.getInstantiator("unknown");
+            instantiator = factory.getInstantiator( decoded );
+        } catch ( NoSuchElementException itsUnknown ) {
+            instantiator = factory.getInstantiator( "unknown" );
         }
         
-        result = instantiator.fromURL(source);
+        result = instantiator.fromURL( source );
         
         return result.intern();
     }
@@ -725,17 +909,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @param groupID    the group to which this content will belong.
      *  @return The newly created CodatID.
      */
-    public static CodatID newCodatID(PeerGroupID groupID) {
+    public static CodatID newCodatID( PeerGroupID groupID ) {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newCodatID(groupID).intern();
+        return instantiator.newCodatID( groupID ).intern();
     }
     
     /**
@@ -759,17 +943,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  though longer values are better.
      *  @return The newly created CodatID.
      */
-    public static CodatID newCodatID(PeerGroupID groupID, byte[] seed) {
+    public static CodatID newCodatID( PeerGroupID groupID, byte [] seed ) {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newCodatID(groupID, seed).intern();
+        return instantiator.newCodatID( groupID, seed ).intern();
     }
     
     /**
@@ -789,17 +973,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created CodatID.
      *  @throws IOException I/O Error reading document
      */
-    public static CodatID newCodatID(PeerGroupID groupID, InputStream in) throws  IOException {
+    public static CodatID newCodatID( PeerGroupID groupID, InputStream in ) throws  IOException {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newCodatID(groupID, in).intern();
+        return instantiator.newCodatID( groupID, in ).intern();
     }
     
     /**
@@ -830,17 +1014,296 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created CodatID.
      *  @throws IOException I/O Error reading document
      */
-    public static CodatID newCodatID(PeerGroupID groupID, byte[] seed, InputStream in) throws  IOException {
+    public static CodatID newCodatID( PeerGroupID groupID, byte [] seed, InputStream in ) throws  IOException {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newCodatID(groupID, seed, in).intern();
+        return instantiator.newCodatID( groupID, seed, in ).intern();
+    }
+    
+    
+    /**
+     * Creates a new ContentID Instance, generated randomly for the
+     * provided PeerGroup.
+     *
+     * @see net.jxta.content.Content
+     *
+     * @param groupID    the group to which this content will belong.
+     * @param amStatic   true if this content is static content,
+     *  false otherwise
+     * @return the newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean amStatic ) {
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = (Instantiator) factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, amStatic );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param amStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  data to use in the generation of the portion
+     *                    of the ContentID which uniquely identifies a
+     *                    particular object
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed) {
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = (Instantiator) factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, amStatic, indexSeed );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param amStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  stream to use to generate the data used in the
+     *                    generation of the portion of the ContentID
+     *                    which uniquely identifies a particular object
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed)
+            throws IOException{
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = (Instantiator) factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, amStatic, indexSeed );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param amStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  data to use in the generation of the portion
+     *                    of the ContentID which uniquely identifies a
+     *                    particular object
+     *  @param variant    data to use to provide additional object
+     *                    identification, though this information is
+     *                    not used for indexing purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed, byte[] variant){
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = (Instantiator) factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, amStatic, indexSeed, variant );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param amStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  stream to use to generate the data used in the
+     *                    generation of the portion of the ContentID
+     *                    which uniquely identifies a particular object
+     *  @param variant    data to use to provide additional object
+     *                    identification, though this information is
+     *                    not used for indexing purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed, byte[] variant)
+            throws IOException{
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = (Instantiator) factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, amStatic, indexSeed, variant );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param amStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  data to use in the generation of the portion
+     *                    of the ContentID which uniquely identifies a
+     *                    particular object
+     *  @param variant    stream to use to generate the data used to
+     *                    provide additional object identification, though
+     *                    this information is not used for indexing
+     *                    purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean amStatic,
+            byte[] indexSeed, InputStream variant)
+            throws IOException {
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = (Instantiator) factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, amStatic, indexSeed, variant );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param amStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  stream to use to generate the data used in the
+     *                    generation of the portion of the ContentID
+     *                    which uniquely identifies a particular object
+     *  @param variant    stream to use to generate the data used to
+     *                    provide additional object identification, though
+     *                    this information is not used for indexing
+     *                    purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean amStatic,
+            InputStream indexSeed, InputStream variant)
+            throws IOException{
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = (Instantiator) factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, amStatic, indexSeed, variant );
     }
     
     /**
@@ -852,17 +1315,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @param groupID    the group to which this PeerID will belong.
      *  @return The newly created PeerID.
      */
-    public static PeerID newPeerID(PeerGroupID groupID) {
+    public static PeerID newPeerID( PeerGroupID groupID ) {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newPeerID(groupID).intern();
+        return instantiator.newPeerID( groupID ).intern();
     }
     
     /**
@@ -877,17 +1340,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  though longer values are better.
      *  @return The newly created PeerID.
      */
-    public static PeerID newPeerID(PeerGroupID groupID, byte[] seed) {
+    public static PeerID newPeerID( PeerGroupID groupID, byte [] seed ) {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newPeerID(groupID, seed).intern();
+        return instantiator.newPeerID( groupID, seed ).intern();
     }
     
     /**
@@ -898,8 +1361,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *
      *  @return The newly created PeerGroupID.
      */
-    public static PeerGroupID newPeerGroupID() {
-        return newPeerGroupID(factory.idNewInstances).intern();
+    public static PeerGroupID newPeerGroupID( ) {
+        return newPeerGroupID( factory.idNewInstances ).intern();
     }
     
     /**
@@ -911,10 +1374,10 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      * @param idformat The ID Format to be used for crating the Peer Group ID.
      * @return The newly created PeerGroupID.
      */
-    public static PeerGroupID newPeerGroupID(String idformat) {
-        Instantiator instantiator = factory.getInstantiator(idformat);
+    public static PeerGroupID newPeerGroupID( String idformat ) {
+        Instantiator instantiator = factory.getInstantiator( idformat );
         
-        return instantiator.newPeerGroupID().intern();
+        return instantiator.newPeerGroupID( ).intern();
     }
     
     /**
@@ -938,8 +1401,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  though longer values are better.
      *  @return The newly created PeerGroupID.
      */
-    public static PeerGroupID newPeerGroupID(byte[] seed) {
-        return newPeerGroupID(factory.idNewInstances, seed).intern();
+    public static PeerGroupID newPeerGroupID( byte [] seed ) {
+        return newPeerGroupID( factory.idNewInstances, seed ).intern();
     }
     
     /**
@@ -964,10 +1427,10 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  though longer values are better.
      * @return The newly created PeerGroupID.
      */
-    public static PeerGroupID newPeerGroupID(String idformat, byte[] seed) {
-        Instantiator instantiator = factory.getInstantiator(idformat);
+    public static PeerGroupID newPeerGroupID( String idformat, byte [] seed ) {
+        Instantiator instantiator = factory.getInstantiator( idformat );
         
-        return instantiator.newPeerGroupID(seed).intern();
+        return instantiator.newPeerGroupID( seed ).intern();
     }
     
     /**
@@ -979,17 +1442,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @param parent    The group which will be the parent of this group.
      *  @return The newly created PeerGroupID.
      */
-    public static PeerGroupID newPeerGroupID(PeerGroupID parent) {
+    public static PeerGroupID newPeerGroupID( PeerGroupID parent ) {
         String useFormat = parent.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newPeerGroupID(parent).intern();
+        return instantiator.newPeerGroupID( parent ).intern();
     }
     
     /**
@@ -1014,17 +1477,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  though longer values are better.
      *  @return The newly created PeerGroupID.
      */
-    public static PeerGroupID newPeerGroupID(PeerGroupID parent, byte[] seed) {
+    public static PeerGroupID newPeerGroupID( PeerGroupID parent, byte [] seed ) {
         String useFormat = parent.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newPeerGroupID(parent, seed).intern();
+        return instantiator.newPeerGroupID( parent, seed ).intern();
     }
     
     /**
@@ -1033,17 +1496,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @param groupID  The group to which this Pipe ID will belong.
      *  @return The newly created PipeID.
      */
-    public static PipeID newPipeID(PeerGroupID groupID) {
+    public static PipeID newPipeID( PeerGroupID groupID ) {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newPipeID(groupID).intern();
+        return instantiator.newPipeID( groupID ).intern();
     }
     
     /**
@@ -1065,17 +1528,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  though longer values are better.
      *  @return the newly created PipeID.
      */
-    public static PipeID newPipeID(PeerGroupID groupID, byte[] seed) {
+    public static PipeID newPipeID( PeerGroupID groupID, byte [] seed ) {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newPipeID(groupID, seed).intern();
+        return instantiator.newPipeID( groupID, seed ).intern();
     }
     
     /**
@@ -1089,8 +1552,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *
      *  @return The newly created ModuleClassID.
      */
-    public static ModuleClassID newModuleClassID() {
-        return newModuleClassID(factory.idNewInstances).intern();
+    public static ModuleClassID newModuleClassID( ) {
+        return newModuleClassID( factory.idNewInstances ).intern();
     }
     
     /**
@@ -1105,10 +1568,10 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      * @param idformat The ID Format of the new ModuleClassID.
      * @return The newly created ModuleClassID.
      */
-    public static ModuleClassID newModuleClassID(String idformat) {
-        Instantiator instantiator = factory.getInstantiator(idformat);
+    public static ModuleClassID newModuleClassID( String idformat ) {
+        Instantiator instantiator = factory.getInstantiator( idformat );
         
-        return instantiator.newModuleClassID().intern();
+        return instantiator.newModuleClassID( ).intern();
     }
     
     /**
@@ -1124,17 +1587,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  class for this new role value instance.
      *  @return The newly created ModuleClassID.
      */
-    public static ModuleClassID newModuleClassID(ModuleClassID baseClass) {
+    public static ModuleClassID newModuleClassID( ModuleClassID baseClass ) {
         String useFormat = baseClass.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newModuleClassID(baseClass).intern();
+        return instantiator.newModuleClassID( baseClass ).intern();
     }
     
     /**
@@ -1147,17 +1610,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  class for this new ModuleSpecID.
      *  @return The newly created ModuleSpecID.
      */
-    public static ModuleSpecID newModuleSpecID(ModuleClassID baseClass) {
+    public static ModuleSpecID newModuleSpecID( ModuleClassID baseClass ) {
         String useFormat = baseClass.getIDFormat();
         
         // is the group netpg or worldpg?
-        if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
         
-        Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
-        return instantiator.newModuleSpecID(baseClass).intern();
+        return instantiator.newModuleSpecID( baseClass ).intern();
     }
     
     /**
@@ -1183,7 +1646,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     @Deprecated
     public static URL jxtaURL(String protocol, String host, String file) throws MalformedURLException {
-        return new URL(protocol, host, -1, file, sun.net.www.protocol.urn.Handler.handler);
+        return new URL( protocol, host, -1, file, sun.net.www.protocol.urn.Handler.handler );
     }
     
     /**
@@ -1207,9 +1670,9 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @throws  MalformedURLException  if an unknown protocol is specified.
      */
     @Deprecated
-    public static URL jxtaURL(String uri) throws MalformedURLException {
+    public static URL jxtaURL( String uri ) throws MalformedURLException {
         final String file = net.jxta.id.ID.URNNamespace + ":";
-        URL urlCnxt = jxtaURL(net.jxta.id.ID.URIEncodingName, "", file);
+        URL urlCnxt = jxtaURL(net.jxta.id.ID.URIEncodingName, "",  file);
         
         return new URL(urlCnxt, uri);
     }
