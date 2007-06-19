@@ -131,6 +131,7 @@ public final class DocumentTest extends TestCase {
             try {
                 doc = (StructuredTextDocument) instantiator.newInstance(type, useDocType);
             } catch (Throwable thrown) {
+                thrown.printStackTrace(System.err);
                 fail("exception thrown during construction!" + thrown.toString());
             }
             
