@@ -57,9 +57,6 @@ package net.jxta.peergroup;
 
 
 import java.net.URI;
-import java.net.URL;
-
-import java.net.MalformedURLException;
 
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
