@@ -68,24 +68,6 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
     </javac>
   </target>
 
-  <target name="compile-selected-files-in-ext-src" depends="prepare" if="netbeans.home" description="Compile selected ext source files">
-    <fail unless="files">Must set property 'files'</fail>
-
-    <mkdir dir="${build_ext}" />
-
-    <!-- Compile the extensions -->
-    <mkdir dir="${build_ext}" />
-    <javac compiler="${net.jxta.build.compiler}" destdir="${build_ext}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
-      <compilerarg compiler="modern" value="-Xlint"/>
-      <classpath>
-        <path refid="ext.classpath" />
-        <path location="${build}" />
-      </classpath>
-      <src path="${basedir}/ext/src" />
-      <include name="${files}"/>
-    </javac>
-  </target>
-
   <target name="compile-selected-files-in-test-src" depends="prepare" if="netbeans.home" description="Compile selected test source files">
     <fail unless="files">Must set property 'files'</fail>
 
@@ -94,10 +76,8 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
     <javac compiler="${net.jxta.build.compiler}" destdir="${build_test}" source="${source}" target="${source}" debug="${debug}" deprecation="off" optimize="${optimize}">
       <classpath>
         <pathelement location="${build}" />
-        <pathelement location="${build_ext}" />
         <pathelement location="${tools}/junit.jar" />
         <fileset refid="lib.files" />
-        <fileset refid="ext.lib.files" />
       </classpath>
       <src path="${test}/src" />
       <include name="${files}"/>
@@ -126,13 +106,10 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
     <path id="runtest.classpath">
         <pathelement location="${build_test}" />
         <pathelement location="${build}" />
-        <pathelement location="${build_ext}" />
         <fileset refid="lib.files"/>
-        <fileset refid="ext.lib.files"/>
         
         <pathelement location="${basedir}/api/src/" />
         <pathelement location="${basedir}/impl/src/" />
-        <pathelement location="${ext}/src"/>
         
         <pathelement location="${basedir}" />
         
@@ -188,13 +165,10 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
     <path id="runtest.classpath">
         <pathelement location="${build_test}" />
         <pathelement location="${build}" />
-        <pathelement location="${build_ext}" />
         <fileset refid="lib.files"/>
-        <fileset refid="ext.lib.files"/>
         
         <pathelement location="${basedir}/api/src/" />
         <pathelement location="${basedir}/impl/src/" />
-        <pathelement location="${ext}/src"/>
         
         <pathelement location="${basedir}" />
         
@@ -208,7 +182,6 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
         <sourcepath>
             <pathelement location="${basedir}/api/src/" />
             <pathelement location="${basedir}/impl/src/" />
-            <pathelement location="${ext}/src"/>
         </sourcepath>
     </nbjpdastart>
       
@@ -273,12 +246,10 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
     <nbjpdastart addressproperty="jpda.address" name="platform" transport="dt_socket">
         <classpath>
             <pathelement location="${jxtajar}"/>
-            <pathelement location="${jxtaextjar}"/>
             <pathelement location="${jxtashelljar}"/>
             <pathelement location="${jxtacmsjar}"/>
             <pathelement location="${jxtacmsshelljar}"/>
             <fileset refid="lib.files"/>
-            <fileset refid="ext.lib.files"/>
         </classpath>
     </nbjpdastart>
       
@@ -293,12 +264,10 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
       <sysproperty key="net.jxta.logging.Logging" value="FINE" />
       <classpath>
           <pathelement location="${jxtajar}" />
-          <pathelement location="${jxtaextjar}" />
           <pathelement location="${jxtashelljar}" />
           <pathelement location="${jxtacmsjar}" />
           <pathelement location="${jxtacmsshelljar}" />
           <fileset refid="lib.files" />
-          <fileset refid="ext.lib.files" />
       </classpath>
     </java>
   </target>

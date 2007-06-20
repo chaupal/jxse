@@ -364,7 +364,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  <p/>We override the standard implementation to get the MIME type from
      *  the class and use that as the key to register the class with the factory.
      *
-     *  @param className The class name which will be regiestered.
+     *  @param className The class name which will be registered.
      *  @return boolean true if the class was registered otherwise false.
      */
     @Override
@@ -558,21 +558,19 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
             factory.loadedProperty = factory.loadProviders();
         }
         
-        Instantiator instantiator = (Instantiator) factory.getInstantiator(mimetype.getBaseMimeMediaType());
+        Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
         if (!(instantiator instanceof TextInstantiator)) {
             // XXX 20020502 bondolo@jxta.org we could probably do something
             // really inefficient that would allow it to work, but better not to.
             // if ReaderInputStream existed, it would be easy to do.
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning(
-                        "Document Class \'" + instantiator.getClass().getName() + "\' associated with \'" + mimetype
-                        + "\' is not a text oriented document");
+                LOG.warning( "Document Class \'" + instantiator.getClass().getName() + "\' associated with \'" + mimetype 
+                    + "\' is not a text oriented document");
             }
             
-            throw new UnsupportedOperationException(
-                    "Document Class '" + instantiator.getClass().getName() + "' associated with '" + mimetype
-                    + "' is not a text oriented document");
+            throw new UnsupportedOperationException( "Document Class '" + instantiator.getClass().getName() 
+                    + "' associated with '" + mimetype + "' is not a text oriented document");
         }
         
         return ((TextInstantiator) instantiator).newInstance(mimetype, reader);

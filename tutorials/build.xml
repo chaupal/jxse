@@ -46,13 +46,21 @@ This license is based on the BSD license adopted by the Apache Foundation.
 
 $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
 -->
-<project basedir="." default="dist" name="tutorials">
+<project name="jxse-tutorials" basedir="." default="dist" >
+    <property name="jxtaroot" value="${basedir}/../.." />
+
+    <!-- Give user a chance to override without editing this file 
+      (and without typing -D each time it compiles it) -->
+    <property file=".ant.properties" />
+    <property file="${jxtaroot}/.ant.properties" />
+    <property file="${jxtaroot}/ant.properties" />
+    <property file="${user.home}/.ant.properties" />
+
     <property name="lib" value="../lib"/>
     <property name="jxta.lib" value="../dist"/>
     <property name="src" value="src"/>
-    <property name="docs" value="docs"/>
-    <property name="distdir" value="dist"/>
-    <property name="tjar" value="${distdir}/jxta-tutorials.jar"/>
+    <property name="doc" value="doc"/>
+    <property name="dist" value="dist"/>
     <property name="classes" value="classes"/>
     <property name="debug" value="off"/>
 
@@ -68,7 +76,14 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
     <target name="prepare">
         <tstamp/>
         <mkdir dir="${classes}"/>
-        <mkdir dir="${distdir}"/>
+        <mkdir dir="${dist}"/>
+        
+        <!-- set up version property -->
+        <condition property="net.jxta.build.version" value="${DSTAMP}">
+          <not>
+            <isset property="net.jxta.build.version" />
+          </not>
+        </condition>
     </target>
 
     <target name="compile" depends="prepare">
@@ -80,8 +95,38 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
         </javac>
     </target>
 
-    <target name="dist" depends="clean, compile">
-        <jar jarfile="${tjar}">
+  <target name="source-zip" depends="clean,prepare" description="Creates source zip file">
+    <zip destfile="${dist}/jxse-tutorials-src-${net.jxta.build.version}.zip">
+      <zipfileset dir="${basedir}" prefix="jxse-tutorials-${net.jxta.build.version}">
+        <exclude name="**/.*" />
+        <exclude name="dist/**" />
+        <exclude name="**/classes/**" />
+        <exclude name="jnlp/**" />
+        <exclude name="rpm/**" />
+        <exclude name="tmp/**" />
+        <exclude name="**/.*/**" />
+      </zipfileset>
+    </zip>
+  </target>
+
+  <target name="source-tgz" depends="clean,prepare" description="Creates source tar.gz file">
+    <delete file="${dist}/jxse-tutorials-src-${net.jxta.build.version}.tar.gz" />
+
+    <tar destfile="${dist}/jxse-tutorials-src-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset dir="${basedir}" prefix="jxta-src-${net.jxta.build.version}">
+        <exclude name="**/.*" />
+        <exclude name="dist/**" />
+        <exclude name="**/classes/**" />
+        <exclude name="jnlp/**" />
+        <exclude name="tmp/**" />
+        <exclude name="rpm/**" />
+        <exclude name="**/.*/**" />
+      </tarfileset>
+    </tar>
+  </target>
+
+    <target name="jar" depends="clean, compile">
+        <jar jarfile="${dist}/jxse-tutorials-${net.jxta.build.version}.jar">
             <fileset dir="${classes}"/>
         </jar>
     </target>
@@ -91,7 +136,7 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
             <classpath>
                 <fileset refid="jxta.files"/>
                 <fileset refid="lib.files"/>
-                <pathelement location="${tjar}"/>
+                <pathelement location="${classes}"/>
             </classpath>
         </java>
     </target>
@@ -116,7 +161,14 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
 
     <target name="clean" description="Removes all files produced by build">
         <delete dir="${classes}"/>
-        <delete dir="${distdir}"/>
-        <delete dir="${docs}"/>
+        <delete dir="${dist}"/>
+        <delete dir="${doc}"/>
     </target>
+    
+  <!-- meta targets -->
+  
+  <target name="all" depends="clean, jar" description="Clean build of core targets" />
+
+  <target name="dist" depends="all, source-zip, source-tgz" description="Clean build of all dist targets"/>
+    
 </project>

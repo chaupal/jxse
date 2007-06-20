@@ -65,28 +65,28 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 
 /**
  * A ClassLoader which provides additional JXTA functionality. You can load
- * classes by ModuleSpecID. Classes are defiend with ModuleImplAdvertisements
+ * classes by ModuleSpecID. Classes are defined with ModuleImplAdvertisements
  * and class loading will determine suitability using the provided
- * compatiblity statements.
- **/
+ * compatibility statements.
+ */
 public abstract class JxtaLoader extends URLClassLoader {
     
     /**
-     *  Constuct a new loader with the specified parent loader and
+     *  Construct a new loader with the specified parent loader and
      *
      *  @param parent  the parent class loader for delegation.
-     **/
+     */
     public JxtaLoader(ClassLoader parent) {
         this(new URL[0], parent);
     }
     
     /**
-     * Constuct a new loader for the specified URLS with the specified parent
+     * Construct a new loader for the specified URLS with the specified parent
      * loader.
      *
      *  @param urls  the URLs from which to load classes and resources.
      *  @param parent  the parent class loader for delegation.
-     **/
+     */
     public JxtaLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
@@ -99,7 +99,7 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  @param spec the specid of the class to load.
      *  @throws ClassNotFoundException if the class could not be found.
      *  @return the resulting class.
-     **/
+     */
     public abstract Class findClass(ModuleSpecID spec) throws ClassNotFoundException;
     
     /**
@@ -109,7 +109,7 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  @param spec the specid of the class to load.
      *  @throws ClassNotFoundException if the class could not be found.
      *  @return the resulting class.
-     **/
+     */
     public abstract Class loadClass(ModuleSpecID spec) throws ClassNotFoundException;
     
     /**
@@ -118,7 +118,7 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  @param impl The moduleImplAdvertisement containing the class 
      *  specification
      *  @return The Class object that was created from the specified class data.
-     **/
+     */
     public abstract Class defineClass(ModuleImplAdvertisement impl);
 
     /**
@@ -128,12 +128,12 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  @param clazz The class who's ModuleImplAdvertisement is desired.
      *  @return The matching {@code ModuleImplAdvertisement} otherwise
      *  {@code null} if there is no known association.
-     **/
+     */
     public abstract ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz);
 
     /**
      *  {@inheritDoc}
-     **/
+     */
     @Override
     public void addURL(URL url) {
         super.addURL(url);

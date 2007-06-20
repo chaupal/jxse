@@ -147,7 +147,7 @@ public class SrdiIndexTest extends TestCase {
         srdi.add("pkey", "ID", pipeID, pid, 1000);
         srdi.add("pkey", "ID", pipeID, pid, 0);
         srdi.garbageCollect();
-        Vector res = srdi.query("pkey", "ID", pipeID, 1);
+        List res = srdi.query("pkey", "ID", pipeID, 1);
 
         assertTrue("query should not have returned a result", res.size() == 0);
         srdi.clear();
@@ -161,11 +161,11 @@ public class SrdiIndexTest extends TestCase {
             srdi.add("pkey", "attr", "value" + i, pid, Long.MAX_VALUE);
         }
         for (int i = 0; i < ITERATIONS; i++) {
-            Vector res = srdi.query("pkey", "attr", "value" + i, 1);
+            List res = srdi.query("pkey", "attr", "value" + i, 1);
 
             assertTrue("query should have returned a result", res.size() > 0);
             if (res.size() > 0) {
-                PeerID path = (PeerID) res.elementAt(0);
+                PeerID path = (PeerID) res.get(0);
 
                 assertEquals("Incorrect result", peerStr, path.toString());
             }
@@ -195,7 +195,7 @@ public class SrdiIndexTest extends TestCase {
         srdi.remove(pid);
         System.out.println("Removed  :" + ITERATIONS + "  in " + (System.currentTimeMillis() - t0) + " ms");
         for (int i = 0; i < ITERATIONS; i++) {
-            Vector res = srdi.query("pkey", "attr", "value+i", 1);
+            List res = srdi.query("pkey", "attr", "value+i", 1);
 
             assertTrue("query should not have returned a result", res.size() == 0);
         }
@@ -320,10 +320,10 @@ public class SrdiIndexTest extends TestCase {
             final int offset = "urn:jxta:".length();
 
             for (int i = 0; i < (ITERATIONS / 10) && !failed; i++) {
-                Vector res = srdi.query("pkey", "attr", "value" + i, 1);
+                List res = srdi.query("pkey", "attr", "value" + i, 1);
 
                 if (res.size() > 0) {
-                    PeerID path = (PeerID) res.elementAt(0);
+                    PeerID path = (PeerID) res.get(0);
 
                     assertEquals("Incorrect result", peerStr, path.toString());
                 }
