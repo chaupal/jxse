@@ -315,7 +315,7 @@ public class EndpointRouterMessage {
         }
 
         gateway = null;
-        e = doc.createElement(GatewayReverseTag, gateway);
+        e = doc.createElement(GatewayReverseTag);
         doc.appendChild(e);
         if ((reverseGateways != null) && (reverseGateways.size() > 0)) {
             if (reverseCache != null) {
