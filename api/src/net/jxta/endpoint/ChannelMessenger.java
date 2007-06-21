@@ -184,10 +184,6 @@ public abstract class ChannelMessenger extends AbstractMessenger implements Mess
         }
         this.origService = origService;
         this.origServiceParam = origServiceParam;
-
-        // Now that we're initialized enough, grab the destination addr from our superclass and fix it.  We add the service and
-        // param; NOT the group mangling: getDestinationAddress() should always return what was given at construction.
-        EndpointAddress dest = new EndpointAddress(getDestinationAddress(), origService, origServiceParam);
     }
 
     /**
