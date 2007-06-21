@@ -407,10 +407,10 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
 codebase="${net.jxta.build.jnlp.baseurl}"
 href="platform-ext.jnlp">
 <information>
-<title>JXTA Platform</title>
-<vendor>platform.jxta.org</vendor>
-<homepage href="http://platform.jxta.org"/>
-<description>JXTA Platform</description>
+<title>JXSE</title>
+<vendor>JXTA Project</vendor>
+<homepage href="http://jxta-jxse.dev.java.net"/>
+<description>JXSE - JXTA for Java Platform, Standard Edition 5.0</description>
 </information>
 <security>
 <all-permissions/>
