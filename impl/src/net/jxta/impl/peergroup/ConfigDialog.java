@@ -1,4 +1,4 @@
-j/*
+/*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
