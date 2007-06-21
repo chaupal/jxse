@@ -124,7 +124,7 @@ import java.util.logging.Logger;
 
 
 /**
- * This class implements the frontend for all the JXTA Message Transports, as
+ * This class implements the frontend for all the JXTA  endpoint protocols, as
  * well as the API for the implementation of the core protocols that use
  * directly the EndpointService. It theory it only needs to implement core methods.
  * legacy or convenience methods should stay out. However, that would require
@@ -245,26 +245,20 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * Passive listeners for messengers. Three priorities, so far.
      */
     private final Collection[] passiveMessengerListeners = {
+        Collections.synchronizedList( new ArrayList<MessengerEventListener>() ),
+        Collections.synchronizedList( new ArrayList<MessengerEventListener>() ),
         Collections.synchronizedList(new ArrayList<MessengerEventListener>())
-                ,
-        Collections.synchronizedList(new ArrayList<MessengerEventListener>())
-                ,
-        Collections.synchronizedList(new ArrayList<MessengerEventListener>()) };
+    };
 
     /**
      * The set of listener managed by this instance of the endpoint svc.
-     * <p/>
-     * keys are {@see java.lang.String}
-     * <p/>
-     * values are {@see net.jxta.endpoint.EndpointListener}
      */
     private final Map<String, EndpointListener> incomingMessageListeners = new HashMap<String, EndpointListener>(16);
 
     /**
      * The set of shared transport messengers currently ready for use.
      */
-    private final Map<EndpointAddress, Reference<Messenger>> messengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(
-            32);
+    private final Map<EndpointAddress,Reference<Messenger>> messengerMap = new WeakHashMap<EndpointAddress,Reference<Messenger>>(32);
 
     /**
      * The filter listeners.
@@ -365,7 +359,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          * close this canonical messenger.
          */
         @Override
-        public void close() {// No way. Not form the outside.
+        public void close() {
+            // No way. Not form the outside.
         }
 
         /**
@@ -420,9 +415,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 ((BlockingMessenger) cachedMessenger).setOwner(this);
             } catch (ClassCastException cce) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe(
-                            "Transport messengers must all extend BlockingMessenger for now. " + cachedMessenger
-                            + " may remain open beyond its use.");
+                    LOG.severe("Transport messengers must all extend BlockingMessenger for now. " +
+                               cachedMessenger + " may remain open beyond its use.");
                 }
             }
             return true;
@@ -463,6 +457,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Failure sending " + msg, any);
                 }
+
                 throw any;
             }
         }
@@ -589,9 +584,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // FIXME it is ok because of the hack in StdPeerGroup that starts 
         // endpoint service first
         if (EndpointMeterBuildSettings.ENDPOINT_METERING) { // Fix-Me: Move to startApp() when load order issue is resolved
-            endpointServiceMonitor = (EndpointServiceMonitor) MonitorManager.getServiceMonitor(group
-                    ,
-                    MonitorResources.endpointServiceMonitorClassID);
+            endpointServiceMonitor = (EndpointServiceMonitor) MonitorManager.getServiceMonitor(group, MonitorResources.endpointServiceMonitorClassID);
 
             if (endpointServiceMonitor != null) {
                 endpointMeter = endpointServiceMonitor.getEndpointMeter();
@@ -628,7 +621,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         // Clear up the passiveMessengersListeners
         int prec = EndpointService.HighPrecedence;
-
         while (prec >= EndpointService.LowPrecedence) {
             passiveMessengerListeners[prec--].clear();
         }
@@ -707,9 +699,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
                 if (null == filtered) {
                     // run process filters only once
-                    filtered = processFilters(myMsg, propagater.getPublicAddress()
-                            ,
-                            new EndpointAddress(group.getPeerGroupID(), serviceName, serviceParam), false);
+                    filtered = processFilters(myMsg,
+                                              propagater.getPublicAddress(),
+                                              new EndpointAddress(group.getPeerGroupID(), serviceName, serviceParam),
+                                              false);
                 }
 
                 if (null == filtered) {
@@ -772,19 +765,16 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         msg.replaceMessageElement(EndpointServiceImpl.MESSAGE_SRCPEERHDR_NS, srcHdrElement);
 
-        // FIXME by hamada: This should be cached, a new obkect containing the same transport per message propagated
         // Do the local transports with the plain address.
         Iterator<MessageTransport> eachProto = getAllLocalTransports();
 
         propagateThroughAll(eachProto, msg.clone(), serviceName, serviceParam, initialTTL, metrics);
 
         // Do the parent transports with a mangled address.
-        // FIXME by hamada: why is needed?, if the current group defines a propagate transport this should not be needed, one is enough, no?
         if (parentEndpoint != null) {
             eachProto = parentEndpoint.getAllMessageTransports();
 
             StringBuilder mangled = new StringBuilder(serviceName);
-
             if (null != serviceParam) {
                 mangled.append('/');
                 mangled.append(serviceParam);
@@ -796,9 +786,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointServiceMonitor != null)) {
             PropagationMeter propagationMeter = endpointServiceMonitor.getPropagationMeter(serviceName, serviceParam);
 
-            propagationMeter.registerPropagateMessageStats(metrics.numPropagatedTo, metrics.numFilteredOut
-                    ,
-                    metrics.numErrorsPropagated, System.currentTimeMillis() - startPropagationTime);
+            propagationMeter.registerPropagateMessageStats(metrics.numPropagatedTo, metrics.numFilteredOut, metrics.numErrorsPropagated,
+            	System.currentTimeMillis() - startPropagationTime);
         }
     }
 
@@ -876,9 +865,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     public void processIncomingMessage(Message msg, EndpointAddress srcAddress, EndpointAddress dstAddress) {
 
         // check for propagate loopback.
-        MessageElement srcPeerElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_SRCPEERHDR_NS
-                ,
-                EndpointServiceImpl.MESSAGE_SRCPEERHDR_NAME);
+        MessageElement srcPeerElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_SRCPEERHDR_NS, EndpointServiceImpl.MESSAGE_SRCPEERHDR_NAME);
 
         if (null != srcPeerElement) {
             msg.removeMessageElement(srcPeerElement);
@@ -906,6 +893,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.invalidIncomingMessage();
             }
+
             return;
         }
 
@@ -917,6 +905,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.invalidIncomingMessage();
             }
+
             return;
         }
 
@@ -958,6 +947,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.incomingMessageFilteredOut();
             }
+
             return;
         }
 
@@ -973,9 +963,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (listener == null) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning(
-                        "[" + group + "] Discarding " + msg + ". No listener for " + decodedServiceName + "/"
-                        + decodedServiceParam);
+                LOG.warning("No listener for \'" + dstAddress + "\' in group " +
+                            group + "\n\tdecodedServiceName :" +
+                            decodedServiceName + "\tdecodedServiceParam :" +
+                            decodedServiceParam);
             }
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
@@ -1022,8 +1013,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     public void demux(Message msg) {
 
         // Get the message destination
-        MessageElement dstAddressElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS
-                ,
+        MessageElement dstAddressElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS,
                 EndpointServiceImpl.MESSAGE_DESTINATION_NAME);
 
         if (null == dstAddressElement) {
@@ -1043,9 +1033,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         EndpointAddress dstAddress = new EndpointAddress(dstAddressElement.toString());
 
         // Get the message source
-        MessageElement srcAddressElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS
-                ,
-                EndpointServiceImpl.MESSAGE_SOURCE_NAME);
+        MessageElement srcAddressElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, EndpointServiceImpl.MESSAGE_SOURCE_NAME);
 
         if (null == srcAddressElement) {
             // No src address... Just discard
@@ -1059,14 +1047,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             return;
         }
+
         msg.removeMessageElement(srcAddressElement);
         EndpointAddress msgScrAddress = new EndpointAddress(srcAddressElement.toString());
 
         processIncomingMessage(msg, msgScrAddress, dstAddress);
-
-        if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
-            endpointMeter.demuxMessageProcessed();
-        }
     }
 
     /**
@@ -1088,6 +1073,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 return this;
             }
         }
+
         return null;
     }
 
@@ -1096,7 +1082,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     public boolean removeMessageTransport(MessageTransport transpt) {
 
-        boolean removed = false;
+        boolean removed;
 
         synchronized (messageTransports) {
             removed = messageTransports.remove(transpt);
@@ -1133,6 +1119,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 return transpt;
             }
         }
+
         return null;
     }
 
@@ -1514,7 +1501,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
 
     public Messenger getCanonicalMessenger(EndpointAddress addr, Object hint) {
-
         if (addr == null) {
             throw new IllegalArgumentException("null endpoint address not allowed.");
         }
@@ -1707,9 +1693,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         EndpointAddress connAddr = event.getConnectionAddress();
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "New " + messenger + " for : " + messenger.getDestinationAddress() + " ("
-                    + messenger.getLogicalDestinationAddress() + ")");
+            LOG.fine("New " + messenger + " for : " +
+                     messenger.getDestinationAddress() + " (" +
+                     messenger.getLogicalDestinationAddress() + ")");
         }
 
         int highestPrec = EndpointService.HighPrecedence;
@@ -1726,7 +1712,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             // within this group through a local xport, so it is for here. Else 
             // it may be for here (from below) or for upstack.
 
-            if (cgServiceName == null || !cgServiceName.startsWith(ChannelMessenger.InsertedServicePrefix)) {// FIXME: jice@jxta.org - 20030512 If we restrict use to "here"
+            if (cgServiceName == null || !cgServiceName.startsWith(ChannelMessenger.InsertedServicePrefix)) {
+                // FIXME: jice@jxta.org - 20030512 If we restrict use to "here"
                 // we make most backchannels useless. So, the statement below is
                 // commented out.  Ideally we should not have to worry about the 
                 // group targetting of connections, only messages. However the
@@ -1778,9 +1765,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // Call the listener highest precedence first. The first one that claims
         // the messenger wins.
         for (int prec = highestPrec + 1; prec-- > lowestPrec;) {
-            MessengerEvent newMessenger = new MessengerEvent(event.getSource()
-                    ,
+            MessengerEvent newMessenger = new MessengerEvent(event.getSource(),
                     prec == EndpointService.LowPrecedence ? messenger : messengerForHere, connAddr);
+
             // We need to grab the listeners and release the lock. Otherwise the
             // sometimes too long operations performed by the listener creates
             // an unnecessary contention.
@@ -1886,8 +1873,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     *
-     * <p/>convenience method not supported here.
+     * <p/>
+     * convenience method not supported here.
      */
     public Messenger getMessenger(EndpointAddress addr) {
         throw new UnsupportedOperationException("Convenience method not implemented. Use an interface object.");
@@ -1895,8 +1882,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     *
-     * <p/>convenience method not supported here.
+     * <p/>
+     * convenience method not supported here.
      */
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint) {
         throw new UnsupportedOperationException("Convenience method not implemented. Use an interface object.");
@@ -1904,8 +1891,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     *
-     * <p/>convenience method not supported here.
+     * <p/>
+     * convenience method not supported here.
      */
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
         throw new UnsupportedOperationException("Convenience method not implemented. Use an interface object.");
