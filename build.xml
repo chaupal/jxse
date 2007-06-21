@@ -293,8 +293,8 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
   </target>
 
   <target name="source-zip" depends="clean,prepare" description="Creates source zip file">
-    <zip destfile="${dist}/jxta-src-${net.jxta.build.version}.zip">
-      <zipfileset dir="${basedir}" prefix="jxta-src-${net.jxta.build.version}">
+    <zip destfile="${dist}/jxse-src-${net.jxta.build.version}.zip">
+      <zipfileset dir="${basedir}" prefix="jxse-src-${net.jxta.build.version}">
         <exclude name="**/.*" />
         <exclude name="dist/**" />
         <exclude name="**/classes/**" />
@@ -307,10 +307,10 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
   </target>
 
   <target name="source-tgz" depends="clean,prepare" description="Creates source tar.gz file">
-    <delete file="${dist}/jxta-src-${net.jxta.build.version}.tar.gz" />
+    <delete file="${dist}/jxse-src-${net.jxta.build.version}.tar.gz" />
 
-    <tar destfile="${dist}/jxta-src-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
-      <tarfileset dir="${basedir}" prefix="jxta-src-${net.jxta.build.version}">
+    <tar destfile="${dist}/jxse-src-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset dir="${basedir}" prefix="jxse-src-${net.jxta.build.version}">
         <exclude name="**/.*" />
         <exclude name="dist/**" />
         <exclude name="**/classes/**" />
@@ -469,7 +469,7 @@ href="bcprov-ext.jnlp">
   <target name="javadoc" depends="prepare, meterConfig" description="Creates HTML javadoc for JXTA APIs, References IMPL and Extensions">
     <mkdir dir="${apidoc}" />
 
-    <javadoc source="${source}" destdir="${apidoc}" access="protected" use="true" overview="${basedir}/api/src/net/jxta/overview.html" windowtitle="JXTA Java SE API" additionalparam="-notimestamp -breakiterator -quiet">
+    <javadoc source="${source}" destdir="${apidoc}" access="protected" use="true" overview="${basedir}/api/src/net/jxta/overview.html" windowtitle="JXSE API" additionalparam="-notimestamp -breakiterator -quiet">
       <link href="http://java.sun.com/j2se/1.5.0/docs/api" />
       <classpath>
         <path refid="compile.classpath" />
@@ -478,10 +478,10 @@ href="bcprov-ext.jnlp">
         <pathelement location="${basedir}/api/src/" />
       </sourcepath>
       <package name="net.jxta.*" />
-      <group title="JXTA Java SE API" packages="net.jxta.*" />
-      <doctitle>JXTA Java ${net.jxta.build.version}</doctitle>
-      <header>&lt;a href='http://www.jxta.org' target='_blank'&gt;JXTA&lt;/a&gt;</header>
-      <footer>JXTA Java SE</footer>
+      <group title="JXSE API" packages="net.jxta.*" />
+      <doctitle>JXSE ${net.jxta.build.version}</doctitle>
+      <header>&lt;a href='http://jxta-jxse.dev.java.net' target='_blank'&gt;JXTA&lt;/a&gt;</header>
+      <footer>JXSE</footer>
     </javadoc>
 
     <mkdir dir="${impldoc}" />
@@ -496,15 +496,15 @@ href="bcprov-ext.jnlp">
         <pathelement location="${basedir}/impl/src/" />
       </sourcepath>
       <package name="net.jxta.impl.*" />
-      <group title="JXTA Java SE Reference Implementation (see &lt;a href='#implnote'&gt;note&lt;/a&gt;)" packages="net.jxta.impl.*" />
-      <doctitle>JXTA Java ${net.jxta.build.version}</doctitle>
-      <header>&lt;a href='http://www.jxta.org' target='_blank'&gt;JXTA&lt;/a&gt;</header>
-      <footer>JXTA Java SE</footer>
+      <group title="JXSE Reference Implementation (see &lt;a href='#implnote'&gt;note&lt;/a&gt;)" packages="net.jxta.impl.*" />
+      <doctitle>JXSE ${net.jxta.build.version}</doctitle>
+      <header>&lt;a href='http://jxta-jxse.dev.java.net' target='_blank'&gt;JXTA&lt;/a&gt;</header>
+      <footer>JXSE</footer>
     </javadoc>
   </target>
 
   <target name="javadoc-zip" depends="javadoc" description="Creates zip file of javadoc">
-    <zip destfile="${dist}/jxta-doc-${net.jxta.build.version}.zip">
+    <zip destfile="${dist}/jxse-doc-${net.jxta.build.version}.zip">
       <exclude name="**/CVS/**" />
       <exclude name="**/.*" />
       <fileset dir="${apidoc}/.." includes="api/" />
@@ -513,9 +513,9 @@ href="bcprov-ext.jnlp">
   </target>
 
   <target name="javadoc-tgz" depends="javadoc" description="creates tar.gz file of javadoc">
-    <delete file="${dist}/jxta-doc-${net.jxta.build.version}.tar.gz" />
+    <delete file="${dist}/jxse-doc-${net.jxta.build.version}.tar.gz" />
 
-    <tar destfile="${dist}/jxta-doc-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
+    <tar destfile="${dist}/jxse-doc-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
       <exclude name="**/CVS/**" />
       <exclude name="**/.*" />
       <tarfileset dir="${apidoc}/.." includes="api/" />
@@ -524,7 +524,7 @@ href="bcprov-ext.jnlp">
   </target>
 
   <target name="lib-zip" depends="signjar" description="Creates zip file of libs">
-    <zip destfile="${dist}/jxta-lib-${net.jxta.build.version}.zip">
+    <zip destfile="${dist}/jxse-lib-${net.jxta.build.version}.zip">
       <fileset file="${basedir}/license.txt" />
 
       <zipfileset dir="${lib}">
@@ -538,9 +538,9 @@ href="bcprov-ext.jnlp">
   </target>
 
   <target name="lib-tgz" depends="signjar" description="creates tar.gz file of libs">
-    <delete file="${dist}/jxta-lib-${net.jxta.build.version}.tar.gz" />
+    <delete file="${dist}/jxse-lib-${net.jxta.build.version}.tar.gz" />
 
-    <tar destfile="${dist}/jxta-lib-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
+    <tar destfile="${dist}/jxse-lib-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
       <tarfileset file="${basedir}/license.txt" />
 
       <tarfileset dir="${lib}">
@@ -552,25 +552,6 @@ href="bcprov-ext.jnlp">
       </tarfileset>
     </tar>
   </target>
-
-  <target name="rpm" depends="lib-tgz" description="Constructs RPM">
-    <delete dir="${rpm}" />
-    <mkdir dir="${rpm}" />
-
-    <copy todir="${rpm}/SPECS">
-      <fileset file="jxta-rpm.spec" />
-    </copy>
-
-    <copy todir="${rpm}/SOURCES">
-      <fileset file="${dist}/jxta-lib-${net.jxta.build.version}.tar.gz" />
-    </copy>
-
-    <exec executable="rpmbuild" dir="${rpm}">
-      <arg value="-ba" />
-      <arg value="SPECS/jxta-rpm.spec" />
-    </exec>
-  </target>
-
   
   <!-- Run targets, useful for testing the platform -->
   
