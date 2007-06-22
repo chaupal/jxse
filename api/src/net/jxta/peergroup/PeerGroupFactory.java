@@ -122,6 +122,7 @@ import java.util.logging.Logger;
  *             methods for the specific replacements/alternatives provided by the new
  *             factory classes.
  */
+@Deprecated
 public final class PeerGroupFactory {
 
     /**
@@ -181,6 +182,7 @@ public final class PeerGroupFactory {
      * @param c The Class which will be instantiated for the World Peer Group
      * @deprecated Consider converting to use {@link WorldPeerGroupFactory#WorldPeerGroupFactory(Class,ConfigParams,URI)}.
      */
+    @Deprecated
     public static void setPlatformClass(Class c) {
         worldGroupClass = c;
     }
@@ -191,6 +193,7 @@ public final class PeerGroupFactory {
      * @param c The Class which will be instantiated for most peer groups.
      * @deprecated This method previously had no effect and has been removed with no alternatives.
      */
+    @Deprecated
     public static void setStdPeerGroupClass(Class c) {
         throw new UnsupportedOperationException("This feature has been removed. (sorry)");
     }
@@ -202,6 +205,7 @@ public final class PeerGroupFactory {
      * @deprecated Consider converting to use {@link NetPeerGroupFactory#NetPeerGroupFactory(ConfigParams,URI,ID,String,XMLElement)}
      *             or {@link NetPeerGroupFactory#NetPeerGroupFactory(PeerGroup,ID,String,XMLElement)}.
      */
+    @Deprecated
     public static void setNetPGDesc(String desc) {
         netPGDesc = desc;
     }
@@ -213,6 +217,7 @@ public final class PeerGroupFactory {
      * @deprecated Consider converting to use {@link NetPeerGroupFactory#NetPeerGroupFactory(ConfigParams,URI,ID,String,XMLElement)}
      *             or {@link NetPeerGroupFactory#NetPeerGroupFactory(PeerGroup,ID,String,XMLElement)}.
      */
+    @Deprecated
     public static void setNetPGName(String name) {
         netPGName = name;
     }
@@ -224,6 +229,7 @@ public final class PeerGroupFactory {
      * @deprecated Consider converting to use {@link NetPeerGroupFactory#NetPeerGroupFactory(ConfigParams,URI,ID,String,XMLElement)}
      *             or {@link NetPeerGroupFactory#NetPeerGroupFactory(PeerGroup,ID,String,XMLElement)}.
      */
+    @Deprecated
     public static void setNetPGID(PeerGroupID id) {
         netPGID = id;
     }
@@ -234,6 +240,7 @@ public final class PeerGroupFactory {
      * @return Class configurator class
      * @deprecated Consider converting to use {@link NetPeerGroupFactory}.
      */
+    @Deprecated
     public static Class getConfiguratorClass() {
         return configurator;
     }
@@ -252,6 +259,7 @@ public final class PeerGroupFactory {
      *          Group.
      * @deprecated Consider converting to use {@link NetPeerGroupFactory} and/or {@link WorldPeerGroupFactory}.
      */
+    @Deprecated
     public static void setConfiguratorClass(Class c) {
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -272,6 +280,7 @@ public final class PeerGroupFactory {
      * @see PeerGroup#getStoreHome()
      * @deprecated Consider converting to use {@link NetPeerGroupFactory} and/or {@link WorldPeerGroupFactory}.
      */
+    @Deprecated
     public static URI getStoreHome() {
         if (null == storeHome) {
             // Establish the default store location via long established hackery.
@@ -296,6 +305,7 @@ public final class PeerGroupFactory {
      *                May also be {@code null} to restore the default value.
      * @deprecated Consider converting to use {@link NetPeerGroupFactory} and/or {@link WorldPeerGroupFactory}.
      */
+    @Deprecated
     public static void setStoreHome(URI newHome) {
 
         if (null != newHome) {
@@ -327,6 +337,7 @@ public final class PeerGroupFactory {
      * @return PeerGroup instance of a new PeerGroup
      * @deprecated This method was previously unused and has been removed with no alternatives. (it wasn't useful)
      */
+    @Deprecated
     public static PeerGroup newPeerGroup() {
         throw new UnsupportedOperationException("This feature has been removed. (sorry)");
     }
@@ -349,6 +360,7 @@ public final class PeerGroupFactory {
      *                   construction of the World Peer Group.
      * @deprecated Consider converting to use {@link WorldPeerGroupFactory#WorldPeerGroupFactory()}.
      */
+    @Deprecated
     public static PeerGroup newPlatform() {
 
         Class c = PeerGroupFactory.getConfiguratorClass();
@@ -443,6 +455,7 @@ public final class PeerGroupFactory {
      * @throws PeerGroupException For failures in constructing the Net Peer Group.
      * @deprecated Consider converting to use {@link NetPeerGroupFactory#NetPeerGroupFactory(PeerGroup,ID,String,XMLElement)}.
      */
+    @Deprecated
     public static PeerGroup newNetPeerGroup(PeerGroup ppg) throws PeerGroupException {
 
         try {
@@ -526,6 +539,7 @@ public final class PeerGroupFactory {
      * @deprecated Consider converting to use {@link NetPeerGroupFactory#NetPeerGroupFactory()}
      *             or preferably one of the other {@code NetPeerGroupFactory} constructors.
      */
+    @Deprecated
     public static PeerGroup newNetPeerGroup() throws PeerGroupException {
         // get/create the World Peer Group.
         PeerGroup wpg = getWorldPeerGroup();
