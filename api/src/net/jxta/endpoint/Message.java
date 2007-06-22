@@ -145,7 +145,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * <p/>To enable addition of a tracking element, set to {@code true} and
      * recompile.
      */
-    protected static final boolean GLOBAL_TRACKING_ELEMENT = false;
+    protected static final boolean GLOBAL_TRACKING_ELEMENT =
+            Boolean.getBoolean(Message.class.getName() + ".globalTracking");
 
     /**
      * Incremented for each standalone message instance. {@see #lineage} for
