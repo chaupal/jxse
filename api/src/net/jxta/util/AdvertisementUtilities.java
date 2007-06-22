@@ -100,6 +100,7 @@ import java.net.URISyntaxException;
  *             backwards compatibility with programs which already use them.
  *             THIS CLASS IS SCHEDULED TO BE REMOVED AFTER 2.5
  */
+@Deprecated
 public final class AdvertisementUtilities {
 
     /**
@@ -205,6 +206,7 @@ public final class AdvertisementUtilities {
      * @deprecated This method should not be used because it produces a result
      *             who's encoding is not predictable and may (will) differ from JVM to JVM.
      */
+    @Deprecated
     public static byte[] advertisementToBytes(Advertisement advertisement) throws JxtaException {
         try {
             Document document = advertisement.getDocument(MimeMediaType.XML_DEFAULTENCODING);
@@ -224,9 +226,10 @@ public final class AdvertisementUtilities {
      * @param buf The source of the advertisement
      * @return The Advertisement
      * @deprecated This method should not be used because it interprets the
-     *             input using the local default encoding which is not precidcatable and
+     *             input using the local default encoding which is not predictable and
      *             may (will) differ from JVM to JVM.
      */
+    @Deprecated
     public static Advertisement bytesToAdvertisement(byte buf[]) {
         try {
             InputStream in = new ByteArrayInputStream(buf);
@@ -272,6 +275,7 @@ public final class AdvertisementUtilities {
      * @param advertisement The Advertisement to be converted
      * @deprecated Equivalent to Advertisement.toString()
      */
+    @Deprecated
     public static String advertisementToXmlText(Advertisement advertisement) {
         return advertisementToText(advertisement, MimeMediaType.XMLUTF8.toString());
     }
@@ -279,12 +283,13 @@ public final class AdvertisementUtilities {
     /**
      * Convert an array of bytes containing an XML encoded String to an JXTA Advertisement
      *
-     * @param xmlTextAsBytes buf The source of the advertisement
+     * @param xmlTextAsBytes The source of the advertisement
      * @return The Advertisement
      * @throws JxtaException if Unable to parse the Advertisement
      * @deprecated This method should not be used because it produces a result
      *             who's encoding is not predictable and may (will) differ from JVM to JVM.
      */
+    @Deprecated
     public static Advertisement newAdvertisementFromXml(byte xmlTextAsBytes[]) throws JxtaException {
         try {
             return AdvertisementFactory.newAdvertisement(MimeMediaType.XML_DEFAULTENCODING
@@ -305,6 +310,7 @@ public final class AdvertisementUtilities {
      *             input using the local default encoding which is not precidcatable and
      *             may (will) differ from JVM to JVM.
      */
+    @Deprecated
     public static Advertisement newAdvertisementFromXml(String xmlText) throws JxtaException {
         try {
             return AdvertisementFactory.newAdvertisement(MimeMediaType.XML_DEFAULTENCODING, new StringReader(xmlText));
@@ -445,6 +451,7 @@ public final class AdvertisementUtilities {
      * @return A new Pipe Advertisement
      * @deprecated These utilities are too specialized for general use.
      */
+    @Deprecated
     public static PipeAdvertisement getPipeAdvertisement(Element root) {
         TextElement pipeAdvElement = (TextElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
 
@@ -462,6 +469,7 @@ public final class AdvertisementUtilities {
      * @return A new Peer Advertisement
      * @deprecated These utilities are too specialized for general use.
      */
+    @Deprecated
     public static PeerAdvertisement getPeerAdvertisement(Element root) {
         TextElement peerAdvElement = (TextElement) DocumentUtilities.getChild(root, PeerAdvertisement.getAdvertisementType());
 
@@ -503,6 +511,7 @@ public final class AdvertisementUtilities {
      *             spec advertisement. Consider creating Module Spec Advertisements without
      *             this method.
      */
+    @Deprecated
     public static ModuleSpecAdvertisement createModuleSpecAdvertisement(String name, StructuredDocument param) {
         return createModuleSpecAdvertisement(name, null, param);
     }
@@ -518,6 +527,7 @@ public final class AdvertisementUtilities {
      *             spec advertisement. Consider creating Module Spec Advertisements without
      *             this method.
      */
+    @Deprecated
     public static ModuleSpecAdvertisement createModuleSpecAdvertisement(String name, ModuleClassAdvertisement moduleClassAdvertisement, StructuredDocument param) {
         String moduleSpecAdvertisementType = ModuleSpecAdvertisement.getAdvertisementType();
         ModuleSpecAdvertisement moduleSpecAdvertisement = (ModuleSpecAdvertisement) AdvertisementFactory.newAdvertisement(
@@ -581,6 +591,7 @@ public final class AdvertisementUtilities {
      *             not be correct for all circumstances. Consider creating ModuleImpl
      *             Advertisements directly in your application.
      */
+    @Deprecated
     public static ModuleImplAdvertisement createModuleImplAdvertisement(ModuleSpecID specID, String code, String description) {
 
         ModuleImplAdvertisement moduleImplAdvertisement = (ModuleImplAdvertisement)

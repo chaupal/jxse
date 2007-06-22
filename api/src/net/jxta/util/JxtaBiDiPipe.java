@@ -1177,6 +1177,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @return PipeMsgListener
      * @deprecated use getMessageListener instead
      */
+    @Deprecated
     public PipeMsgListener getListener() {
         return getMessageListener();
     }
@@ -1200,6 +1201,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param msgListener New value of property listener.
      * @deprecated use setMessageListener instead
      */
+    @Deprecated
     public void setListener(PipeMsgListener msgListener) {
         setMessageListener(msgListener);
     }
@@ -1225,6 +1227,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param eventListener New value of property listener.
      * @deprecated use setPipeEventListener instead
      */
+    @Deprecated
     public void setListener(PipeEventListener eventListener) {
         setPipeEventListener(eventListener);
     }

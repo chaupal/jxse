@@ -69,6 +69,7 @@ import java.util.Collection;
  *             have been part of the public JXTA API. If you use it, copy it to your own
  *             source base. It will be deleted after June 2007 release.
  */
+@Deprecated
 public class WatchedOutputStream extends FilterOutputStream
         implements WatchedStream {
 
@@ -117,7 +118,7 @@ public class WatchedOutputStream extends FilterOutputStream
      * This may affect performance but not functionality.
      * It is assumed that that list is monitored by a watcher task that
      * invokes the watch method as often as needed to monitor progress
-     * to its satifaction.
+     * to its satisfaction.
      *
      * @param watchList The watchList to register with. Must be a
      *                  Synchronized Collection.

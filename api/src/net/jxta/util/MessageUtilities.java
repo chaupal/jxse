@@ -64,9 +64,10 @@ import net.jxta.endpoint.StringMessageElement;
 
 /**
  * @deprecated These utilities are unsupported and known to have problems. They
- *             are not reccommended for use and will be removed in a future JXTA release
+ *             are not recommended for use and will be removed in a future JXTA release
  *             THIS CLASS IS SCHEDULED TO BE REMOVED AFTER 2.5.
  */
+@Deprecated
 public final class MessageUtilities {
 
     private MessageUtilities() {}
