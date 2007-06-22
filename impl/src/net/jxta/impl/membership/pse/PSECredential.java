@@ -611,6 +611,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * @return the private key associated with this credential.
      * @deprecated Use <@link #getSigner(String)> or <@link #getSignatureVerifier(String)> instead.
      */
+    @Deprecated
     public PrivateKey getPrivateKey() {
 
         if (!local) {
@@ -759,7 +760,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
                 throw new IllegalArgumentException("Signature out of order in Credential.");
             }
 
-            List someStreams = new ArrayList(3);
+            List<InputStream> someStreams = new ArrayList<InputStream>(3);
 
             try {
                 byte[] signatureToCompare = PSEUtils.base64Decode(new StringReader(elem.getTextValue()));

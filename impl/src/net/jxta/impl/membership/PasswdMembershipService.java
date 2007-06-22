@@ -94,6 +94,7 @@ import net.jxta.impl.peergroup.StdPeerGroup;
  * @see net.jxta.membership.MembershipService
  *
  **/
+@Deprecated
 public class PasswdMembershipService {
     
     /**

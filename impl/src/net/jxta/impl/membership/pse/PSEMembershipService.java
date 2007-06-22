@@ -149,14 +149,14 @@ public final class PSEMembershipService implements MembershipService {
     private ModuleImplAdvertisement implAdvertisement = null;
     
     /**
-     * The current set of principals associated with this peer within this peegroup.
+     * The current set of principals associated with this peer within this peergroup.
      **/
-    private final List principals = new ArrayList();
+    private final List<PSECredential> principals = new ArrayList<PSECredential>();
     
     /**
      * The set of AuthenticationCredentials which were used to establish the principals.
      **/
-    private final List authCredentials = new ArrayList();
+    private final List<AuthenticationCredential> authCredentials = new ArrayList<AuthenticationCredential>();
     
     /**
      *  property change support
@@ -580,7 +580,7 @@ public final class PSEMembershipService implements MembershipService {
             }
             
             try {
-                X509Certificate certList[] = (X509Certificate[]) pseStore.getTrustedCertificateChain(identity);
+                X509Certificate certList[] = pseStore.getTrustedCertificateChain(identity);
                 
                 if (null == certList) {
                     certList = new X509Certificate[1];
