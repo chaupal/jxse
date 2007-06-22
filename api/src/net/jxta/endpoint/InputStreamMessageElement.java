@@ -236,7 +236,7 @@ public class InputStreamMessageElement extends MessageElement {
      * {@inheritDoc}
      */
     public InputStream getStream() throws IOException {
-        List buffers = new ArrayList();
+        List<InputStream> buffers = new ArrayList<InputStream>();
 
         for (Object databyte : databytes) {
             byte[] aBuffer = (byte[]) databyte;
@@ -275,7 +275,7 @@ public class InputStreamMessageElement extends MessageElement {
         final long INITIAL_INTERMEDIATE_BUFFERSIZE = 6;
         final long MAXIMUM_INTERMEDIATE_BUFFERSIZE = 18;
 
-        List buffs = new ArrayList();
+        List<byte[]> buffs = new ArrayList<byte[]>();
         boolean atEOF = false;
         long read = 0;
         long currentIntermediateBufferSize = INITIAL_INTERMEDIATE_BUFFERSIZE;
