@@ -1295,30 +1295,37 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                             it.remove();
 
                             if (key.isValid()) {
-                                if (key.isReadable() && key.channel().isOpen()) {
-                                    // ensure this channel is not selected again until the thread is done with it
-                                    // TcpMessenger is expected to reset the interestOps back to OP_READ
-                                    // Without this, expect multiple threads to execute on the same event, until
-                                    // the first thread completes reading all data available
-                                    key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
+                                try {
+                                    if (key.isReadable() && key.channel().isOpen()) {
+                                        // ensure this channel is not selected again until the thread is done with it
+                                        // TcpMessenger is expected to reset the interestOps back to OP_READ
+                                        // Without this, expect multiple threads to execute on the same event, until
+                                        // the first thread completes reading all data available
+                                        key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
 
-                                    // get the messenger
-                                    TcpMessenger msgr = (TcpMessenger) key.attachment();
+                                        // get the messenger
+                                        TcpMessenger msgr = (TcpMessenger) key.attachment();
 
-                                    // process the data
-                                    try {
-                                        executor.execute(msgr);
-                                    } catch (RejectedExecutionException re) {
-                                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                            LOG.log(Level.FINE,
-                                                    MessageFormat.format("Executor rejected task for messenger :{0}",
-                                                    msgr.toString()), re);
+                                        // process the data
+                                        try {
+                                            executor.execute(msgr);
+                                        } catch (RejectedExecutionException re) {
+                                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                                                LOG.log(Level.FINE,
+                                                        MessageFormat.format("Executor rejected task for messenger :{0}", msgr.toString()), re);
+                                            }
                                         }
                                     }
+                                } catch (CancelledKeyException cce) {
+                                    //in case the key was canceled after the selection
                                 }
                             } else {
                                 // unregister it, no need to keep invalid/closed channels around
-                                key.channel().close();
+                                try {
+                                    key.channel().close();
+                                } catch (IOException io) {
+                                    // avoids breaking out of the selector loop
+                                }
                                 key.cancel();
                                 key = null;
                             }

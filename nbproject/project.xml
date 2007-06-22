@@ -278,7 +278,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             </compilation-unit>
             <compilation-unit>
                 <package-root>impl/src</package-root>
-                <classpath mode="compile">lib/javax.servlet.jar:lib/bcprov-jdk14.jar:lib/org.mortbay.jetty.jar:api/src</classpath>
+                <classpath mode="compile">lib/bcprov-jdk14.jar:lib/javax.servlet.jar:lib/org.mortbay.jetty.jar:api/src</classpath>
                 <built-to>dist/jxta.jar</built-to>
                 <javadoc-built-to>doc/impl</javadoc-built-to>
                 <source-level>1.5</source-level>

@@ -1016,9 +1016,8 @@ public class ConfigDialog extends Frame {
             add(peerName, constraints);
 
             if (needSecurityConfig) {
-                // FIXME 20031005 bondolo@jxta.org see <http://platform.jxta.org/issues/show_bug.cgi?id=838>
-                passwd = new TextField(System.getProperty("net.jxta.tls.password", ""), 20);
-                vpasswd = new TextField(System.getProperty("net.jxta.tls.password", ""), 20);
+                passwd = new TextField("", 20);
+                vpasswd = new TextField("", 20);
                 passwd.setEchoChar('*');
                 vpasswd.setEchoChar('*');
 
@@ -1471,7 +1470,7 @@ public class ConfigDialog extends Frame {
             }
         });
 
-        helpLabel = new Label("See \"http://platform.jxta.org/java/confighelp.html\" for config help", Label.CENTER);
+        helpLabel = new Label("See \"http://jxta-jxse.dev.java.net/confighelp.html\" for config help", Label.CENTER);
         helpLabel.setBackground(new Color(220, 220, 220));
         helpLabel.setForeground(Color.black);
 
@@ -1480,7 +1479,7 @@ public class ConfigDialog extends Frame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 helpLabel.setForeground(Color.black);
-                helpLabel.setText("See \"http://platform.jxta.org/java/confighelp.html\" for config help");
+                helpLabel.setText("See \"http://jxta-jxse.dev.java.net/confighelp.html\" for config help");
             }
         });
 
