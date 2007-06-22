@@ -323,6 +323,7 @@ public class ConfigDialog extends Frame {
 
             case LOWERED:
                 paintLowered(g);
+                break;
 
             default:
             }

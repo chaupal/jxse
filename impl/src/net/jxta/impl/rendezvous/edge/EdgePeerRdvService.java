@@ -462,7 +462,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
      */
     @Override
     protected PeerConnection[] getPeerConnections() {
-        return (PeerConnection[]) rendezVous.values().toArray(new PeerConnection[0]);
+        return rendezVous.values().toArray(new PeerConnection[0]);
     }
     
     private void disconnectFromAllRendezVous() {

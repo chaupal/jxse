@@ -75,6 +75,7 @@ import java.util.Collections;
  *             source to their own projects. Consider using alternative JXTA "main"
  *             See NetworkManager tutorial </a>.
  */
+@Deprecated
 public class Boot {
 
     /**

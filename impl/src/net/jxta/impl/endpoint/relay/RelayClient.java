@@ -1334,7 +1334,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
         
         for (Iterator<RouteAdvertisement> e = activeRelays.values().iterator(); e.hasNext();) {
-            RouteAdvertisement route = (RouteAdvertisement) e.next();
+            RouteAdvertisement route = e.next();
             
             try {
                 // publish our route if pg is not null

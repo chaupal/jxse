@@ -112,6 +112,7 @@ public class ResolverResponse extends ResolverResponseMsg {
      * @param Response   the response
      *
      */
+    @Deprecated
     public ResolverResponse(String HandlerName, StructuredDocument Credential, int QueryId, String Response) {
         setHandlerName(HandlerName);
         setCredential(Credential);

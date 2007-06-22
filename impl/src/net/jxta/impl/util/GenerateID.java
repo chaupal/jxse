@@ -71,6 +71,7 @@ import net.jxta.codat.*;
  * 
  * @author <a href="mailto:burton@relativity.yi.org">Kevin A. Burton</a>
  */
+@Deprecated
 public class GenerateID {
 
     /**

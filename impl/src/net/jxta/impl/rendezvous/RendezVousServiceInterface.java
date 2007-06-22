@@ -356,6 +356,7 @@ public class RendezVousServiceInterface implements RendezVousService {
      *
      *  @deprecated This is private for debugging and diagnostics only.
      */
+    @Deprecated    
     public PeerView getPeerView() {
         return impl.getPeerView();
     }
@@ -365,6 +366,7 @@ public class RendezVousServiceInterface implements RendezVousService {
      *
      *  @deprecated This is private for debugging and diagnostics only.
      */
+    @Deprecated
     public net.jxta.impl.rendezvous.RendezVousServiceProvider getRendezvousProvider() {
         return impl.getRendezvousProvider();
     }

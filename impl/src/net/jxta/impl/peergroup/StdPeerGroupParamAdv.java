@@ -92,6 +92,7 @@ import java.util.logging.Logger;
  *             available. You are encouraged to copy this code into your own application
  *             or service if you depend upon it.
  */
+@Deprecated
 public class StdPeerGroupParamAdv {
 
     private static final Logger LOG = Logger.getLogger(StdPeerGroupParamAdv.class.getName());

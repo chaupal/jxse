@@ -298,6 +298,7 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
      * @deprecated should not be used. use getDocument().toString() instead.
      */
     @Override
+    @Deprecated
     public String toString() {
 
         try {

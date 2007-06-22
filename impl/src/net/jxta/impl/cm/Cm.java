@@ -155,6 +155,7 @@ public final class Cm implements Runnable {
      * @param optimize not used
      * @deprecated Legacy constructor for bench test MakeAdvertisements.java
      */
+    @Deprecated
     public Cm(String areaName, boolean optimize) {
         this(new File(System.getProperty("JXTA_HOME", ".jxta")).toURI(), areaName);
     }

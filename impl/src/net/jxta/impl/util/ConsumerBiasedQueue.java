@@ -81,6 +81,7 @@ import net.jxta.impl.util.TimeUtils;
  *  @deprecated Please convert all code to use the java.util.concurrent BlockingQueue instead.
  *
  **/
+@Deprecated
 public class ConsumerBiasedQueue extends UnbiasedQueue {
     
     /**

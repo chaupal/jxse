@@ -208,6 +208,7 @@ public class NullConfigurator implements PlatformConfigurator {
      *             unpredictable results depending upon the constructor and configuration
      *             set methods used prior to it's execution.
      */
+    @Deprecated
     protected PlatformConfig load(URI loadFile) throws ConfiguratorException {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Reading Platform Config from : " + loadFile);

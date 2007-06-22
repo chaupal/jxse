@@ -145,6 +145,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
      * @param Query       opaque query string
      * @param qid         query ID
      */
+    @Deprecated
     public ResolverQuery(String HandlerName, StructuredDocument Credential, String pId, String Query, int qid) {
 
         this();

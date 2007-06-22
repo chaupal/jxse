@@ -296,7 +296,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         RelayServerClient[] oldClients;
         
         synchronized (relayedClients) {
-            oldClients = (RelayServerClient[]) relayedClients.values().toArray(new RelayServerClient[0]);
+            oldClients = relayedClients.values().toArray(new RelayServerClient[0]);
         }
         
         int i = oldClients.length;
@@ -801,7 +801,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         RelayServerClient handler = null;
         
         synchronized (relayedClients) {
-            handler = (RelayServerClient) relayedClients.get(clientPeerId);
+            handler = relayedClients.get(clientPeerId);
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -824,7 +824,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         synchronized (relayedClients) {
             // check if this client is already registered
-            handler = (RelayServerClient) relayedClients.get(clientPeerId);
+            handler = relayedClients.get(clientPeerId);
             if (handler == null) {
                 // make sure the maximum number of clients has not been reached
                 // and make sure that we have a messenger to give to the new
@@ -912,7 +912,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         synchronized (relayedClients) {
-            handler = (RelayServerClient) relayedClients.remove(clientPeerId);
+            handler = relayedClients.remove(clientPeerId);
             
             // check if there are any clients
             if (relayedClients.size() == 0) {
@@ -940,7 +940,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         synchronized (relayedClients) {
-            RelayServerClient currentHandler = (RelayServerClient) relayedClients.get(clientPeerId);
+            RelayServerClient currentHandler = relayedClients.get(clientPeerId);
             
             // only remove the client if the current handler matches the passed one
             if (currentHandler == handler) {
@@ -1023,7 +1023,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         RelayServerClient[] handlers;
         
         synchronized (relayedClients) {
-            handlers = (RelayServerClient[]) relayedClients.values().toArray(new RelayServerClient[0]);
+            handlers = relayedClients.values().toArray(new RelayServerClient[0]);
         }
         
         // run through the client handlers

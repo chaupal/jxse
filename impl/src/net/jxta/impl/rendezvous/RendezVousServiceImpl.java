@@ -951,6 +951,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
      *
      *  @deprecated This is private for debugging and diagnostics only.
      */
+    @Deprecated    
     net.jxta.impl.rendezvous.RendezVousServiceProvider getRendezvousProvider() {
         return provider;
     }

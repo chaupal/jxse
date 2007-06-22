@@ -91,6 +91,7 @@ public class TransportServiceMonitor extends GenericServiceMonitor {
      * @return a <code>TransportMeter</code>
      * @deprecated use <code>#createTransportMeter(String, EndpointAddress)</code>
      */
+    @Deprecated
     public synchronized TransportMeter createTransportMeter(String protocol, String sourceAddressString) {
         EndpointAddress endpointAddress = new EndpointAddress(sourceAddressString);
 

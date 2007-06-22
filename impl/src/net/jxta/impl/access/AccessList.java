@@ -169,6 +169,7 @@ public class AccessList {
      * @param file file to refresh from
      * @deprecated use URI variant
      */
+    @Deprecated
     public void refresh(File file) {
         if (file.exists()) {
             try {

@@ -236,11 +236,11 @@ public class BASE64InputStream extends InputStream {
         int v;
         
         if ('A' <= c && c <= 'Z') {
-            v = (int) (c - 'A');
+            v = (c - 'A');
         } else if ('a' <= c && c <= 'z') {
-            v = (int) (c - 'a') + 26;
+            v = (c - 'a') + 26;
         } else if ('0' <= c && c <= '9') {
-            v = (int) (c - '0') + 52;
+            v = (c - '0') + 52;
         } else if (c == '+') {
             v = 62;
         } else if (c == '/') {
