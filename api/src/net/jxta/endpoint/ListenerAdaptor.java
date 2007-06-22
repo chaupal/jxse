@@ -262,7 +262,7 @@ public class ListenerAdaptor implements Runnable {
     /*
      * Any sort of listener type.
      */
-    static abstract class ListenerContainer extends ArrayList {
+    static abstract class ListenerContainer extends ArrayList<java.util.EventListener> {
 
         public ListenerContainer() {
             super(1);
