@@ -145,5 +145,6 @@ public interface MessageSender extends MessageTransport {
      *  @return {@code true} if the specified destination address is reachable
      *  via this Message Transport otherwise returns {@code false}.
      */
+    @Deprecated
     public boolean ping(EndpointAddress addr);
 }
