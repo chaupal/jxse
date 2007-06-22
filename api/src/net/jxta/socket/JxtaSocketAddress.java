@@ -108,6 +108,7 @@ public class JxtaSocketAddress extends SocketAddress {
      *                  (may be null)
      * @deprecated use the PeerAdvertisement variant instead
      */
+    @Deprecated
     public JxtaSocketAddress(PeerGroup peerGroup, PipeAdvertisement pipeAdv, PeerID peerId) {
         this(peerGroup.getPeerGroupID(), pipeAdv, peerId);
     }
@@ -143,6 +144,7 @@ public class JxtaSocketAddress extends SocketAddress {
      * @param pipeAdv     the advertisement of a pipe for the socket to listen on
      * @deprecated use the PeerAdvertisement variant instead
      */
+    @Deprecated
     public JxtaSocketAddress(PeerGroupID peerGroupId, PipeAdvertisement pipeAdv) {
         this(peerGroupId, pipeAdv, null);
     }
@@ -157,7 +159,7 @@ public class JxtaSocketAddress extends SocketAddress {
      * @throws IllegalArgumentException if peerGroupId or pipeAdv are null
      * @deprecated use the PeerAdvertisement variant instead
      */
-
+    @Deprecated
     public JxtaSocketAddress(PeerGroupID peerGroupId, PipeAdvertisement pipeAdv, PeerID peerId) {
 
         if (peerGroupId == null) {
