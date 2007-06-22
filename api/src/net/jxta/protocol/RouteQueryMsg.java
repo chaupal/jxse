@@ -77,7 +77,7 @@ import java.util.Set;
  *
  * @see net.jxta.protocol.RouteResponseMsg
  */
-
+@Deprecated
 public abstract class RouteQueryMsg {
 
     private PeerID destPID = null;

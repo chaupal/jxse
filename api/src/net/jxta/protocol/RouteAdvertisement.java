@@ -363,6 +363,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * @param ap AccessPointAdvertisement of the destination peer
      * @deprecated Because this method unsafely sets destination AccessPointAdvertisement it will be removed.
      */
+    @Deprecated
     public void setDest(AccessPointAdvertisement ap) {
         PeerID destPid = dest.getPeerID();
 

@@ -125,6 +125,7 @@ public abstract class DiscoveryQueryMsg {
      * @deprecated Peer Advertisement is available directly via
      *             {@link #getPeerAdvertisement()}.
      */
+    @Deprecated
     public String getPeerAdv() {
         if (null != peerAdvertisement) {
             return peerAdvertisement.toString();

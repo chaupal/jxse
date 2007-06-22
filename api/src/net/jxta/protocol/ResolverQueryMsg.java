@@ -194,6 +194,7 @@ public abstract class ResolverQueryMsg {
      *
      *@return    String the peerid of the source of the query
      */
+    @Deprecated
     public String getSrc() {
         return (null == srcPeerId) ? null : srcPeerId.toString();
     }
@@ -236,7 +237,6 @@ public abstract class ResolverQueryMsg {
      *
      *@param  name  handler name
      */
-
     public void setHandlerName(String name) {
         this.handlername = name;
     }
@@ -246,7 +246,6 @@ public abstract class ResolverQueryMsg {
      *
      *@param  Query  string representing the query
      */
-
     public void setQuery(String Query) {
         this.query = Query;
     }
@@ -256,7 +255,6 @@ public abstract class ResolverQueryMsg {
      *
      *@param  id  int id
      */
-
     public void setQueryId(int id) {
         queryid = id;
     }
@@ -266,7 +264,6 @@ public abstract class ResolverQueryMsg {
      *
      *@param  route  route advertisement of the source peer
      */
-
     public void setSrcPeerRoute(RouteAdvertisement route) {
         srcPeerRoute = route;
     }
@@ -278,6 +275,7 @@ public abstract class ResolverQueryMsg {
      *
      * @param  src is a containing the peerid of the source
      */
+    @Deprecated
     public void setSrc(String src) {
         if (null == src) {
             setSrcPeer(null);

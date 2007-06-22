@@ -74,6 +74,7 @@ import net.jxta.document.MimeMediaType;
  * @see    <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-erp" 
  *         target="_blank">JXTA Protocols Specification : Endpoint Routing Protocol</a>
  **/
+@Deprecated
 public abstract class RouteResponseMsg {
 
     private RouteAdvertisement dstRoute = null;
