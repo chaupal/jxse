@@ -60,6 +60,7 @@ package net.jxta.meter;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
@@ -91,10 +92,10 @@ public class MonitorResources {
     public static final String METRIC_CLASS_TAG = "serviceMetric";
     public static final String FILTER_CLASS_TAG = "serviceMonitorFilter";
     
-    private static Hashtable registeredMonitorResources = new Hashtable();
+    private static Map<ModuleClassID,ServiceResource> registeredMonitorResources = new Hashtable<ModuleClassID,ServiceResource>();
     
     /**
-     *  Prefix string for all of the Well Known IDs declated in this interface.
+     *  Prefix string for all of the Well Known IDs declared in this interface.
      **/
     private static final String WK_ID_PREFIX = ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-DeadBeefDeafBabaFeedBabe";
     
@@ -433,7 +434,7 @@ public class MonitorResources {
      */
     public static ServiceMonitorFilter createServiceMonitorFilter(ModuleClassID moduleClassID) throws MonitorFilterException {
         try {
-            ServiceResource serviceResource = (ServiceResource) registeredMonitorResources.get(moduleClassID);
+            ServiceResource serviceResource = registeredMonitorResources.get(moduleClassID);
             ServiceMonitorFilter serviceMonitorFilter = (ServiceMonitorFilter) serviceResource.serviceMonitorFilterClass.newInstance();
 
             serviceMonitorFilter.init(moduleClassID);
@@ -450,7 +451,7 @@ public class MonitorResources {
      */
     public static ServiceMetric createServiceMetric(ModuleClassID moduleClassID) throws JxtaException {
         try {
-            ServiceResource serviceResource = (ServiceResource) registeredMonitorResources.get(moduleClassID);
+            ServiceResource serviceResource = registeredMonitorResources.get(moduleClassID);
             ServiceMetric serviceMetric = (ServiceMetric) serviceResource.serviceMetricClass.newInstance();
 
             serviceMetric.init(moduleClassID);
@@ -482,7 +483,7 @@ public class MonitorResources {
      * Get a list of all registered Service Monitor types
      */
     public static ModuleClassID[] getRegisteredModuleClassIDs() {
-        return (ModuleClassID[]) standardServiceMonitorClassIDs.clone();
+        return standardServiceMonitorClassIDs.clone();
     }
         
     /**

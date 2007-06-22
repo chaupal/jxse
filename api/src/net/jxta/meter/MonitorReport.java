@@ -79,8 +79,8 @@ public class MonitorReport implements DocumentSerializable {
     private long toTime;
     private long fromTime;
     private boolean isCumulative;
-    private HashMap serviceMetrics = new HashMap();
-    private LinkedList unknownModuleClassIDs;
+    private Map<ModuleClassID,ServiceMetric> serviceMetrics = new HashMap<ModuleClassID,ServiceMetric>();
+    private List<ModuleClassID> unknownModuleClassIDs;
     
     /**
      * Monitor Reports are generally not created by applications, but by the Monitor or PeerInfoService
@@ -139,7 +139,7 @@ public class MonitorReport implements DocumentSerializable {
      * @return ServiceMetric  ServiceMetric or null if Not Found
      **/
     public ServiceMetric getServiceMetric(ModuleClassID moduleClassID) {
-        return (ServiceMetric) serviceMetrics.get(moduleClassID);
+        return serviceMetrics.get(moduleClassID);
     }
     
     /**
@@ -227,7 +227,7 @@ public class MonitorReport implements DocumentSerializable {
                         serviceMetrics.put(moduleClassID, serviceMetric);
                     } catch (Exception ex) {
                         if (unknownModuleClassIDs == null) {
-                            unknownModuleClassIDs = new LinkedList();
+                            unknownModuleClassIDs = new LinkedList<ModuleClassID>();
                         }
                         
                         unknownModuleClassIDs.add(moduleClassID);
