@@ -95,12 +95,12 @@ import net.jxta.impl.util.TimeUtils;
 
 /**
  * Simple Message Receiver for server side.
- **/
+ */
 class HttpMessageReceiver implements MessageReceiver {
 
     /**
-     *  Log4j logger
-     **/
+     *  logger
+     */
     private final static transient Logger LOG = Logger.getLogger(HttpMessageReceiver.class.getName());
 
     /**
@@ -110,39 +110,39 @@ class HttpMessageReceiver implements MessageReceiver {
 
     /**
      * The ServletHttpTransport that created this MessageReceiver.
-     **/
+     */
     final ServletHttpTransport servletHttpTransport;
 
     /**
      * The public addresses for the this transport.
-     **/
+     */
     private final List<EndpointAddress> publicAddresses;
 
     /**
      *  The min threads that the HTTP server will use for handling requests.
-     **/
+     */
     private static int MIN_LISTENER_THREADS = 10;
     
     /**
      *  The max threads that the HTTP server will use for handling requests.
-     **/
+     */
     private static int MAX_LISTENER_THREADS = 200;
     
     /**
      *  How long a thread can remain idle until the worker thread is let go.
-     **/
+     */
     private static long MAX_THREAD_IDLE_DURATION = 30 * TimeUtils.ASECOND;
     
     /**
      *  The Jetty HTTP Server instance.
-     **/
+     */
     private final HttpServer server;
     private final ServletHandler handler;
     private final SocketListener listener;
 
     /**
      * The listener to invoke when making an incoming messenger.
-     **/
+     */
     private MessengerEventListener messengerEventListener;
 
     public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
@@ -166,15 +166,14 @@ class HttpMessageReceiver implements MessageReceiver {
             LOG.config(configInfo.toString());
         }
         
-        // Disable Jetty Logging
-        if (!Logging.SHOW_FINE) {
+        // Configure Jetty Logging
+        if (!Logging.SHOW_FINER) {
             Log.instance().disableLog();
-            org.mortbay.util.Code.setSuppressWarnings(true);
-            org.mortbay.util.Code.setDebug(false);
-        } else {
-            org.mortbay.util.Code.setSuppressWarnings(false);
-            org.mortbay.util.Code.setDebug(true);
         }
+        
+        org.mortbay.util.Code.setDebug(Logging.SHOW_FINER);
+        org.mortbay.util.Code.setSuppressWarnings(!Logging.SHOW_WARNING);
+        org.mortbay.util.Code.setSuppressStack(!Logging.SHOW_FINER);
 
         // Setup the logger to match the rest of JXTA unless explicitly configured.
         // "LOG_CLASSES" is a Jetty thing.
@@ -193,8 +192,6 @@ class HttpMessageReceiver implements MessageReceiver {
             }
         }
         
-        org.mortbay.util.Code.setSuppressStack(!Logging.SHOW_FINER);
-
         // Initialize the Jetty HttpServer
         server = new HttpServer();
 
@@ -284,7 +281,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     boolean messengerReadyEvent(HttpServletMessenger newMessenger, EndpointAddress connAddr) {
         MessengerEventListener temp = messengerEventListener;
 
@@ -293,7 +290,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public Iterator getPublicAddresses() {
 
         return Collections.unmodifiableList(publicAddresses).iterator();
@@ -301,21 +298,21 @@ class HttpMessageReceiver implements MessageReceiver {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public String getProtocolName() {
         return servletHttpTransport.HTTP_PROTOCOL_NAME;
     }
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public EndpointService getEndpointService() {
         return servletHttpTransport.getEndpointService();
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Object transportControl(Object operation, Object Value) {
         return null;
     }
@@ -327,7 +324,7 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * Returns a Properties instance for jxta.properties if the file exists;
      * otherwise, returns null.
-     **/
+     */
     private static Properties getJxtaProperties(File fromFile) {
         Properties prop = new Properties();
         InputStream in = null;
@@ -369,7 +366,7 @@ class HttpMessageReceiver implements MessageReceiver {
     
     /**
      * Reads the properties from the jxta.properties file
-     **/
+     */
     private void initFromProperties(Properties prop) {
         
         if (prop != null) {
