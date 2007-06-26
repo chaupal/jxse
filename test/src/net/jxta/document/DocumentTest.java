@@ -438,7 +438,7 @@ public final class DocumentTest extends TestCase {
             
             xmldoc.appendChild(anElement);
             
-            Element anotherElement = xmldoc.createElement("why", "because");
+            XMLElement anotherElement = xmldoc.createElement("why", "because");
             
             anElement.appendChild(anotherElement);
             
@@ -571,16 +571,16 @@ public final class DocumentTest extends TestCase {
             
             XMLDocument document2 = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(mime, is);
             
-            Enumeration eachOrig = document.getChildren();
-            Enumeration eachNew = document2.getChildren();
+            Enumeration<XMLElement> eachOrig = document.getChildren();
+            Enumeration<XMLElement> eachNew = document2.getChildren();
             
             while (eachOrig.hasMoreElements()) {
                 if (!eachNew.hasMoreElements()) {
                     fail("Enumeration did not end at same time.");
                 }
                 
-                XMLElement anOrig = (XMLElement) eachOrig.nextElement();
-                XMLElement aNew = (XMLElement) eachNew.nextElement();
+                XMLElement anOrig = eachOrig.nextElement();
+                XMLElement aNew = eachNew.nextElement();
                 
                 assertEquals("Elements names should be equivalent", aNew.getKey(), anOrig.getKey());
                 assertEquals("Elements values should be equivalent", aNew.getValue(), anOrig.getValue());
