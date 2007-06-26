@@ -283,7 +283,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <!-- Compile the API and Implementation -->
     <mkdir dir="${build}" />
     <javac compiler="${net.jxta.build.compiler}" destdir="${build}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
-      <compilerarg compiler="modern" value="-Xlint:-deprecation"/>
+      <compilerarg compiler="modern" value="-Xlint:all,-deprecation,-serial,-unchecked"/>
       <classpath>
         <path refid="compile.classpath" />
       </classpath>
@@ -490,7 +490,7 @@ href="bcprov-ext.jnlp">
       <link href="http://www.bouncycastle.org/docs/docs1.5/" />
       <link href="http://jetty.mortbay.org/javadoc/" />
       <link href="http://java.sun.com/products/servlet/2.3/javadoc/" />
-      <link href="http://platform.jxta.org/nonav/java/api/" offline="true" packagelistLoc="${apidoc}" />
+      <link href="https://jxta-docs.dev.java.net/nonav/jxse-javadoc/current/api/" offline="true" packagelistLoc="${apidoc}" />
       <sourcepath>
         <pathelement location="${basedir}/api/src/" />
         <pathelement location="${basedir}/impl/src/" />

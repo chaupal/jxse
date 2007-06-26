@@ -59,87 +59,6 @@
     </version>
   </versions>
 
-  <mailingLists>
-    <mailingList>
-      <name>cvs</name>
-      <subscribe>
-        cvs@platform.jxta.org
-      </subscribe>
-      <unsubscribe>
-        cvs-unsubscribe@platform.jxta.org
-      </unsubscribe>
-      <archive>
-        http://platform.jxta.org/servlets/SummarizeList?listName=cvs
-      </archive>
-    </mailingList>
-    <mailingList>
-      <name>dev</name>
-      <subscribe>
-        dev@platform.jxta.org
-      </subscribe>
-      <unsubscribe>
-        dev-unsubscribe@platform.jxta.org
-      </unsubscribe>
-      <archive>
-        http://platform.jxta.org/servlets/SummarizeList?listName=dev
-      </archive>
-    </mailingList>
-    <mailingList>
-      <name>issues</name>
-      <subscribe>
-        issues@platform.jxta.org
-      </subscribe>
-      <unsubscribe>
-        issues-unsubscribe@platform.jxta.org
-      </unsubscribe>
-      <archive>
-        http://platform.jxta.org/servlets/SummarizeList?listName=issues
-      </archive>
-    </mailingList>
-  </mailingLists>
-  <developers>
-    <developer>
-      <name>Bernard Traversat</name>
-      <id>tra</id>
-      <email>tra_at_jxta_dot_org</email>
-      <organization>Sun Microsystems, Inc.</organization>
-      <url>http://blogs.sun.com/gonzo</url>
-      <timezone>+8</timezone>
-    </developer>
-    <developer>
-      <name>Mohamed Abdelaziz</name>
-      <id>hamada</id>
-      <email>hamada_at_jxta_dot_org</email>
-      <organization>Sun Microsystems, Inc.</organization>
-      <url>http://blogs.sun.com/hamada</url>
-      <timezone>+8</timezone>
-    </developer>
-    <developer>
-      <name>Mike Duigou</name>
-      <id>bondolo</id>
-      <email>bondolo_at_jxta_dot_org</email>
-      <organization>Sun Microsystems, Inc.</organization>
-      <url>http://blogs.sun.com/bondolo</url>
-      <timezone>+8</timezone>
-    </developer>
-    <developer>
-      <name>Henry Jen</name>
-      <id>slowhog</id>
-      <email>slowhog_at_jxta_dot_org</email>
-      <organization>Sun Microsystems, Inc.</organization>
-      <url>http://blogs.sun.com/slowhog</url>
-      <timezone>+8</timezone>
-    </developer>
-    <developer>
-      <name>James Todd</name>
-      <id>gonzo</id>
-      <email>gonzo@jxta.org</email>
-      <organization>Sun Microsystems, Inc.</organization>
-      <url>http://blogs.sun.com/gonzo</url>
-      <timezone>+8</timezone>
-    </developer>
-  </developers>
-  
   <licenses>
     <license>
       <name>Project JXTA License</name>
@@ -152,7 +71,7 @@
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bouncycastle</artifactId>
-      <jar>bcprov-jdk14-124.jar</jar>
+      <jar>bcprov-jdk14-135.jar</jar>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -160,58 +79,9 @@
       <version>2.4</version>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-    </dependency>
-    <dependency>
       <groupId>jetty</groupId>
       <artifactId>org.mortbay.jetty</artifactId>
       <version>4.2.24</version>
-    </dependency>
-    <dependency>
-      <groupId>jetty</groupId>
-      <artifactId>org.mortbay.jetty</artifactId>
-      <version>5.1.4</version>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xerces</artifactId>
-      <version>2.4.0</version>
-    </dependency>
-    <dependency>
-      <groupId>jaxen</groupId>
-      <artifactId>jaxen</artifactId>
-      <version>1.0-FCS-full</version>
-    </dependency>
-    <dependency>
-      <groupId>saxpath</groupId>
-      <artifactId>saxpath</artifactId>
-      <version>1.0-FCS</version>
-    </dependency>
-    <dependency>
-      <groupId>jdom</groupId>
-      <artifactId>jdom</artifactId>
-      <version>1.0</version>
-    </dependency>
-    
-<!--
-  Note by Peter:
-  SwixML is not hosted in ibibio.org at this point, so you need to put a copy
-  of swixml.jar in ${user}/.maven/repository/swixml/jars/ to make this work.
-  Alternatively, you can change the lines below to get the JAR from somewhere
-  else.
--->
-    <dependency>
-<!--
-      <groupId>swixml</groupId>
--->
-      <groupId>jxta</groupId>
-      <artifactId>swixml</artifactId>
-<!--
-      <version>1.1</version>
--->
-      <jar>swixml.jar</jar>
     </dependency>
   </dependencies>
 
