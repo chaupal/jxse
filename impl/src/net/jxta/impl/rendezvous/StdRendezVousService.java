@@ -88,7 +88,7 @@ import java.util.logging.Logger;
  * Base class for providers which implement the JXTA Standard Rendezvous
  * Protocol.
  *
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
 public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
@@ -115,7 +115,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * The registered handler for messages using the Standard Rendezvous
      * Protocol.
      *
-     * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol
+     * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol
      */
     private StdRdvProtocolListener handler;
 

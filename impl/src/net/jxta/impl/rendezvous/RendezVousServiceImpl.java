@@ -121,7 +121,7 @@ import net.jxta.impl.util.TimeUtils;
  * implements the standard JXTA Rendezvous Protocol (RVP).
  *
  * @see net.jxta.rendezvous.RendezVousService
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target="_blank">JXTA Protocols Specification : Rendezvous Protocol</a>
  */
 public final class RendezVousServiceImpl implements RendezVousService {
     

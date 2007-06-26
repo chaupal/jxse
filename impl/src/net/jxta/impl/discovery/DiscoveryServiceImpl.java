@@ -146,7 +146,7 @@ import java.util.logging.Logger;
  * @see net.jxta.protocol.DiscoveryResponseMsg
  * @see net.jxta.impl.protocol.DiscoveryResponse
  * @see net.jxta.resolver.ResolverService
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-pdp" target="_blank">JXTA Protocols Specification : Peer Discovery Protocol</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-pdp" target="_blank">JXTA Protocols Specification : Peer Discovery Protocol</a>
  */
 public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHandler, RendezvousListener, SrdiHandler, Srdi.SrdiInterface {
 

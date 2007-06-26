@@ -68,7 +68,7 @@ import java.util.zip.CRC32;
  *
  * @see net.jxta.id.IDFactory
  * @see net.jxta.impl.id.UUID.IDFormat
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
  */
 public final class IDBytes implements Serializable {
     
