@@ -58,7 +58,8 @@ package net.jxta.impl.document;
 
 
 import net.jxta.document.Attribute;
-import net.jxta.document.TextElement;
+import net.jxta.document.XMLElement;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -74,7 +75,7 @@ import java.util.List;
  * as a hierarchy of elements. Each element provides a proxy for DOM elements
  * and the text nodes containing values.
  */
-public class DOMXMLElement extends XMLElementCommon {
+public class DOMXMLElement implements XMLElement<DOMXMLElement> {
 
     protected DOMXMLDocument root;
 
@@ -92,6 +93,24 @@ public class DOMXMLElement extends XMLElementCommon {
     protected DOMXMLElement(DOMXMLDocument root, Node node) {
         this.root = root;
         domNode = node;
+    }
+
+    /**
+     * Get the name associated with an element.
+     *
+     * @return A string containing the key of this element.
+     */
+    public String getKey() {
+        return getName();
+    }
+
+    /**
+     * Get the value (if any) associated with an element.
+     *
+     * @return A string containing the value of this element, if any, otherwise null.
+     */
+    public String getValue() {
+        return getTextValue();
     }
 
     /**
@@ -153,12 +172,8 @@ public class DOMXMLElement extends XMLElementCommon {
      *
      * @param element the element to be added as a child
      */
-    public void appendChild(TextElement element) {
-        if (!(element instanceof DOMXMLElement)) {
-            throw new IllegalArgumentException("element type not supported.");
-        }
-
-        getAssocNode().appendChild(((DOMXMLElement) element).getAssocNode());
+    public void appendChild(DOMXMLElement element) {
+        getAssocNode().appendChild(element.getAssocNode());
     }
 
     /**
@@ -176,6 +191,20 @@ public class DOMXMLElement extends XMLElementCommon {
         }
 
         return Collections.enumeration(children);
+    }
+
+    /**
+     * Returns an enumeration of the immediate children of this element whose
+     * name match the specified string.
+     *
+     * @param key The key which will be matched against.
+     * @return enumeration containing all of the children of this element.
+     */
+    public Enumeration<DOMXMLElement> getChildren(Object key) {
+        if (key instanceof String)
+            return getChildren((String) key);
+        else
+            throw new ClassCastException(key.getClass().getName() + " not supported by getChildren.");
     }
 
     /**

@@ -66,7 +66,7 @@ import net.jxta.document.StructuredTextDocument;
 /**
  * Empty interface we use a container for utils
  */
-interface TextDocumentCommon extends StructuredTextDocument {
+interface TextDocumentCommon  {
 
     /**
      * static utility methods.

@@ -67,9 +67,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Constructor;
-import java.util.Enumeration;
-import java.util.Vector;
 
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -77,15 +74,17 @@ import java.lang.reflect.UndeclaredThrowableException;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
+import net.jxta.document.StructuredDocumentFactory.Instantiator.ExtensionMapping;
+import net.jxta.document.XMLDocument;
+import net.jxta.impl.document.LiteXMLElement.charRange;
+import net.jxta.impl.document.LiteXMLElement.tagRange;
 
 
 /**
  * This class is an implementation of the StructuredDocument interface using
  * a simplified XML implementation.
  */
-public class LiteXMLDocument extends LiteXMLElement implements XMLDocumentCommon {
+public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteXMLElement> {
 
     /**
      * {@inheritDoc}
@@ -95,14 +94,18 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocumentCommon
         // "x-" is a mime-type convention for indicating partial or provisional
         // compliance to a standard
         private static final MimeMediaType[] myTypes = {
-            MimeMediaType.XML_DEFAULTENCODING, MimeMediaType.valueOf("Text/x-Xml"), MimeMediaType.valueOf("Application/Xml")
-                    ,
-            MimeMediaType.valueOf("Application/x-Xml"), };
+            MimeMediaType.XML_DEFAULTENCODING, 
+            MimeMediaType.valueOf("Text/x-Xml"), 
+            MimeMediaType.valueOf("Application/Xml"),
+            MimeMediaType.valueOf("Application/x-Xml")
+        };
 
         // these are the file extensions which are likely to contain files of
         // the type I like.
         private static final ExtensionMapping[] myExtensions = {
-            new ExtensionMapping("xml", myTypes[0]), new ExtensionMapping("xml", (MimeMediaType) null) };
+            new ExtensionMapping("xml", myTypes[0]), 
+            new ExtensionMapping("xml", (MimeMediaType) null) 
+        };
 
         /**
          * Creates new LiteXMLDocumentInstantiator

@@ -62,25 +62,15 @@ package net.jxta.document;
  * which are implemented by XML Documents. Appropriate for advertisements and
  * messages.
  */
-public interface XMLDocument extends XMLElement, StructuredTextDocument {
+public interface XMLDocument<X extends XMLElement< X >> extends XMLElement<X>, StructuredTextDocument<X> {
 
     /**
      * {@inheritDoc}
      */
-    XMLElement createElement(Object key);
+    X createElement(String name);
 
     /**
      * {@inheritDoc}
      */
-    XMLElement createElement(Object key, Object value);
-
-    /**
-     * {@inheritDoc}
-     */
-    XMLElement createElement(String name);
-
-    /**
-     * {@inheritDoc}
-     */
-    XMLElement createElement(String name, String value);
+    X createElement(String name, String value);
 }

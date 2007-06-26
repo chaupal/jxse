@@ -71,6 +71,7 @@ import java.io.IOException;
 
 import net.jxta.document.Element;
 import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.TextElement;
 
 import net.jxta.document.Attributable;
@@ -81,7 +82,7 @@ import net.jxta.document.Attribute;
  * This class is an implementation of the StructuredDocument interface using
  * simple text
  */
-public class PlainTextElement extends TextElementCommon implements Attributable {
+public class PlainTextElement implements TextElement<PlainTextElement>, Attributable {
     protected PlainTextDocument doc;
 
     protected PlainTextElement parent;
@@ -150,8 +151,26 @@ public class PlainTextElement extends TextElementCommon implements Attributable 
     /**
      * {@inheritDoc}
      */
-    public PlainTextDocument getRoot() {
-        return doc;
+    public StructuredTextDocument getRoot() {
+        return (StructuredTextDocument) doc;
+    }
+
+    /**
+     * Get the name associated with an element.
+     *
+     * @return A string containing the key of this element.
+     */
+    public String getKey() {
+        return getName();
+    }
+
+    /**
+     * Get the value (if any) associated with an element.
+     *
+     * @return A string containing the value of this element, if any, otherwise null.
+     */
+    public String getValue() {
+        return getTextValue();
     }
 
     /**
@@ -185,25 +204,29 @@ public class PlainTextElement extends TextElementCommon implements Attributable 
     /**
      * {@inheritDoc}
      */
-    public void appendChild(TextElement element) {
-        if (!PlainTextElement.class.isInstance(element)) {
-            throw new IllegalArgumentException("element type not supported.");
-        }
-
-        PlainTextElement textElement = (PlainTextElement) element;
-
-        if (textElement.doc != this.doc) {
+    public void appendChild(PlainTextElement element) {
+        if (element.doc != this.doc) {
             throw new IllegalArgumentException("Wrong Document");
         }
 
-        textElement.parent = this;
-        children.add(textElement);
+        element.parent = this;
+        children.add(element);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Enumeration getChildren(String name) {
+    public Enumeration<PlainTextElement> getChildren(Object key) {
+        if (key instanceof String)
+            return getChildren((String) key);
+        else
+            throw new ClassCastException(key.getClass().getName() + " not supported by getChildren.");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Enumeration<PlainTextElement> getChildren(String name) {
         List result = new ArrayList();
 
         for (Iterator eachChild = children.iterator(); eachChild.hasNext();) {

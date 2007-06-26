@@ -68,25 +68,15 @@ package net.jxta.document;
  * @see         net.jxta.document.TextElement
  * @see         net.jxta.document.StructuredDocumentFactory
  */
-public interface StructuredTextDocument extends StructuredDocument, TextDocument, TextElement {
+public interface StructuredTextDocument<T extends TextElement< T >> extends TextDocument, StructuredDocument<T>, TextElement<T> {
     
-    /**
-     * {@inheritDoc}
-     */
-    TextElement createElement(Object key);
-    
-    /**
-     * {@inheritDoc}
-     */
-    TextElement createElement(Object key, Object value);
-
     /**
      * Create a new element without value.
      *
      * @param   name    The name of the element to be created.
      * @return  The new element.
      */
-    TextElement createElement(String name);
+    T createElement(String name);
     
     /**
      * Create a new element with value.
@@ -95,5 +85,5 @@ public interface StructuredTextDocument extends StructuredDocument, TextDocument
      * @param   value   The value of the element to be created.
      * @return  The new element.
      */
-    TextElement createElement(String name, String value);
+    T createElement(String name, String value);
 }

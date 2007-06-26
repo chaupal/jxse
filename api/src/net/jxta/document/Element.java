@@ -78,7 +78,7 @@ import java.util.Enumeration;
  *  @see net.jxta.document.StructuredTextDocument
  *  @see net.jxta.document.TextElement
  */
-public interface Element {
+public interface Element<E extends Element< E >> {
     
     /**
      * Get the key associated with this Element.
@@ -111,7 +111,7 @@ public interface Element {
      * then null will be returned. If the element is the root Element of the
      * hierarchy then it will return itself.
      */
-    Element getParent();
+    E getParent();
     
     /**
      *  Add a child element to this element. The child element must be from the
@@ -119,7 +119,7 @@ public interface Element {
      *
      *  @param element the element to be added as a child
      */
-    void appendChild(Element element);
+    void appendChild(E element);
     
     /**
      *  Returns an enumeration of the immediate children of this element.
@@ -127,7 +127,7 @@ public interface Element {
      *  @return Enumeration An enumeration containing all of the children of
      *  this element.
      */
-    Enumeration<? extends Element> getChildren();
+    Enumeration<E> getChildren();
     
     /**
      *  Returns an enumeration of the immediate children of this element whose
@@ -137,5 +137,5 @@ public interface Element {
      *  @return Enumeration enumeration containing all of the children of this
      *  element.
      */
-    Enumeration<? extends Element> getChildren(Object key);
+    Enumeration<E> getChildren(Object key);
 }
