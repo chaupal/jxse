@@ -91,7 +91,7 @@ import java.util.Enumeration;
  *
  * @see net.jxta.document.Advertisement
  * @see net.jxta.protocol.ModuleImplAdvertisement
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#advert-mia> target='_blank'>JXTA Protocols Specification - Advertisements : Module Implementation Advertisement</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#advert-mia> target='_blank'>JXTA Protocols Specification - Advertisements : Module Implementation Advertisement</a>
  */
 public class ModuleImplAdv extends ModuleImplAdvertisement {
 

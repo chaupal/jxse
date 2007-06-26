@@ -82,7 +82,7 @@ import net.jxta.protocol.RouteAdvertisement;
  * &lt;/xs:complexType>
  *</tt></pre>
  *
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
  */
 public class ResolverResponse extends ResolverResponseMsg {
 

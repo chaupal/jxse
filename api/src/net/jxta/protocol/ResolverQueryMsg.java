@@ -68,7 +68,7 @@ import net.jxta.id.ID;
  *
  * @see net.jxta.resolver.ResolverService
  * @see net.jxta.protocol.ResolverResponseMsg
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
  **/
 public abstract class ResolverQueryMsg {
 

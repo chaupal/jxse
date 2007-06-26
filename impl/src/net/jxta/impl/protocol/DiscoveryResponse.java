@@ -127,7 +127,7 @@ import java.util.logging.Logger;
  *
  *@see    net.jxta.discovery.DiscoveryService
  *@see    net.jxta.impl.discovery.DiscoveryServiceImpl
- *@see    <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-pdp" 
+ *@see    <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-pdp" 
  *        target="_blank">JXTA Protocols Specification : Peer Discovery Protocol</a>
  */
 public class DiscoveryResponse extends DiscoveryResponseMsg {

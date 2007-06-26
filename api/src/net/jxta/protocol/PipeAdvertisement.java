@@ -71,7 +71,7 @@ import net.jxta.id.ID;
  *  A pipe can also optionally have a name and/or a description.
  *
  *  @see net.jxta.pipe.PipeService
- *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-pbp" target="_blank">JXTA Protocols Specification : Pipe Binding Protocol</a>
+ *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-pbp" target="_blank">JXTA Protocols Specification : Pipe Binding Protocol</a>
  */
 public abstract class PipeAdvertisement extends ExtendableAdvertisement implements Cloneable {
 
