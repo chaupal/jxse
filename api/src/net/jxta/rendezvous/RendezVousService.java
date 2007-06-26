@@ -82,7 +82,7 @@ import net.jxta.service.Service;
  * a PeerGroup to act as a Rendezvous. Rendezvous peers may dynamically join or
  * leave the PeerGroup over time.
  *
- * @see    <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-rvp" target='_blank'>JXTA Protocols Specification : Rendezvous</a>
+ * @see    <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target='_blank'>JXTA Protocols Specification : Rendezvous</a>
  */
 public interface RendezVousService extends Service {
 
