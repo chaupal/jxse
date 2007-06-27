@@ -391,14 +391,14 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             el = msg.getMessageElement(nameSpace, reqPipeTag);
             if (el != null) {
-                InputStream in = el.getStream();
-                outputPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(el.getMimeType(), in);
+                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
+                outputPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
             }
 
             el = msg.getMessageElement(nameSpace, remPeerTag);
             if (el != null) {
-                InputStream in = el.getStream();
-                peerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(el.getMimeType(), in);
+                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
+                peerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
             }
 
             el = msg.getMessageElement(nameSpace, reliableTag);

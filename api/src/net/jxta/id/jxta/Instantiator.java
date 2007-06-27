@@ -111,6 +111,7 @@ final class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
 
         // check the protocol

@@ -1069,6 +1069,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public boolean ping(EndpointAddress addr) {
 
         EndpointAddress plainAddr = new EndpointAddress(addr, null, null);

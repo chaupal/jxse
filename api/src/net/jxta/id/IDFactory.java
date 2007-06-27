@@ -436,6 +436,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      * instantiator interface in preparation for the removal of the URL
      * based interfaces. This interface will be removed in a future release.
      */
+    @Deprecated
     public interface URIInstantiator extends Instantiator {}
     
     /**

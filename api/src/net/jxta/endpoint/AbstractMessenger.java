@@ -160,6 +160,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public EndpointAddress getDestinationAddressObject() {
         return dstAddress;
     }

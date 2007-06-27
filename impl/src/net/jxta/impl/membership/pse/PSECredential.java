@@ -71,7 +71,6 @@ import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.util.TimerThreadNamer;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -160,18 +159,14 @@ import java.util.logging.Logger;
 public final class PSECredential implements Credential, CredentialPCLSupport {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(PSECredential.class.getName());
 
     /**
      * A Timer we use for managing the cert expirations.
      */
-    private static Timer expirationTimer = new Timer(true);
-
-    static {
-        expirationTimer.schedule(new TimerThreadNamer("PSECredential Expiration Timer"), 0);
-    }
+    private static Timer expirationTimer = new Timer("PSECredential Expiration Timer", true);
 
     /**
      * The MembershipService service which generated this credential.

@@ -57,6 +57,7 @@
 package net.jxta.impl.protocol;
 
 
+import java.io.IOException;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.*;
 import net.jxta.protocol.DiscoveryQueryMsg;
@@ -151,42 +152,52 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
      * @param raw the element to be processed.
      * @return true if the element was recognized, otherwise false.
      */
-    protected boolean handleElement(Element raw) {
-
-        XMLElement elem = (XMLElement) raw;
+    protected boolean handleElement(XMLElement elem) {
+        
+        String value = elem.getTextValue();
+        
+        if(null == value) {
+            return false;
+        }
+        
+        value = value.trim();
+        
+        if(0 == value.length()) {
+            return false;
+        }
 
         if (elem.getName().equals(typeTag)) {
-            setDiscoveryType(Integer.parseInt(elem.getTextValue()));
+            setDiscoveryType(Integer.parseInt(value));
             return true;
         }
         if (elem.getName().equals(thresholdTag)) {
-            setThreshold(Integer.parseInt(elem.getTextValue()));
+            setThreshold(Integer.parseInt(value));
             return true;
         }
         if (elem.getName().equals(peerAdvTag)) {
-            setPeerAdv(elem.getTextValue());
-            return true;
+            try {
+                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(value));
+                PeerAdvertisement adv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
+                setPeerAdvertisement(adv);
+                return true;
+            } catch(IOException failed) {
+                IllegalArgumentException failure = new IllegalArgumentException("Bad Peer Advertisement");
+                failure.initCause(failed);
+                
+                throw failure;
+            }
         }
         if (elem.getName().equals(queryAttrTag)) {
-            setAttr(elem.getTextValue());
+            setAttr(value);
             return true;
         }
         if (elem.getName().equals(queryValueTag)) {
-            setValue(elem.getTextValue());
+            setValue(value);
             return true;
         }
 
         // element was not handled
         return false;
-    }
-
-    private void setPeerAdv(String newAdv) {
-        try {
-            setPeerAdvertisement(
-                    (PeerAdvertisement) AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, new StringReader(newAdv)));
-        } catch (Exception failed) {
-            throw new IllegalArgumentException("Bad Peer Avertisement");
-        }
     }
 
     /**
@@ -209,10 +220,10 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
 
         setDiscoveryType(-1); // force illegal value;
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            Element elem = (Element) elements.nextElement();
+            XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -305,10 +316,8 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
             StructuredTextDocument doc = (StructuredTextDocument) getDocument(MimeMediaType.XMLUTF8);
 
             return doc.toString();
-        } catch (Throwable e) {
-            if (e instanceof Error) {
-                throw (Error) e;
-            } else if (e instanceof RuntimeException) {
+        } catch (Exception e) {
+            if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             } else {
                 throw new UndeclaredThrowableException(e);

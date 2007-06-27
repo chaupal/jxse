@@ -78,7 +78,6 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.util.SimpleSelectable;
 
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.TimerThreadNamer;
 
 
 /**

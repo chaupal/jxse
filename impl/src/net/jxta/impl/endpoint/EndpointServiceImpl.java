@@ -1858,6 +1858,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      *
      * @deprecated legacy method.
      */
+    @Deprecated
     public boolean ping(EndpointAddress addr) {
         throw new UnsupportedOperationException("Legacy method not implemented. Use an interface object.");
     }
@@ -1867,6 +1868,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      *
      * @deprecated legacy method.
      */
+    @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint) {
         throw new UnsupportedOperationException("Legacy method not implemented. Use an interface object.");
     }

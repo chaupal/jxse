@@ -1264,7 +1264,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             try {
                 bis = (InputStream) results.get(i);
-                Advertisement adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, bis);
+                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
+                Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
 
                 advertisements.add(adv);
             } catch (Exception e) {
