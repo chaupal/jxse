@@ -71,7 +71,7 @@ package net.jxta.document;
  * @see         net.jxta.document.StructuredTextDocument
  * @see         net.jxta.document.StructuredDocumentFactory
  **/
-public interface StructuredDocument extends Document, Element {
+public interface StructuredDocument<E extends Element< E >> extends Document, Element<E> {
     
     /**
      * Create a new element without value.
@@ -79,7 +79,7 @@ public interface StructuredDocument extends Document, Element {
      * @param key The key of the element to be created.
      * @return The new element.
      **/
-    Element createElement(Object key);
+    E createElement(Object key);
     
     /**
      * Create a new element with value.
@@ -89,5 +89,5 @@ public interface StructuredDocument extends Document, Element {
      * <code>null</code> if no value is desired.
      * @return  The new element.
      **/
-    Element createElement(Object key, Object value);
+    E createElement(Object key, Object value);
 }

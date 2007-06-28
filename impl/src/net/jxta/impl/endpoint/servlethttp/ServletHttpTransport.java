@@ -320,7 +320,7 @@ public final class ServletHttpTransport implements Module {
                     MonitorResources.transportServiceMonitorClassID);
             
             if (transportServiceMonitor != null) {
-                transportMeter = transportServiceMonitor.createTransportMeter("HTTP", publicAddress.toString());
+                transportMeter = transportServiceMonitor.createTransportMeter("HTTP", publicAddress);
                 unknownTransportBindingMeter = transportMeter.getTransportBindingMeter(TransportMeter.UNKNOWN_PEER
                         ,
                         TransportMeter.UNKNOWN_ADDRESS);

@@ -69,6 +69,7 @@ import java.io.StringWriter;
  * {@link net.jxta.impl.util.BASE64OutputStream}.
  *
  **/
+@Deprecated
 public final class Base64 {
     
     private Base64() {}
@@ -256,11 +257,11 @@ public final class Base64 {
         int v;
         
         if ('A' <= c && c <= 'Z') {
-            v = (int) (c - 'A');
+            v = (c - 'A');
         } else if ('a' <= c && c <= 'z') {
-            v = (int) (c - 'a') + 26;
+            v = (c - 'a') + 26;
         } else if ('0' <= c && c <= '9') {
-            v = (int) (c - '0') + 52;
+            v = (c - '0') + 52;
         } else if (c == '+') {
             v = 62;
         } else {

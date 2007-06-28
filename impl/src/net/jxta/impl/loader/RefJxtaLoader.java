@@ -236,8 +236,7 @@ public class RefJxtaLoader extends JxtaLoader {
             throw new ClassNotFoundException("No matching class for : " + spec);
         }
 
-        for (Map.Entry<String, Class> entry : compats.entrySet()) {
-            Map.Entry<String, Class> anEntry = (Map.Entry<String, Class>) entry;
+        for (Map.Entry<String, Class> anEntry : compats.entrySet()) {
             String aCompat = anEntry.getKey();
 
             StructuredDocument asDoc;

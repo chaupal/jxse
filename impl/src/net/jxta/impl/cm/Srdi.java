@@ -123,7 +123,7 @@ import java.util.logging.Logger;
  * query forward loopback hopCount is checked to make ensure a query is not
  * forwarded more than twice.
  *
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
  */
 public class Srdi implements Runnable, RendezvousListener {
 

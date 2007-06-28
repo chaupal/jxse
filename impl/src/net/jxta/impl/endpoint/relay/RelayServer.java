@@ -115,29 +115,29 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     /**
      *  Logger
-     **/
-    private static final Logger LOG = Logger.getLogger(RelayServer.class.getName());
+     */
+    private final static transient Logger LOG = Logger.getLogger(RelayServer.class.getName());
     
-    private static final int MAX_CACHED_SERVERS = 20;
+    private final static int MAX_CACHED_SERVERS = 20;
     
     /**
      * The EndpointService for the RelayService
-     **/
+     */
     private EndpointService endpointService;
     
     /**
      * The DiscoveryService for the RelayService
-     **/
+     */
     private DiscoveryService discoveryService;
     
     /**
      * The public address is of the form relay://peerId
-     **/
+     */
     private final EndpointAddress publicAddress;
     
     /**
      *  Map of the current clients
-     **/
+     */
     private final Map<String, RelayServerClient> relayedClients = new HashMap<String, RelayServerClient>();
     
     protected final PeerGroup group;
@@ -165,7 +165,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     /**
      * constructor
-     **/
+     */
     public RelayServer(PeerGroup group, String serviceName, RelayConfigAdv relayConfigAdv) {
         
         this.group = group;
@@ -296,7 +296,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         RelayServerClient[] oldClients;
         
         synchronized (relayedClients) {
-            oldClients = (RelayServerClient[]) relayedClients.values().toArray(new RelayServerClient[0]);
+            oldClients = relayedClients.values().toArray(new RelayServerClient[0]);
         }
         
         int i = oldClients.length;
@@ -316,40 +316,40 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public EndpointAddress getPublicAddress() {
         return publicAddress;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public boolean isConnectionOriented() {
         return true;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public boolean allowsRouting() {
         return true;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Object transportControl(Object operation, Object Value) {
         return null;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
         Messenger messenger = null;
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("getMessenger for dest " + destAddr.toString());
+            LOG.fine("getMessenger for dest " + destAddr);
         }
         
         if (!RelayTransport.protocolName.equals(destAddr.getProtocolName())) {
@@ -376,7 +376,8 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
     /**
      * {@inheritDoc}
-     **/
+     */
+    @Deprecated
     public boolean ping(EndpointAddress addr) {
         
         synchronized (relayedClients) {
@@ -390,21 +391,21 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public String getProtocolName() {
         return RelayTransport.protocolName;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public EndpointService getEndpointService() {
         return endpointService;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public boolean messengerReady(MessengerEvent event) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("messengerReady");
@@ -801,7 +802,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         RelayServerClient handler = null;
         
         synchronized (relayedClients) {
-            handler = (RelayServerClient) relayedClients.get(clientPeerId);
+            handler = relayedClients.get(clientPeerId);
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -824,7 +825,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         synchronized (relayedClients) {
             // check if this client is already registered
-            handler = (RelayServerClient) relayedClients.get(clientPeerId);
+            handler = relayedClients.get(clientPeerId);
             if (handler == null) {
                 // make sure the maximum number of clients has not been reached
                 // and make sure that we have a messenger to give to the new
@@ -912,7 +913,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         synchronized (relayedClients) {
-            handler = (RelayServerClient) relayedClients.remove(clientPeerId);
+            handler = relayedClients.remove(clientPeerId);
             
             // check if there are any clients
             if (relayedClients.size() == 0) {
@@ -940,7 +941,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         synchronized (relayedClients) {
-            RelayServerClient currentHandler = (RelayServerClient) relayedClients.get(clientPeerId);
+            RelayServerClient currentHandler = relayedClients.get(clientPeerId);
             
             // only remove the client if the current handler matches the passed one
             if (currentHandler == handler) {
@@ -968,7 +969,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     /**
      *  {@inheritDoc}
-     **/
+     */
     public void run() {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("Starting lease gc thread");
@@ -1023,7 +1024,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         RelayServerClient[] handlers;
         
         synchronized (relayedClients) {
-            handlers = (RelayServerClient[]) relayedClients.values().toArray(new RelayServerClient[0]);
+            handlers = relayedClients.values().toArray(new RelayServerClient[0]);
         }
         
         // run through the client handlers
@@ -1114,7 +1115,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         /**
          *  {@inheritDoc}
-         **/
+         */
         public void pipeMsgEvent(PipeMsgEvent event) {
             Message message = event.getMessage();
             
@@ -1286,7 +1287,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         /**
          *  {@inheritDoc}
-         **/
+         */
         public void run() {
             try {
                 OutputPipe outputPipe = null;
@@ -1451,7 +1452,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
     /**
      *  Sends a message on an synchronous messenger.
-     **/
+     */
     static class BGSend extends Thread {
         
         Messenger mr;
@@ -1471,7 +1472,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         /**
          *  {@inheritDoc}
-         **/
+         */
         @Override
         public void run() {
             try {

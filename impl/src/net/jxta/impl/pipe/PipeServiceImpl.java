@@ -102,7 +102,7 @@ import java.text.MessageFormat;
  * @see net.jxta.endpoint.Message
  * @see net.jxta.protocol.PipeAdvertisement
  * @see net.jxta.protocol.PipeResolverMessage
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-pbp" target="_blank">JXTA Protocols Specification : Pipe Binding Protocol</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-pbp" target="_blank">JXTA Protocols Specification : Pipe Binding Protocol</a>
  */
 public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 

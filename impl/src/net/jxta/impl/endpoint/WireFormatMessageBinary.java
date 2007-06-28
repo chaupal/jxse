@@ -98,7 +98,7 @@ import java.util.Arrays;
  * requesting mime type.
  *
  * @see net.jxta.endpoint.WireFormatMessageFactory
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#msgs-fmts-jbm" target="_blank">JXTA Protocols Specification : Binary Message Format</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#msgs-fmts-jbm" target="_blank">JXTA Protocols Specification : Binary Message Format</a>
  */
 public class WireFormatMessageBinary implements WireFormatMessage {
 

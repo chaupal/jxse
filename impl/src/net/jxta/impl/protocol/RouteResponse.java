@@ -92,7 +92,7 @@ import java.util.Enumeration;
  * </pre>
  *
  * @see net.jxta.impl.endpoint.router.EndpointRouter
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-erp"
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-erp"
  *      target="_blank">JXTA Protocols Specification : Endpoint Routing Protocol</a>
  */
 public class RouteResponse extends RouteResponseMsg {

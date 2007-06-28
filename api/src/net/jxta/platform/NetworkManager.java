@@ -111,19 +111,31 @@ public class NetworkManager implements RendezvousListener {
         /**
          * A AD-HOC node
          */
-        ADHOC, /**
+        ADHOC,
+        /**
          * A Edge node
-         */ EDGE, /**
+         */
+        EDGE,
+        /**
          * A Rendezvous node
-         */ RENDEZVOUS, /**
+         */
+        RENDEZVOUS,
+        /**
          * A Relay node
-         */ RELAY, /**
+         */
+        RELAY,
+        /**
          * Rendezvous and a Relay
-         */ RENDEZVOUS_RELAY, /**
+         */
+        RENDEZVOUS_RELAY,
+        /**
          * JXME Proxy node
-         */ PROXY, /**
+         */
+        PROXY,
+        /**
          * A Rendezvous, Relay, and JXME Proxy node
-         */ SUPER
+         */
+        SUPER
     }
 
     private PeerGroup netPeerGroup = null;
@@ -132,8 +144,8 @@ public class NetworkManager implements RendezvousListener {
     private RendezVousService rendezvous;
     private final static Object networkConnectLock = new Object();
     private String instanceName = "NA";
-    private final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3");
-    private final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3");
+    private final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?5");
+    private final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?5");
     private ShutdownHook shutdownHook;
     private ConfigMode mode;
     private URI instanceHome;
@@ -303,36 +315,36 @@ public class NetworkManager implements RendezvousListener {
 
     private void configure(ConfigMode mode) throws IOException {
         switch (mode) {
-        case ADHOC:
-            config = NetworkConfigurator.newAdHocConfiguration(instanceHome);
-            break;
+            case ADHOC:
+                config = NetworkConfigurator.newAdHocConfiguration(instanceHome);
+                break;
 
-        case EDGE:
-            config = NetworkConfigurator.newEdgeConfiguration(instanceHome);
-            break;
+            case EDGE:
+                config = NetworkConfigurator.newEdgeConfiguration(instanceHome);
+                break;
 
-        case RENDEZVOUS:
-            config = NetworkConfigurator.newRdvConfiguration(instanceHome);
-            break;
+            case RENDEZVOUS:
+                config = NetworkConfigurator.newRdvConfiguration(instanceHome);
+                break;
 
-        case RELAY:
-            config = NetworkConfigurator.newRelayConfiguration(instanceHome);
-            break;
+            case RELAY:
+                config = NetworkConfigurator.newRelayConfiguration(instanceHome);
+                break;
 
-        case RENDEZVOUS_RELAY:
-            config = NetworkConfigurator.newRdvRelayConfiguration(instanceHome);
-            break;
+            case RENDEZVOUS_RELAY:
+                config = NetworkConfigurator.newRdvRelayConfiguration(instanceHome);
+                break;
 
-        case PROXY:
-            config = NetworkConfigurator.newProxyConfiguration(instanceHome);
-            break;
+            case PROXY:
+                config = NetworkConfigurator.newProxyConfiguration(instanceHome);
+                break;
 
-        case SUPER:
-            config = NetworkConfigurator.newRdvRelayProxyConfiguration(instanceHome);
-            break;
+            case SUPER:
+                config = NetworkConfigurator.newRdvRelayProxyConfiguration(instanceHome);
+                break;
 
-        default:
-            config = NetworkConfigurator.newAdHocConfiguration(instanceHome);
+            default:
+                config = NetworkConfigurator.newAdHocConfiguration(instanceHome);
         }
         if (!config.exists()) {
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {

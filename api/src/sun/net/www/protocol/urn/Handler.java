@@ -69,6 +69,7 @@ import java.io.IOException;
  *
  * @deprecated Use the URI interfaces for JXTA IDs instead of the URLs.
  */
+@Deprecated
 public final class Handler extends URLStreamHandler {
     
     public static Handler handler = new Handler();

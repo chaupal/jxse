@@ -90,7 +90,7 @@ import net.jxta.impl.util.TimeUtils;
 public class UnbiasedQueue {
     
     /**
-     *  Log4J Logger
+     *  Logger
      */
     private static final Logger LOG = Logger.getLogger(UnbiasedQueue.class.getName());
     
@@ -112,7 +112,7 @@ public class UnbiasedQueue {
     /**
      *  Contains the objects we currently have queued.
      */
-    protected List queue = null;
+    protected List<Object> queue = null;
     
     /**
      *  The maximum number of objects we will hold in the queue at one time.
@@ -400,7 +400,7 @@ public class UnbiasedQueue {
      * <tt>false</tt> then the element will not be inserted if the queue is full.
      */
     public UnbiasedQueue(int maxsize, boolean dropOldest) {
-        this(maxsize, dropOldest, new ArrayList());
+        this(maxsize, dropOldest, new ArrayList<Object>());
     }
     
     /**
@@ -417,7 +417,7 @@ public class UnbiasedQueue {
      *  @param queue    the List class instance to use. This does not need to be
      *  a synchronized list class. (and it works more effciently if it isn't).
      */
-    public UnbiasedQueue(int maxsize, boolean dropOldest, List queue) {
+    public UnbiasedQueue(int maxsize, boolean dropOldest, List<Object> queue) {
         if (maxsize <= 0) {
             throw new IllegalArgumentException("size must be > 0");
         }

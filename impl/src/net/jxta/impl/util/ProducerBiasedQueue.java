@@ -74,6 +74,7 @@ import net.jxta.impl.util.TimeUtils;
  *  @deprecated Please convert all code to use the java.util.concurrent BlockingQueue instead.
  *
  **/
+@Deprecated
 public class ProducerBiasedQueue extends UnbiasedQueue {
     
     /**
@@ -100,7 +101,7 @@ public class ProducerBiasedQueue extends UnbiasedQueue {
      * being pushed. If "false" then then newest item will be dropped.
      */
     public ProducerBiasedQueue(int size, boolean dropOldest) {
-        super(size, dropOldest, new ArrayList());
+        super(size, dropOldest, new ArrayList<Object>());
     }
     
     /**

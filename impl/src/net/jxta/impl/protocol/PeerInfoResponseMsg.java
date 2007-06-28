@@ -98,6 +98,7 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
      * @param timestamp TimeStamp
      * @deprecated Please use the individual setters
      */
+    @Deprecated
     public PeerInfoResponseMsg(PeerID spid, PeerID tpid, long uptime, long timestamp) {
         setSourcePid(spid);
         setTargetPid(tpid);

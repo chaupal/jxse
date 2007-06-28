@@ -96,10 +96,11 @@ import net.jxta.impl.membership.pse.PSEUtils;
  *  @see <a href="http://http://www.rsasecurity.com/rsalabs/pkcs/pkcs-10/" target='_blank'>PKCS #10</a>
  *  @see <a href="ftp://ftp.isi.edu/in-notes/rfc2986.txt" target='_blank'>IETF RFC 2986</a>
  **/
+@Deprecated
 public class CertificateSigningRequest {
     
     /**
-     *  Log4J Logger
+     *  Logger
      **/
     private final static transient Logger LOG = Logger.getLogger(CertificateSigningRequest.class.getName());
     

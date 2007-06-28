@@ -87,8 +87,8 @@ import net.jxta.service.Service;
  *  @see net.jxta.pipe.InputPipe
  *  @see net.jxta.pipe.OutputPipe
  *  @see net.jxta.endpoint.Message
- *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#overview-pipes" target='_blank'>JXTA Protocols Specification : Pipes</a>
- *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-pbp" target='_blank'>JXTA Protocols Specification : Pipe Binding Protocol</a>
+ *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#overview-pipes" target='_blank'>JXTA Protocols Specification : Pipes</a>
+ *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-pbp" target='_blank'>JXTA Protocols Specification : Pipe Binding Protocol</a>
  */
 public interface PipeService extends Service {
 

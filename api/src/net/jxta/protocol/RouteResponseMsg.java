@@ -71,9 +71,10 @@ import net.jxta.document.MimeMediaType;
  * not part of the JXTA public API. It will be moved from this package.
  *
  * @see net.jxta.protocol.RouteQueryMsg
- * @see    <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto-erp" 
+ * @see    <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-erp" 
  *         target="_blank">JXTA Protocols Specification : Endpoint Routing Protocol</a>
  **/
+@Deprecated
 public abstract class RouteResponseMsg {
 
     private RouteAdvertisement dstRoute = null;

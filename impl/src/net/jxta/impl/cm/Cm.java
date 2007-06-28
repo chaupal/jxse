@@ -155,6 +155,7 @@ public final class Cm implements Runnable {
      * @param optimize not used
      * @deprecated Legacy constructor for bench test MakeAdvertisements.java
      */
+    @Deprecated
     public Cm(String areaName, boolean optimize) {
         this(new File(System.getProperty("JXTA_HOME", ".jxta")).toURI(), areaName);
     }
@@ -540,10 +541,9 @@ public final class Cm implements Runnable {
                 try {
                     if (calcExpiration(record) > 0) {
                         InputStream is = record.getValue().getInputStream();
-                        Advertisement adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);
-                        Map<String, String> indexables = getIndexfields(adv.getIndexFields()
-                                ,
-                                (StructuredDocument) adv.getDocument(MimeMediaType.XMLUTF8));
+                        XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
+                        Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
+                        Map<String, String> indexables = getIndexfields(adv.getIndexFields(), asDoc);
 
                         indexer.removeFromIndex(addKey(dn, indexables), removePos);
                         // add it to deltas to expire it in srdi
@@ -1263,9 +1263,9 @@ public final class Cm implements Runnable {
                 }
 
                 InputStream is = record.getValue().getInputStream();
-                Advertisement adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);
-                Map<String, String> indexables = getIndexfields(adv.getIndexFields(),
-                                                (StructuredDocument) adv.getDocument(MimeMediaType.XMLUTF8));
+                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
+                Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
+                Map<String, String> indexables = getIndexfields(adv.getIndexFields(), asDoc);
 
                 String dn = getDirName(adv);
                 Map<String, String> keyedIdx = addKey(dn, indexables);

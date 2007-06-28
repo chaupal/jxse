@@ -71,7 +71,7 @@ public class MessengerEvent extends java.util.EventObject {
     /**
      * The newly created messenger.
      */
-    final Messenger messenger;
+    final transient Messenger messenger;
 
     /**
      * The destination address of the messenger.

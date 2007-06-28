@@ -62,6 +62,7 @@ import java.io.OutputStream;
 // import java.util.Enumeration;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
 import java.util.logging.Logger;
@@ -70,6 +71,7 @@ import net.jxta.logging.Logging;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 // import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -100,7 +102,7 @@ import net.jxta.impl.util.TimeUtils;
 public class HttpMessageServlet extends HttpServlet {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(HttpMessageServlet.class.getName());
 
@@ -226,9 +228,9 @@ public class HttpMessageServlet extends HttpServlet {
         int requestSize = 0;
         TransportBindingMeter transportBindingMeter = null;
 
-        // if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-        // printRequest(req);
-        // }
+        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+            printRequest(req);
+        }
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING) {
             int contentLength = req.getContentLength();
@@ -274,8 +276,7 @@ public class HttpMessageServlet extends HttpServlet {
             EndpointAddress sourceAddress = new EndpointAddress("http", req.getRemoteHost(), null, null); //
 
             if (null != currentRequest.requestorAddr) {
-                transportBindingMeter = servletHttpTransport.getTransportBindingMeter(currentRequest.requestorAddr.toString()
-                        ,
+                transportBindingMeter = servletHttpTransport.getTransportBindingMeter(currentRequest.requestorAddr.toString(),
                         sourceAddress);
             } else {
                 transportBindingMeter = servletHttpTransport.getTransportBindingMeter(req.getRemoteHost(), sourceAddress);
@@ -292,9 +293,7 @@ public class HttpMessageServlet extends HttpServlet {
         if ((null != currentRequest.requestorAddr) && (currentRequest.responseTimeout >= 0) && (null != currentRequest.destAddr)) {
             // create the back channel messenger
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "Creating back channel messenger for " + currentRequest.requestorAddr + " (" + currentRequest.destAddr
-                        + ")");
+                LOG.fine( "Creating back channel messenger for " + currentRequest.requestorAddr + " (" + currentRequest.destAddr + ")");
             }
 
             long messengerAliveFor;
@@ -305,8 +304,7 @@ public class HttpMessageServlet extends HttpServlet {
                 messengerAliveFor = Math.max(currentRequest.responseTimeout, currentRequest.extraResponsesTimeout);
             }
 
-            messenger = new HttpServletMessenger(owner.servletHttpTransport.group.getPeerGroupID(), localAddress
-                    ,
+            messenger = new HttpServletMessenger(owner.servletHttpTransport.group.getPeerGroupID(), localAddress,
                     currentRequest.requestorAddr, messengerAliveFor);
             boolean taken = owner.messengerReadyEvent(messenger, currentRequest.destAddr);
 
@@ -375,8 +373,7 @@ public class HttpMessageServlet extends HttpServlet {
                     res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message was not a valid JXTA message");
 
                     if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-                        transportBindingMeter.connectionDropped(false
-                                ,
+                        transportBindingMeter.connectionDropped(false,
                                 TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), currentRequest.requestStartTime));
                     }
                     return;
@@ -445,8 +442,7 @@ public class HttpMessageServlet extends HttpServlet {
                         }
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-                            transportBindingMeter.connectionClosed(false
-                                    ,
+                            transportBindingMeter.connectionClosed(false,
                                     TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), currentRequest.requestStartTime));
                         }
 
@@ -478,9 +474,7 @@ public class HttpMessageServlet extends HttpServlet {
                     }
 
                     // send the message
-                    WireFormatMessage serialed = WireFormatMessageFactory.toWire(outMsg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE
-                            ,
-                            null);
+                    WireFormatMessage serialed = WireFormatMessageFactory.toWire(outMsg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE, null);
 
                     // if only one message is being returned, set the content
                     // length, otherwise try to use chunked encoding.
@@ -520,8 +514,7 @@ public class HttpMessageServlet extends HttpServlet {
                         messenger.messageSent(false);
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-                            transportBindingMeter.connectionDropped(false
-                                    ,
+                            transportBindingMeter.connectionDropped(false,
                                     TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), currentRequest.requestStartTime));
                         }
 
@@ -535,9 +528,7 @@ public class HttpMessageServlet extends HttpServlet {
                     if (0 == currentRequest.extraResponsesTimeout) {
                         quitAt = Long.MAX_VALUE;
                     } else {
-                        quitAt = TimeUtils.toAbsoluteTimeMillis(currentRequest.requestStartTime
-                                ,
-                                currentRequest.extraResponsesTimeout);
+                        quitAt = TimeUtils.toAbsoluteTimeMillis(currentRequest.requestStartTime, currentRequest.extraResponsesTimeout);
                     }
 
                     // If we never generated a response then make it clear we gave up waiting.
@@ -573,8 +564,7 @@ public class HttpMessageServlet extends HttpServlet {
         }
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-            transportBindingMeter.connectionClosed(false
-                    ,
+            transportBindingMeter.connectionClosed(false,
                     TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), currentRequest.requestStartTime));
         }
     }
@@ -606,10 +596,9 @@ public class HttpMessageServlet extends HttpServlet {
      *  Debugging output.
      */
     
-    /*
      private static void printRequest(HttpServletRequest req) {
      final char nl = '\n';
-     StringBuffer b = new StringBuffer();
+     StringBuilder b = new StringBuilder();
 
      b.append("HTTP request:" + nl);
      b.append("  AUTH_TYPE: " + req.getAuthType() + nl);
@@ -675,14 +664,13 @@ public class HttpMessageServlet extends HttpServlet {
      b.append("  SERVER_PORT: " + req.getServerPort() + nl);
      b.append("  isSecure: " + req.isSecure());
 
-     LOG.trace(b);
+     LOG.finest(b.toString());
      }
-     */
 
     /**
      *  A servlet request.
      *
-     *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#trans-httpt-msg-msgs" target="_blank">JXTA Protocols Specification : Standard JXTA Transport Bindings : HTTP Bindings</a>
+     *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#trans-httpt-msg-msgs" target="_blank">JXTA Protocols Specification : Standard JXTA Transport Bindings : HTTP Bindings</a>
      */
     private static class JxtaRequest {
 
@@ -776,7 +764,7 @@ public class HttpMessageServlet extends HttpServlet {
                 extraResponsesTimeout = -1;
                 destAddr = null;
             }
-
+           
             // check for incoming message
             messageContent = hasMessageContent(req);
 

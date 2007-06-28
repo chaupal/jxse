@@ -284,9 +284,7 @@ public final class WorldPeerGroupFactory {
                     LOG.info("Making a new World Peer Group instance using : " + worldPeerGroupClass.getName());
                 }
                 
-                Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class
-                        ,
-                        URI.class);
+                Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);
                 
                 try {
                     result = twoParams.newInstance(config, storeHome);

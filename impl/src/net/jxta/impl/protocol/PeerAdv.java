@@ -103,7 +103,7 @@ import net.jxta.protocol.PeerAdvertisement;
  * </tt></pre>
  *
  * @see net.jxta.protocol.PeerAdvertisement
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#advert-pa" target="_blank">JXTA Protocols Specification : Peer Advertisement</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#advert-pa" target="_blank">JXTA Protocols Specification : Peer Advertisement</a>
  **/
 public class PeerAdv extends PeerAdvertisement {
 

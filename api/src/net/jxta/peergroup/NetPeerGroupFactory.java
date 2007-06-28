@@ -304,6 +304,7 @@ public final class NetPeerGroupFactory {
      * @throws PeerGroupException Thrown for problems constructing the Net Peer
      *                            Group.
      */
+    @Deprecated
     public NetPeerGroupFactory(ConfigParams config, URI storeHome, ID id, String name, XMLElement desc) throws PeerGroupException {
         WorldPeerGroupFactory world = new WorldPeerGroupFactory(config, storeHome);
         PeerGroup worldGroup = world.getInterface();
@@ -340,6 +341,7 @@ public final class NetPeerGroupFactory {
      * @throws PeerGroupException Thrown for problems constructing the Net Peer
      *                            Group.
      */
+    @Deprecated
     public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc) throws PeerGroupException {
         net = newNetPeerGroup(parentGroup, id, name, desc, null);
     }
@@ -371,6 +373,7 @@ public final class NetPeerGroupFactory {
      * @throws PeerGroupException Thrown for problems constructing the Net Peer
      *                            Group.
      */
+    @Deprecated
     public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc, ModuleImplAdvertisement moduleImplAdv) throws PeerGroupException {
         net = newNetPeerGroup(parentGroup, id, name, desc, moduleImplAdv);
     }

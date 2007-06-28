@@ -509,7 +509,7 @@ public class MimeMediaType implements Serializable {
             throw new IllegalArgumentException("type cannot be null");
         }
 
-        String cleaned = type.trim().toLowerCase();
+        String cleaned = type.trim().toLowerCase(Locale.US);
 
         if (0 == cleaned.length()) {
             throw new IllegalArgumentException("type cannot be null");
@@ -555,7 +555,7 @@ public class MimeMediaType implements Serializable {
             throw new IllegalArgumentException("subtype cannot be null");
         }
 
-        String cleaned = subtype.trim().toLowerCase();
+        String cleaned = subtype.trim().toLowerCase(Locale.US);
 
         if (0 == cleaned.length()) {
             throw new IllegalArgumentException("subtype cannot be null");
@@ -637,7 +637,7 @@ public class MimeMediaType implements Serializable {
                     throw new IllegalArgumentException("malformed mime parameter at idx = " + currentCharIdx);
                 }
 
-                currentAttribute = itsParams.substring(currentCharIdx, endAttr).toLowerCase();
+                currentAttribute = itsParams.substring(currentCharIdx, endAttr).toLowerCase(Locale.US);
 
                 currentCharIdx = endAttr; // skip the equals.
                 inAttribute = false;

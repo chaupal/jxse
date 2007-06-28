@@ -69,7 +69,7 @@ import java.util.Enumeration;
  * @see net.jxta.document.StructuredDocument
  * @see net.jxta.document.StructuredTextDocument
  */
-public interface TextElement extends Element {
+public interface TextElement<T extends TextElement< T >> extends Element<T> {
 
     /**
      * {@inheritDoc}
@@ -87,21 +87,6 @@ public interface TextElement extends Element {
     StructuredTextDocument getRoot();
 
     /**
-     * {@inheritDoc}
-     */
-    TextElement getParent();
-
-    /**
-     * {@inheritDoc}
-     */
-    Enumeration<? extends TextElement> getChildren();
-
-    /**
-     * {@inheritDoc}
-     */
-    Enumeration<? extends TextElement> getChildren(Object key);
-
-    /**
      * Get the name associated with an element.
      *
      * @return A string containing the name of this element.
@@ -116,18 +101,11 @@ public interface TextElement extends Element {
     String getTextValue();
 
     /**
-     * Add a child element to this element
-     *
-     * @param element the element to be added as a child
-     */
-    void appendChild(TextElement element);
-
-    /**
      * Returns an enumeration of the immediate children of this element whose
      * name match the specified string.
      *
      * @param name The name which will be matched against.
      * @return An enumeration containing all of the children of this element.
      */
-    Enumeration<? extends TextElement> getChildren(String name);
+    Enumeration<T> getChildren(String name);
 }

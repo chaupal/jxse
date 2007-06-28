@@ -66,9 +66,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Constructor;
-import java.util.Enumeration;
-import java.util.Vector;
 
 import java.io.IOException;
 import java.security.ProviderException;
@@ -78,13 +75,14 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.TextElement;
+import net.jxta.document.TextDocument;
 
 
 /**
  * This class is an implementation of the StructuredDocument interface using
  * simple text
  */
-public class PlainTextDocument extends PlainTextElement implements TextDocumentCommon {
+public class PlainTextDocument extends PlainTextElement implements StructuredTextDocument<PlainTextElement> {
 
     private final static class Instantiator implements StructuredDocumentFactory.TextInstantiator {
 
@@ -102,94 +100,53 @@ public class PlainTextDocument extends PlainTextElement implements TextDocumentC
             new ExtensionMapping("txt", myTypes[0]), new ExtensionMapping("text", myTypes[0]), new ExtensionMapping("txt", null) };
 
         /**
-         * Creates new LiteXMLDocumentInstantiator
+         * Creates new PlainTextDocument
          */
         public Instantiator() {}
 
         /**
-         * Returns the MIME Media types supported by this this Document per
-         * {@link <a href="http://www.ietf.org/rfc/rfc2046.txt">IETF RFC 2046 <i>MIME : Media Types</i></a>}.
-         * <p/>
-         * JXTA does not currently support the 'Multipart' or 'Message' media types.
-         *
-         * @return An array of MimeMediaType objects containing the MIME Media Type
-         *         for this Document.
+         * {@inheritDoc}
          */
         public MimeMediaType[] getSupportedMimeTypes() {
             return (myTypes);
         }
 
         /**
-         * Returns the file extension types supported by this this Document.
-         *
-         * @return An array of string objects containing file extensions
+         * {@inheritDoc}
          */
         public ExtensionMapping[] getSupportedFileExtensions() {
             return (myExtensions);
         }
 
         /**
-         * Create a new structured document of the type specified by doctype.
-         *
-         * @param mimeType The mimetype to be associated with this instance.
-         *                 the base type must be one of the types returned by <tt>getSupportedMimeTypes</tt>.
-         *                 Some implementations may accept parameters in the params section of the mimetype.
-         * @param doctype  Type for the base node of the document.
-         * @return StructuredDocument instance.
+         * {@inheritDoc}
          */
         public StructuredDocument newInstance(MimeMediaType mimeType, String doctype) {
             return new PlainTextDocument(mimeType, doctype);
         }
 
         /**
-         * Create a new structured document of the type specified by doctype.
-         *
-         * @param mimeType The mimetype to be associated with this instance.
-         *                 the base type must be one of the types returned by <tt>getSupportedMimeTypes</tt>.
-         *                 Some implementations may accept parameters in the params section of the mimetype.
-         * @param doctype  Type for the base node of the document.
-         * @param value    value for the base node of the document.
-         * @return StructuredDocument instance.
+         * {@inheritDoc}
          */
         public StructuredDocument newInstance(MimeMediaType mimeType, String doctype, String value) {
             return new PlainTextDocument(mimeType, doctype, value);
         }
 
         /**
-         * Create a structured document from a stream containing an appropriately serialized
-         * instance of the same document.
-         *
-         * @param mimeType The mimetype to be associated with this instance.
-         *                 the base type must be one of the types returned by <tt>getSupportedMimeTypes</tt>.
-         *                 Some implementations may accept parameters in the params section of the mimetype.
-         * @param source   Inputstream from which to read the instance.
-         * @return StructuredDocument instance.
-         * @throws IOException occurs when there is a problem with the source input stream.
+         * {@inheritDoc}
          */
         public StructuredDocument newInstance(MimeMediaType mimeType, InputStream source) throws IOException {
             throw new ProviderException("PlainTextDocument does not support input");
         }
 
         /**
-         * Create a structured document from a Reader containing an appropriately serialized
-         * instance of the same document.
-         *
-         * @param mimeType The mimetype to be associated with this instance.
-         *                 the base type must be one of the types returned by
-         *                 <tt>getSupportedMimeTypes</tt>. Some implementations may accept
-         *                 parameters in the params section of the mimetype.
-         * @param source   Reader from which to read the instance.
-         * @return {@link StructuredDocument} instance.
-         * @throws IOException occurs when there is a problem with the source input stream.
+         * {@inheritDoc}
          */
         public StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException {
             throw new ProviderException("PlainTextDocument does not support input");
         }
 
     }
-
-
-    ;
 
     public static final StructuredDocumentFactory.TextInstantiator INSTANTIATOR = new Instantiator();
 
@@ -280,7 +237,7 @@ public class PlainTextDocument extends PlainTextElement implements TextDocumentC
     /**
      * {@inheritDoc}
      */
-    public TextElement createElement(String name, String val) {
+    public PlainTextElement createElement(String name, String val) {
         return new PlainTextElement(this, name, val);
     }
 

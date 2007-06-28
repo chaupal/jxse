@@ -97,75 +97,81 @@ import net.jxta.impl.util.TimeUtils;
 final class HttpClientMessenger extends BlockingMessenger {
     
     /**
-     *    Log4J Logger
-     **/
+     *  Logger
+     */
     private final static transient Logger LOG = Logger.getLogger(HttpClientMessenger.class.getName());
     
     /**
      *  Minimum amount of time between poll
-     **/
+     */
     private final static int MIMIMUM_POLL_INTERVAL = (int) (5 * TimeUtils.ASECOND);
     
     /**
      *  Amount of time to wait for connections to open.
-     **/
+     */
     private final static int CONNECT_TIMEOUT = (int) (15 * TimeUtils.ASECOND);
     
     /**
-     *  Amount of time we are willing to wait for responses.
-     **/
+     *  Amount of time we are willing to wait for responses. This is the amount
+     *  of time between our finishing sending a message or beginning a poll and 
+     *  the beginning of receipt of a response.
+     */
     private final static int RESPONSE_TIMEOUT = (int) (2 * TimeUtils.AMINUTE);
     
     /**
-     *  Amount of time we are willing to wait for responses.
-     **/
-    private final static int EXTRA_RESPONSE_TIMEOUT = (int) (2 * TimeUtils.AMINUTE);
+     *  Amount of time we are willing to accept for additional responses. This 
+     *  is the total amount of time we are willing to wait after receiving an
+     *  initial response message whether additional responses are sent or not.
+     *  This setting governs the latency with which we switch back and forth 
+     *  between sending and receiving messages. 
+     */
+    private final static int EXTRA_RESPONSE_TIMEOUT = (int) (15 * TimeUtils.ASECOND);
     
     /**
      *  Messenger idle timeout.
-     **/
+     */
     private final static long MESSENGER_IDLE_TIMEOUT = 15 * TimeUtils.AMINUTE;
     
     /**
      *  Number of attempts we will attempt to make connections.
-     **/
-    private final static int CONNECT_RETRIES = 3;
+     */
+    private final static int CONNECT_RETRIES = 2;
     
     /**
      *  Warn only once about obsolete proxies.
-     **/
+     */
     private static boolean neverWarned = true;
     
     /**
      *  The URL we send messages to.
-     **/
+     */
     private final URL senderURL;
     
     /**
      * The ServletHttpTransport that created this object.
-     **/
+     */
     private final ServletHttpTransport servletHttpTransport;
     
     /**
      *  The Return Address element we will add to all messages we send.
-     **/
+     */
     private final MessageElement srcAddressElement;
     
     /**
      *  The logical destination address of this messenger.
-     **/
+     */
     private final EndpointAddress logicalDest;
     
     private TransportBindingMeter transportBindingMeter;
     
     /**
      *  The last time at which we successfully received or sent a message.
-     **/
+     */
     private transient long lastUsed = TimeUtils.timeNow();
     
     /**
      *  Poller that we use to get our messages.
-     **/
+     */
     private MessagePoller poller = null;
     
     /**
@@ -174,7 +180,7 @@ final class HttpClientMessenger extends BlockingMessenger {
      *  @param servletHttpTransport The transport this messenger will work for.
      *  @param srcAddr The source address.
      *  @param destAddr The destination address.
-     **/
+     */
     HttpClientMessenger(ServletHttpTransport servletHttpTransport, EndpointAddress srcAddr, EndpointAddress destAddr) throws IOException {
         
         // We do use self destruction.
@@ -227,14 +233,14 @@ final class HttpClientMessenger extends BlockingMessenger {
     
     /**
      *  {@inheritDoc}
-     **/
+     */
     void doShutdown() {
         super.shutdown();
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public synchronized void closeImpl() {
         
@@ -259,7 +265,7 @@ final class HttpClientMessenger extends BlockingMessenger {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         
@@ -296,7 +302,7 @@ final class HttpClientMessenger extends BlockingMessenger {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public EndpointAddress getLogicalDestinationImpl() {
         return logicalDest;
@@ -304,15 +310,15 @@ final class HttpClientMessenger extends BlockingMessenger {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public boolean isIdleImpl() {
         return isClosed() || (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), lastUsed) > MESSENGER_IDLE_TIMEOUT);
     }
     
     /**
-     *  Connects to the http server and retreives the Logical Destination Address
-     **/
+     *  Connects to the http server and retrieves the Logical Destination Address
+     */
     private EndpointAddress retreiveLogicalDestinationAddress() throws IOException {
         long beginConnectTime = 0;
         long connectTime = 0;
@@ -349,8 +355,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                     }
                 }
                 
-                throw new IOException(
-                        "Message not accepted: HTTP status " + "code=" + code + " reason=" + urlConn.getResponseMessage());
+                throw new IOException("Message not accepted: HTTP status " + "code=" + code + " reason=" + urlConn.getResponseMessage());
             }
             
             // check for a returned peerId
@@ -425,7 +430,7 @@ final class HttpClientMessenger extends BlockingMessenger {
     
     /**
      *  Connects to the http server and POSTs the message
-     **/
+     */
     private void doSend(Message msg) throws IOException {
         long beginConnectTime = 0;
         long connectTime = 0;
@@ -500,9 +505,8 @@ final class HttpClientMessenger extends BlockingMessenger {
                         transportBindingMeter.dataSent(true, serialed.getByteLength());
                         transportBindingMeter.connectionDropped(true, TimeUtils.timeNow() - beginConnectTime);
                     }
-                    throw new IOException(
-                            "Message not accepted: HTTP status " + "code=" + responseCode + " reason="
-                            + urlConn.getResponseMessage());
+                    throw new IOException( "Message not accepted: HTTP status " + "code=" + responseCode + 
+                            " reason=" + urlConn.getResponseMessage());
                 }
                 if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                     long messageSentTime = TimeUtils.timeNow();
@@ -528,7 +532,7 @@ final class HttpClientMessenger extends BlockingMessenger {
     
     /**
      *  Polls for messages sent to us.
-     **/
+     */
     private class MessagePoller implements Runnable {
         
         /**
@@ -538,12 +542,12 @@ final class HttpClientMessenger extends BlockingMessenger {
         
         /**
          *  The thread that does the work.
-         **/
+         */
         private Thread pollerThread;
         
         /**
          *  The URL we poll for messages.
-         **/
+         */
         private final URL pollingURL;
         
         MessagePoller(String pollAddress, EndpointAddress destAddr) {
@@ -559,10 +563,11 @@ final class HttpClientMessenger extends BlockingMessenger {
              * at all, 0 means wait forever.
              */
             try {
-                pollingURL = new URL(senderURL
-                        ,
-                        "/" + pollAddress + "?" + Integer.toString(RESPONSE_TIMEOUT) + ","
-                        + Integer.toString(EXTRA_RESPONSE_TIMEOUT) + "," + destAddr);
+                pollingURL = new URL(senderURL,
+                        "/" + pollAddress + 
+                        "?" + Integer.toString(RESPONSE_TIMEOUT) + "," +
+                        Integer.toString(EXTRA_RESPONSE_TIMEOUT) + "," + 
+                        destAddr);
             } catch (MalformedURLException badAddr) {
                 IllegalArgumentException failure = new IllegalArgumentException("Could not construct polling URL");
 
@@ -606,7 +611,7 @@ final class HttpClientMessenger extends BlockingMessenger {
          *
          *  @return returns {@code true} if this messenger is stopped otherwise 
          *  {@code false}.
-         **/
+         */
         protected boolean isStopped() {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(this + " " + senderURL + " --> " + (stopped ? "stopped" : "running"));
@@ -619,7 +624,7 @@ final class HttpClientMessenger extends BlockingMessenger {
          *  {@inheritDoc}
          *
          *  <p/>Connects to the http server and waits for messages to be received and processes them.
-         **/
+         */
         public void run() {
             try {
                 long beginConnectTime = 0;
@@ -709,8 +714,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                         if (HttpURLConnection.HTTP_NO_CONTENT == responseCode) {
                             // the connection timed out.
                             if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-                                transportBindingMeter.connectionClosed(true
-                                        ,
+                                transportBindingMeter.connectionClosed(true,
                                         TimeUtils.toRelativeTimeMillis(beginConnectTime, connectTime));
                             }
                             
@@ -797,8 +801,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                             incomingMsg = WireFormatMessageFactory.fromWire(inputStream, messageType, null);
                             
                             if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-                                transportBindingMeter.messageReceived(true, incomingMsg, incomingMsg.getByteLength()
-                                        ,
+                                transportBindingMeter.messageReceived(true, incomingMsg, incomingMsg.getByteLength(),
                                         TimeUtils.timeNow() - messageReceiveStart);
                             }
                             

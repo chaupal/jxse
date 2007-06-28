@@ -86,13 +86,12 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.DOMConfiguration;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
-import net.jxta.document.TextElement;
-import net.jxta.document.XMLElement;
 import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentFactory.Instantiator.ExtensionMapping;
+import net.jxta.document.XMLDocument;
 
 import net.jxta.impl.document.TextDocumentCommon.Utils;
 
@@ -107,7 +106,7 @@ import net.jxta.impl.document.TextDocumentCommon.Utils;
  * @see <a href="http://java.sun.com/xml/jaxp/index.html">Java API for XML Processing (JAXP)</a>
  * @see org.w3c.dom
  */
-public class DOMXMLDocument extends DOMXMLElement implements XMLDocumentCommon {
+public class DOMXMLDocument extends DOMXMLElement implements XMLDocument<DOMXMLElement> {
 
     private static final class Instantiator implements StructuredDocumentFactory.TextInstantiator {
 
@@ -116,14 +115,18 @@ public class DOMXMLDocument extends DOMXMLElement implements XMLDocumentCommon {
          * capable of emitting.
          */
         private static final MimeMediaType[] myTypes = {
-            MimeMediaType.XML_DEFAULTENCODING, new MimeMediaType("Application", "Xml") };
+            MimeMediaType.XML_DEFAULTENCODING, 
+            new MimeMediaType("Application", "Xml")
+        };
 
         /**
          * these are the file extensions which are likely to contain files of
          * the type i like.
          */
         private static final ExtensionMapping[] myExtensions = {
-            new ExtensionMapping("xml", myTypes[0]), new ExtensionMapping("xml", null) };
+            new ExtensionMapping("xml", myTypes[0]), 
+            new ExtensionMapping("xml", null)
+        };
 
         /**
          * Creates new XMLDocumentInstantiator

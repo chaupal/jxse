@@ -344,6 +344,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public boolean ping(EndpointAddress addr) {
         Messenger messenger = getMessenger(addr, null);
 

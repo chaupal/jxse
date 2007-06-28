@@ -84,6 +84,8 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.TextElement;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
@@ -114,9 +116,9 @@ import net.jxta.impl.util.URISeedingManager;
 public class RelayClient implements MessageReceiver, Runnable {
     
     /**
-     *  Log4J Logger
-     **/
-    private final static Logger LOG = Logger.getLogger(RelayClient.class.getName());
+     *  Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(RelayClient.class.getName());
     
     private final static long DEFAULT_EXPIRATION = 20L * TimeUtils.AMINUTE;
     private final static long DAY_EXPIRATION = TimeUtils.ADAY;
@@ -140,7 +142,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      *  <ul>
      *      <li>Values are {@link net.jxta.peergroup.PeerGroup}.</li>
      *  </ul>
-     **/
+     */
     private final List activeRelayListeners = new ArrayList();
     
     /**
@@ -148,7 +150,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      *      <li>Keys are {@link net.jxta.endpoint.EndpointAddress}.</li>
      *      <li>Values are {@link net.jxta.protocol.RouteAdvertisement}.</li>
      *  </ul>
-     **/
+     */
     private final Map activeRelays = new Hashtable();
     
     /**
@@ -253,7 +255,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Iterator<EndpointAddress> getPublicAddresses() {
         
         return Collections.singletonList(publicAddress).iterator();
@@ -261,21 +263,21 @@ public class RelayClient implements MessageReceiver, Runnable {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public String getProtocolName() {
         return RelayTransport.protocolName;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public EndpointService getEndpointService() {
         return endpoint;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Object transportControl(Object operation, Object Value) {
         return null;
     }
@@ -301,7 +303,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      *  returns when it can <b>NO LONGER CONNECT</b> to the relay. The only
      *  hack I can think of to subvert this is to stop iteration of advs/seeds
      *  if <code>connectToRelay()</code> takes a long time. bizarre.
-     **/
+     */
     public void run() {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("Start relay client thread");
@@ -400,7 +402,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     /**
      *  @param  server  The relay server to connect to
      *  @return The advertisement of an alternate relay server to try.
-     **/
+     */
     RdvAdvertisement connectToRelay(RelayServerConnection server) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Connecting to " + server);
@@ -772,7 +774,8 @@ public class RelayClient implements MessageReceiver, Runnable {
         
         if (null != advElement) {
             try {
-                Advertisement adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, advElement.getStream());
+                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(advElement);
+                Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
                 
                 if (adv instanceof RdvAdvertisement) {
                     relayAdv = (RdvAdvertisement) adv;
@@ -1067,7 +1070,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         
         /**
          *  {@inheritDoc}
-         **/
+         */
         @Override
         public String toString() {
             
@@ -1081,7 +1084,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      * Register an active Relay to the endpoint. This is done
      * so the Route Advertisement of the PeerAdvertisement is
      * updated
-     **/
+     */
     public synchronized boolean addActiveRelayListener(Object service) {
         
         boolean added = false;
@@ -1103,7 +1106,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      * Unregister an active Relay to the endpoint. This is done
      * so the Route Advertisement of the PeerAdvertisement is
      * updated
-     **/
+     */
     public synchronized boolean removeActiveRelayListener(Object service) {
         activeRelayListeners.remove(service);
         
@@ -1113,7 +1116,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     /**
      * Notify of a new relay connection
      *
-     **/
+     */
     public synchronized boolean addActiveRelay(EndpointAddress address, RouteAdvertisement relayRoute) {
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1137,7 +1140,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     /**
      * Notify of a relay connection removal
      *
-     **/
+     */
     public synchronized boolean removeActiveRelay(EndpointAddress address, RouteAdvertisement relayRoute) {
         
         // need to notify all our listeners
@@ -1161,7 +1164,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      *
      * @param address address of the relay to add
      * @return boolean true of false if it succeeded
-     **/
+     */
     private void addRelay(PeerGroup pg, RouteAdvertisement relayRoute) {
         
         ID assignedID = PeerGroup.endpointClassID;
@@ -1172,7 +1175,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             
             // update our own peer advertisement
             PeerAdvertisement padv = pg.getPeerAdvertisement();
-            StructuredDocument myParam = padv.getServiceParam(assignedID);
+            XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
             
             RouteAdvertisement route = null;
             
@@ -1183,15 +1186,14 @@ public class RelayClient implements MessageReceiver, Runnable {
                 }
                 return;
             } else {
-                Enumeration paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
-                Element param = null;
+                Enumeration<XMLElement> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
+                XMLElement param = null;
                 
                 if (paramChilds.hasMoreElements()) {
-                    param = (Element) paramChilds.nextElement();
+                    param = paramChilds.nextElement();
                 }
                 
-                route = (RouteAdvertisement)
-                        AdvertisementFactory.newAdvertisement((TextElement) param);
+                route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
             }
             
             if (route == null) { // we should have a route here
@@ -1225,7 +1227,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             }
             
             // create the new param route
-            myParam = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+            myParam = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
             StructuredTextDocument xptDoc = (StructuredTextDocument)
                     route.getDocument(MimeMediaType.XMLUTF8);
             
@@ -1268,7 +1270,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             
             // update our peer advertisement
             padv = pg.getPeerAdvertisement();
-            StructuredDocument myParam = padv.getServiceParam(assignedID);
+            XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
             
             RouteAdvertisement route = null;
             
@@ -1279,15 +1281,14 @@ public class RelayClient implements MessageReceiver, Runnable {
                     return;
                 }
             } else {
-                Enumeration paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
-                Element param = null;
+                Enumeration<XMLElement> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
+                XMLElement param = null;
                 
                 if (paramChilds.hasMoreElements()) {
-                    param = (Element) paramChilds.nextElement();
+                    param = paramChilds.nextElement();
                 }
                 
-                route = (RouteAdvertisement)
-                        AdvertisementFactory.newAdvertisement((TextElement) param);
+                route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement( param);
             }
             
             if (route == null) {
@@ -1302,9 +1303,8 @@ public class RelayClient implements MessageReceiver, Runnable {
             }
             
             // create the new param route
-            myParam = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
-            StructuredTextDocument xptDoc = (StructuredTextDocument)
-                    route.getDocument(MimeMediaType.XMLUTF8);
+            myParam = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+            XMLDocument xptDoc = (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8);
             
             StructuredDocumentUtils.copyElements(myParam, myParam, xptDoc);
             
@@ -1334,7 +1334,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
         
         for (Iterator<RouteAdvertisement> e = activeRelays.values().iterator(); e.hasNext();) {
-            RouteAdvertisement route = (RouteAdvertisement) e.next();
+            RouteAdvertisement route = e.next();
             
             try {
                 // publish our route if pg is not null

@@ -79,6 +79,7 @@ import net.jxta.logging.Logging;
  * Sun JDK 1.2-1.5 (and possibly later) in that there is a single thread
  * attached to each Timer object.
  **/
+@Deprecated
 public class TimerThreadNamer extends TimerTask {
     
     private final static transient Logger LOG = Logger.getLogger(TimerThreadNamer.class.getName());

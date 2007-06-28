@@ -474,6 +474,7 @@ public class HTTPAdv extends TransportAdvertisement {
      * @return the proxy string
      * @deprecated This has been deprecated. Set your proxy directly with the JVM
      */
+    @Deprecated
     public String getProxy() {
         return proxy;
     }
@@ -486,6 +487,7 @@ public class HTTPAdv extends TransportAdvertisement {
      * @return true if proxy enabled
      * @deprecated This has been deprecated. Set your proxy directly with the JVM
      */
+    @Deprecated
     public boolean isProxyEnabled() {
         return proxyEnabled;
     }
@@ -505,6 +507,7 @@ public class HTTPAdv extends TransportAdvertisement {
      * @param name the proxy string
      * @deprecated This has been deprecated. Set your proxy directly with the JVM
      */
+    @Deprecated
     public void setProxy(String name) {
         proxy = name;
         if (name == null) {
@@ -520,6 +523,7 @@ public class HTTPAdv extends TransportAdvertisement {
      * @param enabled true if proxy is enabled
      * @deprecated This has been deprecated. Set your proxy directly with the JVM
      */
+    @Deprecated
     public void setProxyEnabled(boolean enabled) {
         proxyEnabled = enabled;
     }

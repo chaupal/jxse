@@ -172,7 +172,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * This is the map of mime-types and constructors used by
      * <CODE>newStructuredDocument</CODE>.
      */
-    private Map encodings = new Hashtable();
+    private Map<MimeMediaType,Instantiator> encodings = new Hashtable<MimeMediaType,Instantiator>();
 
     /**
      * If true then the pre-defined set of StructuredDocument sub-classes has
@@ -218,7 +218,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * {@inheritDoc}
      */
     @Override
-    protected Map getAssocTable() {
+    protected Map<MimeMediaType,Instantiator> getAssocTable() {
         return encodings;
     }
 
@@ -226,7 +226,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * {@inheritDoc}
      */
     @Override
-    public Class getClassOfInstantiators() {
+    public Class<Instantiator> getClassOfInstantiators() {
         // our key is the doctype names.
         return Instantiator.class;
     }

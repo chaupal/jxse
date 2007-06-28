@@ -337,8 +337,8 @@ public abstract class ClassFactory<K, I> {
         }
 
         // Check the class of the key to make sure it is of the right class
-        Class requiredKeyClass = getClassForKey();
-        Class itsA = key.getClass();
+        Class<?> requiredKeyClass = getClassForKey();
+        Class<?> itsA = key.getClass();
 
         if (!requiredKeyClass.isAssignableFrom(itsA)) {
             throw new IllegalArgumentException("Incorrect Class for key type");

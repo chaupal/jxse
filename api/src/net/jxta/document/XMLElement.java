@@ -64,30 +64,10 @@ import java.util.Enumeration;
  * Common definition of XML Elements. Appropriate for advertisements and
  * messages.
  */
-public interface XMLElement extends TextElement, Attributable {
+public interface XMLElement<X extends XMLElement<X>> extends TextElement<X>, Attributable {
 
     /**
      * {@inheritDoc}
      */
     XMLDocument getRoot();
-
-    /**
-     * {@inheritDoc}
-     */
-    XMLElement getParent();
-
-    /**
-     * {@inheritDoc}
-     */
-    Enumeration<? extends XMLElement> getChildren();
-
-    /**
-     * {@inheritDoc}
-     */
-    Enumeration<? extends XMLElement> getChildren(Object key);
-
-    /**
-     * {@inheritDoc}
-     */
-    Enumeration<? extends XMLElement> getChildren(String name);
 }

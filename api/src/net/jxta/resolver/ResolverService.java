@@ -84,19 +84,19 @@ import net.jxta.protocol.ResolverSrdiMsg;
  * @see net.jxta.resolver.QueryHandler
  * @see net.jxta.protocol.ResolverQueryMsg
  * @see net.jxta.protocol.ResolverResponseMsg
- **/
+ */
 public interface ResolverService extends Service, GenericResolver {
     
     /**
      *  Returned by query handlers to indicate that the query should be
      *  forwarded to the rest of the network.
-     **/
+     */
     public final static int Repropagate = -1;
     
     /**
      *  Returned by query handlers to indicate that the query has been resolved
      *  and a response has been sent.
-     **/
+     */
     public final static int OK = 0;
     
     /**
@@ -146,7 +146,7 @@ public interface ResolverService extends Service, GenericResolver {
      *  @param destPeer The destination peer of the query or <tt>null</tt> if
      *  the query is to be propagated.
      *  @param query The query to match.
-     **/
+     */
     public void sendQuery(String destPeer, ResolverQueryMsg query);
     
     /**
@@ -157,7 +157,7 @@ public interface ResolverService extends Service, GenericResolver {
      *  @param destPeer The destination peer of the response or <tt>null</tt> if
      *  the response is to be propagated. 
      *  @param response The response to be sent.
-     **/
+     */
     public void sendResponse(String destPeer, ResolverResponseMsg response);
     
     /**
@@ -167,7 +167,6 @@ public interface ResolverService extends Service, GenericResolver {
      *
      *  @param destPeer is the destination of the SRDI message.
      *  @param srdi is the SRDI message to be sent.
-     **/
+     */
     public void sendSrdi(String destPeer, ResolverSrdiMsg srdi);
-
 }

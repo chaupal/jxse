@@ -332,6 +332,7 @@ class EndpointServiceInterface implements EndpointService {
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public boolean ping(EndpointAddress addr) {
         return null != getMessengerImmediate(addr, null);
     }
@@ -451,6 +452,7 @@ class EndpointServiceInterface implements EndpointService {
      *
      * @deprecated legacy support
      */
+    @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint) {
 
         Messenger m = getMessengerImmediate(addr, hint);

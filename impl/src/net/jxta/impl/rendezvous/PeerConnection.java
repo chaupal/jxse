@@ -265,6 +265,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      *  @return a messenger for sending to this peer or <code>null</code> if
      *  none is available.
      */
+    @Deprecated    
     protected Messenger getCachedMessenger() {
 
         // We don't do the check on existing messenger under synchronization

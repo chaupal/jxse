@@ -91,7 +91,7 @@ import java.util.logging.Logger;
  * <li>A flag which controls propagation behaviour for this conneciton.</li>
  * </ul>
  *
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#trans-tcpipt"
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#trans-tcpipt"
  *      target="_blank">JXTA Protocols Specification : TCP/IP Message Transport</a>
  */
 public class WelcomeMessage {

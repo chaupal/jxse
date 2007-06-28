@@ -117,6 +117,7 @@ public class JxtaHash {
      * @param  algorithm   algorithm - the name of the algorithm requested
      * @param  expression  expression to digest
      */
+    @Deprecated
     public JxtaHash(String algorithm, String expression) {
 		
         this(algorithm, expression.getBytes());

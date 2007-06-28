@@ -88,6 +88,7 @@ public interface Configurator {
      *
      * @param cp The parameters to be associated with this configuration.
      **/
+    @Deprecated
     public void setConfigParams(ConfigParams cp);
     
     /**
@@ -105,6 +106,7 @@ public interface Configurator {
      * persisted parameters. This is normally a chained exception to the
      * underlying cause.
      **/
+    @Deprecated
     public ConfigParams load() throws ConfiguratorException;
     
     /**

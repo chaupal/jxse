@@ -528,6 +528,6 @@ public class URISeedingManager extends ACLSeedingManager {
             LOG.fine(MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
         }
         
-        return (RouteAdvertisement[]) result.toArray(new RouteAdvertisement[result.size()]);
+        return result.toArray(new RouteAdvertisement[result.size()]);
     }
 }

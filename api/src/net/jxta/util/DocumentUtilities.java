@@ -74,6 +74,7 @@ import java.util.Enumeration;
 /**
  * @deprecated Will be removed soon.  THIS CLASS IS SCHEDULED TO BE REMOVED AFTER 2.5
  */
+@Deprecated
 public final class DocumentUtilities {
 
     private DocumentUtilities() {}

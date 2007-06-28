@@ -74,8 +74,8 @@ import net.jxta.util.*;
  **/
 public class MonitorFilter implements DocumentSerializable {
     private String description;
-    private HashMap serviceMonitorFilters = new HashMap();
-    private LinkedList unknownModuleClassIDs;
+    private Map<ModuleClassID,ServiceMonitorFilter> serviceMonitorFilters = new HashMap<ModuleClassID,ServiceMonitorFilter>();
+    private List<ModuleClassID> unknownModuleClassIDs;
 
     /**
      * MonitorFilter
@@ -116,7 +116,7 @@ public class MonitorFilter implements DocumentSerializable {
      * @return ServiceMonitorFilter  SubFilter or null if not found
      **/
     public ServiceMonitorFilter getServiceMonitorFilter(ModuleClassID moduleClassID) {
-        return (ServiceMonitorFilter) serviceMonitorFilters.get(moduleClassID);
+        return serviceMonitorFilters.get(moduleClassID);
     }
 
     /**
@@ -228,7 +228,7 @@ public class MonitorFilter implements DocumentSerializable {
                         serviceMonitorFilters.put(moduleClassID, serviceMonitorFilter);
                     } catch (Exception ex) {
                         if (unknownModuleClassIDs == null) {
-                            unknownModuleClassIDs = new LinkedList();
+                            unknownModuleClassIDs = new LinkedList<ModuleClassID>();
                         }
 							
                         unknownModuleClassIDs.add(moduleClassID);

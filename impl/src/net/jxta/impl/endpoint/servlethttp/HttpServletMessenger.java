@@ -83,12 +83,12 @@ import net.jxta.impl.util.TimeUtils;
  * <p/>This messenger is not entirely thread-safe. You should not use any
  * of the <code>sendMessage</code> methods from more than one thread.
  *
- **/
+ */
 final class HttpServletMessenger extends BlockingMessenger {
     
     /**
-     *  Log4J Logger
-     **/
+     *  Logger
+     */
     private final static transient Logger LOG = Logger.getLogger(HttpServletMessenger.class.getName());
     
     // We need an explicit idle state. outgoingMessage being null is not enough
@@ -119,7 +119,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     /**
      *  The message "queue"
-     **/
+     */
     private Message outgoingMessage = null;
     
     private int sendResult = SEND_IDLE;
@@ -127,12 +127,12 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     /**
      *  Allows us to schedule the closing of a messenger.
-     **/
+     */
     private static class ScheduledExipry extends TimerTask {
 
         /**
          *  The messenger we will be expiring.
-         **/
+         */
         HttpServletMessenger messenger;
         
         ScheduledExipry(HttpServletMessenger toExpire) {
@@ -141,7 +141,7 @@ final class HttpServletMessenger extends BlockingMessenger {
         
         /**
          *  {@inheritDoc}
-         **/
+         */
         @Override
         public boolean cancel() {
             // It is important we clear the messenger because Timer doesn't
@@ -158,7 +158,7 @@ final class HttpServletMessenger extends BlockingMessenger {
         
         /**
          *  {@inheritDoc}
-         **/
+         */
         @Override
         public void run() {
             try {
@@ -179,7 +179,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     /**
      *  Standard constructor.
-     **/
+     */
     HttpServletMessenger(PeerGroupID peerGroupID, EndpointAddress srcAddress, EndpointAddress logicalAddress, long validFor) {
         
         // We do not use self destruction.
@@ -202,7 +202,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public synchronized void closeImpl() {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -223,7 +223,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public EndpointAddress getLogicalDestinationImpl() {
         return logicalAddress;
@@ -231,7 +231,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public boolean isIdleImpl() {
         // We do not use self destruction.
@@ -241,7 +241,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     /**
      * Send messages. Messages are queued and processed by a thread
      * running HttpClientConnection.
-     **/
+     */
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         
@@ -264,8 +264,7 @@ final class HttpServletMessenger extends BlockingMessenger {
         
         EndpointAddress destAddressToUse = getDestAddressToUse(service, serviceParam);
         
-        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME
-                ,
+        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME,
                 destAddressToUse.toString(), null);
         
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
@@ -396,7 +395,7 @@ final class HttpServletMessenger extends BlockingMessenger {
      *  @return the message or <code>null</code> if no message was available
      *  before the timeout was reached.
      *  @throws InterruptedException If the thread is interrupted while waiting.
-     **/
+     */
     protected synchronized Message waitForMessage(long timeout) throws InterruptedException {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Waiting (" + (0 == timeout ? "forever" : Long.toString(timeout)) + ") for message\n\t" + toString());
@@ -461,7 +460,7 @@ final class HttpServletMessenger extends BlockingMessenger {
      * {@inheritDoc}
      *
      *  <p/>An implementation for debugging. Do not depend on the format.
-     **/
+     */
     @Override
     public String toString() {
         return "[" + super.toString() + "] isClosed=" + isClosed() + " sendResult=" + sendResult + " outmsg=" + outgoingMessage;

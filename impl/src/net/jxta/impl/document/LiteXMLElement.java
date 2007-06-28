@@ -64,14 +64,14 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 import net.jxta.document.Attribute;
-import net.jxta.document.TextElement;
+import net.jxta.document.XMLElement;
+import net.jxta.logging.Logging;
 
 
 /**
@@ -80,7 +80,7 @@ import net.jxta.document.TextElement;
  * while makes use of XML-style document conventions, but without the overhead of a
  * full parser.
  */
-public class LiteXMLElement extends XMLElementCommon {
+public class LiteXMLElement implements XMLElement<LiteXMLElement> {
 
     /**
      * Defines a range of characters, probably within a string. The range is
@@ -96,7 +96,7 @@ public class LiteXMLElement extends XMLElementCommon {
 
         /**
          * Contains the end position of this range. one weird thing: if end == start -1,
-         * then the item is of zero length begining at start.
+         * then the item is of zero length beginning at start.
          */
         public int end;
 
@@ -568,20 +568,32 @@ public class LiteXMLElement extends XMLElementCommon {
     }
 
     /**
+     * Get the name associated with an element.
+     *
+     * @return A string containing the key of this element.
+     */
+    public String getKey() {
+        return getName();
+    }
+
+    /**
+     * Get the value (if any) associated with an element.
+     *
+     * @return A string containing the value of this element, if any, otherwise null.
+     */
+    public String getValue() {
+        return getTextValue();
+    }
+
+    /**
      * {@inheritDoc}
      */
-    public void appendChild(TextElement element) {
-        if (!(element instanceof LiteXMLElement)) {
-            throw new IllegalArgumentException("Element type not supported.");
-        }
-
-        LiteXMLElement newElement = (LiteXMLElement) element;
-
-        if (newElement.getDocument() != getDocument()) {
+    public void appendChild(LiteXMLElement element) {
+        if (element.getDocument() != getDocument()) {
             throw new IllegalArgumentException("Wrong document");
         }
 
-        if (null != newElement.parent) {
+        if (null != element.parent) {
             throw new IllegalArgumentException("New element is already in document");
         }
 
@@ -597,7 +609,7 @@ public class LiteXMLElement extends XMLElementCommon {
         // be added to the document. If uninserted is null then the child
         // element's content is already in the document, but merely needs to
         // be recognized as a child.
-        if (null != newElement.uninserted) {
+        if (null != element.uninserted) {
             if (loc.startTag.equals(loc.endTag)) {
                 getDocument().docContent.deleteCharAt(loc.endTag.end - 1); // delete the /
                 loc.startTag.end -= 1;
@@ -623,47 +635,61 @@ public class LiteXMLElement extends XMLElementCommon {
                 loc.body = new charRange(loc.startTag.end + 1, loc.startTag.end);
             }
 
-            getDocument().docContent.insert(loc.endTag.start, newElement.uninserted);
+            getDocument().docContent.insert(loc.endTag.start, element.uninserted);
 
-            newElement.loc.startTag.start = loc.endTag.start;
-            newElement.loc.startTag.end = getDocument().docContent.indexOf(">", newElement.loc.startTag.start);
+            element.loc.startTag.start = loc.endTag.start;
+            element.loc.startTag.end = getDocument().docContent.indexOf(">", element.loc.startTag.start);
 
-            if ('/' != newElement.uninserted.charAt(newElement.uninserted.length() - 2)) {
-                newElement.loc.body.start = newElement.loc.startTag.end + 1;
+            if ('/' != element.uninserted.charAt(element.uninserted.length() - 2)) {
+                element.loc.body.start = element.loc.startTag.end + 1;
 
-                newElement.loc.endTag.end = newElement.loc.startTag.start + newElement.uninserted.length() - 1;
-                newElement.loc.endTag.start = getDocument().docContent.lastIndexOf("<", newElement.loc.endTag.end);
+                element.loc.endTag.end = element.loc.startTag.start + element.uninserted.length() - 1;
+                element.loc.endTag.start = getDocument().docContent.lastIndexOf("<", element.loc.endTag.end);
 
-                newElement.loc.body.end = newElement.loc.endTag.start - 1;
+                element.loc.body.end = element.loc.endTag.start - 1;
             } else {
-                newElement.loc.body = new charRange(newElement.loc.startTag.start, newElement.loc.startTag.end);
-                newElement.loc.endTag = new charRange(newElement.loc.startTag.start, newElement.loc.startTag.end);
+                element.loc.body = new charRange(element.loc.startTag.start, element.loc.startTag.end);
+                element.loc.endTag = new charRange(element.loc.startTag.start, element.loc.startTag.end);
             }
 
             if (0 != loc.body.length()) {
-                getDocument().adjustLocations(loc.endTag.start, newElement.uninserted.length());
+                getDocument().adjustLocations(loc.endTag.start, element.uninserted.length());
             } else {
                 loc.body.start--;
-                getDocument().adjustLocations(loc.endTag.start, newElement.uninserted.length());
+                getDocument().adjustLocations(loc.endTag.start, element.uninserted.length());
                 loc.body.start++;
             }
 
-            loc.body.end += newElement.uninserted.length();
+            loc.body.end += element.uninserted.length();
 
-            newElement.uninserted = null;
+            element.uninserted = null;
         }
 
-        newElement.parent = this;
+        element.parent = this;
 
         if (null == children) {
             children = new ArrayList<LiteXMLElement>();
         }
 
-        children.add(newElement);
+        children.add(element);
 
         if (paranoidConsistencyChecking) {
             checkConsistency();
         }
+    }
+
+    /**
+     * Returns an enumeration of the immediate children of this element whose
+     * name match the specified string.
+     *
+     * @param key The key which will be matched against.
+     * @return enumeration containing all of the children of this element.
+     */
+    public Enumeration<LiteXMLElement> getChildren(Object key) {
+        if (key instanceof String)
+            return getChildren((String) key);
+        else
+            throw new ClassCastException(key.getClass().getName() + " not supported by getChildren.");
     }
 
     /**

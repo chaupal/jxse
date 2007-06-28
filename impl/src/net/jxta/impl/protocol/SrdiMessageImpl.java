@@ -134,6 +134,7 @@ public class SrdiMessageImpl extends SrdiMessage {
      * @deprecated It's better to generate the document yourself. This method
      *             cannot deduce the mime type of the content.
      */
+    @Deprecated
     public SrdiMessageImpl(InputStream stream) throws IOException {
 
         // We are asked to assume that the message from which this response

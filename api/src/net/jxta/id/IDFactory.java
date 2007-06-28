@@ -627,8 +627,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      * instantiator interface in preparation for the removal of the URL
      * based interfaces. This interface will be removed in a future release.
      */
-    public interface URIInstantiator extends Instantiator {
-    }
+    @Deprecated
+    public interface URIInstantiator extends Instantiator {}
     
     /**
      *  Standard Constructor. This class is a singleton so the only constructor

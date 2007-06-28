@@ -248,7 +248,7 @@ public class EngineAuthenticator implements Authenticator {
         if (null == store_password) {
             this.store_password = null;
         } else {
-            this.store_password = (char[]) store_password.clone();
+            this.store_password = store_password.clone();
         }
     }
     
@@ -359,7 +359,7 @@ public class EngineAuthenticator implements Authenticator {
         if (null == key_password) {
             this.key_password = null;
         } else {
-            this.key_password = (char[]) key_password.clone();
+            this.key_password = key_password.clone();
         }
     }
 }

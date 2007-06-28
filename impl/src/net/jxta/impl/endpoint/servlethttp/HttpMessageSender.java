@@ -83,37 +83,36 @@ import net.jxta.exception.PeerGroupException;
 class HttpMessageSender implements MessageSender {
 
     /**
-     *    Log4j Logger
-     **/
+     * Logger
+     */
     private final static transient Logger LOG = Logger.getLogger(HttpMessageSender.class.getName());
 
     /**
      * The ServletHttpTransport that created this object
-     **/
+     */
     private final ServletHttpTransport servletHttpTransport;    
 
     /**
      * The public address for this message sender
-     **/
+     */
     private final EndpointAddress publicAddress;
 
     /**
      *  The Set of active messengers. We keep track so that we can aggressively
      *  close the Messengers when the transport is shut down.
-     **/
+     */
     private final Map<HttpClientMessenger, Object> messengers = new WeakHashMap<HttpClientMessenger, Object>();
 
     /**
      * constructor
-     **/
+     */
     public HttpMessageSender(ServletHttpTransport servletHttpTransport, EndpointAddress publicAddress) throws PeerGroupException {
 
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddress = publicAddress;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder(
-                    "Configuring HTTP Client Message Transport : " + servletHttpTransport.assignedID);
+            StringBuilder configInfo = new StringBuilder( "Configuring HTTP Client Message Transport : " + servletHttpTransport.assignedID);
 
             configInfo.append("\n\tPublic Address = " + publicAddress);
             LOG.config(configInfo.toString());
@@ -122,35 +121,35 @@ class HttpMessageSender implements MessageSender {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public EndpointAddress getPublicAddress() {
         return publicAddress;
     }
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public boolean isConnectionOriented() {
         return true;
     }
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public boolean allowsRouting() {
         return true;
     }
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public Object transportControl(Object operation, Object Value) {
         return null;
     }
 
     /**
      * shut down all client connections.
-     **/
+     */
     public synchronized void start() throws PeerGroupException {
         if (servletHttpTransport.getEndpointService().addMessageTransport(this) == null) {
             throw new PeerGroupException("Transport registration refused");
@@ -163,7 +162,7 @@ class HttpMessageSender implements MessageSender {
 
     /**
      * shut down all client connections.
-     **/
+     */
     public synchronized void stop() {
         synchronized (messengers) {
             Iterator<HttpClientMessenger> eachMessenger = messengers.keySet().iterator();
@@ -184,7 +183,7 @@ class HttpMessageSender implements MessageSender {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("getMessenger for : " + destAddr);
@@ -231,7 +230,7 @@ class HttpMessageSender implements MessageSender {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public boolean ping(EndpointAddress addr) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Using http client sender to ping " + addr);
@@ -251,14 +250,14 @@ class HttpMessageSender implements MessageSender {
 
     /**
      *  {@inheritDoc}
-     **/
+     */
     public String getProtocolName() {
         return servletHttpTransport.HTTP_PROTOCOL_NAME;
     }
 
     /**
      *  {@inheritDoc}
-     **/
+     */
     public EndpointService getEndpointService() {
         return servletHttpTransport.getEndpointService();
     }

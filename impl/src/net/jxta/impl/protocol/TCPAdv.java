@@ -82,7 +82,7 @@ import net.jxta.protocol.TransportAdvertisement;
 public class TCPAdv extends TransportAdvertisement {
 
     /**
-     *  Log4J Logger
+     *  Logger
      */
     private static final Logger LOG = Logger.getLogger(TCPAdv.class.getName());
 

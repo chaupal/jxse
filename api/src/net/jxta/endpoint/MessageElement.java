@@ -153,7 +153,7 @@ public abstract class MessageElement implements Document {
     /**
      * message properties hashmap
      */
-    private Map properties = null;
+    private Map<Object,Object> properties = null;
 
     /**
      * cached result of {@link #getByteLength()} operation.
@@ -516,7 +516,7 @@ public abstract class MessageElement implements Document {
          */
 
         if (null == properties) {
-            properties = new HashMap();
+            properties = new HashMap<Object,Object>();
         }
         
         return properties.put(key, value);
