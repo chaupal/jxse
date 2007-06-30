@@ -73,6 +73,7 @@ import java.util.Map;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
@@ -93,13 +94,13 @@ import net.jxta.impl.id.UUID.UUIDFactory;
  * {@link net.jxta.endpoint.EndpointService} or
  * {@link net.jxta.pipe.PipeService}.
  * <p/>
- * <p/>A Message is composed of an ordered list of zero or more
+ * A Message is composed of an ordered list of zero or more
  * {@link net.jxta.endpoint.MessageElement MessageElements}. Each
  * {@link net.jxta.endpoint.MessageElement} is associated with a namespace at
  * the time it is added to the message. Duplicate
  * {@link net.jxta.endpoint.MessageElement MessageElements} are permitted.
  * <p/>
- * <p/><b>Messages are not synchronized. All of the iterators returned by this
+ * <b>Messages are not synchronized. All of the iterators returned by this
  * implementation are "fail-fast". Concurrent modification of messages from
  * multiple threads will produce unexpected results and
  * {@code ConcurrentModificationException}.</b>
@@ -114,7 +115,7 @@ import net.jxta.impl.id.UUID.UUIDFactory;
 public class Message extends AbstractSimpleSelectable implements Serializable {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(Message.class.getName());
 
@@ -128,22 +129,25 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * expensive option as it causes a stack crawl to be captured for every
      * message modification.
      * <p/>
-     * <p/>To enable modification tracking, set to {@code true} and recompile.
+     * To enable modification tracking, set to {@code true} and recompile.
      */
     protected static final boolean LOG_MODIFICATIONS = false;
 
     /**
-     * If {@code true}, then a special tracking element is added to the
+     * If {@code true}, then a special tracking element is added to every
      * message. This provides the ability to follow messages throughout the
      * network. If a message has a tracking element then it will be used in
      * the {@code toString()} representation.
      * <p/>
-     * <p/>The element is currently named "Tracking UUID" and is stored in the
+     * The element is currently named "Tracking UUID" and is stored in the
      * "jxta" namespace. The element contains an IETF version 1 UUID in string
      * form.
      * <p/>
-     * <p/>To enable addition of a tracking element, set to {@code true} and
-     * recompile.
+     * To enable addition of a tracking element to every message, set the
+     * Java System Property {@code net.jxta.endpoint.Message.globalTracking} to
+     * {@code true} and restart your JXTA application.
+     *
+     * @see java.lang.System#setProperty(String,String)
      */
     protected static final boolean GLOBAL_TRACKING_ELEMENT =
             Boolean.getBoolean(Message.class.getName() + ".globalTracking");
@@ -152,7 +156,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * Incremented for each standalone message instance. {@see #lineage} for
      * information about how message numbers can be used.
      */
-    private static transient volatile int messagenumber = 1;
+    private static transient AtomicInteger messagenumber = new AtomicInteger(1);
 
     /**
      * This string identifies the namespace which is assumed when calls are
@@ -180,7 +184,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * of cloning) that produced this message. This message's number is index
      * 0, all of the ancestors are in order at higher indexes.
      * <p/>
-     * <p/>Message numbers are not part of the message content and are only
+     * Message numbers are not part of the message content and are only
      * stored locally. The are useful for following messages throughout their
      * lifetime and is normally shown as part of the <tt>toString()</tt>
      * display for Messages.
@@ -191,8 +195,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * Modification count of this message. Can be used to detect message being
      * concurrently modified when message is shared.
      * <p/>
-     * <p/>The modification count is part of the <tt>toString()</tt>
-     * display for Messages.
+     * The modification count is part of the {@code toString()} display for
+     * Messages.
      */
     protected transient volatile int modCount = 0;
 
@@ -221,7 +225,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * If {@code LOG_MODIFICATIONS} is {@code true} then this will contain
      * the history of modifications this message.
      * <p/>
-     * <p/><ul>
+     * <ul>
      * <li>Values are {@link java.lang.Throwable} with the description
      * field formatted as <code>timeInAbsoluteMillis : threadName</code>.
      * </li>
@@ -234,7 +238,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * determine the namespace of the current message element. Message Elements
      * are iterated in the order in which they were added to the Message.
      * <p/>
-     * <p/>This Iterator returned is not synchronized with the message. If you
+     * This Iterator returned is not synchronized with the message. If you
      * modify the state of the Message, the iterator will throw
      * ConcurrentModificationException when {@code next()} or
      * {@code previous()} is called.
@@ -329,11 +333,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
+                    LOG.log(Level.SEVERE,
                             Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                            ,
+                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
 
@@ -352,11 +354,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
+                    LOG.log(Level.SEVERE,
                             Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                            ,
+                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
 
@@ -377,7 +377,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          * <p/>
-         * <p/>Not provided because the namespace cannot be specified.
+         * Not provided because the namespace cannot be specified.
          */
         public void add(MessageElement obj) {
             throw new UnsupportedOperationException("add() not supported");
@@ -392,11 +392,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
+                    LOG.log(Level.SEVERE,
                             Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                            ,
+                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
 
@@ -442,11 +440,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE
-                                ,
+                        LOG.log(Level.SEVERE,
                                 Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                                + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                                ,
+                                + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                                 failure);
                     }
 
@@ -469,28 +465,22 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         /**
          * {@inheritDoc}
          * <p/>
-         * <p/>Replacement MessageElement will be in the same name space as the
+         * Replacement MessageElement will be in the same name space as the
          * replaced element.
          */
         public void set(MessageElement obj) {
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
-                        Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
+                        Message.this + " concurrently modified. ");
 
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
+                    LOG.log(Level.SEVERE,
                             Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                            ,
+                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
 
                 throw failure;
-            }
-
-            if (!(obj instanceof MessageElement)) {
-                throw new IllegalStateException("replacement must be a MessageElement");
             }
 
             if (null == current) {
@@ -532,11 +522,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE
-                                ,
+                        LOG.log(Level.SEVERE,
                                 Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                                + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                                ,
+                                + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                                 failure);
                     }
 
@@ -607,24 +595,30 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     }
 
     /**
-     * Returns the next message number in sequence.
-     *
-     * @return the next message number in sequence.
-     */
-    protected static int getNextMessageNumber() {
-        synchronized (Message.class) {
-            return messagenumber++;
-        }
-    }
-
-    /**
      * Standard Constructor for messages. The default namespace will be the
      * empty string ("")
      */
     public Message() {
-        this("");
+        this("", false);
+    }
 
-        if (GLOBAL_TRACKING_ELEMENT) {
+    /**
+     * Standard Constructor for messages.
+     *
+     * @param defaultNamespace the namespace which is assumed by methods which
+     * do not require a namespace specification.
+     */
+    protected Message(String defaultNamespace, boolean clone ) {
+        this.defaultNamespace = defaultNamespace;
+
+        lineage.add(messagenumber.getAndIncrement());
+
+        if (LOG_MODIFICATIONS) {
+            modHistory = new ArrayList<Throwable>();
+            incMessageModCount();
+        }
+        
+        if (!clone && GLOBAL_TRACKING_ELEMENT) {
             UUID tracking = UUIDFactory.newSeqUUID();
 
             MessageElement trackingElement = new StringMessageElement("Tracking UUID", tracking.toString(), null);
@@ -634,26 +628,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     }
 
     /**
-     * Standard Constructor for messages.
-     *
-     * @param defaultNamespace the namespace which is assumed when calls are
-     *                         made that don't include a namespace specification.
-     */
-    protected Message(String defaultNamespace) {
-        this.defaultNamespace = defaultNamespace;
-
-        lineage.add(getNextMessageNumber());
-
-        if (LOG_MODIFICATIONS) {
-            modHistory = new ArrayList<Throwable>();
-            incMessageModCount();
-        }
-    }
-
-    /**
      * {@inheritDoc}
      * <p/>
-     * <p/> Duplicates the Message. The returned duplicate is a real copy. It may
+     * Duplicates the Message. The returned duplicate is a real copy. It may
      * be freely modified without causing change to the originally cloned
      * message.
      *
@@ -661,7 +638,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      */
     @Override
     public Message clone() {
-        Message clone = new Message(getDefaultNamespace());
+        Message clone = new Message(getDefaultNamespace(), true );
 
         clone.lineage.addAll(lineage);
         clone.elements.addAll(elements);
@@ -685,13 +662,13 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>Compare this Message against another. Returns {@code true} if all
-     * of the elements are identical and in the same order. Message properties
+     * Compare this Message against another. Returns {@code true} if all of the
+     * elements are identical and in the same order. Message properties
      * (setProperty()/getProperty()) are not considered in the calculation.
      *
      * @param target The Message to compare against.
      * @return {@code true} if the elements are identical otherwise
-     *         {@code false}.
+     * {@code false}.
      */
     @Override
     public boolean equals(Object target) {
@@ -753,7 +730,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>This implementation is intended to assist debugging. You should not
+     * This implementation is intended to assist debugging. You should not
      * depend upon the format of the result.
      */
     @Override
@@ -824,7 +801,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         properties = new HashMap<Object, Object>();
         lineage = new ArrayList<Integer>();
 
-        lineage.add(getNextMessageNumber());
+        lineage.add(messagenumber.getAndIncrement());
 
         if (LOG_MODIFICATIONS) {
             modHistory = new ArrayList<Throwable>();
@@ -914,9 +891,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         namespaceElements.add(add);
         incMessageModCount();
         if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer(
-                    "Added " + namespace + "::" + add.getElementName() + "/" + add.getClass().getName() + "@" + add.hashCode()
-                    + " to " + this);
+            LOG.finer( "Added " + namespace + "::" + add.getElementName() + "/" + 
+                    add.getClass().getName() + "@" + add.hashCode() + " to " + this);
         }
     }
 
@@ -927,7 +903,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * element. The existing version of the element is returned, if more than
      * one matching element was removed, a random matching element is returned.
      * <p/>
-     * <p/>For greatest control over element replacement, use the
+     * For greatest control over element replacement, use the
      * {@link java.util.ListIterator#set(java.lang.Object)} method as returned
      * by {@link #getMessageElements()},
      * {@link #getMessageElements(java.lang.String)} or
@@ -948,7 +924,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * element. The existing version of the element is returned, if more than
      * one matching element was removed, a random matching element is returned.
      * <p/>
-     * <p/>For greatest control over element replacement, use the
+     * For greatest control over element replacement, use the
      * {@link java.util.ListIterator#set(java.lang.Object)} method as returned
      * by {@link #getMessageElements()},
      * {@link #getMessageElements(java.lang.String)} or
@@ -1056,7 +1032,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * Returns a list iterator of all of the elements contained in this message.
      * Elements from all namespaces are returned.
      * <p/>
-     * <p/>The iterator returned is not synchronized with the message and will
+     * The iterator returned is not synchronized with the message and will
      * throw {@link java.util.ConcurrentModificationException} if the
      * message is modified.
      *
@@ -1074,7 +1050,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * namespaces are returned. Message Elements are iterated in the order in
      * which they were added to the Message.
      * <p/>
-     * <p/>The iterator returned is not synchronized with the message and will
+     * The iterator returned is not synchronized with the message and will
      * throw {@link java.util.ConcurrentModificationException} if the
      * message is modified.
      *
@@ -1098,7 +1074,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * which match the specified namespace. Message Elements are iterated in
      * the order in which they were added to the Message.
      * <p/>
-     * <p/>The ListIterator returned is not synchronized with the message. If
+     * The ListIterator returned is not synchronized with the message. If
      * you modify the state of the Message, the iterator will throw
      * ConcurrentModificationException when {@code next()} or
      * {@code previous()} is called.
@@ -1129,7 +1105,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * specified namespace who's name matches the specified name in the order
      * in which they were added to the Message.
      * <p/>
-     * <p/>The iterator returned is not synchronized with the message and will
+     * The iterator returned is not synchronized with the message and will
      * throw {@link java.util.ConcurrentModificationException} if the message
      * is modified.
      *
@@ -1160,7 +1136,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * whose mime-type matchs the given in the order they were added to the
      * message. Elements from all namespaces are returned.
      * <p/>
-     * <p/>The iterator returned is not synchronized with the message and will
+     * The iterator returned is not synchronized with the message and will
      * throw {@link java.util.ConcurrentModificationException} if the
      * message is modified.
      *
@@ -1187,7 +1163,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * Returns a list iterator of all of the elements contained in this message
      * whose type matches the given in the order they were added to the message.
      * <p/>
-     * <p/>The iterator returned is not synchronized with the message and will
+     * The iterator returned is not synchronized with the message and will
      * throw {@link java.util.ConcurrentModificationException} if the
      * message is modified.
      *
@@ -1215,7 +1191,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     }
 
     /**
-     * Remove an the first occurance of the provided MessageElement from the
+     * Remove an the first occurrence of the provided MessageElement from the
      * message.
      *
      * @param remove the Element to remove from the message.
@@ -1238,7 +1214,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
     }
 
     /**
-     * Remove the first occurance of the provided MessageElement within the
+     * Remove the first occurrence of the provided MessageElement within the
      * specified namespace from the message.  You can specify null as a
      * shorthand for the default namespace.
      *
@@ -1376,10 +1352,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * Returns the message number of this message. Message Numbers are intended
      * to assist with debugging and the management of message cloning.
      * <p/>
-     * <p/>Each message is assigned a unique number upon creation. Message
+     * Each message is assigned a unique number upon creation. Message
      * Numbers are monotonically increasing for each message created.
      * <p/>
-     * <p/>Message Numbers are transient, ie. if the message object is
+     * Message Numbers are transient, ie. if the message object is
      * serialized then the message number after deserialization will be
      * probably be a different value. Message numbers should not be used to
      * record permanent relationships between messages.
@@ -1410,7 +1386,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * caching. <strong>Message Properties are not transmitted as part of the
      * Message when the message is serialized!</strong>
      * <p/>
-     * <p/>The setting of particular keys may be controlled by a Java Security
+     * The setting of particular keys may be controlled by a Java Security
      * Manager. Keys of type 'java.lang.Class' are checked against the caller of
      * this method. Only callers which are instances of the key class may modify
      * the property. This check is not possible through reflection. All other
