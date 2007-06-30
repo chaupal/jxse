@@ -83,7 +83,6 @@ CONFIGFILE=impl/src/net/jxta/impl/config.properties
 MONITORCFGFILE=impl/src/net/jxta/impl/monitor.properties
 
 USERFILE=api/src/net/jxta/user.properties
-JXTAPROP = jxta.properties
 
 METAINFPROPERTYFILES=impl/src/META-INF/services/net.jxta.*           
 
@@ -123,7 +122,6 @@ compileSrc: cleanclassdir meterSet
 	@$(CP) $(CONFIGFILE) $(CLASSDIR)/net/jxta/impl/config.properties
 	@$(CP) $(MONITORCFGFILE) $(CLASSDIR)/net/jxta/impl/monitor.properties
 	@$(CP) $(USERFILE) $(CLASSDIR)/net/jxta/
-	@$(CP) $(JXTAPROP) $(CLASSDIR)
 	@echo Done building all.
 
 run:
@@ -151,7 +149,7 @@ cmchk:
 jar:  compileSrc
 	@if [ '!' -d $(DISTDIR) ]; then mkdir $(DISTDIR); fi;
 	@echo Creating $(DISTDIR)/jxta.jar
-	@cd $(CLASSDIR); $(JAR) -cf $(DISTDIR)/jxta.jar $(JXTAPROP) net sun META-INF; unzip -l $(DISTDIR)/jxta.jar |grep files
+	@cd $(CLASSDIR); $(JAR) -cf $(DISTDIR)/jxta.jar net sun META-INF; unzip -l $(DISTDIR)/jxta.jar |grep files
 
 cleanclassdir:
 	@echo cleaning $(CLASSDIRx)
