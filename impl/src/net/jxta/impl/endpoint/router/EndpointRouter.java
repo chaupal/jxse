@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.router;
-
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -105,7 +103,6 @@ import java.util.TimerTask;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 public class EndpointRouter implements EndpointListener, MessageReceiver, MessageSender, MessengerEventListener, Module {
 
@@ -645,7 +642,8 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     /**
      * Default constructor
      */
-    public EndpointRouter() {}
+    public EndpointRouter() {
+    }
 
     /**
      * {@inheritDoc}
@@ -696,7 +694,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             }
             return START_AGAIN_STALLED;
         }
-        
+
         Service needed = group.getResolverService();
 
         if (null == needed) {
@@ -946,9 +944,8 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
 
                         if (ensureLocalRoute(addr, null) != null) {
                             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine(
-                                        "Found first hop remote address first hop: " + peerAddress + " -> "
-                                        + route.getFirstHop().getPeerID());
+                                LOG.fine("Found first hop remote address first hop: " + peerAddress + " -> "
+                                          + route.getFirstHop().getPeerID());
                             }
 
                             // Ensure local route removes negative cache info about addr.
@@ -1272,19 +1269,19 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      * Check if a route is valid.
      * Currently, only loops are detected.
      *
-     * @param r The route to check.
+     * @param routeAdvertisement The route to check.
      * @return {@code true} if the route is valid otherwise {@code false}.
      */
-    private boolean checkRoute(RouteAdvertisement r) {
+    private boolean checkRoute(RouteAdvertisement routeAdvertisement) {
 
-        if (0 == r.size()) {
+        if (0 == routeAdvertisement.size()) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("route is empty");
             }
             return false;
         }
 
-        if (r.containsHop(localPeerId)) {
+        if (routeAdvertisement.containsHop(localPeerId)) {
             // The route does contain this local peer. Using this route
             // would create a loop. Discard.
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1293,21 +1290,21 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             return false;
         }
 
-        PeerID destPid = r.getDest().getPeerID();
+        PeerID destPid = routeAdvertisement.getDest().getPeerID();
 
-        if (r.containsHop(destPid)) {
+        if (routeAdvertisement.containsHop(destPid)) {
             // May be it is fixable, may be not. See to it.
-            Vector<AccessPointAdvertisement> hops = r.getVectorHops();
+            Vector<AccessPointAdvertisement> hops = routeAdvertisement.getVectorHops();
 
             // It better be the last hop. Else this is a broken route.
             hops.remove(hops.lastElement());
-            if (r.containsHop(destPid)) {
+            if (routeAdvertisement.containsHop(destPid)) {
                 // There was one other than last: broken route.
                 return false;
             }
         }
 
-        if (r.hasALoop()) {
+        if (routeAdvertisement.hasALoop()) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("route has a loop ");
             }
@@ -1656,12 +1653,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                     if ((reverseHops.size() > 0) && reverseHops.firstElement().getPeerID().equals(addr2pid(lastHop))) {
 
                         // Looks like a good route to learn
-                        setRoute(
-                                RouteAdvertisement.newRoute(addr2pid(srcPeerAddress), null
-                                ,
-                                (Vector<AccessPointAdvertisement>) reverseHops.clone())
-                                ,
-                                true);
+                        setRoute(RouteAdvertisement.newRoute(addr2pid(srcPeerAddress), null, (Vector<AccessPointAdvertisement>) reverseHops.clone()), true);
 
                     }
 
@@ -1793,7 +1785,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 // path from the originator to it's only rdv, then the
                 // originator does not stand a chance until it re-seeds !
 
-                if (ensureLocalRoute(nextHop, null) == null) { // Here we go :-)
+                if (ensureLocalRoute(nextHop, null) == null) {
 
                     // need to look for a long route.
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1827,8 +1819,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                     EndpointAddress addr = pid2addr(route.getLastHop().getPeerID());
 
                     if (isLocalRoute(addr)) {
-                        // FIXME - jice@jxta.org 20030723. Should update our route
-                        // table to reflect the shortcut.
+                        // FIXME - jice@jxta.org 20030723. Should update our route table to reflect the shortcut.
 
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                             LOG.fine("Found new remote route via : " + addr);
@@ -1903,12 +1894,12 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         }
     }
 
-    private void cantRoute(String logMsg, Exception e, EndpointAddress origSrcAddr, EndpointAddress destPeer, Vector origHops) {
+    private void cantRoute(String logMsg, Exception exception, EndpointAddress origSrcAddr, EndpointAddress destPeer, Vector origHops) {
         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            if (e == null) {
+            if (exception == null) {
                 LOG.warning(logMsg);
             } else {
-                LOG.log(Level.WARNING, logMsg, e);
+                LOG.log(Level.WARNING, logMsg, exception);
             }
         }
         routeResolver.generateNACKRoute(addr2pid(origSrcAddr), addr2pid(destPeer), origHops);
@@ -2478,15 +2469,15 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         int op = (Integer) operation;
 
         switch (op) {
-        case RouteControlOp: // Get a Router Control Object
-            return new RouteControl(this, localPeerId);
+            case RouteControlOp: // Get a Router Control Object
+                return new RouteControl(this, localPeerId);
 
-        default:
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Invalid Transport Control operation argument");
-            }
+            default:
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Invalid Transport Control operation argument");
+                }
 
-            return null;
+                return null;
         }
     }
 
