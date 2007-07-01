@@ -413,14 +413,14 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
                 queryFrom = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
             } else {
                 // we don't know who routed us the query. Assume it came from the source.
-                queryFrom = query.getSrc();
+                queryFrom = query.getSrcPeer().toString();
             }
         } else {
             // we don't know who routed us the query. Assume it came from the source.
-            queryFrom = query.getSrc();
+            queryFrom = query.getSrcPeer().toString();
         }
 
-        String responseDest = query.getSrc();
+        String responseDest = query.getSrcPeer().toString();
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Starting for :" + query.getQueryId() + " from " + srcAddr);
@@ -486,7 +486,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
 
             if (!queryForMe) {
                 // It is an directed query, but request wasn't for this peer.
-                if (query.getSrc().equals(queryFrom)) {
+                if (query.getSrcPeer().toString().equals(queryFrom)) {
                     // we only respond if the original src was not the query forwarder
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("discarding query. Query not for us.");
@@ -538,7 +538,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
                 return ResolverService.Repropagate;
             } else {
                 // We are an edge
-                if (query.getSrc().equals(queryFrom)) {
+                if (query.getSrcPeer().toString().equals(queryFrom)) {
                     // we only respond if the original src was not the query forwarder
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("discarding query.");
@@ -1136,7 +1136,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
 
         query.setHandlerName(PipeResolverName);
         query.setQueryId(queryID);
-        query.setSrc(myGroup.getPeerID().toString());
+        query.setSrcPeer(myGroup.getPeerID());
         query.setQuery(asDoc.toString());
 
         CurrentCredential current = currentCredential;
