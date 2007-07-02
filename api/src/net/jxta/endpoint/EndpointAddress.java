@@ -73,7 +73,7 @@ import java.util.logging.Logger;
  * <li>A Message Transport for a Peer</li>
  * </ul>
  * <p/>
- * <p/>An Endpoint Address is a specialized interpretation of a URI.
+ * An Endpoint Address is a specialized interpretation of a URI.
  * Wherever it makes sense you should use a URI in preference to an Endpoint
  * Address. An Endpoint Address is composed of four components: a protocol
  * (also called a scheme), a protocol address (also called an authority), an
@@ -87,14 +87,14 @@ import java.util.logging.Logger;
  * <li><b>May not</b> contain the ":" character.
  * </ul>
  * <p/>
- * <p/><b>The Protocol Address</b><ul>
+ * <b>The Protocol Address</b><ul>
  * <li>Describes the destination entity of this address.</li>
  * <li>Form is dependant upon the protocol being used.</li>
  * <li>Corresponds to the "Authority" portion of a URI in W3C parlance.
  * <li><b>May not</b> contain the "/" character.
  * </ul>
  * <p/>
- * <p/><b>The Service Name</b> (optional)<ul>
+ * <b>The Service Name</b> (optional)<ul>
  * <li>Describes the service that is the destination. A service cannot be
  * a protocol address because a service must have a location; a group or a
  * specific peer.</li>
@@ -103,7 +103,7 @@ import java.util.logging.Logger;
  * <li><b>May not</b> contain the "/" character.
  * </ul>
  * <p/>
- * <p/><b>The Service Parameter</b> (optional)<ul>
+ * <b>The Service Parameter</b> (optional)<ul>
  * <li>Describes parameters for the service.</li>
  * <li>Form is dependant upon service intent. This is matched as a UTF-8
  * string (if it is used for matching).</li>
