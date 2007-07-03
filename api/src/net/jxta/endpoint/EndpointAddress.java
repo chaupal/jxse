@@ -53,170 +53,163 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
 
+import net.jxta.id.ID;
+import net.jxta.logging.Logging;
 
 import java.lang.ref.SoftReference;
 import java.net.URI;
-
-import java.io.UnsupportedEncodingException;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
-import net.jxta.id.ID;
-
 
 /**
  * Describes a destination to which JXTA messages may be sent. This may be:
+ * <p/>
+ * <ul>
+ * <li>A Pipe</li>
+ * <li>A Peergroup (propagate)</li>
+ * <li>A Peer</li>
+ * <li>A Message Transport for a Peer</li>
+ * </ul>
+ * <p/>
+ * An Endpoint Address is a specialized interpretation of a URI.
+ * Wherever it makes sense you should use a URI in preference to an Endpoint
+ * Address. An Endpoint Address is composed of four components: a protocol
+ * (also called a scheme), a protocol address (also called an authority), an
+ * optional service name and optional service parameter.
+ * <p/>
+ * <p/><b>The Protocol</b><ul>
+ * <li>Describes the method of addressing used by the remainder of the
+ * endpoint address.</li>
+ * <li>Indicates how the address will be resolved, ie. who will resolve it.</li>
+ * <li>Corresponds to the "scheme" portion of a URI in W3C parlance.
+ * <li><b>May not</b> contain the ":" character.
+ * </ul>
+ * <p/>
+ * <b>The Protocol Address</b><ul>
+ * <li>Describes the destination entity of this address.</li>
+ * <li>Form is dependant upon the protocol being used.</li>
+ * <li>Corresponds to the "Authority" portion of a URI in W3C parlance.
+ * <li><b>May not</b> contain the "/" character.
+ * </ul>
+ * <p/>
+ * <b>The Service Name</b> (optional)<ul>
+ * <li>Describes the service that is the destination. A service cannot be
+ * a protocol address because a service must have a location; a group or a
+ * specific peer.</li>
+ * <li>Form is dependant upon service intent. This is matched as a UTF-8
+ * string.</li>
+ * <li><b>May not</b> contain the "/" character.
+ * </ul>
+ * <p/>
+ * <b>The Service Parameter</b> (optional)<ul>
+ * <li>Describes parameters for the service.</li>
+ * <li>Form is dependant upon service intent. This is matched as a UTF-8
+ * string (if it is used for matching).</li>
+ * </ul>
  *
- *  <ul>
- *      <li>A Pipe</li>
- *      <li>A Peergroup (propagate)</li>
- *      <li>A Peer</li>
- *      <li>A Message Transport for a Peer</li>
- *  </ul>
- *
- *  <p/>An Endpoint Address is a specialized interpretation of a URI.
- *  Wherever it makes sense you should use a URI in preference to an Endpoint
- *  Address. An Endpoint Address is composed of four components: a protocol
- *  (also called a scheme), a protocol address (also called an authority), an
- *  optional service name and optional service parameter.
- *
- *  <p/><b>The Protocol</b><ul>
- *      <li>Describes the method of addressing used by the remainder of the
- *      endpoint address.</li>
- *      <li>Indicates how the address will be resolved, ie. who will resolve it.</li>
- *      <li>Corresponds to the "scheme" portion of a URI in W3C parlance.
- *      <li><b>May not</b> contain the ":" character.
- *  </ul>
- *
- *  <p/><b>The Protocol Address</b><ul>
- *      <li>Describes the destination entity of this address.</li>
- *      <li>Form is dependant upon the protocol being used.</li>
- *      <li>Corresponds to the "Authority" portion of a URI in W3C parlance.
- *      <li><b>May not</b> contain the "/" character.
- *  </ul>
- *
- *  <p/><b>The Service Name</b> (optional)<ul>
- *      <li>Describes the service that is the destination. A service cannot be
- *      a protocol address because a service must have a location; a group or a
- *      specific peer.</li>
- *      <li>Form is dependant upon service intent. This is matched as a UTF-8
- *      string.</li>
- *      <li><b>May not</b> contain the "/" character.
- *  </ul>
- *
- *  <p/><b>The Service Parameter</b> (optional)<ul>
- *      <li>Describes parameters for the service.</li>
- *      <li>Form is dependant upon service intent. This is matched as a UTF-8
- *      string (if it is used for matching).</li>
- *  </ul>
- *
- * @see  net.jxta.endpoint.EndpointService
- * @see  net.jxta.endpoint.MessageTransport
- * @see  net.jxta.endpoint.Messenger
- * @see  net.jxta.pipe.PipeService
+ * @see net.jxta.endpoint.EndpointService
+ * @see net.jxta.endpoint.MessageTransport
+ * @see net.jxta.endpoint.Messenger
+ * @see net.jxta.pipe.PipeService
  */
 public class EndpointAddress {
-    
+
     /**
-     *  Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(EndpointAddress.class.getName());
-    
+
     /**
-     *  If {@code true} then endpoint addresses based upon IDs are represented
-     *  using the "jxta://" form. If false then they are presented using the
-     *  "urn:jxta:" form. The two forms are meant to be logically equivalent.
+     * If {@code true} then endpoint addresses based upon IDs are represented
+     * using the "jxta://" form. If false then they are presented using the
+     * "urn:jxta:" form. The two forms are meant to be logically equivalent.
      */
     private final static boolean IDS_USE_JXTA_URL_FORM = true;
-    
+
     /**
-     *  The default protocol value for Endpoint Addresses based upon JXTA IDs.
+     * The default protocol value for Endpoint Addresses based upon JXTA IDs.
      */
     private final static String JXTA_ID_PROTOCOL = ID.URIEncodingName + ":" + ID.URNNamespace;
-    
+
     /**
-     *  if true then the address is a url, otherwise its a uri (likely a urn).
+     * if true then the address is a url, otherwise its a uri (likely a urn).
      */
     private boolean hierarchical = true;
-    
+
     /**
-     *  Describes the method of addressing used by the remainder of the
-     *  endpoint address.
+     * Describes the method of addressing used by the remainder of the
+     * endpoint address.
      */
     private String protocol = null;
-    
+
     /**
-     *  Describes the destination entity of this address.
+     * Describes the destination entity of this address.
      */
     private String protocolAddress = null;
-    
+
     /**
-     *  Describes the service that is the destination.
+     * Describes the service that is the destination.
      */
     private String service = null;
-    
+
     /**
-     *  Describes parameters for the service.
+     * Describes parameters for the service.
      */
     private String serviceParam = null;
-    
+
     /**
-     *  cached calculated hash code.
+     * cached calculated hash code.
      */
     private transient int cachedHashCode = 0;
-    
+
     /**
-     *  cached copy of string representation.
+     * cached copy of string representation.
      */
     private transient SoftReference<String> cachedToString = null;
-    
+
     /**
-     *  Returns an unmodifiable clone of the provided EndpointAddress.
+     * Returns an unmodifiable clone of the provided EndpointAddress.
      *
-     *  @deprecated All EndpointAddresses are now unmodifiable so this method is
-     *  no longer needed.
-     *
-     *  @param address  the address to be cloned.
-     *  @return the unmodifiable address clone.
+     * @param address the address to be cloned.
+     * @return the unmodifiable address clone.
+     * @deprecated All EndpointAddresses are now unmodifiable so this method is
+     *             no longer needed.
      */
     @Deprecated
     public static EndpointAddress unmodifiableEndpointAddress(EndpointAddress address) {
         return address;
     }
-    
+
     /**
      * Builds an Address from a string
      *
-     *  @param address the string representation of the address.
+     * @param address the string representation of the address.
      */
     public EndpointAddress(String address) {
         parseURI(address);
     }
-    
+
     /**
-     *  Create an EndpointAddress whose value is initialized from the provided
-     *  URI.
+     * Create an EndpointAddress whose value is initialized from the provided
+     * URI.
      *
-     *  @param address the URI representation of the address.
+     * @param address the URI representation of the address.
      */
     public EndpointAddress(URI address) {
         this(address.toString());
     }
-    
+
     /**
      * Constructor which builds an endpoint address from a base address and
      * replacement service and params
      *
-     * @param base The EndpointAddress on which the new EndpointAddress will be based
-     * @param service The service name for the endpoint address or
-     *  {@code null} if there is no service name.
+     * @param base         The EndpointAddress on which the new EndpointAddress will be based
+     * @param service      The service name for the endpoint address or
+     *                     {@code null} if there is no service name.
      * @param serviceParam The service parameter for the endpoint address or
-     *  {@code null} if there is no parameter.
+     *                     {@code null} if there is no parameter.
      */
     public EndpointAddress(EndpointAddress base, String service, String serviceParam) {
         setProtocolName(base.getProtocolName());
@@ -224,16 +217,16 @@ public class EndpointAddress {
         setServiceName(service);
         setServiceParameter(serviceParam);
     }
-    
+
     /**
      * Constructor which builds an address the four standard constituent parts.
      *
-     * @param protocol The addressing scheme to be used for the endpoint address.
-     * @param address The destination for the endpoint address.
-     * @param service The service name for the endpoint address or
-     *  {@code null} if there is no service name.
+     * @param protocol     The addressing scheme to be used for the endpoint address.
+     * @param address      The destination for the endpoint address.
+     * @param service      The service name for the endpoint address or
+     *                     {@code null} if there is no service name.
      * @param serviceParam The service parameter for the endpoint address or
-     *  {@code null} if there is no parameter.
+     *                     {@code null} if there is no parameter.
      */
     public EndpointAddress(String protocol, String address, String service, String serviceParam) {
         setProtocolName(protocol);
@@ -241,16 +234,16 @@ public class EndpointAddress {
         setServiceName(service);
         setServiceParameter(serviceParam);
     }
-    
+
     /**
      * Constructor which builds an address from a standard jxta id and a
      * service and param.
      *
-     * @param id the ID which will be the destination of the endpoint address.
-     * @param service The service name for the endpoint address or
-     *  {@code null} if there is no service name.
+     * @param id           the ID which will be the destination of the endpoint address.
+     * @param service      The service name for the endpoint address or
+     *                     {@code null} if there is no service name.
      * @param serviceParam The service parameter for the endpoint address or
-     *  {@code null} if there is no parameter.
+     *                     {@code null} if there is no parameter.
      */
     public EndpointAddress(ID id, String service, String serviceParam) {
         setProtocolName(JXTA_ID_PROTOCOL);
@@ -258,49 +251,48 @@ public class EndpointAddress {
         setServiceName(service);
         setServiceParameter(serviceParam);
     }
-    
+
     /**
      * {@inheritDoc}
      *
      * @deprecated EndpointAddress objects are immutable and never need to be
-     * cloned.
+     *             cloned.
      */
     @Override
     @Deprecated
     public EndpointAddress clone() {
-        
         return this;
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object target) {
         if (this == target) {
             return true;
         }
-        
+
         if (target instanceof EndpointAddress) {
             EndpointAddress likeMe = (EndpointAddress) target;
-            
+
             boolean result = (hierarchical == likeMe.hierarchical) && protocol.equalsIgnoreCase(likeMe.protocol)
                     && protocolAddress.equalsIgnoreCase(likeMe.protocolAddress)
                     && ((service != null)
                     ? ((likeMe.service != null) && service.equals(likeMe.service))
                     : (likeMe.service == null))
                     && ((serviceParam != null)
-                            ? ((likeMe.serviceParam != null) && serviceParam.equals(likeMe.serviceParam))
-                            : (likeMe.serviceParam == null));
-            
+                    ? ((likeMe.serviceParam != null) && serviceParam.equals(likeMe.serviceParam))
+                    : (likeMe.serviceParam == null));
+
             return result;
         }
-        
+
         return false;
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -310,40 +302,40 @@ public class EndpointAddress {
             calcedHashCode += protocolAddress.hashCode() * 5741; // a prime
             calcedHashCode += ((service != null) ? service.hashCode() : 1) * 7177; // a prime
             calcedHashCode += ((serviceParam != null) ? serviceParam.hashCode() : 1) * 6733; // a prime
-            
+
             cachedHashCode = (0 == calcedHashCode) ? 1 : calcedHashCode;
         }
-        
+
         return cachedHashCode;
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public synchronized String toString() {
         String result;
-        
+
         if (null != cachedToString) {
             result = cachedToString.get();
-            
+
             if (null != result) {
                 return result;
             }
         }
-        
+
         StringBuilder newResult = new StringBuilder(protocol.length() + protocolAddress.length() + 64);
-        
+
         newResult.append(protocol);
-        
+
         if (hierarchical) {
             newResult.append("://");
         } else {
             newResult.append(':');
         }
-        
+
         newResult.append(protocolAddress);
-        
+
         if (null != service) {
             if (hierarchical) {
                 newResult.append('/');
@@ -351,29 +343,29 @@ public class EndpointAddress {
                 newResult.append('#');
             }
             newResult.append(service);
-            
+
             if (null != serviceParam) {
                 newResult.append('/');
                 newResult.append(serviceParam);
             }
         }
-        
+
         result = newResult.toString();
-        
+
         cachedToString = new SoftReference<String>(result);
-        
+
         return result;
     }
-    
+
     /**
-     *  Return a URI which represents the endpoint address.
+     * Return a URI which represents the endpoint address.
      *
-     *  @return a URI which represents the endpoint address.
+     * @return a URI which represents the endpoint address.
      */
     public URI toURI() {
         return URI.create(toString());
     }
-    
+
     /**
      * Return a String that contains the name of the protocol
      * contained in the EndpointAddress
@@ -383,7 +375,7 @@ public class EndpointAddress {
     public String getProtocolName() {
         return protocol;
     }
-    
+
     /**
      * Return a String that contains the protocol address contained
      * in the EndpointAddress
@@ -393,7 +385,7 @@ public class EndpointAddress {
     public String getProtocolAddress() {
         return protocolAddress;
     }
-    
+
     /**
      * Return a String that contains the service name contained in
      * the EndpointAddress
@@ -403,7 +395,7 @@ public class EndpointAddress {
     public String getServiceName() {
         return service;
     }
-    
+
     /**
      * Return a String that contains the service parameter contained
      * in the EndpointAddress
@@ -413,21 +405,21 @@ public class EndpointAddress {
     public String getServiceParameter() {
         return serviceParam;
     }
-    
+
     /**
-     *  Set the protocol name.
+     * Set the protocol name.
      *
-     *  @param name String containing the name of the protocol
+     * @param name String containing the name of the protocol
      */
     private void setProtocolName(String name) {
         if ((null == name) || (0 == name.length())) {
             throw new IllegalArgumentException("name must be non-null and contain at least one character");
         }
-        
+
         if (-1 != name.indexOf("/")) {
             throw new IllegalArgumentException("name may not contain '/' character");
         }
-        
+
         // XXX 20070207 bondolo We explicitly force all use of either "jxta" or "urn:jxta" to our prefered form.
         if (IDS_USE_JXTA_URL_FORM) {
             if (JXTA_ID_PROTOCOL.equals(name)) {
@@ -438,49 +430,49 @@ public class EndpointAddress {
                 name = JXTA_ID_PROTOCOL;
             }
         }
-        
+
         int colonAt = name.indexOf(':');
-        
+
         if (-1 == colonAt) {
             hierarchical = true;
         } else {
             if (!"urn".equalsIgnoreCase(name.substring(0, colonAt))) {
                 throw new IllegalArgumentException("Only urn may contain colon");
             }
-            
+
             if (colonAt == (name.length() - 1)) {
                 throw new IllegalArgumentException("empty urn namespace!");
             }
-            
+
             hierarchical = false;
         }
-        
+
         protocol = name;
         cachedToString = null;
     }
-    
+
     /**
-     *  Set the protocol address.
+     * Set the protocol address.
      *
-     *  @param address String containing the peer address.
+     * @param address String containing the peer address.
      */
     private void setProtocolAddress(String address) {
         if ((null == address) || (0 == address.length())) {
             throw new IllegalArgumentException("address must be non-null and contain at least one character");
         }
-        
+
         if (-1 != address.indexOf("/")) {
             throw new IllegalArgumentException("address may not contain '/' character");
         }
-        
+
         protocolAddress = address;
         cachedToString = null;
     }
-    
+
     /**
-     *  Set the service name.
+     * Set the service name.
      *
-     *  @param name String containing the name of the destination service
+     * @param name String containing the name of the destination service
      */
     private void setServiceName(String name) {
         if (null != name) {
@@ -488,25 +480,25 @@ public class EndpointAddress {
                 throw new IllegalArgumentException("service name may not contain '/' character");
             }
         }
-        
+
         service = name;
         cachedToString = null;
     }
-    
+
     /**
-     *  Set the service parameter
+     * Set the service parameter
      *
-     *  @param param String containing the service parameter
+     * @param param String containing the service parameter
      */
     private void setServiceParameter(String param) {
         serviceParam = param;
         cachedToString = null;
     }
-    
+
     /**
-     *  Parse any EndpointAddress from a URI
+     * Parse any EndpointAddress from a URI
      *
-     *  @param addr endpoint address to parse
+     * @param addr endpoint address to parse
      */
     private void parseURI(String addr) {
         int index = addr.indexOf("://");
@@ -517,83 +509,83 @@ public class EndpointAddress {
             parseURL(addr);
         }
     }
-    
+
     /**
-     *  Parse an EndpointAddress from a URN
+     * Parse an EndpointAddress from a URN
      *
-     *  @param addr endpoint address to parse
+     * @param addr endpoint address to parse
      */
     private void parseURN(String addr) {
         int protocolEnd = addr.indexOf(':');
-        
+
         if (-1 == protocolEnd) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Address is not a valid URI: " + addr);
             }
             throw new IllegalArgumentException("Address is not a valid URI: " + addr);
         }
-        
+
         if (!"urn".equalsIgnoreCase(addr.substring(0, protocolEnd))) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Address is unrecognized URI form: " + addr);
             }
             throw new IllegalArgumentException("Address is unrecognized URI form: " + addr);
         }
-        
+
         if ((addr.length() - 1) == protocolEnd) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Address URN does not have a namespace: " + addr);
             }
             throw new IllegalArgumentException("Address URN does not have a namespace: " + addr);
         }
-        
+
         // gather the namespace as well.
         int namespaceEnd = addr.indexOf(':', protocolEnd + 1);
-        
+
         if (-1 == namespaceEnd) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Address URN does not have a namespace: " + addr);
             }
             throw new IllegalArgumentException("Address URN does not have a namespace: " + addr);
         }
-        
+
         setProtocolName(addr.substring(0, namespaceEnd));
-        
+
         if ((addr.length() - 1) == namespaceEnd) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Address URN does not have a NSS portion: " + addr);
             }
             throw new IllegalArgumentException("Address URN does not have a NSS portion: " + addr);
         }
-        
+
         // check for service and param
         int nssEnd = addr.indexOf('#', namespaceEnd + 1);
-        
+
         if (-1 == nssEnd) {
             setProtocolAddress(addr.substring(namespaceEnd + 1));
         } else {
             setProtocolAddress(addr.substring(namespaceEnd + 1, nssEnd));
-            
+
             int serviceEnd = addr.indexOf('/', nssEnd + 1);
-            
+
             if (-1 == serviceEnd) {
                 setServiceName(addr.substring(nssEnd + 1));
             } else {
                 setServiceName(addr.substring(nssEnd + 1, serviceEnd));
-                
+
                 setServiceParameter(addr.substring(serviceEnd + 1));
             }
         }
     }
-    
+
     /**
-     *  Parse and EndpointAddress from a URL
+     * Parse and EndpointAddress from a URL
      *
-     *  @param addr endpoint address to parse
+     * @param addr endpoint address to parse
      */
     private void parseURL(String addr) {
-        String remainder = null;
-        
+        String remainder;
+
         int index = addr.indexOf("://");
 
         if (index == -1) {
@@ -602,14 +594,14 @@ public class EndpointAddress {
             }
             throw new IllegalArgumentException("Address is not in absolute form: " + addr);
         }
-        
+
         if (0 == index) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Protocol is missing: " + addr);
             }
             throw new IllegalArgumentException("Protocol is missing: " + addr);
         }
-        
+
         try {
             setProtocolName(addr.substring(0, index));
             remainder = addr.substring(index + 3);
@@ -624,21 +616,21 @@ public class EndpointAddress {
             setProtocolAddress(remainder);
             return;
         }
-        
+
         setProtocolAddress(remainder.substring(0, index));
-        
+
         remainder = remainder.substring(index + 1);
-        
+
         index = remainder.indexOf("/");
         if (index == -1) {
             setServiceName(remainder);
             return;
         }
-        
+
         setServiceName(remainder.substring(0, index));
-        
+
         remainder = remainder.substring(index + 1);
-        
+
         setServiceParameter(remainder);
     }
 }

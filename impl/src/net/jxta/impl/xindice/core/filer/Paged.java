@@ -1308,7 +1308,7 @@ public abstract class Paged {
     /**
      * Paged file's page
      */
-    public final class Page implements Comparable {
+    public final class Page implements Comparable<Page> {
 
         /**
          * This page number
@@ -1467,8 +1467,8 @@ public abstract class Paged {
         }
 
         // No synchronization: pageNum is final.
-        public int compareTo(Object o) {
-            return (int) (this.pageNum - ((Page) o).pageNum);
+        public int compareTo(Page o) {
+            return (int) (this.pageNum - o.pageNum);
         }
     }
 }

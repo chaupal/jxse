@@ -68,47 +68,51 @@ import java.io.IOException;
 
 
 /**
- * This class implements local delivery of messages ( for example when the
+ * This class implements local delivery of messages (for example when the
  * InputPipe and the OutputPipe are located on the same peer)
- *
- * <p/>The reason this class is useful is that it may not always be possible to
+ * <p/>
+ * The reason this class is useful is that it may not always be possible to
  * connect to oneself without actually through the relay. i.e. A peer with outgoing
  * only http transport, can not possibly connect to self through the transport.
- *
- * <p/>Since transports cannot be relied on to perform a loopback, some layer
+ * <p/>
+ * Since transports cannot be relied on to perform a loopback, some layer
  * above has to figure out that a message is looping back.
  * Since peerid loopback does not explicitly request to go through a real
  * transport, and since peerid addressing is the job of the router, it is
  * the router that performs loopback.
- *
- * <p/>The router could probably perform the loopback by delivering the message
+ * <p/>
+ * The router could probably perform the loopback by delivering the message
  * to its own input queue, that would take a special transport instead of a
  * special messenger, which is the same kind of deal but would imply some
  * incoming message processing by the router for every message. In
  * contrast, the loopback messenger is setup once and the router will never
  * sees the messages. That's a good optimization.
- *
- * <p/>Alternatively, the endpoint service itself could figure out the
+ * <p/>
+ * Alternatively, the endpoint service itself could figure out the
  * loopback, but since the API wants to give a messenger to the requestor
  * rather than just sending a message, the endpoint would have to setup a
  * loopback messenger anyway. So it is pretty much the same.
- *
  */
-
 public class LoopbackMessenger extends BlockingMessenger {
 
-    private static final Logger LOG = Logger.getLogger(LoopbackMessenger.class.getName());
+    /**
+     *  Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(LoopbackMessenger.class.getName());
 
     /**
      * The endpoint we are working for, ie. that we will loop back to.
      */
-    EndpointService endpoint = null;
+    private final EndpointService endpoint;
 
     /**
      * The source address of messages sent on this messenger.
      */
     private final EndpointAddress srcAddress;
-
+    
+    /**
+     * The location destination of this messenger.
+     */
     private final EndpointAddress logicalDestination;
 
     /**

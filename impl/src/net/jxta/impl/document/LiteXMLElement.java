@@ -87,7 +87,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * deemed to be invalid if 'start' is -1.  A zero length range is, by
      * convention, described by an 'end' value of 'start' - 1.
      */
-    protected static class charRange implements Comparable {
+    protected static class charRange implements Comparable<charRange> {
 
         /**
          * Contains the start position of this range.
@@ -137,16 +137,10 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         /**
          * {@inheritDoc}
          */
-        public int compareTo(Object aRange) {
-            if (this == aRange) {
+        public int compareTo(charRange someRange) {
+            if (this == someRange) {
                 return 0;
             }
-
-            if (!(aRange instanceof charRange)) {
-                throw new ClassCastException("type mismatch error");
-            }
-
-            charRange someRange = (charRange) aRange;
 
             if (start < someRange.start) {
                 return -1;
@@ -248,7 +242,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * <p/>For empty-element tags the <code>startTag</code>, <code>body</code>
      * and <code>endTag</code> will be equal.
      */
-    protected static class tagRange implements Comparable {
+    protected static class tagRange implements Comparable<tagRange> {
         public charRange startTag;
         public charRange body;
         public charRange endTag;
@@ -286,16 +280,10 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         /**
          * {@inheritDoc}
          */
-        public int compareTo(Object aRange) {
-            if (this == aRange) {
+        public int compareTo(tagRange someRange) {
+            if (this == someRange) {
                 return 0;
             }
-
-            if (!(aRange instanceof tagRange)) {
-                throw new ClassCastException("type mismatch error");
-            }
-
-            tagRange someRange = (tagRange) aRange;
 
             int compared = startTag.compareTo(someRange.startTag);
 

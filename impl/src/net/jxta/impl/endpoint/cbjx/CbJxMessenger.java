@@ -75,7 +75,7 @@ public class CbJxMessenger extends BlockingMessenger {
     /**
      * Logger
      */
-    private static transient final Logger LOG = Logger.getLogger(CbJxMessenger.class.getName());
+    private final static transient Logger LOG = Logger.getLogger(CbJxMessenger.class.getName());
 
     /**
      * the new destination address computed by the CbJx Endpoint
@@ -150,14 +150,6 @@ public class CbJxMessenger extends BlockingMessenger {
     @Override
     public EndpointAddress getLogicalDestinationImpl() {
         return newDestAddr;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isClosed() {
-        return super.isClosed();
     }
 
     /**

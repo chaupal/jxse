@@ -49,8 +49,6 @@
  * <http://www.jxta.org/>.
  *
  * This license is based on the BSD license adopted by the Apache Foundation.
- *
- * $Id: ContentID.java,v 1.20 2006/12/05 20:03:08 hamada Exp $
  */
 
 package net.jxta.content;
