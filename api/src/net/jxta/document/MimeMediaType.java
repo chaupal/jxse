@@ -177,7 +177,7 @@ public class MimeMediaType implements Serializable {
     /**
      * manages a media type parameter.
      */
-    private static class parameter implements Comparable {
+    private static class parameter implements Comparable<parameter> {
 
         /**
          * Attribute name.
@@ -233,16 +233,10 @@ public class MimeMediaType implements Serializable {
         /**
          * {@inheritDoc}
          */
-        public int compareTo(Object obj) {
-            if (this == obj) {
+        public int compareTo(parameter asParameter) {
+            if (this == asParameter) {
                 return 0;
             }
-
-            if (!(obj instanceof parameter)) {
-                throw new ClassCastException("obj is not a parameter");
-            }
-
-            parameter asParameter = (parameter) obj;
 
             int result = attribute.compareToIgnoreCase(asParameter.attribute);
 
