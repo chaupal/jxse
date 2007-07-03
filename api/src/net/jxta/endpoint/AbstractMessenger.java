@@ -154,7 +154,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     /**
      * {@inheritDoc}
      */
-    public EndpointAddress getDestinationAddress() {
+    public final EndpointAddress getDestinationAddress() {
         return dstAddress;
     }
 
@@ -162,7 +162,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * {@inheritDoc}
      */
     @Deprecated
-    public EndpointAddress getDestinationAddressObject() {
+    public final EndpointAddress getDestinationAddressObject() {
         return dstAddress;
     }
 
