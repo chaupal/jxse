@@ -1550,7 +1550,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 // transport messenger. As of now, the logical dest is unknown.
                 Messenger m = new CanonicalMessenger(vmQueueSize, addr, null, hint, messengerMeter);
 
-                messengerMap.put(m.getDestinationAddressObject(), new SoftReference<Messenger>(m));
+                messengerMap.put(m.getDestinationAddress(), new SoftReference<Messenger>(m));
                 return m;
             }
         }
