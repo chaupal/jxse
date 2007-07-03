@@ -77,8 +77,7 @@ import java.io.InterruptedIOException;
 public abstract class AbstractMessenger extends AbstractSimpleSelectable implements Messenger {
 
     /**
-     * The default Maximum Transmission Unit. Currently it is not enforced 
-     * though at least this much can always be sent. 
+     * The default Maximum Transmission Unit.
      */
     protected static final long DEFAULT_MTU = Long.parseLong(System.getProperty("net.jxta.MTU", "65536"));
 
@@ -110,11 +109,11 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     /**
      * {@inheritDoc}
      * <p/>
-     * A simple implementation for debugging. Don't depend upon this format.
+     * A simple implementation for debugging. Do not depend upon the format.
      */
     @Override
     public String toString() {
-        return super.toString() + " {" + dstAddress.toString() + "}";
+        return super.toString() + " {" + dstAddress + "}";
     }
 
     /**
@@ -139,6 +138,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * This is here for backward compatibility reasons.  The notion of long term unemployment still exists, but is no-longer part
      * of the API.  Self closing for unemployment is now a built-in feature of messengers.
      */
+    @Deprecated
     public final boolean isIdle() {
         return false;
     }
@@ -146,6 +146,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public final boolean isSynchronous() {
         return false;
     }
@@ -167,6 +168,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
 
     /**
      * {@inheritDoc}
+     * <p/>It is not always enforced. At least this much can always be sent. 
      */
     public long getMTU() {
         return DEFAULT_MTU;
@@ -186,7 +188,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * aggressively collect closed ones. When not used, messengers die by themselves.
      */
     public boolean isClosed() {
-        return ((getState() & USABLE) == 0);
+        return (getState() & USABLE) == 0;
     }
 
     /**
@@ -198,14 +200,16 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
         try {
             currentState = waitState(IDLE, 0);
         } catch (InterruptedException ie) {
-            InterruptedIOException iio = new InterruptedIOException();
+            InterruptedIOException iio = new InterruptedIOException("flush() interrupted");
 
             iio.initCause(ie);
             throw iio;
         }
+        
         if ((currentState & (CLOSED | USABLE)) != 0) {
             return;
         }
+        
         throw new IOException("Messenger was unexpectedly closed.");
     }
 
@@ -255,11 +259,9 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
         // Now see how we can manage to throw it.
         if (t instanceof IOException) {
             throw (IOException) t;
-        }
-        if (t instanceof RuntimeException) {
+        } else if (t instanceof RuntimeException) {
             throw (RuntimeException) t;
-        }
-        if (t instanceof Error) {
+        } else if (t instanceof Error) {
             throw (Error) t;
         }
 
@@ -277,7 +279,6 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      */
     public final int waitState(int wantedStates, long timeout) throws InterruptedException {
         synchronized (stateLock) {
-
             if (timeout == 0) {
                 while ((wantedStates & getState()) == 0) {
                     stateLock.wait();
@@ -303,6 +304,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
 
                 left = end - System.currentTimeMillis();
             }
+            
             return getState();
         }
     }
