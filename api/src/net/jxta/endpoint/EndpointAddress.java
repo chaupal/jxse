@@ -66,48 +66,49 @@ import java.util.logging.Logger;
 /**
  * Describes a destination to which JXTA messages may be sent. This may be:
  * <p/>
- * <ul>
- * <li>A Pipe</li>
- * <li>A Peergroup (propagate)</li>
- * <li>A Peer</li>
- * <li>A Message Transport for a Peer</li>
- * </ul>
- * <p/>
- * An Endpoint Address is a specialized interpretation of a URI.
- * Wherever it makes sense you should use a URI in preference to an Endpoint
- * Address. An Endpoint Address is composed of four components: a protocol
- * (also called a scheme), a protocol address (also called an authority), an
- * optional service name and optional service parameter.
- * <p/>
- * <p/><b>The Protocol</b><ul>
- * <li>Describes the method of addressing used by the remainder of the
- * endpoint address.</li>
- * <li>Indicates how the address will be resolved, ie. who will resolve it.</li>
- * <li>Corresponds to the "scheme" portion of a URI in W3C parlance.
- * <li><b>May not</b> contain the ":" character.
- * </ul>
- * <p/>
- * <b>The Protocol Address</b><ul>
- * <li>Describes the destination entity of this address.</li>
- * <li>Form is dependant upon the protocol being used.</li>
- * <li>Corresponds to the "Authority" portion of a URI in W3C parlance.
- * <li><b>May not</b> contain the "/" character.
- * </ul>
- * <p/>
- * <b>The Service Name</b> (optional)<ul>
- * <li>Describes the service that is the destination. A service cannot be
- * a protocol address because a service must have a location; a group or a
- * specific peer.</li>
- * <li>Form is dependant upon service intent. This is matched as a UTF-8
- * string.</li>
- * <li><b>May not</b> contain the "/" character.
- * </ul>
- * <p/>
- * <b>The Service Parameter</b> (optional)<ul>
- * <li>Describes parameters for the service.</li>
- * <li>Form is dependant upon service intent. This is matched as a UTF-8
- * string (if it is used for matching).</li>
- * </ul>
+ *
+ *  <ul>
+ *      <li>A Pipe</li>
+ *      <li>A Peergroup (propagate)</li>
+ *      <li>A Peer</li>
+ *      <li>A Message Transport for a Peer</li>
+ *  </ul>
+ *<p/>
+ *  An Endpoint Address is a specialized interpretation of a URI.
+ *  Wherever it makes sense you should use a URI in preference to an Endpoint
+ *  Address. An Endpoint Address is composed of four components: a protocol
+ *  (also called a scheme), a protocol address (also called an authority), an
+ *  optional service name and optional service parameter.
+ *<p/>
+ *  <b>The Protocol</b><ul>
+ *      <li>Describes the method of addressing used by the remainder of the
+ *      endpoint address.</li>
+ *      <li>Indicates how the address will be resolved, ie. who will resolve it.</li>
+ *      <li>Corresponds to the "scheme" portion of a URI in W3C parlance.
+ *      <li><b>May not</b> contain the ":" character.
+ *  </ul>
+ *<p/>
+ *  <b>The Protocol Address</b><ul>
+ *      <li>Describes the destination entity of this address.</li>
+ *      <li>Form is dependant upon the protocol being used.</li>
+ *      <li>Corresponds to the "Authority" portion of a URI in W3C parlance.
+ *      <li><b>May not</b> contain the "/" character.
+ *  </ul>
+ *<p/>
+ *  <b>The Service Name</b> (optional)<ul>
+ *      <li>Describes the service that is the destination. A service cannot be
+ *      a protocol address because a service must have a location; a group or a
+ *      specific peer.</li>
+ *      <li>Form is dependant upon service intent. This is matched as a UTF8
+ *      string.</li>
+ *      <li><b>May not</b> contain the "/" character.
+ *  </ul>
+ *
+ *  <p/><b>The Service Parameter</b> (optional)<ul>
+ *      <li>Describes parameters for the service.</li>
+ *      <li>Form is dependant upon service intent. This is matched as a UTF-8
+ *      string (if it is used for matching).</li>
+ *  </ul>
  *
  * @see net.jxta.endpoint.EndpointService
  * @see net.jxta.endpoint.MessageTransport
