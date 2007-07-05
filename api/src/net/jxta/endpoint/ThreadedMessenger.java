@@ -159,8 +159,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * and then abandoning the channel. This is has to be dealt with at another level; limiting the number of channels
      * per application, or having a global limit on messages...TBD.
      */
-    private final WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel> resolvingChannels = new WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel>(
-            4);
+    private final WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel> resolvingChannels = new WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel>(4);
 
     /**
      * A default channel where we put messages that are send directly through
@@ -179,7 +178,6 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     private class ThreadedMessengerChannel extends AsyncChannelMessenger {
 
         public ThreadedMessengerChannel(EndpointAddress baseAddress, PeerGroupID redirection, String origService, String origServiceParam, int queueSize, boolean connected) {
-
             super(baseAddress, redirection, origService, origServiceParam, queueSize, connected);
         }
 
@@ -757,9 +755,9 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
         // Our transport is always in the same group. If the channel's target group is the same, no group
         // redirection is ever needed.
-        return new ThreadedMessengerChannel(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service
-                ,
-                serviceParam, channelQueueSize, (stateMachine.getState() & (RESOLVED & USABLE)) != 0); // are we happily resolved ?
+        // are we happily resolved ?
+        return new ThreadedMessengerChannel(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service,
+                serviceParam, channelQueueSize, (stateMachine.getState() & (RESOLVED & USABLE)) != 0);
     }
 
     /*
