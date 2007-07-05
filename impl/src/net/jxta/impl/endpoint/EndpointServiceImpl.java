@@ -97,7 +97,6 @@ import net.jxta.impl.util.SequenceIterator;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.Module;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.ConfigParams;
@@ -245,9 +244,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * Passive listeners for messengers. Three priorities, so far.
      */
     private final Collection[] passiveMessengerListeners = {
-        Collections.synchronizedList( new ArrayList<MessengerEventListener>() ),
-        Collections.synchronizedList( new ArrayList<MessengerEventListener>() ),
-        Collections.synchronizedList(new ArrayList<MessengerEventListener>())
+            Collections.synchronizedList(new ArrayList<MessengerEventListener>()),
+            Collections.synchronizedList(new ArrayList<MessengerEventListener>()),
+            Collections.synchronizedList(new ArrayList<MessengerEventListener>())
     };
 
     /**
@@ -258,7 +257,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * The set of shared transport messengers currently ready for use.
      */
-    private final Map<EndpointAddress,Reference<Messenger>> messengerMap = new WeakHashMap<EndpointAddress,Reference<Messenger>>(32);
+    private final Map<EndpointAddress, Reference<Messenger>> messengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
 
     /**
      * The filter listeners.
@@ -416,7 +415,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             } catch (ClassCastException cce) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                     LOG.severe("Transport messengers must all extend BlockingMessenger for now. " +
-                               cachedMessenger + " may remain open beyond its use.");
+                            cachedMessenger + " may remain open beyond its use.");
                 }
             }
             return true;
@@ -466,7 +465,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * Create a new EndpointService.
      */
-    public EndpointServiceImpl() {}
+    public EndpointServiceImpl() {
+    }
 
     /**
      * {@inheritDoc}
@@ -560,12 +560,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
             configInfo.append("\n\t\tUsing home group endpoint : ").append(parentEndpoint);
             configInfo.append("\n\t\tVirtual Messenger Queue Size : ").append(vmQueueSize);
-            if (group.getPeerGroupID().equals(PeerGroupID.worldPeerGroupID)) {
-                configInfo.append("\n\tQuota Incoming Message Params :");
-                configInfo.append("\n\t\tMax message size : ").append(QuotaIncomingMessageListener.GmaxMsgSize);
-                configInfo.append("\n\t\tMax message senders : ").append(QuotaIncomingMessageListener.GmaxSenders);
-            }
-
             LOG.config(configInfo.toString());
         }
     }
@@ -700,9 +694,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 if (null == filtered) {
                     // run process filters only once
                     filtered = processFilters(myMsg,
-                                              propagater.getPublicAddress(),
-                                              new EndpointAddress(group.getPeerGroupID(), serviceName, serviceParam),
-                                              false);
+                            propagater.getPublicAddress(),
+                            new EndpointAddress(group.getPeerGroupID(), serviceName, serviceParam),
+                            false);
                 }
 
                 if (null == filtered) {
@@ -787,7 +781,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             PropagationMeter propagationMeter = endpointServiceMonitor.getPropagationMeter(serviceName, serviceParam);
 
             propagationMeter.registerPropagateMessageStats(metrics.numPropagatedTo, metrics.numFilteredOut, metrics.numErrorsPropagated,
-            	System.currentTimeMillis() - startPropagationTime);
+                    System.currentTimeMillis() - startPropagationTime);
         }
     }
 
@@ -964,9 +958,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (listener == null) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("No listener for \'" + dstAddress + "\' in group " +
-                            group + "\n\tdecodedServiceName :" +
-                            decodedServiceName + "\tdecodedServiceParam :" +
-                            decodedServiceParam);
+                        group + "\n\tdecodedServiceName :" +
+                        decodedServiceName + "\tdecodedServiceParam :" +
+                        decodedServiceParam);
             }
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
@@ -1373,10 +1367,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 incomingMessageListenerMeter = endpointServiceMonitor.getInboundMeter(serviceName, serviceParam);
             }
 
-            if (!(listener instanceof QuotaIncomingMessageListener)) {
-                listener = new QuotaIncomingMessageListener(group, address, listener, incomingMessageListenerMeter);
-            }
-
             incomingMessageListeners.put(address, listener);
         }
 
@@ -1443,16 +1433,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             address += "/" + serviceParam;
         }
 
-        QuotaIncomingMessageListener removedListener = null;
-        EndpointListener result = null;
+        EndpointListener removedListener = null;
 
         synchronized (incomingMessageListeners) {
-            removedListener = (QuotaIncomingMessageListener) incomingMessageListeners.remove(address);
-            if (removedListener != null) {
-                result = removedListener.getListener();
-                // We need to explicitly close the  QuotaIncomingMessageListener
-                removedListener.close();
-            }
+            removedListener = incomingMessageListeners.remove(address);
         }
 
         if (parentEndpoint != null) {
@@ -1463,7 +1447,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
         }
 
-        return result;
+        return removedListener;
     }
 
     /**
@@ -1678,9 +1662,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      *
-     *  <p/>Redistribute the event to those interested.
+     * <p/>Redistribute the event to those interested.
      */
     public boolean messengerReady(MessengerEvent event) {
 
@@ -1694,8 +1678,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("New " + messenger + " for : " +
-                     messenger.getDestinationAddress() + " (" +
-                     messenger.getLogicalDestinationAddress() + ")");
+                    messenger.getDestinationAddress() + " (" +
+                    messenger.getLogicalDestinationAddress() + ")");
         }
 
         int highestPrec = EndpointService.HighPrecedence;
