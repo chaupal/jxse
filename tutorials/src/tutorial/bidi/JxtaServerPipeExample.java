@@ -201,8 +201,9 @@ public class JxtaServerPipeExample {
                     // System.out.print("Sending :" + data);
                     // t0 = System.currentTimeMillis();
                     pipe.sendMessage(msg);
+
                     synchronized (receipt) {
-                        receipt.wait(1000);
+                        receipt.wait(10);
                     }
                     t1 = System.currentTimeMillis();
                     delta = (t1 - t0);
@@ -260,9 +261,8 @@ public class JxtaServerPipeExample {
      * @param args command line args
      */
     public static void main(String args[]) {
-
+        System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
         JxtaServerPipeExample eg = new JxtaServerPipeExample();
-
         try {
             System.out.println(JxtaServerPipeExample.getPipeAdvertisement().toString());
             eg.serverPipe = new JxtaServerPipe(eg.netPeerGroup, JxtaServerPipeExample.getPipeAdvertisement());

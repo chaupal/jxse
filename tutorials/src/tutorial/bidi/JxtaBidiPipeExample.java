@@ -55,7 +55,6 @@
  */
 package tutorial.bidi;
 
-
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.logging.Logging;
@@ -70,7 +69,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This example illustrates how to utilize a JxtaBiDiPipe to establish a
  * bidirectional connection, and also illustrates use of asynchronous messaging
@@ -79,7 +77,6 @@ import java.util.logging.Logger;
  * (JxtaServerPipeExample), then wait until all the messages are receieved
  * asynchronously
  */
-
 public class JxtaBidiPipeExample implements PipeMsgListener {
     private final static Logger LOG = Logger.getLogger(JxtaBidiPipeExample.class.getName());
     private transient NetworkManager manager = null;
@@ -108,7 +105,8 @@ public class JxtaBidiPipeExample implements PipeMsgListener {
                 manager.waitForRendezvousConnection(0);
             }
             System.out.println("Attempting to establish a connection");
-            pipe.connect(netPeerGroup, null, JxtaServerPipeExample.getPipeAdvertisement(), 60000, // register as a message listener
+            pipe.connect(netPeerGroup, null, JxtaServerPipeExample.getPipeAdvertisement(), 60000,
+                    // register as a message listener
                     this);
             // at this point we need to keep references around until data xchange
             // is complete
@@ -192,6 +190,7 @@ public class JxtaBidiPipeExample implements PipeMsgListener {
      * @param args command line args
      */
     public static void main(String args[]) {
+        System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
         String value = System.getProperty("RDVWAIT", "false");
         boolean waitForRendezvous = Boolean.valueOf(value);
 
