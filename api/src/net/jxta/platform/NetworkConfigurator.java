@@ -1725,11 +1725,13 @@ public class NetworkConfigurator {
         }
 
         if (tcpConfig != null) {
-            advertisement.putServiceParam(PeerGroup.tcpProtoClassID, getParmDoc(tcpEnabled, tcpConfig));
+            boolean enabled = tcpEnabled && (tcpConfig.isServerEnabled() || tcpConfig.isClientEnabled());
+            advertisement.putServiceParam(PeerGroup.tcpProtoClassID, getParmDoc(enabled, tcpConfig));
         }
 
         if (httpConfig != null) {
-            advertisement.putServiceParam(PeerGroup.httpProtoClassID, getParmDoc(httpEnabled, httpConfig));
+            boolean enabled = httpEnabled && (httpConfig.isServerEnabled() || httpConfig.isClientEnabled());
+            advertisement.putServiceParam(PeerGroup.httpProtoClassID, getParmDoc(enabled, httpConfig));
         }
 
         if (relayConfig != null) {
@@ -1744,7 +1746,6 @@ public class NetworkConfigurator {
 
         if (rdvConfig != null) {
             XMLDocument rdvDoc = (XMLDocument) rdvConfig.getDocument(MimeMediaType.XMLUTF8);
-
             advertisement.putServiceParam(PeerGroup.rendezvousClassID, rdvDoc);
         }
 
@@ -1765,7 +1766,6 @@ public class NetworkConfigurator {
                 }
             }
             XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
-
             advertisement.putServiceParam(PeerGroup.membershipClassID, pseDoc);
         }
 
