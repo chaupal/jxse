@@ -591,7 +591,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                     dis.readFully(value);
                 } catch (EOFException failed) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.severe("had tried to read " + dataLen + " from " + mayFail + " which is now " + is);
+                        LOG.warning("had tried to read " + dataLen + " from " + mayFail + " which is now " + is);
                     }
                     throw failed;
                 }
