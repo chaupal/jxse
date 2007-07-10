@@ -262,11 +262,8 @@ public final class WorldPeerGroupFactory {
      */
     private PeerGroup newWorldPeerGroup(Class worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
         synchronized (PeerGroup.globalRegistry) {
-            PeerGroup result = PeerGroup.globalRegistry.lookupInstance(PeerGroupID.worldPeerGroupID);
-            
-            if (null != result) {
-                throw new PeerGroupException(
-                        "Only a single instance of the World Peer Group may be instantiated at a single time.");
+            if (PeerGroup.globalRegistry.registeredInstance(PeerGroupID.worldPeerGroupID)) {
+                throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a single time.");
             }
             
             if (!storeHome.isAbsolute()) {

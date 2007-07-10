@@ -437,13 +437,11 @@ public final class NetPeerGroupFactory {
             PeerGroup result = PeerGroup.globalRegistry.lookupInstance((PeerGroupID) id);
 
             if (null != result) {
-                throw new PeerGroupException(
-                        "Only a single instance of the World Peer Group may be instantiated at a single time.");
+                throw new PeerGroupException("Only a single instance of a Peer Group may be instantiated at a single time.");
             }
 
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info(
-                        "Instantiating net peer group : " + id + "\n\tParent : " + parentGroup + "\n\tID : " + id + "\n\tName : "
+                LOG.info( "Instantiating net peer group : " + id + "\n\tParent : " + parentGroup + "\n\tID : " + id + "\n\tName : "
                         + name + "\n\timpl : " + implAdv);
             }
 
