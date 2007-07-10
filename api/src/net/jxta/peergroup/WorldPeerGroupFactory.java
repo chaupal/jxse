@@ -276,6 +276,8 @@ public final class WorldPeerGroupFactory {
                 throw new PeerGroupException("Opaque storeHome is not currently supported.");
             }
             
+            PeerGroup result = null;
+            
             try {
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                     LOG.info("Making a new World Peer Group instance using : " + worldPeerGroupClass.getName());
