@@ -437,6 +437,7 @@ public final class NetPeerGroupFactory {
             PeerGroup result = PeerGroup.globalRegistry.lookupInstance((PeerGroupID) id);
 
             if (null != result) {
+                result.unref();
                 throw new PeerGroupException("Only a single instance of a Peer Group may be instantiated at a single time.");
             }
 
