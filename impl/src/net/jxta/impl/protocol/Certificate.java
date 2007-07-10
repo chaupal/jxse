@@ -227,14 +227,14 @@ public class Certificate {
             ((XMLDocument) doc).addAttribute("xml:space", "preserve");
         }
 
-        Iterator eachCert = certs.iterator();
+        Iterator<X509Certificate> eachCert = certs.iterator();
 
         eachCert.next(); // skip me.
 
         Element addTo = doc;
 
         while (eachCert.hasNext()) {
-            X509Certificate anIssuer = (X509Certificate) eachCert.next();
+            X509Certificate anIssuer = eachCert.next();
 
             try {
                 encodedCert = PSEUtils.base64Encode(anIssuer.getEncoded());
