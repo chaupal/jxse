@@ -699,6 +699,8 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
             }
 
             configInfo.append("\n\tConfiguration :");
+            configInfo.append("\n\t\tUsing Interface: ").append(usingInterface.getHostAddress());
+
             if (null != unicastServer) {
                 if (-1 == unicastServer.getStartPort()) {
                     configInfo.append("\n\t\tUnicast Server Bind Addr: ").append(usingInterface.getHostAddress()).append(":").append(
@@ -718,9 +720,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
             configInfo.append("\n\t\tPublic Addresses: ");
             configInfo.append("\n\t\t\tDefault Endpoint Addr : ").append(publicAddress);
 
-            for (Object publicAddress1 : publicAddresses) {
-                EndpointAddress anAddr = (EndpointAddress) publicAddress1;
-
+            for (EndpointAddress anAddr : publicAddresses) {
                 configInfo.append("\n\t\t\tEndpoint Addr : ").append(anAddr);
             }
             LOG.config(configInfo.toString());
