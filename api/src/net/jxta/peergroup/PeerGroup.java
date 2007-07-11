@@ -213,10 +213,11 @@ public interface PeerGroup extends Service {
 
         /**
          * Returns a running instance of the peergroup with given ID if any
-         * exists.
+         * exists. The instance should be {@link PeerGroup#unref()}ed when it is
+         * no longer needed.
          *
          * @param gid the id of the group of which an instance is wanted.
-         * @return the group, or null if no instance exists.
+         * @return the group, or {@code null} if no instance exists.
          */
         public synchronized PeerGroup lookupInstance(PeerGroupID gid) {
 
@@ -242,6 +243,32 @@ public interface PeerGroup extends Service {
             // automatic if the grp object is GC'ed (the references are weak
             // references).
             return (PeerGroup) pg.getInterface();
+        }
+
+        /**
+         * Returns a running instance of the peergroup with given ID if any
+         * exists.
+         *
+         * @param gid The id of the group of which an instance is wanted.
+         * @return The group, or {@code null} if no instance exists.
+         */
+        synchronized PeerGroup getInstance(PeerGroupID gid) {
+
+            Reference<PeerGroup> ref = registry.get(gid);
+
+            if (ref == null) {
+                return null;
+            }
+
+            PeerGroup pg = ref.get();
+
+            if (pg == null) {
+                // Dead instance. remove from table.
+                registry.remove(gid);
+                return null;
+            }
+
+            return pg;
         }
 
         /**
