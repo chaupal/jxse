@@ -82,19 +82,19 @@ import java.util.logging.Logger;
 public final class PeerViewElement extends PeerViewDestination implements OutgoingMessageEventListener {
 
     /**
-     *  Log4J Logger
+     *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(PeerViewElement.class.getName());
 
     /**
      * EndpointService that this PeerViewElement must use.
      */
-    private EndpointService endpoint = null;
+    private final EndpointService endpoint;
 
     /**
      * Absolute time in milliseconds at which this element was created.
      */
-    private long created = 0;
+    private final long created;
 
     /**
      * Absolute time in milliseconds at which this element was created.
@@ -148,6 +148,8 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
 
     /**
      *  {@inheritDoc}
+     *  <p/>
+     *  A simple implementation for debugging. Do not attempt to parse this value!
      */
     @Override
     public String toString() {
@@ -297,12 +299,11 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         if (null == sendVia) {
             // There is nothing really we can do.
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Could not get messenger for " + getDestAddress());
+                LOG.warning("Could not get messenger for " + getPeerID());
             }
 
-            OutgoingMessageEvent event = new OutgoingMessageEvent(msg
-                    ,
-                    new IOException("Couldn't get messenger for " + getDestAddress()));
+            OutgoingMessageEvent event = new OutgoingMessageEvent(msg,
+                    new IOException("Couldn't get messenger for " + getPeerID()));
 
             messageSendFailed(event);
             return false;
