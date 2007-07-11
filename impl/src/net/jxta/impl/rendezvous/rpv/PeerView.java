@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2004 Sun Microsystems, Inc.  All rights reserved.
+ * Copyright (c) 2002-2007 Sun Micro//Systems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
  *  
