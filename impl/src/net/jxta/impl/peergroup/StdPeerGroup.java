@@ -202,6 +202,17 @@ public class StdPeerGroup extends GenericPeerGroup {
      * caller until the task can be executed or queued.
      */
     private static class CallerBlocksPolicy implements RejectedExecutionHandler {
+        
+        /**
+         *  The target maximum pool size. We will only exceed this amount if we
+         *  are failing to make progress.
+         */        
+        private final int MAXPOOLSIZE;
+        
+        private CallerBlocksPolicy(int maxPoolSize) {
+            MAXPOOLSIZE = maxPoolSize;
+        }
+        
         public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
             BlockingQueue<Runnable> queue = executor.getQueue();
 
@@ -260,7 +271,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         // todo convert these hardcoded settings into group config params
         this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
         this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, KEEPALIVETIME, TimeUnit.SECONDS, taskQueue);
-        threadPool.setRejectedExecutionHandler(new CallerBlocksPolicy());
+        threadPool.setRejectedExecutionHandler(new CallerBlocksPolicy(MAXPOOLSIZE));
     }
     
     /**
