@@ -376,7 +376,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      *                     Service implementation is free to decrease that value.
      * @throws java.io.IOException if an io error occurs
      */
-    public abstract void propagate(Enumeration<ID> destPeerIds, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
+    public abstract void propagate(Enumeration<? extends ID> destPeerIds, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
 
     /**
      * Propagates a message onto as many peers on the local network
@@ -480,7 +480,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      *                     Service implementation is free to decrease that value.
      * @throws IOException when walking the message is impossible (network failure)
      */
-    public abstract void walk(Vector<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
+    public abstract void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
 
     /**
      * Process a propagated message.

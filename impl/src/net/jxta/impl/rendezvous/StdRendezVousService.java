@@ -248,7 +248,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * {@inheritDoc}
      */
     @Override
-    public void propagate(Enumeration<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) {
+    public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 

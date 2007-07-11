@@ -444,7 +444,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
      * {@inheritDoc}
      */
     @Override
-    public void walk(Vector<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
+    public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
         
         propagate(destPeerIDs.elements(), msg, serviceName, serviceParam, initialTTL);
     }
