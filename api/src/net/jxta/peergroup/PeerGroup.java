@@ -320,50 +320,50 @@ public interface PeerGroup extends Service {
     /**
      * Well known module class identifier: peer group
      */
-    public final static ModuleClassID peerGroupClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000105"));
+    public final static ModuleClassID peerGroupClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000105"));
 
     /**
      * Well known module class identifier: resolver service
      */
-    public final static ModuleClassID resolverClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000205"));
+    public final static ModuleClassID resolverClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000205"));
 
     /**
      * Well known module class identifier: discovery service
      */
-    public final static ModuleClassID discoveryClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000305"));
+    public final static ModuleClassID discoveryClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000305"));
 
     /**
      * Well known module class identifier: pipe service
      */
-    public final static ModuleClassID pipeClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000405"));
+    public final static ModuleClassID pipeClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000405"));
 
     /**
      * Well known module class identifier: membership service
      */
-    public final static ModuleClassID membershipClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000505"));
+    public final static ModuleClassID membershipClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000505"));
 
     /**
      * Well known module class identifier: rendezvous service
      */
-    public final static ModuleClassID rendezvousClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000605"));
+    public final static ModuleClassID rendezvousClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000605"));
 
     /**
      * Well known module class identifier: peerinfo service
      */
-    public final static ModuleClassID peerinfoClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000705"));
+    public final static ModuleClassID peerinfoClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000705"));
 
     /**
      * Well known module class identifier: endpoint service
      */
-    public final static ModuleClassID endpointClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000805"));
+    public final static ModuleClassID endpointClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000805"));
 
     // FIXME: EndpointProtocols should probably all be of the same class
     // and of different specs and roles... But we'll take a shortcut for now.
@@ -371,132 +371,132 @@ public interface PeerGroup extends Service {
     /**
      * Well known module class identifier: tcp protocol
      */
-    public final static ModuleClassID tcpProtoClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000905"));
+    public final static ModuleClassID tcpProtoClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000905"));
 
     /**
      * Well known module class identifier: http protocol
      */
-    public final static ModuleClassID httpProtoClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000A05"));
+    public final static ModuleClassID httpProtoClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000A05"));
 
     /**
      * Well known module class identifier: router protocol
      */
-    public final static ModuleClassID routerProtoClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000B05"));
+    public final static ModuleClassID routerProtoClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000B05"));
 
     /**
      * Well known module class identifier: application
      */
-    public final static ModuleClassID applicationClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000C05"));
+    public final static ModuleClassID applicationClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000C05"));
 
     /**
      * Well known module class identifier: tlsProtocol
      */
-    public final static ModuleClassID tlsProtoClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000D05"));
+    public final static ModuleClassID tlsProtoClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000D05"));
 
     /**
      * Well known module class identifier: ProxyService
      */
-    public final static ModuleClassID proxyClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000E05"));
+    public final static ModuleClassID proxyClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000E05"));
 
     /**
      * Well known module class identifier: RelayProtocol
      */
-    public final static ModuleClassID relayProtoClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000F05"));
+    public final static ModuleClassID relayProtoClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000F05"));
 
     /**
      * Well known module class identifier: AccessService
      */
-    public final static ModuleClassID accessClassID = (ModuleClassID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000001005"));
+    public final static ModuleClassID accessClassID = 
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000001005"));
 
     /**
      * Well known group specification identifier: the platform
      */
-    public final static ModuleSpecID refPlatformSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000010106"));
+    public final static ModuleSpecID refPlatformSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000010106"));
 
     /**
      * Well known group specification identifier: the Network Peer Group
      */
-    public final static ModuleSpecID refNetPeerGroupSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000010206"));
+    public final static ModuleSpecID refNetPeerGroupSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000010206"));
 
     /**
      * Well known service specification identifier: the standard resolver
      */
-    public final static ModuleSpecID refResolverSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000020106"));
+    public final static ModuleSpecID refResolverSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000020106"));
 
     /**
      * Well known service specification identifier: the standard discovery
      */
-    public final static ModuleSpecID refDiscoverySpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000030106"));
+    public final static ModuleSpecID refDiscoverySpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000030106"));
 
     /**
      * Well known service specification identifier: the standard pipe service
      */
-    public final static ModuleSpecID refPipeSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000040106"));
+    public final static ModuleSpecID refPipeSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000040106"));
 
     /**
      * Well known service specification identifier: the standard membership
      */
-    public final static ModuleSpecID refMembershipSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000050106"));
+    public final static ModuleSpecID refMembershipSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000050106"));
 
     /**
      * Well known service specification identifier: the standard rendezvous
      */
-    public final static ModuleSpecID refRendezvousSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000060106"));
+    public final static ModuleSpecID refRendezvousSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000060106"));
 
     /**
      * Well known service specification identifier: the standard peerinfo
      */
-    public final static ModuleSpecID refPeerinfoSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000070106"));
+    public final static ModuleSpecID refPeerinfoSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000070106"));
 
     /**
      * Well known service specification identifier: the standard endpoint
      */
-    public final static ModuleSpecID refEndpointSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000080106"));
+    public final static ModuleSpecID refEndpointSpecID =
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000080106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * tcp endpoint protocol
      */
-    public final static ModuleSpecID refTcpProtoSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000090106"));
+    public final static ModuleSpecID refTcpProtoSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000090106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * http endpoint protocol
      */
-    public final static ModuleSpecID refHttpProtoSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000A0106"));
+    public final static ModuleSpecID refHttpProtoSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000A0106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * router
      */
-    public final static ModuleSpecID refRouterProtoSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000B0106"));
+    public final static ModuleSpecID refRouterProtoSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000B0106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * tls endpoint protocol
      */
-    public final static ModuleSpecID refTlsProtoSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000D0106"));
+    public final static ModuleSpecID refTlsProtoSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000D0106"));
 
     /**
      * Well known group specification identifier: an all purpose peer group
@@ -504,34 +504,34 @@ public interface PeerGroup extends Service {
      * the StdPeerGroup class and all the standard platform services and no
      * endpoint protocols.
      */
-    public final static ModuleSpecID allPurposePeerGroupSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000010306"));
+    public final static ModuleSpecID allPurposePeerGroupSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000010306"));
 
     /**
      * Well known application: the shell
      */
-    public final static ModuleSpecID refShellSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000C0206"));
+    public final static ModuleSpecID refShellSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000C0206"));
 
     /**
      * Well known application: the Proxy
      */
-    public final static ModuleSpecID refProxySpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000E0106"));
+    public final static ModuleSpecID refProxySpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000E0106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * relay endpoint protocol
      */
-    public final static ModuleSpecID refRelayProtoSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "0000000F0106"));
+    public final static ModuleSpecID refRelayProtoSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000F0106"));
 
     /**
      * Well known access specification identifier: the standard
      * access service
      */
-    public final static ModuleSpecID refAccessSpecID = (ModuleSpecID)
-            ID.create(URI.create(WK_ID_PREFIX + "000000100106"));
+    public final static ModuleSpecID refAccessSpecID = 
+            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000100106"));
 
     /**
      * The global registry of Peer Group instances. Operations involving the
@@ -935,7 +935,6 @@ public interface PeerGroup extends Service {
      * @return ModuleImplAdvertisement The new peergroup impl adv.
      * @throws Exception if an error occurs while creating the implementation advertisement
      */
-    // FIXME why throw "Exception" instead a specific exception
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception;
 
     /**
