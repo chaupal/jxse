@@ -114,6 +114,9 @@ public class MessagePackageHeader {
         
         public Header(String name, byte[] value) {
             this.name = name;
+            
+            assert value.length <= 65535;
+            
             this.value = value;
         }
         
@@ -314,7 +317,7 @@ public class MessagePackageHeader {
             
             buffer.get(headerNameBytes);
             String headerNameString = new String(headerNameBytes, "UTF-8");
-            int headerValueLength = buffer.getShort();
+            int headerValueLength = buffer.getShort() & 0x0FFFF;  // unsigned
             byte[] headerValueBytes = new byte[headerValueLength];
             
             buffer.get(headerValueBytes);
@@ -338,11 +341,10 @@ public class MessagePackageHeader {
      *
      * @param name  The header name. The UTF-8 encoded representation of this
      * name may not be longer than 255 bytes.
-     * @param value The value for the header. May not exceed 65545 bytes in
+     * @param value The value for the header. May not exceed 65535 bytes in
      * length.
      */
     public void addHeader(String name, byte[] value) {
-        
         if (name.length() > 255) {
             throw new IllegalArgumentException("name may not exceed 255 bytes in length.");
         }
@@ -359,26 +361,84 @@ public class MessagePackageHeader {
     }
     
     /**
-     * Replace a header. Replaces all existing headers with the same name
+     * Add a header.
      *
      * @param name  The header name. The UTF-8 encoded representation of this
      * name may not be longer than 255 bytes.
-     * @param value The value for the header. May not exceed 65545 bytes in
+     * @param value The value for the header. May not exceed 65535 bytes in
+     * length.
+     */
+    public void addHeader(String name, String value) {        
+        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            LOG.finer("Add header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
+        }
+        
+        try {
+            addHeader(name, value.toString().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException never) {
+            // utf-8 is a required encoding.
+            throw new IllegalStateException("UTF-8 encoding support missing!");
+        }
+    }
+ 
+    /**
+     * Replace a header. Replaces all existing headers with the same name.
+     *
+     * @param name  The header name. The UTF-8 encoded representation of this
+     * name may not be longer than 255 bytes.
+     * @param value The value for the header. May not exceed 65535 bytes in
      * length.
      */
     public void replaceHeader(String name, byte[] value) {
+        if (name.length() > 255) {
+            throw new IllegalArgumentException("name may not exceed 255 bytes in length.");
+        }
+        
+        if (value.length > 65535) {
+            throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
+        }
+        
+        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            LOG.finer("Replace header :" + name + "(" + name.length() + ") with " + value.length + " bytes of value");
+        }
+        
         Header newHeader = new Header(name, value);
         ListIterator<Header> eachHeader = getHeaders();
+        boolean replaced = false;
         
         while (eachHeader.hasNext()) {
             Header aHeader = eachHeader.next();
             
             if (aHeader.getName().equalsIgnoreCase(name)) {
                 eachHeader.set(newHeader);
+                replaced = true;
             }
         }
         
-        headers.add(new Header(name, value));
+        if(!replaced) {
+            headers.add(newHeader);
+        }
+    }
+ 
+    /**
+     * Replace a header. Replaces all existing headers with the same name
+     *
+     * @param name  The header name. The UTF-8 encoded representation of this
+     * name may not be longer than 255 bytes.
+     * @param value The value for the header. May not exceed 65535 bytes in
+     * length.
+     */
+    public void replaceHeader(String name, String value) {
+        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            LOG.finer("Replace header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
+        }
+        
+        try {
+            replaceHeader(name, value.toString().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException never) {
+            // utf-8 is a required encoding.
+            throw new IllegalStateException("UTF-8 encoding support missing!");
+        }
     }
     
     /**
@@ -522,12 +582,7 @@ public class MessagePackageHeader {
      * @param type type of the message.
      */
     public void setContentTypeHeader(MimeMediaType type) {
-        try {
-            replaceHeader(CONTENT_TYPE, type.toString().getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException never) {
-            // utf-8 is a required encoding.
-            throw new IllegalStateException("UTF-8 encoding support missing!");
-        }
+        replaceHeader(CONTENT_TYPE, type.toString());
     }
     
     /**
@@ -545,6 +600,6 @@ public class MessagePackageHeader {
         }
         Header header = it.next();
         
-        return new MimeMediaType(header.getValueString()).intern();
+        return MimeMediaType.valueOf(header.getValueString());
     }
 }
