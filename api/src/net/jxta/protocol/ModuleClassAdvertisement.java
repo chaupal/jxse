@@ -69,7 +69,7 @@ import net.jxta.platform.ModuleClassID;
 
 /**
  * A ModuleClassAdvertisement describes a module class.
- *
+ * <p/>
  * It formally documents the existence of a module class and may provide
  * metadata about the Module Class.
  *
