@@ -125,7 +125,7 @@ final class HttpClientMessenger extends BlockingMessenger {
      *  This setting governs the latency with which we switch back and forth 
      *  between sending and receiving messages. 
      */
-    private final static int EXTRA_RESPONSE_TIMEOUT = (int) (15 * TimeUtils.ASECOND);
+    private final static int EXTRA_RESPONSE_TIMEOUT = (int) (2 * TimeUtils.AMINUTE);
     
     /**
      *  Messenger idle timeout.
@@ -151,6 +151,11 @@ final class HttpClientMessenger extends BlockingMessenger {
      * The ServletHttpTransport that created this object.
      */
     private final ServletHttpTransport servletHttpTransport;
+    
+    /**
+     *  The Return Address element we will add to all messages we send.
+     */
+    private final EndpointAddress srcAddress;
     
     /**
      *  The Return Address element we will add to all messages we send.
@@ -186,11 +191,10 @@ final class HttpClientMessenger extends BlockingMessenger {
         // We do use self destruction.
         super(servletHttpTransport.getEndpointService().getGroup().getPeerGroupID(), destAddr, true);
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Creating messenger for " + destAddr);
-        }
-        
         this.servletHttpTransport = servletHttpTransport;
+        
+        this.srcAddress = srcAddr;
+        this.srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddr.toString(), null);
         
         String protoAddr = destAddr.getProtocolAddress();
         
@@ -211,10 +215,13 @@ final class HttpClientMessenger extends BlockingMessenger {
         
         logicalDest = retreiveLogicalDestinationAddress();
         
-        this.srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddr.toString(), null);
-        
         // Start receiving messages from the other peer
         poller = new MessagePoller(srcAddr.getProtocolAddress(), destAddr);
+                
+        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+            LOG.info("New messenger : " + this );
+        }
+
     }
     
     /*
@@ -230,6 +237,23 @@ final class HttpClientMessenger extends BlockingMessenger {
      }
      
      */
+    
+    /**
+     *  {@inheritDoc}
+     *  <p/>
+     *  A simple implementation for debugging. <b>Do not parse the String
+     *  returned. All of the information is available in other (simpler) ways.</b>
+     */
+    public String toString() {
+        StringBuilder result = new StringBuilder(super.toString());
+        result.append(" {");
+        result.append(getDestinationAddress());
+        result.append(" / ");
+        result.append(getLogicalDestinationAddress());
+        result.append("}");
+
+        return result.toString();
+    }
     
     /**
      *  {@inheritDoc}
@@ -279,13 +303,15 @@ final class HttpClientMessenger extends BlockingMessenger {
             throw failure;
         }
         
+        // clone the message before modifying it.
+        message = message.clone();
+        
         // Set the message with the appropriate src and dest address
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, srcAddressElement);
         
         EndpointAddress destAddressToUse = getDestAddressToUse(service, serviceParam);
         
-        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME
-                ,
+        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME,
                 destAddressToUse.toString(), null);
         
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
@@ -406,8 +432,8 @@ final class HttpClientMessenger extends BlockingMessenger {
             
             EndpointAddress remoteAddress = new EndpointAddress("jxta", uniqueIdString.trim(), null, null);
             
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Ping (" + senderURL + ") -> " + remoteAddress);
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Ping (" + senderURL + ") -> " + remoteAddress);
             }
             
             return remoteAddress;
@@ -489,6 +515,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                     // maybe a retry will help.
                     continue;
                 }
+                
                 // NOTE: If the proxy closed the connection 1.0 style without returning
                 // a status line, we do not get an exception: we get a -1 response code.
                 // Apparently, proxies no-longer do that anymore. Just in case, we issue a
@@ -500,6 +527,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                     }
                     responseCode = HttpURLConnection.HTTP_OK;
                 }
+                
                 if (responseCode != HttpURLConnection.HTTP_OK) {
                     if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                         transportBindingMeter.dataSent(true, serialed.getByteLength());
@@ -508,6 +536,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                     throw new IOException( "Message not accepted: HTTP status " + "code=" + responseCode + 
                             " reason=" + urlConn.getResponseMessage());
                 }
+                
                 if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                     long messageSentTime = TimeUtils.timeNow();
 
@@ -696,8 +725,8 @@ final class HttpClientMessenger extends BlockingMessenger {
                         
                         int responseCode = conn.getResponseCode();
                         
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine(
+                        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                            LOG.finer(
                                     "Response " + responseCode + " for Connection : " + senderURL + "\n\tContent-Type : "
                                     + conn.getHeaderField("Content-Type") + "\tContent-Length : "
                                     + conn.getHeaderField("Content-Length") + "\tTransfer-Encoding : "
@@ -714,8 +743,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                         if (HttpURLConnection.HTTP_NO_CONTENT == responseCode) {
                             // the connection timed out.
                             if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
-                                transportBindingMeter.connectionClosed(true,
-                                        TimeUtils.toRelativeTimeMillis(beginConnectTime, connectTime));
+                                transportBindingMeter.connectionClosed(true, TimeUtils.toRelativeTimeMillis(beginConnectTime, connectTime));
                             }
                             
                             conn = null;
@@ -822,14 +850,6 @@ final class HttpClientMessenger extends BlockingMessenger {
                             // note that we received a message
                             lastUsed = TimeUtils.timeNow();
                         }
-                        
-                        // // FIXME 20060105 bondolo Relay debugging impedement.
-                        // try {
-                        // Thread.sleep( 10 * TimeUtils.ASECOND );
-                        // } catch(InterruptedException woken) {
-                        // Thread.interrupted();
-                        // continue;
-                        // }
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                             transportBindingMeter.connectionClosed(true, TimeUtils.timeNow() - beginConnectTime);
