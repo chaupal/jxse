@@ -79,6 +79,7 @@ import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.service.Service;
 
 import net.jxta.impl.rendezvous.rpv.PeerView;
+import net.jxta.platform.Module;
 
 
 /**
@@ -136,7 +137,7 @@ public class RendezVousServiceInterface implements RendezVousService {
      * protects the real object's start/stop methods from being called
      */
     public int startApp(String[] arg) {
-        return 0;
+        return Module.START_OK;
     }
     
     /**
@@ -273,7 +274,7 @@ public class RendezVousServiceInterface implements RendezVousService {
     /**
      *  {@inheritDoc}
      */
-    public void propagate(Enumeration destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
+    public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         
         impl.propagate(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
     }
@@ -281,7 +282,7 @@ public class RendezVousServiceInterface implements RendezVousService {
     /**
      *  {@inheritDoc}
      */
-    public void walk(Message msg, String serviceName, String serviceParam, int    defaultTTL) throws IOException {
+    public void walk(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         
         impl.walk(msg, serviceName, serviceParam, defaultTTL);
     }
@@ -289,7 +290,7 @@ public class RendezVousServiceInterface implements RendezVousService {
     /**
      *  {@inheritDoc}
      */
-    public void walk(Vector destPeerIDs, Message msg, String serviceName, String serviceParam, int    defaultTTL) throws IOException {
+    public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         
         impl.walk(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
     }
