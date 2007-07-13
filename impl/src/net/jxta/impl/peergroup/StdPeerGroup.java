@@ -57,8 +57,20 @@
 package net.jxta.impl.peergroup;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.*;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
@@ -67,6 +79,7 @@ import net.jxta.impl.cm.Cm;
 import net.jxta.impl.cm.SrdiIndex;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
@@ -80,7 +93,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +121,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     
     protected static final String STD_COMPAT_FORMAT = "Efmt";
     
-    // FIXME 20061206 bondolo Update this to "JRE1.5" after June 2007 release. 2.4.1 and earlier don't do version comparison correctly.
+    // FIXME 20061206 bondolo Update this to "JRE1.5" after 2.5 release. 2.4.1 and earlier don't do version comparison correctly.
     
     /**
      * The Specification title and Specification version we require.
@@ -118,6 +130,88 @@ public class StdPeerGroup extends GenericPeerGroup {
     protected static final String STD_COMPAT_BINDING = "Bind";
     protected static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
 
+    
+    static {
+        try {
+            Enumeration<URL> providerLists = GenericPeerGroup.class.getClassLoader().getResources("META-INF/services/net.jxta.platform.Module");
+
+            while (providerLists.hasMoreElements()) {
+                try {
+                    URI providerList = providerLists.nextElement().toURI();
+
+                    registerFromFile(providerList);
+                } catch (URISyntaxException badURI) {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.log(Level.WARNING, "Failed to convert service URI", badURI);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to locate provider lists", ex);
+            }
+        }
+    }
+
+    /**
+     * Register instance classes given a URI to a file containing modules
+     * which must be found on the current class path. The class names are listed
+     * on separate lines.  Comments are marked with a '#', the pound sign and
+     * any following text on any line in the file are ignored.
+     *
+     * @param providerList the URI to a file containing a list of modules
+     * @return boolean true if at least one of the instance classes could be
+     * registered otherwise false.
+     */
+    private static boolean registerFromFile(URI providerList) {
+        boolean registeredSomething = false;
+        
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(providerList.toURL().openStream(), "UTF-8"));
+
+            String provider;
+
+            while ((provider = reader.readLine()) != null) {
+                int comment = provider.indexOf('#');
+
+                if (comment != -1) {
+                    provider = provider.substring(0, comment);
+                }
+                    
+                provider = provider.trim();
+
+                if (provider.length() > 0) {
+                    try {
+                        String[] parts = provider.split("\\s", 3);
+                        
+                        if(3 == parts.length) {
+                            ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
+                            ModuleImplAdvertisement moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, parts[1], parts[2]);
+
+                            getJxtaLoader().defineClass(moduleImplAdv);
+                        } else {
+                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                                LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'");
+                            }
+                        }
+                    } catch (Exception allElse) {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'", allElse);
+                        }
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            LOG.log(Level.WARNING, "Failed to read provider list " + providerList, ex);
+            return false;
+        }
+
+        return registeredSomething;
+    }
+
+    /**
+     *  If {@code true} then the PeerGroup has been started.
+     */
     private volatile boolean started = false;
     
     /**
@@ -188,7 +282,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         XMLDocument doc = (XMLDocument)
                 StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
         
-        Element e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
+        XMLElement e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
 
         doc.appendChild(e);
         
@@ -881,90 +975,58 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
         
         // grab an impl adv
-        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName()
-                ,
+        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.allPurposePeerGroupSpecID, 
+                StdPeerGroup.class.getName(),
                 "General Purpose Peer Group Implementation");
         
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+        JxtaLoader loader = getJxtaLoader();
         ModuleImplAdvertisement moduleAdv;
         
         // set the services
-        Hashtable<ModuleClassID, Object> services = new Hashtable<ModuleClassID, Object>();
+        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
         
         // core services
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refEndpointSpecID, "net.jxta.impl.endpoint.EndpointServiceImpl"
-                ,
-                "Reference Implementation of the Endpoint service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
         services.put(PeerGroup.endpointClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refResolverSpecID, "net.jxta.impl.resolver.ResolverServiceImpl"
-                ,
-                "Reference Implementation of the Resolver service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
         services.put(PeerGroup.resolverClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refMembershipSpecID, "net.jxta.impl.membership.none.NoneMembershipService"
-                ,
-                "Reference Implementation of the None Membership service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
         services.put(PeerGroup.membershipClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(refAccessSpecID, "net.jxta.impl.access.always.AlwaysAccessService"
-                ,
-                "Reference Implementation of the Always Access service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
         services.put(PeerGroup.accessClassID, moduleAdv);
         
         // standard services
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refDiscoverySpecID, "net.jxta.impl.discovery.DiscoveryServiceImpl"
-                ,
-                "Reference Implementation of the Discovery service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
         services.put(PeerGroup.discoveryClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refRendezvousSpecID, "net.jxta.impl.rendezvous.RendezVousServiceImpl"
-                ,
-                "Reference Implementation of the Rendezvous service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
         services.put(PeerGroup.rendezvousClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refPipeSpecID, "net.jxta.impl.pipe.PipeServiceImpl"
-                ,
-                "Reference Implementation of the Pipe service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
         services.put(PeerGroup.pipeClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refPeerinfoSpecID, "net.jxta.impl.peer.PeerInfoServiceImpl"
-                ,
-                "Reference Implementation of the Peerinfo service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
         services.put(PeerGroup.peerinfoClassID, moduleAdv);
         
         paramAdv.setServices(services);
         
         // NO Transports.
-        Hashtable<ModuleClassID, Object> protos = new Hashtable<ModuleClassID, Object>();
+        paramAdv.setProtos((Map<ModuleClassID, Object>) Collections.EMPTY_MAP);
+        
+        // Applications
+        Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
-        paramAdv.setProtos(protos);
-        
-        // Main app is the shell Build a ModuleImplAdv for the shell
-        ModuleImplAdvertisement newAppAdv = (ModuleImplAdvertisement)
-                AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
-        
-        // The shell's spec id is a canned one.
-        newAppAdv.setModuleSpecID(PeerGroup.refShellSpecID);
-        
-        // Same compat than the group.
-        newAppAdv.setCompat(implAdv.getCompat());
-        newAppAdv.setUri(implAdv.getUri());
-        newAppAdv.setProvider(implAdv.getProvider());
-        
-        // Make up a description
-        newAppAdv.setDescription("JXTA Shell Reference Implementation");
-        
-        // Tack in the class name
-        newAppAdv.setCode("net.jxta.impl.shell.bin.Shell.Shell");
-        
-        // Put that in a new table of Apps and replace the entry in paramAdv
-        Hashtable<ModuleClassID, Object> newApps = new Hashtable<ModuleClassID, Object>();
-
-        newApps.put(PeerGroup.applicationClassID, newAppAdv);
-        paramAdv.setApps(newApps);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+        if(null != moduleAdv) {        
+            apps.put(PeerGroup.applicationClassID, moduleAdv);
+        }
+        paramAdv.setApps(apps);
         
         // Insert the newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);

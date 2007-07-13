@@ -117,7 +117,7 @@ import java.util.logging.Logger;
 public abstract class GenericPeerGroup implements PeerGroup {
     
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(GenericPeerGroup.class.getName());
     
@@ -129,15 +129,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * scoped. We are currently allowing classes to loaded into contexts which
      * they should not be known.
      */
-    private static JxtaLoader loader = new RefJxtaLoader(new URL[0], new CompatibilityEquater() {
+    private final static JxtaLoader loader = new RefJxtaLoader(new URL[0], new CompatibilityEquater() {
         public boolean compatible(Element test) {
             return StdPeerGroup.isCompatible(test);
         }
     });
-    
-    // FIXME 20060217 bondolo We should be loading the class loader with the
-    // net.jxta.impl.config#stdPeerGroupClass moduleImplAdv so that it is used
-    // for peer group instances.
     
     /*
      * Shortcuts to well known services.
@@ -237,14 +233,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     public static JxtaLoader getJxtaLoader() {
         return loader;
-    }
-    
-    /**
-     * Sets an alternate class loader to be used.
-     * @param newLoader the new class loader
-     */
-    public static void setJxtaLoader(JxtaLoader newLoader) {
-        loader = newLoader;
     }
     
     public GenericPeerGroup() {

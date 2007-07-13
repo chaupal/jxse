@@ -57,7 +57,20 @@
 package net.jxta.impl.peergroup;
 
 
-import net.jxta.document.*;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
@@ -67,35 +80,29 @@ import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.JxtaLoader;
+import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 /**
- * Provides the implementation for the World Peer Group.
+ * Provides the implementation for the World PeerGroup.
  * <p/>
  * Key differences from regular groups are:
  * <p/>
  * <ul>
- * <li>Provides a mechanism for peer group configuration parameter and for
- * reconfiguration via a plugin configurator.</li>
- * <li>Ensures that only a single instance of the World Peer Group exists
- * within the context of the current classloader.</li>
+ *     <li>Provides a mechanism for peer group configuration parameter.</li>
+ *
+ *     <li>Ensures that only a single instance of the World PeerGroup exists
+ *     within the context of the current classloader.</li>
  * </ul>
  */
 public class Platform extends StdPeerGroup {
 
     /**
-     * Log4J Logger
+     *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(Platform.class.getName());
 
@@ -106,20 +113,21 @@ public class Platform extends StdPeerGroup {
     private ModuleImplAdvertisement allPurposeImplAdv = null;
 
     /**
-     * This constructor was originally the standard constructor and must be retained in case the
-     * platform is accidentally instantiated via the module loading infrastructure.
+     * This constructor was originally the standard constructor and must be 
+     * retained in case the World PeerGroup is accidentally instantiated via 
+     * the module loading infrastructure.
      *
      * @throws PeerGroupException if an initialization error occurs
      */
     public Platform() throws PeerGroupException {
-        throw new JxtaError("Zero params constructor is no longer supported for Platform class.");
+        throw new JxtaError("Zero params constructor is no longer supported for World PeerGroup class.");
     }
 
     /**
      * Default constructor
      *
-     * @param config    PlatformConfig
-     * @param storeHome persistent store home
+     * @param config The configuration.
+     * @param storeHome Persistent store home.
      */
     public Platform(ConfigParams config, URI storeHome) {
         // initialize the store location.
@@ -150,13 +158,13 @@ public class Platform extends StdPeerGroup {
         // if we weren't given a module impl adv then make one from scratch.
         if (null == implAdv) {
             try {
-                // Build the platform's impl adv.
-                implAdv = mkPlatformImplAdv();
+                // Build the World PeerGroup's impl adv.
+                implAdv = mkWorldPeerGroupImplAdv();
             } catch (Throwable e) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Fatal Error making Platform Impl Adv", e);
+                    LOG.log(Level.SEVERE, "Fatal Error making World PeerGroup Impl Adv", e);
                 }
-                throw new PeerGroupException("Fatal Error making Platform Impl Adv", e);
+                throw new PeerGroupException("Fatal Error making World PeerGroup Impl Adv", e);
             }
         }
 
@@ -193,101 +201,80 @@ public class Platform extends StdPeerGroup {
         try {
             publishGroup("World PeerGroup", "Standard World PeerGroup Reference Implementation");
         } catch (IOException e) {
-            throw new PeerGroupException("Failed to publish World Peer Group Advertisement", e);
+            throw new PeerGroupException("Failed to publish World PeerGroup Advertisement", e);
         }
     }
 
-    protected static ModuleImplAdvertisement mkPlatformImplAdv() throws Exception {
+    protected static ModuleImplAdvertisement mkWorldPeerGroupImplAdv() throws Exception {
 
-        // Start building the implAdv for the platform intself.
-        ModuleImplAdvertisement platformDef = mkImplAdvBuiltin(PeerGroup.refPlatformSpecID, "World PeerGroup"
-                ,
+        // Start building the implAdv for the World PeerGroup intself.
+        ModuleImplAdvertisement worldGroupDef = mkImplAdvBuiltin(PeerGroup.refPlatformSpecID, 
+                "World PeerGroup",
                 "Standard World PeerGroup Reference Implementation");
 
         // Build the param section now.
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-        Hashtable protos = new Hashtable();
-        Hashtable services = new Hashtable();
-        Hashtable apps = new Hashtable();
 
         // Build ModuleImplAdvs for each of the modules
+        JxtaLoader loader = getJxtaLoader();
         ModuleImplAdvertisement moduleAdv;
-
+        
         // Do the Services
 
+        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
+
         // "Core" Services
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refEndpointSpecID, "net.jxta.impl.endpoint.EndpointServiceImpl"
-                ,
-                "Reference Implementation of the Endpoint service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
         services.put(PeerGroup.endpointClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refResolverSpecID, "net.jxta.impl.resolver.ResolverServiceImpl"
-                ,
-                "Reference Implementation of the Resolver service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
         services.put(PeerGroup.resolverClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refMembershipSpecID, "net.jxta.impl.membership.none.NoneMembershipService"
-                ,
-                "Reference Implementation of the None Membership Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
         services.put(PeerGroup.membershipClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refAccessSpecID, "net.jxta.impl.access.always.AlwaysAccessService"
-                ,
-                "Always Access Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
         services.put(PeerGroup.accessClassID, moduleAdv);
 
         // "Standard" Services
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refDiscoverySpecID, "net.jxta.impl.discovery.DiscoveryServiceImpl"
-                ,
-                "Reference Implementation of the Discovery service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
         services.put(PeerGroup.discoveryClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refRendezvousSpecID, "net.jxta.impl.rendezvous.RendezVousServiceImpl"
-                ,
-                "Reference Implementation of the Rendezvous Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
         services.put(PeerGroup.rendezvousClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refPeerinfoSpecID, "net.jxta.impl.peer.PeerInfoServiceImpl"
-                ,
-                "Reference Implementation of the Peerinfo Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
         services.put(PeerGroup.peerinfoClassID, moduleAdv);
 
         // Do the protocols
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refTcpProtoSpecID, "net.jxta.impl.endpoint.tcp.TcpTransport"
-                ,
-                "Reference Implementation of the TCP Message Transport");
+        Map<ModuleClassID, Object> protos = new HashMap<ModuleClassID, Object>();
+
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refTcpProtoSpecID);
         protos.put(PeerGroup.tcpProtoClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refHttpProtoSpecID, "net.jxta.impl.endpoint.servlethttp.ServletHttpTransport"
-                ,
-                "Reference Implementation of the HTTP Message Transport");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refHttpProtoSpecID);
         protos.put(PeerGroup.httpProtoClassID, moduleAdv);
 
         // Do the Apps
+        
+        Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
+
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
 
         paramAdv.setServices(services);
         paramAdv.setProtos(protos);
         paramAdv.setApps(apps);
 
-        // Pour the paramAdv in the platformDef
-        platformDef.setParam((XMLDocument) paramAdv.getDocument(MimeMediaType.XMLUTF8));
+        // Pour the paramAdv in the World PeerGroup Def
+        worldGroupDef.setParam((XMLDocument) paramAdv.getDocument(MimeMediaType.XMLUTF8));
 
-        return platformDef;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void stopApp() {
-        super.stopApp();
+        return worldGroupDef;
     }
 
     /**
      * Returns the all purpose peer group implementation advertisement that
-     * is most useful when called in the context of the platform group: the
+     * is most useful when called in the context of the World PeerGroup: the
      * description of an infrastructure group.
      * <p/>
      * This definition is always the same and has a well known ModuleSpecID.
@@ -312,122 +299,81 @@ public class Platform extends StdPeerGroup {
         }
 
         // Make a new impl adv
-        // For now, use the well know NPG naming, it is not
-        // identical to the allPurpose PG because we use the class
-        // ShadowPeerGroup which initializes the peer config from its
-        // parent.
-        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.refNetPeerGroupSpecID, ShadowPeerGroup.class.getName()
-                ,
-                "Default NetPeerGroup reference implementation.");
+        // For now, use the well know NPG naming, it is not identical to the 
+        // allPurpose PG because we use the class ShadowPeerGroup which 
+        // initializes the peer config from its parent.
+        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.refNetPeerGroupSpecID, 
+                ShadowPeerGroup.class.getName(),
+                "Default Network PeerGroup reference implementation");
 
         XMLElement paramElement = (XMLElement) implAdv.getParam();
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+        JxtaLoader loader = getJxtaLoader();
         ModuleImplAdvertisement moduleAdv;
 
         // set the services
-        Hashtable services = new Hashtable();
+        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
 
         // "Core" Services
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refEndpointSpecID, "net.jxta.impl.endpoint.EndpointServiceImpl"
-                ,
-                "Reference Implementation of the Endpoint Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
         services.put(PeerGroup.endpointClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refResolverSpecID, "net.jxta.impl.resolver.ResolverServiceImpl"
-                ,
-                "Reference Implementation of the Resolver Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
         services.put(PeerGroup.resolverClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PSEMembershipService.pseMembershipSpecID, "net.jxta.impl.membership.pse.PSEMembershipService"
-                ,
-                "Reference Implementation of the PSE Membership Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PSEMembershipService.pseMembershipSpecID);
         services.put(PeerGroup.membershipClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refAccessSpecID, "net.jxta.impl.access.always.AlwaysAccessService"
-                ,
-                "Always Access Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
         services.put(PeerGroup.accessClassID, moduleAdv);
 
         // "Standard" Services
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refDiscoverySpecID, "net.jxta.impl.discovery.DiscoveryServiceImpl"
-                ,
-                "Reference Implementation of the Discovery Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
         services.put(PeerGroup.discoveryClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refRendezvousSpecID, "net.jxta.impl.rendezvous.RendezVousServiceImpl"
-                ,
-                "Reference Implementation of the Rendezvous Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
         services.put(PeerGroup.rendezvousClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refPipeSpecID, "net.jxta.impl.pipe.PipeServiceImpl"
-                ,
-                "Reference Implementation of the Pipe Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
         services.put(PeerGroup.pipeClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refPeerinfoSpecID, "net.jxta.impl.peer.PeerInfoServiceImpl"
-                ,
-                "Reference Implementation of the Peerinfo Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
         services.put(PeerGroup.peerinfoClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refProxySpecID, "net.jxta.impl.proxy.ProxyService"
-                ,
-                "Reference Implementation of the JXME Proxy Service");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refProxySpecID);
         services.put(PeerGroup.proxyClassID, moduleAdv);
 
         paramAdv.setServices(services);
 
         // High-level Transports.
-        Hashtable protos = new Hashtable();
+        
+        Map<ModuleClassID, Object> protos = new HashMap<ModuleClassID, Object>();
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refRouterProtoSpecID, "net.jxta.impl.endpoint.router.EndpointRouter"
-                ,
-                "Reference Implementation of the Router Message Transport");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRouterProtoSpecID);
         protos.put(PeerGroup.routerProtoClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refTlsProtoSpecID, "net.jxta.impl.endpoint.tls.TlsTransport"
-                ,
-                "Reference Implementation of the JXTA TLS Message Transport");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refTlsProtoSpecID);
         protos.put(PeerGroup.tlsProtoClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(CbJxDefs.cbjxMsgTransportSpecID, "net.jxta.impl.endpoint.cbjx.CbJxTransport"
-                ,
-                "Reference Implementation of the JXTA Cryptobased-ID Message Transport");
+        moduleAdv = loader.findModuleImplAdvertisement(CbJxDefs.cbjxMsgTransportSpecID);
         protos.put(CbJxDefs.msgtptClassID, moduleAdv);
 
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refRelayProtoSpecID, "net.jxta.impl.endpoint.relay.RelayTransport"
-                ,
-                "Reference Implementation of the Relay Message Transport");
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRelayProtoSpecID);
         protos.put(PeerGroup.relayProtoClassID, moduleAdv);
 
         paramAdv.setProtos(protos);
 
         // Main app is the shell
-        // Build a ModuleImplAdv for the shell
-        ModuleImplAdvertisement newAppAdv = (ModuleImplAdvertisement)
-                AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
 
-        // The shell's spec id is a canned one.
-        newAppAdv.setModuleSpecID(PeerGroup.refShellSpecID);
+        Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
-        // Same compat than the group.
-        newAppAdv.setCompat(implAdv.getCompat());
-        newAppAdv.setUri(implAdv.getUri());
-        newAppAdv.setProvider(implAdv.getProvider());
-
-        // Make up a description
-        newAppAdv.setDescription("JXTA Shell");
-
-        // Tack in the class name
-        newAppAdv.setCode("net.jxta.impl.shell.bin.Shell.Shell");
-
-        // Put that in a new table of Apps and replace the entry in
-        // paramAdv
-        Hashtable newApps = new Hashtable();
-
-        newApps.put(PeerGroup.applicationClassID, newAppAdv);
-        paramAdv.setApps(newApps);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+        if(null != moduleAdv) {        
+            apps.put(PeerGroup.applicationClassID, moduleAdv);
+        }
+        paramAdv.setApps(apps);
 
         // Pour our newParamAdv in implAdv
         paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
