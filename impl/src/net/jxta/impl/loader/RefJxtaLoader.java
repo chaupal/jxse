@@ -320,7 +320,7 @@ public class RefJxtaLoader extends JxtaLoader {
     public ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz) {
         ModuleImplAdvertisement result = implAdvs.get(clazz);
 
-        return result;
+        return result.clone();
     }
 
     /**
@@ -339,7 +339,7 @@ public class RefJxtaLoader extends JxtaLoader {
         if( null == moduleClass) {
             return null;
         } else {
-            return implAdvs.get(moduleClass);
+            return findModuleImplAdvertisement(moduleClass);
         }
     }
 }
