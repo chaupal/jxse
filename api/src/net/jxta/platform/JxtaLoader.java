@@ -132,6 +132,16 @@ public abstract class JxtaLoader extends URLClassLoader {
     public abstract ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz);
 
     /**
+     *  Finds the ModuleImplAdvertisement for the associated class in the 
+     *  context of this ClassLoader.
+     *
+     *  @param msid The module spec id who's ModuleImplAdvertisement is desired.
+     *  @return The matching {@code ModuleImplAdvertisement} otherwise
+     *  {@code null} if there is no known association.
+     */
+    public abstract ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid);
+    
+    /**
      *  {@inheritDoc}
      */
     @Override

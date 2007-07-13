@@ -86,14 +86,14 @@ public class RefJxtaLoader extends JxtaLoader {
     private final CompatibilityEquater equator;
 
     /**
-     * <p/><ul>
-     * <li>Keys are {@link net.jxta.platform.ModuleSpecID}.</li>
-     * <li>Values are {@link java.util.Map}.
      * <ul>
-     * <li>Keys are {@link java.lang.String} Compatibility Statements serialized as XML UTF-8</li>
-     * <li>Values are {@link java.lang.Class}.</li>
-     * </ul>
-     * </li>
+     *     <li>Keys are {@link net.jxta.platform.ModuleSpecID}.</li>
+     *     <li>Values are {@link java.util.Map}.
+     *         <ul>
+     *             <li>Keys are {@link java.lang.String} Compatibility Statements serialized as XML UTF-8</li>
+     *             <li>Values are {@link java.lang.Class}.</li>
+     *         </ul>
+     *     </li>
      * </ul>
      */
     private final Map<ModuleSpecID, Map<String, Class>> classes = new HashMap<ModuleSpecID, Map<String, Class>>();
@@ -321,5 +321,25 @@ public class RefJxtaLoader extends JxtaLoader {
         ModuleImplAdvertisement result = implAdvs.get(clazz);
 
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
+        Class<?> moduleClass;
+        
+        try {
+            moduleClass = findClass(msid);
+        } catch(ClassNotFoundException failed) {
+            return null;
+        }
+        
+        if( null == moduleClass) {
+            return null;
+        } else {
+            return implAdvs.get(moduleClass);
+        }
     }
 }
