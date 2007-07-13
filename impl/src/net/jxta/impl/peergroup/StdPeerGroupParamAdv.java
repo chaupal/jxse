@@ -95,6 +95,9 @@ import java.util.logging.Logger;
 @Deprecated
 public class StdPeerGroupParamAdv {
 
+    /**
+     *  Logger
+     */
     private static final Logger LOG = Logger.getLogger(StdPeerGroupParamAdv.class.getName());
 
     private static final String paramTag = "Parm";
@@ -162,6 +165,7 @@ public class StdPeerGroupParamAdv {
     /**
      * Replaces the table of services described by this Advertisement. All
      * existing entries are lost.
+     *
      * @param servicesTable the services table
      */
     public void setServices(Map<ModuleClassID, Object> servicesTable) {
@@ -197,6 +201,7 @@ public class StdPeerGroupParamAdv {
     /**
      * Replaces the table of applications described by this Advertisement. All
      * existing entries are lost.
+     *
      * @param appsTable the application table
      */
     public void setApps(Map<ModuleClassID, Object> appsTable) {
@@ -214,8 +219,7 @@ public class StdPeerGroupParamAdv {
     private void initialize(XMLElement doc) {
 
         if (!doc.getName().equals(paramTag)) {
-            throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
+            throw new IllegalArgumentException("Can not construct " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
         // set defaults
