@@ -66,15 +66,18 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
 
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 
 /**
@@ -112,7 +115,7 @@ public abstract class ClassFactory<K, I> {
      *
      *  @return Class object of the key type.
      **/
-    protected abstract Class getClassForKey();
+    protected abstract Class<K> getClassForKey();
 
     /**
      *  Return all of the available keys for this factory. All elements will be
@@ -162,7 +165,7 @@ public abstract class ClassFactory<K, I> {
      **/
     protected boolean registerFromResources(String resourceName, String propertyName) throws MissingResourceException {
 
-        java.util.ResourceBundle jxtaRsrcs = java.util.ResourceBundle.getBundle(resourceName);
+        ResourceBundle jxtaRsrcs = ResourceBundle.getBundle(resourceName);
         String fromProps = jxtaRsrcs.getString(propertyName).trim();
 
         return registerFromString(fromProps);
@@ -186,14 +189,14 @@ public abstract class ClassFactory<K, I> {
         }
 
         // make sure the static initialisers for each instance class are called.
-        for (java.util.StringTokenizer eachInstanceClass = new java.util.StringTokenizer(classNamesString); eachInstanceClass.hasMoreTokens();) {
-            String willInitialize = eachInstanceClass.nextToken();
-
+        List<String> instanceClasses = Arrays.asList(classNamesString.split("\\s"));
+        
+        for (String eachInstanceClass : instanceClasses) {
             try {
-                registeredSomething |= registerAssoc(willInitialize);
+                registeredSomething |= registerAssoc(eachInstanceClass);
             } catch (Exception allElse) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to register \'" + willInitialize + "\'", allElse);
+                    LOG.log(Level.WARNING, "Failed to register \'" + eachInstanceClass + "\'", allElse);
                 }
             }
         }
@@ -367,7 +370,7 @@ public abstract class ClassFactory<K, I> {
      **/
     protected I getInstantiator(final K key) throws NoSuchElementException {
 
-        Class requiredKeyClass = getClassForKey();
+        Class<?> requiredKeyClass = getClassForKey();
 
         if (!requiredKeyClass.isAssignableFrom(key.getClass())) {
             throw new IllegalArgumentException("Incorrect Class for key type");
