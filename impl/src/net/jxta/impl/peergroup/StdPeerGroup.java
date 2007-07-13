@@ -116,7 +116,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     
     // A few things common to all ImplAdv for built-in things.
     public static final XMLDocument STD_COMPAT = mkCS();
-    public static final String MODULE_IMPL_STD_URI = "http://www.jxta.org/download/jxta.jar";
+    public static final String MODULE_IMPL_STD_URI = "http://jxta-jxse.dev.java.net/download/jxta.jar";
     public static final String MODULE_IMPL_STD_PROVIDER = "sun.com";
     
     protected static final String STD_COMPAT_FORMAT = "Efmt";
@@ -974,13 +974,11 @@ public class StdPeerGroup extends GenericPeerGroup {
             return allPurposeImplAdv.clone();
         }
         
-        // grab an impl adv
-        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.allPurposePeerGroupSpecID, 
-                StdPeerGroup.class.getName(),
-                "General Purpose Peer Group Implementation");
-        
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
         JxtaLoader loader = getJxtaLoader();
+
+        // grab an impl adv
+        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.allPurposePeerGroupSpecID);
+        
         ModuleImplAdvertisement moduleAdv;
         
         // set the services
@@ -1014,11 +1012,6 @@ public class StdPeerGroup extends GenericPeerGroup {
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
         services.put(PeerGroup.peerinfoClassID, moduleAdv);
         
-        paramAdv.setServices(services);
-        
-        // NO Transports.
-        paramAdv.setProtos((Map<ModuleClassID, Object>) Collections.EMPTY_MAP);
-        
         // Applications
         Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
@@ -1026,8 +1019,13 @@ public class StdPeerGroup extends GenericPeerGroup {
         if(null != moduleAdv) {        
             apps.put(PeerGroup.applicationClassID, moduleAdv);
         }
-        paramAdv.setApps(apps);
+
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
         
+        paramAdv.setServices(services);
+        paramAdv.setProtos((Map<ModuleClassID, Object>) Collections.EMPTY_MAP);
+        paramAdv.setApps(apps);
+         
         // Insert the newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
         

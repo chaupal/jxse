@@ -207,15 +207,14 @@ public class Platform extends StdPeerGroup {
 
     protected static ModuleImplAdvertisement mkWorldPeerGroupImplAdv() throws Exception {
 
+        JxtaLoader loader = getJxtaLoader();
+
         // Start building the implAdv for the World PeerGroup intself.
-        ModuleImplAdvertisement worldGroupDef = mkImplAdvBuiltin(PeerGroup.refPlatformSpecID, 
-                "World PeerGroup",
-                "Standard World PeerGroup Reference Implementation");
+        ModuleImplAdvertisement worldGroupDef = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
 
         // Build the param section now.
 
         // Build ModuleImplAdvs for each of the modules
-        JxtaLoader loader = getJxtaLoader();
         ModuleImplAdvertisement moduleAdv;
         
         // Do the Services
@@ -298,17 +297,14 @@ public class Platform extends StdPeerGroup {
             return allPurposeImplAdv.clone();
         }
 
+        JxtaLoader loader = getJxtaLoader();
+
         // Make a new impl adv
         // For now, use the well know NPG naming, it is not identical to the 
         // allPurpose PG because we use the class ShadowPeerGroup which 
         // initializes the peer config from its parent.
-        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.refNetPeerGroupSpecID, 
-                ShadowPeerGroup.class.getName(),
-                "Default Network PeerGroup reference implementation");
+        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.refNetPeerGroupSpecID);
 
-        XMLElement paramElement = (XMLElement) implAdv.getParam();
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-        JxtaLoader loader = getJxtaLoader();
         ModuleImplAdvertisement moduleAdv;
 
         // set the services
@@ -345,7 +341,6 @@ public class Platform extends StdPeerGroup {
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refProxySpecID);
         services.put(PeerGroup.proxyClassID, moduleAdv);
 
-        paramAdv.setServices(services);
 
         // High-level Transports.
         
@@ -363,7 +358,6 @@ public class Platform extends StdPeerGroup {
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRelayProtoSpecID);
         protos.put(PeerGroup.relayProtoClassID, moduleAdv);
 
-        paramAdv.setProtos(protos);
 
         // Main app is the shell
 
@@ -373,10 +367,15 @@ public class Platform extends StdPeerGroup {
         if(null != moduleAdv) {        
             apps.put(PeerGroup.applicationClassID, moduleAdv);
         }
+        
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+
+        paramAdv.setServices(services);
+        paramAdv.setProtos(protos);
         paramAdv.setApps(apps);
 
         // Pour our newParamAdv in implAdv
-        paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
+        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
 
         implAdv.setParam(paramElement);
 
