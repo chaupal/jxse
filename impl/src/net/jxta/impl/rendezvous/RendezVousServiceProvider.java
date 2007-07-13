@@ -98,7 +98,7 @@ import java.util.logging.Logger;
 public abstract class RendezVousServiceProvider implements EndpointListener {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static Logger LOG = Logger.getLogger(RendezVousServiceProvider.class.getName());
 
@@ -188,8 +188,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
     /**
      * Supply arguments and starts this service if it hadn't started by itself.
      * <p/>
-     * Currently this service starts by itself and does not expect
-     * arguments.
+     * Currently this service starts by itself and does not expect arguments.
      * @return 0 if successful
      * @param arg argument params
      */
@@ -244,7 +243,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
     protected void stopApp() {
         EndpointListener shouldbeMe = rdvService.endpoint.removeIncomingMessageListener(PropSName, PropPName);
 
-        if (this != shouldbeMe) {
+        if ((null != shouldbeMe) && (this != shouldbeMe)) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Unregistered listener was not as expected." + this + " != " + shouldbeMe);
             }
