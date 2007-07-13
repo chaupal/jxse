@@ -1,57 +1,57 @@
 /*
  * Copyright (c) 2006-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
- *  Redistribution and use in source and binary forms, with or without 
+ *
+ *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
- *  2. Redistributions in binary form must reproduce the above copyright notice, 
- *     this list of conditions and the following disclaimer in the documentation 
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
- *  
- *  3. The end-user documentation included with the redistribution, if any, must 
- *     include the following acknowledgment: "This product includes software 
- *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
- *     Alternately, this acknowledgment may appear in the software itself, if 
+ *
+ *  3. The end-user documentation included with the redistribution, if any, must
+ *     include the following acknowledgment: "This product includes software
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology."
+ *     Alternately, this acknowledgment may appear in the software itself, if
  *     and wherever such third-party acknowledgments normally appear.
- *  
- *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
- *     not be used to endorse or promote products derived from this software 
- *     without prior written permission. For written permission, please contact 
+ *
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must
+ *     not be used to endorse or promote products derived from this software
+ *     without prior written permission. For written permission, please contact
  *     Project JXTA at http://www.jxta.org.
- *  
- *  5. Products derived from this software may not be called "JXTA", nor may 
+ *
+ *  5. Products derived from this software may not be called "JXTA", nor may
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
- *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
+ *
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
- *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
- *  This software consists of voluntary contributions made by many individuals 
- *  on behalf of Project JXTA. For more information on Project JXTA, please see 
+ *
+ *  This software consists of voluntary contributions made by many individuals
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see
  *  http://www.jxta.org.
- *  
- *  This license is based on the BSD license adopted by the Apache Foundation. 
+ *
+ *  This license is based on the BSD license adopted by the Apache Foundation.
  */
 
 package net.jxta.platform;
@@ -60,7 +60,6 @@ package net.jxta.platform;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
@@ -90,6 +89,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -106,28 +106,27 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * NetworkConfigurator provides a simple programmatic interface for JXTA configuration.
  * <p/>
- * <p/>By default, it defines an edge configuration with TCP in auto mode w/port
+ * By default, it defines an edge configuration with TCP in auto mode w/port
  * range 9701-9799, multicast enabled on group "224.0.1.85", and port 1234,
- * HTTP transport with only going enabled.
+ * HTTP transport with only out going enabled.
  * <p/>
- * <p>By default a new PeerID is always generated. This can be overridden via
+ * By default a new PeerID is always generated. This can be overridden via
  * {@link NetworkConfigurator#setPeerID} method or loading a PlatformConfig via
  * {@link NetworkConfigurator#load}.
  * <p/>
- * <p/>A facility is provided to initialize a configuration by loading from a
+ * A facility is provided to initialize a configuration by loading from a
  * existing configuration. This provides limited platform configuration lifecycle
  * management as well as configuration change management.
  * <p/>
- * <p/>Also by default, this class sets the default platform configurator to
+ * Also by default, this class sets the default platform configurator to
  * {@link net.jxta.impl.peergroup.NullConfigurator}. <code>NullConfigurator<code>
  * is no operation configurator intended to prevent any other configurators from
  * being invoked, including the AWT ConfigDialog.
  * <p/>
- * <p/>NetworkConfigurator makes use of classes from the {@code net.jxta.impl.*}
+ * NetworkConfigurator makes use of classes from the {@code net.jxta.impl.*}
  * packages. Applications are very strongly encouraged to avoid importing these
  * classes as their interfaces may change without notice in future JXTA releases.
  * The NetworkConfigurator API abstracts the configruation implementation details
@@ -177,221 +176,215 @@ import java.util.logging.Logger;
  * @since JXTA JSE 2.4
  */
 public class NetworkConfigurator {
-
+    
+    /**
+     * Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(NetworkConfigurator.class.getName());
+    
     // begin configuration modes
+    
     /**
      * Relay client Mode
      */
     public final static int RELAY_OFF = 1 << 2;
-
+    
     /**
      * Relay client Mode
      */
     public final static int RELAY_CLIENT = 1 << 3;
-
+    
     /**
      * Relay client Mode
      */
     public final static int RELAY_SERVER = 1 << 4;
-
+    
     /**
      * Proxy Server Mode
      */
     public final static int PROXY_SERVER = 1 << 5;
-
+    
     /**
      * TCP transport client state
      */
     public final static int TCP_CLIENT = 1 << 6;
-
+    
     /**
      * TCP transport state
      */
     public final static int TCP_SERVER = 1 << 7;
-
+    
     /**
      * HTTP transport client state
      */
     public final static int HTTP_CLIENT = 1 << 8;
-
+    
     /**
      * HTTP transport server state
      */
     public final static int HTTP_SERVER = 1 << 9;
-
+    
     /**
      * IP multicast transport state
      */
     public final static int IP_MULTICAST = 1 << 10;
-
+    
     /**
      * Rendezvous Mode
      */
     public final static int RDV_SERVER = 1 << 11;
-
+    
     /**
      * RendezVousService Client
      */
     public final static int RDV_CLIENT = 1 << 12;
-
+    
     /**
      * RendezVousService Ad-Hoc mode
      */
     public final static int RDV_AD_HOC = 1 << 13;
-
+    
     /**
      * Default AD-HOC configuration
      */
     public final static int ADHOC_NODE = TCP_CLIENT | TCP_SERVER | IP_MULTICAST | RDV_AD_HOC | RELAY_OFF;
-
+    
     /**
      * Default Edge configuration
      */
     public final static int EDGE_NODE = TCP_CLIENT | TCP_SERVER | HTTP_CLIENT | IP_MULTICAST | RDV_CLIENT | RELAY_CLIENT;
-
+    
     /**
      * Default Rendezvous configuration
      */
     public final static int RDV_NODE = RDV_SERVER | TCP_CLIENT | TCP_SERVER | HTTP_SERVER;
-
+    
     /**
      * Default Relay configuration
      */
     public final static int RELAY_NODE = RELAY_SERVER | TCP_CLIENT | TCP_SERVER | HTTP_SERVER;
-
+    
     /**
      * Default Proxy configuration
      */
     public final static int PROXY_NODE = PROXY_SERVER | RELAY_NODE;
-
+    
     /**
      * Default Rendezvous/Relay/Proxy configuration
      */
     public final static int RDV_RELAY_PROXY_NODE = RDV_NODE | PROXY_NODE;
+    
+    
     // end configuration modes
-
+    
     /**
      * Default mode
      */
     protected transient int mode = EDGE_NODE;
-
+    
     /**
      * Default PlatformConfig Peer Description
      */
     protected transient String description = "Platform Config Advertisement created by : " + NetworkConfigurator.class.getName();
-
-    /**
-     * Default JXTA_HOME set ".jxta"
-     */
-    protected transient File home = new File(".jxta");
-
+    
     /**
      * the location which will serve as the parent for all stored items used
      * by JXTA.
      */
     private transient URI storeHome = null;
-
-    /**
-     * HTTP Config Advertisement
-     */
-    protected transient HTTPAdv httpConfig;
-
-    /**
-     * default HTTP transport state
-     */
-    protected transient boolean httpEnabled = true;
-
+    
     /**
      * Default peer name
      */
     protected transient String name = "unknown";
-
+    
     /**
      * Password value used to generate root centificate
      */
     protected transient String password = null;
-
+    
     /**
      * Default PeerID
      */
     protected transient PeerID peerid = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
-
+    
     /**
      * Principal value used to generate root certificate
      */
     protected transient String principal = null;
-
+    
     /**
      * public certificate
      */
     protected transient X509Certificate cert = null;
-
+    
     /**
      * Subject private key
      */
     protected transient PrivateKey subjectPkey = null;
-
+    
     /**
      * Freestanding keystore location
      */
     protected transient URI keyStoreLocation = null;
-
+    
     /**
      * Proxy Service Document
      */
     protected transient XMLElement proxyConfig;
-
+    
     /**
      * Personal Security Enviroment Config Advertisement
      *
      * @see net.jxta.impl.membership.pse.PSEConfig
      */
     protected transient PSEConfigAdv pseConf;
-
+    
     /**
      * Rendezvous Config Advertisement
      */
     protected transient RdvConfigAdv rdvConfig;
-
+    
     /**
      * Default Rendezvous Seeding URI
      */
     protected URI rdvSeedingURI = null;
-
+    
     /**
      * Relay Config Advertisement
      */
     protected transient RelayConfigAdv relayConfig;
-
+    
     /**
      * Default Relay Seeding URI
      */
     protected transient URI relaySeedingURI = null;
-
+    
     /**
      * TCP Config Advertisement
      */
     protected transient TCPAdv tcpConfig;
-
+    
     /**
      * default TCP transport state
      */
     protected transient boolean tcpEnabled = true;
-
+    
     /**
+     * HTTP Config Advertisement
+     */
+    protected transient HTTPAdv httpConfig;
+    
+    /**
+     * default HTTP transport state
+     */
+    protected transient boolean httpEnabled = true;
+    
+    /**
+     *  Infrastructure Peer Group Configuration
      */
     protected transient PeerGroupConfigAdv infraPeerGroupConfig;
-
-    /**
-     * Platform Configuration file
-     */
-    protected transient File configFile = new File(home, "PlatformConfig");
-
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(NetworkConfigurator.class.getName());
-
+    
     /**
      * Creates NetworkConfigurator instance with default AD-HOC configuration
      *
@@ -401,7 +394,7 @@ public class NetworkConfigurator {
     public static NetworkConfigurator newAdHocConfiguration(URI storeHome) {
         return new NetworkConfigurator(ADHOC_NODE, storeHome);
     }
-
+    
     /**
      * Creates NetworkConfigurator instance with default Edge configuration
      *
@@ -411,7 +404,7 @@ public class NetworkConfigurator {
     public static NetworkConfigurator newEdgeConfiguration(URI storeHome) {
         return new NetworkConfigurator(EDGE_NODE, storeHome);
     }
-
+    
     /**
      * Creates NetworkConfigurator instance with default Rendezvous configuration
      *
@@ -421,7 +414,7 @@ public class NetworkConfigurator {
     public static NetworkConfigurator newRdvConfiguration(URI storeHome) {
         return new NetworkConfigurator(RDV_NODE, storeHome);
     }
-
+    
     /**
      * Creates NetworkConfigurator instance with default Relay configuration
      *
@@ -431,7 +424,7 @@ public class NetworkConfigurator {
     public static NetworkConfigurator newRelayConfiguration(URI storeHome) {
         return new NetworkConfigurator(RELAY_NODE, storeHome);
     }
-
+    
     /**
      * Creates NetworkConfigurator instance with default Rendezvous configuration
      *
@@ -441,7 +434,7 @@ public class NetworkConfigurator {
     public static NetworkConfigurator newRdvRelayConfiguration(URI storeHome) {
         return new NetworkConfigurator(RDV_NODE | RELAY_SERVER, storeHome);
     }
-
+    
     /**
      * Creates NetworkConfigurator instance with default Proxy configuration
      *
@@ -451,7 +444,7 @@ public class NetworkConfigurator {
     public static NetworkConfigurator newProxyConfiguration(URI storeHome) {
         return new NetworkConfigurator(PROXY_NODE, storeHome);
     }
-
+    
     /**
      * Creates NetworkConfigurator instance with default Rendezvous, Relay, Proxy configuration
      *
@@ -461,14 +454,14 @@ public class NetworkConfigurator {
     public static NetworkConfigurator newRdvRelayProxyConfiguration(URI storeHome) {
         return new NetworkConfigurator(RDV_RELAY_PROXY_NODE, storeHome);
     }
-
+    
     /**
-     * Creates a NetworkConfigurator object with a default configuration mode of EDGE_NODE
+     * Creates the default NetworkConfigurator. The configuration is stored  with a default configuration mode of EDGE_NODE
      */
     public NetworkConfigurator() {
         this(EDGE_NODE, new File(".jxta").toURI());
     }
-
+    
     /**
      * Creates a NetworkConfigurator with the default configuration of the
      * specified mode. <p/>Valid modes include ADHOC_NODE, EDGE_NODE, RDV_NODE
@@ -483,40 +476,19 @@ public class NetworkConfigurator {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Creating a default configuration");
         }
-
-        // Fail if the URI is not absolute.
-        if (!storeHome.isAbsolute()) {
-            throw new IllegalArgumentException("Only absolute URIs accepted for store home location.");
-        }
-
-        // Fail if the URI is Opaque.
-        if (storeHome.isOpaque()) {
-            throw new IllegalArgumentException("Only hierarchical URIs accepted for store home location.");
-        }
-
-        // FIXME this should be removed when 1488 is committed
-        if (!"file".equalsIgnoreCase(storeHome.getScheme())) {
-            throw new IllegalArgumentException("Only file based URI currently supported");
-        }
-
-        // Adds a terminating /
-        if (!storeHome.toString().endsWith("/")) {
-            storeHome = URI.create(storeHome.toString() + "/");
-        }
-
-        this.storeHome = storeHome;
-        this.home = new File(storeHome);
-        this.configFile = new File(home, "PlatformConfig");
-
+        
+        setStoreHome(storeHome);
+        
         httpConfig = createHttpAdv();
         rdvConfig = createRdvConfigAdv();
         relayConfig = createRelayConfigAdv();
         proxyConfig = createProxyAdv();
         tcpConfig = createTcpAdv();
         infraPeerGroupConfig = createInfraConfigAdv();
+        
         setMode(mode);
     }
-
+    
     /**
      * Sets PlaformConfig Peer Description element
      *
@@ -525,7 +497,7 @@ public class NetworkConfigurator {
     public void setDescription(String description) {
         this.description = description;
     }
-
+    
     /**
      * Set the current directory for configuration and cache persistent store
      * <p/>(default is $CWD/.jxta)
@@ -545,26 +517,28 @@ public class NetworkConfigurator {
      * @see #getHome
      */
     public void setHome(File home) {
-        this.home = home;
         this.storeHome = home.toURI();
-        this.configFile = new File(home, "PlatformConfig");
     }
-
+    
     /**
-     * Returns the current directory for configuration and cache persistent store
+     * Returns the current directory for configuration and cache persistent 
+     * store. This is the same location as returned by {@link getStoreHome()}
+     * which is more general than this method.
      *
      * @return Returns the current home directory
      * @see #setHome
      */
     public File getHome() {
-        return home;
+        if( "file".equalsIgnoreCase(storeHome.getScheme())) {
+            return new File(storeHome);
+        } else {
+            throw new UnsupportedOperationException("Home location is not a file:// URI : " + storeHome );
+        }
     }
-
+    
     /**
      * Returns the location which will serve as the parent for all stored items
-     * used by JXTA. This method is intended for use by PeerGroup implementations
-     * and is not intended for use by applications. Applications and services
-     * should use the PeerGroup method with the same name.
+     * used by JXTA.
      *
      * @return The location which will serve as the parent for all stored
      *         items used by JXTA.
@@ -573,7 +547,40 @@ public class NetworkConfigurator {
     public URI getStoreHome() {
         return storeHome;
     }
+    
 
+    /**
+     * Sets the location which will serve as the parent for all stored items
+     * used by JXTA.
+     *
+     * @return The location which will serve as the parent for all stored items
+     * used by JXTA.
+     * @see net.jxta.peergroup.PeerGroup#getStoreHome()
+     */
+    public void setStoreHome(URI newHome) {
+        // Fail if the URI is not absolute.
+        if (!newHome.isAbsolute()) {
+            throw new IllegalArgumentException("Only absolute URIs accepted for store home location.");
+        }
+        
+        // Fail if the URI is Opaque.
+        if (newHome.isOpaque()) {
+            throw new IllegalArgumentException("Only hierarchical URIs accepted for store home location.");
+        }
+        
+        // FIXME this should be removed when 1488 is committed
+        if (!"file".equalsIgnoreCase(newHome.getScheme())) {
+            throw new IllegalArgumentException("Only file based URI currently supported");
+        }
+        
+        // Adds a terminating /
+        if (!newHome.toString().endsWith("/")) {
+            newHome = URI.create(newHome.toString() + "/");
+        }
+
+        storeHome = newHome;
+    }
+    
     /**
      * Toggles HTTP transport state
      *
@@ -586,7 +593,7 @@ public class NetworkConfigurator {
             httpConfig.setServerEnabled(false);
         }
     }
-
+    
     /**
      * Toggles the HTTP transport server (incoming) mode
      *
@@ -595,7 +602,7 @@ public class NetworkConfigurator {
     public void setHttpIncoming(boolean incoming) {
         httpConfig.setServerEnabled(incoming);
     }
-
+    
     /**
      * Toggles the HTTP transport client (outgoing) mode
      *
@@ -604,7 +611,7 @@ public class NetworkConfigurator {
     public void setHttpOutgoing(boolean outgoing) {
         httpConfig.setClientEnabled(outgoing);
     }
-
+    
     /**
      * Sets the HTTP listening port (default 9901)
      *
@@ -613,7 +620,7 @@ public class NetworkConfigurator {
     public void setHttpPort(int port) {
         httpConfig.setPort(port);
     }
-
+    
     /**
      * Sets the HTTP interface Address to bind the HTTP transport to
      * <p/>e.g. "192.168.1.1"
@@ -623,7 +630,7 @@ public class NetworkConfigurator {
     public void setHttpInterfaceAddress(String address) {
         httpConfig.setInterfaceAddress(address);
     }
-
+    
     /**
      * Sets the HTTP JXTA Public Address
      * e.g. "192.168.1.1:9700"
@@ -635,7 +642,7 @@ public class NetworkConfigurator {
         httpConfig.setServer(address);
         httpConfig.setPublicAddressOnly(exclusive);
     }
-
+    
     /**
      * Sets the ID which will be used for new net peer group instances.
      * <p/>
@@ -650,10 +657,10 @@ public class NetworkConfigurator {
         if (id == null || id.equals(ID.nullID)) {
             throw new IllegalArgumentException("PeerGroupID can not be null");
         }
-
+        
         infraPeerGroupConfig.setPeerGroupID(id);
     }
-
+    
     /**
      * Sets the ID which will be used for new net peer group instances.
      * <p/>
@@ -668,12 +675,12 @@ public class NetworkConfigurator {
         if (idStr == null || idStr.length() == 0) {
             throw new IllegalArgumentException("PeerGroupID string can not be empty or null");
         }
-
+        
         PeerGroupID pgid = (PeerGroupID) ID.create(URI.create(idStr));
-
+        
         setInfrastructureID(pgid);
     }
-
+    
     /**
      * Sets the infrastructure PeerGroup name meta-data
      *
@@ -683,7 +690,7 @@ public class NetworkConfigurator {
     public void setInfrastructureName(String name) {
         infraPeerGroupConfig.setName(name);
     }
-
+    
     /**
      * Sets the infrastructure PeerGroup description meta-data
      *
@@ -693,7 +700,7 @@ public class NetworkConfigurator {
     public void setInfrastructureDescriptionStr(String description) {
         infraPeerGroupConfig.setDescription(description);
     }
-
+    
     /**
      * Returns the infrastructure PeerGroup description meta-data
      *
@@ -702,7 +709,7 @@ public class NetworkConfigurator {
     public String getInfrastructureDescriptionStr() {
         return infraPeerGroupConfig.getDescription();
     }
-
+    
     /**
      * Sets the infrastructure PeerGroup description meta-data
      *
@@ -712,7 +719,7 @@ public class NetworkConfigurator {
     public void setInfrastructureDesc(XMLElement description) {
         infraPeerGroupConfig.setDesc(description);
     }
-
+    
     /**
      * Sets the current node configuration mode.
      * <p/>The default mode is EDGE, unless modified at construction time.
@@ -730,7 +737,7 @@ public class NetworkConfigurator {
     public void setMode(int mode) {
         this.mode = mode;
         if ((mode & PROXY_SERVER) == PROXY_SERVER && ((mode & RELAY_SERVER) != RELAY_SERVER)) {
-
+            
             /*
              // A proxy must at the very least support relaying
              if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -739,9 +746,11 @@ public class NetworkConfigurator {
              */
             mode = mode | RELAY_SERVER;
         }
+        
         // RELAY config
         relayConfig.setClientEnabled((mode & RELAY_CLIENT) == RELAY_CLIENT);
         relayConfig.setServerEnabled((mode & RELAY_SERVER) == RELAY_SERVER);
+        
         // RDV_SERVER
         if ((mode & RDV_SERVER) == RDV_SERVER) {
             rdvConfig.setConfiguration(RendezVousConfiguration.RENDEZVOUS);
@@ -750,24 +759,24 @@ public class NetworkConfigurator {
         } else if ((mode & RDV_AD_HOC) == RDV_AD_HOC) {
             rdvConfig.setConfiguration(RendezVousConfiguration.AD_HOC);
         }
-
+        
         // TCP
         tcpConfig.setClientEnabled((mode & TCP_CLIENT) == TCP_CLIENT);
         tcpConfig.setServerEnabled((mode & TCP_SERVER) == TCP_SERVER);
-
+        
         // HTTP
         httpConfig.setClientEnabled((mode & HTTP_CLIENT) == HTTP_CLIENT);
         httpConfig.setServerEnabled((mode & HTTP_SERVER) == HTTP_SERVER);
-
+        
         // Multicast
         tcpConfig.setMulticastState((mode & IP_MULTICAST) == IP_MULTICAST);
-
+        
         // EDGE
         if (mode == EDGE_NODE) {
             rdvConfig.setConfiguration(RendezVousConfiguration.EDGE);
         }
     }
-
+    
     /**
      * Returns the current configuration mode
      * <p/>The default mode is EDGE, unless modified at construction time or through
@@ -782,7 +791,7 @@ public class NetworkConfigurator {
     public int getMode() {
         return mode;
     }
-
+    
     /**
      * Sets the IP group multicast packet size
      *
@@ -791,7 +800,7 @@ public class NetworkConfigurator {
     public void setMulticastSize(int size) {
         tcpConfig.setMulticastSize(size);
     }
-
+    
     /**
      * Gets the IP group multicast packet size
      *
@@ -800,7 +809,7 @@ public class NetworkConfigurator {
     public int getMulticastSize() {
         return tcpConfig.getMulticastSize();
     }
-
+    
     /**
      * Sets the IP group multicast address (default 224.0.1.85)
      *
@@ -810,7 +819,7 @@ public class NetworkConfigurator {
     public void setMulticastAddress(String mcastAddress) {
         tcpConfig.setMulticastAddr(mcastAddress);
     }
-
+    
     /**
      * Sets the IP group multicast port (default 1234)
      *
@@ -820,7 +829,7 @@ public class NetworkConfigurator {
     public void setMulticastPort(int port) {
         tcpConfig.setMulticastPort(port);
     }
-
+    
     /**
      * Sets the node name
      *
@@ -829,7 +838,7 @@ public class NetworkConfigurator {
     public void setName(String name) {
         this.name = name;
     }
-
+    
     /**
      * Gets the node name
      *
@@ -838,7 +847,7 @@ public class NetworkConfigurator {
     public String getName() {
         return this.name;
     }
-
+    
     /**
      * Sets the Principal for the peer root certificate
      *
@@ -850,7 +859,7 @@ public class NetworkConfigurator {
     public void setPrincipal(String principal) {
         this.principal = principal;
     }
-
+    
     /**
      * Gets the Principal for the peer root certificate
      *
@@ -862,7 +871,7 @@ public class NetworkConfigurator {
     public String getPrincipal() {
         return principal;
     }
-
+    
     /**
      * Sets the public certificate for this configuration.
      *
@@ -871,7 +880,7 @@ public class NetworkConfigurator {
     public void setCertificate(X509Certificate cert) {
         this.cert = cert;
     }
-
+    
     /**
      * Returns the public certificate for this configuration.
      *
@@ -880,7 +889,7 @@ public class NetworkConfigurator {
     public X509Certificate getCertificate() {
         return cert;
     }
-
+    
     /**
      * Sets the Subject private key
      *
@@ -889,7 +898,7 @@ public class NetworkConfigurator {
     public void setPrivateKey(PrivateKey subjectPkey) {
         this.subjectPkey = subjectPkey;
     }
-
+    
     /**
      * Gets the Subject private key
      *
@@ -898,7 +907,7 @@ public class NetworkConfigurator {
     public PrivateKey getPrivateKey() {
         return this.subjectPkey;
     }
-
+    
     /**
      * Set freestanding keystore location
      *
@@ -907,7 +916,7 @@ public class NetworkConfigurator {
     public void setKeyStoreLocation(URI keyStoreLocation) {
         this.keyStoreLocation = keyStoreLocation;
     }
-
+    
     /**
      * Get the freestanding keystore location
      *
@@ -916,7 +925,7 @@ public class NetworkConfigurator {
     public URI getKeyStoreLocation() {
         return keyStoreLocation;
     }
-
+    
     /**
      * Sets the password used to sign the private key of the root certificate
      *
@@ -928,7 +937,7 @@ public class NetworkConfigurator {
     public void setPassword(String password) {
         this.password = password;
     }
-
+    
     /**
      * Gets the password used to sign the private key of the root certificate
      *
@@ -940,7 +949,7 @@ public class NetworkConfigurator {
     public String getPassword() {
         return password;
     }
-
+    
     /**
      * Set the PeerID (by default, a new PeerID is generated).
      * <p/>Note: Persist the PeerID generated, or use load()
@@ -951,7 +960,7 @@ public class NetworkConfigurator {
     public void setPeerID(PeerID peerid) {
         this.peerid = peerid;
     }
-
+    
     /**
      * Get the PeerID
      *
@@ -960,7 +969,7 @@ public class NetworkConfigurator {
     public PeerID getPeerID() {
         return this.peerid;
     }
-
+    
     /**
      * Sets Rendezvous Seeding URI
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3
@@ -970,7 +979,7 @@ public class NetworkConfigurator {
     public void addRdvSeedingURI(URI seedURI) {
         rdvConfig.addSeedingURI(seedURI);
     }
-
+    
     /**
      * Sets Rendezvous Access Control URI
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
@@ -980,7 +989,7 @@ public class NetworkConfigurator {
     public void setRdvACLURI(URI aclURI) {
         rdvConfig.setAclUri(aclURI);
     }
-
+    
     /**
      * Gets Rendezvous Access Control URI if set
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
@@ -990,7 +999,7 @@ public class NetworkConfigurator {
     public URI getRdvACLURI() {
         return rdvConfig.getAclUri();
     }
-
+    
     /**
      * Sets Relay Access Control URI
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
@@ -1000,7 +1009,7 @@ public class NetworkConfigurator {
     public void setRelayACLURI(URI aclURI) {
         relayConfig.setAclUri(aclURI);
     }
-
+    
     /**
      * Gets Relay Access Control URI if set
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
@@ -1010,7 +1019,7 @@ public class NetworkConfigurator {
     public URI getRelayACLURI() {
         return relayConfig.getAclUri();
     }
-
+    
     /**
      * Sets the RelayService maximum number of simultaneous relay clients
      *
@@ -1022,7 +1031,7 @@ public class NetworkConfigurator {
         }
         relayConfig.setMaxClients(relayMaxClients);
     }
-
+    
     /**
      * Sets the RelayService Seeding URI
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3
@@ -1034,7 +1043,7 @@ public class NetworkConfigurator {
     public void addRelaySeedingURI(URI seedURI) {
         relayConfig.addSeedingURI(seedURI);
     }
-
+    
     /**
      * Sets the RendezVousService maximum number of simultaneous rendezvous clients
      *
@@ -1046,7 +1055,7 @@ public class NetworkConfigurator {
         }
         rdvConfig.setMaxClients(rdvMaxClients);
     }
-
+    
     /**
      * Toggles TCP transport state
      *
@@ -1058,9 +1067,8 @@ public class NetworkConfigurator {
             tcpConfig.setClientEnabled(false);
             tcpConfig.setServerEnabled(false);
         }
-
     }
-
+    
     /**
      * Sets the TCP transport listening port (default 9701)
      *
@@ -1069,7 +1077,7 @@ public class NetworkConfigurator {
     public void setTcpPort(int port) {
         tcpConfig.setPort(port);
     }
-
+    
     /**
      * Sets the lowest port on which the TCP Transport will listen if configured
      * to do so. Valid values are <code>-1</code>, <code>0</code> and
@@ -1084,7 +1092,7 @@ public class NetworkConfigurator {
     public void setTcpStartPort(int start) {
         tcpConfig.setStartPort(start);
     }
-
+    
     /**
      * Return the highest port on which the TCP Transport will listen if
      * configured to do so. Valid values are <code>-1</code>, <code>0</code> and
@@ -1099,7 +1107,7 @@ public class NetworkConfigurator {
     public void setTcpEndPort(int end) {
         tcpConfig.setEndPort(end);
     }
-
+    
     /**
      * Toggles TCP transport server (incoming) mode (default is on)
      *
@@ -1108,7 +1116,7 @@ public class NetworkConfigurator {
     public void setTcpIncoming(boolean incoming) {
         tcpConfig.setServerEnabled(incoming);
     }
-
+    
     /**
      * Toggles TCP transport client (outgoing) mode (default is true)
      *
@@ -1117,7 +1125,7 @@ public class NetworkConfigurator {
     public void setTcpOutgoing(boolean outgoing) {
         tcpConfig.setClientEnabled(outgoing);
     }
-
+    
     /**
      * Sets the TCP transport interface address
      * <p/>e.g. "192.168.1.1"
@@ -1127,7 +1135,7 @@ public class NetworkConfigurator {
     public void setTcpInterfaceAddress(String address) {
         tcpConfig.setInterfaceAddress(address);
     }
-
+    
     /**
      * Sets the node public address
      * <p/>e.g. "192.168.1.1:9701"
@@ -1141,7 +1149,7 @@ public class NetworkConfigurator {
         tcpConfig.setServer(address);
         tcpConfig.setPublicAddressOnly(exclusive);
     }
-
+    
     /**
      * Toggles whether to use IP group multicast (default is true)
      *
@@ -1150,7 +1158,7 @@ public class NetworkConfigurator {
     public void setUseMulticast(boolean mutlicastOn) {
         tcpConfig.setMulticastState(mutlicastOn);
     }
-
+    
     /**
      * Determines whether to restrict RelayService leases to those defined in
      * the seed list
@@ -1160,7 +1168,7 @@ public class NetworkConfigurator {
     public void setUseOnlyRelaySeeds(boolean useOnlyRelaySeeds) {
         relayConfig.setUseOnlySeeds(useOnlyRelaySeeds);
     }
-
+    
     /**
      * Determines whether to restrict RendezvousService leases to those defined in
      * the seed list
@@ -1170,7 +1178,7 @@ public class NetworkConfigurator {
     public void setUseOnlyRendezvousSeeds(boolean useOnlyRendezvouSeeds) {
         rdvConfig.setUseOnlySeeds(useOnlyRendezvouSeeds);
     }
-
+    
     /**
      * Adds RelayService peer seed address
      * <p/>A RelayService seed is defined as a physical endpoint address
@@ -1181,7 +1189,7 @@ public class NetworkConfigurator {
     public void addSeedRelay(URI seedURI) {
         relayConfig.addSeedRelay(seedURI.toString());
     }
-
+    
     /**
      * Adds Rendezvous peer seed, physical endpoint address
      * <p/>A RendezVousService seed is defined as a physical endpoint address
@@ -1192,16 +1200,22 @@ public class NetworkConfigurator {
     public void addSeedRendezvous(URI seedURI) {
         rdvConfig.addSeedRendezvous(seedURI);
     }
-
+    
     /**
      * Returns true if a PlatformConfig file exist under store home
      *
      * @return true if a PlatformConfig file exist under store home
      */
     public boolean exists() {
-        return configFile.exists();
+        URI platformConfig = storeHome.resolve("PlatformConfig");
+        
+        try {
+            return null != read(platformConfig);
+        } catch( IOException failed ) {
+            return false;
+        }
     }
-
+    
     /**
      * Sets the PeerID for this Configuration
      *
@@ -1210,7 +1224,7 @@ public class NetworkConfigurator {
     public void setPeerId(String peerIdStr) {
         this.peerid = (PeerID) ID.create(URI.create(peerIdStr));
     }
-
+    
     /**
      * Sets the new RendezvousService seeding URI as a string.
      * <p/>A seeding URI (when read) is expected to provide a list of
@@ -1221,7 +1235,7 @@ public class NetworkConfigurator {
     public void addRdvSeedingURI(String seedURIStr) {
         rdvConfig.addSeedingURI(URI.create(seedURIStr));
     }
-
+    
     /**
      * Sets the new RelayService seeding URI as a string.
      * <p/>A seeding URI (when read) is expected to provide a list of
@@ -1232,7 +1246,7 @@ public class NetworkConfigurator {
     public void addRelaySeedingURI(String seedURIStr) {
         relayConfig.addSeedingURI(URI.create(seedURIStr));
     }
-
+    
     /**
      * Sets the List relaySeeds represented as Strings
      * <p/>A RelayService seed is defined as a physical endpoint address
@@ -1246,7 +1260,7 @@ public class NetworkConfigurator {
             relayConfig.addSeedRelay(new EndpointAddress(seedStr));
         }
     }
-
+    
     /**
      * Sets the relaySeeds represented as Strings
      * <p/>A seeding URI (when read) is expected to provide a list of
@@ -1260,21 +1274,21 @@ public class NetworkConfigurator {
             relayConfig.addSeedingURI(URI.create(seedStr));
         }
     }
-
+    
     /**
      * Clears the List of RelayService seeds
      */
     public void clearRelaySeeds() {
         relayConfig.clearSeedRelays();
     }
-
+    
     /**
      * Clears the List of RelayService seeding URIs
      */
     public void clearRelaySeedingURIs() {
         relayConfig.clearSeedingURIs();
     }
-
+    
     /**
      * Sets the List of RendezVousService seeds represented as Strings
      * <p/>A RendezvousService seed is defined as a physical endpoint address
@@ -1288,7 +1302,7 @@ public class NetworkConfigurator {
             rdvConfig.addSeedRendezvous(URI.create(seedStr));
         }
     }
-
+    
     /**
      * Sets the List of RendezVousService seeds represented as Strings
      * <p/>A seeding URI (when read) is expected to provide a list of
@@ -1302,78 +1316,63 @@ public class NetworkConfigurator {
             rdvConfig.addSeedingURI(URI.create(seedStr));
         }
     }
-
+    
     /**
      * Clears the List of RendezVousService seeds
      */
     public void clearRendezvousSeeds() {
         rdvConfig.clearSeedRendezvous();
     }
-
+    
     /**
      * Clears the List of RendezVousService seeds
      */
     public void clearRendezvousSeedURIs() {
         rdvConfig.clearSeedingURIs();
     }
-
+    
     /**
      * Load a configuration from the specified store home uri
      * <p/>
      * e.g. file:/export/dist/EdgeConfig.xml, e.g. http://configserver.net/configservice?Edge
      *
+     * @return The loaded configuration.
      * @throws IOException          if an i/o error occurs
      * @throws CertificateException if the MembershipService is invalid
      */
-    public void load() throws IOException, CertificateException {
-        load(storeHome.resolve("PlatformConfig"));
+    public ConfigParams load() throws IOException, CertificateException {
+        return load(storeHome.resolve("PlatformConfig"));
     }
-
+    
     /**
      * Load a configuration from a specified uri
      * <p/>
      * e.g. file:/export/dist/EdgeConfig.xml, e.g. http://configserver.net/configservice?Edge
      *
      * @param uri the URI to PlatformConfig
+     * @return The loaded configuration.
      * @throws IOException          if an i/o error occurs
      * @throws CertificateException if the MemebershipService is invalid
      */
-    public void load(URI uri) throws IOException, CertificateException {
+    public ConfigParams load(URI uri) throws IOException, CertificateException {
         if (uri == null) {
             throw new IllegalArgumentException("URI can not be null");
         }
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Loading configuration : " + uri.toString());
+            LOG.fine("Loading configuration : " + uri);
         }
-
-        URL url;
-
-        try {
-            url = uri.toURL();
-        } catch (MalformedURLException mue) {
-            IllegalArgumentException failure = new IllegalArgumentException("Failed to convert URI to URL");
-
-            failure.initCause(mue);
-            throw failure;
-        }
-
-        XMLElement param;
-        InputStream input = url.openStream();
-        XMLDocument document = (XMLDocument)
-                StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, input);
-        PlatformConfig platformConfig = (PlatformConfig)
-                AdvertisementFactory.newAdvertisement(document);
-
-        input.close();
+        
+        PlatformConfig platformConfig = read(uri);
+        
         name = platformConfig.getName();
         peerid = platformConfig.getPeerID();
         description = platformConfig.getDescription();
-
+        
         // TCP
-        param = (XMLElement) platformConfig.getServiceParam(PeerGroup.tcpProtoClassID);
+        XMLElement param = (XMLElement) platformConfig.getServiceParam(PeerGroup.tcpProtoClassID);
         tcpEnabled = !param.getChildren("isOff").hasMoreElements();
         Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
-
+        
         // get the TransportAdv from either TransportAdv or tcpConfig
         if (tcpChilds.hasMoreElements()) {
             param = (XMLElement) tcpChilds.nextElement();
@@ -1381,7 +1380,7 @@ public class NetworkConfigurator {
             throw new IllegalStateException("Missing TCP Advertisment");
         }
         tcpConfig = (TCPAdv) AdvertisementFactory.newAdvertisement(param);
-
+        
         /*
          if (tcpConfig.isClientEnabled()) {
          mode = mode | TCP_CLIENT;
@@ -1389,14 +1388,14 @@ public class NetworkConfigurator {
          if (tcpConfig.isServerEnabled()) {
          mode = mode | TCP_SERVER;
          }*/
-
+        
         // HTTP
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.httpProtoClassID);
             httpEnabled = !param.getChildren("isOff").hasMoreElements();
-
+            
             Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
-
+            
             // get the TransportAdv from either TransportAdv
             if (httpChilds.hasMoreElements()) {
                 param = (XMLElement) httpChilds.nextElement();
@@ -1405,7 +1404,7 @@ public class NetworkConfigurator {
             }
             // Read-in the adv as it is now.
             httpConfig = (HTTPAdv) AdvertisementFactory.newAdvertisement(param);
-
+            
             /* if (httpConfig.isClientEnabled()) {
              mode = mode | HTTP_CLIENT;
              }
@@ -1415,11 +1414,11 @@ public class NetworkConfigurator {
              */
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the HTTP config advertisement");
-
+            
             ioe.initCause(failure);
             throw ioe;
         }
-
+        
         // ProxyService
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.proxyClassID);
@@ -1428,11 +1427,11 @@ public class NetworkConfigurator {
             }
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the pse config advertisement");
-
+            
             ioe.initCause(failure);
             throw ioe;
         }
-
+        
         // Rendezvous
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.rendezvousClassID);
@@ -1448,11 +1447,11 @@ public class NetworkConfigurator {
             }
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the rendezvous config advertisement");
-
+            
             ioe.initCause(failure);
             throw ioe;
         }
-
+        
         // Relay
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.relayProtoClassID);
@@ -1462,7 +1461,7 @@ public class NetworkConfigurator {
             // backwards compatibility
             param.addAttribute("type", RelayConfigAdv.getAdvertisementType());
             relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
-
+            
             /* if (relayConfig.isClientEnabled()) {
              mode = mode | RELAY_CLIENT;
              }
@@ -1472,37 +1471,37 @@ public class NetworkConfigurator {
              */
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the relay config advertisement");
-
+            
             ioe.initCause(failure);
             throw ioe;
         }
-
+        
         // PSE
         param = (XMLElement) platformConfig.getServiceParam(PeerGroup.membershipClassID);
         if (param != null) {
             Advertisement adv = null;
-
+            
             try {
                 adv = AdvertisementFactory.newAdvertisement(param);
             } catch (NoSuchElementException notAnAdv) {
                 CertificateException cnfe = new CertificateException("No membership advertisement found");
-
+                
                 cnfe.initCause(notAnAdv);
             } catch (IllegalArgumentException invalidAdv) {
                 CertificateException cnfe = new CertificateException("Invalid membership advertisement");
-
+                
                 cnfe.initCause(invalidAdv);
             }
+            
             if (adv instanceof PSEConfigAdv) {
                 pseConf = (PSEConfigAdv) adv;
                 cert = pseConf.getCertificate();
             } else {
-                throw new CertificateException(
-                        "Error processing the Membership config advertisement. Unexpected membership advertisement "
-                                + adv.getAdvertisementType());
+                throw new CertificateException("Error processing the Membership config advertisement. Unexpected membership advertisement "
+                        + adv.getAdvertisementType());
             }
         }
-
+        
         // Infra Group
         infraPeerGroupConfig = (PeerGroupConfigAdv) platformConfig.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
         if (null == infraPeerGroupConfig) {
@@ -1511,65 +1510,78 @@ public class NetworkConfigurator {
                 URI configPropsURI = storeHome.resolve("config.properties");
                 InputStream configPropsIS = configPropsURI.toURL().openStream();
                 ResourceBundle rsrcs = new PropertyResourceBundle(configPropsIS);
-
+                
                 configPropsIS.close();
-
+                
                 NetGroupTunables tunables = new NetGroupTunables(rsrcs, new NetGroupTunables());
-
+                
                 infraPeerGroupConfig.setPeerGroupID(tunables.id);
                 infraPeerGroupConfig.setName(tunables.name);
                 infraPeerGroupConfig.setDesc(tunables.desc);
             } catch (IOException ignored) {} catch (MissingResourceException ignored) {}
         }
+        
+        return platformConfig;
     }
-
+    
     /**
-     * Persists a PlatformConfig advertisement under getHome()+"/PlaformConfig"
+     * Persists a PlatformConfig advertisement under getStoreHome()+"/PlaformConfig"
      * <p/>
      * Home may be overridden by a call to setHome()
-     *
-     * @throws IOException if an i/o error occurs
+     * 
      * @see #load
+     * @throws IOException If there is a failure saving the PlatformConfig.
      */
     public void save() throws IOException {
         httpEnabled = (httpConfig.isClientEnabled() || httpConfig.isServerEnabled());
         tcpEnabled = (tcpConfig.isClientEnabled() || tcpConfig.isServerEnabled());
         ConfigParams advertisement = getPlatformConfig();
-        FileOutputStream out;
+        OutputStream out = null;
+        
+        try {
+            if ("file".equalsIgnoreCase(storeHome.getScheme())) {
+                File saveDir = new File(storeHome);
+                saveDir.mkdirs();
 
-        home.mkdirs();
-        File saveFile = new File(home, "PlatformConfig");
+                // Sadly we can't use URL.openConnection() to create the
+                // OutputStream for file:// URLs. bogus.
+                out = new FileOutputStream(new File(saveDir, "PlatformConfig"));
+            } else {
+                out = storeHome.resolve("PlatformConfig").toURL().openConnection().getOutputStream();
+            }
 
-        out = new FileOutputStream(saveFile);
-        XMLDocument aDoc = (XMLDocument) advertisement.getDocument(MimeMediaType.XMLUTF8);
-        OutputStreamWriter os = new OutputStreamWriter(out, "UTF-8");
-
-        aDoc.sendToWriter(os);
-        os.flush();
-        if (null != out) {
-            out.close();
+            XMLDocument aDoc = (XMLDocument) advertisement.getDocument(MimeMediaType.XMLUTF8);
+            OutputStreamWriter os = new OutputStreamWriter(out, "UTF-8");
+        
+            aDoc.sendToWriter(os);
+            os.flush();
+        } finally {
+            if (null != out) {
+                out.close();
+            }
         }
     }
-
+    
     /**
-     * Returns a StructuredDocument representation of an Advertisement
+     * Returns a XMLDocument representation of an Advertisement
      *
      * @param enabled whether the param doc is enabled, adds a "isOff"
      *                element if disabled
      * @param adv     the Advertisement to retrieve the param doc from
      * @return the parmDoc value
      */
-    protected StructuredDocument getParmDoc(boolean enabled, Advertisement adv) {
-        StructuredDocument parmDoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
-        StructuredDocument doc = (StructuredDocument) adv.getDocument(MimeMediaType.XMLUTF8);
-
+    protected XMLDocument getParmDoc(boolean enabled, Advertisement adv) {
+        XMLDocument parmDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+        XMLDocument doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
+        
         StructuredDocumentUtils.copyElements(parmDoc, parmDoc, doc);
         if (!enabled) {
             parmDoc.appendChild(parmDoc.createElement("isOff"));
         }
+        
         return parmDoc;
     }
-
+    
     /**
      * Creates an HTTP transport advertisement
      *
@@ -1583,7 +1595,7 @@ public class NetworkConfigurator {
         httpConfig.setServerEnabled((mode & HTTP_SERVER) == HTTP_SERVER);
         return httpConfig;
     }
-
+    
     /**
      * Creates Personal Security Environment Config Advertisement
      * <p/>The configuration advertisement can include an optional seed certificate
@@ -1601,13 +1613,13 @@ public class NetworkConfigurator {
         pseConf = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(PSEConfigAdv.getAdvertisementType());
         if (principal != null && password != null) {
             IssuerInfo info = PSEUtils.genCert(principal, null);
-
+            
             pseConf.setCertificate(info.cert);
             pseConf.setPrivateKey(info.subjectPkey, password.toCharArray());
         }
         return pseConf;
     }
-
+    
     /**
      * Creates Personal Security Environment Config Advertisement
      * <p/>The configuration advertisement can include an optional seed certificate
@@ -1628,7 +1640,7 @@ public class NetworkConfigurator {
         }
         return pseConf;
     }
-
+    
     /**
      * Creates a ProxyService configuration advertisement
      *
@@ -1637,7 +1649,7 @@ public class NetworkConfigurator {
     protected XMLDocument createProxyAdv() {
         return (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
     }
-
+    
     /**
      * Creates a RendezVousService configuration advertisement with default values (EDGE)
      *
@@ -1656,7 +1668,7 @@ public class NetworkConfigurator {
         // rdvConfig.setMaxClients(200);
         return rdvConfig;
     }
-
+    
     /**
      * Creates a RelayService configuration advertisement with default values (EDGE)
      *
@@ -1669,9 +1681,9 @@ public class NetworkConfigurator {
         relayConfig.setServerEnabled((mode & RELAY_SERVER) == RELAY_SERVER);
         return relayConfig;
     }
-
+    
     /**
-     * Creates an TCP transport advertisement with the platform default values
+     * Creates an TCP transport advertisement with the platform default values.
      * multicast on, 224.0.1.85:1234, with a max packet size of 16K
      *
      * @return a TCP transport advertisement
@@ -1692,20 +1704,20 @@ public class NetworkConfigurator {
         tcpConfig.setServerEnabled((mode & TCP_SERVER) == TCP_SERVER);
         return tcpConfig;
     }
-
+    
     protected PeerGroupConfigAdv createInfraConfigAdv() {
         infraPeerGroupConfig = (PeerGroupConfigAdv) AdvertisementFactory.newAdvertisement(
                 PeerGroupConfigAdv.getAdvertisementType());
-
+        
         NetGroupTunables tunables = new NetGroupTunables(ResourceBundle.getBundle("net.jxta.impl.config"), new NetGroupTunables());
-
+        
         infraPeerGroupConfig.setPeerGroupID(tunables.id);
         infraPeerGroupConfig.setName(tunables.name);
         infraPeerGroupConfig.setDesc(tunables.desc);
-
+        
         return infraPeerGroupConfig;
     }
-
+    
     /**
      * Returns a PlatformConfig which represents a platform configuration.
      * <p/>Fine tuning is achieved through accessing each configured advertisement
@@ -1717,44 +1729,44 @@ public class NetworkConfigurator {
     public ConfigParams getPlatformConfig() {
         PlatformConfig advertisement = (PlatformConfig) AdvertisementFactory.newAdvertisement(
                 PlatformConfig.getAdvertisementType());
-
+        
         advertisement.setName(name);
         advertisement.setDescription(description);
         if (peerid != null) {
             advertisement.setPeerID(peerid);
         }
-
+        
         if (tcpConfig != null) {
             boolean enabled = tcpEnabled && (tcpConfig.isServerEnabled() || tcpConfig.isClientEnabled());
             advertisement.putServiceParam(PeerGroup.tcpProtoClassID, getParmDoc(enabled, tcpConfig));
         }
-
+        
         if (httpConfig != null) {
             boolean enabled = httpEnabled && (httpConfig.isServerEnabled() || httpConfig.isClientEnabled());
             advertisement.putServiceParam(PeerGroup.httpProtoClassID, getParmDoc(enabled, httpConfig));
         }
-
+        
         if (relayConfig != null) {
             boolean isOff = ((mode & RELAY_OFF) == RELAY_OFF) || (relayConfig.isServerEnabled() && relayConfig.isClientEnabled());
             XMLDocument relayDoc = (XMLDocument) relayConfig.getDocument(MimeMediaType.XMLUTF8);
-
+            
             if (isOff) {
                 relayDoc.appendChild(relayDoc.createElement("isOff"));
             }
             advertisement.putServiceParam(PeerGroup.relayProtoClassID, relayDoc);
         }
-
+        
         if (rdvConfig != null) {
             XMLDocument rdvDoc = (XMLDocument) rdvConfig.getDocument(MimeMediaType.XMLUTF8);
             advertisement.putServiceParam(PeerGroup.rendezvousClassID, rdvDoc);
         }
-
+        
         if (cert != null) {
             pseConf = createPSEAdv(cert);
         } else {
             pseConf = createPSEAdv(principal, password);
         }
-
+        
         if (pseConf != null) {
             if (keyStoreLocation != null) {
                 if (keyStoreLocation.isAbsolute()) {
@@ -1768,29 +1780,59 @@ public class NetworkConfigurator {
             XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
             advertisement.putServiceParam(PeerGroup.membershipClassID, pseDoc);
         }
-
+        
         if (proxyConfig != null && ((mode & PROXY_SERVER) == PROXY_SERVER)) {
             advertisement.putServiceParam(PeerGroup.proxyClassID, proxyConfig);
         }
+        
         if ((null != infraPeerGroupConfig) && (null != infraPeerGroupConfig.getPeerGroupID())
-                && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
-                && (PeerGroupID.defaultNetPeerGroupID != infraPeerGroupConfig.getPeerGroupID())) {
+        && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
+        && (PeerGroupID.defaultNetPeerGroupID != infraPeerGroupConfig.getPeerGroupID())) {
             advertisement.setSvcConfigAdvertisement(PeerGroup.peerGroupClassID, infraPeerGroupConfig);
         }
-
+        
         return advertisement;
     }
-
+    
+    /**
+     *  @param location The location of the platform config.
+     *  @return The platformConfig
+     *  @throws IOException Thrown for failures reading the PlatformConfig.
+     */
+    private PlatformConfig read(URI location) throws IOException {
+        URL url;
+        
+        try {
+            url = location.toURL();
+        } catch (MalformedURLException mue) {
+            IllegalArgumentException failure = new IllegalArgumentException("Failed to convert URI to URL");
+            
+            failure.initCause(mue);
+            throw failure;
+        }
+        
+        XMLElement param;
+        InputStream input = url.openStream();
+        try {
+            XMLDocument document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, input);
+            PlatformConfig platformConfig = (PlatformConfig) AdvertisementFactory.newAdvertisement(document);
+            
+            return platformConfig;
+        } finally {
+            input.close();
+        }
+    }
+    
     /**
      * Holds the construction tunables for the Net Peer Group. This consists of
      * the peer group id, the peer group name and the peer group description.
      */
     static class NetGroupTunables {
-
+        
         final ID id;
         final String name;
         final XMLElement desc;
-
+        
         /**
          * Constructor for loading the default Net Peer Group construction
          * tunables.
@@ -1798,11 +1840,9 @@ public class NetworkConfigurator {
         NetGroupTunables() {
             id = PeerGroupID.defaultNetPeerGroupID;
             name = "NetPeerGroup";
-            desc = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc"
-                    ,
-                    "default Net Peer Group");
+            desc = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", "default Net Peer Group");
         }
-
+        
         /**
          * Constructor for loading the default Net Peer Group construction
          * tunables.
@@ -1816,7 +1856,7 @@ public class NetworkConfigurator {
             name = pgname;
             desc = pgdesc;
         }
-
+        
         /**
          * Constructor for loading the Net Peer Group construction
          * tunables from the provided resource bundle.
@@ -1828,24 +1868,22 @@ public class NetworkConfigurator {
             ID idTmp;
             String nameTmp;
             XMLElement descTmp;
-
+            
             try {
                 String idTmpStr = rsrcs.getString("NetPeerGroupID").trim();
-
+                
                 if (idTmpStr.startsWith(ID.URNNamespace + ":")) {
                     idTmpStr = idTmpStr.substring(5);
                 }
                 idTmp = IDFactory.fromURI(new URI(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + idTmpStr));
                 nameTmp = rsrcs.getString("NetPeerGroupName").trim();
-                descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc"
-                        ,
-                        rsrcs.getString("NetPeerGroupDesc").trim());
+                descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", rsrcs.getString("NetPeerGroupDesc").trim());
             } catch (Exception failed) {
                 if (null != defaults) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.log(Level.FINE, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.", failed);
                     }
-
+                    
                     idTmp = defaults.id;
                     nameTmp = defaults.name;
                     descTmp = defaults.desc;
@@ -1853,11 +1891,11 @@ public class NetworkConfigurator {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                         LOG.log(Level.SEVERE, "NetPeerGroup tunables not defined or could not be loaded.", failed);
                     }
-
+                    
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
                 }
             }
-
+            
             id = idTmp;
             name = nameTmp;
             desc = descTmp;
