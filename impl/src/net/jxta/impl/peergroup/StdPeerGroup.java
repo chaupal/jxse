@@ -155,10 +155,13 @@ public class StdPeerGroup extends GenericPeerGroup {
 
     /**
      * Register instance classes given a URI to a file containing modules
-     * which must be found on the current class path. The class names are listed
-     * on separate lines.  Comments are marked with a '#', the pound sign and
-     * any following text on any line in the file are ignored.
-     *
+     * which must be found on the current class path. Comments are marked with 
+     * a '#', the pound sign. Any following text on any line in the file are 
+     * ignored.
+     * <p/>
+     * Each line of the file contains a module spec ID, the class name and the 
+     * Module description. The fields are separated by whitespace.
+     * 
      * @param providerList the URI to a file containing a list of modules
      * @return boolean true if at least one of the instance classes could be
      * registered otherwise false.
@@ -189,6 +192,10 @@ public class StdPeerGroup extends GenericPeerGroup {
                             ModuleImplAdvertisement moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, parts[1], parts[2]);
 
                             getJxtaLoader().defineClass(moduleImplAdv);
+                            
+                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                                LOG.fine("Registered Module " + msid + " : " + parts[1]);
+                            }
                         } else {
                             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                                 LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'");

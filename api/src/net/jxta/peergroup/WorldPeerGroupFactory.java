@@ -233,7 +233,10 @@ public final class WorldPeerGroupFactory {
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
             
         try {
-            JxtaLoader loader = net.jxta.impl.peergroup.GenericPeerGroup.getJxtaLoader();
+            // XXX 20070713 bondolo Temporary hack to resolve class load order issue.
+            String unused = net.jxta.impl.peergroup.StdPeerGroup.MODULE_IMPL_STD_PROVIDER;
+            
+            JxtaLoader loader = net.jxta.impl.peergroup.StdPeerGroup.getJxtaLoader();
             
             ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
             
