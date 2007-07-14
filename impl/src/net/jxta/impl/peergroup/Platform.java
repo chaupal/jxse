@@ -193,10 +193,6 @@ public class Platform extends StdPeerGroup {
         // from initFirst, in the future.
         super.initLast();
 
-        // XXX bondolo 20040415 Hack to initialize class loader with specID for password membership
-        // This is to provide compatibility with apps which imported passwd membership directly.
-        ModuleSpecID id = PasswdMembershipService.passwordMembershipSpecID;
-
         // Publish our own adv.
         try {
             publishGroup("World PeerGroup", "Standard World PeerGroup Reference Implementation");
@@ -205,7 +201,15 @@ public class Platform extends StdPeerGroup {
         }
     }
 
-    protected static ModuleImplAdvertisement mkWorldPeerGroupImplAdv() throws Exception {
+    /**
+     *  This method builds a <b>complete</b> ModuleImplAdvertisement for the 
+     *  World Peer Group. The ModuleImplAdvertisement which is returned by the
+     *  JxtaLoader does not contain the params section which identifies the
+     *  services which the World Peer Group includes.
+     *
+     *  @return The Module Implementation Advertisement for the World Peer Group.
+     */
+    private static ModuleImplAdvertisement mkWorldPeerGroupImplAdv() throws Exception {
 
         JxtaLoader loader = getJxtaLoader();
 

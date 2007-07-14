@@ -883,8 +883,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             try {
                 // Discovery service adv could not be published localy,
                 // since at that time there was no local discovery to
-                // publish to. FIXME: this is really a cherry on the cake.
-                // no-one realy cares
+                // publish to.
                 discoveryService.publish(discoveryService.getImplAdvertisement(), DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
                 
                 // Try to publish our impl adv within this group. (it was published
@@ -965,6 +964,11 @@ public class StdPeerGroup extends GenericPeerGroup {
     
     /**
      * {@inheritDoc}
+     * <p/>
+     *  This method builds the <b>complete</b> default Peer Group 
+     *  ModuleImplAdvertisement. The ModuleImplAdvertisement which is returned 
+     *  by the JxtaLoader does not contain the params section which identifies 
+     *  the services which the default Peer Group includes.
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
