@@ -68,9 +68,10 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.platform.JxtaLoader;
+import net.jxta.protocol.ModuleImplAdvertisement;
 
 
 /**
@@ -222,9 +223,7 @@ public final class WorldPeerGroupFactory {
     }
     
     /**
-     * Determine the class to use from "net.jxta.impl.config". This should be
-     * located somewhere on the JXTA class path. Normally it is located in
-     * jxta.jar
+     * Determine the class to use for the World PeeerGroup. 
      *
      * @return The Class which has been configured to be used for
      * World Peer Group instances.
@@ -232,17 +231,21 @@ public final class WorldPeerGroupFactory {
      * be used for the World Peer Group.
      */
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
+            
         try {
-            ResourceBundle rsrcs = ResourceBundle.getBundle("net.jxta.impl.config");
+            JxtaLoader loader = net.jxta.impl.peergroup.GenericPeerGroup.getJxtaLoader();
             
-            String worldPeerGroupClassName = rsrcs.getString("PlatformPeerGroupClassName").trim();
-            Class worldPeerGroupClass = Class.forName(worldPeerGroupClassName);
+            ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
             
-            return worldPeerGroupClass;
+            if(null == worldGroupImplAdv) {
+                throw new PeerGroupException("Could not locate World PeerGroup Module Implementation.");
+            }
+            
+            return Class.forName(worldGroupImplAdv.getCode());
         } catch (RuntimeException failed) {
-            throw new PeerGroupException("Could not load world peer group class.", failed);
+            throw new PeerGroupException("Could not load World PeerGroup class.", failed);
         } catch (ClassNotFoundException failed) {
-            throw new PeerGroupException("Could not load world peer group class.", failed);
+            throw new PeerGroupException("Could not load World PeerGroup class.", failed);
         }
     }
     
