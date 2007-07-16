@@ -533,17 +533,11 @@ public class StdPeerGroup extends GenericPeerGroup {
             } catch (Exception e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Could not load module for class ID " + classID, e);
-                }
-                if (value instanceof ModuleClassID) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Will be missing from peer group: " + classID + " (" + e.getMessage() + ").");
-                    }
-                } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING
-                                ,
-                                "Will be missing from peer group: " + ((ModuleImplAdvertisement) value).getDescription() + " ("
-                                + e.getMessage() + ").");
+                    if (value instanceof ModuleClassID) {
+                        LOG.log(Level.WARNING, "Will be missing from peer group: " + classID + "\n\t" + e.getMessage());
+                    } else {
+                        LOG.log(Level.WARNING, "Will be missing from peer group: " + 
+                                ((ModuleImplAdvertisement) value).getDescription() + "\n\t" + e.getMessage());
                     }
                 }
                 eachModule.remove();

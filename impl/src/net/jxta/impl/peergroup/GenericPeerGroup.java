@@ -599,26 +599,25 @@ public abstract class GenericPeerGroup implements PeerGroup {
             try {
                 // Good one. Try it.
                 
-                Class clazz;
+                Class<Module> clazz;
                 
                 try {
-                    clazz = loader.findClass(implAdv.getModuleSpecID());
+                    clazz = (Class<Module>) loader.findClass(implAdv.getModuleSpecID());
                 } catch (ClassNotFoundException notLoaded) {
-                    clazz = loader.defineClass(implAdv);
+                    clazz = (Class<Module>) loader.defineClass(implAdv);
                 }
                 
                 if (null == clazz) {
                     throw new ClassNotFoundException("Cannot load class (" + implAdv.getCode() + ") : " + assigned);
                 }
                 
-                newMod = (Module) clazz.newInstance();
+                newMod = clazz.newInstance();
                 
                 newMod.init(privileged ? this : (PeerGroup) getInterface(), assigned, implAdv);
                 
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info(
-                            "Loaded" + (privileged ? " privileged" : "") + " module : " + implAdv.getDescription() + " ("
-                            + implAdv.getCode() + ")");
+                    LOG.info( "Loaded" + (privileged ? " privileged" : "") + 
+                            " module : " + implAdv.getDescription() + " (" + implAdv.getCode() + ")");
                 }
             } catch (Exception ex) {
                 try {
