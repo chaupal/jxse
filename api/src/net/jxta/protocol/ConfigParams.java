@@ -161,13 +161,13 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         XMLElement elem = (XMLElement) raw;
         
         if (SVC_TAG.equals(elem.getName())) {
-            Enumeration elems = elem.getChildren();
+            Enumeration<XMLElement> elems = elem.getChildren();
             
             ID key = null;
             XMLElement param = null;
             
             while (elems.hasMoreElements()) {
-                XMLElement e = (XMLElement) elems.nextElement();
+                XMLElement e = elems.nextElement();
                 
                 if (MCID_TAG.equals(e.getName())) {
                     try {
@@ -175,7 +175,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
                         key = IDFactory.fromURI(mcid);
                     } catch (URISyntaxException badID) {
-                        throw new IllegalArgumentException("Bad ModuleClassID in advertisement: " + e.getTextValue());
+                        throw new IllegalArgumentException("Bad ID in advertisement: " + e.getTextValue());
                     }
                 } else if (PARAM_TAG.equals(e.getName())) {
                     param = e;
