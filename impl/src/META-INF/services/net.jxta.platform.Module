@@ -23,4 +23,4 @@ urn:jxta:uuid-deadbeefdeafbabafeedbabe000000100106 net.jxta.impl.access.always.A
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000100206 net.jxta.impl.access.simpleACL.SimpleACLAccessService Simple ACL Access Service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000100306 net.jxta.impl.access.pse.PSEAccessService PSE Access Service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000110106 net.jxta.impl.endpoint.cbjx.CbJxTransport Reference Implementation of the Cryptobased-ID Message Transport
-urn:jxta:uuid-0C801F65D38F421C9884D706B337B8110106 net.jxta.impl.endpoint.mcast.McastTransport Reference Implementationf of the IP Multicast Message Transport
+urn:jxta:uuid-0C801F65D38F421C9884D706B337B8110106 net.jxta.impl.endpoint.mcast.McastTransport Reference Implementation of the IP Multicast Message Transport
