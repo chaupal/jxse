@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.endpoint.mcast;
 
-import com.sun.net.httpserver.Headers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -355,10 +354,10 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             // interface work properly.
             if (usingInterface.equals(IPUtils.ANYADDRESS)) {
                 boolean localOnly = true;
-                Iterator eachLocal = IPUtils.getAllLocalAddresses();
+                Iterator<InetAddress> eachLocal = IPUtils.getAllLocalAddresses();
 
                 while (eachLocal.hasNext()) {
-                    InetAddress anAddress = (InetAddress) eachLocal.next();
+                    InetAddress anAddress = eachLocal.next();
 
                     if (!anAddress.isLoopbackAddress()) {
                         localOnly = false;
@@ -737,7 +736,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("damaged multicast discarded");
                     }
-                    
+
                     throw new IOException("damaged multicast discarded : too short");
                 }
 
@@ -745,7 +744,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("damaged multicast discarded");
                     }
-                    
+
                     throw new IOException("damaged multicast discarded : incorrect signature");
                 }
 
@@ -755,47 +754,46 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 if (!header.readHeader(bbuffer)) {
                     throw new IOException("Failed to read framing header");
                 }
-                
-                    Iterator<MessagePackageHeader.Header> eachSrcEA = header.getHeader("srcEA");
-                    
-                    if(!eachSrcEA.hasNext()) {
-                        throw new IOException( "No Source Address" );
-                    }
-                    
-                    EndpointAddress srcAddr = new EndpointAddress(eachSrcEA.next().getValueString());
-                    
-                    if(srcAddr.equals(msgSrcAddr)) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Discarding loopback " );
-                        }
-                        
-                        return;
-                    }
-                    
-                    MimeMediaType msgMime = header.getContentTypeHeader();
-                    // TODO 20020730 bondolo@jxta.org Do something with content-coding here.
 
-                    // read the message!
-                    Message msg = WireFormatMessageFactory.fromBuffer(bbuffer, msgMime, null);
-                    
-                    MessageElement dstAddrElem = msg.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS,EndpointServiceImpl.MESSAGE_DESTINATION_NAME);
-                    if(null == dstAddrElem) {
-                        throw new IOException( "No Destination Address in " + msg );
-                    }
-                    
-                    EndpointAddress dstAddr = new EndpointAddress(dstAddrElem.toString());
+                Iterator<MessagePackageHeader.Header> eachSrcEA = header.getHeader("srcEA");
 
-                    // Handoff the message to the EndpointService Manager
-                    endpoint.processIncomingMessage(msg, srcAddr, dstAddr);
-                    
-                    if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                        multicastTransportBindingMeter.messageReceived(false, msg, messageReceiveBeginTime - System.currentTimeMillis(), size);
+                if (!eachSrcEA.hasNext()) {
+                    throw new IOException("No Source Address");
+                }
+
+                EndpointAddress srcAddr = new EndpointAddress(eachSrcEA.next().getValueString());
+
+                if (srcAddr.equals(msgSrcAddr)) {
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Discarding loopback ");
                     }
+                    return;
+                }
+
+                MimeMediaType msgMime = header.getContentTypeHeader();
+                // TODO 20020730 bondolo@jxta.org Do something with content-coding here.
+
+                // read the message!
+                Message msg = WireFormatMessageFactory.fromBuffer(bbuffer, msgMime, null);
+
+                MessageElement dstAddrElem = msg.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, EndpointServiceImpl.MESSAGE_DESTINATION_NAME);
+                if (null == dstAddrElem) {
+                    throw new IOException("No Destination Address in " + msg);
+                }
+
+                EndpointAddress dstAddr = new EndpointAddress(dstAddrElem.toString());
+
+                // Handoff the message to the EndpointService Manager
+                endpoint.processIncomingMessage(msg, srcAddr, dstAddr);
+
+                if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
+                    multicastTransportBindingMeter.messageReceived(false, msg, messageReceiveBeginTime - System.currentTimeMillis(), size);
+                }
             } catch (Throwable e) {
                 if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
                     multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - System.currentTimeMillis(), size);
                 }
-                
+
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, "discard incoming multicast message - exception ", e);
                 }
