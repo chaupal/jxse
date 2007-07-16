@@ -89,6 +89,7 @@ import java.nio.channels.SocketChannel;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -856,20 +857,19 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
      */
     public void run() {
         try {
-            Message msg = null;
             while (read()) {
-             msg = processBuffer();
-                if (msg != null) {
-                    break;
+                List<Message> msgs = processBuffer();
+                Iterator<Message> it = msgs.iterator();
+                
+                while(it.hasNext()) {
+                    // Use the group's threadpool to process the message
+                    tcpTransport.executor.execute(new MessageProcessor(it.next()));
                 }
             }
 
             // resets the interestOPS and wakeup the selector
             if (socketChannel != null) {
                 tcpTransport.register(socketChannel, this);
-            }
-            if (msg != null) {
-                tcpTransport.endpoint.demux(msg);
             }
 
         } catch (Throwable all) {
@@ -952,11 +952,14 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
 
     /**
      * processes the input byte buffer
-     * @return message if any, null otherwise
+     * @return the list of messages present in the buffer
      */
-    public Message processBuffer() {
+    public List<Message> processBuffer() {
+        
+        List<Message> msgs = new ArrayList<Message>();
+        boolean done = false;
 
-        while (true) {
+        while (!done) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("{0} processBuffer({1}). Buffer stats:{2}, elements remaining {3}",
                                 Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
@@ -967,21 +970,19 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                     // Parse Welcome message
                     boolean wseen = processWelcome(buffer);
 
-                    if (!wseen) {
-                        // prepare the buffer for more data
-                        buffer.compact();
-                        return null;
+                    if (wseen) {
+                        state.set(readState.HEADER);
                     }
-                    state.set(readState.HEADER);
+                    done = true;
+                    break;
 
-                    /* FALLSTHROUGH */
                 case HEADER:
                     // process the message header
                     boolean hseen = processHeader(buffer);
 
                     if (!hseen) {
-                        buffer.compact();
-                        return null;
+                        done = true;
+                        break;
                     }
 
                     receiveBeginTime = TimeUtils.timeNow();
@@ -1020,7 +1021,8 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                                 LOG.log(Level.FINE, "Failed to parse a message from buffer. closing connection", io);
                             }
                             closeImpl();
-                            return null;
+                            done = true;
+                            break;
                         }
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
@@ -1028,28 +1030,44 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                                     header.getContentLengthHeader());
                         }
 
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine(MessageFormat.format("{0} calling EndpointService.demux({1}) from {2}:{3}",
-                                    Thread.currentThread(),
-                                    msg, inetAddress.getHostAddress(), port));
-                        }
-
-                        // Demux the message for the upper layers.
                         tcpTransport.incrementMessagesReceived();
                         setLastUsed(TimeUtils.timeNow());
                         state.set(readState.HEADER);
                         header = null;
-
-                        // prepare the buffer for more data
-                        buffer.compact();
-                        return msg;
+                        
+                        msgs.add(msg);
                     } else {
-                        // prepare the buffer for more data
-                        buffer.compact();
-                        return null;
+                        done = true;
+                        break;
                     }
             }
         } // while loop
+        
+        // prepare the buffer for more data
+        buffer.compact();
+        
+        return msgs;
+    }
+    
+    /**
+     * A small class for processing individual messages. 
+     */ 
+    private class MessageProcessor implements Runnable {
+
+        private Message msg;
+
+        MessageProcessor(Message msg) {
+            this.msg = msg;
+        }
+
+        public void run() {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine(MessageFormat.format("{0} calling EndpointService.demux({1})",
+                        Thread.currentThread(),
+                        msg, inetAddress.getHostAddress(), port));
+            }
+            tcpTransport.endpoint.demux(msg);
+        }
     }
 
     /**
