@@ -234,7 +234,7 @@ public final class WorldPeerGroupFactory {
             
         try {
             // XXX 20070713 bondolo Temporary hack to resolve class load order issue.
-            String unused = net.jxta.impl.peergroup.StdPeerGroup.MODULE_IMPL_STD_PROVIDER;
+            String unused = net.jxta.impl.peergroup.StdPeerGroup.STD_COMPAT.toString();
             
             JxtaLoader loader = net.jxta.impl.peergroup.StdPeerGroup.getJxtaLoader();
             
