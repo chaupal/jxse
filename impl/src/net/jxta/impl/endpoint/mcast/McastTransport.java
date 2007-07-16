@@ -273,132 +273,137 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         this.group = group;
         ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
 
-        try {
-            ConfigParams configAdv = group.getConfigAdvertisement();
+        ConfigParams configAdv = group.getConfigAdvertisement();
 
-            // Get out invariable parameters from the implAdv
-            XMLElement param = (XMLElement) implAdvertisement.getParam();
+        // Get out invariable parameters from the implAdv
+        XMLElement param = (XMLElement) implAdvertisement.getParam();
 
-            if (param != null) {
-                Enumeration<XMLElement> list = param.getChildren("Proto");
+        if (param != null) {
+            Enumeration<XMLElement> list = param.getChildren("Proto");
 
-                if (list.hasMoreElements()) {
-                    XMLElement pname = list.nextElement();
-                    protocolName = pname.getTextValue();
-                }
+            if (list.hasMoreElements()) {
+                XMLElement pname = list.nextElement();
+                protocolName = pname.getTextValue();
+            }
+        }
+
+        // Get our peer-defined parameters in the configAdv
+        param = (XMLElement) configAdv.getServiceParam(PeerGroup.tcpProtoClassID);
+        Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+
+        // get the TransportAdv
+        if (tcpChilds.hasMoreElements()) {
+            param = tcpChilds.nextElement();
+            Attribute typeAttr = param.getAttribute("type");
+
+            if (!TCPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
+                throw new IllegalArgumentException("transport adv is not a " + TCPAdv.getAdvertisementType());
             }
 
-            // Get our peer-defined parameters in the configAdv
-            param = (XMLElement) configAdv.getServiceParam(PeerGroup.tcpProtoClassID);
-            Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
-
-            // get the TransportAdv
             if (tcpChilds.hasMoreElements()) {
-                param = tcpChilds.nextElement();
-                Attribute typeAttr = param.getAttribute("type");
-
-                if (!TCPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
-                    throw new IllegalArgumentException("transport adv is not a " + TCPAdv.getAdvertisementType());
-                }
-
-                if (tcpChilds.hasMoreElements()) {
-                    throw new IllegalArgumentException("Multiple transport advs detected for " + assignedID);
-                }
-            } else {
-                throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
+                throw new IllegalArgumentException("Multiple transport advs detected for " + assignedID);
             }
+        } else {
+            throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
+        }
 
-            Advertisement paramsAdv = null;
+        Advertisement paramsAdv = null;
 
+        try {
+            paramsAdv = AdvertisementFactory.newAdvertisement(param);
+        } catch (NoSuchElementException notThere) {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Could not find parameter document", notThere);
+            }
+        }
+
+        if (!(paramsAdv instanceof TCPAdv)) {
+            throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
+        }
+
+        TCPAdv adv = (TCPAdv) paramsAdv;
+
+        if(!adv.getMulticastState()) {
+            throw new PeerGroupException( "IP Multicast Message Transport is disabled.");
+        }
+
+        // determine the local interface to use. If the user specifies one,
+        // use that. Otherwise, use the all the available interfaces.
+        interfaceAddressStr = adv.getInterfaceAddress();
+        if (interfaceAddressStr != null) {
             try {
-                paramsAdv = AdvertisementFactory.newAdvertisement(param);
-            } catch (NoSuchElementException notThere) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Could not find parameter document", notThere);
+                usingInterface = InetAddress.getByName(interfaceAddressStr);
+            } catch (UnknownHostException failed) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Invalid address for local interface address, using default");
                 }
-            }
-
-            if (!(paramsAdv instanceof TCPAdv)) {
-                throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
-            }
-
-            TCPAdv adv = (TCPAdv) paramsAdv;
-            
-            if(!adv.getMulticastState()) {
-                throw new PeerGroupException( "IP Multicast Message Transport is disabled.");
-            }
-
-            // determine the local interface to use. If the user specifies one,
-            // use that. Otherwise, use the all the available interfaces.
-            interfaceAddressStr = adv.getInterfaceAddress();
-            if (interfaceAddressStr != null) {
-                try {
-                    usingInterface = InetAddress.getByName(interfaceAddressStr);
-                } catch (UnknownHostException failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Invalid address for local interface address, using default");
-                    }
-                    usingInterface = IPUtils.ANYADDRESS;
-                }
-            } else {
                 usingInterface = IPUtils.ANYADDRESS;
             }
+        } else {
+            usingInterface = IPUtils.ANYADDRESS;
+        }
 
-            // Start the servers
-            myThreadGroup = new ThreadGroup(group.getHomeThreadGroup(), "MCastTransport " + usingInterface.getHostAddress());
+        // Start the servers
+        myThreadGroup = new ThreadGroup(group.getHomeThreadGroup(), "MCastTransport " + usingInterface.getHostAddress());
 
-            // Only the outgoing interface matters.
-            // Verify that ANY interface does not in fact mean LOOPBACK only.
-            // If that's the case, we want to make that explicit, so that 
-            // consistency checks regarding the allowed use of that 
-            // interface work properly.
-            if (usingInterface.equals(IPUtils.ANYADDRESS)) {
-                boolean localOnly = true;
-                Iterator<InetAddress> eachLocal = IPUtils.getAllLocalAddresses();
+        // Only the outgoing interface matters.
+        // Verify that ANY interface does not in fact mean LOOPBACK only.
+        // If that's the case, we want to make that explicit, so that 
+        // consistency checks regarding the allowed use of that 
+        // interface work properly.
+        if (usingInterface.equals(IPUtils.ANYADDRESS)) {
+            boolean localOnly = true;
+            Iterator<InetAddress> eachLocal = IPUtils.getAllLocalAddresses();
 
-                while (eachLocal.hasNext()) {
-                    InetAddress anAddress = eachLocal.next();
+            while (eachLocal.hasNext()) {
+                InetAddress anAddress = eachLocal.next();
 
-                    if (!anAddress.isLoopbackAddress()) {
-                        localOnly = false;
-                        break;
-                    }
-                }
-
-                if (localOnly) {
-                    usingInterface = IPUtils.LOOPBACK;
+                if (!anAddress.isLoopbackAddress()) {
+                    localOnly = false;
+                    break;
                 }
             }
 
-            msgSrcAddr = new EndpointAddress(group.getPeerID(), null, null);
-            msgSrcAddrElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, msgSrcAddr.toString(), null);
+            if (localOnly) {
+                usingInterface = IPUtils.LOOPBACK;
+            }
+        }
 
-            // Get the multicast configuration.
-            multicastAddress = adv.getMulticastAddr();
-            multicastPort = adv.getMulticastPort();
+        msgSrcAddr = new EndpointAddress(group.getPeerID(), null, null);
+        msgSrcAddrElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, msgSrcAddr.toString(), null);
+
+        // Get the multicast configuration.
+        multicastAddress = adv.getMulticastAddr();
+        multicastPort = adv.getMulticastPort();
+
+        // XXX 20070711 bondolo We resolve the address only once. Perhaps we should do this dynamically?
+        try {
+        multicastInetAddress = InetAddress.getByName(multicastAddress);
+        } catch( UnknownHostException notValid ) {
+            IllegalArgumentException failed = new IllegalArgumentException("Invalid or unknown host name :" + multicastAddress );
+            failed.initCause(notValid);
             
-            // XXX 20070711 bondolo We resolve the address only once. Perhaps we should do this dynamically?
-            multicastInetAddress = InetAddress.getByName(multicastAddress);
-            
-            assert multicastInetAddress.isMulticastAddress();
+            throw failed;            
+        }
 
-            publicAddress = new EndpointAddress(protocolName, multicastAddress + ":" + Integer.toString(multicastPort), null, null);
+        assert multicastInetAddress.isMulticastAddress();
 
-            multicastPacketSize = adv.getMulticastSize();
+        publicAddress = new EndpointAddress(protocolName, multicastAddress + ":" + Integer.toString(multicastPort), null, null);
 
-            // Create the multicast input socket
+        multicastPacketSize = adv.getMulticastSize();
+
+        // Create the multicast input socket
+        try {
             multicastSocket = new MulticastSocket(new InetSocketAddress(usingInterface, multicastPort));
-            try {
-                multicastSocket.setLoopbackMode(false);
-            } catch (SocketException ignored) {// We may not be able to set loopback mode. It is
-                // inconsistent whether an error will occur if the set fails.
-            }
-        } catch (Exception e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Initialization exception", e);
-            }
-
-            throw new PeerGroupException("Initialization exception", e);
+        } catch( IOException failed ) {
+            throw new PeerGroupException( "Could not open multicast socket", failed );
+        }
+        
+        try {
+            multicastSocket.setLoopbackMode(false);
+        } catch (SocketException ignored) {
+            // We may not be able to set loopback mode. It is
+            // inconsistent whether an error will occur if the set fails.
         }
 
         // Tell tell the world about our configuration.
