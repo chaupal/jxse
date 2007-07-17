@@ -122,6 +122,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
     private final static transient Logger LOG = Logger.getLogger(GenericPeerGroup.class.getName());
     
     /**
+     *  Holder for configuration parameters for groups in the process of being created.
+     */
+    private final static Map<ID, ConfigParams> group_configs = Collections.synchronizedMap(new HashMap<ID, ConfigParams>());
+    
+    /**
      * The loader - use the getter and setter for modifying the ClassLoader for
      * a security manager.
      * <p/>
@@ -782,11 +787,28 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Sets the configuration advertisement for this peer group.
      *
      * @param config The configuration advertisement which will be used for
-     *               this peer group or {@code null} if no configuration advertisement is to
-     *               be used.
+     * this peer group or {@code null} if no configuration advertisement is to
+     * be used.
      */
     protected void setConfigAdvertisement(ConfigParams config) {
         configAdvertisement = config;
+    }
+    
+    /**
+     *  Adds configuration parameters for the specified group. The configuration
+     *  parameters remain cached until either the specified group is started or
+     *  the parameters are replaced.
+     *  
+     *  @param groupid The group for who's params are being provided.
+     *  @param params The parameters to be provided to the peer group when it is
+     *  created.
+     */
+    public static void setGroupConfigAdvertisement(ID groupid, ConfigParams params) {
+        if( null != params) {                
+            group_configs.put(groupid, params);
+        } else {
+            group_configs.remove(groupid);
+        }
     }
     
     /*
@@ -855,6 +877,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
             jxtaHome = parentGroup.getStoreHome();
         }
         
+        // Set the peer configuration before we start.
+        if((null != assignedID) && (null == getConfigAdvertisement())) {
+            setConfigAdvertisement(group_configs.remove(assignedID));
+        }
+        
         try {
             // FIXME 20030919 bondolo@jxta.org This setup doesnt give us any
             // capability to use seed material or parent group.
@@ -894,7 +921,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
             // }
             
             // Do our part of the PeerAdv construction.
-            // FIXME bondolo 20051011 ??? what is the FIXME for?
             if ((configAdvertisement != null) && (configAdvertisement instanceof PlatformConfig)) {
                 PlatformConfig platformConfig = (PlatformConfig) configAdvertisement;
                 
@@ -939,7 +965,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     // If we did not get a valid peer id, we'll initialize it here.
                     peerAdvertisement.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID));
                 } else {
-                    // We're not the platform, which is the authoritative source of these values.
+                    // We're not the world peer group, which is the authoritative source of these values.
                     peerAdvertisement.setPeerID(parentGroup.getPeerAdvertisement().getPeerID());
                     peerAdvertisement.setName(parentGroup.getPeerAdvertisement().getName());
                     peerAdvertisement.setDesc(parentGroup.getPeerAdvertisement().getDesc());
@@ -1522,13 +1548,14 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
-     * We do not want to count on the invoker to properly unreference
-     * the group object that we return; this call is often used in a
-     * loop and it is silly to increment and decrement ref-counts for
-     * references that are sure to live shorter than the referee.
-     * On the other hand it is dangerous for us to share our reference
-     * object to the parent group. That's where weak interface objects
-     * come in handy. We can safely make one and give it away.
+     * We do not want to count on the invoker to properly unreference the group
+     * object that we return; this call is often used in a loop and it is silly
+     * to increment and decrement ref-counts for references that are sure to 
+     * live shorter than the referee.
+     * <p/>
+     * On the other hand it is dangerous for us to share our reference object to
+     * the parent group. That's where weak interface objects come in handy. We
+     * can safely make one and give it away.
      */
     public PeerGroup getParentGroup() {
         if (parentGroup == null) {
