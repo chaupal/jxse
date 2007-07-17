@@ -67,7 +67,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
@@ -75,14 +74,13 @@ import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.impl.endpoint.cbjx.CbJxDefs;
-import net.jxta.impl.membership.PasswdMembershipService;
+import net.jxta.impl.endpoint.mcast.McastTransport;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
@@ -148,12 +146,12 @@ public class Platform extends StdPeerGroup {
             throw new PeerGroupException("You cannot initialize more than one World PeerGroup!");
         }
 
-        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
-
         if (nullParent != null) {
             LOG.severe("World PeerGroup cannot be instantiated with a parent group!");
             throw new PeerGroupException("World PeerGroup cannot be instantiated with a parent group!");
         }
+
+        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
 
         // if we weren't given a module impl adv then make one from scratch.
         if (null == implAdv) {
@@ -189,8 +187,8 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     protected synchronized void initLast() throws PeerGroupException {
-        // Nothing special for now, but we might want to move some steps
-        // from initFirst, in the future.
+        // Nothing special for now, but we might want to move some steps from
+        // initFirst(), in the future.
         super.initLast();
 
         // Publish our own adv.
@@ -258,6 +256,9 @@ public class Platform extends StdPeerGroup {
 
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refHttpProtoSpecID);
         protos.put(PeerGroup.httpProtoClassID, moduleAdv);
+
+        moduleAdv = loader.findModuleImplAdvertisement(McastTransport.MCAST_TRANSPORT_SPECID);
+        protos.put(McastTransport.MCAST_TRANSPORT_CLASSID, moduleAdv);
 
         // Do the Apps
         

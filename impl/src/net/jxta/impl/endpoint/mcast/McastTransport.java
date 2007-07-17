@@ -97,6 +97,8 @@ import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
@@ -110,11 +112,12 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.TCPAdv;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
 
 /**
- * This class implements the IP Multicast Message Transport
+ * This class implements the IP Multicast Message Transport.
+ * <p/>
+ * <b>Important Note:</b> This implementation was formerly a portion of the TCP
+ * Message Transport and currently uses it's configuration advertisement.
  *
  * @see net.jxta.endpoint.MessageTransport
  * @see net.jxta.endpoint.MessagePropagater
@@ -327,8 +330,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             throw new PeerGroupException( "IP Multicast Message Transport is disabled.");
         }
 
-        // determine the local interface to use. If the user specifies one,
-        // use that. Otherwise, use the all the available interfaces.
+        // Determine the local interface to use. If the user specifies one, use
+        // that. Otherwise, use the all the available interfaces.
         interfaceAddressStr = adv.getInterfaceAddress();
         if (interfaceAddressStr != null) {
             try {
@@ -349,8 +352,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         // Only the outgoing interface matters.
         // Verify that ANY interface does not in fact mean LOOPBACK only.
         // If that's the case, we want to make that explicit, so that 
-        // consistency checks regarding the allowed use of that 
-        // interface work properly.
+        // consistency checks regarding the allowed use of that interface work
+        // properly.
         if (usingInterface.equals(IPUtils.ANYADDRESS)) {
             boolean localOnly = true;
             Iterator<InetAddress> eachLocal = IPUtils.getAllLocalAddresses();
@@ -477,15 +480,15 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             return -1;
         }
 
-        // Cannot start before registration, we could be announcing new messengers while we
-        // do not exist yet ! (And get an NPE because we do not have the messenger listener set).
+        // Cannot start before registration       
+        multicastProcessor = new MulticastProcessor();
 
-         try {
+        multicastThread = new Thread(myThreadGroup, this, "TCP Multicast Server Listener");
+        multicastThread.setDaemon(true);
+        multicastThread.start();
+
+        try {            
             multicastSocket.joinGroup(multicastInetAddress);
-            multicastThread = new Thread(myThreadGroup, this, "TCP Multicast Server Listener");
-            multicastProcessor = new MulticastProcessor();
-            multicastThread.setDaemon(true);
-            multicastThread.start();
         } catch (IOException soe) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.severe("Could not join multicast group, setting Multicast off");
