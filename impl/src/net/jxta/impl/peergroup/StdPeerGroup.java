@@ -112,8 +112,11 @@ import java.util.logging.Logger;
  */
 public class StdPeerGroup extends GenericPeerGroup {
     
+    /**
+     *  Logger
+     */
     private final static transient Logger LOG = Logger.getLogger(StdPeerGroup.class.getName());
-    
+            
     // A few things common to all ImplAdv for built-in things.
     public static final XMLDocument STD_COMPAT = mkCS();
     public static final String MODULE_IMPL_STD_URI = "http://jxta-jxse.dev.java.net/download/jxta.jar";
@@ -711,15 +714,15 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
             return;
         }
-
+        
         // Set-up the minimal GenericPeerGroup
         super.initFirst(parent, assignedID, impl);
         
         // initialize cm before starting services. Do not refer to assignedID, as it could be
         // null, in which case the group ID has been generated automatically by super.initFirst()
         try {
-            cm = new Cm(getHomeThreadGroup(), getStoreHome(), getPeerGroupID().getUniqueValue().toString()
-                    ,
+            cm = new Cm(getHomeThreadGroup(), 
+                    getStoreHome(), getPeerGroupID().getUniqueValue().toString(),
                     Cm.DEFAULT_GC_MAX_INTERVAL, false);
         } catch (Exception e) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
