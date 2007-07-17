@@ -46,7 +46,7 @@ This license is based on the BSD license adopted by the Apache Foundation.
 
 $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
 -->
-<project name="platform" basedir="." default="signjar">
+<project name="platform" basedir="." default="all">
   <description>
 
    Build the JTXA platform Project
@@ -278,10 +278,10 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <delete dir="${build}" />
   </target>
   
-  <target name="compile" depends="prepare, meterConfig" description="Compile the source files">
-
-    <!-- Compile the API and Implementation -->
+  <target name="compile" depends="prepare, meterConfig" description="Compile the API and Implementation">
+      
     <mkdir dir="${build}" />
+    
     <javac compiler="${net.jxta.build.compiler}" destdir="${build}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
       <compilerarg compiler="modern" value="-Xlint:all,-deprecation,-serial,-unchecked"/>
       <classpath>
@@ -292,7 +292,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     </javac>
   </target>
 
-  <target name="source-zip" depends="clean,prepare" description="Creates source zip file">
+  <target name="source-zip" depends="prepare" description="Creates source zip file">
     <zip destfile="${dist}/jxse-src-${net.jxta.build.version}.zip">
       <zipfileset dir="${basedir}" prefix="jxse-src-${net.jxta.build.version}">
         <exclude name="**/.*" />
@@ -306,7 +306,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     </zip>
   </target>
 
-  <target name="source-tgz" depends="clean,prepare" description="Creates source tar.gz file">
+  <target name="source-tgz" depends="prepare" description="Creates source tar.gz file">
     <delete file="${dist}/jxse-src-${net.jxta.build.version}.tar.gz" />
 
     <tar destfile="${dist}/jxse-src-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
@@ -556,8 +556,6 @@ href="bcprov-ext.jnlp">
   <!-- Run targets, useful for testing the platform -->
   
   <target name="runshell" depends="signjar" description="Start the shell">
-    <!-- xxx: would "antcall execute ..." but can't pass sysprop structure -->
- 
     <java classname="net.jxta.impl.peergroup.Boot" fork="yes">
       <jvmarg value="-Xms${net.jxta.jvm.xms}" />
       <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
@@ -638,17 +636,6 @@ href="bcprov-ext.jnlp">
     </java>
     
     <delete dir="${tmp}/Junit" />
-  </target>
-
-  <!-- java wrapper -->
-  <target name="execute">
-    <java classname="${main}" fork="yes" spawn="yes">
-      <classpath refid="classpath" />
-      <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-      <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-      <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-      <sysproperty key="JXTA_HOME" value="${net.jxta.jxta_home}" />
-    </java>
   </target>
 
   
