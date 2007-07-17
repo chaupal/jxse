@@ -57,12 +57,18 @@
 package net.jxta.platform;
 
 
+import javax.security.cert.CertificateException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
@@ -74,12 +80,7 @@ import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 
-import javax.security.cert.CertificateException;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.jxta.impl.membership.pse.StringAuthenticator;
 
 
 /**
@@ -102,6 +103,9 @@ public class NetworkManager implements RendezvousListener {
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(NetworkManager.class.getName());
+
+    private final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3");
+    private final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3");
 
     /**
      * Define node standard node operating modes
@@ -138,14 +142,13 @@ public class NetworkManager implements RendezvousListener {
         SUPER
     }
 
+    private final Object networkConnectLock = new String("rendezvous connection lock");
     private PeerGroup netPeerGroup = null;
-    private boolean started = false;
-    private boolean stopped = false;
+    private volatile boolean started = false;
+    private volatile boolean connected = false;
+    private volatile boolean stopped = false;
     private RendezVousService rendezvous;
-    private final static Object networkConnectLock = new Object();
     private String instanceName = "NA";
-    private final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?5");
-    private final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?5");
     private ShutdownHook shutdownHook;
     private ConfigMode mode;
     private URI instanceHome;
@@ -166,7 +169,7 @@ public class NetworkManager implements RendezvousListener {
      * @throws IOException if an io error occurs
      */
     public NetworkManager(ConfigMode mode, String instanceName) throws IOException {
-        this(mode, instanceName, new File(".jxta").toURI());
+        this(mode, instanceName, new File(".jxta/").toURI());
     }
 
     /**
@@ -480,9 +483,11 @@ public class NetworkManager implements RendezvousListener {
         }
 
         stopped = true;
-        synchronized (networkConnectLock) {
-            networkConnectLock.notify();
+        synchronized(networkConnectLock) {
+            connected = false;
+            networkConnectLock.notifyAll();
         }
+        
         rendezvous.removeListener(this);
         netPeerGroup.stopApp();
         netPeerGroup.unref();
@@ -511,9 +516,6 @@ public class NetworkManager implements RendezvousListener {
      * @return true if connected to a rendezvous, false otherwise
      */
     public boolean waitForRendezvousConnection(long timeout) {
-        if (!started) {
-            return false;
-        }
         if (0 == timeout) {
             timeout = Long.MAX_VALUE;
         }
@@ -525,7 +527,7 @@ public class NetworkManager implements RendezvousListener {
             timeoutAt = Long.MAX_VALUE;
         }
 
-        while (!rendezvous.isConnectedToRendezVous() && !rendezvous.isRendezVous()) {
+        while (started && !stopped && !rendezvous.isConnectedToRendezVous() && !rendezvous.isRendezVous()) {
             try {
                 long waitFor = timeoutAt - System.currentTimeMillis();
 
@@ -542,6 +544,7 @@ public class NetworkManager implements RendezvousListener {
                 break;
             }
         }
+        
         return rendezvous.isConnectedToRendezVous() || rendezvous.isRendezVous();
     }
 
@@ -554,7 +557,8 @@ public class NetworkManager implements RendezvousListener {
         if (event.getType() == RendezvousEvent.RDVCONNECT || event.getType() == RendezvousEvent.RDVRECONNECT
                 || event.getType() == RendezvousEvent.BECAMERDV) {
             synchronized (networkConnectLock) {
-                networkConnectLock.notify();
+                connected = true;
+                networkConnectLock.notifyAll();
             }
         }
     }
