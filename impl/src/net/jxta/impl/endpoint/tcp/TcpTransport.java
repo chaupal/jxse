@@ -411,6 +411,10 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
         // Get our peer-defined parameters in the configAdv
         param = (XMLElement) configAdv.getServiceParam(assignedID);
+        if(null == param) {
+            throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
+        }
+        
         Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv

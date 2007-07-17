@@ -292,6 +292,10 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         // Get our peer-defined parameters in the configAdv
         param = (XMLElement) configAdv.getServiceParam(PeerGroup.tcpProtoClassID);
+        if(null == param) {
+            throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
+        }
+
         Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
