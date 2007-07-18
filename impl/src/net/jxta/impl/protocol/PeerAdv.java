@@ -144,27 +144,25 @@ public class PeerAdv extends PeerAdvertisement {
          *  {@inheritDoc}
          **/
         public Advertisement newInstance(Element root) {
-            return new PeerAdv(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
+        
+            return new PeerAdv((XMLElement) root);
         }
     }
 
     /**
-     * Private Constructor, use the instantiator
-     **/
-    PeerAdv() {}
-    
-    /**
-     * Private Constructor, use the instantiator
-     *
-     * @param root the element
+     *  Private constructor for new instances. Use the instantiator.
      */
-    PeerAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-        
-        XMLElement doc = (XMLElement) root;
-        
+    private PeerAdv() {}
+
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private PeerAdv(XMLElement doc) {
         String doctype = doc.getName();
         
         String typedoctype = "";

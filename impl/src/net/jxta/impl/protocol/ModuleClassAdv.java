@@ -91,7 +91,7 @@ import java.util.Enumeration;
 public class ModuleClassAdv extends ModuleClassAdvertisement {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(ModuleClassAdv.class.getName());
 
@@ -120,18 +120,25 @@ public class ModuleClassAdv extends ModuleClassAdvertisement {
          * {@inheritDoc}
          */
         public Advertisement newInstance(net.jxta.document.Element root) {
-            return new ModuleClassAdv(root);
-        }
-    }
-
-    private ModuleClassAdv() {}
-
-    private ModuleClassAdv(Element root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
 
-        XMLElement doc = (XMLElement) root;
+        return new ModuleClassAdv((XMLElement) root);
+        }
+    }
+
+    /**
+     *  Private constructor for new instances. Use the instantiator.
+     */
+    private ModuleClassAdv() {}
+
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private ModuleClassAdv(XMLElement doc) {
 
         String doctype = doc.getName();
 
@@ -147,10 +154,10 @@ public class ModuleClassAdv extends ModuleClassAdvertisement {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -220,6 +227,7 @@ public class ModuleClassAdv extends ModuleClassAdvertisement {
         e = adv.createElement(idTag, getModuleClassID().toString());
         adv.appendChild(e);
 
+        // name is optional
         String name = getName();
 
         if (null != name) {
