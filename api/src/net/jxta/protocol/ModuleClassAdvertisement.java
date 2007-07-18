@@ -68,39 +68,41 @@ import net.jxta.platform.ModuleClassID;
 
 
 /**
- * A ModuleClassAdvertisement describes a module class.
- * <p/>
- * It formally documents the existence of a module class and may provide
- * metadata about the Module Class.
+ * Formally documents the existence of a module class (identified by the
+ * {@link net.jxta.platform.ModuleClassID} and may provide additional
+ * descriptive metadata about the Module Class.
  *
  * @see net.jxta.platform.ModuleClassID
  */
 public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement implements Cloneable {
 
+    /**
+     *  The module class id associated with the is advertisement.
+     */
     private ModuleClassID id = null;
     
     /**
-     *  Informal, non-canonical name of this peer group
+     *  Informal, non-canonical name of module.
      */
     private String name = null;
 
     /**
-     * Descriptive meta-data about this peer group.
+     *  Descriptive meta-data about this module.
      */
     private Element description = null;
 
     /**
      *  Returns the identifying type of this Advertisement.
      *
-     * @return String the type of advertisement
-     **/
+     *  @return The type of advertisement.
+     */
     public static String getAdvertisementType() {
         return "jxta:MCA";
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public final String getBaseAdvType() {
         return getAdvertisementType();
@@ -116,7 +118,7 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
 
             clone.setModuleClassID(getModuleClassID());
             clone.setName(getName());
-            clone.setDesc(getDesc());
+            clone.setDesc(description);
 
             return clone;
         } catch (CloneNotSupportedException impossible) {
@@ -137,7 +139,6 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      *
      * @return String name of the class
      */
-
     public String getName() {
         return name;
     }
@@ -148,7 +149,6 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      * @param name name of the class to be set
      *
      */
-
     public void setName(String name) {
         this.name = name;
     }
@@ -186,7 +186,6 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      * returns the description
      *
      * @return the description
-     *
      */
     public StructuredDocument getDesc() {
         if (null != description) {
@@ -202,7 +201,6 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      * sets the description
      *
      * @param desc the description
-     *
      */
     public void setDesc(Element desc) {
         
@@ -217,9 +215,7 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      * returns the id of the class
      *
      * @return ModuleClassID the class id
-     *
      */
-
     public ModuleClassID getModuleClassID() {
         return id;
     }
@@ -229,7 +225,6 @@ public abstract class ModuleClassAdvertisement extends ExtendableAdvertisement i
      *
      * @param id The id of the class
      */
-
     public void setModuleClassID(ModuleClassID id) {
         this.id = id;
     }

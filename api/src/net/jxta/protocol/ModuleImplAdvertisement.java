@@ -70,10 +70,8 @@ import net.jxta.platform.ModuleSpecID;
 /**
  * A ModuleImplAdvertisement represents one of any number of published
  * implementations of a given specification.
- *
- * <p/>It is meant to be published via JXTA Discovery.
- *
- * <p/>Module specifications are referenced by their ModuleSpecID. Given a
+ * <p/>
+ * Module specifications are referenced by their ModuleSpecID. Given a
  * ModuleSpecID, a ModuleImplAdvertisement may be searched by means of JXTA
  * Discovery, filtered according to the compatibility statement it contains,
  * and if compatible, loaded and initialized.
@@ -139,7 +137,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
             clone.setCode(getCode());
             clone.setUri(getUri());
             clone.setProvider(getProvider());
-            clone.setParam(getParam());
+            clone.setParam(param);
             
             return clone;
         } catch (CloneNotSupportedException impossible) {
