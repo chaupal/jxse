@@ -66,6 +66,7 @@ import net.jxta.peergroup.Configurator;
  *
  * @deprecated This interface has been replaced with the {@link net.jxta.platform.NetworkConfigurator}.
  */
+@Deprecated
 public interface PlatformConfigurator extends Configurator {
 
     /**

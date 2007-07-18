@@ -66,6 +66,7 @@ import net.jxta.protocol.ConfigParams;
  *
  * @deprecated This interface has been replaced with the {@link net.jxta.platform.NetworkConfigurator}.
  **/
+@Deprecated
 public interface Configurator {
     
     /**
