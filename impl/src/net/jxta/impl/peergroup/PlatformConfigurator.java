@@ -63,6 +63,8 @@ import net.jxta.peergroup.Configurator;
 
 /**
  * Defines a configurator for the JXTA Platform peer group.
+ *
+ * @deprecated This interface has been replaced with the {@link net.jxta.platform.NetworkConfigurator}.
  */
 public interface PlatformConfigurator extends Configurator {
 
