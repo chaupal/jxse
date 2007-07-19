@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -215,60 +216,38 @@ public class Platform extends StdPeerGroup {
         ModuleImplAdvertisement worldGroupDef = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
 
         // Build the param section now.
-
-        // Build ModuleImplAdvs for each of the modules
-        ModuleImplAdvertisement moduleAdv;
-        
+       
         // Do the Services
 
         Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
 
         // "Core" Services
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
-        services.put(PeerGroup.endpointClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
-        services.put(PeerGroup.resolverClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
-        services.put(PeerGroup.membershipClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
-        services.put(PeerGroup.accessClassID, moduleAdv);
+        services.put(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
+        services.put(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
+        services.put(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
+        services.put(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
 
         // "Standard" Services
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
-        services.put(PeerGroup.discoveryClassID, moduleAdv);
+        services.put(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
+        services.put(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
+        services.put(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
-        services.put(PeerGroup.rendezvousClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
-        services.put(PeerGroup.peerinfoClassID, moduleAdv);
-
-        // Do the protocols
+        // Do the Message Transports
 
         Map<ModuleClassID, Object> protos = new HashMap<ModuleClassID, Object>();
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refTcpProtoSpecID);
-        protos.put(PeerGroup.tcpProtoClassID, moduleAdv);
+        protos.put(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
+        protos.put(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
+        protos.put(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refHttpProtoSpecID);
-        protos.put(PeerGroup.httpProtoClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(McastTransport.MCAST_TRANSPORT_SPECID);
-        protos.put(McastTransport.MCAST_TRANSPORT_CLASSID, moduleAdv);
-
-        // Do the Apps
+        // Build the Params Advertisement
         
-        Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
-
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
 
         paramAdv.setServices(services);
         paramAdv.setProtos(protos);
-        paramAdv.setApps(apps);
+        paramAdv.setApps(Collections.<ModuleClassID,Object>emptyMap());
 
         // Pour the paramAdv in the World PeerGroup Def
         worldGroupDef.setParam((XMLDocument) paramAdv.getDocument(MimeMediaType.XMLUTF8));
@@ -310,65 +289,40 @@ public class Platform extends StdPeerGroup {
         // initializes the peer config from its parent.
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.refNetPeerGroupSpecID);
 
-        ModuleImplAdvertisement moduleAdv;
-
         // set the services
         Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
 
         // "Core" Services
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
-        services.put(PeerGroup.endpointClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
-        services.put(PeerGroup.resolverClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PSEMembershipService.pseMembershipSpecID);
-        services.put(PeerGroup.membershipClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
-        services.put(PeerGroup.accessClassID, moduleAdv);
+        services.put(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
+        services.put(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
+        services.put(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
+        services.put(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
 
         // "Standard" Services
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
-        services.put(PeerGroup.discoveryClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
-        services.put(PeerGroup.rendezvousClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
-        services.put(PeerGroup.pipeClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
-        services.put(PeerGroup.peerinfoClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refProxySpecID);
-        services.put(PeerGroup.proxyClassID, moduleAdv);
+        services.put(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
+        services.put(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
+        services.put(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
+        services.put(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
+        services.put(PeerGroup.proxyClassID, PeerGroup.refProxySpecID);
 
 
         // High-level Transports.
         
         Map<ModuleClassID, Object> protos = new HashMap<ModuleClassID, Object>();
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRouterProtoSpecID);
-        protos.put(PeerGroup.routerProtoClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refTlsProtoSpecID);
-        protos.put(PeerGroup.tlsProtoClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(CbJxDefs.cbjxMsgTransportSpecID);
-        protos.put(CbJxDefs.msgtptClassID, moduleAdv);
-
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRelayProtoSpecID);
-        protos.put(PeerGroup.relayProtoClassID, moduleAdv);
+        protos.put(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
+        protos.put(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
+        protos.put(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
+        protos.put(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
 
 
         // Main app is the shell
 
         Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
         if(null != moduleAdv) {        
             apps.put(PeerGroup.applicationClassID, moduleAdv);
         }
