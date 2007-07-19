@@ -68,18 +68,17 @@ import net.jxta.platform.ModuleSpecID;
 
 
 /**
- * A ModuleImplAdvertisement represents one of any number of published
- * implementations of a given specification.
+ * A ModuleImplAdvertisement describes one of any number of published
+ * implementations for a given specification.
  * <p/>
  * Module specifications are referenced by their ModuleSpecID. Given a
  * ModuleSpecID, a ModuleImplAdvertisement may be searched by means of JXTA
  * Discovery, filtered according to the compatibility statement it contains,
- * and if compatible, loaded and initialized.
- * The loadModule method of a PeerGroup implementation performs this
- * task automatically, given a ModuleSpecID.
- *
- * <p/>One significant example of Modules referenced and loaded in that manner
- * are the services and protocols that constitute a StdPeerGroup in the Java
+ * and if compatible, loaded and initialized. The {@code loadModule()} method of
+ * PeerGroup performs this task automatically, given a ModuleSpecID.
+ * <p/>
+ * One significant example of Modules referenced and loaded in that manner are
+ * the services and protocols that constitute a StdPeerGroup in the Java
  * reference implementation.
  *
  * @see net.jxta.id.ID
@@ -89,33 +88,29 @@ import net.jxta.platform.ModuleSpecID;
  * @see net.jxta.document.Element
  * @see net.jxta.protocol.ModuleSpecAdvertisement
  * @see net.jxta.peergroup.PeerGroup
- **/
+ */
 public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement implements Cloneable {
     
-    private ModuleSpecID sid = null;
-    private Element description = null;
-    
-    // The group's implementation interprets it.
+    private ModuleSpecID msid = null;
+    private StructuredDocument description = null;
     private StructuredDocument compat = null;
     private String code = null;
     private String uri = null;
     private String provider = null;
-    
-    // The module interprets it.
     private StructuredDocument param = null;
     
     /**
      *  Returns the identifying type of this Advertisement.
      *
      * @return String the type of advertisement
-     **/
+     */
     public static String getAdvertisementType() {
         return "jxta:MIA";
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public final String getBaseAdvType() {
         return getAdvertisementType();
@@ -123,8 +118,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
     
     /**
      * Clone this ModuleImplAdvertisement
-     *
-     **/
+     */
     @Override
     public ModuleImplAdvertisement clone() {
         
@@ -132,12 +126,12 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
             ModuleImplAdvertisement clone = (ModuleImplAdvertisement) super.clone();
             
             clone.setModuleSpecID(getModuleSpecID());
-            clone.setDesc(getDesc());
-            clone.setCompat(getCompat());
+            clone.setDesc(getDescPriv());
+            clone.setCompat(getCompatPriv());
             clone.setCode(getCode());
             clone.setUri(getUri());
             clone.setProvider(getProvider());
-            clone.setParam(param);
+            clone.setParam(getParamPriv());
             
             return clone;
         } catch (CloneNotSupportedException impossible) {
@@ -151,7 +145,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * hash the document.
      *
      * @return ID the unique id
-     **/
+     */
     @Override
     public ID getID() {
         return null;
@@ -162,18 +156,17 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * @return ID the spec id
      *
      */
-    
     public ModuleSpecID getModuleSpecID() {
-        return sid;
+        return msid;
     }
     
     /**
      * Sets the id of the spec that is implemented
-     *
-     * @param sid The id of the spec
-     **/
+     * 
+     * @param msid The id of the spec
+     */
     public void setModuleSpecID(ModuleSpecID sid) {
-        this.sid = sid;
+        this.msid = sid;
     }
     
     /**
@@ -221,6 +214,15 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
     }
     
     /**
+     * Privileged version of {@link #getDesc()} that does not clone the elements.
+     *
+     * @return the description
+     */
+    public StructuredDocument getDescPriv() {
+        return description;
+    }
+    
+    /**
      * sets the description
      *
      * @param desc the description
@@ -235,11 +237,14 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
     }
  
     /**
-     * returns the module impl. compatibility statement.
+     * Returns the opaque compatibility statement for this advertisement. Each
+     * JXTA implementation has the ability to recognize and evaluate it's own
+     * compatibility statements (even though it may not be able to evaluate the
+     * compatibility statements of other implementations).  
      *
-     * @return StructuredDocument the statement as a StructuredDocument
-     * of unspecified content.
-     **/
+     * @return The compatibility statement as a StructuredDocument of 
+     * unspecified content.
+     */
     public StructuredDocument getCompat() {
         return (compat == null ? null : StructuredDocumentUtils.copyAsDocument(compat));
     }
@@ -247,18 +252,18 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
     /**
      * Privileged version of {@link #getCompat()} that does not clone the elements.
      *
-     * @return StructuredDocument the statement as a StructuredDocument
-     * of unspecified content.
-     **/
+     * @return The compatibility statement as a StructuredDocument of 
+     * unspecified content.
+     */
     protected StructuredDocument getCompatPriv() {
         return compat;
     }
     
     /**
-     * sets the module impl. compatibility statement.
+     * Sets the module impl. compatibility statement.
      *
      * @param compat Element of an unspecified content.
-     **/
+     */
     public void setCompat(Element compat) {
         this.compat = (compat == null ? null : StructuredDocumentUtils.copyAsDocument(compat));
     }
@@ -266,44 +271,53 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
     /**
      * returns the code; a reference to or representation of the executable code
      * advertised by this advertisement.
-     * What the code really is depends on the compatibility statement. Any compatible
-     * user of this impl. adv. knows what it means. The standard group implementations
-     * of the java reference implementation expect it to be a fully qualified java class
-     * name.
+     * <p/>
+     * The appropriate interpretation of the code value is dependant upon the 
+     * compatibility statement. Any compatible consumer of this advertisement   
+     * will be able to correctly interpret code value. The standard group 
+     * implementations of the JXSE reference implementation expect it to be a 
+     * reference to a jar file.
      *
-     * @return String the code
-     **/
+     * @return A reference to the executable code described by this 
+     * advertisement.
+     */
     public String getCode() {
         return code;
     }
     
     /**
-     * sets the code
+     * Sets the reference for the executable code described by this 
+     * advertisement.
      *
-     * @param code reference to the code
-     **/
+     * @param code A reference to the executable code described by this 
+     * advertisement.
+     */
     public void setCode(String code) {
         this.code = code;
     }
     
     /**
-     * returns the uri; that is a reference to or representation of a package from which
-     * the executable code referenced by the getCode method may be loaded.
-     * What the uri really is depends on the compatibility statement. Any compatible
-     * user of this impl. adv. knows what it means. The standard group implementations
-     * of the java reference implementation expect it to be a reference to a jar file.
+     * returns the uri; that is a reference to or representation of a package 
+     * from which the executable code referenced by the getCode method may be 
+     * loaded.
+     * <p/>
+     * The appropriate interpretation of the URI value is dependant upon the 
+     * compatibility statement. Any compatible consumer of this advertisement   
+     * will be able to correctly interpret the URI value. The standard group 
+     * implementations of the JXSE reference implementation expect it to be a 
+     * reference to a jar file.
      *
-     * @return String uri
-     **/
+     * @return Location URI for the code described by this advertisement.
+     */
     public String getUri() {
         return uri;
     }
     
     /**
-     * sets the uri
+     * Sets the uri
      *
-     * @param uri string uri
-     **/
+     * @param uri Location URI for the code described by this advertisement.
+     */
     public void setUri(String uri) {
         this.uri = uri;
     }
@@ -312,7 +326,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * returns the provider
      *
      * @return String the provider
-     **/
+     */
     public String getProvider() {
         return provider;
     }
@@ -321,7 +335,7 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * sets the provider
      *
      * @param provider the provider
-     **/
+     */
     public void setProvider(String provider) {
         this.provider = provider;
     }
@@ -334,9 +348,8 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * be configured so that multiple specs or multiple implementations of
      * one spec may use the same code.
      *
-     * @return StructuredDocument A standalone structured document of
-     * unspecified content.
-     **/
+     * @return A standalone structured document of unspecified content.
+     */
     public StructuredDocument getParam() {
         return (param == null ? null : StructuredDocumentUtils.copyAsDocument(param));
     }
@@ -344,17 +357,17 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
     /**
      * Privileged version of {@link #getParam()} that does not clone the elements.
      *
-     * @return StructuredDocument A standalone structured document of
-     * unspecified content.
-     **/
+     * @return A standalone structured document of unspecified content.
+     */
     protected StructuredDocument getParamPriv() {
         return param;
     }
     
     /**
-     * sets the module param
+     * Sets the module param
+     *
      * @param param Element of an unspecified content.
-     **/
+     */
     public void setParam(Element param) {
         this.param = (param == null ? null : StructuredDocumentUtils.copyAsDocument(param));
     }
