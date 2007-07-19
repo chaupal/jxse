@@ -53,82 +53,23 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.relay;
 
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.MessageTransport;
+import net.jxta.impl.util.URISeedingManager;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.protocol.RouteAdvertisement;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeSet;
-
-import java.io.IOException;
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.NoSuchElementException;
-import net.jxta.impl.util.*;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
-import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.Attribute;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointListener;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.MessageTransport;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.TextDocumentMessageElement;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.pipe.InputPipe;
-import net.jxta.pipe.OutputPipe;
-import net.jxta.pipe.PipeID;
-import net.jxta.pipe.PipeMsgEvent;
-import net.jxta.pipe.PipeMsgListener;
-import net.jxta.pipe.PipeService;
-import net.jxta.protocol.AccessPointAdvertisement;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.PeerAdvertisement;
-import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.protocol.RdvAdvertisement;
-import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.rendezvous.RendezvousEvent;
-import net.jxta.rendezvous.RendezvousListener;
-
-import net.jxta.impl.access.AccessList;
-import net.jxta.impl.protocol.RdvConfigAdv;
-import net.jxta.impl.rendezvous.RendezVousServiceImpl;
-
 
 /**
  *  Extends the URI Seeding Manager by supplementing the list of active seeds
@@ -137,12 +78,12 @@ import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 public class RelayReferralSeedingManager extends URISeedingManager {
     
     /**
-     *  Log4J Logger
+     * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(RelayReferralSeedingManager.class.getName());
 
     private final boolean probeRelays;
-    
+
     private final PeerGroup group;
     
     /**
@@ -150,7 +91,7 @@ public class RelayReferralSeedingManager extends URISeedingManager {
      */
     public RelayReferralSeedingManager(URI aclLocation, boolean allowOnlySeeds, boolean probeRelays, PeerGroup group) {
         super(aclLocation, allowOnlySeeds);
-        
+        //FIXME this field is never accessed
         this.probeRelays = probeRelays;
         this.group = group;
     }
@@ -160,7 +101,8 @@ public class RelayReferralSeedingManager extends URISeedingManager {
     @Override
     public synchronized URI[] getActiveSeedURIs() {
         Collection<URI> results = new ArrayList<URI>();
-        URI[] superseeds = super.getActiveSeedURIs();       
+        URI[] superseeds = super.getActiveSeedURIs();
+        //FIXME relays is never used
         Collection<RouteAdvertisement> relays = getRelayPeers();
         
         int eaIndex = 0;
