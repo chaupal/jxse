@@ -535,12 +535,12 @@ public class StdPeerGroup extends GenericPeerGroup {
                 anEntry.setValue(theModule);
             } catch (Exception e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not load module for class ID " + classID, e);
-                    if (value instanceof ModuleClassID) {
-                        LOG.log(Level.WARNING, "Will be missing from peer group: " + classID + "\n\t" + e.getMessage());
+                    LOG.log(Level.WARNING, "Could not load module for class ID : " + classID, e);
+                    if (value instanceof ModuleImplAdvertisement) {
+                        LOG.log(Level.WARNING, "Will be missing from peer group : " + 
+                                ((ModuleImplAdvertisement) value).getDescription() );
                     } else {
-                        LOG.log(Level.WARNING, "Will be missing from peer group: " + 
-                                ((ModuleImplAdvertisement) value).getDescription() + "\n\t" + e.getMessage());
+                        LOG.log(Level.WARNING, "Will be missing from peer group: " + value );
                     }
                 }
                 eachModule.remove();
@@ -1031,7 +1031,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
         
         paramAdv.setServices(services);
-        paramAdv.setProtos((Map<ModuleClassID, Object>) Collections.EMPTY_MAP);
+        paramAdv.setProtos(Collections.<ModuleClassID,Object>emptyMap());
         paramAdv.setApps(apps);
          
         // Insert the newParamAdv in implAdv

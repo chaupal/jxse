@@ -603,7 +603,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if ((null != implAdv.getCode()) && (null != implAdv.getUri())) {
             try {
                 // Good one. Try it.
-                
                 Class<Module> clazz;
                 
                 try {
@@ -670,7 +669,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Advertisement is sought, compatibility is checked on all candidates and
      * load is attempted. The first one that is compatible and loads
      * successfully is initialized and returned.
-     *
+     * 
      * @param assignedID Id to be assigned to that module (usually its ClassID).
      * @param specID     The specID of this module.
      * @param where      May be one of: {@code Here}, {@code FromParent}, or
@@ -688,41 +687,46 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected Module loadModule(ID assignedID, ModuleSpecID specID, int where, boolean privileged) {
         
-        boolean fromHere = (where == Here || where == Both);
-        boolean fromParent = (where == FromParent || where == Both);
-        
-        List<Advertisement> all = new ArrayList<Advertisement>();
-        
-        if (fromHere && (null != discovery)) {
-            Collection<Advertisement> here = discoverSome(discovery, DiscoveryService.ADV, "MSID", specID.toString(), 120
-                    ,
-                    ModuleImplAdvertisement.class);
+        List<Advertisement> allModuleImplAdvs = new ArrayList<Advertisement>();
 
-            all.addAll(here);
+        ModuleImplAdvertisement loadedImplAdv = loader.findModuleImplAdvertisement(specID);
+        if(null != loadedImplAdv) {
+            // We already have a module defined for this spec id. Use that.
+            allModuleImplAdvs.add(loadedImplAdv);
+        } else {
+            // Search for a module to use.
+            boolean fromHere = (where == Here || where == Both);
+            boolean fromParent = (where == FromParent || where == Both);
+
+            if (fromHere && (null != discovery)) {
+                Collection<Advertisement> here = discoverSome(discovery, DiscoveryService.ADV, 
+                        "MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
+
+                allModuleImplAdvs.addAll(here);
+            }
+
+            if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
+                Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV, 
+                        "MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
+
+                allModuleImplAdvs.addAll(parent);
+            }
         }
         
-        if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
-            Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV, "MSID"
-                    ,
-                    specID.toString(), 120, ModuleImplAdvertisement.class);
-
-            all.addAll(parent);
-        }
-        
-        Iterator<Advertisement> allModuleImpls = all.iterator();
         Throwable recentFailure = null;
         
-        while (allModuleImpls.hasNext()) {
-            ModuleImplAdvertisement found = null;
+        for (Advertisement eachAdv : allModuleImplAdvs) {
+            if( !(eachAdv instanceof ModuleImplAdvertisement) ) {
+                continue;
+            }
+            
+            ModuleImplAdvertisement found = (ModuleImplAdvertisement) eachAdv;
             
             try {
-                found = (ModuleImplAdvertisement) allModuleImpls.next();
-                
-                // Here's one.
-                // First check that the MSID is realy the one we're
-                // looking for. It could have appeared somewhere else
-                // in the adv than where we're looking, and discovery
-                // doesn't know the difference.
+                // First check that the MSID is really the one we're looking
+                // for. It could have appeared somewhere else in the adv than
+                // where we're looking, and discovery doesn't know the
+                // difference.
                 if (!found.getModuleSpecID().equals(specID)) {
                     continue;
                 }
@@ -750,6 +754,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     LOG.log(Level.FINE, "Incompatbile impl adv");
                 }
                 continue;
+            } catch (PeerGroupException failed) {
+                // Initialization failure.
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Initialization failed", failed);
+                }
+                continue;
             } catch (Throwable e) {
                 recentFailure = e;
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -770,7 +780,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         
         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Could not find a loadable implementation of SpecID: " + specID);
+            LOG.warning("Could not find a loadable implementation for SpecID: " + specID);
         }
         
         return null;

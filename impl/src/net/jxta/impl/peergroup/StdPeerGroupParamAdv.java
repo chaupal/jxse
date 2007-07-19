@@ -84,13 +84,13 @@ import java.util.logging.Logger;
 /**
  * Not actually an advertisement, but often acts as part of one.
  *
- * @deprecated This internal class will eventually be removed. It has
- *             several problems which make it difficult to support. (The most obvious that
- *             it provides poor abstraction and provides references to its' own internal
- *             data structures). This class is expected to be replaced by a public API class
- *             performing a similar function though such an alternative is not yet
- *             available. You are encouraged to copy this code into your own application
- *             or service if you depend upon it.
+ * @deprecated This internal class will eventually be removed. It has several
+ * problems which make it difficult to support. (The most obvious that it 
+ * provides poor abstraction and provides references to its' own internal data
+ * structures). This class is expected to be replaced by a public API class
+ * performing a similar function though such an alternative is not yet available.
+ * You are encouraged to copy this code into your own application or service if
+ * if you depend upon it.
  */
 @Deprecated
 public class StdPeerGroupParamAdv {
@@ -109,21 +109,35 @@ public class StdPeerGroupParamAdv {
 
     private static final String miaTag = ModuleImplAdvertisement.getAdvertisementType();
 
-    // In the future we should be able to manipulate all modules regardless
-    // of their kind, but right now it helps to keep them categorized
-    // as follows.
+    // In the future we should be able to manipulate all modules regardless of 
+    // their kind, but right now it helps to keep them categorized as follows.
     private final Map<ModuleClassID, Object> servicesTable = new HashMap<ModuleClassID, Object>();
     private final Map<ModuleClassID, Object> protosTable = new HashMap<ModuleClassID, Object>();
     private final Map<ModuleClassID, Object> appsTable = new HashMap<ModuleClassID, Object>();
 
+    /**
+     *  Private constructor for new instances.
+     */
     public StdPeerGroupParamAdv() {}
 
+    /**
+     *  Private constructor for serialized instances.
+     */
     public StdPeerGroupParamAdv(Element root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
-
+        
         initialize((XMLElement) root);
+    }
+
+    /**
+     *  Private constructor for xml serialized instances.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    public StdPeerGroupParamAdv(XMLElement doc) {
+        initialize(doc);
     }
 
     /**
@@ -132,6 +146,7 @@ public class StdPeerGroupParamAdv {
      * The result (very unwisely) is the internal hashmap of this
      * Advertisement. Modifying it results in changes to this Advertisement.
      * For safety the Map should be copied before being modified.
+     *
      * @return the services entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getServices() {
@@ -144,6 +159,7 @@ public class StdPeerGroupParamAdv {
      * The result (very unwisely) is the internal hashmap of this
      * Advertisement. Modifying it results in changes to this Advertisement.
      * For safety the Map should be copied before being modified.
+     *
      * @return  the protocols (message transports) entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getProtos() {
@@ -156,6 +172,7 @@ public class StdPeerGroupParamAdv {
      * The result (very unwisely) is the internal hashmap of this
      * Advertisement. Modifying it results in changes to this Advertisement.
      * For safety the Map should be copied before being modified.
+     *
      * @return the application entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getApps() {
@@ -224,12 +241,12 @@ public class StdPeerGroupParamAdv {
 
         // set defaults
         int appCount = 0;
-        Enumeration modules = doc.getChildren();
+        Enumeration<XMLElement> modules = doc.getChildren();
 
         while (modules.hasMoreElements()) {
             Map<ModuleClassID, Object> theTable;
 
-            XMLElement module = (XMLElement) modules.nextElement();
+            XMLElement module = modules.nextElement();
             String tagName = module.getName();
 
             if (tagName.equals(svcTag)) {
@@ -248,8 +265,7 @@ public class StdPeerGroupParamAdv {
 
             try {
                 if (module.getTextValue() != null) {
-                    specID = (ModuleSpecID)
-                            IDFactory.fromURI(new URI(module.getTextValue()));
+                    specID = (ModuleSpecID) IDFactory.fromURI(new URI(module.getTextValue()));
                 }
 
                 // Check for children anyway.
@@ -296,8 +312,8 @@ public class StdPeerGroupParamAdv {
                 classID = specID.getBaseClass();
             }
 
-            // For applications, the role does not matter. We just create
-            // a unique role ID on the fly.
+            // For applications, the role does not matter. We just create a 
+            // unique role ID on the fly.
             // When outputing the add we get rid of it to save space.
 
             if (theTable == appsTable) {
@@ -341,14 +357,12 @@ public class StdPeerGroupParamAdv {
 
                 if (modulesTable != appsTable && !mcid.equals(mcid.getBaseClass())) {
                     // It is not an app and there is a role ID. Output it.
-
                     Element i = doc.createElement(mcidTag, mcid.toString());
 
                     m.appendChild(i);
                 }
 
-                StructuredDocument advdoc = (StructuredDocument)
-                        ((Advertisement) val).getDocument(doc.getMimeType());
+                StructuredDocument advdoc = (StructuredDocument) ((Advertisement) val).getDocument(doc.getMimeType());
 
                 StructuredDocumentUtils.copyElements(doc, m, advdoc);
             } else if (val instanceof ModuleSpecID) {
@@ -374,6 +388,8 @@ public class StdPeerGroupParamAdv {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("unsupported class in modules table");
                 }
+                
+                throw new IllegalStateException("unsupported class in modules table : " + val);
             }
         }
     }
