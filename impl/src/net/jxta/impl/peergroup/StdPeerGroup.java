@@ -104,6 +104,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.document.StructuredDocument;
 
 
 /**
@@ -489,13 +490,13 @@ public class StdPeerGroup extends GenericPeerGroup {
             
             // If it is disabled, strip it.
             if (disabledModules.contains(classID)) {
-                if (value instanceof ModuleClassID) {
+                if (value instanceof ModuleImplAdvertisement) {
                     if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                        LOG.config("Module disabled by configuration : " + classID);
+                        LOG.config("Module disabled by configuration : " + ((ModuleImplAdvertisement) value).getDescription());
                     }
                 } else {
                     if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                        LOG.config("Module disabled by configuration : " + ((ModuleImplAdvertisement) value).getDescription());
+                        LOG.config("Module disabled by configuration : " + value);
                     }
                 }
                 
@@ -740,8 +741,8 @@ public class StdPeerGroup extends GenericPeerGroup {
         ConfigParams conf = getConfigAdvertisement();
 
         if (conf != null) {
-            for (Map.Entry anEntry : conf.getServiceParamsEntrySet()) {
-                XMLElement e = (XMLElement) anEntry.getValue();
+            for (Map.Entry<ID, StructuredDocument> anEntry : conf.getServiceParamsEntrySet()) {
+                Element e = anEntry.getValue();
 
                 if (e.getChildren("isOff").hasMoreElements()) {
                     disabledModules.add((ModuleClassID) anEntry.getKey());
@@ -1057,9 +1058,9 @@ public class StdPeerGroup extends GenericPeerGroup {
      * Return a map of the applications for this group.
      * <p/>
      * <ul>
-     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     * <li>values are {@link net.jxta.platform.Module} or
-     * {@link net.jxta.protocol.ModuleImplAdvertisement}</li>
+     *   <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
+     *   <li>values are {@link net.jxta.platform.Module} or
+     *   {@link net.jxta.protocol.ModuleImplAdvertisement}</li>
      * </ul>
      * @return a map of the applications for this group.
      */
