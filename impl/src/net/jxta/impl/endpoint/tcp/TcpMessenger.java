@@ -89,7 +89,6 @@ import java.nio.channels.SocketChannel;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -859,11 +858,9 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         try {
             while (read()) {
                 List<Message> msgs = processBuffer();
-                Iterator<Message> it = msgs.iterator();
-                
-                while(it.hasNext()) {
+                for (Message msg : msgs) {
                     // Use the group's threadpool to process the message
-                    tcpTransport.executor.execute(new MessageProcessor(it.next()));
+                    tcpTransport.executor.execute(new MessageProcessor(msg));
                 }
             }
 
@@ -880,13 +877,13 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
     }
 
     /**
-     * @return if finished reading all the data
+     * @return true to indicate read maybe required
      */
     private boolean read() {
-        if (closed) {
+        if (closed || socketChannel == null) {
             return false;
         }
-        if (socketChannel != null && !socketChannel.isConnected()) {
+        if (!socketChannel.isConnected()) {
             closeImpl();
             return false;
         }
@@ -898,7 +895,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             }
 
             int read = socketChannel.read(buffer);
-
             if (read < 0) {
                 if (!socketChannel.isConnected() || read < 0) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -919,7 +915,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                 LOG.fine(MessageFormat.format("{0} SocketChannel.read() == {1} bytes. Buffer stats:{2}, remaining {3}",
                                 Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
             }
-
             return true;
         } catch (ClosedChannelException e) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -947,6 +942,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             closeImpl();
             return false;
         }
+        // if the channel has a valid read ops return true, otherwise false
         return (socketChannel.validOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ;
     }
 
