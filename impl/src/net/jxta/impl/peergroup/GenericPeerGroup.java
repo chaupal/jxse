@@ -629,8 +629,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 } catch (Throwable ignored) {// If this does not work, nothing needs to be done.
                 }
                 throw new PeerGroupException("Could not load module for : " + assigned + " (" + implAdv.getDescription() + ")", ex);
-            }
-            
+            }            
         } else {
             String error;
 
@@ -720,31 +719,17 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 continue;
             }
             
-            ModuleImplAdvertisement found = (ModuleImplAdvertisement) eachAdv;
+            ModuleImplAdvertisement foundImpl = (ModuleImplAdvertisement) eachAdv;
             
             try {
-                // First check that the MSID is really the one we're looking
-                // for. It could have appeared somewhere else in the adv than
-                // where we're looking, and discovery doesn't know the
-                // difference.
-                if (!found.getModuleSpecID().equals(specID)) {
+                // First check that the MSID is really the one we're looking for.
+                // It could have appeared somewhere else in the adv than where
+                // we're looking, and discovery doesn't know the difference.
+                if (!specID.equals(foundImpl.getModuleSpecID())) {
                     continue;
                 }
                 
-                // Try it. If "found" is not useable it will trigger an 
-                // exception and we'll try the next.
-                
-                Module newMod = loadModule(assignedID, found, privileged);
-                
-                if (null != discovery) {
-                    try {
-                        discovery.publish(found, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
-                    } catch (IOException nopublish) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Could not publish module impl adv.", nopublish);
-                        }
-                    }
-                }
+                Module newMod = loadModule(assignedID, foundImpl, privileged);
                 
                 // If we reach that point, the module is good.
                 return newMod;
