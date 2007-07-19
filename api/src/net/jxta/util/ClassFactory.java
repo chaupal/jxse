@@ -71,6 +71,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
@@ -87,12 +88,12 @@ import net.jxta.logging.Logging;
  * @see net.jxta.document.AdvertisementFactory
  * @see net.jxta.id.IDFactory
  * @see net.jxta.endpoint.WireFormatMessageFactory
- **/
+ */
 public abstract class ClassFactory<K, I> {
 
     /**
      *  Logger
-     **/
+     */
     private static final transient Logger LOG = Logger.getLogger(ClassFactory.class.getName());
         
     /**
@@ -104,27 +105,22 @@ public abstract class ClassFactory<K, I> {
      *  Used by ClassFactory methods to get the mapping of keys to constructors.
      *
      *  @return the map containing the mappings.
-     *
-     **/
+     */
     protected abstract Map<K, I> getAssocTable();
 
     /**
      *  Used by ClassFactory methods to ensure that all keys used with the
      *  mapping are of the correct type.
      *
-     *
      *  @return Class object of the key type.
-     **/
+     */
     protected abstract Class<K> getClassForKey();
 
     /**
-     *  Return all of the available keys for this factory. All elements will be
-     *  of the same type as the result as <code>getClassForKey</code>.
+     *  Return all of the available keys for this factory.
      *
-     *  @return Iterator containing all of the available keys for this
-     *   factory. All elements will be of the same type as the result as
-     *   <code>getClassForKey</code>.
-     **/
+     *  @return Iterator of all the available keys for this factory.
+     */
     public Iterator<K> getAvailableKeys() {
         return Collections.unmodifiableSet(getAssocTable().keySet()).iterator();
     }
@@ -133,9 +129,8 @@ public abstract class ClassFactory<K, I> {
      *  Returns an unmodifiable Set containing all of the associations 
      *  stored in this ClassFactory.
      *
-     *  @return Set Containing all of the available entries for this
-     *  factory.
-     **/
+     *  @return Set containing all of the available entries for this factory.
+     */
     public Set<Map.Entry<K, I>> getEntrySet() {
         return Collections.unmodifiableSet(getAssocTable().entrySet());
     }
@@ -144,27 +139,24 @@ public abstract class ClassFactory<K, I> {
      *  Used by ClassFactory methods to ensure that all of the instance classes
      *  which register with this factory have the correct base class
      *
-     *
      *  @return Class object of the "Factory" type.
-     **/
-    protected abstract Class getClassOfInstantiators();
+     */
+    protected abstract Class<I> getClassOfInstantiators();
 
     /**
-     * Given a resource bundle identifier and a property name register instance
-     * classes. The property must be a string containing class names which must
-     * be found on the current class path. The class names are separated by
-     * spaces.
+     *  Given a resource bundle identifier and a property name register instance
+     *  classes. The property must be a string containing class names which must
+     *  be found on the current class path. The class names are separated by
+     *  spaces.
      *
-     *
-     * @param resourceName name of the resource bundle
-     * @param propertyName name of the property.
-     * @return boolean true if at least one instance class could be registered 
-     with this factory.
-     * @exception MissingResourceException if the resource bundle or
-     * property cannot be located.
-     **/
+     *  @param resourceName name of the resource bundle
+     *  @param propertyName name of the property.
+     *  @return boolean true if at least one instance class could be registered 
+     *  with this factory.
+     *  @exception MissingResourceException if the resource bundle or
+     *  property cannot be located.
+     */
     protected boolean registerFromResources(String resourceName, String propertyName) throws MissingResourceException {
-
         ResourceBundle jxtaRsrcs = ResourceBundle.getBundle(resourceName);
         String fromProps = jxtaRsrcs.getString(propertyName).trim();
 
@@ -176,11 +168,10 @@ public abstract class ClassFactory<K, I> {
      *  must be found on the current class path. The class names are separated
      *  by spaces.
      *
-     *
      *  @param classNamesString The class name list
      *  @return boolean true if at least one of the instance classes could be
      *  registered otherwise false.
-     **/
+     */
     protected boolean registerFromString(String classNamesString) {
         boolean registeredSomething = false;
 
@@ -252,9 +243,11 @@ public abstract class ClassFactory<K, I> {
      */
     protected boolean registerFromFile(URI providerList) {
         boolean registeredSomething = false;
+        InputStream urlStream = null;
         
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(providerList.toURL().openStream(), "UTF-8"));
+            urlStream = providerList.toURL().openStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
 
             String provider;
 
@@ -280,6 +273,14 @@ public abstract class ClassFactory<K, I> {
         } catch (IOException ex) {
             LOG.log(Level.WARNING, "Failed to read provider list " + providerList, ex);
             return false;
+        } finally {
+            if(null != urlStream) {
+                try {
+                    urlStream.close();
+                } catch(IOException ignored) {
+                    
+                }
+            }
         }
 
         return registeredSomething;
@@ -292,20 +293,18 @@ public abstract class ClassFactory<K, I> {
      *  in class factories to interogate the instance class before registering
      *  the instance class.
      *
-     *
-     * @param className The class name which will be registered.
-     * @return boolean true if the class was registered otherwise false.
-     * @throws Exception   when an error occurs.
-     **/
+     *  @param className The class name which will be registered.
+     *  @return boolean true if the class was registered otherwise false.
+     *  @throws Exception   when an error occurs.
+     */
     protected boolean registerAssoc(final String className) throws Exception {
 
         boolean registeredSomething = false;
 
         try {
-
             /*
-             * This implementation skankily assumes that the class
-             * registers itself as part of class initialization.
+             * This implementation skankily assumes that the class registers 
+             * itself as part of class initialization.
              */
                         
             Class ignored = Class.forName(className);
@@ -325,27 +324,13 @@ public abstract class ClassFactory<K, I> {
     }
 
     /**
-     * Register a key and instance class with the factory.
+     *  Register a key and instance class with the factory.
      *
      *  @param key The key to register.
      *  @param instantiator The instantiator object which will be registered for this key.
      *  @return boolean true if the key was successfully registered otherwise false.
-     **/
+     */
     protected boolean registerAssoc(final K key, final I instantiator) {
-
-        if (!getClassOfInstantiators().isInstance(instantiator)) {
-            throw new ClassCastException(
-                    "instantiator '" + instantiator.getClass().getName() + "' does not implement '"
-                    + getClassOfInstantiators().getName() + "'");
-        }
-
-        // Check the class of the key to make sure it is of the right class
-        Class<?> requiredKeyClass = getClassForKey();
-        Class<?> itsA = key.getClass();
-
-        if (!requiredKeyClass.isAssignableFrom(itsA)) {
-            throw new IllegalArgumentException("Incorrect Class for key type");
-        }
 
         // Check the association table to make sure this key is not already present.
         if (null != getAssocTable().get(key)) {
@@ -367,14 +352,8 @@ public abstract class ClassFactory<K, I> {
      *  @param key The identifier for the Instantiator class to be returned.
      *  @return Instantiator Instantiator matching the provided key
      *  @throws NoSuchElementException if the key has not been registered.
-     **/
+     */
     protected I getInstantiator(final K key) throws NoSuchElementException {
-
-        Class<?> requiredKeyClass = getClassForKey();
-
-        if (!requiredKeyClass.isAssignableFrom(key.getClass())) {
-            throw new IllegalArgumentException("Incorrect Class for key type");
-        }
 
         // Get the constructors for this key.
         I instantiator = getAssocTable().get(key);
