@@ -61,8 +61,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,16 +71,16 @@ import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.impl.endpoint.cbjx.CbJxDefs;
-import net.jxta.impl.endpoint.mcast.McastTransport;
-import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.JxtaLoader;
-import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
+
+import net.jxta.impl.endpoint.cbjx.CbJxDefs;
+import net.jxta.impl.endpoint.mcast.McastTransport;
+import net.jxta.impl.membership.pse.PSEMembershipService;
 
 
 /**
@@ -296,8 +294,6 @@ public class Platform extends StdPeerGroup {
 
 
         // Main app is the shell
-        // FIXME by hamada, the variable apps is not used, is there a reason for the following statement? 
-        Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
         ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
         if(null != moduleAdv) {        
