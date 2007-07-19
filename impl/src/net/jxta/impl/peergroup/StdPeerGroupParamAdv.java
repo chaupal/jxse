@@ -100,20 +100,50 @@ public class StdPeerGroupParamAdv {
      */
     private static final Logger LOG = Logger.getLogger(StdPeerGroupParamAdv.class.getName());
 
-    private static final String paramTag = "Parm";
-    private static final String protoTag = "Proto";
-    private static final String appTag = "App";
-    private static final String svcTag = "Svc";
-    private static final String mcidTag = "MCID";
-    private static final String msidTag = "MSID";
-
-    private static final String miaTag = ModuleImplAdvertisement.getAdvertisementType();
+    private static final String PARAM_TAG = "Parm";
+    private static final String PROTO_TAG = "Proto";
+    private static final String APP_TAG = "App";
+    private static final String SVC_TAG = "Svc";
+    private static final String MCID_TAG = "MCID";
+    private static final String MSID_TAG = "MSID";
+    private static final String MIA_TAG = ModuleImplAdvertisement.getAdvertisementType();
 
     // In the future we should be able to manipulate all modules regardless of 
     // their kind, but right now it helps to keep them categorized as follows.
-    private final Map<ModuleClassID, Object> servicesTable = new HashMap<ModuleClassID, Object>();
-    private final Map<ModuleClassID, Object> protosTable = new HashMap<ModuleClassID, Object>();
-    private final Map<ModuleClassID, Object> appsTable = new HashMap<ModuleClassID, Object>();
+    
+    /**
+     *  The services which will be loaded for this peer group.
+     *  <p/>
+     *  <ul>
+     *      <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
+     *      <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *      {@link net.jxta.peergroup.ModuleImplAdvertisement}.</li>
+     *  </ul>
+     */    
+    private final Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
+    
+    /**
+     *  The protocols (message transports) which will be loaded for this peer 
+     *  group.
+     *  <p/>
+     *  <ul>
+     *      <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
+     *      <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *      {@link net.jxta.peergroup.ModuleImplAdvertisement}.</li>
+     *  </ul>
+     */    
+    private final Map<ModuleClassID, Object> transports = new HashMap<ModuleClassID, Object>();
+    
+    /**
+     *  The applications which will be loaded for this peer group.
+     *  <p/>
+     *  <ul>
+     *      <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
+     *      <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *      {@link net.jxta.peergroup.ModuleImplAdvertisement}.</li>
+     *  </ul>
+     */    
+    private final Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
     /**
      *  Private constructor for new instances.
@@ -141,6 +171,17 @@ public class StdPeerGroupParamAdv {
     }
 
     /**
+     *  Add a service to the set of services entries described in this 
+     *  Advertisement.
+     *
+     *  @param mcid The module class id of the module being added.
+     *  @param module The module being added.
+     */
+    public void addService(ModuleClassID mcid, Object module) {
+        services.put(mcid, module);
+    }
+    
+    /**
      * Return the services entries described in this Advertisement.
      * <p/>
      * The result (very unwisely) is the internal hashmap of this
@@ -150,7 +191,18 @@ public class StdPeerGroupParamAdv {
      * @return the services entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getServices() {
-        return servicesTable;
+        return services;
+    }
+
+    /**
+     *  Add a protocol (message transport) to the set of protocol entries 
+     *  described in this Advertisement.
+     *
+     *  @param mcid The module class id of the module being added.
+     *  @param module The module being added.
+     */
+    public void addProto(ModuleClassID mcid, Object module) {
+        transports.put(mcid, module);
     }
 
     /**
@@ -163,7 +215,18 @@ public class StdPeerGroupParamAdv {
      * @return  the protocols (message transports) entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getProtos() {
-        return protosTable;
+        return transports;
+    }
+
+    /**
+     *  Add an application to the set of application entries described in this
+     *  Advertisement.
+     *
+     *  @param mcid The module class id of the module being added.
+     *  @param module The module being added.
+     */
+    public void addApp(ModuleClassID mcid, Object module) {
+        apps.put(mcid, module);
     }
 
     /**
@@ -176,66 +239,66 @@ public class StdPeerGroupParamAdv {
      * @return the application entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getApps() {
-        return appsTable;
+        return apps;
     }
 
     /**
      * Replaces the table of services described by this Advertisement. All
      * existing entries are lost.
-     *
-     * @param servicesTable the services table
+     * 
+     * @param services the services table
      */
     public void setServices(Map<ModuleClassID, Object> servicesTable) {
-        if (servicesTable == this.servicesTable) {
+        if (servicesTable == this.services) {
             return;
         }
 
-        this.servicesTable.clear();
+        this.services.clear();
 
         if (null != servicesTable) {
-            this.servicesTable.putAll(servicesTable);
+            this.services.putAll(servicesTable);
         }
     }
 
     /**
      * Replaces the table of protocols described by this Advertisement. All
      * existing entries are lost.
-     *
-     * @param protosTable the protocol table
+     * 
+     * @param transports the protocol table
      */
     public void setProtos(Map<ModuleClassID, Object> protosTable) {
-        if (protosTable == this.protosTable) {
+        if (protosTable == this.transports) {
             return;
         }
 
-        this.protosTable.clear();
+        this.transports.clear();
 
         if (null != protosTable) {
-            this.protosTable.putAll(protosTable);
+            this.transports.putAll(protosTable);
         }
     }
 
     /**
      * Replaces the table of applications described by this Advertisement. All
      * existing entries are lost.
-     *
-     * @param appsTable the application table
+     * 
+     * @param apps the application table
      */
     public void setApps(Map<ModuleClassID, Object> appsTable) {
-        if (appsTable == this.appsTable) {
+        if (appsTable == this.apps) {
             return;
         }
 
-        this.appsTable.clear();
+        this.apps.clear();
 
         if (null != appsTable) {
-            this.appsTable.putAll(appsTable);
+            this.apps.putAll(appsTable);
         }
     }
 
     private void initialize(XMLElement doc) {
 
-        if (!doc.getName().equals(paramTag)) {
+        if (!doc.getName().equals(PARAM_TAG)) {
             throw new IllegalArgumentException("Can not construct " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
@@ -244,18 +307,21 @@ public class StdPeerGroupParamAdv {
         Enumeration<XMLElement> modules = doc.getChildren();
 
         while (modules.hasMoreElements()) {
-            Map<ModuleClassID, Object> theTable;
-
             XMLElement module = modules.nextElement();
             String tagName = module.getName();
 
-            if (tagName.equals(svcTag)) {
-                theTable = servicesTable;
-            } else if (tagName.equals(appTag)) {
-                theTable = appsTable;
-            } else if (tagName.equals(protoTag)) {
-                theTable = protosTable;
+            Map<ModuleClassID, Object> theTable;
+
+            if (SVC_TAG.equals(tagName)) {
+                theTable = services;
+            } else if (APP_TAG.equals(tagName)) {
+                theTable = apps;
+            } else if (PROTO_TAG.equals(tagName)) {
+                theTable = transports;
             } else {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Unhandled top-level tag : " + tagName);
+                }
                 continue;
             }
 
@@ -269,21 +335,23 @@ public class StdPeerGroupParamAdv {
                 }
 
                 // Check for children anyway.
-                Enumeration fields = module.getChildren();
+                Enumeration<XMLElement> fields = module.getChildren();
 
                 while (fields.hasMoreElements()) {
-                    XMLElement field = (XMLElement) fields.nextElement();
+                    XMLElement field = fields.nextElement();
+                    
+                    String fieldName = field.getName();
 
-                    if (field.getName().equals(mcidTag)) {
+                    if (MCID_TAG.equals(fieldName)) {
                         classID = (ModuleClassID) IDFactory.fromURI(new URI(field.getTextValue()));
-                        continue;
-                    }
-                    if (field.getName().equals(msidTag)) {
+                    } else if (MSID_TAG.equals(field.getName())) {
                         specID = (ModuleSpecID) IDFactory.fromURI(new URI(field.getTextValue()));
-                        continue;
-                    }
-                    if (field.getName().equals(miaTag)) {
+                    } else if (MIA_TAG.equals(field.getName())) {
                         inLineAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(field);
+                    } else {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.log(Level.WARNING, "Unhandled field : " + fieldName);
+                        }
                     }
                 }
             } catch (Exception any) {
@@ -302,21 +370,22 @@ public class StdPeerGroupParamAdv {
 
             Object theValue;
 
-            if (inLineAdv == null) {
-                theValue = specID;
-            } else {
+            if (inLineAdv != null) {
                 specID = inLineAdv.getModuleSpecID();
                 theValue = inLineAdv;
+            } else {
+                theValue = specID;
             }
+            
             if (classID == null) {
                 classID = specID.getBaseClass();
             }
 
             // For applications, the role does not matter. We just create a 
             // unique role ID on the fly.
-            // When outputing the add we get rid of it to save space.
+            // When outputing the adv we get rid of it to save space.
 
-            if (theTable == appsTable) {
+            if (theTable == apps) {
                 // Only the first (or only) one may use the base class.
                 if (classID == PeerGroup.applicationClassID) {
                     if (appCount++ != 0) {
@@ -332,11 +401,11 @@ public class StdPeerGroupParamAdv {
      * {@inheritDoc}
      */
     public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, paramTag);
+        StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, PARAM_TAG);
 
-        outputModules(doc, servicesTable, svcTag);
-        outputModules(doc, protosTable, protoTag);
-        outputModules(doc, appsTable, appTag);
+        outputModules(doc, services, SVC_TAG);
+        outputModules(doc, transports, PROTO_TAG);
+        outputModules(doc, apps, APP_TAG);
 
         return doc;
     }
@@ -355,9 +424,9 @@ public class StdPeerGroupParamAdv {
                 m = doc.createElement(mainTag);
                 doc.appendChild(m);
 
-                if (modulesTable != appsTable && !mcid.equals(mcid.getBaseClass())) {
+                if (modulesTable != apps && !mcid.equals(mcid.getBaseClass())) {
                     // It is not an app and there is a role ID. Output it.
-                    Element i = doc.createElement(mcidTag, mcid.toString());
+                    Element i = doc.createElement(MCID_TAG, mcid.toString());
 
                     m.appendChild(i);
                 }
@@ -366,7 +435,7 @@ public class StdPeerGroupParamAdv {
 
                 StructuredDocumentUtils.copyElements(doc, m, advdoc);
             } else if (val instanceof ModuleSpecID) {
-                if (modulesTable == appsTable || mcid.equals(mcid.getBaseClass())) {
+                if (modulesTable == apps || mcid.equals(mcid.getBaseClass())) {
                     // Either it is an app or there is no role ID.
                     // So the specId is good enough.
                     m = doc.createElement(mainTag, val.toString());
@@ -378,10 +447,10 @@ public class StdPeerGroupParamAdv {
 
                     Element i;
 
-                    i = doc.createElement(mcidTag, mcid.toString());
+                    i = doc.createElement(MCID_TAG, mcid.toString());
                     m.appendChild(i);
 
-                    i = doc.createElement(msidTag, val.toString());
+                    i = doc.createElement(MSID_TAG, val.toString());
                     m.appendChild(i);
                 }
             } else {
