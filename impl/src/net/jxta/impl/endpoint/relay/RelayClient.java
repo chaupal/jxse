@@ -617,10 +617,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 try {
                     wait(waitTimeout);
                 } catch (InterruptedException e) {
-                    // ignore interrupt
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "wait got interrupted early ", e);
-                    }
+                    Thread.interrupted();
                 }
                 
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
