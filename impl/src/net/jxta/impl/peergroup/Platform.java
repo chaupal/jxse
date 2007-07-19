@@ -61,7 +61,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -297,7 +296,7 @@ public class Platform extends StdPeerGroup {
 
 
         // Main app is the shell
-
+        // FIXME by hamada, the variable apps is not used, is there a reason for the following statement? 
         Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
         ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
