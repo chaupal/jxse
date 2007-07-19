@@ -209,40 +209,35 @@ public class Platform extends StdPeerGroup {
         ModuleImplAdvertisement worldGroupDef = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
 
         // Build the param section now.
-       
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+
+        
         // Do the Services
 
-        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
-
         // "Core" Services
-        services.put(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
-        services.put(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        services.put(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
-        services.put(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
+        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
+        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
+        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
 
         // "Standard" Services
 
-        services.put(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
-        services.put(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
-        services.put(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
+        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
+        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
+        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
 
+        
         // Do the Message Transports
 
-        Map<ModuleClassID, Object> protos = new HashMap<ModuleClassID, Object>();
-
-        protos.put(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
-        protos.put(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
-        protos.put(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
-
-        // Build the Params Advertisement
+        paramAdv.addProto(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
+        paramAdv.addProto(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
+        paramAdv.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
         
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+        // Do the Applications
+        
+        // (none)
 
-        paramAdv.setServices(services);
-        paramAdv.setProtos(protos);
-        paramAdv.setApps(Collections.<ModuleClassID,Object>emptyMap());
-
-        // Pour the paramAdv in the World PeerGroup Def
+        // Pour the paramAdv in the World PeerGroup Impl Advertisement.
         worldGroupDef.setParam((XMLDocument) paramAdv.getDocument(MimeMediaType.XMLUTF8));
 
         return worldGroupDef;
@@ -270,33 +265,35 @@ public class Platform extends StdPeerGroup {
         // initializes the peer config from its parent.
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.refNetPeerGroupSpecID);
 
-        // set the services
-        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
+        
+        // Build the param section now.
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+
+
+        // Set the services
 
         // "Core" Services
 
-        services.put(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
-        services.put(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        services.put(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
-        services.put(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
+        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
+        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
+        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
 
         // "Standard" Services
 
-        services.put(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
-        services.put(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
-        services.put(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
-        services.put(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
-        services.put(PeerGroup.proxyClassID, PeerGroup.refProxySpecID);
+        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
+        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
+        paramAdv.addService(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
+        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
+        paramAdv.addService(PeerGroup.proxyClassID, PeerGroup.refProxySpecID);
 
 
-        // High-level Transports.
+        // High-level Message Transports.
         
-        Map<ModuleClassID, Object> protos = new HashMap<ModuleClassID, Object>();
-
-        protos.put(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
-        protos.put(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
-        protos.put(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
-        protos.put(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
+        paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
+        paramAdv.addProto(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
+        paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
+        paramAdv.addProto(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
 
 
         // Main app is the shell
@@ -305,15 +302,9 @@ public class Platform extends StdPeerGroup {
 
         ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
         if(null != moduleAdv) {        
-            apps.put(PeerGroup.applicationClassID, moduleAdv);
+            paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
         }
         
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-
-        paramAdv.setServices(services);
-        paramAdv.setProtos(protos);
-        paramAdv.setApps(apps);
-
         // Pour our newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
 
