@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.relay;
-
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +62,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -106,7 +103,6 @@ import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 import net.jxta.impl.endpoint.EndpointUtils;
-
 
 /**
  * Relay server that maintains outgoing message queues, leases, etc.
@@ -208,15 +204,15 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             StringBuilder configInfo = new StringBuilder("Configuring Relay Server");
 
             configInfo.append("\n\tGroup Params :");
-            configInfo.append("\n\t\tGroup : " + group);
-            configInfo.append("\n\t\tPeer ID : " + group.getPeerID());
+            configInfo.append("\n\t\tGroup : ").append(group);
+            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
 
             configInfo.append("\n\tConfiguration :");
-            configInfo.append("\n\t\tService Name : " + serviceName);
-            configInfo.append("\n\t\tMax Relay Clients : " + maxClients);
-            configInfo.append("\n\t\tMax Lease Length : " + maxLeaseDuration + "ms.");
-            configInfo.append("\n\t\tBroadcast Interval : " + minBroadcastInterval + "ms.");
-            configInfo.append("\n\t\tStall Timeout : " + stallTimeout + "ms.");
+            configInfo.append("\n\t\tService Name : ").append(serviceName);
+            configInfo.append("\n\t\tMax Relay Clients : ").append(maxClients);
+            configInfo.append("\n\t\tMax Lease Length : ").append(maxLeaseDuration).append("ms.");
+            configInfo.append("\n\t\tBroadcast Interval : ").append(minBroadcastInterval).append("ms.");
+            configInfo.append("\n\t\tStall Timeout : ").append(stallTimeout).append("ms.");
             
             LOG.config(configInfo.toString());
         }
@@ -225,17 +221,15 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * Debug routine: returns the list of relayedClients with details.
      */
-    public List getRelayedClients() {
-        List res = new ArrayList();
-        
-        Iterator entries = Arrays.asList(relayedClients.values().toArray()).iterator();
-        
-        while (entries.hasNext()) {
-            String client = entries.next().toString();
-            
+    public List<String> getRelayedClients() {
+        List<String> res = new ArrayList<String>();
+
+        for (Object o : Arrays.asList(relayedClients.values().toArray())) {
+            String client = o.toString();
+
             res.add(client);
         }
-        
+
         return res;
     }
     
@@ -799,7 +793,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     }
     
     private RelayServerClient getClient(String clientPeerId) {
-        RelayServerClient handler = null;
+        RelayServerClient handler;
         
         synchronized (relayedClients) {
             handler = relayedClients.get(clientPeerId);
@@ -816,7 +810,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     // exists. The flushqueue option instructs to clear the queue if the client
     // exists.
     private RelayServerClient addClient(String clientPeerId, long requestedLease, Messenger messenger, boolean flushQueue) {
-        RelayServerClient handler = null;
+        RelayServerClient handler;
         boolean isNewClient = false;
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -906,7 +900,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     }
     
     private RelayServerClient removeClient(String clientPeerId) {
-        RelayServerClient handler = null;
+        RelayServerClient handler;
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("removeClient(" + clientPeerId + ")");
@@ -1058,7 +1052,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         volatile boolean doRun = false;
         Thread cacheThread = null;
         
-        final Map relayAdvCache = new HashMap();
+        final Map<String, RdvAdvertisement> relayAdvCache = new HashMap<String, RdvAdvertisement>();
         
         final Random rand = new Random();
         
@@ -1078,7 +1072,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         protected RdvAdvertisement getRandomCacheAdv() {
             synchronized (relayAdvCache) {
-                RdvAdvertisement[] items = (RdvAdvertisement[]) relayAdvCache.values().toArray(new RdvAdvertisement[0]);
+                RdvAdvertisement[] items = relayAdvCache.values().toArray(new RdvAdvertisement[0]);
                 
                 if (items.length == 0) {
                     return null;
@@ -1104,7 +1098,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 
                 if (relayAdvCache.size() >= MAX_CACHED_SERVERS) {
                     // New entry and map full. Remove one at random.
-                    RdvAdvertisement[] keys = (RdvAdvertisement[]) relayAdvCache.keySet().toArray(new RdvAdvertisement[0]);
+                    RdvAdvertisement[] keys = relayAdvCache.keySet().toArray(new RdvAdvertisement[0]);
                     
                     relayAdvCache.remove(keys[rand.nextInt(keys.length)]);
                 }
@@ -1490,7 +1484,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
     }
     
-    private final static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String name) {
+    private static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String name) {
         
         try {
             // FIX ME: 10/19/2002 lomax@jxta.org. We need to properly set up the service ID. Unfortunately
