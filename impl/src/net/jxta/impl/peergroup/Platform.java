@@ -87,15 +87,16 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 
 
 /**
- * Provides the implementation for the World PeerGroup.
- * <p/>
- * Key differences from regular groups are:
- * <p/>
+ * Provides the implementation for the World PeerGroup. The World peer group
+ * differs from other peer groups in the following ways :
  * <ul>
- *     <li>Provides a mechanism for peer group configuration parameter.</li>
- *
- *     <li>Ensures that only a single instance of the World PeerGroup exists
- *     within the context of the current classloader.</li>
+ *     <li>The World Peer Group has no parent. It is the primodial peer group.
+ *     </li>
+ *     <li>The World Peer Group provides the default definition for the Network
+ *     Peer Group. Peers are free to use alternate implementations for the
+ *     Net PeerGroup.</li>
+ *     <li>The World Peer Group is initialized with configuration parameters and
+ *     the store home location.</li>
  * </ul>
  */
 public class Platform extends StdPeerGroup {
@@ -104,12 +105,6 @@ public class Platform extends StdPeerGroup {
      *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(Platform.class.getName());
-
-    /**
-     * The Module Impl Advertisement we will return in response to
-     * {@link #getAllPurposePeerGroupImplAdvertisement()} requests.
-     */
-    private ModuleImplAdvertisement allPurposeImplAdv = null;
 
     /**
      * This constructor was originally the standard constructor and must be 
@@ -188,8 +183,6 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     protected synchronized void initLast() throws PeerGroupException {
-        // Nothing special for now, but we might want to move some steps from
-        // initFirst(), in the future.
         super.initLast();
 
         // Publish our own adv.
@@ -256,30 +249,18 @@ public class Platform extends StdPeerGroup {
     }
 
     /**
-     * Returns the all purpose peer group implementation advertisement that
-     * is most useful when called in the context of the World PeerGroup: the
-     * description of an infrastructure group.
+     * Returns a ModuleImplAdvertisement suitable for the Network Peer Group.
      * <p/>
-     * This definition is always the same and has a well known ModuleSpecID.
-     * It includes the basic service, high-level transports and the shell for
-     * main application. It differs from the one returned by StdPeerGroup only
-     * in that it includes the high-level transports (and different specID,
-     * name and description, of course). However, in order to avoid confusing
-     * inheritance schemes (class hierarchy is inverse of object hierarchy)
-     * other possible dependency issues, we just redefine it fully, right here.
-     * <p/>
-     * The user must remember to change the specID if the set of services
-     * protocols or applications is altered before use.
+     * The ModuleImplAdvertisement returned differs from the one returned by 
+     * StdPeerGroup in that it has a different specID, name and description, as 
+     * well as the high-level message transports . This definition is always the 
+     * same and has a well known ModuleSpecID. It includes the basic services, 
+     * high-level message transports and the shell for main application. 
      *
-     * @return ModuleImplAdvertisement The new peergroup impl adv.
+     * @return A ModuleImplAdvertisement suitable for the Network Peer Group.
      */
     @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-
-        // Build it only the first time; then clone it.
-        if (allPurposeImplAdv != null) {
-            return allPurposeImplAdv.clone();
-        }
 
         JxtaLoader loader = getJxtaLoader();
 
@@ -337,8 +318,6 @@ public class Platform extends StdPeerGroup {
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
 
         implAdv.setParam(paramElement);
-
-        allPurposeImplAdv = implAdv;
 
         return implAdv;
     }
