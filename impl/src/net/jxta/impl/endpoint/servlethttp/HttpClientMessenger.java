@@ -221,7 +221,6 @@ final class HttpClientMessenger extends BlockingMessenger {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("New messenger : " + this );
         }
-
     }
     
     /*
@@ -543,8 +542,11 @@ final class HttpClientMessenger extends BlockingMessenger {
                     transportBindingMeter.messageSent(true, msg, messageSentTime - connectTime, serialed.getByteLength());
                     transportBindingMeter.connectionClosed(true, messageSentTime - beginConnectTime);
                 }
+                
                 // note that we successfully sent a message
                 lastUsed = TimeUtils.timeNow();
+                
+                return;
             } finally {
                 // This does prevent the creation of an infinite number of connections
                 // if we happen to be going through a 1.0-only proxy or connect to a server
