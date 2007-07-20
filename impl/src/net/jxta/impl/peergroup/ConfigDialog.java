@@ -961,13 +961,6 @@ public class ConfigDialog extends Frame {
         /**
          * {@inheritDoc}
          */
-        public boolean getState() {
-            return useMe.getState();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
         public void itemStateChanged(ItemEvent e) {
             setState(useMe.getState());
         }
@@ -1696,7 +1689,7 @@ public class ConfigDialog extends Frame {
         }
 
         // make sure *some* transport is enabled.
-        if ((!(httpPanel.getState())) && (!(tcpPanel.getState()))) {
+        if ((!(httpPanel.useMe.getState())) && (!(tcpPanel.useMe.getState()))) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("At least one of TCP or HTTP must be enabled.");
             pages.showPage("Advanced");
@@ -1714,8 +1707,7 @@ public class ConfigDialog extends Frame {
             }
 
             // Check the http port fields.
-            boolean valid = verifyAddr("HTTP", httpPanel.publicAddr.getState(), httpPanel.ifAddr.getPort()
-                    ,
+            boolean valid = verifyAddr("HTTP", httpPanel.publicAddr.getState(), httpPanel.ifAddr.getPort(),
                     httpPanel.publicAddr.getHost(), httpPanel.publicAddr.getPort());
 
             if (!valid) {
@@ -1726,16 +1718,15 @@ public class ConfigDialog extends Frame {
         // tcp settings
         if (tcpPanel.useMe.getState()) {
             // make sure at least incoming or outgoing enabled.
-            if (!tcpPanel.clientEnabled.getState() && !tcpPanel.publicAddr.getState()) {
+            if (!tcpPanel.clientEnabled.getState() && !tcpPanel.publicAddr.getState() && !tcpPanel.multicast.getState()) {
                 helpLabel.setForeground(Color.red.darker());
-                helpLabel.setText("Must enable incoming and/or outcoming to enable TCP");
+                helpLabel.setText("Must enable at least one of incoming, outcoming or multicast to enable TCP");
                 pages.showPage("Advanced");
                 return false;
             }
 
             // Check the tcp port fields.
-            boolean valid = verifyAddr("TCP", tcpPanel.publicAddr.getState(), tcpPanel.ifAddr.getPort()
-                    ,
+            boolean valid = verifyAddr("TCP", tcpPanel.publicAddr.getState(), tcpPanel.ifAddr.getPort(),
                     tcpPanel.publicAddr.getHost(), tcpPanel.publicAddr.getPort());
 
             if (!valid) {
@@ -1743,24 +1734,24 @@ public class ConfigDialog extends Frame {
             }
         }
 
-        if (!relayPanel.useRelay.getState() && (!httpPanel.getState() || !httpPanel.publicAddr.getState())
-                && (!tcpPanel.getState() || !tcpPanel.publicAddr.getState())) {
+        if (!relayPanel.useRelay.getState() && (!httpPanel.useMe.getState() || !httpPanel.publicAddr.getState())
+                && (!tcpPanel.useMe.getState() || !tcpPanel.publicAddr.getState())) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("Must use Relay if incoming not enabled for TCP and/or HTTP");
             pages.showPage("Relay/Rendezvous");
             return false;
         }
 
-        if (enablingPanel.isRelay.getState() && (!httpPanel.getState() || !httpPanel.publicAddr.getState())
-                && (!tcpPanel.getState() || !tcpPanel.publicAddr.getState())) {
+        if (enablingPanel.isRelay.getState() && (!httpPanel.useMe.getState() || !httpPanel.publicAddr.getState())
+                && (!tcpPanel.useMe.getState() || !tcpPanel.publicAddr.getState())) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("Must enable incoming for TCP and/or HTTP to enable Relay");
             pages.showPage("Advanced");
             return false;
         }
 
-        if (enablingPanel.isRendezvous.getState() && (!httpPanel.getState() || !httpPanel.publicAddr.getState())
-                && (!tcpPanel.getState() || !tcpPanel.publicAddr.getState())) {
+        if (enablingPanel.isRendezvous.getState() && (!httpPanel.useMe.getState() || !httpPanel.publicAddr.getState())
+                && (!tcpPanel.useMe.getState() || !tcpPanel.publicAddr.getState())) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("Must enable incoming for TCP and/or HTTP to enable Rendezvous");
             pages.showPage("Advanced");
@@ -1836,7 +1827,7 @@ public class ConfigDialog extends Frame {
 
             httpAdv.setPublicAddressOnly(httpPanel.getPubAddrOnly());
 
-            configAdv.putServiceParam(PeerGroup.httpProtoClassID, wrapParm(httpAdv, httpPanel.getState()));
+            configAdv.putServiceParam(PeerGroup.httpProtoClassID, wrapParm(httpAdv, httpPanel.useMe.getState()));
 
             // Save tcp configuration
             TCPAdv tcpAdv = (TCPAdv) AdvertisementFactory.newAdvertisement(TCPAdv.getAdvertisementType());
@@ -1879,7 +1870,7 @@ public class ConfigDialog extends Frame {
 
             tcpAdv.setPublicAddressOnly(tcpPanel.getPubAddrOnly());
 
-            configAdv.putServiceParam(PeerGroup.tcpProtoClassID, wrapParm(tcpAdv, tcpPanel.getState()));
+            configAdv.putServiceParam(PeerGroup.tcpProtoClassID, wrapParm(tcpAdv, tcpPanel.useMe.getState()));
 
             // save the proxy service settings
             XMLDocument proxy = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
