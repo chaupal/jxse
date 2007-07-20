@@ -156,17 +156,16 @@ public class IncomingUnicastServer implements Runnable {
     /**
      * Start this server.
      *
-     * @param inGroup the thread group we should create our threads in.
      * @return true if successfully started
      */
-    public synchronized boolean start(ThreadGroup inGroup) {
+    public synchronized boolean start() {
 
         if (acceptThread != null) {
             return false;
         }
 
         // Start daemon thread
-        acceptThread = new Thread(inGroup, this, "TCP transport ServerSocket accept thread");
+        acceptThread = new Thread(transport.group.getHomeThreadGroup(), this, "TCP Transport ServerSocket accept for " + transport.getPublicAddress());
         acceptThread.setDaemon(true);
         acceptThread.start();
         return true;

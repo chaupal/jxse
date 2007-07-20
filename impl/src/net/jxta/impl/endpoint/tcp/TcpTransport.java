@@ -82,8 +82,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -187,7 +187,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
     PeerGroup group = null;
     EndpointService endpoint = null;
-    ThreadPoolExecutor executor;
+    Executor executor;
 
     private String protocolName = "tcp";
     private TransportMeter unicastTransportMeter;
@@ -476,8 +476,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         publicAddressOnly = adv.getPublicAddressOnly();
 
         // Start the servers
-        myThreadGroup = new ThreadGroup(group.getHomeThreadGroup(), "TcpTransport " + usingInterface.getHostAddress());
-
         if (adv.isServerEnabled()) {
             try {
             unicastServer = new IncomingUnicastServer(this, usingInterface, serverSocketPort, adv.getStartPort(), adv.getEndPort());
@@ -485,10 +483,15 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 throw new PeerGroupException( "Failed to open server socket.", failed);
             }
 
-            InetSocketAddress boundAddresss = unicastServer.getLocalSocketAddress();
+            InetSocketAddress boundAddress = unicastServer.getLocalSocketAddress();
 
             // TODO bondolo 20040628 Save the port back as a preference to TCPAdv
-
+            /*
+            if(-1 != adv.getStartPort()) {
+                adv.setPort(boundAddress.getPort());
+            }
+            */
+            
             // Build the publicAddresses :
             // first in the list is the "public server name". We don't try to
             // resolve this since it might not be resolvable in the context we 
@@ -512,7 +515,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                     InetAddress anAddress = (InetAddress) eachLocal.next();
                     String hostAddress = IPUtils.getHostAddress(anAddress);
                     EndpointAddress newAddr = new EndpointAddress(protocolName,
-                            hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
+                            hostAddress + ":" + Integer.toString(boundAddress.getPort()), null, null);
 
                     // don't add it if its already in the list
                     if (!anAddress.isLoopbackAddress()) {
@@ -525,8 +528,8 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 }
 
                 // we sort them so that later equals() will be deterministic.
-                // the result of IPUtils.getAllLocalAddresses() is not known
-                // to be sorted.
+                // the result of IPUtils.getAllLocalAddresses() is not known to 
+                // be sorted.
                 Collections.sort(wildAddrs, new Comparator<EndpointAddress>() {
                     public int compare(EndpointAddress one, EndpointAddress two) {
                         return one.toString().compareTo(two.toString());
@@ -538,8 +541,8 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 });
 
                 // Add public addresses:
-                // don't add them if we have a hand-set public address
-                // and the publicAddressOnly property is set.
+                // don't add them if we have a hand-set public address and the
+                // publicAddressOnly property is set.
                 if (!(serverName != null && publicAddressOnly)) {
                     publicAddresses.addAll(wildAddrs);
                 }
@@ -551,7 +554,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
                 String hostAddress = IPUtils.getHostAddress(usingInterface);
                 EndpointAddress newAddr = new EndpointAddress(protocolName,
-                        hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
+                        hostAddress + ":" + Integer.toString(boundAddress.getPort()), null, null);
 
                 // Add public address:
                 // don't add it if its already in the list
@@ -563,30 +566,29 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 }
             }
 
-            // If the only available interface is LOOPBACK,
-            // then make sure we use only that (that includes
-            // resetting the outgoing/listening interface
-            // from ANYADDRESS to LOOPBACK).
+            // If the only available interface is LOOPBACK, then make sure we 
+            // use only that (that includes resetting the outgoing/listening 
+            // interface from ANYADDRESS to LOOPBACK).
 
             if (localOnly) {
                 usingInterface = IPUtils.LOOPBACK;
                 publicAddresses.clear();
                 String hostAddress = IPUtils.getHostAddress(usingInterface);
                 EndpointAddress pubAddr = new EndpointAddress(protocolName,
-                        hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
+                        hostAddress + ":" + Integer.toString(boundAddress.getPort()), null, null);
 
                 publicAddresses.add(pubAddr);
             }
 
-            // Set the "prefered" public address. This is the address we
-            // will use for identifying outgoing requests.
+            // Set the "preferred" public address. This is the address we will 
+            // use for identifying outgoing requests.
             publicAddress = publicAddresses.get(0);
         } else {
             // Only the outgoing interface matters.
-            // Verify that ANY interface does not in fact mean
-            // LOOPBACK only. If that's the case, we want to make
-            // that explicit, so that consistency checks regarding
-            // the allowed use of that interface work properly.
+            // Verify that ANY interface does not in fact mean LOOPBACK only. If
+            // that's the case, we want to make that explicit, so that 
+            // consistency checks regarding the allowed use of that interface
+            // work properly.
             if (usingInterface.equals(IPUtils.ANYADDRESS)) {
                 boolean localOnly = true;
                 Iterator eachLocal = IPUtils.getAllLocalAddresses();
@@ -607,8 +609,8 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
             // The "public" address is just an internal label
             // it is not usefull to anyone outside.
-            // IMPORTANT: we set the port to zero, to signify that this
-            // address is not realy usable.
+            // IMPORTANT: we set the port to zero, to signify that this address
+            // is not realy usable.
             String hostAddress = IPUtils.getHostAddress(usingInterface);
 
             publicAddress = new EndpointAddress(protocolName, hostAddress + ":0", null, null);
@@ -683,7 +685,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             }
         }
 
-        messengerSelectorThread = new Thread(myThreadGroup, new MessengerSelectorThread(), "MessengerSelectorThread for " + this);
+        messengerSelectorThread = new Thread(group.getHomeThreadGroup(), new MessengerSelectorThread(), "TCP Transport MessengerSelectorThread for " + this);
         messengerSelectorThread.setDaemon(true);
         messengerSelectorThread.start();
 
@@ -701,7 +703,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         // do not exist yet ! (And get an NPE because we do not have the messenger listener set).
 
         if (unicastServer != null) {
-            if (!unicastServer.start(myThreadGroup)) {
+            if (!unicastServer.start()) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                     LOG.severe("Unable to start TCP Unicast Server");
                 }
@@ -1231,6 +1233,5 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 }
             }
         }
-        executor.purge();
     }
 }
