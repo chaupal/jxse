@@ -116,9 +116,9 @@ public class ListenerAdaptor implements Runnable {
     private final SimpleSelector selector = new SimpleSelector();
 
     /**
-     * Are we asked to stop ?
+     * Have we been shutdown?
      */
-    private volatile boolean stopped = false;
+    private volatile boolean shutdown = false;
 
     /**
      * The ThreadGroup in which this adaptor will run.
@@ -134,23 +134,13 @@ public class ListenerAdaptor implements Runnable {
         this.threadGroup = threadGroup;
     }
 
-    private synchronized void stop() {
-
-        stopped = true;
-
-        // Stop the thread if it was ever created.
-        if (bgThread != null) {
-            bgThread.interrupt();
-            bgThread = null;
-        }
-    }
-
     /**
-     * Cannot be re-started. Do not call once stopped.
+     * Cannot be re-started. Do not call once shutdown.
      */
-    private void init() {
+    private synchronized void init() {
+        assert !shutdown;
 
-        if (bgThread != null) {
+        if(bgThread != null) {
             return;
         }
 
@@ -159,8 +149,14 @@ public class ListenerAdaptor implements Runnable {
         bgThread.start();
     }
 
-    public void shutdown() {
-        stop();
+    public synchronized void shutdown() {
+        shutdown = true;
+
+        // Stop the thread if it was ever created.
+        Thread bg = bgThread;
+        if (bg != null) {
+            bg.interrupt();
+        }
     }
 
     /**
@@ -187,8 +183,7 @@ public class ListenerAdaptor implements Runnable {
      */
     public boolean watchMessage(OutgoingMessageEventListener listener, Message m) {
         synchronized (this) {
-
-            if (stopped) {
+            if (shutdown) {
                 return false;
             }
 
@@ -201,10 +196,9 @@ public class ListenerAdaptor implements Runnable {
             init();
 
             // First we must ensure that if the state changes we'll get to handle it.
-            ListenerContainer allListeners = inprogress.get(m.getIdentityReference());
+            MessageListenerContainer allListeners = (MessageListenerContainer) inprogress.get(m.getIdentityReference());
 
             if (allListeners == null) {
-                // Use ArrayList. The code is optimized for that.
                 allListeners = new MessageListenerContainer();
                 inprogress.put(m.getIdentityReference(), allListeners);
             }
@@ -229,7 +223,7 @@ public class ListenerAdaptor implements Runnable {
     public boolean watchMessenger(MessengerEventListener listener, Messenger m) {
         synchronized (this) {
 
-            if (stopped) {
+            if (shutdown) {
                 return false;
             }
 
@@ -242,7 +236,7 @@ public class ListenerAdaptor implements Runnable {
             init();
 
             // First we must ensure that if the state changes we'll get to handle it.
-            ListenerContainer allListeners = inprogress.get(m.getIdentityReference());
+            MessengerListenerContainer allListeners = (MessengerListenerContainer) inprogress.get(m.getIdentityReference());
 
             if (allListeners == null) {
                 // Use ArrayList. The code is optimized for that.
@@ -262,41 +256,38 @@ public class ListenerAdaptor implements Runnable {
     /*
      * Any sort of listener type.
      */
-    static abstract class ListenerContainer extends ArrayList<java.util.EventListener> {
+    static abstract class ListenerContainer<S extends SimpleSelectable, L extends java.util.EventListener> extends ArrayList<L> {
 
         public ListenerContainer() {
             super(1);
         }
 
-        protected abstract void giveUp(SimpleSelectable what, Throwable how);
+        protected abstract void giveUp(S what, Throwable how);
 
-        protected abstract void process(SimpleSelectable what);
+        protected abstract void process(S what);
     }
 
 
     /**
      * For messages
      */
-    class MessageListenerContainer extends ListenerContainer {
+    @SuppressWarnings("serial")
+    class MessageListenerContainer extends ListenerContainer<Message, OutgoingMessageEventListener> {
 
         private void messageDone(Message m, OutgoingMessageEvent event) {
-
             // Note: synchronization is externally provided. When this method is invoked, this
             // object has already been removed from the map, so the list of listener cannot change.
-
-            // Do not throw an iterator in the landfill for such a trivial case: optimize for an array list.
-            int i = size();
 
             if (event == OutgoingMessageEvent.SUCCESS) {
                 // Replace it with a msg-specific one.
                 event = new OutgoingMessageEvent(m, null);
 
-                while (i-- > 0) {
+                for(OutgoingMessageEventListener eachListener : this) {
                     try {
-                        ((OutgoingMessageEventListener) get(i)).messageSendSucceeded(event);
+                        eachListener.messageSendSucceeded(event);
                     } catch (Throwable any) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
+                            LOG.log(Level.WARNING, "Uncaught throwable from listener", any);
                         }
                     }
                 }
@@ -308,9 +299,9 @@ public class ListenerAdaptor implements Runnable {
                 event = new OutgoingMessageEvent(m, null);
             }
 
-            while (i-- > 0) {
+            for(OutgoingMessageEventListener eachListener : this) {
                 try {
-                    ((OutgoingMessageEventListener) get(i)).messageSendFailed(event);
+                    eachListener.messageSendFailed(event);
                 } catch (Throwable any) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
@@ -323,9 +314,7 @@ public class ListenerAdaptor implements Runnable {
          * {@inheritDoc}
          */
         @Override
-        protected void process(SimpleSelectable what) {
-
-            Message m = (Message) what;
+        protected void process(Message m) {
 
             OutgoingMessageEvent event = (OutgoingMessageEvent) m.getMessageProperty(Messenger.class);
 
@@ -334,7 +323,7 @@ public class ListenerAdaptor implements Runnable {
             }
 
             // Remove this container-selectable binding
-            forgetSelectable(what);
+            forgetSelectable(m);
 
             // Invoke app listeners
             messageDone(m, event);
@@ -344,8 +333,8 @@ public class ListenerAdaptor implements Runnable {
          * {@inheritDoc}
          */
         @Override
-        protected void giveUp(SimpleSelectable what, Throwable how) {
-            messageDone((Message) what, new OutgoingMessageEvent((Message) what, how));
+        protected void giveUp(Message m, Throwable how) {
+            messageDone(m, new OutgoingMessageEvent(m, how));
         }
     }
 
@@ -353,20 +342,19 @@ public class ListenerAdaptor implements Runnable {
     /**
      * For messengers
      */
-    class MessengerListenerContainer extends ListenerContainer {
+    @SuppressWarnings("serial")
+    class MessengerListenerContainer extends ListenerContainer<Messenger, MessengerEventListener> {
 
         private void messengerDone(Messenger m) {
 
             // Note: synchronization is externally provided. When this method is invoked, this
             // object has already been removed from the map, so the list of listener cannot change.
 
-            // Do not throw an iterator in the landfill for such a trivial case: optimize for an array list.
-            int i = size();
             MessengerEvent event = new MessengerEvent(ListenerAdaptor.this, m, null);
 
-            while (i-- > 0) {
+            for(MessengerEventListener eachListener : this) {
                 try {
-                    ((MessengerEventListener) get(i)).messengerReady(event);
+                    eachListener.messengerReady(event);
                 } catch (Throwable any) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
@@ -379,16 +367,13 @@ public class ListenerAdaptor implements Runnable {
          * {@inheritDoc}
          */
         @Override
-        protected void process(SimpleSelectable what) {
-
-            Messenger m = (Messenger) what;
-
+        protected void process(Messenger m) {
             if ((m.getState() & (Messenger.RESOLVED | Messenger.TERMINAL)) == 0) {
                 return;
             }
 
             // Remove this container-selectable binding
-            forgetSelectable(what);
+            forgetSelectable(m);
 
             if ((m.getState() & Messenger.USABLE) == 0) {
                 m = null;
@@ -402,7 +387,7 @@ public class ListenerAdaptor implements Runnable {
          * {@inheritDoc}
          */
         @Override
-        protected void giveUp(SimpleSelectable what, Throwable how) {
+        protected void giveUp(Messenger m, Throwable how) {
             messengerDone(null);
         }
     }
@@ -412,7 +397,7 @@ public class ListenerAdaptor implements Runnable {
      */
     public void run() {
         try {
-            while (!stopped) {
+            while (!shutdown) {
                 try {
                     Collection<SimpleSelectable> changed = selector.select();
 
@@ -440,7 +425,7 @@ public class ListenerAdaptor implements Runnable {
             // There won't be any other thread. This thing is dead if that
             // happens. And it really shouldn't.
             synchronized (this) {
-                stopped = true;
+                shutdown = true;
             }
         } finally {
             try {
@@ -463,6 +448,8 @@ public class ListenerAdaptor implements Runnable {
                     LOG.log(Level.SEVERE, "Uncaught Throwable while shutting down background thread", anyOther);
                 }
             }
+            
+            bgThread = null;
         }
     }
 }
