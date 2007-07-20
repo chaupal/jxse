@@ -66,12 +66,9 @@ public class MultiNetGroupLaucher {
         
         
         StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(npgImplAdv.getParam());
-        Map<ModuleClassID, Object> protos = params.getProtos();
+
+        params.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
         
-        ModuleImplAdvertisement mcastImplAdv = wpg.getLoader().findModuleImplAdvertisement(McastTransport.MCAST_TRANSPORT_SPECID);
-        protos.put(McastTransport.MCAST_TRANSPORT_CLASSID, mcastImplAdv);
-        
-        params.setProtos(protos);
         npgImplAdv.setParam((XMLDocument) params.getDocument(MimeMediaType.XMLUTF8));
         
         // Configure for cluster 1
