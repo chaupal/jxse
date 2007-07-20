@@ -522,7 +522,7 @@ public class NetworkConfigurator {
     
     /**
      * Returns the current directory for configuration and cache persistent 
-     * store. This is the same location as returned by {@link getStoreHome()}
+     * store. This is the same location as returned by {@link #getStoreHome()}
      * which is more general than this method.
      *
      * @return Returns the current home directory
@@ -553,8 +553,6 @@ public class NetworkConfigurator {
      * Sets the location which will serve as the parent for all stored items
      * used by JXTA.
      *
-     * @return The location which will serve as the parent for all stored items
-     * used by JXTA.
      * @see net.jxta.peergroup.PeerGroup#getStoreHome()
      */
     public void setStoreHome(URI newHome) {
@@ -657,7 +655,6 @@ public class NetworkConfigurator {
         if (id == null || id.equals(ID.nullID)) {
             throw new IllegalArgumentException("PeerGroupID can not be null");
         }
-        
         infraPeerGroupConfig.setPeerGroupID(id);
     }
     
@@ -677,7 +674,6 @@ public class NetworkConfigurator {
         }
         
         PeerGroupID pgid = (PeerGroupID) ID.create(URI.create(idStr));
-        
         setInfrastructureID(pgid);
     }
     
@@ -737,13 +733,6 @@ public class NetworkConfigurator {
     public void setMode(int mode) {
         this.mode = mode;
         if ((mode & PROXY_SERVER) == PROXY_SERVER && ((mode & RELAY_SERVER) != RELAY_SERVER)) {
-            
-            /*
-             // A proxy must at the very least support relaying
-             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-             LOG.log(Level.INFO, "Mode defined PROXY_SERVER, and no RELAY_SERVER, adding RELAY_SERVER support");
-             }
-             */
             mode = mode | RELAY_SERVER;
         }
         
@@ -1207,8 +1196,8 @@ public class NetworkConfigurator {
      * @return true if a PlatformConfig file exist under store home
      */
     public boolean exists() {
+
         URI platformConfig = storeHome.resolve("PlatformConfig");
-        
         try {
             return null != read(platformConfig);
         } catch( IOException failed ) {
@@ -1380,15 +1369,7 @@ public class NetworkConfigurator {
             throw new IllegalStateException("Missing TCP Advertisment");
         }
         tcpConfig = (TCPAdv) AdvertisementFactory.newAdvertisement(param);
-        
-        /*
-         if (tcpConfig.isClientEnabled()) {
-         mode = mode | TCP_CLIENT;
-         }
-         if (tcpConfig.isServerEnabled()) {
-         mode = mode | TCP_SERVER;
-         }*/
-        
+
         // HTTP
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.httpProtoClassID);
@@ -1404,17 +1385,8 @@ public class NetworkConfigurator {
             }
             // Read-in the adv as it is now.
             httpConfig = (HTTPAdv) AdvertisementFactory.newAdvertisement(param);
-            
-            /* if (httpConfig.isClientEnabled()) {
-             mode = mode | HTTP_CLIENT;
-             }
-             if (httpConfig.isServerEnabled()) {
-             mode = mode | HTTP_SERVER;
-             }
-             */
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the HTTP config advertisement");
-            
             ioe.initCause(failure);
             throw ioe;
         }
@@ -1427,7 +1399,6 @@ public class NetworkConfigurator {
             }
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the pse config advertisement");
-            
             ioe.initCause(failure);
             throw ioe;
         }
@@ -1447,7 +1418,6 @@ public class NetworkConfigurator {
             }
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the rendezvous config advertisement");
-            
             ioe.initCause(failure);
             throw ioe;
         }
@@ -1461,17 +1431,8 @@ public class NetworkConfigurator {
             // backwards compatibility
             param.addAttribute("type", RelayConfigAdv.getAdvertisementType());
             relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
-            
-            /* if (relayConfig.isClientEnabled()) {
-             mode = mode | RELAY_CLIENT;
-             }
-             if (relayConfig.isServerEnabled()) {
-             mode = mode | RELAY_SERVER;
-             }
-             */
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the relay config advertisement");
-            
             ioe.initCause(failure);
             throw ioe;
         }
@@ -1479,17 +1440,15 @@ public class NetworkConfigurator {
         // PSE
         param = (XMLElement) platformConfig.getServiceParam(PeerGroup.membershipClassID);
         if (param != null) {
+
             Advertisement adv = null;
-            
             try {
                 adv = AdvertisementFactory.newAdvertisement(param);
             } catch (NoSuchElementException notAnAdv) {
                 CertificateException cnfe = new CertificateException("No membership advertisement found");
-                
                 cnfe.initCause(notAnAdv);
             } catch (IllegalArgumentException invalidAdv) {
                 CertificateException cnfe = new CertificateException("Invalid membership advertisement");
-                
                 cnfe.initCause(invalidAdv);
             }
             
@@ -1510,17 +1469,19 @@ public class NetworkConfigurator {
                 URI configPropsURI = storeHome.resolve("config.properties");
                 InputStream configPropsIS = configPropsURI.toURL().openStream();
                 ResourceBundle rsrcs = new PropertyResourceBundle(configPropsIS);
-                
                 configPropsIS.close();
-                
+
                 NetGroupTunables tunables = new NetGroupTunables(rsrcs, new NetGroupTunables());
-                
+
                 infraPeerGroupConfig.setPeerGroupID(tunables.id);
                 infraPeerGroupConfig.setName(tunables.name);
                 infraPeerGroupConfig.setDesc(tunables.desc);
-            } catch (IOException ignored) {} catch (MissingResourceException ignored) {}
+            } catch (IOException ignored) {
+                //ignored
+            } catch (MissingResourceException ignored) {
+                //ignored
+            }
         }
-        
         return platformConfig;
     }
     
@@ -1552,7 +1513,6 @@ public class NetworkConfigurator {
 
             XMLDocument aDoc = (XMLDocument) advertisement.getDocument(MimeMediaType.XMLUTF8);
             OutputStreamWriter os = new OutputStreamWriter(out, "UTF-8");
-        
             aDoc.sendToWriter(os);
             os.flush();
         } finally {
@@ -1578,7 +1538,6 @@ public class NetworkConfigurator {
         if (!enabled) {
             parmDoc.appendChild(parmDoc.createElement("isOff"));
         }
-        
         return parmDoc;
     }
     
@@ -1784,13 +1743,12 @@ public class NetworkConfigurator {
         if (proxyConfig != null && ((mode & PROXY_SERVER) == PROXY_SERVER)) {
             advertisement.putServiceParam(PeerGroup.proxyClassID, proxyConfig);
         }
-        
+
         if ((null != infraPeerGroupConfig) && (null != infraPeerGroupConfig.getPeerGroupID())
-        && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
-        && (PeerGroupID.defaultNetPeerGroupID != infraPeerGroupConfig.getPeerGroupID())) {
+                && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
+                && (PeerGroupID.defaultNetPeerGroupID != infraPeerGroupConfig.getPeerGroupID())) {
             advertisement.setSvcConfigAdvertisement(PeerGroup.peerGroupClassID, infraPeerGroupConfig);
         }
-        
         return advertisement;
     }
     
@@ -1806,17 +1764,14 @@ public class NetworkConfigurator {
             url = location.toURL();
         } catch (MalformedURLException mue) {
             IllegalArgumentException failure = new IllegalArgumentException("Failed to convert URI to URL");
-            
             failure.initCause(mue);
             throw failure;
         }
         
-        XMLElement param;
         InputStream input = url.openStream();
         try {
             XMLDocument document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, input);
             PlatformConfig platformConfig = (PlatformConfig) AdvertisementFactory.newAdvertisement(document);
-            
             return platformConfig;
         } finally {
             input.close();
