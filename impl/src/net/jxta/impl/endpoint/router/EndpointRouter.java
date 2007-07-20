@@ -186,6 +186,11 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     private PeerGroup group = null;
 
     private ID assignedID = null;
+    
+    /**
+     * If {@code true} this service has been closed.
+     */
+    private boolean stopped = false;
 
     /**
      * Whenever we initiate connectivity to a peer (creating a direct route).
@@ -227,8 +232,8 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      * FIXME: tra@jxta.org 20030818 the pending hashmap should be moved
      * in the routeResolver class.
      */
-    private final Map<PeerID, ClearPendingQuery> pendingQueries = Collections.synchronizedMap(
-            new HashMap<PeerID, ClearPendingQuery>());
+    private final Map<PeerID, ClearPendingQuery> pendingQueries = 
+            Collections.synchronizedMap(new HashMap<PeerID, ClearPendingQuery>());
 
     /**
      * Timer by which we schedule the clearing of pending queries.
@@ -294,9 +299,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 }
             } catch (Throwable all) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
-                            "Uncaught Throwable in timer task " + Thread.currentThread().getName() + " for " + peerID, all);
+                    LOG.log(Level.SEVERE, "Uncaught Throwable in timer task " + Thread.currentThread().getName() + " for " + peerID, all);
                 }
             }
         }
@@ -420,10 +423,20 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 hasResponse = true;
                 if (event != null) {
                     messenger = event.getMessenger();
-                    if (messenger != null && !messenger.getLogicalDestinationAddress().equals(logDest)) {
-                        // Ooops, wrong number !
-                        toClose = messenger;
-                        messenger = null;
+                    if (null != messenger) {
+                        if(!logDest.equals(messenger.getLogicalDestinationAddress())) {
+                            // Ooops, wrong number !
+                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                                LOG.warning("Incorrect Messenger logical destination : " + logDest + "!=" + messenger.getLogicalDestinationAddress());
+                            }
+
+                            toClose = messenger;
+                            messenger = null;
+                        }
+                    } else {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.warning("null messenger for dest :" + logDest);
+                        }
                     }
                 } else {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -440,9 +453,9 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 }
             }
 
-            // We had to release the lock on THIS before we can get the lock
-            // on the router. (Or face a dead lock - we treat this as a lower
-            // level lock)
+            // We had to release the lock on THIS before we can get the lock on
+            // the router. (Or face a dead lock - we treat this as a lower level
+            // lock)
 
             if (messenger == null) {
                 if (toClose != null) {
@@ -459,10 +472,11 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 synchronized (this) {
                     // Only thing that can happen is that we notify for nothing
                     // We took the lock when updating hasResult, so, the event
-                    // will not be missed. FIXME. It would be more logical
-                    // to let the waiter do the above if (!isGone) as in
-                    // the case of success below. However we'll
-                    // minimize changes for risk management reasons.
+                    // will not be missed. 
+                    // FIXME It would be more logical to let the waiter do the 
+                    // above if (!isGone) as in the case of success below. 
+                    // However, we'll minimize changes for risk management 
+                    // reasons.
                     notify();
                 }
                 return false;
@@ -685,7 +699,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] arg) {
+    public synchronized int startApp(String[] arg) {
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
@@ -795,7 +809,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         }
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Router Message Transport started.");
+            LOG.info(group + " : Router Message Transport started.");
         }
         return status;
     }
@@ -805,12 +819,13 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      * <p/>
      * Careful that stopApp() could in theory be called before startApp().
      */
-    public void stopApp() {
+    public synchronized void stopApp() {
+        stopped = true;
+        
         if (endpoint != null) {
             endpoint.removeIncomingMessageListener(ROUTER_SERVICE_NAME, null);
             endpoint.removeMessengerEventListener(this, EndpointService.MediumPrecedence);
             endpoint.removeMessageTransport(this);
-            endpoint = null;
         }
 
         // FIXME tra 20030818 should be unloaded as a service
@@ -820,9 +835,9 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         routeResolver.stopApp();
 
         destinations.close();
-        timer.cancel();
+        
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Router Message Transport stopped.");
+            LOG.info(group + " : Router Message Transport stopped.");
         }
     }
 
@@ -1993,10 +2008,10 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 continue;
             }
             int rank = -1;
-            Iterator eachTransport = endpoint.getAllMessageTransports();
+            Iterator<MessageTransport> eachTransport = endpoint.getAllMessageTransports();
 
             while (eachTransport.hasNext()) {
-                MessageTransport transpt = (MessageTransport) eachTransport.next();
+                MessageTransport transpt = eachTransport.next();
 
                 if (!transpt.getProtocolName().equals(addr.getProtocolName())) {
                     continue;
@@ -2239,7 +2254,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
         RouteAdvertisement routeHint = null;
         EndpointAddress plainAddr = new EndpointAddress(addr, null, null);
-
+        
         // If the dest is the local peer, just loop it back without going
         // through the router.
         if (plainAddr.equals(localPeerAddr)) {
