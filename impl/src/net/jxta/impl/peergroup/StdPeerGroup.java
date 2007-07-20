@@ -59,6 +59,7 @@ package net.jxta.impl.peergroup;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -92,16 +93,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.document.StructuredDocument;
@@ -133,7 +135,6 @@ public class StdPeerGroup extends GenericPeerGroup {
     protected static final String STD_COMPAT_FORMAT_VALUE = "JDK1.4.1";
     protected static final String STD_COMPAT_BINDING = "Bind";
     protected static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
-
     
     static {
         try {
@@ -167,14 +168,16 @@ public class StdPeerGroup extends GenericPeerGroup {
      * Module description. The fields are separated by whitespace.
      * 
      * @param providerList the URI to a file containing a list of modules
-     * @return boolean true if at least one of the instance classes could be
-     * registered otherwise false.
+     * @return {@code true} if at least one of the instance classes could be
+     * registered otherwise {@code false}.
      */
     private static boolean registerFromFile(URI providerList) {
         boolean registeredSomething = false;
+        InputStream urlStream = null;
         
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(providerList.toURL().openStream(), "UTF-8"));
+            urlStream = providerList.toURL().openStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
 
             String provider;
 
@@ -213,8 +216,18 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
             }
         } catch (IOException ex) {
-            LOG.log(Level.WARNING, "Failed to read provider list " + providerList, ex);
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to read provider list " + providerList, ex);
+            }
             return false;
+        } finally {
+            if(null != urlStream) {
+                try {
+                    urlStream.close();
+                } catch(IOException ignored) {
+                    
+                }
+            }
         }
 
         return registeredSomething;
@@ -227,20 +240,28 @@ public class StdPeerGroup extends GenericPeerGroup {
     
     /**
      * The minimum number of Threads our Executor will reserve. Once started
-     * these Threads will remain
+     * these Threads will remain.
+     *
+     * todo convert these hardcoded settings into group config params.
      */
-    private static int COREPOOLSIZE = 5;
+    private final int COREPOOLSIZE = 5;
     
     /**
-     * The maximum number of Threads our Executor will allocate.
+     * The intended upper bound on the number of threads we will allow our 
+     * Executor to create. We will allow the pool to grow to twice this size if
+     * we run out of threads.
+     *
+     * todo convert these hardcoded settings into group config params.
      */
-    private static int MAXPOOLSIZE = 150;
+    private final int MAXPOOLSIZE = 50;
     
     /**
      * The number of seconds that Threads above {@code COREPOOLSIZE} will
      * remain idle before terminating.
+     *
+     * todo convert these hardcoded settings into group config params.
      */
-    private static int KEEPALIVETIME = 15;
+    private final long KEEPALIVETIME = 15;
     
     /**
      * The order in which we started the services.
@@ -251,9 +272,9 @@ public class StdPeerGroup extends GenericPeerGroup {
      * A map of the Message Transports for this group.
      * <p/>
      * <ul>
-     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     * <li>values are {@link net.jxta.platform.Module}, but should also be
-     * {@link net.jxta.endpoint.MessageTransport}</li>
+     *   <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
+     *   <li>values are {@link net.jxta.platform.Module}, but should also be
+     *   {@link net.jxta.endpoint.MessageTransport}</li>
      * </ul>
      */
     private final Map<ModuleClassID, Object> messageTransports = new HashMap<ModuleClassID, Object>();
@@ -283,11 +304,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * Queue for tasks waiting to be run by our {@code Executor}.
      */
-    private final BlockingQueue<Runnable> taskQueue;
-    
-    private final Set<ModuleClassID> disabledModules = new HashSet<ModuleClassID>();
-    
-    private ModuleImplAdvertisement allPurposeImplAdv = null;
+    private BlockingQueue<Runnable> taskQueue;
     
     private static XMLDocument mkCS() {
         XMLDocument doc = (XMLDocument)
@@ -368,15 +385,36 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
         }
     }
+    
+    /**
+     * Our thread factory that we 
+     */
+    static class PeerGroupThreadFactory implements ThreadFactory {
+        final AtomicInteger threadNumber = new AtomicInteger(1);
+        final ThreadGroup threadgroup;
+
+        PeerGroupThreadFactory(ThreadGroup threadgroup) {
+            this.threadgroup = threadgroup;
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(threadgroup, r,
+                                  "Executor - " + threadNumber.getAndIncrement(),
+                                  0);
+            
+            if(t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+    }
+
 
     /**
      * constructor
      */
     public StdPeerGroup() {
-        // todo convert these hardcoded settings into group config params
-        this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
-        this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, KEEPALIVETIME, TimeUnit.SECONDS, taskQueue);
-        threadPool.setRejectedExecutionHandler(new CallerBlocksPolicy(MAXPOOLSIZE));
     }
     
     /**
@@ -487,22 +525,6 @@ public class StdPeerGroup extends GenericPeerGroup {
             Map.Entry<ModuleClassID, Object> anEntry = eachModule.next();
             ModuleClassID classID = anEntry.getKey();
             Object value = anEntry.getValue();
-            
-            // If it is disabled, strip it.
-            if (disabledModules.contains(classID)) {
-                if (value instanceof ModuleImplAdvertisement) {
-                    if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                        LOG.config("Module disabled by configuration : " + ((ModuleImplAdvertisement) value).getDescription());
-                    }
-                } else {
-                    if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                        LOG.config("Module disabled by configuration : " + value);
-                    }
-                }
-                
-                eachModule.remove();
-                continue;
-            }
             
             // Already loaded.
             if (value instanceof Module) {
@@ -663,8 +685,8 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
-     * This method loads and initializes all modules
-     * described in the given implementation advertisement. Then, all modules
+     * This method loads and initializes all of the peer group modules
+     * described in the provided implementation advertisement. Then, all modules
      * are placed in a list and the list is processed iteratively. During each
      * iteration, the {@link Module#startApp(String[])} method of each module
      * is invoked once. Iterations continue until no progress is being made or
@@ -719,11 +741,20 @@ public class StdPeerGroup extends GenericPeerGroup {
         // Set-up the minimal GenericPeerGroup
         super.initFirst(parent, assignedID, impl);
         
-        // initialize cm before starting services. Do not refer to assignedID, as it could be
-        // null, in which case the group ID has been generated automatically by super.initFirst()
+        // assignedID might have been null. It is now the peer group ID.
+        assignedID = getPeerGroupID();
+        
+        this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
+        this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, 
+                KEEPALIVETIME, TimeUnit.SECONDS, 
+                taskQueue,
+                new PeerGroupThreadFactory(getHomeThreadGroup()),
+                new CallerBlocksPolicy(MAXPOOLSIZE));
+        
+        // initialize cm before starting services.        
         try {
             cm = new Cm(getHomeThreadGroup(), 
-                    getStoreHome(), getPeerGroupID().getUniqueValue().toString(),
+                    getStoreHome(), assignedID.getUniqueValue().toString(),
                     Cm.DEFAULT_GC_MAX_INTERVAL, false);
         } catch (Exception e) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -735,9 +766,16 @@ public class StdPeerGroup extends GenericPeerGroup {
         // flush srdi for this group
         SrdiIndex.clearSrdi(this);
         
-        /*
-         * Build the list of modules disabled by config.
-         */
+        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
+        
+        // Load the list of peer group services from the impl advertisement params.
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdv.getParam());
+        
+        Map<ModuleClassID, Object> initServices = new HashMap<ModuleClassID, Object>(paramAdv.getServices());
+        
+        initServices.putAll(paramAdv.getProtos());
+        
+        // Remove the modules disabled in the configuration file.
         ConfigParams conf = getConfigAdvertisement();
 
         if (conf != null) {
@@ -745,21 +783,20 @@ public class StdPeerGroup extends GenericPeerGroup {
                 Element e = anEntry.getValue();
 
                 if (e.getChildren("isOff").hasMoreElements()) {
-                    disabledModules.add((ModuleClassID) anEntry.getKey());
+                    Object value = initServices.remove((ModuleClassID) anEntry.getKey());
+                    
+                    if (value instanceof ModuleImplAdvertisement) {
+                        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                            LOG.config("Module disabled by configuration : " + ((ModuleImplAdvertisement) value).getDescription());
+                        }
+                    } else {
+                        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                            LOG.config("Module disabled by configuration : " + value);
+                        }
+                    }
                 }
             }
-        }
-        
-        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
-        
-        /*
-         * Load all the modules from the advertisement
-         */
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdv.getParam());
-        
-        Map<ModuleClassID, Object> initServices = new HashMap<ModuleClassID, Object>(paramAdv.getServices());
-        
-        initServices.putAll(paramAdv.getProtos());
+        }        
         
         loadAllModules(initServices, true);
         
@@ -767,15 +804,14 @@ public class StdPeerGroup extends GenericPeerGroup {
         applications.putAll(paramAdv.getApps());
         
         // Make a list of all the things we need to start.
-        // There is an a-priori order, but we'll iterate over the
-        // list until all where able to complete their start phase
-        // or no progress is made. Since we give to modules the opportunity
-        // to pretend that they are making progress, we need to have a
-        // safeguard: we will not iterate through the list more than N^2 + 1
-        // times without at least one module completing; N being the number
-        // of modules still in the list. That should cover the worst case
-        // scenario and still allow the process to eventually fail if it has
-        // no chance of success.
+        // There is an a-priori order, but we'll iterate over the list until all
+        // where able to complete their start phase or no progress is made. 
+        // Since we give to modules the opportunity to pretend that they are 
+        // making progress, we need to have a safeguard: we will not iterate 
+        // through the list more than N^2 + 1 times without at least one module 
+        // completing; N being the number of modules still in the list. This 
+        // should cover the worst case scenario and still allow the process to 
+        // eventually fail if it has no chance of success.
         
         int iterations = 0;
         int maxIterations = initServices.size() * initServices.size() + iterations + 1;
@@ -977,72 +1013,60 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        
-        // Build it only the first time; then clone it.
-        if (allPurposeImplAdv != null) {
-            return allPurposeImplAdv.clone();
-        }
-        
         JxtaLoader loader = getJxtaLoader();
 
         // grab an impl adv
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.allPurposePeerGroupSpecID);
         
+        // Create the service list for the group.
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
         ModuleImplAdvertisement moduleAdv;
         
+        
         // set the services
-        Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
         
         // core services
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
-        services.put(PeerGroup.endpointClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.endpointClassID, moduleAdv);
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
-        services.put(PeerGroup.resolverClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.resolverClassID, moduleAdv);
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
-        services.put(PeerGroup.membershipClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.membershipClassID, moduleAdv);
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
-        services.put(PeerGroup.accessClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.accessClassID, moduleAdv);
         
         // standard services
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
-        services.put(PeerGroup.discoveryClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.discoveryClassID, moduleAdv);
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
-        services.put(PeerGroup.rendezvousClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.rendezvousClassID, moduleAdv);
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
-        services.put(PeerGroup.pipeClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.pipeClassID, moduleAdv);
         
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
-        services.put(PeerGroup.peerinfoClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.peerinfoClassID, moduleAdv);
+
         
         // Applications
-        Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
         if(null != moduleAdv) {        
-            apps.put(PeerGroup.applicationClassID, moduleAdv);
+            paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
         }
 
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-        
-        paramAdv.setServices(services);
-        paramAdv.setProtos(Collections.<ModuleClassID,Object>emptyMap());
-        paramAdv.setApps(apps);
-         
         // Insert the newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
         
         implAdv.setParam(paramElement);
         
-        allPurposeImplAdv = implAdv;
-        
-        return implAdv.clone();
+        return implAdv;
     }
     
     /**
@@ -1073,7 +1097,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      *
      * @return the executor pool
      */
-    public ThreadPoolExecutor getExecutor() {
+    public Executor getExecutor() {
         return threadPool;
     }
 }
