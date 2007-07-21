@@ -1092,16 +1092,18 @@ public class ConfigDialog extends Frame {
     /**
      * Manages Rendezvous service options
      */
-    final static class RdvPanel extends BorderPanelGBL {
+    final static class RdvPanel extends BorderPanelGBL implements ItemListener {
 
+        private final Checkbox useRdv;
         private final Checkbox useOnlySeeds;
         private final HostListPanel seeding;
         private final HostListPanel seeds;
 
-        RdvPanel(boolean onlySeeds) {
+        RdvPanel(boolean useARdv, boolean onlySeeds) {
             super("Rendezvous Settings");
 
-            useOnlySeeds = new Checkbox("Use only configured seed rendezvous", null, onlySeeds);
+            useRdv = new Checkbox("Use a rendezvous", null, useARdv);
+            useOnlySeeds = new Checkbox("Use only configured seeds", null, onlySeeds);
             seeds = new HostListPanel("Seeds", "Rendezvous seed peers", true, false);
             seeding = new HostListPanel("Seeding", "Rendezvous seeding URIs", true, false);
 
@@ -1110,9 +1112,16 @@ public class ConfigDialog extends Frame {
             c1.gridx = 0;
             c1.gridy = 0;
             c1.anchor = GridBagConstraints.LINE_START;
+            add(useRdv, c1);
+            useRdv.addItemListener(this);
+
+            c1.gridx++;
+            c1.anchor = GridBagConstraints.LINE_END;
             add(useOnlySeeds, c1);
 
+            c1.gridx = 0;
             c1.gridy++;
+            c1.gridwidth = 2;
             c1.weightx = 1.0;
             c1.fill = GridBagConstraints.HORIZONTAL;
             c1.anchor = GridBagConstraints.LINE_START;
@@ -1120,6 +1129,15 @@ public class ConfigDialog extends Frame {
 
             c1.gridy++;
             add(seeds, c1);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void itemStateChanged(ItemEvent e) {
+            seeds.setEnabled(useRdv.getState());
+            seeding.setEnabled(useRdv.getState());
+            useOnlySeeds.setEnabled(useRdv.getState());
         }
     }
 
@@ -1139,7 +1157,7 @@ public class ConfigDialog extends Frame {
             super("Relay Settings");
 
             useRelay = new Checkbox("Use a relay", null, useARelay);
-            useOnlySeeds = new Checkbox("Use only configured seed relays", null, onlySeeds);
+            useOnlySeeds = new Checkbox("Use only configured seeds", null, onlySeeds);
             useOnlySeeds.setEnabled(useARelay);
             seeds = new HostListPanel("Seeds", "Relay seed peers", useARelay, false);
             seeding = new HostListPanel("Seeding", "Relay seeding URIs", useARelay, false);
@@ -1156,8 +1174,8 @@ public class ConfigDialog extends Frame {
             c1.anchor = GridBagConstraints.LINE_END;
             add(useOnlySeeds, c1);
 
-            c1.gridy++;
             c1.gridx = 0;
+            c1.gridy++;
             c1.gridwidth = 2;
             c1.weightx = 1.0;
             c1.fill = GridBagConstraints.HORIZONTAL;
@@ -1395,6 +1413,7 @@ public class ConfigDialog extends Frame {
 
         // Rendezvous Settings
         boolean isRendezvous;
+        boolean isAdhoc;        
         boolean onlySeeds;
         List<String> seedRdvs = new ArrayList<String>();
         List<String> seedingRdvs = new ArrayList<String>();
@@ -1407,6 +1426,8 @@ public class ConfigDialog extends Frame {
             rdvConfigAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
 
             isRendezvous = (RendezVousConfiguration.RENDEZVOUS == rdvConfigAdv.getConfiguration());
+
+            isAdhoc = (RendezVousConfiguration.AD_HOC == rdvConfigAdv.getConfiguration());
 
             onlySeeds = rdvConfigAdv.getUseOnlySeeds();
 
@@ -1481,17 +1502,14 @@ public class ConfigDialog extends Frame {
 
         enablingPanel = new EnablingPanel(isRelay, isRendezvous, isJxmeProxy);
 
-        tcpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_TCP, tcpEnabled, "TCP Settings", defaultInterfaceAddressT
-                ,
-                defaultPortT, clientDefaultT, serverDefaultT, defaultServerNameT, defaultServerPortT, noPublicAddressesT
-                ,
+        tcpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_TCP, tcpEnabled, "TCP Settings", defaultInterfaceAddressT,
+                defaultPortT, clientDefaultT, serverDefaultT, defaultServerNameT, defaultServerPortT, noPublicAddressesT,
                 multicastEnabledT);
 
-        httpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_HTTP, httpEnabled, "HTTP Settings", defaultInterfaceAddressH
-                ,
+        httpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_HTTP, httpEnabled, "HTTP Settings", defaultInterfaceAddressH,
                 defaultPortH, clientDefaultH, serverDefaultH, defaultServerNameH, defaultServerPortH, noPublicAddressesH);
 
-        rdvPanel = new RdvPanel(onlySeeds);
+        rdvPanel = new RdvPanel(!isAdhoc, onlySeeds);
 
         // add the relays
 
@@ -1885,7 +1903,8 @@ public class ConfigDialog extends Frame {
             RdvConfigAdv rdvConf = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
 
             rdvConf.setConfiguration(
-                    enablingPanel.isRendezvous.getState() ? RendezVousConfiguration.RENDEZVOUS : RendezVousConfiguration.EDGE);
+                    enablingPanel.isRendezvous.getState() ? RendezVousConfiguration.RENDEZVOUS : 
+                            rdvPanel.useRdv.getState() ? RendezVousConfiguration.EDGE : RendezVousConfiguration.AD_HOC);
             rdvConf.setUseOnlySeeds(rdvPanel.useOnlySeeds.getState());
 
             for (String s2 : Arrays.asList(rdvPanel.seeds.getItems())) {
