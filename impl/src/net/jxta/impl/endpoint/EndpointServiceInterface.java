@@ -440,8 +440,8 @@ class EndpointServiceInterface implements EndpointService {
         return theRealThing.removeMessengerEventListener(listener, prio);
     }
 
-    // We do not have much choice here, since applications are supposed to ditch interface objects without much thinking. Note:
-    // this will never happen if, by any chance listenerAdaptor has a direct or indirect ref to this.
+    // We do not have much choice here, since applications are supposed to ditch interface objects without much thinking. 
+    // Note: this will never happen if, by any chance listenerAdaptor has a direct or indirect ref to this.
     @Override
     protected void finalize() {
         listenerAdaptor.shutdown();
