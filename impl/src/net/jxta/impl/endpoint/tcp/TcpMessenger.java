@@ -950,6 +950,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
      * processes the input byte buffer
      * @return the list of messages present in the buffer
      */
+    @SuppressWarnings("fallthrough")
     public List<Message> processBuffer() {
         
         List<Message> msgs = new ArrayList<Message>();
