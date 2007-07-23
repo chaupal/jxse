@@ -82,8 +82,6 @@ public class RelayReferralSeedingManager extends URISeedingManager {
      */
     private static final transient Logger LOG = Logger.getLogger(RelayReferralSeedingManager.class.getName());
 
-    private final boolean probeRelays;
-
     private final PeerGroup group;
     
     /**
