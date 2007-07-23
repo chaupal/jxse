@@ -57,7 +57,7 @@ public class MultiNetGroupLaucher {
         
         PeerGroup wpg = wpgf.getInterface();
         
-        System.out.println("World Peer Group : " + wpg + " started!");
+        System.out.println("JXTA World Peer Group : " + wpg + " started!");
         
         return wpg;
     }
@@ -83,7 +83,7 @@ public class MultiNetGroupLaucher {
             
             npgImplAdv.setParam((XMLDocument) params.getDocument(MimeMediaType.XMLUTF8));
         } catch( Exception failed ) {
-            throw new PeerGroupException("Could not consturct domain ModuleImplAdvertisement", failed);
+            throw new PeerGroupException("Could not construct domain ModuleImplAdvertisement", failed);
         }
         
         // Configure the domain
@@ -112,7 +112,7 @@ public class MultiNetGroupLaucher {
     /**
      * main
      *
-     * @param args command line arguments
+     * @param args command line arguments. (unused)
      * @throws Throwable Thrown for every type of error.
      */
     public static void main(String args[]) throws Throwable {
