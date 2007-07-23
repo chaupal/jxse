@@ -499,7 +499,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         localGroupWirePipeAdv = makeWirePipeAdvertisement(group, group, name);
 
-        if (group != advertisingGroup) {
+        if (null != advertisingGroup) {
             advGroupPropPipeAdv = makeWirePipeAdvertisement(advertisingGroup, group, name);
         } else {
             advGroupPropPipeAdv = null;
