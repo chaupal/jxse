@@ -11,9 +11,9 @@ package tutorial.multinetgroup;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Map;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
+import net.jxta.exception.PeerGroupException;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.NetPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
@@ -21,101 +21,113 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.platform.ModuleClassID;
 
 import net.jxta.impl.endpoint.mcast.McastTransport;
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 
 /**
- *
- * @author mike
+ *  This sample shows how to construct multiple infrastructure (Network) Peer
+ *  Groups.
  */
 public class MultiNetGroupLaucher {
     
+    /**
+     *  The name of our peer.
+     */
     private final static String PEER_NAME = "Peer";
     
     /**
-     * main
+     *  Configure and start the World Peer Group.
      *
-     * @param args command line arguments
+     *  @param storeHome The location JXTA will use to store all persistent data.
+     *  @param peername The name of the peer.
+     *  @throws PeerGroupException Thrown for errors creating the world peer group.
      */
-    public static void main(String args[]) throws Exception {
-        final URI storeHome = new File(".jxta/").toURI();
-        
-        // Configure the world peer group.
-        
+    public static PeerGroup startJXTA(URI storeHome, String peername ) throws PeerGroupException {
         NetworkConfigurator worldGroupConfig = NetworkConfigurator.newAdHocConfiguration(storeHome);
         
-        PeerID peerid = tutorial.id.IDTutorial.createPeerID( PeerGroupID.worldPeerGroupID, PEER_NAME );
-        worldGroupConfig.setName("Peer");
+        PeerID peerid = tutorial.id.IDTutorial.createPeerID( PeerGroupID.worldPeerGroupID, peername );
+        worldGroupConfig.setName(peername);
         worldGroupConfig.setPeerID(peerid);
+        // Disable multicast because we will be using a separate multicast in each group.
         worldGroupConfig.setUseMulticast(false);
         
         // Instantiate the world peer group
-        
         WorldPeerGroupFactory wpgf = new WorldPeerGroupFactory(worldGroupConfig.getPlatformConfig(), storeHome);
         
         PeerGroup wpg = wpgf.getInterface();
         
         System.out.println("World Peer Group : " + wpg + " started!");
         
-        // Create the ModuleImplAdvertisement for the Net Peer Groups. (Adds multicast)
+        return wpg;
+    }
+    
+    /**
+     *  Configure and start a separate top-level JXTA domain.
+     *
+     *  @param wpg The JXTA context into which the domain will run.
+     *  @param domainName The name of the domain.
+     *  @throws PeerGroupException Thrown for errors creating the domain.
+     */
+    public static PeerGroup startDomain( PeerGroup wpg, String domainName ) throws PeerGroupException {
+        assert wpg.getPeerGroupID().equals(PeerGroupID.worldPeerGroupID);
         
-        ModuleImplAdvertisement npgImplAdv = wpg.getAllPurposePeerGroupImplAdvertisement();
-        npgImplAdv.setModuleSpecID(PeerGroup.allPurposePeerGroupSpecID);
+        ModuleImplAdvertisement npgImplAdv;
+        try {
+            npgImplAdv = wpg.getAllPurposePeerGroupImplAdvertisement();
+            npgImplAdv.setModuleSpecID(PeerGroup.allPurposePeerGroupSpecID);
+            
+            StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(npgImplAdv.getParam());
+            
+            params.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
+            
+            npgImplAdv.setParam((XMLDocument) params.getDocument(MimeMediaType.XMLUTF8));
+        } catch( Exception failed ) {
+            throw new PeerGroupException("Could not consturct domain ModuleImplAdvertisement", failed);
+        }
         
+        // Configure the domain
         
-        StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(npgImplAdv.getParam());
-
-        params.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
+        NetworkConfigurator domainConfig = NetworkConfigurator.newAdHocConfiguration(wpg.getStoreHome());
         
-        npgImplAdv.setParam((XMLDocument) params.getDocument(MimeMediaType.XMLUTF8));
+        PeerGroupID domainID = tutorial.id.IDTutorial.createPeerGroupID(domainName);
+        domainConfig.setInfrastructureID(domainID);
+        domainConfig.setName(wpg.getPeerName());
+        domainConfig.setPeerID(wpg.getPeerID());
+        domainConfig.setUseMulticast(true);
+        int domainMulticastPort = 1025 + (domainName.hashCode() % 60000);
+        domainConfig.setMulticastPort(domainMulticastPort);
         
-        // Configure for cluster 1
+        // Instantiate the domain net peer group
         
-        NetworkConfigurator cluster1GroupConfig = NetworkConfigurator.newAdHocConfiguration(storeHome);
+        NetPeerGroupFactory npgf1 = new NetPeerGroupFactory(wpg, domainConfig.getPlatformConfig(), npgImplAdv);
         
-        PeerGroupID cluster1id = tutorial.id.IDTutorial.createPeerGroupID("cluster1");
-        cluster1GroupConfig.setInfrastructureID(cluster1id);
-        cluster1GroupConfig.setName("Peer");
-        cluster1GroupConfig.setPeerID(peerid);
-        cluster1GroupConfig.setUseMulticast(true);
-        int cluster1multicastport = 1025 + ("cluster1".hashCode() % 60000);
-        cluster1GroupConfig.setMulticastPort(cluster1multicastport);
+        PeerGroup domain = npgf1.getInterface();
         
-        // Instantiate cluster 1 net peer group
+        System.out.println("Peer Group : " + domain + " started!");
         
-        NetPeerGroupFactory npgf1 = new NetPeerGroupFactory(wpg, cluster1GroupConfig.getPlatformConfig(), npgImplAdv);
+        return domain;
+    }
+    
+    /**
+     * main
+     *
+     * @param args command line arguments
+     * @throws Throwable Thrown for every type of error.
+     */
+    public static void main(String args[]) throws Throwable {
+        final URI storeHome = new File(".jxta/").toURI();
         
-        PeerGroup cluster1 = npgf1.getInterface();
+        PeerGroup wpg = startJXTA(storeHome, PEER_NAME);
         
-        System.out.println("Cluster 1 Peer Group : " + cluster1 + " started!");
-        
-        // Configure for cluster 2
-        
-        NetworkConfigurator cluster2GroupConfig = NetworkConfigurator.newAdHocConfiguration(storeHome);
-        
-        PeerGroupID cluster2id = tutorial.id.IDTutorial.createPeerGroupID("cluster2");
-        cluster2GroupConfig.setInfrastructureID(cluster2id);
-        cluster2GroupConfig.setName("Peer");
-        cluster2GroupConfig.setPeerID(peerid);
-        cluster2GroupConfig.setUseMulticast(true);
-        int cluster2multicastport = 1025 + ("cluster2".hashCode() % 60000);
-        cluster2GroupConfig.setMulticastPort(cluster2multicastport);
-        
-        // Instantiate cluster 2 net peer group
-        
-        NetPeerGroupFactory npgf2 = new NetPeerGroupFactory(wpg, cluster2GroupConfig.getPlatformConfig(), npgImplAdv);
-        
-        PeerGroup cluster2 = npgf2.getInterface();
-        
-        System.out.println("Cluster 2 Peer Group : " + cluster2 + " started!");
+        PeerGroup cluster1 = startDomain(wpg, "cluster1");
+        PeerGroup cluster2 = startDomain(wpg, "cluster2");
         
         cluster1.stopApp();
         cluster2.stopApp();
         
         wpg.stopApp();
         
-        System.out.println("World Peer Group : " + wpg + " stopped!");
-    }    
+        System.out.println(wpg + " stopped!");
+    }
 }
