@@ -238,6 +238,10 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     private static final int DEFAULT_SEEDING_RDVPEERS = 5;
 
     private final PeerGroup group;
+    
+    /**
+     *  The group in which our propagate pipe will run.
+     */
     private final PeerGroup advertisingGroup;
     private final RendezVousServiceImpl rdvService;
     private final EndpointService endpoint;
@@ -328,10 +332,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
     /**
      * Listeners for PeerView Events.
-     * <p/>
-     * <ul>
-     * <li>Values are {@link PeerViewListener}.
-     * </ul>
      */
     private final Set<PeerViewListener> rpvListeners = Collections.synchronizedSet(new HashSet<PeerViewListener>());
 
@@ -405,7 +405,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * @param name             The identifying name for this Peer View instance.
      */
     public PeerView(PeerGroup group, PeerGroup advertisingGroup, RendezVousServiceImpl rdvService, String name) {
-
         this.group = group;
         this.advertisingGroup = advertisingGroup;
         this.rdvService = rdvService;
@@ -451,16 +450,14 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         useOnlySeeds = rdvConfigAdv.getUseOnlySeeds();
 
-        boolean probeRelays = rdvConfigAdv.getProbeRelays();
-
         if (rdvConfigAdv.getMinHappyPeerView() > 0) {
             minHappyPeerView = rdvConfigAdv.getMinHappyPeerView();
         }
 
         URISeedingManager seedingManager;
 
-        if (null == advertisingGroup) {
-            seedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, probeRelays, group);
+        if ((null == advertisingGroup) && rdvConfigAdv.getProbeRelays()) {
+            seedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group);
         } else {
             seedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), false);
         }
@@ -502,16 +499,15 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         localGroupWirePipeAdv = makeWirePipeAdvertisement(group, group, name);
 
-        if (null != advertisingGroup) {
+        if (group != advertisingGroup) {
             advGroupPropPipeAdv = makeWirePipeAdvertisement(advertisingGroup, group, name);
         } else {
             advGroupPropPipeAdv = null;
         }
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info(
-                    "PeerView created for group \"" + group.getPeerGroupName() + "\" [" + group.getPeerGroupID() + "] name \""
-                    + name + "\"");
+            LOG.info( "PeerView created for group \"" + group.getPeerGroupName() +
+                    "\" [" + group.getPeerGroupID() + "] name \"" + name + "\"");
         }
     }
 
@@ -1009,8 +1005,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 } else {
                     // We have a full route, send it to the virtual address of the route!
                     if (null == getPeerViewElement(aSeed.getDestPeerID())) {
-                        EndpointAddress aSeedHost = new EndpointAddress("jxta", aSeed.getDestPeerID().getUniqueValue().toString()
-                                ,
+                        EndpointAddress aSeedHost = new EndpointAddress("jxta", aSeed.getDestPeerID().getUniqueValue().toString(),
                                 null, null);
 
                         send(aSeedHost, aSeed, self, false, false);

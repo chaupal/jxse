@@ -89,10 +89,8 @@ public class RelayReferralSeedingManager extends URISeedingManager {
     /**
      *  Get an instance of RelayReferralSeedingManager.
      */
-    public RelayReferralSeedingManager(URI aclLocation, boolean allowOnlySeeds, boolean probeRelays, PeerGroup group) {
+    public RelayReferralSeedingManager(URI aclLocation, boolean allowOnlySeeds, PeerGroup group) {
         super(aclLocation, allowOnlySeeds);
-        //FIXME this field is never accessed
-        this.probeRelays = probeRelays;
         this.group = group;
     }
     

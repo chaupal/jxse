@@ -198,9 +198,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             URISeedingManager uriSeedingManager;
             
             if (rdvConfigAdv.getProbeRelays()) {
-                uriSeedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds()
-                        ,
-                        rdvConfigAdv.getProbeRelays(), group);
+                uriSeedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group);
             } else {
                 uriSeedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds());
             }
@@ -215,8 +213,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             
             this.seedingManager = uriSeedingManager;
         } else {
-            this.seedingManager = new PeerviewSeedingManager(rdvConfigAdv.getAclUri(), group, group.getParentGroup()
-                    ,
+            this.seedingManager = new PeerviewSeedingManager(rdvConfigAdv.getAclUri(), group, group.getParentGroup(),
                     rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
         }
         

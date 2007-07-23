@@ -223,11 +223,10 @@ public class RdvPeerRdvService extends StdRendezVousService {
         if ((null == advGroup) || PeerGroupID.worldPeerGroupID.equals(advGroup.getPeerGroupID())) {
             // For historical reasons, we publish in our own group rather than
             // the parent if our parent is the world group.
-            advGroup = group;
+            advGroup = null;
         }
 
-        rpv = new PeerView(group, advGroup, rdvService
-                ,
+        rpv = new PeerView(group, advGroup, rdvService,
                 rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
