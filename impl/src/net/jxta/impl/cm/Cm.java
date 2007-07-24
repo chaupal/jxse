@@ -513,7 +513,6 @@ public final class Cm implements Runnable {
                 LOG.log(Level.WARNING, "Failed to restore record for " + key, de);
             }
             IOException failure = new IOException("Failed to restore record for " + key);
-
             failure.initCause(de);
             throw failure;
         }
@@ -578,7 +577,6 @@ public final class Cm implements Runnable {
      */
     public StructuredDocument restore(String dn, String fn) throws IOException {
         InputStream is = getInputStream(dn, fn);
-
         return StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
     }
 
@@ -614,7 +612,6 @@ public final class Cm implements Runnable {
                 LOG.log(Level.WARNING, "failed to restore " + dn + "/" + fn, de);
             }
             IOException failure = new IOException("failed to restore " + dn + "/" + fn);
-
             failure.initCause(de);
             throw failure;
         }
@@ -655,9 +652,7 @@ public final class Cm implements Runnable {
                 doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
             } catch (RuntimeException e) {
                 IOException failure = new IOException("Advertisement couldn't be saved");
-
                 failure.initCause(e);
-
                 throw failure;
             }
 
@@ -719,7 +714,6 @@ public final class Cm implements Runnable {
                 LOG.log(Level.WARNING, MessageFormat.format("Failed to write {0}/{1} {2} {3}", dn, fn, lifetime, expiration), de);
             }
             IOException failure = new IOException("Failed to write " + dn + "/" + fn + " " + lifetime + " " + expiration);
-
             failure.initCause(de);
             throw failure;
         }
@@ -780,9 +774,7 @@ public final class Cm implements Runnable {
             }
 
             IOException failure = new IOException("Failed to write " + dn + "/" + fn + " " + lifetime + " " + expiration);
-
             failure.initCause(de);
-
             throw failure;
         }
     }
@@ -818,7 +810,6 @@ public final class Cm implements Runnable {
         }
 
         Map<String, String> tmp = new HashMap<String, String>();
-
         if (map.size() > 0) {
             Iterator<String> it = map.keySet().iterator();
 
@@ -1088,9 +1079,7 @@ public final class Cm implements Runnable {
                     String attr = indexName.substring((dn).length());
                     NameIndexer idxr = (NameIndexer) map.get(indexName);
 
-                    idxr.query(null
-                            ,
-                            new Indexer.SearchCallback(listDB, new EntriesCallback(cacheDB, res, attr, Integer.MAX_VALUE)));
+                    idxr.query(null, new Indexer.SearchCallback(listDB, new EntriesCallback(cacheDB, res, attr, Integer.MAX_VALUE)));
                 }
             }
         } catch (Exception ex) {
@@ -1113,7 +1102,6 @@ public final class Cm implements Runnable {
      */
     public synchronized List<SrdiMessage.Entry> getDeltas(String dn) {
         List<SrdiMessage.Entry> result = new ArrayList<SrdiMessage.Entry>();
-
         List<SrdiMessage.Entry> deltas = deltaMap.get(dn);
 
         if (deltas != null) {
