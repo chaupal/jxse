@@ -53,9 +53,7 @@ Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.protocol;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.ExtendableAdvertisement;
@@ -76,7 +74,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.Vector;
-
 
 /**
  * Advertisement used to represent a route to a peer. Routes are represented in
@@ -128,6 +125,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * <b>WARNING hops may be MODIFIED.</b>
      *
      * @param destPid  destination
+     * @param firsthop first hop node ID
      * @param hops     routes
      * @return the new route
      */
@@ -392,7 +390,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      *                  destination access point. Warning: The vector of endpoint addresses
      *                  is specified as a vector of String. Each string representing
      *                  one endpoint address.
-     * @deprecated Use {@link #gaddDestEndpointAddresses(List<EndpointAddress>)} instead.
+     * @deprecated Use {@link #addDestEndpointAddresses(List<EndpointAddress>)} instead.
      */
     @Deprecated
     public void addDestEndpointAddresses(Vector<String> addresses) {
@@ -478,7 +476,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      *
      * @param ea vector of endpoint addresses. Warning: The vector is not copied
      * and is used directly.
-     * @deprecated Use {@link #addDestEndpointAddresses(EndpointAddress)} instead.
+     * @deprecated Use {@link #addDestEndpointAddress(EndpointAddress)} instead.
      */
     @Deprecated
     public void setDestEndpointAddresses(Vector<String> ea) {
