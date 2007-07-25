@@ -89,11 +89,13 @@ public class SeedingManagerTest extends TestCase {
     
     public void testPermanentSeeds() {
         URI seeduris[] = { 
-            URI.create("tcp://1.2.3.4:1234"), URI.create("tcp://4.3.2.1:4321"), URI.create("http://1.2.3.4:1234")
-                    ,
-            URI.create("http://4.3.2.1:1234"), };
+            URI.create("tcp://1.2.3.4:1234"), 
+            URI.create("tcp://4.3.2.1:4321"), 
+            URI.create("http://1.2.3.4:1234"),
+            URI.create("http://4.3.2.1:1234")
+        };
 
-        URISeedingManager seeder = new URISeedingManager(null, false);
+        URISeedingManager seeder = new URISeedingManager(null, true, null, null );
         
         seeder.addSeed(seeduris[0]);
         
@@ -118,9 +120,11 @@ public class SeedingManagerTest extends TestCase {
     
     public void testSeeding() {
         URI seedinguris[] = {
-            URI.create("file:///home/mike/rendezvous.xml"), URI.create("ftp://ftp.duigou.org/jxta/rendezvous.txt") };
+            URI.create("file:///home/mike/rendezvous.xml"),
+            URI.create("ftp://ftp.duigou.org/jxta/rendezvous.txt")
+        };
         
-        URISeedingManager seeder = new URISeedingManager(null, false);
+        URISeedingManager seeder = new URISeedingManager(null, true, null, null);
         
         seeder.addSeedingURI(seedinguris[0]);
 

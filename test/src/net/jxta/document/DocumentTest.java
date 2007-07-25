@@ -81,6 +81,18 @@ public final class DocumentTest extends TestCase {
             + " 		<Proto>\n" + " 			<jxta:MIA xmlns:jxta=\"http://jxta.org\">\n" + " 				<MSID/>\n" + " 			</jxta:MIA>\n"
             + " 		</Proto>\n" + " 	</Parm>\n" + " </jxta:MIA>\n";
     
+    final static String badInclusion = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<!DOCTYPE jxta:CP>"
+            + "<jxta:CP type=\"jxta:PlatformConfig\" xmlns:jxta=\"http://jxta.org\">"
+            + "	<InfraDesc>"
+            + "		&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "&lt;!DOCTYPE InfraDesc>"
+            + "&lt;InfraDesc>"
+            + "	Default Infrastructure NetPeerGroup Created by net.jxta.platform.NetworkConfigurator"
+            + "&lt;/InfraDesc>"
+            + "	</InfraDesc>"
+            + "</jxta:CP>";
+    
     public static class LiteXMLBug {
         public LiteXMLBug(String xml) {
             MimeMediaType mimeMediaType = MimeMediaType.XMLUTF8;
@@ -98,18 +110,17 @@ public final class DocumentTest extends TestCase {
             }
         }
         
-        public void spew(LiteXMLElement element) {
+        public void spew(XMLElement element) {
             System.out.println(element.getValue());
             
-            Enumeration children = element.getChildren();
+            Enumeration<XMLElement> children = element.getChildren();
 
             while (children.hasMoreElements()) {
-                LiteXMLElement child = (LiteXMLElement) children.nextElement();
+                XMLElement child = children.nextElement();
 
                 spew(child);
             }
-        }
-        
+        }        
     }
     
     /** Creates new DocTest */
@@ -186,7 +197,6 @@ public final class DocumentTest extends TestCase {
             
             if (type.getSubtype().equalsIgnoreCase("XML")) {
                 try {
-                    
                     TextElement testElement5 = doc.createElement("really wrong and long", "1");
                     
                     fail("Tag names with spaces should be disallowed");
@@ -196,35 +206,35 @@ public final class DocumentTest extends TestCase {
             
             int count = 0;
 
-            for (Enumeration eachChild = doc.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            for (Enumeration<Element> eachChild = doc.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
                 ;
             }
             
             assertTrue("Doc didnt have one child", 1 == count);
             
             count = 0;
-            for (Enumeration eachChild = doc.getChildren("element"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            for (Enumeration<Element> eachChild = doc.getChildren("element"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
                 ;
             }
             
             assertTrue("Doc didnt have one child named 'element'", 1 == count);
             
             count = 0;
-            for (Enumeration eachChild = doc.getChildren("bogus"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            for (Enumeration<Element> eachChild = doc.getChildren("bogus"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
                 ;
             }
             
             assertTrue(" Doc shouldnt have had a child named 'bogus'", 0 == count);
             
             count = 0;
-            for (Enumeration eachChild = testElement.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            for (Enumeration<Element> eachChild = testElement.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
                 ;
             }
             
             assertTrue("element didnt have expected number of children", 3 == count);
             
             count = 0;
-            for (Enumeration eachChild = testElement.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            for (Enumeration<Element> eachChild = testElement.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
                 ;
             }
             
@@ -283,27 +293,22 @@ public final class DocumentTest extends TestCase {
             
             String docFromElement = (String) testElement3.getValue();
             
-            assertTrue("Could not faithfully store stream representation of doc in doc. (lengths dont match)"
-                    ,
+            assertTrue("Could not faithfully store stream representation of doc in doc. (lengths dont match)",
                     docAsString.length() == docFromElement.length());
             
             for (int eachChar = 0; eachChar < docAsString.length(); eachChar++) {
-                assertTrue("Could not faithfully store stream representation of doc in doc. (failed at index: " + eachChar + ")"
-                        ,
+                assertTrue("Could not faithfully store stream representation of doc in doc. (failed at index: " + eachChar + ")",
                         docAsString.charAt(eachChar) == docFromElement.charAt(eachChar));
             }
             
             Element testElement4 = doc.createElement("shortname", "shortvalue");
             Element testElement5 = doc.createElement(
-                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname"
-                    ,
+                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
                     "shortvalue");
             Element testElement6 = doc.createElement(
-                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname"
-                    ,
+                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
                     "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
-            Element testElement7 = doc.createElement("shortname"
-                    ,
+            Element testElement7 = doc.createElement("shortname",
                     "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
             
             doc.appendChild(testElement4);
@@ -326,7 +331,7 @@ public final class DocumentTest extends TestCase {
             final String someName = "attrName";
             final String someValue = "attrValue";
             
-            Enumeration attribs = element.getAttributes();
+            Enumeration<Attribute> attribs = element.getAttributes();
             
             assertTrue("Element already had attributes!", !attribs.hasMoreElements());
             
@@ -344,8 +349,7 @@ public final class DocumentTest extends TestCase {
             
             anAttrib = element.getAttribute("bogusName");
             
-            assertTrue("Should not have been able to get an unknown attribute name", null == anAttrib);
-            
+            assertTrue("Should not have been able to get an unknown attribute name", null == anAttrib);            
         } catch (Throwable everything) {
             everything.printStackTrace();
             fail("Caught an unexpected exception - " + everything.toString());
@@ -626,8 +630,8 @@ public final class DocumentTest extends TestCase {
                 Reader is = new StringReader(out.toString());
 
                 document2 = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
-                Enumeration eachOrig = document.getChildren();
-                Enumeration eachNew = document2.getChildren();
+                Enumeration<Element> eachOrig = document.getChildren();
+                Enumeration<Element> eachNew = document2.getChildren();
 
                 // FIXME 20050607 bondolo comparison doesn't recurse.
                 while (eachOrig.hasMoreElements()) {
@@ -661,6 +665,24 @@ public final class DocumentTest extends TestCase {
         
         try {
             Reader is = new StringReader(badlittleimpl);
+
+            document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
+
+            System.err.println(document);            
+        } catch (Throwable everything) {
+            System.err.flush();
+            System.out.flush();
+            everything.printStackTrace(System.err);
+            fail("Caught an unexpected exception - " + everything.getMessage());
+        }
+    }
+    
+    
+    public void testIssue15() {
+        XMLDocument document = null;
+        
+        try {
+            Reader is = new StringReader(badInclusion);
 
             document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, is);
 
