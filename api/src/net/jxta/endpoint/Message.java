@@ -608,7 +608,18 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * @param defaultNamespace the namespace which is assumed by methods which
      * do not require a namespace specification.
      */
-    protected Message(String defaultNamespace, boolean clone ) {
+    protected Message(String defaultNamespace) {
+        this(defaultNamespace, false);
+    }
+    
+    /**
+     * Standard Constructor for messages.
+     *
+     * @param defaultNamespace the namespace which is assumed by methods which
+     * do not require a namespace specification.
+     * @param clone If {@code true} then we are creating a clone.
+     */
+    private Message(String defaultNamespace, boolean clone ) {
         this.defaultNamespace = defaultNamespace;
 
         lineage.add(messagenumber.getAndIncrement());
