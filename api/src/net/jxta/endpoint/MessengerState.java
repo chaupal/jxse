@@ -85,15 +85,15 @@ public abstract class MessengerState {
     // too much initializing each instance of this class.
 
     private interface Action {
-        public void doIt(MessengerState s);
+        public void doIt(MessengerState messengerState);
     }
 
     // Action method "pointers".
     // The transition table is static. Otherwise it would cost too much initializing each instance of this class.
 
     private final static Action Connect = new Action() {
-        public void doIt(MessengerState s) {
-            s.connectAction();
+        public void doIt(MessengerState messengerState) {
+            messengerState.connectAction();
         }
     };
     private final static Action Closein = new Action() {
@@ -107,13 +107,13 @@ public abstract class MessengerState {
         }
     };
     private final static Action Closeout = new Action() {
-        public void doIt(MessengerState s) {
-            s.closeOutputAction();
+        public void doIt(MessengerState messengerState) {
+            messengerState.closeOutputAction();
         }
     };
     private final static Action Failall = new Action() {
-        public void doIt(MessengerState s) {
-            s.failAllAction();
+        public void doIt(MessengerState messengerState) {
+            messengerState.failAllAction();
         }
     };
     private final static Action Closeio = new Action() {
@@ -123,16 +123,14 @@ public abstract class MessengerState {
         }
     };
     private final static Action Closefail = new Action() {
-        public void doIt(MessengerState s) {
-            s.closeInputAction();
-            s.failAllAction();
+        public void doIt(MessengerState messengerState) {
+            messengerState.closeInputAction();
+            messengerState.failAllAction();
         }
     };
     private final static Action Nop = new Action() {
-        public void doIt(MessengerState s) {}
-    };
-    private final static Action Illegal = new Action() {
-        public void doIt(MessengerState s) {}
+        public void doIt(MessengerState messengerState) {
+        }
     };
 
     /**
@@ -140,31 +138,31 @@ public abstract class MessengerState {
      */
     private static class State {
         private final int number;
-        
+
         private State stResolve;
         private Action acResolve;
-        
+
         private State stMsgs;
         private Action acMsgs;
-        
+
         private State stSaturated;
         private Action acSaturated;
-        
+
         private State stClose;
         private Action acClose;
-        
+
         private State stShutdown;
         private Action acShutdown;
-        
+
         private State stUp;
         private Action acUp;
-        
+
         private State stDown;
         private Action acDown;
-        
+
         private State stIdle;
         private Action acIdle;
-        
+
         State(int stateNum) {
             number = stateNum;
         }
@@ -216,110 +214,58 @@ public abstract class MessengerState {
 
         private final static Object[][] INIT_TRANSITION_MAP = {
 
-            /* STATE             resolve,           msgs,               saturated,          close,              shutdown,               up,                down,                    idle */
+                /* STATE resolve, msgs, saturated, close, shutdown, up, down, idle */
 
-            /* UNRESOLVED      */{
-                Resolving
-                        ,
-                Connect, ResPending, Connect, ResolSat, Connect, Closed, Closein, Broken, Closein, Connected, Nop, Unresolved, Nop
-                        ,
-                Unresolved, Nop}
-                    ,
+                /* UNRESOLVED      */
+                {Resolving, Connect, ResPending, Connect, ResolSat, Connect, Closed, Closein, Broken, Closein, Connected, Nop, Unresolved, Nop, Unresolved, Nop},
 
-            /* RESOLPENDING    */{
-                ResPending, Nop, ResPending, Nop, ResolSat, Nop, ResClosing, Closein, Broken, Closefail
-                        ,
-                Sending, Start, Unresable, Closefail, Resolving, Nop}
-                    ,
+                /* RESOLPENDING    */
+                {ResPending, Nop, ResPending, Nop, ResolSat, Nop, ResClosing, Closein, Broken, Closefail, Sending, Start, Unresable, Closefail, Resolving, Nop},
 
-            /* RESOLVING       */{
-                Resolving, Nop, ResPending, Nop, ResolSat, Nop, Closed, Closein, Broken, Closein, Connected
-                        ,
-                Nop, Unresable, Closein, Resolving, Nop}
-                    ,
+                /* RESOLVING       */
+                {Resolving, Nop, ResPending, Nop, ResolSat, Nop, Closed, Closein, Broken, Closein, Connected, Nop, Unresable, Closein, Resolving, Nop},
 
-            /* RESOLSATURATED  */{
-                ResolSat, Nop, ResPending, Nop, ResolSat, Nop, ResClosing, Closein, Broken, Closefail
-                        ,
-                SendingSat, Start, Unresable, Closefail, Resolving, Nop}
-                    ,
+                /* RESOLSATURATED  */
+                {ResolSat, Nop, ResPending, Nop, ResolSat, Nop, ResClosing, Closein, Broken, Closefail, SendingSat, Start, Unresable, Closefail, Resolving, Nop},
 
-            /* CONNECTED       */{
-                Connected, Nop, Sending, Start, SendingSat, Start, Closed, Closeio, Broken, Closeio, Connected
-                        ,
-                Nop, Disconned, Nop, Connected, Nop}
-                    ,
+                /* CONNECTED       */
+                {Connected, Nop, Sending, Start, SendingSat, Start, Closed, Closeio, Broken, Closeio, Connected, Nop, Disconned, Nop, Connected, Nop},
 
-            /* DISCONNECTED    */{
-                Disconned, Nop, Reconning, Connect, ReconSat, Connect, Closed, Closein, Broken, Closein
-                        ,
-                Connected, Nop, Disconned, Nop, Disconned, Nop}
-                    ,
+                /* DISCONNECTED    */
+                {Disconned, Nop, Reconning, Connect, ReconSat, Connect, Closed, Closein, Broken, Closein, Connected, Nop, Disconned, Nop, Disconned, Nop},
 
-            /* RECONNECTING    */{
-                Reconning, Nop, Reconning, Nop, ReconSat, Nop, ReconClosing, Closein, Broken, Closefail
-                        ,
-                Sending, Start, Broken, Closefail, Disconned, Nop}
-                    ,
+                /* RECONNECTING    */
+                {Reconning, Nop, Reconning, Nop, ReconSat, Nop, ReconClosing, Closein, Broken, Closefail, Sending, Start, Broken, Closefail, Disconned, Nop},
 
-            /* RECONSATURATED  */{
-                ReconSat, Nop, Reconning, Nop, ReconSat, Nop, ReconClosing, Closein, Broken, Closefail
-                        ,
-                SendingSat, Start, Broken, Closefail, Disconned, Nop}
-                    ,
+                /* RECONSATURATED  */
+                {ReconSat, Nop, Reconning, Nop, ReconSat, Nop, ReconClosing, Closein, Broken, Closefail, SendingSat, Start, Broken, Closefail, Disconned, Nop},
 
-            /* SENDING         */{
-                Sending, Nop, Sending, Nop, SendingSat, Nop, Closing, Closein, Disconning, Closeio, Sending
-                        ,
-                Nop, Reconning, Connect, Connected, Nop}
-                    ,
+                /* SENDING         */
+                {Sending, Nop, Sending, Nop, SendingSat, Nop, Closing, Closein, Disconning, Closeio, Sending, Nop, Reconning, Connect, Connected, Nop},
 
-            /* SENDINGSATURATED*/{
-                SendingSat, Nop, Sending, Nop, SendingSat, Nop, Closing, Closein, Disconning, Closeio
-                        ,
-                SendingSat, Nop, ReconSat, Connect, Connected, Nop}
-                    ,
+                /* SENDINGSATURATED*/
+                {SendingSat, Nop, Sending, Nop, SendingSat, Nop, Closing, Closein, Disconning, Closeio, SendingSat, Nop, ReconSat, Connect, Connected, Nop},
 
-            /* RESOLCLOSING    */{
-                ResClosing, Nop, ResClosing, Nop, ResClosing, Nop, ResClosing, Nop, Broken, Failall, Closing
-                        ,
-                Start, Unresable, Failall, ResClosing, Nop}
-                    ,
+                /* RESOLCLOSING    */
+                {ResClosing, Nop, ResClosing, Nop, ResClosing, Nop, ResClosing, Nop, Broken, Failall, Closing, Start, Unresable, Failall, ResClosing, Nop},
 
-            /* RECONCLOSING    */{
-                ReconClosing, Nop, ReconClosing, Nop, ReconClosing, Nop, ReconClosing, Nop, Broken, Failall
-                        ,
-                Closing, Start, Broken, Failall, ReconClosing, Nop}
-                    ,
+                /* RECONCLOSING    */
+                {ReconClosing, Nop, ReconClosing, Nop, ReconClosing, Nop, ReconClosing, Nop, Broken, Failall, Closing, Start, Broken, Failall, ReconClosing, Nop},
 
-            /* CLOSING         */{
-                Closing, Nop, Closing, Nop, Closing, Nop, Closing, Nop, Disconning, Closeout, Closing, Nop
-                        ,
-                ReconClosing, Connect, Closed, Closeout}
-                    ,
+                /* CLOSING         */
+                {Closing, Nop, Closing, Nop, Closing, Nop, Closing, Nop, Disconning, Closeout, Closing, Nop, ReconClosing, Connect, Closed, Closeout},
 
-            /* DISCONNECTING   */{
-                Disconning, Nop, Disconning, Nop, Disconning, Nop, Disconning, Nop, Disconning, Nop, Disconning
-                        ,
-                Nop, Broken, Failall, Broken, Nop}
-                    ,
+                /* DISCONNECTING   */
+                {Disconning, Nop, Disconning, Nop, Disconning, Nop, Disconning, Nop, Disconning, Nop, Disconning, Nop, Broken, Failall, Broken, Nop},
 
-            /* UNRESOLVABLE    */{
-                Unresable, Nop, Unresable, Nop, Unresable, Nop, Unresable, Nop, Unresable, Nop, Unresable
-                        ,
-                Closeout, Unresable, Nop, Unresable, Nop}
-                    ,
+                /* UNRESOLVABLE    */
+                {Unresable, Nop, Unresable, Nop, Unresable, Nop, Unresable, Nop, Unresable, Nop, Unresable, Closeout, Unresable, Nop, Unresable, Nop},
 
-            /* CLOSED          */{
-                Closed, Nop, Closed, Nop, Closed, Nop, Closed, Nop, Closed, Nop, Closed, Closeout, Closed, Nop
-                        ,
-                Closed, Nop}
-                    ,
+                /* CLOSED          */
+                {Closed, Nop, Closed, Nop, Closed, Nop, Closed, Nop, Closed, Nop, Closed, Closeout, Closed, Nop, Closed, Nop},
 
-            /* BROKEN          */{
-                Broken, Nop, Broken, Nop, Broken, Nop, Broken, Nop, Broken, Nop, Broken, Closeout, Broken, Nop
-                        ,
-                Broken, Nop}
+                /* BROKEN          */
+                {Broken, Nop, Broken, Nop, Broken, Nop, Broken, Nop, Broken, Nop, Broken, Closeout, Broken, Nop, Broken, Nop}
         };
 
         static {
