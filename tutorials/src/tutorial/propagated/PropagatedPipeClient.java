@@ -146,9 +146,7 @@ public class PropagatedPipeClient implements PipeMsgListener {
             RouteAdvertisement route = client.routeControl.getMyLocalRoute();
 
             if (route != null) {
-                client.routeAdvElement = new TextDocumentMessageElement(ROUTEADV
-                        ,
-                        (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8), null);
+                client.routeAdvElement = new TextDocumentMessageElement(ROUTEADV, (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8), null);
             }
         }
 
@@ -164,22 +162,19 @@ public class PropagatedPipeClient implements PipeMsgListener {
         int i = 0;
 
         try {
-            while (i < 20) {
+            while (i < 10000000) {
                 Message ping = new Message();
-
-                ping.addMessageElement(PropagatedPipeServer.NAMESPACE
-                        ,
+                ping.addMessageElement(PropagatedPipeServer.NAMESPACE,
                         new StringMessageElement(PropagatedPipeServer.SRCIDTAG, netPeerGroup.getPeerID().toString(), null));
-                ping.addMessageElement(PropagatedPipeServer.NAMESPACE
-                        ,
+                ping.addMessageElement(PropagatedPipeServer.NAMESPACE,
                         new StringMessageElement(PropagatedPipeServer.SRCNAMETAG, netPeerGroup.getPeerName() + " #" + i++, null));
                 if (client.routeAdvElement != null && client.routeControl != null) {
                     ping.addMessageElement(PropagatedPipeServer.NAMESPACE, client.routeAdvElement);
                 }
 
                 System.out.println("Sending message :" + (i - 1));
-                output.send(ping);
-                Thread.sleep(500);
+                boolean sucess = output.send(ping);
+                System.out.println("Send oing message status :"+sucess);
             }
             Thread.sleep(3000);
             manager.stopNetwork();
