@@ -192,13 +192,14 @@ public class EdgePeerRdvService extends StdRendezVousService {
             LEASE_MARGIN = rdvConfigAdv.getLeaseMargin();
         }
         
+        String serviceName = rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString();
         if (PeerGroupID.worldPeerGroupID.equals(group.getParentGroup().getPeerGroupID())) {
             URISeedingManager uriSeedingManager;
             
             if (rdvConfigAdv.getProbeRelays()) {
-                uriSeedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group);
+                uriSeedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group, serviceName);
             } else {
-                uriSeedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds());
+                uriSeedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group, serviceName);
             }
             
             for (URI aSeeder : Arrays.asList(rdvConfigAdv.getSeedingURIs())) {
@@ -211,8 +212,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             
             this.seedingManager = uriSeedingManager;
         } else {
-            this.seedingManager = new PeerviewSeedingManager(rdvConfigAdv.getAclUri(), group, group.getParentGroup(),
-                    rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
+            this.seedingManager = new PeerviewSeedingManager(rdvConfigAdv.getAclUri(), group, group.getParentGroup(), serviceName);
         }
         
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -383,7 +383,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         
         if (null != propHdr) {
             sendToEachConnection(msg, propHdr);
-            sendToNetwork(msg, propHdr, false);
+            sendToNetwork(msg, propHdr);
             
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.propagateToGroup();

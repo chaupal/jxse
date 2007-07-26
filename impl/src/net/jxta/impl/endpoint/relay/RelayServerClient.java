@@ -56,11 +56,10 @@
 package net.jxta.impl.endpoint.relay;
 
 import java.io.IOException;
-
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -68,11 +67,11 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.StringMessageElement;
+import net.jxta.logging.Logging;
 
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.UnbiasedQueue;
 
 /**
  * This class abstracts a client of the Relay Server
@@ -122,7 +121,7 @@ class RelayServerClient implements Runnable {
     /**
      * a queue of message for this client
      */
-    private final UnbiasedQueue messageList;
+    private final BlockingQueue<Message> messageList;
 
     /**
      * endpoint service for this client
@@ -147,7 +146,7 @@ class RelayServerClient implements Runnable {
 
         clientAddr = new EndpointAddress("jxta", clientPeerId, null, null);
         endpoint = server.getEndpointService();
-        messageList = new UnbiasedQueue(clientQueueSize, false);
+        messageList = new ArrayBlockingQueue<Message>(clientQueueSize);
 
         // initialize the lease
         renewLease();
@@ -183,7 +182,6 @@ class RelayServerClient implements Runnable {
                 boolean wasOOB = false;
 
                 synchronized (this) {
-
                     // Messenger + message is the condition to continue running
                     // We do not want to dequeue messages for sending before knowing if
                     // we have a messenger because re-queing is clumsy, so we
@@ -195,14 +193,14 @@ class RelayServerClient implements Runnable {
 
                     if (messenger == null || messenger.isClosed()) {
                         messenger = null;
-                        if (outOfBandMessage != null || messageList.getCurrentInQueue() > 0) {
+                        if (outOfBandMessage != null || !messageList.isEmpty()) {
 
                             // If we cannot send a message by lack of messenger.
                             // The client is suspect of being dead. The clock starts
                             // ticking faster until we manage to send again.
                             // In two minutes we declare it dead.
 
-                            long newExpireTime = System.currentTimeMillis() + stallTimeout;
+                            long newExpireTime = TimeUtils.toAbsoluteTimeMillis(stallTimeout);
 
                             // If we're closed, we won't touch expireTime since it is 0.
                             if (expireTime > newExpireTime) {
@@ -219,7 +217,7 @@ class RelayServerClient implements Runnable {
                         outOfBandMessage = null;
                         wasOOB = true;
                     } else {
-                        message = (Message) messageList.pop();
+                        message = messageList.take();
                         if (message == null) {
                             try {
                                 thread_idle = true;
@@ -229,7 +227,7 @@ class RelayServerClient implements Runnable {
                                     outOfBandMessage = null;
                                     wasOOB = true;
                                 } else {
-                                    message = (Message) messageList.pop();
+                                    message = messageList.take();
                                 }
                             } catch (InterruptedException ie) {
                             }
@@ -245,8 +243,7 @@ class RelayServerClient implements Runnable {
                 }
 
                 // get the final service name and parameter that was loaded before queueing
-                MessageElement dstAddressElement = message.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS
-                        ,
+                MessageElement dstAddressElement = message.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS,
                         EndpointServiceImpl.MESSAGE_DESTINATION_NAME);
 
                 if (null == dstAddressElement) {
@@ -271,11 +268,10 @@ class RelayServerClient implements Runnable {
 
                         // Do not touch expireTime if we've been closed.
                         if (!isClosed) {
-                            expireTime = System.currentTimeMillis() + leaseLength;
+                            expireTime = TimeUtils.toAbsoluteTimeMillis(leaseLength);
                         }
                     }
                 } catch (Exception e) {
-
                     // Check that the exception is not due to the message
                     // rather than the messenger, and then drop the message. In that case
                     // we give the messenger the benefit of the doubt and keep
@@ -286,30 +282,21 @@ class RelayServerClient implements Runnable {
 
                     // put the message back
                     synchronized (this) {
-
                         if (++failedInARow >= 3) {
                             failedInARow = 0;
                             if (!isClosed) {
-                                expireTime = System.currentTimeMillis() + leaseLength;
+                                expireTime = TimeUtils.toAbsoluteTimeMillis(leaseLength);
                             }
                             continue;
                         }
 
-                        // Ok, if we cannot push back the message, below, we should
-                        // reset failedInARow, since we won't be retrying the same
-                        // message. But it does not realy matter so let's keep
-                        // things simple.
+                        // Ok, if we cannot push back the message, below, we 
+                        // should reset failedInARow, since we won't be retrying
+                        // the same message. But it does not realy matter so 
+                        // let's keep things simple.
 
-                        if (wasOOB) {
-                            if (outOfBandMessage == null) {
-                                // If it was OOB and there isn't a new one, keep
-                                // this one as OOB. If there's a new OOB, forget
-                                // this one.
-                                outOfBandMessage = message;
-                            }
-                        } else {
-                            // non-blocking and at head, message droped if full
-                            messageList.pushBack(message);
+                        if (outOfBandMessage == null) {
+                            outOfBandMessage = message;
                         }
                     }
 
@@ -340,18 +327,18 @@ class RelayServerClient implements Runnable {
      */
     @Override
     public String toString() {
-        return clientPeerId + "," + (messageList == null ? -1 : messageList.getCurrentInQueue()) + ","
-                + (messenger == null ? "-m" : "+m") + "," + (expireTime - System.currentTimeMillis());
+        return clientPeerId + "," + messageList.size() + ","
+                + (messenger == null ? "-m" : "+m") + "," + TimeUtils.toRelativeTimeMillis(expireTime, TimeUtils.timeNow());
     }
 
     protected int getQueueSize() {
-        return messageList.getCurrentInQueue();
+        return messageList.size();
     }
 
     public long getLeaseRemaining() {
         // May be shorter than lease length. Compute real value from expire
         // time.
-        return expireTime - System.currentTimeMillis();
+        return TimeUtils.toRelativeTimeMillis(expireTime, TimeUtils.timeNow());
     }
 
     public void closeClient() {
@@ -366,10 +353,9 @@ class RelayServerClient implements Runnable {
             isClosed = true;
 
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info(
-                        "Terminating client:" + "\n\tclient=" + clientAddr + "\tnbMessages=" + messageList.getCurrentInQueue()
+                LOG.info( "Terminating client:" + "\n\tclient=" + clientAddr + "\tnbMessages=" + messageList.size()
                                 + "\tmessenger=" + messenger + (messenger == null ? "" : "(c:" + messenger.isClosed() + ")")
-                                + "\tlease-left=" + (expireTime - System.currentTimeMillis()) + "\tt=" + (thread != null));
+                                + "\tlease-left=" + TimeUtils.toRelativeTimeMillis(expireTime, TimeUtils.timeNow()) + "\tt=" + (thread != null));
             }
 
             messengerToClose = messenger;
@@ -437,12 +423,12 @@ class RelayServerClient implements Runnable {
                 messengerToClose = messenger;
                 messenger = newMessenger;
 
-                if ((thread == null || thread_idle) && ((messageList.getCurrentInQueue() > 0) || (outOfBandMessage != null))) {
+                if ((thread == null || thread_idle) && ((!messageList.isEmpty()) || (outOfBandMessage != null))) {
 
                     // if we do not already have a thread, start one
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("messageList.getCurrentInQueue() = " + messageList.getCurrentInQueue() + " client=" + clientAddr);
+                        LOG.fine("messageList.size() = " + messageList.size() + " client=" + clientAddr);
                     }
 
                     if (thread != null) {
@@ -471,8 +457,7 @@ class RelayServerClient implements Runnable {
     }
 
     public boolean isExpired() {
-
-        boolean isExpired = (System.currentTimeMillis() > expireTime);
+        boolean isExpired = TimeUtils.timeNow() > expireTime;
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("isExpired() = " + isExpired + " client=" + clientAddr);
@@ -504,11 +489,11 @@ class RelayServerClient implements Runnable {
         // As long as there are messages to send, the lease is controlled
         // by our ability to send them, not by client renewal.
 
-        if (messageList.getCurrentInQueue() > 0) {
+        if (!messageList.isEmpty()) {
             return true;
         }
 
-        expireTime = System.currentTimeMillis() + leaseLength;
+        expireTime = TimeUtils.toAbsoluteTimeMillis(leaseLength);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("renewLease() new expireTime = " + expireTime);
@@ -521,25 +506,31 @@ class RelayServerClient implements Runnable {
      */
     private void queueMessage(Message message, boolean outOfBand) throws IOException {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("queueMessage (" + messageList.getCurrentInQueue() + ") client=" + clientAddr);
+            LOG.fine("queueMessage (" + messageList.size() + ") client=" + clientAddr);
         }
 
         synchronized (this) {
+            while(true) {
+                if (isClosed) {
+                    throw new IOException("Client has been disconnected");
+                 }
 
-            if (isClosed) {
-                throw new IOException("Client has been disconnected");
-            }
-
-            if (outOfBand) {
-                // We have a single oob message pending.
-                outOfBandMessage = message;
-            } else {
-                messageList.push(message);
+                if (outOfBand) {
+                    // We have a single oob message pending.
+                    outOfBandMessage = message;
+                    break;
+                } else {
+                    try {
+                        messageList.put(message);
+                    } catch(InterruptedException woken) {
+                        continue;
+                    }
+                    break;
+                }
             }
 
             // check if a new thread needs to be started.
             if ((thread == null) || thread_idle) {
-
                 // Normally, if messenger is null we knew it already:
                 // it becomes null only when we detect that it breaks while
                 // trying to send. However, let's imagine it's possible that
@@ -548,15 +539,13 @@ class RelayServerClient implements Runnable {
                 // that would ruin it's purpose.
 
                 if (messenger == null) {
-
-                    long newExpireTime = System.currentTimeMillis() + stallTimeout;
+                    long newExpireTime = TimeUtils.toAbsoluteTimeMillis(stallTimeout);
 
                     if (expireTime > newExpireTime) {
                         expireTime = newExpireTime;
                     }
 
                 } else {
-
                     // Messenger good.
                     // if we do not already have a thread, start one
                     if (thread != null) {
@@ -571,7 +560,7 @@ class RelayServerClient implements Runnable {
         }
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("done queueMessage (" + messageList.getCurrentInQueue() + ") client=" + clientAddr);
+            LOG.fine("done queueMessage (" + messageList.size() + ") client=" + clientAddr);
         }
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -640,7 +629,8 @@ class RelayServerClient implements Runnable {
          * {@inheritDoc}
          */
         @Override
-        public void closeImpl() {// Nothing to do. The underlying connection is not affected.
+        public void closeImpl() {
+            // Nothing to do. The underlying connection is not affected.
             // The messenger will be marked closed by the state machine once completely down; that's it.
         }
 
@@ -667,8 +657,7 @@ class RelayServerClient implements Runnable {
             // load the final destination into the message
             EndpointAddress destAddressToUse = getDestAddressToUse(serviceName, serviceParam);
 
-            MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME
-                    ,
+            MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME,
                     destAddressToUse.toString(), (MessageElement) null);
 
             message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);

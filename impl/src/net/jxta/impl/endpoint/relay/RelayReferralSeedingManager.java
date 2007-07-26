@@ -57,7 +57,6 @@ package net.jxta.impl.endpoint.relay;
 
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.MessageTransport;
-import net.jxta.impl.util.URISeedingManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
@@ -70,6 +69,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.impl.util.URISeedingManager;
 
 /**
  *  Extends the URI Seeding Manager by supplementing the list of active seeds
@@ -87,18 +88,17 @@ public class RelayReferralSeedingManager extends URISeedingManager {
     /**
      *  Get an instance of RelayReferralSeedingManager.
      */
-    public RelayReferralSeedingManager(URI aclLocation, boolean allowOnlySeeds, PeerGroup group) {
-        super(aclLocation, allowOnlySeeds);
+    public RelayReferralSeedingManager(URI aclLocation, boolean allowOnlySeeds, PeerGroup group, String serviceName) {
+        super(aclLocation, allowOnlySeeds, group, serviceName);
         this.group = group;
     }
     
     /**
+     *  {@inheritDoc}
      */
     @Override
     public synchronized URI[] getActiveSeedURIs() {
-        Collection<URI> results = new ArrayList<URI>();
-        URI[] superseeds = super.getActiveSeedURIs();
-        //FIXME relays is never used
+        Collection<URI> result = new ArrayList<URI>();
         Collection<RouteAdvertisement> relays = getRelayPeers();
         
         int eaIndex = 0;
@@ -107,9 +107,13 @@ public class RelayReferralSeedingManager extends URISeedingManager {
         do {
             addedEA = false;
             
-            for (RouteAdvertisement aRA : activeSeeds) {
-                if (eaIndex < aRA.size()) {
-                    results.add(URI.create(aRA.getDest().getVectorEndpointAddresses().get(eaIndex)));
+            for (RouteAdvertisement aRA : relays) {
+                List<EndpointAddress> raEAs = aRA.getDestEndpointAddresses();
+                if (eaIndex < raEAs.size()) {
+                    URI seedURI = raEAs.get(eaIndex).toURI();
+                    if(!result.contains(seedURI)) {
+                        result.add(seedURI);
+                    }
                     addedEA = true;
                 }
             }
@@ -119,30 +123,36 @@ public class RelayReferralSeedingManager extends URISeedingManager {
         } while (addedEA);
         
         // Add the non-relay seeds afterwards.
-        results.addAll(Arrays.asList(superseeds));
+        for(URI eachURI : Arrays.asList(super.getActiveSeedURIs())) {
+            if(!result.contains(eachURI)) {
+                result.add(eachURI);
+            }
+        }
                 
-        return results.toArray(new URI[results.size()]);
+        return result.toArray(new URI[result.size()]);
     }
 
     /**
-     * Send our own advertisement to all of the seed rendezvous.
+     *  {@inheritDoc}
      */
     @Override
     public synchronized RouteAdvertisement[] getActiveSeedRoutes() {
-        RouteAdvertisement[] superseeds = super.getActiveSeedRoutes();       
-
-        List<RouteAdvertisement> results = new ArrayList<RouteAdvertisement>(getRelayPeers());
+        List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(getRelayPeers());
         
-        results.addAll(Arrays.asList(superseeds));
+            for(RouteAdvertisement eachRoute : Arrays.asList(super.getActiveSeedRoutes())) {
+                if(!result.contains(eachRoute)) {
+                    result.add(eachRoute);
+                }
+            }
                 
-        return results.toArray(new RouteAdvertisement[results.size()]);
+        return result.toArray(new RouteAdvertisement[result.size()]);
     }
     
     /**
      *  @return List of RouteAdvertisement
      */
     private Collection<RouteAdvertisement> getRelayPeers() {
-        Collection<RouteAdvertisement> res = new ArrayList<RouteAdvertisement>();
+        Collection<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>();
         
         try {
             EndpointService ep = group.getEndpointService();
@@ -172,7 +182,7 @@ public class RelayReferralSeedingManager extends URISeedingManager {
                         continue;
                     }
 
-                    res.add(rdvAdv.clone());
+                    result.add(rdvAdv.clone());
                 }
             }
         } catch (Exception ez1) {
@@ -182,9 +192,9 @@ public class RelayReferralSeedingManager extends URISeedingManager {
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Found " + res.size() + " relay seeds.");
+            LOG.fine("Found " + result.size() + " relay seeds.");
         }
         
-        return res;
+        return result;
     }
 }

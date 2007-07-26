@@ -164,7 +164,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 ? relayConfig.getMessengerPollInterval()
                 : RelayTransport.DEFAULT_POLL_INTERVAL;
         
-        URISeedingManager uriSeedingManager = new URISeedingManager(relayConfig.getAclUri(), relayConfig.getUseOnlySeeds());
+        URISeedingManager uriSeedingManager = new URISeedingManager(relayConfig.getAclUri(), relayConfig.getUseOnlySeeds(), group, serviceName);
         
         for (EndpointAddress aSeeder : Arrays.asList(relayConfig.getSeedRelays())) {
             uriSeedingManager.addSeed(aSeeder.toURI());

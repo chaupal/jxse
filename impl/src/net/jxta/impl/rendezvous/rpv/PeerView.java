@@ -57,45 +57,6 @@
 package net.jxta.impl.rendezvous.rpv;
 
 
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLDocument;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointListener;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.TextDocumentMessageElement;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.impl.endpoint.EndpointUtils;
-import net.jxta.impl.endpoint.relay.RelayReferralSeedingManager;
-import net.jxta.impl.protocol.RdvConfigAdv;
-import net.jxta.impl.rendezvous.RendezVousServiceImpl;
-import net.jxta.impl.util.SeedingManager;
-import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.URISeedingManager;
-import net.jxta.logging.Logging;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.pipe.InputPipe;
-import net.jxta.pipe.OutputPipe;
-import net.jxta.pipe.PipeID;
-import net.jxta.pipe.PipeMsgEvent;
-import net.jxta.pipe.PipeMsgListener;
-import net.jxta.pipe.PipeService;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.PeerAdvertisement;
-import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.protocol.RdvAdvertisement;
-import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.rendezvous.RendezvousEvent;
-import net.jxta.rendezvous.RendezvousListener;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -115,6 +76,47 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointListener;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.endpoint.TextDocumentMessageElement;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.pipe.InputPipe;
+import net.jxta.pipe.OutputPipe;
+import net.jxta.pipe.PipeID;
+import net.jxta.pipe.PipeMsgEvent;
+import net.jxta.pipe.PipeMsgListener;
+import net.jxta.pipe.PipeService;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.protocol.RdvAdvertisement;
+import net.jxta.protocol.RouteAdvertisement;
+import net.jxta.rendezvous.RendezvousEvent;
+import net.jxta.rendezvous.RendezvousListener;
+
+import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.impl.endpoint.relay.RelayReferralSeedingManager;
+import net.jxta.impl.protocol.RdvConfigAdv;
+import net.jxta.impl.rendezvous.RendezVousServiceImpl;
+import net.jxta.impl.util.SeedingManager;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.URISeedingManager;
 
 
 /**
@@ -457,9 +459,9 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         URISeedingManager seedingManager;
 
         if ((null == advertisingGroup) && rdvConfigAdv.getProbeRelays()) {
-            seedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group);
+            seedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
         } else {
-            seedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), false);
+            seedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
         }
 
         for (URI aSeeder : Arrays.asList(rdvConfigAdv.getSeedingURIs())) {
@@ -768,6 +770,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("fallsthrough")
     public void rendezvousEvent(RendezvousEvent event) {
 
         if (closed) {
@@ -1442,7 +1445,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         }
     }
 
-    static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String name) {
+    static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String serviceName) {
 
         try {
             // FIX ME: 10/19/2002 lomax@jxta.org. We need to properly set up the service ID. Unfortunately
@@ -1456,7 +1459,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             rdv.setPeerID(padv.getPeerID());
             rdv.setGroupID(padv.getPeerGroupID());
-            rdv.setServiceName(name);
+            rdv.setServiceName(serviceName);
             rdv.setName(padv.getName());
 
             RouteAdvertisement ra = EndpointUtils.extractRouteAdv(padv);
@@ -1962,6 +1965,11 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      */
     private final class WatchdogTask extends TimerTask {
 
+        /**
+         *  The number of iterations that the watchdog task has executed.
+         */
+        int iterations = 0;
+        
         WatchdogTask() {}
 
         /**
@@ -1978,6 +1986,15 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     LOG.fine("Watchdog task executing for group " + PeerView.this.group.getPeerGroupID());
                 }
 
+                refreshSelf();
+                
+                if(0 == (iterations % 5)) {
+                    DiscoveryService discovery = group.getDiscoveryService();
+                    if(null != discovery) {
+                        discovery.publish(self.getRdvAdvertisement(), WATCHDOG_PERIOD * 10, WATCHDOG_PERIOD * 5);
+                    }
+                }
+                
                 PeerViewElement up = PeerView.this.getUpPeer();
 
                 if (up != null) {
@@ -2020,6 +2037,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
                 }
             }
+            
+            iterations++;
         }
     }
 

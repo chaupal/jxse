@@ -87,6 +87,7 @@ import net.jxta.document.XMLElement;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
@@ -96,7 +97,7 @@ import net.jxta.protocol.RouteAdvertisement;
  *  A seeding manager that supports both explicit seed peers and loading of
  *  seeds from seeding resources.
  */
-public class URISeedingManager extends ACLSeedingManager {
+public class URISeedingManager extends RdvAdvSeedingManager {
     
     /**
      *  Logger
@@ -107,43 +108,43 @@ public class URISeedingManager extends ACLSeedingManager {
      *  The minimum amount of time we will wait between attempts to resolve the
      *  seeding URI sources.
      */
-    protected static final long MINIMUM_SEEDING_REFRESH_INTERVAL = 5 * TimeUtils.AMINUTE;
+    private static final long MINIMUM_SEEDING_REFRESH_INTERVAL = 5 * TimeUtils.AMINUTE;
     
     /**
      *  The standard interval at which we will attempt to refresh from the
      *  seeding URI sources. Also the maximum we will wait between failed
      *  attempts.
      */
-    protected static final long STANDARD_SEEDING_REFRESH_INTERVAL = 30 * TimeUtils.AMINUTE;
+    private static final long STANDARD_SEEDING_REFRESH_INTERVAL = 30 * TimeUtils.AMINUTE;
     
     /**
      * Whether we are restricted to using seed rdvs only.
      */
-    protected boolean allowOnlySeeds = false;
+    private boolean allowOnlySeeds = false;
     
     /**
      * These URIs specify location of seed peer lists. The URIs will be resolved
      * via URLConnection and are assumed to refer to plain text lists of
      * absolute URIs or an XML document containing a list of Route Advertisements.
      */
-    protected final Set<URI> seedingURIs = new HashSet<URI>();
+    private final Set<URI> seedingURIs = new HashSet<URI>();
     
     /**
      *  The absolute time in milliseconds after which we will attempt to refresh
      *  the active seeds list using the seeding URIs.
      */
-    protected long nextSeedingURIrefreshTime = 0;
+    private long nextSeedingURIrefreshTime = 0;
     
     /**
      *  The number of sequential failures we have encountered while loading
      */
-    protected int failedSeedingLoads = 0;
+    private int failedSeedingLoads = 0;
     
     /**
      * These are seed peers which were specified as part of the configuration
      * data or programmatically. These seeds are never deleted.
      */
-    protected final Set<RouteAdvertisement> permanentSeeds = new HashSet<RouteAdvertisement>();
+    private final Set<RouteAdvertisement> permanentSeeds = new HashSet<RouteAdvertisement>();
     
     /**
      *  The ranked list of active seed peers. The seed addresses are ranked as
@@ -160,7 +161,8 @@ public class URISeedingManager extends ACLSeedingManager {
      *  and not request a new list until they have exhausted all entries from
      *  the each returned lists or found an active seed.
      */
-    protected final List<RouteAdvertisement> activeSeeds = new ArrayList<RouteAdvertisement>();
+    private final List<RouteAdvertisement> activeSeeds = new ArrayList<RouteAdvertisement>();
+    
     
     /**
      * Get an instance of URISeedingManager.
@@ -170,8 +172,8 @@ public class URISeedingManager extends ACLSeedingManager {
      * @param allowOnlySeeds If {@code true} then the only peers which are part
      * of the seed peer set will be
      */
-    public URISeedingManager(URI aclLocation, boolean allowOnlySeeds) {
-        super(aclLocation);
+    public URISeedingManager(URI aclLocation, boolean allowOnlySeeds, PeerGroup group, String serviceName) {
+        super(aclLocation, group, serviceName);
         
         this.allowOnlySeeds = allowOnlySeeds;
     }
@@ -179,7 +181,8 @@ public class URISeedingManager extends ACLSeedingManager {
     /**
      * {@inheritDoc}
      */
-    public void stop() {// nothing...
+    public void stop() { 
+        super.stop();
     }
     
     /**
@@ -190,10 +193,10 @@ public class URISeedingManager extends ACLSeedingManager {
      * @param seed The URI of the seed peer.
      */
     public synchronized void addSeed(URI seed) {
-        RouteAdvertisement ra = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(
-                RouteAdvertisement.getAdvertisementType());
-        AccessPointAdvertisement apa = (AccessPointAdvertisement) AdvertisementFactory.newAdvertisement(
-                AccessPointAdvertisement.getAdvertisementType());
+        RouteAdvertisement ra = (RouteAdvertisement) 
+                AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
+        AccessPointAdvertisement apa = (AccessPointAdvertisement) 
+                AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
         
         ra.addDestEndpointAddress(new EndpointAddress(seed));
         
@@ -229,10 +232,9 @@ public class URISeedingManager extends ACLSeedingManager {
      *  {@inheritDoc}
      */
     public synchronized URI[] getActiveSeedURIs() {
+        List<URI> result = new ArrayList<URI>();
         
         refreshActiveSeeds();
-        
-        List<URI> result = new ArrayList<URI>();
         
         int eaIndex = 0;
         boolean addedEA;
@@ -261,6 +263,15 @@ public class URISeedingManager extends ACLSeedingManager {
             eaIndex++;
         } while (addedEA);
         
+        // Add more primordial seeds.
+        if(!allowOnlySeeds) {
+            for(URI eachURI : Arrays.asList(super.getActiveSeedURIs())) {
+                if(!result.contains(eachURI)) {
+                    result.add(eachURI);
+                }
+            }
+        }
+        
         return result.toArray(new URI[result.size()]);
     }
     
@@ -272,6 +283,15 @@ public class URISeedingManager extends ACLSeedingManager {
         refreshActiveSeeds();
         
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(activeSeeds);
+                
+        // Add more primordial seeds.
+        if(!allowOnlySeeds) {
+            for(RouteAdvertisement eachRoute : Arrays.asList(super.getActiveSeedRoutes())) {
+                if(!result.contains(eachRoute)) {
+                    result.add(eachRoute);
+                }
+            }
+        }
         
         return result.toArray(new RouteAdvertisement[result.size()]);
     }
@@ -314,7 +334,7 @@ public class URISeedingManager extends ACLSeedingManager {
         return acceptable && super.isAcceptablePeer(radv);
     }
     
-    protected void refreshActiveSeeds() {
+    private void refreshActiveSeeds() {
         if (TimeUtils.timeNow() < nextSeedingURIrefreshTime) {
             return;
         }
@@ -354,11 +374,10 @@ public class URISeedingManager extends ACLSeedingManager {
             }
             
             if (allLoadsFailed) {
-                // Allow for an early reload if we couldn't contact any of
-                // the seeding URIS.
+                // Allow for an early reload if we couldn't contact any of the
+                // seeding URIS.
                 failedSeedingLoads++;
-                long nextAttemptInterval = Math.min(MINIMUM_SEEDING_REFRESH_INTERVAL * failedSeedingLoads
-                        ,
+                long nextAttemptInterval = Math.min(MINIMUM_SEEDING_REFRESH_INTERVAL * failedSeedingLoads,
                         STANDARD_SEEDING_REFRESH_INTERVAL);
 
                 nextSeedingURIrefreshTime = TimeUtils.toAbsoluteTimeMillis(nextAttemptInterval);
@@ -376,40 +395,26 @@ public class URISeedingManager extends ACLSeedingManager {
     }
     
     /**
-     * Evaluates if the given route corresponds to one of our seed rdvs. This is
+     * Evaluates if the given route corresponds to one of our seeds. This is
      * to support the allowOnlySeeds flag. The test is not completely foolproof
-     * since our list of seed rdvs is just transport addresses. We could be
-     * given a pve that exhibits an address that corresponds to one of our seeds
-     * but is fake. And we might later succeed in connecting to that rdv via one
-     * the other, real addresses. As a result, allowOnlySeeds is *not* a security
-     * feature, just a convenience for certain kind of deployments. Seed
-     * rdvs should include certificates for such a restriction to be a security
-     * feature.
+     * since our list of seeds is just transport addresses. We could be given a
+     * pve that exhibits an address that corresponds to one of our seeds but is
+     * fake. And we might later succeed in connecting to that peer via one
+     * the other, real addresses. As a result, allowOnlySeeds is *not* a 
+     * security feature, just a convenience for certain kind of deployments. 
+     * The remote peer's certificates should be examined in order to fully
+     * establish that it an appropriate peer. 
      */
-    private boolean isSeedPeer(RouteAdvertisement radv) {
-        
-        AccessPointAdvertisement apAdv = radv.getDest();
-        
-        if (apAdv == null) {
-            return false;
-        }
-        
-        List addrList = Collections.list(apAdv.getEndpointAddresses());
+    private boolean isSeedPeer(RouteAdvertisement route) {
+        List<?> addrList = route.getDestEndpointAddresses();
         
         ListIterator eachAddr = addrList.listIterator();
         
-        // convert each string to a URI
+        // convert each EndpointAddress to a URI to compare with seedHosts
         while (eachAddr.hasNext()) {
-            String anAddr = (String) eachAddr.next();
+            EndpointAddress anAddr = (EndpointAddress) eachAddr.next();
             
-            try {
-                // Convert to URI to compare with seedHosts
-                eachAddr.set(new URI(anAddr));
-            } catch (URISyntaxException badURI) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Skipping bad URI : " + anAddr, badURI);
-                }
-            }
+            eachAddr.set(anAddr.toURI());
         }
         
         addrList.retainAll(Arrays.asList(getActiveSeedURIs()));
@@ -420,6 +425,26 @@ public class URISeedingManager extends ACLSeedingManager {
         return (!addrList.isEmpty());
     }
     
+    /**
+     *  Load a list of seed peer RouteAdvertisements from the specified URI.
+     *  <p/>
+     *  Two formats are supported:
+     *  <dl>
+     *      <dt>TEXT</dt>
+     *      <dd>A simple UTF-8 or US ASCII text file containing one seed 
+     *      endpoint address per line. These entries are converted into very 
+     *      simple {@code RouteAdvertisement}s.</dd>
+     *      <dt>XML</dt>
+     *      <dd>A simple XML file containing a sequence of seed
+     *      {@code RouteAdvertisement}s. The seed advertisements may be ordered
+     *      or unordered.</dd>
+     *  </dl>
+     *
+     *  @param seedingURI The intended source of the {@code RouteAdvertisement}s.
+     *  @return The loaded {@code RouteAdvertisement}s.
+     *  @throws IOException Thrown for errors encountered loading the seed
+     *  RouteAdvertisements.
+     */
     static RouteAdvertisement[] loadSeeds(URI seedingURI) throws IOException {
         boolean isXML;
         URL seedingURL = seedingURI.toURL();
@@ -461,14 +486,13 @@ public class URISeedingManager extends ACLSeedingManager {
         
         if (isXML) {
             // Read in XML format seeds. (a list of Route Advertisements)
-            XMLDocument xmldoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING
-                    ,
-                    seeds);
+            XMLDocument xmldoc = (XMLDocument) 
+                    StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, seeds);
             
-            Enumeration eachRA = xmldoc.getChildren(RouteAdvertisement.getAdvertisementType());
+            Enumeration<XMLElement> eachRA = xmldoc.getChildren(RouteAdvertisement.getAdvertisementType());
             
             while (eachRA.hasMoreElements()) {
-                XMLElement anRAElement = (XMLElement) eachRA.nextElement();
+                XMLElement anRAElement = eachRA.nextElement();
                 RouteAdvertisement ra = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(anRAElement);
                 
                 result.add(ra);
@@ -506,11 +530,8 @@ public class URISeedingManager extends ACLSeedingManager {
                     
                     RouteAdvertisement ra = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(
                             RouteAdvertisement.getAdvertisementType());
-                    AccessPointAdvertisement apa = (AccessPointAdvertisement) AdvertisementFactory.newAdvertisement(
-                            AccessPointAdvertisement.getAdvertisementType());
                     
-                    apa.addEndpointAddress(ea);
-                    ra.setDest(apa);
+                    ra.addDestEndpointAddress(ea);
                     
                     // Add the world's most pathetic RouteAdvertisement to the result.
                     result.add(ra);
