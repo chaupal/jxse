@@ -374,7 +374,7 @@ public class MessagePackageHeader {
         }
         
         try {
-            addHeader(name, value.toString().getBytes("UTF-8"));
+            addHeader(name, value.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException never) {
             // utf-8 is a required encoding.
             throw new IllegalStateException("UTF-8 encoding support missing!");
@@ -434,7 +434,7 @@ public class MessagePackageHeader {
         }
         
         try {
-            replaceHeader(name, value.toString().getBytes("UTF-8"));
+            replaceHeader(name, value.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException never) {
             // utf-8 is a required encoding.
             throw new IllegalStateException("UTF-8 encoding support missing!");
