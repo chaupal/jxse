@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
@@ -82,7 +80,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Base class for providers which implement the JXTA Standard Rendezvous
@@ -183,8 +180,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         if (srcAddr.getProtocolName().equalsIgnoreCase("jxta")) {
             String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
 
-            ID peerid = null;
-
+            ID peerid;
             try {
                 peerid = IDFactory.fromURI(new URI(idstr));
             } catch (URISyntaxException badID) {
@@ -332,16 +328,14 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "Propagating " + msg + "(TTL=" + useTTL + ") to neighbors to :" + "\n\tsvc name:" + serviceName
-                    + "\tsvc params:" + serviceParam);
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to neighbors to :" + "\n\tsvc name:" + serviceName+ "\tsvc params:" + serviceParam);
         }
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
         if (null != propHdr) {
             try {
-                sendToNetwork(msg, propHdr);
+                sendToNetwork(msg, propHdr, false);
 
                 if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                     rendezvousMeter.propagateToNeighbors();
@@ -380,7 +374,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                 // rendezvous.  Local subnet network operations should be (and are)
                 // sufficient to achieve the goal.
                 // sendToEachConnection(msg, propHdr);
-                sendToNetwork(msg, propHdr);
+                sendToNetwork(msg, propHdr, false);
             } else {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("No propagate header, declining to repropagate " + msg + ")");

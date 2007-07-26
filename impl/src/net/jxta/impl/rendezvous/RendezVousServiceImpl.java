@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,7 +112,6 @@ import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.impl.util.TimeUtils;
-
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which

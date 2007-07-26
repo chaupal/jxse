@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -85,7 +83,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This abstract class must be extended for all RendezVous Service providers
@@ -552,10 +549,13 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      *
      * @param msg     The message to be propagated.
      * @param propHdr It's current propagation header.
+     * @param clone if <code>true</code>, then clone the message
      * @throws java.io.IOException if an io error occurs
      */
-    protected void sendToNetwork(Message msg, RendezVousPropagateMessage propHdr) throws IOException {
-        msg = msg.clone();
+    protected void sendToNetwork(Message msg, RendezVousPropagateMessage propHdr, boolean clone) throws IOException {
+        if (clone) {
+            msg = msg.clone();
+        }
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Endpoint propagating " + msg + " (" + propHdr.getMsgId() + ")");
@@ -573,7 +573,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * @return endpointAddress for this peer id.
      */
     protected static EndpointAddress mkAddress(String destPeer, String serv, String parm) {
-        ID asID = null;
+        ID asID;
 
         try {
             asID = IDFactory.fromURI(new URI(destPeer));

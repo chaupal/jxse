@@ -56,7 +56,6 @@
 
 package net.jxta.impl.rendezvous.edge;
 
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +107,6 @@ import net.jxta.impl.rendezvous.rpv.PeerviewSeedingManager;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
-
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -378,16 +376,14 @@ public class EdgePeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-                    + serviceParam);
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"+ serviceParam);
         }
         
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
         
         if (null != propHdr) {
             sendToEachConnection(msg, propHdr);
-            sendToNetwork(msg, propHdr);
+            sendToNetwork(msg, propHdr, false);
             
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.propagateToGroup();

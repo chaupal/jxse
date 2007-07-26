@@ -391,8 +391,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
                     + serviceParam);
         }
 
@@ -402,7 +401,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             walk(msg, PropSName, PropPName, useTTL);
             // hamada: this is a very expensive operation and therefore not a supported operation
             // sendToEachConnection(msg, propHdr);
-            sendToNetwork(msg, propHdr);
+            sendToNetwork(msg, propHdr, true);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.propagateToGroup();

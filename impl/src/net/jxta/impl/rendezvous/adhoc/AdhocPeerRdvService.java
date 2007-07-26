@@ -244,7 +244,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);
 
         if (null != propHdr) {
-            sendToNetwork(msg, propHdr);
+            sendToNetwork(msg, propHdr, true);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.propagateToGroup();
@@ -263,7 +263,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, ttl);
 
         if (null != propHdr) {
-            sendToNetwork(msg, propHdr);
+            sendToNetwork(msg, propHdr, true);
 
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.propagateToGroup();
@@ -324,7 +324,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
         if (null != propHdr) {
             try {
-                sendToNetwork(msg, propHdr);
+                sendToNetwork(msg, propHdr, true);
 
                 if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                     rendezvousMeter.propagateToNeighbors();
@@ -375,7 +375,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             propHdr = updatePropHeader(msg, propHdr, serviceName, serviceParam, MAX_TTL);
 
             if (null != propHdr) {
-                sendToNetwork(msg, propHdr);
+                sendToNetwork(msg, propHdr, true);
             } else {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("No propagate header, declining to repropagate " + msg + ")");
