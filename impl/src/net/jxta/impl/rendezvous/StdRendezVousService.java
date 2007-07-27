@@ -335,7 +335,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         if (null != propHdr) {
             try {
-                sendToNetwork(msg, propHdr, false);
+                sendToNetwork(msg, propHdr);
 
                 if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                     rendezvousMeter.propagateToNeighbors();
@@ -374,7 +374,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                 // rendezvous.  Local subnet network operations should be (and are)
                 // sufficient to achieve the goal.
                 // sendToEachConnection(msg, propHdr);
-                sendToNetwork(msg, propHdr, false);
+                sendToNetwork(msg, propHdr);
             } else {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("No propagate header, declining to repropagate " + msg + ")");

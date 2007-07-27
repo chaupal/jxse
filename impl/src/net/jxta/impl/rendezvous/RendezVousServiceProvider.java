@@ -552,11 +552,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * @param clone if <code>true</code>, then clone the message
      * @throws java.io.IOException if an io error occurs
      */
-    protected void sendToNetwork(Message msg, RendezVousPropagateMessage propHdr, boolean clone) throws IOException {
-        if (clone) {
-            msg = msg.clone();
-        }
-
+    protected void sendToNetwork(Message msg, RendezVousPropagateMessage propHdr) throws IOException {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Endpoint propagating " + msg + " (" + propHdr.getMsgId() + ")");
         }
