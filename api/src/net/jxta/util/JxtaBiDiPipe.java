@@ -61,13 +61,7 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.TextDocumentMessageElement;
+import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.impl.util.UnbiasedQueue;
 import net.jxta.impl.util.pipe.reliable.Defs;
@@ -1001,11 +995,32 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @see net.jxta.endpoint.Message
      */
     public boolean sendMessage(Message msg) throws IOException {
+        return sendMessage(msg, null);
+    }
+
+    /**
+     * Send a message
+     * <p/>
+     * <code>Messenger</code>
+     *
+     * @param msg Message to send to the remote side
+     * @param listener listener for events about this message or null if no notification is desired.
+     * @return true if message was successfully enqueued
+     * @throws IOException if the underlying messenger breaks, either due to
+     *                     a physical address change, reliability issue.
+     * @see net.jxta.endpoint.Message
+     */
+    public boolean sendMessage(Message msg, OutgoingMessageEventListener listener) throws IOException {
         if (isReliable && !direct) {
             int seqn = ros.send(msg);
             return (seqn > 0);
         } else {
-            return msgr.sendMessage(msg, null, null);
+            if (listener != null) {
+             msgr.sendMessage(msg, null, null, listener);
+                return true;
+            } else {
+                return msgr.sendMessage(msg, null, null);
+            }
         }
     }
 
