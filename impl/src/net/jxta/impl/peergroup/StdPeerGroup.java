@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
-
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -107,7 +105,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.document.StructuredDocument;
-
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -981,14 +978,14 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 ? ((MessageTransport) anMT).getProtocolName()
                                 : anMT.getClass().getName());
             }
-            Iterator eachApp = applications.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID,Object>> eachApp = applications.entrySet().iterator();
             
             if (eachApp.hasNext()) {
                 configInfo.append("\n\t\tApplications :");
             }
             while (eachApp.hasNext()) {
-                Map.Entry anEntry = (Map.Entry) eachApp.next();
-                ModuleClassID aMCID = (ModuleClassID) anEntry.getKey();
+                Map.Entry<ModuleClassID,Object> anEntry = eachApp.next();
+                ModuleClassID aMCID = anEntry.getKey();
                 Object anApp = anEntry.getValue();
                 
                 if (anApp instanceof ModuleImplAdvertisement) {
