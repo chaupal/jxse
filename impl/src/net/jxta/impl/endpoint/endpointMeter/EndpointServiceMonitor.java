@@ -57,11 +57,13 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 
-import net.jxta.meter.*;
-import net.jxta.peergroup.*;
-import net.jxta.impl.meter.*;
-import net.jxta.endpoint.*;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Map;
+
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.impl.meter.GenericServiceMonitor;
+import net.jxta.meter.ServiceMetric;
+import net.jxta.meter.ServiceMonitorFilter;
 
 
 /**
@@ -69,13 +71,16 @@ import java.util.*;
  **/
 public class EndpointServiceMonitor extends GenericServiceMonitor {
     private EndpointServiceMetric cumulativeEndpointServiceMetric;
-    private Hashtable inboundMeters = new Hashtable();
-    private Hashtable outboundMeters = new Hashtable();
-    private Hashtable propagationMeters = new Hashtable();
-    private EndpointMeter endpointMeter = new EndpointMeter();
+    private final Map<String, InboundMeter> inboundMeters = new Hashtable<String, InboundMeter>();
+    private final Map<EndpointAddress, OutboundMeter> outboundMeters = new Hashtable<EndpointAddress, OutboundMeter>();
+    private final Map<String, PropagationMeter> propagationMeters = new Hashtable<String, PropagationMeter>();
+    private final EndpointMeter endpointMeter = new EndpointMeter();
 
     public EndpointServiceMonitor() {}
 
+    /**
+     *  {@inheritDoc}
+     */
     @Override
     protected void init() {
         cumulativeEndpointServiceMetric = (EndpointServiceMetric) getCumulativeServiceMetric();
@@ -93,7 +98,7 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
             address += "/" + serviceParam;
         }
 
-        InboundMeter inboundMeter = (InboundMeter) inboundMeters.get(address);
+        InboundMeter inboundMeter = inboundMeters.get(address);
 
         if (inboundMeter == null) {
             inboundMeter = new InboundMeter(serviceName, serviceParam);
@@ -111,7 +116,7 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
             address += "/" + serviceParam;
         }
 
-        PropagationMeter propagationMeter = (PropagationMeter) propagationMeters.get(address);
+        PropagationMeter propagationMeter = propagationMeters.get(address);
 
         if (propagationMeter == null) {
             propagationMeter = new PropagationMeter(serviceName, serviceParam);
@@ -123,7 +128,7 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
     }
 
     public synchronized OutboundMeter getOutboundMeter(EndpointAddress endpointAddress) {
-        OutboundMeter outboundMeter = (OutboundMeter) outboundMeters.get(endpointAddress);
+        OutboundMeter outboundMeter = outboundMeters.get(endpointAddress);
 
         if (outboundMeter == null) {
             outboundMeter = new OutboundMeter(endpointAddress);
@@ -134,6 +139,9 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
         return outboundMeter;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @Override
     public ServiceMetric getServiceMetric(ServiceMonitorFilter serviceMonitorFilter, long fromTime, long toTime, int pulseIndex, long reportRate) {
         int deltaReportRateIndex = monitorManager.getReportRateIndex(reportRate);
@@ -148,6 +156,9 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
         return origEndpointServiceMetric.shallowCopy(endpointServiceMonitorFilter);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @Override
     public ServiceMetric getCumulativeServiceMetric(ServiceMonitorFilter serviceMonitorFilter, long fromTime, long toTime) {
         EndpointServiceMetric origEndpointServiceMetric = (EndpointServiceMetric) cumulativeServiceMetric;
@@ -156,14 +167,16 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
         return origEndpointServiceMetric.deepCopy(endpointServiceMonitorFilter);
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @Override
     protected ServiceMetric collectServiceMetrics() {
         EndpointServiceMetric endpointServiceMetric = (EndpointServiceMetric) createServiceMetric();
 
         boolean anyData = false;
 
-        for (Enumeration e = inboundMeters.elements(); e.hasMoreElements();) {
-            InboundMeter inboundMeter = (InboundMeter) e.nextElement();
+        for (InboundMeter inboundMeter : inboundMeters.values()) {
             InboundMetric inboundMetric = inboundMeter.collectMetrics(); // clears delta from meter
 
             if (inboundMetric != null) {
@@ -172,8 +185,7 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
             }
         }
 
-        for (Enumeration e = outboundMeters.elements(); e.hasMoreElements();) {
-            OutboundMeter outboundMeter = (OutboundMeter) e.nextElement();
+        for (OutboundMeter outboundMeter : outboundMeters.values()) {
             OutboundMetric outboundMetric = outboundMeter.collectMetrics(); // clears delta from meter
 
             if (outboundMetric != null) {
@@ -182,8 +194,7 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
             }
         }
 
-        for (Enumeration e = propagationMeters.elements(); e.hasMoreElements();) {
-            PropagationMeter propagationMeter = (PropagationMeter) e.nextElement();
+        for (PropagationMeter propagationMeter : propagationMeters.values()) {
             PropagationMetric propagationMetric = propagationMeter.collectMetrics(); // clears delta from meter
 
             if (propagationMetric != null) {
