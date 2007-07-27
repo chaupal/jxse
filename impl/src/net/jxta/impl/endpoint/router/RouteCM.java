@@ -58,9 +58,7 @@
  * This class is used to manage a persistent CM cache  of route
  * for the router
  */
-
 package net.jxta.impl.endpoint.router;
-
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -69,6 +67,7 @@ import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.LRUCache;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
@@ -91,7 +90,6 @@ import java.util.List;
 import java.util.Vector;
 
 import net.jxta.impl.endpoint.EndpointUtils;
-
 
 class RouteCM implements Module {
     
@@ -134,17 +132,12 @@ class RouteCM implements Module {
      * PeerGroup Service Handle
      */
     private PeerGroup group = null;
+    private LRUCache lruCache = new LRUCache(100);
     
     /**
      * EndpointRouter pointer
      */
-    
-    /**
-     * Constructor
-     *
-     */
-    public RouteCM() {}
-    
+        
     /**
      * {@inheritDoc}
      */
@@ -200,10 +193,8 @@ class RouteCM implements Module {
      * {@inheritDoc}
      */
     public int startApp(String[] arg) {
-        
         // ok, we are initialized, go ahead and enable CM usage desired
         useCM = useCMConfig;
-               
         return Module.START_OK;
     }
     
@@ -212,8 +203,6 @@ class RouteCM implements Module {
      */
     public void stopApp() {
         useCM = false;
-        
-        // discovery = null;
     }
     
     /**
@@ -226,7 +215,8 @@ class RouteCM implements Module {
     }
     
     /**
-     *  Set
+     * toggles whether to use the RouteCM
+     * @param enable if <code>true</code> it enables use of persistent store
      */
     void enableRouteCM(boolean enable) {
         useCM = enable;
@@ -252,16 +242,17 @@ class RouteCM implements Module {
             return Collections.<RouteAdvertisement>emptyList().iterator();
         } else {
             discovery = group.getDiscoveryService();
-            
             if (null == discovery) {
                 return Collections.<RouteAdvertisement>emptyList().iterator();
             }
         }
         
         String peerIDStr = peerID.toString();
-        
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(2);
-        
+        if (lruCache.contains(peerID)) {
+            result.add((RouteAdvertisement)lruCache.get(peerID));
+            return result.iterator();
+        }
         // check first if we have a route advertisement
         Enumeration<Advertisement> advs = null;
         
@@ -314,17 +305,17 @@ class RouteCM implements Module {
                 try {
                     // XXX 20060106 bondolo These publication values won't be obeyed if
                     // the route had been previously published.
+
+                    //FIXME by hamada: This operation may lead to overwriting an existing and valid rout adv, no?
                     discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
                 } catch (IOException failed) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "Failed publishing route", failed);
                     }
                 }
-                
                 result.add(route);
             }
         }
-        
         return result.iterator();
     }
     
@@ -418,7 +409,7 @@ class RouteCM implements Module {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("publishing new route \n" + newRoute.display());
             }
-            
+            lruCache.put(route.getDestPeerID(), route);
             // XXX 20060106 bondolo These publication values won't be obeyed if
             // the route had been previously published.
             discovery.publish(newRoute, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
@@ -442,7 +433,6 @@ class RouteCM implements Module {
             return;
         } else {
             discovery = group.getDiscoveryService();
-            
             if (null == discovery) {
                 return;
             }
@@ -453,17 +443,20 @@ class RouteCM implements Module {
         }
         
         // publish route adv
-        try {
-            // XXX 20060106 bondolo These publication values won't be obeyed if
-            // the route had been previously published.
-            discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
-        } catch (Exception ex) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "error publishing route adv \n" + route, ex);
+        if (!lruCache.contains(route.getDestPeerID())) {
+            try {
+                // XXX 20060106 bondolo These publication values won't be obeyed if
+                // the route had been previously published.
+                discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
+            } catch (Exception ex) {
+                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE, "error publishing route adv \n" + route, ex);
+                }
             }
         }
+        lruCache.put(route.getDestPeerID(), route);
     }
-    
+
     /**
      * flush route adv from CM
      *
@@ -477,7 +470,6 @@ class RouteCM implements Module {
             return;
         } else {
             discovery = group.getDiscoveryService();
-            
             if (null == discovery) {
                 return;
             }
@@ -542,6 +534,8 @@ class RouteCM implements Module {
             } catch (IOException ex) {// protect against flush IOException when the entry is not there
             }
         }
+        // remove it from the cache as well
+        lruCache.remove(peerID);
     }
     
     /**
@@ -558,7 +552,6 @@ class RouteCM implements Module {
             return false;
         } else {
             discovery = group.getDiscoveryService();
-            
             if (null == discovery) {
                 return true;
             }
@@ -582,12 +575,14 @@ class RouteCM implements Module {
                         // XXX 20060106 bondolo These publication values won't be obeyed if
                         // the route had been previously published.
                         discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
+                        lruCache.put(route.getDestPeerID(), route);
                         return true;
                     }
                 }
             } else {
                 // publish the new route
                 discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
+                lruCache.put(route.getDestPeerID(), route);
                 return true;
             }
         } catch (Exception e) {
@@ -595,7 +590,6 @@ class RouteCM implements Module {
                 LOG.log(Level.WARNING, "  failure to publish route advertisement response", e);
             }
         }
-        
         return false;
     }
 }
