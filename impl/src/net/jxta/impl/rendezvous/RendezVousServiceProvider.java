@@ -549,7 +549,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      *
      * @param msg     The message to be propagated.
      * @param propHdr It's current propagation header.
-     * @param clone if <code>true</code>, then clone the message
      * @throws java.io.IOException if an io error occurs
      */
     protected void sendToNetwork(Message msg, RendezVousPropagateMessage propHdr) throws IOException {
