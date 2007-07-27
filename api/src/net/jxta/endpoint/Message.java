@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
-
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -85,7 +83,6 @@ import net.jxta.util.SimpleSelectable;
 
 import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
-
 
 /**
  * Messages are abstract containers for protocol messages within JXTA. Services
@@ -279,17 +276,13 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
+                    LOG.log(Level.SEVERE,
                             Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                            ,
+                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
-
                 throw failure;
             }
-
             return list.hasNext();
         }
 
@@ -302,14 +295,11 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
+                    LOG.log(Level.SEVERE,
                             Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory()
-                            ,
+                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
-
                 throw failure;
             }
 
@@ -338,7 +328,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                             + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
-
                 throw failure;
             }
 
@@ -359,7 +348,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                             + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
-
                 throw failure;
             }
 
@@ -479,7 +467,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                             + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                             failure);
                 }
-
                 throw failure;
             }
 
@@ -527,7 +514,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                                 + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
                                 failure);
                     }
-
                     throw failure;
                 }
             }
@@ -582,9 +568,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      */
     protected static class element {
         final String namespace;
-
         final MessageElement element;
-
         final MessageElement signature;
 
         element(String namespace, MessageElement element, MessageElement signature) {
@@ -619,7 +603,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * do not require a namespace specification.
      * @param clone If {@code true} then we are creating a clone.
      */
-    private Message(String defaultNamespace, boolean clone ) {
+    private Message(String defaultNamespace, boolean clone) {
         this.defaultNamespace = defaultNamespace;
 
         lineage.add(messagenumber.getAndIncrement());
