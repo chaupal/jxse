@@ -53,21 +53,23 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.util;
-
 
 /**
  * This the interface that all selectable objects expose.
  *
- * <p/>Applications programmers should treat this API as temporary, for now.
+ * <p/>
+ * Applications programmers should treat this API as temporary, for now.
  *
- * <p/>A SimpleSelectable object can register SimpleSelector objects so that  
+ * <p/>
+ * A SimpleSelectable object can register SimpleSelector objects so that
  * they are notified whenever this object chooses to report a change.
  *
- * <p/>SimpleSelectors are SimpleSelectable, therefore selectors can be selected.
+ * <p/>
+ * SimpleSelectors are SimpleSelectable, therefore selectors can be selected.
  *
- * <p/>The change notification interface used to notify a selector is actually 
+ * <p/>
+ * The change notification interface used to notify a selector is actually
  * specified in SimpleSelectable. As a result, certain implementations may also 
  * allow to register SimpleSelectables that are not Selectors. Selectors themselves do not allow that.
  *
@@ -83,7 +85,8 @@ public interface SimpleSelectable {
      * SimpleSelectable objects may have semantically equals() and hashCode() 
      * methods rather than the identity ones.
      *
-     * <p/>For that reason, whenever a SimpleSelectable needs to be used as a map or set key, its identity
+     * <p/>
+     * For that reason, whenever a SimpleSelectable needs to be used as a map or set key, its identity
      * reference should be used instead. All SimpleSelectable can return an identity reference. A given
      * SimpleSelectable always provides the same IdentityReference object. IdentityReference never overloads
      * hashCode() and equals() in a way that could make different objects be equal or that could provide
@@ -94,6 +97,8 @@ public interface SimpleSelectable {
         
         /**
          * Creates a new IdentityReference object
+         *
+         * @param object the selectable
          */
         public IdentityReference(SimpleSelectable object) {
             this.object = object;
