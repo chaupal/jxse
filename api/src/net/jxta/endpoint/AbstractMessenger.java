@@ -223,9 +223,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     /**
      * {@inheritDoc}
      *
-     * @deprecated Implements deprecated method. Actual support only provided by channels.
      */
-    @Deprecated
     public void sendMessage(Message msg, String service, String serviceParam, OutgoingMessageEventListener listener) {
         throw new UnsupportedOperationException("This legacy method is not supported by this messenger.");
     }
