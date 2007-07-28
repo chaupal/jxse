@@ -57,6 +57,8 @@ package tutorial.bidi;
 
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.OutgoingMessageEventListener;
+import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.PipeMsgEvent;
@@ -77,7 +79,7 @@ import java.util.logging.Logger;
  * (JxtaServerPipeExample), then wait until all the messages are receieved
  * asynchronously
  */
-public class JxtaBidiPipeExample implements PipeMsgListener {
+public class JxtaBidiPipeExample implements PipeMsgListener, OutgoingMessageEventListener {
     private final static Logger LOG = Logger.getLogger(JxtaBidiPipeExample.class.getName());
     private transient NetworkManager manager = null;
     private final transient File home = new File(new File(".cache"), "client");
@@ -150,13 +152,11 @@ public class JxtaBidiPipeExample implements PipeMsgListener {
             // Get message
             if (msgElement.toString() == null) {
                 System.out.println("null msg received");
-            } else {
-                // System.out.println("Got Message  :"+ msgElement.toString());
-                count++;
             }
+            count++;
             response = msg.clone();
-            // System.out.println("Sending response to " + msgElement.toString());
-            pipe.sendMessage(response);
+            System.out.println("Sending response to " + msgElement.toString()+" Count:"+count);
+            pipe.sendMessage(response, this);
             // If JxtaServerPipeExample.ITERATIONS # of messages received, it is
             // no longer needed to wait. notify main to exit gracefully
             if (count >= JxtaServerPipeExample.ITERATIONS) {
@@ -177,8 +177,8 @@ public class JxtaBidiPipeExample implements PipeMsgListener {
             synchronized (completeLock) {
                 completeLock.wait();
             }
-            pipe.close();
             System.out.println("Done.");
+            pipe.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -193,8 +193,16 @@ public class JxtaBidiPipeExample implements PipeMsgListener {
         System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
         String value = System.getProperty("RDVWAIT", "false");
         boolean waitForRendezvous = Boolean.valueOf(value);
-
         new JxtaBidiPipeExample(waitForRendezvous);
+    }
+
+    public void messageSendFailed(OutgoingMessageEvent event) {
+        System.out.println("Message send failed "+event.toString());
+        event.getFailure().printStackTrace();
+    }
+
+    public void messageSendSucceeded(OutgoingMessageEvent event) {
+        System.out.println("Message send succeeded "+event.toString());
     }
 }
 
