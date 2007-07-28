@@ -148,10 +148,8 @@ public abstract class ChannelMessenger extends AbstractMessenger implements Mess
      * Give this channel the watcher that it must use whenever sendMessage(...,listener) is used. If not set,
      * sendMessage(..., listener) will throw.
      *
-     * @deprecated This method is in support of deprecated methods.
      * @param messageWatcher the listener
      */
-    @Deprecated
     public void setMessageWatcher(ListenerAdaptor messageWatcher) {
         this.messageWatcher = messageWatcher;
     }
@@ -198,10 +196,8 @@ public abstract class ChannelMessenger extends AbstractMessenger implements Mess
     /**
      * {@inheritDoc}
      *
-     * @deprecated Implements deprecated method.
      */
     @Override
-    @Deprecated
     public void sendMessage(Message msg, String service, String serviceParam, OutgoingMessageEventListener listener) {
         if (messageWatcher == null) {
             throw new UnsupportedOperationException("This channel was not configured to emulate this legacy method.");
