@@ -100,6 +100,8 @@ public class JxtaServerPipe implements PipeMsgListener {
     protected static final String remPeerTag = "remPeer";
     protected static final String remPipeTag = "remPipe";
     protected static final String closeTag = "close";
+    protected final static String closeReqValue = "close";
+    protected final static String closeAckValue = "closeACK";
     protected static final String reliableTag = "reliable";
     protected static final String directSupportedTag = "direct";
     private PeerGroup group;

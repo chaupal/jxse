@@ -154,7 +154,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * layer to ensure that messages are received by the remote peer.
      */
     protected boolean isReliable = false;
-
     protected ReliableInputStream ris = null;
     protected ReliableOutputStream ros = null;
 
@@ -257,7 +256,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     public JxtaBiDiPipe(PeerGroup group, PipeAdvertisement pipeAd, int timeout, PipeMsgListener msgListener, boolean reliable) throws IOException {
-
         connect(group, null, pipeAd, timeout, msgListener, reliable);
     }
 
@@ -282,7 +280,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     public void connect(PeerGroup group, PipeAdvertisement pipeAd, int timeout) throws IOException {
-
         connect(group, null, pipeAd, timeout, null);
     }
 
@@ -297,7 +294,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     public void connect(PeerGroup group, PeerID peerid, PipeAdvertisement pipeAd, int timeout, PipeMsgListener msgListener) throws IOException {
-
         connect(group, peerid, pipeAd, timeout, msgListener, isReliable);
     }
 
@@ -616,32 +612,29 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      *                     socket.
      */
     public void close() throws IOException {
-        sendClose();
-        closePipe();
+        closePipe(true);
     }
 
-    protected void closePipe() throws IOException {
-        // close both pipes
+    protected void closePipe(boolean sendClose) throws IOException {
         synchronized (closeLock) {
             if (closed) {
                 return;
             }
             closed = true;
             bound = false;
+            // ros will not take any new message, now.
+            if (!direct && ros != null) {
+                ros.close();
+            }
         }
 
-        if (isReliable && !direct) {
+        if (ris != null && ros != null && !ros.isQueueEmpty()) {
             /*
              *  This implements linger!
              */
             long quitAt = System.currentTimeMillis() + timeout;
-            if (ros == null || ros.getMaxAck() == ros.getSeqNumber()) {
-                // Nothing to worry about.
-            }
-
             // By default wait forever.
             long left = 0;
-
             // If timeout is not zero. Then compute the waiting time
             // left.
             if (timeout != 0) {
@@ -670,11 +663,22 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             // We are initiating the close. We do not want to receive
             // anything more. So we can close the ris right away.
             ris.close();
-        }
-
-        if (isReliable && ros != null) {
             ros.close();
         }
+        try {
+            if (sendClose) {
+                sendClose();
+                synchronized (closeLock) {
+                    closeLock.wait(timeout);
+                }
+            } else {
+                //ack the closure
+                ackClose();
+            }
+        } catch (InterruptedException e) {
+            Thread.interrupted();
+        }
+
         // close the pipe
         in.close();
         msgr.close();
@@ -823,20 +827,28 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         MessageElement element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.closeTag);
 
         if (element != null) {
-            try {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Recevied a pipe close request, closing pipes");
+            if (element.toString().equals(JxtaServerPipe.closeReqValue)) {
+
+                try {
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Recevied a pipe close request, closing pipes");
+                    }
+                    ackClose();
+                    if (ros != null) {
+                        ros.hardClose();
+                    }
+                    closePipe(false);
+                } catch (IOException ie) {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.log(Level.WARNING, "failed during close", ie);
+                    }
                 }
-                if (ros != null) {
-                    ros.hardClose();
-                }
-                closePipe();
-            } catch (IOException ie) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "failed during close", ie);
+                return true;
+            } else if (element.toString().equals(JxtaServerPipe.closeAckValue)) {
+                synchronized (closeLock) {
+                    closeLock.notifyAll();
                 }
             }
-            return true;
         }
         return false;
     }
@@ -1162,29 +1174,35 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Send a close message to the remote side
      */
     private void sendClose() {
-        if (!direct && isReliable && ros.isClosed()) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("ReliableOutputStream is already closed. Skipping close message");
-            }
-            return;
-        }
 
         Message msg = new Message();
+        msg.addMessageElement(JxtaServerPipe.nameSpace, new StringMessageElement(JxtaServerPipe.closeTag, JxtaServerPipe.closeReqValue, null));
 
-        msg.addMessageElement(JxtaServerPipe.nameSpace, new StringMessageElement(JxtaServerPipe.closeTag, "close", null));
         try {
             sendMessage(msg);
-            // ros will not take any new message, now.
-            if (!direct && ros != null) {
-                ros.close();
-            }
         } catch (IOException ie) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.SEVERE, "failed during close", ie);
+                LOG.log(Level.SEVERE, "failed to send close message", ie);
             }
         }
     }
 
+    /**
+     * Send a close ack message to the remote side
+     *
+     */
+    private void ackClose() {
+
+        Message msg = new Message();
+            msg.addMessageElement(JxtaServerPipe.nameSpace, new StringMessageElement(JxtaServerPipe.closeTag, JxtaServerPipe.closeAckValue, null));
+        try {
+            sendMessage(msg);
+        } catch (IOException ie) {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.SEVERE, "failed to send close ack", ie);
+            }
+        }
+    }
     /**
      * Returns the message listener for this pipe
      *
