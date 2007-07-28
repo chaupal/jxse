@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
-
 
 /**
  * The complete standard messenger life cycle state machine that all messengers

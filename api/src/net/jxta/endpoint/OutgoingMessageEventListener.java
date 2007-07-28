@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
-
 
 /**
  * A listener for events concerning the status of outgoing messages.
@@ -94,5 +92,4 @@ public interface OutgoingMessageEventListener extends java.util.EventListener {
      * @param event the event
      */
     void messageSendSucceeded(OutgoingMessageEvent event);
-
 }
