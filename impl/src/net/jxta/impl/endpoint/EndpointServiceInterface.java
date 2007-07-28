@@ -436,6 +436,18 @@ class EndpointServiceInterface implements EndpointService {
         return theRealThing.removeMessengerEventListener(listener, prio);
     }
 
+    /**
+     *
+     * FIXME by hamada.  shutting down the listener adaptor in finalize leads to message loss when this object is discarded
+     * which is a pretty common application use pattern.
+     *
+     * Not sure of the reason for the following code, whether it affected shutdown for instance, however, it is being
+     * disbaled as it leads message loss.
+     *
+     * To be removed once it's purpose is understood, and a better workaournd for the problem is identified.
+     */
+
+    /*
     // We do not have much choice here, since applications are supposed to ditch interface objects without much thinking. 
     // Note: this will never happen if, by any chance listenerAdaptor has a direct or indirect ref to this.
     @Override
@@ -443,6 +455,7 @@ class EndpointServiceInterface implements EndpointService {
         listenerAdaptor.shutdown();
         super.finalize();
     }
+    */
 
     /**
      * {@inheritDoc}
