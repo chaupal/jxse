@@ -432,13 +432,13 @@ public class ListenerAdaptor implements Runnable {
                 IOException failed = new IOException("Endpoint interface terminated");
 
                 for (Map.Entry<IdentityReference, ListenerContainer> entry : inprogress.entrySet()) {
-                    SimpleSelectable m = entry.getKey().getObject();
+                    SimpleSelectable simpleSelectable = entry.getKey().getObject();
                     ListenerContainer listeners = entry.getValue();
 
-                    m.unregister(selector);
+                    simpleSelectable.unregister(selector);
 
                     if (listeners != null) {
-                        listeners.giveUp(m, failed);
+                        listeners.giveUp(simpleSelectable, failed);
                     }
                 }
                 inprogress.clear();
