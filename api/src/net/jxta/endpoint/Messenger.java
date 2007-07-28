@@ -688,12 +688,9 @@ public interface Messenger extends SimpleSelectable {
      *                     destination address. If {@code null} then the destination address's
      *                     default service parameter will be used. If the empty string ("") is used
      *                     then no service param is included in the destination address.
-     * @param listener     listener for events about this message or null if
-     *                     no notification is desired.
+     * @param listener     listener for events about this message or null if no notification is desired.
      * @throws UnsupportedOperationException If this messenger is not a channel or was not given a {@link ListenerAdaptor}.
      *                                       (all messengers obtained through {@link EndpointService#getMessenger} are configured properly.
-     * @deprecated This legacy method is being phased out. Prefer {@link #sendMessageN} to send messages in a non blocking fashion.
      */
-    @Deprecated
     void sendMessage(Message msg, String service, String serviceParam, OutgoingMessageEventListener listener);
 }
