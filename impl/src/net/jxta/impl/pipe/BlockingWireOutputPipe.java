@@ -119,7 +119,7 @@ class BlockingWireOutputPipe implements OutputPipe {
         this.group = group;
         this.endpoint = group.getEndpointService();
         destination = new EndpointAddress("jxta", peerID.getUniqueValue().toString(), "PipeService", pAdv.getID().toString());
-        destMessenger = group.getEndpointService().getMessenger(destination);
+        destMessenger = endpoint.getMessenger(destination);
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("Constructing for " + getPipeID());
