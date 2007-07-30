@@ -89,7 +89,7 @@ class EndpointServiceInterface implements EndpointService {
     /**
      * The object that emulates the legacy send-message-with-listener and get-messenger-with-listener APIs.
      */
-    private final ListenerAdaptor listenerAdaptor;
+    private final static ListenerAdaptor listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup());
 
     /**
      * The cache of channels. If a given owner of this EndpointService interface
@@ -116,7 +116,6 @@ class EndpointServiceInterface implements EndpointService {
      */
     public EndpointServiceInterface(EndpointServiceImpl endpointService) {
         theRealThing = endpointService;
-        this.listenerAdaptor = new ListenerAdaptor(theRealThing.getGroup().getHomeThreadGroup());
     }
 
     /**
