@@ -108,16 +108,16 @@ import java.util.logging.Logger;
  * in addition, messages must not exceed the Endpoint MTU size of 64K, exceed the
  * MTU will lead to unexpected behavior.
  * <p/>
- * <p/>It highly recommended that an application message listener is specified, not doing so, may
+ * It highly recommended that an application message listener is specified, not doing so, may
  * lead to message loss in the event the internal queue is overflowed.
  * <p/>
- * <p/>JxtaBiDiPipe, whenever possible, will attempt to utilize direct tcp messengers,
+ * JxtaBiDiPipe, whenever possible, will attempt to utilize direct tcp messengers,
  * which leads to improved performance.
  */
 public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, ReliableInputStream.MsgListener {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(JxtaBiDiPipe.class.getName());
 
@@ -148,6 +148,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected PipeStateListener stateListener;
     protected Credential credential = null;
     protected boolean waiting;
+    private boolean closeAcked;
 
     /**
      * If {@code true} then we are using the underlying end-to-end ACK reliable
@@ -316,7 +317,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         if (timeout <= 0) {
             throw new IllegalArgumentException("Invalid timeout :" + timeout);
         }
-
+        closeAcked = false;
         this.pipeAdv = pipeAd;
         this.group = group;
         this.msgListener = msgListener;
@@ -669,7 +670,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             if (sendClose) {
                 sendClose();
                 synchronized (closeLock) {
-                    closeLock.wait(timeout);
+                    if (!closeAcked) {
+                        closeLock.wait(timeout);
+                    }
                 }
             } else {
                 //ack the closure
@@ -846,6 +849,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 return true;
             } else if (element.toString().equals(JxtaServerPipe.closeAckValue)) {
                 synchronized (closeLock) {
+                    closeAcked = true;
                     closeLock.notifyAll();
                 }
             }
