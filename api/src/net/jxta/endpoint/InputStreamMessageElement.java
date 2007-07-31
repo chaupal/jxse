@@ -75,18 +75,22 @@ import java.util.zip.Checksum;
  * A Message Element using {@link java.io.InputStream} as the source for the
  * element data. This implementation copies all of the data from the stream at
  * the time of creation.
+ * <p/>
+ * InputStreamMessageElement is not as efficient as other message element types
+ * and should only be used when an input stream is the only available source for
+ * the element data.
  */
 public class InputStreamMessageElement extends MessageElement {
 
     /**
      * The bytes of this element.
      */
-    protected List databytes = null;
+    protected final List<byte[]> databytes;
 
     /**
      * The length of the data.
      */
-    protected long length = 0;
+    protected final long length;
 
     /**
      * Cached Hash Code
@@ -95,9 +99,7 @@ public class InputStreamMessageElement extends MessageElement {
 
     /**
      * Create a new MessageElement. This constructor copies the data as needed
-     * and closes the stream upon completion. If the stream does not support
-     * the "mark" operation then the data is copied immediately and the stream
-     * will be closed.
+     * and closes the stream upon completion.
      *
      * @param name Name of the MessageElement. May be the empty string ("") if
      *             the MessageElement is not named.
@@ -105,7 +107,7 @@ public class InputStreamMessageElement extends MessageElement {
      *             the type "Application/Octet-stream".
      * @param in   the stream containing the body of the MessageElement. The
      *             stream will be closed by the MessageElement.
-     * @param sig  optional message digest/digital signature elemnent or null if
+     * @param sig  optional message digest/digital signature element or null if
      *             no signature is desired.
      * @throws IOException If there is a problem reading from the source stream.
      */
@@ -125,9 +127,9 @@ public class InputStreamMessageElement extends MessageElement {
      * @param len  The size of the Element will be limited to len bytes
      *             from the stream. If you are using the stream interface and know
      *             the size of the stream, specifying it here improves performance
-     *             and space effciency a lot. The stream must contain at least
+     *             and space efficiency a lot. The stream must contain at least
      *             <code>len</code> bytes.
-     * @param sig  optional message digest/digital signature elemnent or null if
+     * @param sig  optional message digest/digital signature element or null if
      *             no signature is desired.
      * @throws IOException if there is a problem reading from the source stream
      */
@@ -142,12 +144,12 @@ public class InputStreamMessageElement extends MessageElement {
         databytes = CopyToDataBytes(in, len);
 
         // calculate the length
-        length = 0;
-        for (Object databyte : databytes) {
-            byte[] aBuffer = (byte[]) databyte;
-
-            length += aBuffer.length;
+        long buffersSum = 0;
+        for (byte[] aBuffer : databytes) {
+            buffersSum += aBuffer.length;
         }
+        
+        length = buffersSum;
 
         // fail if the length is not as promised.
         if ((len != Long.MAX_VALUE) && (len != length)) {
@@ -210,9 +212,7 @@ public class InputStreamMessageElement extends MessageElement {
         if (0 == cachedHashCode) {
             Checksum crc = new CRC32();
 
-            for (Object databyte : databytes) {
-                byte[] aBuffer = (byte[]) databyte;
-
+            for (byte[] aBuffer : databytes) {
                 crc.update(aBuffer, 0, aBuffer.length);
             }
 
@@ -238,9 +238,7 @@ public class InputStreamMessageElement extends MessageElement {
     public InputStream getStream() throws IOException {
         List<InputStream> buffers = new ArrayList<InputStream>();
 
-        for (Object databyte : databytes) {
-            byte[] aBuffer = (byte[]) databyte;
-
+        for (byte[] aBuffer : databytes) {
             buffers.add(new ByteArrayInputStream(aBuffer));
         }
 
@@ -252,26 +250,23 @@ public class InputStreamMessageElement extends MessageElement {
      */
     @Override
     public void sendToStream(OutputStream sendTo) throws IOException {
-
-        for (Object databyte : databytes) {
-            byte[] aBuffer = (byte[]) databyte;
-
+        for (byte[] aBuffer : databytes) {
             sendTo.write(aBuffer);
         }
     }
 
     /**
-     * Copy data from a stream with best possible effciency. Unfortunately,
+     * Copy data from a stream with best possible efficiency. Unfortunately,
      * this still results in a lot of copying since we have often have no
      * fore-knowledge of the length of the stream.
      *
      * @param in    the stream to copy from
      * @param limit the maximum number of bytes to copy from the stream.
      *              Long.LONG_MAX will read until EOF.
-     * @return an array of byte arrays containing the data.
+     * @return A list of buffers.
      * @throws IOException if there is a problem reading from the stream.
      */
-    protected List CopyToDataBytes(InputStream in, long limit) throws IOException {
+    protected List<byte[]> CopyToDataBytes(InputStream in, long limit) throws IOException {
         final long INITIAL_INTERMEDIATE_BUFFERSIZE = 6;
         final long MAXIMUM_INTERMEDIATE_BUFFERSIZE = 18;
 
