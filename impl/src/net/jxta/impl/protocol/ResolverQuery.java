@@ -170,8 +170,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         String doctype = doc.getName();
 
         if (!getAdvertisementType().equals(doctype)) {
-            throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
+            throw new IllegalArgumentException("Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
         }
         readIt(doc);
 
@@ -252,15 +251,16 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
             // processing this tag in the future.
             if (elem.getName().equals(srcPeerIdTag)) {
                 try {
-                    URI srcURI = new URI(elem.getTextValue());
-
-                    setSrcPeer(IDFactory.fromURI(srcURI));
+                    String value = elem.getTextValue();
+                    if (value != null && value.length() > 0) {
+                        URI srcURI = new URI(elem.getTextValue());
+                        setSrcPeer(IDFactory.fromURI(srcURI));
+                    }
                 } catch (URISyntaxException failed) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "Bad ID in message", failed);
                     }
                     RuntimeException failure = new IllegalArgumentException("Bad ID in message");
-
                     failure.initCause(failed);
                     throw failure;
                 }
@@ -328,10 +328,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         if (radv != null) {
             e = adv.createElement(srcRouteTag);
             adv.appendChild(e);
-
-            StructuredTextDocument xptDoc = (StructuredTextDocument)
-                    radv.getDocument(encodeAs);
-
+            StructuredTextDocument xptDoc = (StructuredTextDocument)radv.getDocument(encodeAs);
             StructuredDocumentUtils.copyElements(adv, e, xptDoc);
         }
 
