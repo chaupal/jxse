@@ -39,6 +39,8 @@ ant run -DAPP=tutorial.message.MessageTutorial
 ant run -DAPP=tutorial.multicast.JxtaMulticastSocketServer
 ant run -DAPP=tutorial.multicast.JxtaMulticastSocketClient
 
+ant run -DAPP=tutorial.multinetgroup.MultiNetGroupLaucher
+
 ant run -DAPP=tutorial.pipe.PipeServer
 ant run -DAPP=tutorial.pipe.PipeClient
 
