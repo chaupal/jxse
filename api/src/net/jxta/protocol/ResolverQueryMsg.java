@@ -55,13 +55,12 @@
  */
 package net.jxta.protocol;
 
-
 import java.net.URI;
+
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.id.ID;
-
 
 /**
  * Generic Resolver Service message "Query".
@@ -69,98 +68,95 @@ import net.jxta.id.ID;
  * @see net.jxta.resolver.ResolverService
  * @see net.jxta.protocol.ResolverResponseMsg
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
- **/
+ */
 public abstract class ResolverQueryMsg {
 
     /**
      * credential
-     **/
+     */
     private StructuredDocument credential = null;
 
     /**
      * Resolver query handler
-     **/
+     */
     private String handlername = null;
 
     /**
-     *  Number of times a message has been forwarded, not propagated or walked
-     **/
+     * Number of times a message has been forwarded, not propagated or walked
+     */
     protected int hopcount = 0;
 
     /**
      * Resolver query
-     **/
+     */
     private String query = null;
 
     /**
-     *  Query ID of this query. Unique to the originating node only, it can be
-     *  utilized to match queries to responses.
-     **/
+     * Query ID of this query. Unique to the originating node only, it can be
+     * utilized to match queries to responses.
+     */
     protected int queryid = 0;
 
     /**
      * issuer of the query
-     **/
+     */
     private ID srcPeerId = null;
 
     /**
      * Optional route info about the issuer
-     **/
+     */
     private RouteAdvertisement srcPeerRoute = null;
 
     /**
-     *  returns the credential
+     * returns the credential
      *
-     *@return    String credential
+     * @return String credential
      */
-
     public StructuredDocument getCredential() {
         return credential;
     }
 
     /**
-     *  Write advertisement into a document. asMimeType is a mime media-type
-     *  specification and provides the form of the document which is being
-     *  requested. Two standard document forms are defined. 'text/text' encodes
-     *  the document in a form nice for printing out and 'text/xml' which
-     *  provides an XML format.
+     * Write advertisement into a document. asMimeType is a mime media-type
+     * specification and provides the form of the document which is being
+     * requested. Two standard document forms are defined. 'text/text' encodes
+     * the document in a form nice for printing out and 'text/xml' which
+     * provides an XML format.
      *
-     *@param  asMimeType  mime-type requested representation for the returned
-     *      document
-     *@return             Document document representing the advertisement
+     * @param asMimeType mime-type requested representation for the returned
+     *                   document
+     * @return Document document representing the advertisement
      */
-
     public abstract Document getDocument(MimeMediaType asMimeType);
 
     /**
-     *  returns the handlername
+     * returns the handlername
      *
-     *@return    String handlername name
+     * @return String handlername name
      */
-
     public String getHandlerName() {
         return handlername;
     }
 
     /**
-     *  returns the hop count
+     * returns the hop count
      *
-     *@return    int hop count
+     * @return int hop count
      */
-
     public int getHopCount() {
         return hopcount;
     }
 
     /**
-     *  increment hop count
+     * increment hop count
      */
     public void incrementHopCount() {
         hopcount++;
     }
 
     /**
-     *  Set hop count
+     * Set hop count
+     *
      * @param newCount hop count
      */
     public void setHopCount(int newCount) {
@@ -168,50 +164,47 @@ public abstract class ResolverQueryMsg {
     }
 
     /**
-     *  returns the query
+     * returns the query
      *
-     *@return    String value of the query
+     * @return String value of the query
      */
-
     public String getQuery() {
         return query;
     }
 
     /**
-     *  returns queryid value
+     * returns queryid value
      *
-     *@return    int queryid value
+     * @return int queryid value
      */
-
     public int getQueryId() {
         return queryid;
     }
 
     /**
-     *  Returns the source of the query
+     * Returns the source of the query
      *
+     * @return String the peerid of the source of the query
      * @deprecated Use {@link #getSrcPeer()} instead.
-     *
-     *@return    String the peerid of the source of the query
      */
     @Deprecated
     public String getSrc() {
         return (null == srcPeerId) ? null : srcPeerId.toString();
     }
-    
+
     /**
-     *  Returns the source of the query
+     * Returns the source of the query
      *
-     * @return    The peerid of the source of the query
+     * @return The peerid of the source of the query
      */
     public ID getSrcPeer() {
         return (null == srcPeerId) ? null : srcPeerId;
     }
 
     /**
-     *  Returns the source route of the query
+     * Returns the source route of the query
      *
-     *@return RouteAdvertisement route to the issuer of the query
+     * @return RouteAdvertisement route to the issuer of the query
      */
 
     public RouteAdvertisement getSrcPeerRoute() {
@@ -223,57 +216,55 @@ public abstract class ResolverQueryMsg {
     }
 
     /**
-     *  set the credential
+     * set the credential
      *
-     *@param  cred  string representing credential
+     * @param cred string representing credential
      */
-
     public void setCredential(StructuredDocument cred) {
         this.credential = cred;
     }
 
     /**
-     *  set the handlername
+     * set the handlername
      *
-     *@param  name  handler name
+     * @param name handler name
      */
     public void setHandlerName(String name) {
         this.handlername = name;
     }
 
     /**
-     *  set the Query string
+     * set the Query string
      *
-     *@param  Query  string representing the query
+     * @param Query string representing the query
      */
     public void setQuery(String Query) {
         this.query = Query;
     }
 
     /**
-     *  set the query id. Each query has a unique id.
+     * set the query id. Each query has a unique id.
      *
-     *@param  id  int id
+     * @param id int id
      */
     public void setQueryId(int id) {
         queryid = id;
     }
 
     /**
-     *  set the source route of the query
+     * set the source route of the query
      *
-     *@param  route  route advertisement of the source peer
+     * @param route route advertisement of the source peer
      */
     public void setSrcPeerRoute(RouteAdvertisement route) {
         srcPeerRoute = route;
     }
 
     /**
-     *  Set the source of the query
+     * Set the source of the query
      *
+     * @param src is a containing the peerid of the source
      * @deprecated Use {@link #setSrcPeer(ID)} instead.
-     *
-     * @param  src is a containing the peerid of the source
      */
     @Deprecated
     public void setSrc(String src) {
@@ -281,23 +272,23 @@ public abstract class ResolverQueryMsg {
             setSrcPeer(null);
         } else {
             setSrcPeer(ID.create(URI.create(src)));
-        } 
+        }
     }
 
     /**
-     *  Set the source of the query
+     * Set the source of the query
      *
-     * @param  src the peerid of the source
+     * @param srcPeer the peerid of the source
      */
     public void setSrcPeer(ID srcPeer) {
         srcPeerId = srcPeer;
     }
 
     /**
-     *  All messages have a type (in xml this is !doctype) which identifies the
-     *  message
+     * All messages have a type (in xml this is !doctype) which identifies the
+     * message
      *
-     *@return    String "jxta:ResolverQuery"
+     * @return String "jxta:ResolverQuery"
      */
     public static String getAdvertisementType() {
         return "jxta:ResolverQuery";
@@ -309,14 +300,13 @@ public abstract class ResolverQueryMsg {
      * Resolver query to build a resolver response for that query. For instance,
      * optional route information which may be available in the query will
      * be used to bypass the route resolution to send the response.
-     * 
+     * <p/>
      * WARNING: A side effect of this call is that the following fields are
-     *          transfered from the query to the response:
-     *            - HandlerName
-     *            - QueryId
+     * transfered from the query to the response:
+     * - HandlerName
+     * - QueryId
      *
-     *@return ResolverResponseMsg resolverResponse built from the resolverQuery msg
+     * @return ResolverResponseMsg resolverResponse built from the resolverQuery msg
      */
-
     public abstract ResolverResponseMsg makeResponse();
 }
