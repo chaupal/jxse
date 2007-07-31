@@ -518,6 +518,7 @@ public class Srdi implements Runnable, RendezvousListener {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("fallthrough")
     public void rendezvousEvent(RendezvousEvent event) {
 
         int theEventType = event.getType();
@@ -545,7 +546,7 @@ public class Srdi implements Runnable, RendezvousListener {
             case RendezvousEvent.CLIENTRECONNECT:
             case RendezvousEvent.BECAMERDV:
             case RendezvousEvent.BECAMEEDGE:
-                // XXX 20031110 bondolo@jxta.org perhaps becoming edge one should cause it to wake up so that run() switch to
+                // XXX 20031110 bondolo perhaps becoming edge one should cause it to wake up so that run() switch to
                 // don't do anything.
                 break;
 
