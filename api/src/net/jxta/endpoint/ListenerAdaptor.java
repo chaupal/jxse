@@ -291,20 +291,19 @@ public class ListenerAdaptor implements Runnable {
                         }
                     }
                 }
-                return;
-            }
+            } else {
+                if (event == OutgoingMessageEvent.OVERFLOW) {
+                    // Replace it with a msg-specific one.
+                    event = new OutgoingMessageEvent(message, null);
+                }
 
-            if (event == OutgoingMessageEvent.OVERFLOW) {
-                // Replace it with a msg-specific one.
-                event = new OutgoingMessageEvent(message, null);
-            }
-
-            for (OutgoingMessageEventListener eachListener : this) {
-                try {
-                    eachListener.messageSendFailed(event);
-                } catch (Throwable any) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
+                for (OutgoingMessageEventListener eachListener : this) {
+                    try {
+                        eachListener.messageSendFailed(event);
+                    } catch (Throwable any) {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
+                        }
                     }
                 }
             }
@@ -315,7 +314,6 @@ public class ListenerAdaptor implements Runnable {
          */
         @Override
         protected void process(Message message) {
-
             OutgoingMessageEvent event = (OutgoingMessageEvent) message.getMessageProperty(Messenger.class);
 
             if (event == null) {
