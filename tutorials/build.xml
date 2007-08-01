@@ -169,6 +169,6 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
   
   <target name="all" depends="clean, jar" description="Clean build of core targets" />
 
-  <target name="dist" depends="all, source-zip, source-tgz" description="Clean build of all dist targets"/>
+  <target name="dist" depends="clean, source-zip, source-tgz, jar" description="Clean build of all dist targets"/>
     
 </project>
