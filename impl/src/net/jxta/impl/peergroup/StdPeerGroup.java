@@ -236,31 +236,6 @@ public class StdPeerGroup extends GenericPeerGroup {
     private volatile boolean started = false;
     
     /**
-     * The minimum number of Threads our Executor will reserve. Once started
-     * these Threads will remain.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    private final int COREPOOLSIZE = 5;
-    
-    /**
-     * The intended upper bound on the number of threads we will allow our 
-     * Executor to create. We will allow the pool to grow to twice this size if
-     * we run out of threads.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    private final int MAXPOOLSIZE = 50;
-    
-    /**
-     * The number of seconds that Threads above {@code COREPOOLSIZE} will
-     * remain idle before terminating.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    private final long KEEPALIVETIME = 15;
-    
-    /**
      * The order in which we started the services.
      */
     private final List<ModuleClassID> moduleStartOrder = new ArrayList<ModuleClassID>();
@@ -293,16 +268,6 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     private Cm cm = null;
     
-    /**
-     * The PeerGroup ThreadPool
-     */
-    private ThreadPoolExecutor threadPool;
-    
-    /**
-     * Queue for tasks waiting to be run by our {@code Executor}.
-     */
-    private BlockingQueue<Runnable> taskQueue;
-    
     private static XMLDocument mkCS() {
         XMLDocument doc = (XMLDocument)
                 StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
@@ -315,98 +280,6 @@ public class StdPeerGroup extends GenericPeerGroup {
         doc.appendChild(e);
         return doc;
     }
-
-    /**
-     * Our rejected execution handler which has the effect of pausing the
-     * caller until the task can be executed or queued.
-     */
-    private static class CallerBlocksPolicy implements RejectedExecutionHandler {
-        
-        /**
-         *  The target maximum pool size. We will only exceed this amount if we
-         *  are failing to make progress.
-         */        
-        private final int MAXPOOLSIZE;
-        
-        private CallerBlocksPolicy(int maxPoolSize) {
-            MAXPOOLSIZE = maxPoolSize;
-        }
-        
-        public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
-            BlockingQueue<Runnable> queue = executor.getQueue();
-
-            while (!executor.isShutdown()) {
-                executor.purge();
-
-                try {
-                    boolean pushed = queue.offer(runnable, 500, TimeUnit.MILLISECONDS);
-                    
-                    if (pushed) {
-                        break;
-                    }
-                } catch (InterruptedException woken) {
-                    // This is our entire handling of interruption. If the 
-                    // interruption signaled a state change of the executor our
-                    // while() loop condition will handle termination.
-                    Thread.interrupted();
-                    continue;
-                }
-
-                // Couldn't push? Add a thread!
-                synchronized (executor) {
-                    int currentMax = executor.getMaximumPoolSize();
-                    int newMax = Math.min(currentMax + 1, MAXPOOLSIZE * 2);
-                    
-                    if (newMax != currentMax) {
-                        executor.setMaximumPoolSize(newMax);
-                    }
-                    
-                    // If we are already at the max, increase the core size
-                    if (newMax == (MAXPOOLSIZE * 2)) {
-                        int currentCore = executor.getCorePoolSize();
-                        
-                        int newCore = Math.min(currentCore + 1, MAXPOOLSIZE * 2);
-                        
-                        if (currentCore != newCore) {
-                            executor.setCorePoolSize(newCore);
-                        } else {
-                            // Core size is at the max too. We just have to wait.
-                            continue;
-                        }
-                    }
-                }
-                
-                // Should work now.
-                executor.execute(runnable);
-                break;
-            }
-        }
-    }
-    
-    /**
-     * Our thread factory that we 
-     */
-    static class PeerGroupThreadFactory implements ThreadFactory {
-        final AtomicInteger threadNumber = new AtomicInteger(1);
-        final ThreadGroup threadgroup;
-
-        PeerGroupThreadFactory(ThreadGroup threadgroup) {
-            this.threadgroup = threadgroup;
-        }
-
-        public Thread newThread(Runnable r) {
-            Thread t = new Thread(threadgroup, r,
-                                  "Executor - " + threadNumber.getAndIncrement(),
-                                  0);
-            
-            if(t.isDaemon())
-                t.setDaemon(false);
-            if (t.getPriority() != Thread.NORM_PRIORITY)
-                t.setPriority(Thread.NORM_PRIORITY);
-            return t;
-        }
-    }
-
 
     /**
      * constructor
@@ -741,13 +614,6 @@ public class StdPeerGroup extends GenericPeerGroup {
         // assignedID might have been null. It is now the peer group ID.
         assignedID = getPeerGroupID();
         
-        this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
-        this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, 
-                KEEPALIVETIME, TimeUnit.SECONDS, 
-                taskQueue,
-                new PeerGroupThreadFactory(getHomeThreadGroup()),
-                new CallerBlocksPolicy(MAXPOOLSIZE));
-        
         // initialize cm before starting services.        
         try {
             cm = new Cm(getHomeThreadGroup(), 
@@ -1001,12 +867,20 @@ public class StdPeerGroup extends GenericPeerGroup {
     }
     
     /**
-     * {@inheritDoc}
-     * <p/>
+     *  {@inheritDoc}
+     *  <p/>
      *  This method builds the <b>complete</b> default Peer Group 
      *  ModuleImplAdvertisement. The ModuleImplAdvertisement which is returned 
      *  by the JxtaLoader does not contain the params section which identifies 
      *  the services which the default Peer Group includes.
+     *  <p/>
+     *  FIXME 20070801 bondolo To improve compatibility with existing 
+     *  applications the returned {@code ModuleImplAdvertisement} will contain  
+     *  embedded {@code ModuleImplAdvertisement}s for the referenced services as  
+     *  opposed to {@code ModuleSpecID}s. This is because JXSE 2.4.1 and earlier 
+     *  do not handle load failures of modules loaded by spec id correctly. 
+     *  After JXSE 2.5 is released this should be changed to use the better
+     *  {@code ModuleSpecID} based peer group module specification.
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
@@ -1087,14 +961,5 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     public Map<ModuleClassID, Object> getApplications() {
         return Collections.unmodifiableMap(applications);
-    }
-    
-    /**
-     * Returns the executor pool
-     *
-     * @return the executor pool
-     */
-    public Executor getExecutor() {
-        return threadPool;
     }
 }

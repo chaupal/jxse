@@ -70,6 +70,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
@@ -81,17 +82,18 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.impl.endpoint.cbjx.CbJxDefs;
 import net.jxta.impl.endpoint.mcast.McastTransport;
 import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.service.Service;
 
 
 /**
  * Provides the implementation for the World PeerGroup. The World peer group
  * differs from other peer groups in the following ways :
  * <ul>
- *     <li>The World Peer Group has no parent. It is the primodial peer group.
+ *     <li>The World Peer Group has no parent. It is the primordial peer group.
  *     </li>
  *     <li>The World Peer Group provides the default definition for the Network
  *     Peer Group. Peers are free to use alternate implementations for the
- *     Net PeerGroup.</li>
+ *     Network PeerGroup.</li>
  *     <li>The World Peer Group is initialized with configuration parameters and
  *     the store home location.</li>
  * </ul>
@@ -122,7 +124,7 @@ public class Platform extends StdPeerGroup {
      */
     public Platform(ConfigParams config, URI storeHome) {
         // initialize the store location.
-        jxtaHome = storeHome;
+        setStoreHome(storeHome);
 
         // initialize the configuration advertisement.
         setConfigAdvertisement(config);
@@ -133,7 +135,6 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     protected synchronized void initFirst(PeerGroup nullParent, ID assignedID, Advertisement impl) throws PeerGroupException {
-
         if (initComplete) {
             LOG.severe("You cannot initialize more than one World PeerGroup!");
             throw new PeerGroupException("You cannot initialize more than one World PeerGroup!");
@@ -199,7 +200,6 @@ public class Platform extends StdPeerGroup {
      *  @return The Module Implementation Advertisement for the World Peer Group.
      */
     private static ModuleImplAdvertisement mkWorldPeerGroupImplAdv() throws Exception {
-
         JxtaLoader loader = getJxtaLoader();
 
         // Start building the implAdv for the World PeerGroup intself.
@@ -253,7 +253,6 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-
         JxtaLoader loader = getJxtaLoader();
 
         // Make a new impl adv
@@ -307,12 +306,17 @@ public class Platform extends StdPeerGroup {
 
         return implAdv;
     }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public URI getStoreHome() {
-        return jxtaHome;
-    }
+    protected void checkServices() throws ServiceNotFoundException {
+        super.checkServices();
+        
+        Service ignored;
+               
+        ignored = lookupService(discoveryClassID);
+        ignored = lookupService(peerinfoClassID);
+    }    
 }

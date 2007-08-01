@@ -57,6 +57,9 @@
 package net.jxta.impl.peergroup;
 
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 import net.jxta.access.AccessService;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -107,6 +110,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -233,6 +241,84 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     private ThreadGroup threadGroup = null;
     
+    
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * We do not want to count on the invoker to properly unreference the group
+     * object that we return; this call is often used in a loop and it is silly
+     * to increment and decrement ref-counts for references that are sure to 
+     * live shorter than the referee.
+     * <p/>
+     * On the other hand it is dangerous for us to share our reference object to
+     * the parent group. That's where weak interface objects come in handy. We
+     * can safely make one and give it away.
+     */
+    public PeerGroup getParentGroup() {
+        if (parentGroup == null) {
+            return null;
+        }
+        return parentGroup.getWeakInterface();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public URI getStoreHome() {
+        return jxtaHome;
+    }
+    
+    /**
+     * Sets the root location for the store to be used by this peergroup.
+     * <p/>
+     * This should be set early in the peer group's life and then never
+     * changed.
+     *
+     * @param newHome The new store location.
+     */
+    protected void setStoreHome(URI newHome) {
+        jxtaHome = newHome;
+    }
+    
+    /**
+     * The minimum number of Threads our Executor will reserve. Once started
+     * these Threads will remain.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    protected final int COREPOOLSIZE = 5;
+
+    
+    /**
+     * The number of seconds that Threads above {@code COREPOOLSIZE} will
+     * remain idle before terminating.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    protected final long KEEPALIVETIME = 15;
+
+    
+    /**
+     * The intended upper bound on the number of threads we will allow our 
+     * Executor to create. We will allow the pool to grow to twice this size if
+     * we run out of threads.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    protected final int MAXPOOLSIZE = 50;
+
+    
+    /**
+     * Queue for tasks waiting to be run by our {@code Executor}.
+     */
+    protected BlockingQueue<Runnable> taskQueue;
+
+    
+    /**
+     * The PeerGroup ThreadPool
+     */
+    protected ThreadPoolExecutor threadPool;
+
     /**
      * {@inheritDoc}
      */
@@ -1042,6 +1128,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
         
         threadGroup = new ThreadGroup(parentThreadGroup, "Group " + peerGroupAdvertisement.getPeerGroupID());
         
+        this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
+        this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, 
+                KEEPALIVETIME, TimeUnit.SECONDS, 
+                taskQueue,
+                new PeerGroupThreadFactory(getHomeThreadGroup()),
+                new CallerBlocksPolicy(MAXPOOLSIZE));
+        
         /*
          * The rest of construction and initialization are left to the
          * group subclass, between here and the begining for initLast.
@@ -1539,30 +1632,105 @@ public abstract class GenericPeerGroup implements PeerGroup {
         
         return (AccessService) access.getInterface();
     }
-    
+
     /**
-     * {@inheritDoc}
-     * <p/>
-     * We do not want to count on the invoker to properly unreference the group
-     * object that we return; this call is often used in a loop and it is silly
-     * to increment and decrement ref-counts for references that are sure to 
-     * live shorter than the referee.
-     * <p/>
-     * On the other hand it is dangerous for us to share our reference object to
-     * the parent group. That's where weak interface objects come in handy. We
-     * can safely make one and give it away.
+     * Returns the executor pool
+     *
+     * @return the executor pool
      */
-    public PeerGroup getParentGroup() {
-        if (parentGroup == null) {
-            return null;
-        }
-        return parentGroup.getWeakInterface();
+    public Executor getExecutor() {
+        return threadPool;
     }
     
     /**
-     * {@inheritDoc}
+     * Our rejected execution handler which has the effect of pausing the
+     * caller until the task can be executed or queued.
      */
-    public URI getStoreHome() {
-        return jxtaHome;
+    private static class CallerBlocksPolicy implements RejectedExecutionHandler {
+        
+        /**
+         *  The target maximum pool size. We will only exceed this amount if we
+         *  are failing to make progress.
+         */        
+        private final int MAXPOOLSIZE;
+        
+        private CallerBlocksPolicy(int maxPoolSize) {
+            MAXPOOLSIZE = maxPoolSize;
+        }
+        
+        public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
+            BlockingQueue<Runnable> queue = executor.getQueue();
+
+            while (!executor.isShutdown()) {
+                executor.purge();
+
+                try {
+                    boolean pushed = queue.offer(runnable, 500, TimeUnit.MILLISECONDS);
+                    
+                    if (pushed) {
+                        break;
+                    }
+                } catch (InterruptedException woken) {
+                    // This is our entire handling of interruption. If the 
+                    // interruption signaled a state change of the executor our
+                    // while() loop condition will handle termination.
+                    Thread.interrupted();
+                    continue;
+                }
+
+                // Couldn't push? Add a thread!
+                synchronized (executor) {
+                    int currentMax = executor.getMaximumPoolSize();
+                    int newMax = Math.min(currentMax + 1, MAXPOOLSIZE * 2);
+                    
+                    if (newMax != currentMax) {
+                        executor.setMaximumPoolSize(newMax);
+                    }
+                    
+                    // If we are already at the max, increase the core size
+                    if (newMax == (MAXPOOLSIZE * 2)) {
+                        int currentCore = executor.getCorePoolSize();
+                        
+                        int newCore = Math.min(currentCore + 1, MAXPOOLSIZE * 2);
+                        
+                        if (currentCore != newCore) {
+                            executor.setCorePoolSize(newCore);
+                        } else {
+                            // Core size is at the max too. We just have to wait.
+                            continue;
+                        }
+                    }
+                }
+                
+                // Should work now.
+                executor.execute(runnable);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Our thread factory that adds the threads to our thread group and names
+     * the thread to something recognizable.
+     */
+    static class PeerGroupThreadFactory implements ThreadFactory {
+        final AtomicInteger threadNumber = new AtomicInteger(1);
+        final ThreadGroup threadgroup;
+
+        PeerGroupThreadFactory(ThreadGroup threadgroup) {
+            this.threadgroup = threadgroup;
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(threadgroup, r,
+                                  "Executor - " + threadNumber.getAndIncrement(),
+                                  0);
+            
+            if(t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
     }
 }
