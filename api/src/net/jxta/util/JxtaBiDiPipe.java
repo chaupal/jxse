@@ -55,6 +55,18 @@
  */
 package net.jxta.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.credential.Credential;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -91,16 +103,6 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * JxtaBiDiPipe is a pair of UnicastPipe channels that implements a bidirectional pipe.
@@ -128,7 +130,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected int retryTimeout = 60 * 1000;
     protected int maxRetryTimeout = MAXRETRYTIMEOUT;
     protected int windowSize = 50;
-    private ArrayBlockingQueue<PipeMsgEvent> queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
+    private BlockingQueue<PipeMsgEvent> queue;
     protected PeerGroup group;
     protected PipeAdvertisement pipeAdv;
     protected PipeAdvertisement myPipeAdv;
@@ -199,6 +201,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         this.msgr = msgr;
         this.isReliable = isReliable;
         this.direct = direct;
+        queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
         createRLib();
         setBound();
     }
@@ -327,6 +330,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         myPipeAdv = JxtaServerPipe.newInputPipe(group, pipeAd);
         this.in = pipeSvc.createInputPipe(myPipeAdv, this);
         this.credentialDoc = getCredDoc(group);
+        if (msgListener == null) {
+            queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
+        }
 
         Message openMsg = createOpenMessage(group, myPipeAdv);
 
@@ -1037,14 +1043,15 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     private void dequeue() {
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("dequeing messages onto message listener");
+        }
+
         if (!dequeued) {
-            while (queue != null && queue.size() > 0) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("dequeing messages onto message listener");
-                }
+            while (queue != null && !queue.isEmpty()) {
                 try {
                     msgListener.pipeMsgEvent(queue.take());
-                } catch (InterruptedException e) {
+                } catch(InterruptedException woken) {
                     Thread.interrupted();
                 }
             }
@@ -1113,9 +1120,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             // Only unicast type at this point.
             RouteAdvertisement route = net.jxta.impl.endpoint.EndpointUtils.extractRouteAdv(peer);
 
-            Enumeration<String> addresses = route.getDest().getEndpointAddresses();
-            while (addresses.hasMoreElements()) {
-                EndpointAddress rawEndpointAddress = new EndpointAddress(addresses.nextElement());
+            for( EndpointAddress rawEndpointAddress : route.getDestEndpointAddresses()) {
                 if (!"tcp".equalsIgnoreCase(rawEndpointAddress.getProtocolName())) {
                     continue;
                 }
@@ -1320,7 +1325,8 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         if (queue == null || msgListener != null) {
             return null;
         } else {
-            PipeMsgEvent ev = queue.poll(timeout, TimeUnit.MILLISECONDS);
+            PipeMsgEvent ev = queue.poll((0 == timeout) ? Long.MAX_VALUE : (long) timeout, TimeUnit.MILLISECONDS );
+
             if (ev != null) {
                 return ev.getMessage();
             } else {
