@@ -317,6 +317,7 @@ public class Platform extends StdPeerGroup {
         Service ignored;
                
         ignored = lookupService(discoveryClassID);
+        ignored = lookupService(rendezvousClassID);
         ignored = lookupService(peerinfoClassID);
     }    
 }
