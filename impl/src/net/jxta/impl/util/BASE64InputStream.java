@@ -61,10 +61,6 @@ import java.io.InputStream;
 import java.io.Reader;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-
 
 /**
  *  An <code>InputStream</code> implementation which decodes BASE64 encoded
@@ -78,7 +74,7 @@ import java.io.StringWriter;
 public class BASE64InputStream extends InputStream {
     
     /**
-     *  The input sorce of BASE64 text data.
+     *  The input source of BASE64 text data.
      **/
     private Reader source;
     
