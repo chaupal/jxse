@@ -165,8 +165,8 @@ public abstract class ModuleImplAdvertisement extends ExtendableAdvertisement im
      * 
      * @param msid The id of the spec
      */
-    public void setModuleSpecID(ModuleSpecID sid) {
-        this.msid = sid;
+    public void setModuleSpecID(ModuleSpecID msid) {
+        this.msid = msid;
     }
     
     /**

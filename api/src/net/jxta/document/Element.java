@@ -116,8 +116,8 @@ public interface Element<E extends Element<E>> {
     /**
      *  Add a child element to this element. The child element must be from the
      *  document as the element it is to be added to. Elements are created using
-     *  either {@link StructuredDocument.createElement(Object)} or
-     *  {@link StructuredDocument.createElement(Object, Object)}.
+     *  either {@link StructuredDocument#createElement(Object)} or
+     *  {@link StructuredDocument#createElement(Object, Object)}.
      *
      *  @param element The element to be added as a child.
      */
