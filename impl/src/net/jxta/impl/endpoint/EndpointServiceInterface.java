@@ -76,6 +76,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import net.jxta.platform.Module;
 
 /**
  * Provides an interface object appropriate for applications using the endpoint
@@ -84,12 +85,21 @@ import java.util.WeakHashMap;
  */
 class EndpointServiceInterface implements EndpointService {
 
+    /**
+     *  The service interface that we will be fronting.
+     */
     private final EndpointServiceImpl theRealThing;
+    
+    /**
+     *  The number of active instances of this class. We use this for deciding
+     *  when to instantiate and shutdown the listener adaptor.
+     */
+    private static int activeInstanceCount = 0;
 
     /**
-     * The object that emulates the legacy send-message-with-listener and get-messenger-with-listener APIs.
+     * Provides emulation of the legacy send-message-with-listener and get-messenger-with-listener APIs.
      */
-    private final static ListenerAdaptor listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup());
+    private static ListenerAdaptor listenerAdaptor;
 
     /**
      * The cache of channels. If a given owner of this EndpointService interface
@@ -112,23 +122,48 @@ class EndpointServiceInterface implements EndpointService {
 
     /**
      * Builds a new interface object.
-     * @param endpointService the endpoint service
+     *
+     * @param endpointService the endpoint service that we will front.
      */
     public EndpointServiceInterface(EndpointServiceImpl endpointService) {
         theRealThing = endpointService;
+        synchronized(this.getClass()) {
+            activeInstanceCount++;
+            
+            if(1 == activeInstanceCount) {
+                listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup());
+            }
+        }
+    }
+
+    /**
+     *  {@inheritDoc}
+     *  <p/>
+     *  This is rather heavy-weight if instances are frequently created and 
+     *  discarded since finalization significantly delays GC.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        synchronized(this.getClass()) {
+            activeInstanceCount--;
+            
+            if(0 == activeInstanceCount) {
+                listenerAdaptor.shutdown();
+                listenerAdaptor = null;
+            }
+        }
+        super.finalize();
     }
 
     /**
      * {@inheritDoc}
      * <p/>
-     * it is there only to satisfy the requirements of the
-     * interface that we implement. Ultimately, the API should define
-     * two levels of interfaces: one for the real service implementation
-     * and one for the interface object. Right now it feels a bit heavy
-     * to so that since the only different between the two would be
-     * init() and may-be getName().
+     * it is there only to satisfy the requirements of the interface that we
+     * implement. Ultimately, the API should define two levels of interfaces :
+     * one for the real service implementation and one for the interface object. 
+     * Right now it feels a bit heavy to so that since the only different 
+     * between the two would be init() and may-be getName().
      */
-    // FIXME: This is meaningless for the interface object;
     public void init(PeerGroup pg, ID id, Advertisement ia) {}
 
     /**
@@ -139,7 +174,7 @@ class EndpointServiceInterface implements EndpointService {
      * protects the real object's start/stop methods from being called
      */
     public int startApp(String[] arg) {
-        return 0;
+        return Module.START_OK;
     }
 
     /**
@@ -434,27 +469,6 @@ class EndpointServiceInterface implements EndpointService {
     public boolean removeMessengerEventListener(MessengerEventListener listener, int prio) {
         return theRealThing.removeMessengerEventListener(listener, prio);
     }
-
-    /**
-     *
-     * FIXME by hamada.  shutting down the listener adaptor in finalize leads to message loss when this object is discarded
-     * which is a pretty common application use pattern.
-     *
-     * Not sure of the reason for the following code, whether it affected shutdown for instance, however, it is being
-     * disbaled as it leads message loss.
-     *
-     * To be removed once it's purpose is understood, and a better workaournd for the problem is identified.
-     */
-
-    /*
-    // We do not have much choice here, since applications are supposed to ditch interface objects without much thinking. 
-    // Note: this will never happen if, by any chance listenerAdaptor has a direct or indirect ref to this.
-    @Override
-    protected void finalize() throws Throwable {
-        listenerAdaptor.shutdown();
-        super.finalize();
-    }
-    */
 
     /**
      * {@inheritDoc}
