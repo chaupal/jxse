@@ -246,7 +246,7 @@ public class StdPeerGroupParamAdv {
      * Replaces the table of services described by this Advertisement. All
      * existing entries are lost.
      * 
-     * @param services the services table
+     * @param servicesTable the services table
      */
     public void setServices(Map<ModuleClassID, Object> servicesTable) {
         if (servicesTable == this.services) {
@@ -264,7 +264,7 @@ public class StdPeerGroupParamAdv {
      * Replaces the table of protocols described by this Advertisement. All
      * existing entries are lost.
      * 
-     * @param transports the protocol table
+     * @param protosTable the protocol table
      */
     public void setProtos(Map<ModuleClassID, Object> protosTable) {
         if (protosTable == this.transports) {
@@ -282,7 +282,7 @@ public class StdPeerGroupParamAdv {
      * Replaces the table of applications described by this Advertisement. All
      * existing entries are lost.
      * 
-     * @param apps the application table
+     * @param appsTable the application table
      */
     public void setApps(Map<ModuleClassID, Object> appsTable) {
         if (appsTable == this.apps) {
