@@ -129,5 +129,12 @@ public class MultiNetGroupLaucher {
         wpg.stopApp();
         
         System.out.println(wpg + " stopped!");
+        
+        // Run GC and finalization to see what's still running.
+        System.gc();
+        System.runFinalization();
+        System.gc();
+        
+        System.out.println("Quitting");        
     }
 }
