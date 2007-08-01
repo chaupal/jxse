@@ -330,9 +330,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         myPipeAdv = JxtaServerPipe.newInputPipe(group, pipeAd);
         this.in = pipeSvc.createInputPipe(myPipeAdv, this);
         this.credentialDoc = getCredDoc(group);
-        if (msgListener == null) {
-            queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
-        }
+        queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
 
         Message openMsg = createOpenMessage(group, myPipeAdv);
 
