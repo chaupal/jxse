@@ -49,227 +49,36 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
 
 <project basedir=".." name="platform-IDE">
     <import file="../build.xml"/>
-
-  <target name="compile-selected-files-in-core-src" depends="prepare" if="netbeans.home" description="Compile selected core source files">
-    <fail unless="files">Must set property 'files'</fail>
-
-    <mkdir dir="${build}" />
-
-    <!-- Compile the API and Implementation -->
-    <mkdir dir="${build}" />
-    <javac compiler="${net.jxta.build.compiler}" destdir="${build}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
-      <compilerarg compiler="modern" value="-Xlint"/>
-      <classpath>
-        <path refid="compile.classpath" />
-      </classpath>
-      <src path="${basedir}/api/src" />
-      <src path="${basedir}/impl/src" />
-      <include name="${files}"/>
-    </javac>
-  </target>
-
-  <target name="compile-selected-files-in-test-src" depends="prepare" if="netbeans.home" description="Compile selected test source files">
-    <fail unless="files">Must set property 'files'</fail>
-
-    <mkdir dir="${build_test}" />
     
-    <javac compiler="${net.jxta.build.compiler}" destdir="${build_test}" source="${source}" target="${source}" debug="${debug}" deprecation="off" optimize="${optimize}">
-      <classpath>
-        <pathelement location="${build}" />
-        <pathelement location="${tools}/junit.jar" />
-        <fileset refid="lib.files" />
-      </classpath>
-      <src path="${test}/src" />
-      <include name="${files}"/>
-    </javac>
-  </target>
-
-  <target name="compile-selected-files-in-tutorials-src" depends="prepare" if="netbeans.home" description="Compile selected tutorial source files">
-    <fail unless="files">Must set property 'files'</fail>
-
-    <mkdir dir="${build_tutorials}" />
-    
-    <javac compiler="${net.jxta.build.compiler}" destdir="${build_tutorials}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
-      <classpath>
-       <pathelement location="${jxtajar}"/>
-      </classpath>
-      <src path="${tutorials}/src" />
-      <include name="${files}"/>
-    </javac>
-  </target>
-
-  <target name="run-single-test" depends="test.compile" if="netbeans.home" description="Console JUnit test runner">
-    <fail unless="classname">Must set property 'classname'</fail>
+    <!-- xxx: would "antcall execute ..." but can't pass sysprop structure -->
+    <target name="debug-runshell" depends="signjar" if="netbeans.home" description="Debug the shell">
       
-    <delete dir="${tmp}/JUnit" />
+        <nbjpdastart addressproperty="jpda.address" name="platform" transport="dt_socket">
+            <classpath>
+                <pathelement location="${jxtajar}"/>
+                <pathelement location="${jxtashelljar}"/>
+                <pathelement location="${jxtacmsjar}"/>
+                <pathelement location="${jxtacmsshelljar}"/>
+                <fileset refid="lib.files"/>
+            </classpath>
+        </nbjpdastart>
 
-    <path id="runtest.classpath">
-        <pathelement location="${build_test}" />
-        <pathelement location="${build}" />
-        <fileset refid="lib.files"/>
-        
-        <pathelement location="${basedir}/api/src/" />
-        <pathelement location="${basedir}/impl/src/" />
-        
-        <pathelement location="${basedir}" />
-        
-        <pathelement location="${tools}/junit.jar" />
-    </path>
-
-    <java classname="junit.textui.TestRunner" fork="yes">
-      <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-      <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-      <sysproperty key="JXTA_HOME" value="${tmp}/JUnit" />
-      <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-      <sysproperty key="java.util.logging.config.file" value="${jxtaroot}/logging.properties" />
-      <sysproperty key="net.jxta.logging.Logging" value="FINE" />
-      <classpath>
-            <path refid="runtest.classpath"/>
-      </classpath>
-       <arg value="${classname}" />
-    </java>
-    
-    <delete dir="${tmp}/JUnit" />
-  </target>
-
-  <target name="run-single-tutorial" depends="prepare, tutorials.compile" if="netbeans.home" description="Run Tutorial Program">
-    <fail unless="classname">Must set property 'classname'</fail>
-    
-    <path id="run.classpath">
-        <pathelement location="${jxtajar}"/>
-        <pathelement location="${jxtashelljar}"/>
-        
-        <fileset refid="lib.files"/>
-        
-        <pathelement location="${build_tutorials}" />
-    </path>
-
-    <java classname="${classname}" fork="yes">
-      <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-      <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-      <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-      <sysproperty key="java.util.logging.config.file" value="${jxtaroot}/logging.properties" />
-      <sysproperty key="net.jxta.logging.Logging" value="FINE" />
-      <classpath>
-            <path refid="run.classpath"/>
-      </classpath>
-      <arg value="${classname}" />
-    </java>
-  </target>
-
-  <target name="debug-single-test" depends="test.compile" if="netbeans.home" description="Console JUnit test runner">
-    <fail unless="classname">Must set property 'classname'</fail>
-      
-    <delete dir="${tmp}/JUnit" />
-    
-    <path id="runtest.classpath">
-        <pathelement location="${build_test}" />
-        <pathelement location="${build}" />
-        <fileset refid="lib.files"/>
-        
-        <pathelement location="${basedir}/api/src/" />
-        <pathelement location="${basedir}/impl/src/" />
-        
-        <pathelement location="${basedir}" />
-        
-        <pathelement location="${tools}/junit.jar" />
-    </path>
-
-    <nbjpdastart addressproperty="jpda.address" name="Junit ${classname}" transport="dt_socket">
-        <classpath>
-            <path refid="runtest.classpath"/>
-        </classpath>
-        <sourcepath>
-            <pathelement location="${basedir}/api/src/" />
-            <pathelement location="${basedir}/impl/src/" />
-        </sourcepath>
-    </nbjpdastart>
-      
-    <java classname="junit.textui.TestRunner" fork="yes">
-      <jvmarg value="-Xdebug" />
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
-      <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-      <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-      <sysproperty key="JXTA_HOME" value="${tmp}/JUnit" />
-      <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-      <sysproperty key="java.util.logging.config.file" value="${jxtaroot}/logging.properties" />
-      <sysproperty key="net.jxta.logging.Logging" value="FINE" />
-      <classpath>
-            <path refid="runtest.classpath"/>
-      </classpath>
-      <arg value="${classname}" />
-    </java>
-    
-    <delete dir="${tmp}/JUnit" />
-  </target>
-
-  <target name="debug-single-tutorial" depends="prepare, tutorials.compile" if="netbeans.home" description="Debug Tutorial Program">
-    <fail unless="classname">Must set property 'classname'</fail>
-    
-    <path id="run.classpath">
-        <pathelement location="${jxtajar}"/>
-        <pathelement location="${jxtashelljar}"/>
-        
-        <fileset refid="lib.files"/>
-        
-        <pathelement location="${build_tutorials}" />
-    </path>
-
-    <nbjpdastart addressproperty="jpda.address" name="${classname}" transport="dt_socket">
-        <classpath>
-            <path refid="run.classpath"/>
-        </classpath>
-        <sourcepath>
-            <pathelement location="${basedir}/api/src/" />
-            <pathelement location="${basedir}/impl/src/" />
-            <pathelement location="${basedir}/tutorials/src/" />
-        </sourcepath>
-    </nbjpdastart>
-      
-    <java classname="${classname}" fork="yes">
-      <jvmarg value="-Xdebug" />
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
-      <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-      <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-      <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-      <sysproperty key="java.util.logging.config.file" value="${jxtaroot}/logging.properties" />
-      <sysproperty key="net.jxta.logging.Logging" value="FINE" />
-      <classpath>
-            <path refid="run.classpath"/>
-      </classpath>
-    </java>
-  </target>
-    
-<!-- xxx: would "antcall execute ..." but can't pass sysprop structure -->
-  <target name="debug-runshell" depends="signjar" if="netbeans.home" description="Debug the shell">
-      
-    <nbjpdastart addressproperty="jpda.address" name="platform" transport="dt_socket">
-        <classpath>
-            <pathelement location="${jxtajar}"/>
-            <pathelement location="${jxtashelljar}"/>
-            <pathelement location="${jxtacmsjar}"/>
-            <pathelement location="${jxtacmsshelljar}"/>
-            <fileset refid="lib.files"/>
-        </classpath>
-    </nbjpdastart>
-      
-    <java classname="net.jxta.impl.peergroup.Boot" fork="yes">
-      <jvmarg value="-Xdebug" />
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
-      <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-      <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-      <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-      <sysproperty key="JXTA_HOME" value="${net.jxta.jxta_home}" />
-      <sysproperty key="java.util.logging.config.file" value="${jxtaroot}/logging.properties" />
-      <sysproperty key="net.jxta.logging.Logging" value="FINE" />
-      <classpath>
-          <pathelement location="${jxtajar}" />
-          <pathelement location="${jxtashelljar}" />
-          <pathelement location="${jxtacmsjar}" />
-          <pathelement location="${jxtacmsshelljar}" />
-          <fileset refid="lib.files" />
-      </classpath>
-    </java>
-  </target>
-
+        <java classname="net.jxta.impl.peergroup.Boot" fork="yes">
+            <jvmarg value="-Xdebug" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
+            <jvmarg value="-Xms${net.jxta.jvm.xms}" />
+            <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
+            <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
+            <sysproperty key="JXTA_HOME" value="${net.jxta.jxta_home}" />
+            <sysproperty key="java.util.logging.config.file" value="${jxtaroot}/logging.properties" />
+            <sysproperty key="net.jxta.logging.Logging" value="FINE" />
+            <classpath>
+                <pathelement location="${jxtajar}" />
+                <pathelement location="${jxtashelljar}" />
+                <pathelement location="${jxtacmsjar}" />
+                <pathelement location="${jxtacmsshelljar}" />
+                <fileset refid="lib.files" />
+            </classpath>
+        </java>
+    </target>
 </project>

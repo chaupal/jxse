@@ -488,7 +488,6 @@ href="bcprov-ext.jnlp">
     <javadoc source="${source}" destdir="${impldoc}" access="package" use="true" overview="${basedir}/impl/src/net/jxta/impl/overview.html" windowtitle="JXTA Java SE Reference Implementation" additionalparam="-notimestamp -breakiterator -quiet">
       <link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
       <link href="http://www.bouncycastle.org/docs/docs1.5/" />
-      <link href="http://jetty.mortbay.org/javadoc/" />
       <link href="http://java.sun.com/products/servlet/2.3/javadoc/" />
       <link href="https://jxta-docs.dev.java.net/nonav/jxse-javadoc/current/api/" offline="true" packagelistLoc="${apidoc}" />
       <sourcepath>
