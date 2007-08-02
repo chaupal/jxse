@@ -8,7 +8,7 @@ urn:jxta:uuid-deadbeefdeafbabafeedbabe000000020106 net.jxta.impl.resolver.Resolv
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000030106 net.jxta.impl.discovery.DiscoveryServiceImpl Reference Implementation of the Discovery service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000040106 net.jxta.impl.pipe.PipeServiceImpl Reference Implementation of the Pipe Service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000050106 net.jxta.impl.membership.none.NoneMembershipService None Membership Service
-urn:jxta:uuid-deadbeefdeafbabafeedbabe000000050206 net.jxta.impl.membership.passwd PasswdMembershipService
+urn:jxta:uuid-deadbeefdeafbabafeedbabe000000050206 net.jxta.impl.membership.passwd.PasswdMembershipService Password Membership Service.
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000050306 net.jxta.impl.membership.pse.PSEMembershipService PSE Membership Service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000060106 net.jxta.impl.rendezvous.RendezVousServiceImpl Reference Implementation of the Rendezvous Service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000070106 net.jxta.impl.peer.PeerInfoServiceImpl Reference Implementation of the Peerinfo Service
