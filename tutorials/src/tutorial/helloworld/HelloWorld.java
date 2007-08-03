@@ -58,6 +58,7 @@ package tutorial.helloworld;
 
 import net.jxta.platform.NetworkManager;
 import java.text.MessageFormat;
+import java.io.File;
 
 
 /**
@@ -74,7 +75,7 @@ public class HelloWorld {
         NetworkManager manager = null;
 
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "HelloWorld");
+            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "HelloWorld", new File(new File(".cache"), "HelloWorld").toURI());
             System.out.println("Starting JXTA");
             manager.startNetwork();
             System.out.println("JXTA Started");
