@@ -75,8 +75,7 @@ import java.util.logging.Logger;
  *  An Outgoing Messenger adpator that implements synthetic faults. The faults
  *  include dropping messages and delaying messages.
  */
-public class OutgoingFaultyMsgrAdaptor implements Outgoing {
-    
+public class OutgoingFaultyMsgrAdaptor implements Outgoing {    
     private final static transient Logger LOG = Logger.getLogger(OutgoingMsgrAdaptor.class.getName());
     
     private final double MESSAGE_LOSS_PROBABILITY;
@@ -110,10 +109,17 @@ public class OutgoingFaultyMsgrAdaptor implements Outgoing {
         this.MESSAGE_LOSS_PROBABILITY = lose;
         this.MESSAGE_DELAY_RATIO = delayRatio;
         
-        delayMessageTimer = new Timer("Faulty message delayer for " + this);
+        delayMessageTimer = new Timer("Faulty message delayer for " + msgr, true);
         
         // initialize to some reasonable value
         lastAccessed = TimeUtils.timeNow();
+    }
+    
+    /**
+     *  {@inheritDoc}
+     */
+    protected void finalizer() throws Exception {
+        delayMessageTimer.cancel();
     }
     
     /**
@@ -228,8 +234,7 @@ public class OutgoingFaultyMsgrAdaptor implements Outgoing {
         }
     }
     
-    private class DelayTask extends TimerTask {
-        
+    private class DelayTask extends TimerTask {        
         private final Message msg;
         
         public DelayTask(Message msg) {
