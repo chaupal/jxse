@@ -1,64 +1,63 @@
 /*
  * Copyright (c) 2006-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
- *  Redistribution and use in source and binary forms, with or without 
+ *
+ *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
- *  2. Redistributions in binary form must reproduce the above copyright notice, 
- *     this list of conditions and the following disclaimer in the documentation 
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
- *  
- *  3. The end-user documentation included with the redistribution, if any, must 
- *     include the following acknowledgment: "This product includes software 
- *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
- *     Alternately, this acknowledgment may appear in the software itself, if 
+ *
+ *  3. The end-user documentation included with the redistribution, if any, must
+ *     include the following acknowledgment: "This product includes software
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology."
+ *     Alternately, this acknowledgment may appear in the software itself, if
  *     and wherever such third-party acknowledgments normally appear.
- *  
- *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
- *     not be used to endorse or promote products derived from this software 
- *     without prior written permission. For written permission, please contact 
+ *
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must
+ *     not be used to endorse or promote products derived from this software
+ *     without prior written permission. For written permission, please contact
  *     Project JXTA at http://www.jxta.org.
- *  
- *  5. Products derived from this software may not be called "JXTA", nor may 
+ *
+ *  5. Products derived from this software may not be called "JXTA", nor may
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
- *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
+ *
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
- *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
- *  This software consists of voluntary contributions made by many individuals 
- *  on behalf of Project JXTA. For more information on Project JXTA, please see 
+ *
+ *  This software consists of voluntary contributions made by many individuals
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see
  *  http://www.jxta.org.
- *  
- *  This license is based on the BSD license adopted by the Apache Foundation. 
+ *
+ *  This license is based on the BSD license adopted by the Apache Foundation.
  */
 package net.jxta.socket;
 
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.exception.PeerGroupException;
-import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeService;
@@ -68,8 +67,10 @@ import net.jxta.protocol.PipeAdvertisement;
 import java.io.*;
 import java.net.Socket;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.MessageFormat;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import net.jxta.credential.Credential;
 import net.jxta.protocol.PeerAdvertisement;
 
@@ -83,32 +84,35 @@ import net.jxta.protocol.PeerAdvertisement;
  * The initiator will provide an iteration count and buffer size. The peers will
  * then read and write buffers. (or write and read for the initiator).
  */
-public class SocketServer {
+public class SocketServer extends TestCase {
+    public final static PipeID SOCKET_ID = PipeID.create(URI.create("urn:jxta:uuid-59616261646162614E5047205032503393B5C2F6CA7A41FBB0F890173088E79404"));
     
-    private transient PeerGroup netPeerGroup = null;
-    public final static String SOCKETIDSTR = "urn:jxta:uuid-59616261646162614E5047205032503393B5C2F6CA7A41FBB0F890173088E79404";
+    private static transient NetworkManager manager = null;
+    
+    private static transient PeerGroup netPeerGroup = null;
     
     public SocketServer() throws IOException, PeerGroupException {
-        NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer"
-                ,
-                new File(new File(".cache"), "SocketServer").toURI());
-
-        manager.startNetwork();
-        netPeerGroup = manager.getNetPeerGroup();
+        synchronized (SocketServer.class) {
+            try {
+                if(null == manager) {
+                    manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer", new File(new File(".cache"), "SocketServer").toURI());
+                    
+                    manager.startNetwork();
+        
+                    netPeerGroup = manager.getNetPeerGroup();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        }
     }
     
     public static PipeAdvertisement getSocketAdvertisement() {
-        PipeID socketID = null;
-
-        try {
-            socketID = (PipeID) IDFactory.fromURI(new URI(SOCKETIDSTR));
-        } catch (URISyntaxException use) {
-            use.printStackTrace();
-        }
         PipeAdvertisement advertisement = (PipeAdvertisement)
-                AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
-
-        advertisement.setPipeID(socketID);
+        AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
+        
+        advertisement.setPipeID(SOCKET_ID);
         advertisement.setType(PipeService.UnicastType);
         advertisement.setName("Socket tutorial");
         return advertisement;
@@ -117,8 +121,7 @@ public class SocketServer {
     /**
      * wait for connections
      */
-    public void run() {
-        
+    public void connectionHandler() {
         System.out.println("Starting ServerSocket");
         JxtaServerSocket serverSocket = null;
         
@@ -137,12 +140,12 @@ public class SocketServer {
             try {
                 System.out.println("Waiting for connection");
                 Socket socket = serverSocket.accept();
-
+                
                 // set reliable
                 if (socket != null) {
                     System.out.println("socket created");
                     Thread thread = new Thread(new ConnectionHandler(socket), "Connection Handler Thread");
-
+                    
                     thread.start();
                 }
             } catch (Exception e) {
@@ -182,10 +185,10 @@ public class SocketServer {
                 System.out.println(MessageFormat.format("Sending/Receiving {0} bytes.", total));
                 
                 long current = 0;
-
+                
                 while (current < iterations) {
                     byte[] buf = new byte[size];
-
+                    
                     dis.readFully(buf);
                     out.write(buf);
                     out.flush();
@@ -199,9 +202,8 @@ public class SocketServer {
                 long elapsed = finish - start;
                 
                 System.out.println(
-                        MessageFormat.format("EOT. Received {0} bytes in {1} ms. Throughput = {2} KB/sec.", total, elapsed
-                        ,
-                        (total / elapsed) * 1000 / 1024));
+                        MessageFormat.format("EOT. Received {0} bytes in {1} ms. Throughput = {2} KB/sec.",
+                        total, elapsed, (total / elapsed) * 1000 / 1024));
                 socket.close();
                 System.out.println("Connection closed");
             } catch (Exception ie) {
@@ -214,18 +216,12 @@ public class SocketServer {
         }
     }
     
-    /**
-     * main
-     *
-     * @param args command line args
-     */
-    public void testServerSocket(String args[]) {
+    public void testServerSocket() {
         try {
-            Thread.currentThread().setName(SocketServer.class.getName() + ".main()");
             
             SocketServer socEx = new SocketServer();
             
-            socEx.run();
+            socEx.connectionHandler();
         } catch (Throwable e) {
             System.err.println("Failed : " + e);
             e.printStackTrace(System.err);
@@ -251,10 +247,42 @@ public class SocketServer {
                 SocketClient.FaultyJxtaSocket.loss = loss;
                 SocketClient.FaultyJxtaSocket.delay = delay;
                 
-                return new SocketClient.FaultyJxtaSocket(group, pipeAdv, itsEphemeralPipeAdv, itsPeerAdv, myCredential, credential
-                        ,
-                        isReliable);
+                return new SocketClient.FaultyJxtaSocket(group, pipeAdv, itsEphemeralPipeAdv, itsPeerAdv, myCredential, credential, isReliable);
             }
         }
+    }
+    
+    @Override
+    protected void finalize() {
+        synchronized (SocketServer.class) {
+            if (null != manager) {
+                manager.stopNetwork();
+                manager = null;
+            }
+        }
+    }
+    
+    public static void main(java.lang.String[] args) {
+        Thread.currentThread().setName(SocketServer.class.getName() + ".main()");
+        
+        try {
+            junit.textui.TestRunner.run(suite());
+        } finally {
+            synchronized (SocketServer.class) {
+                if (null != manager) {
+                    manager.stopNetwork();
+                    manager = null;
+                }
+            }
+            
+            System.err.flush();
+            System.out.flush();
+        }
+    }
+    
+    public static Test suite() {
+        TestSuite suite = new TestSuite(SocketServer.class);
+        
+        return suite;
     }
 }
