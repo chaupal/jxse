@@ -47,7 +47,7 @@ This license is based on the BSD license adopted by the Apache Foundation.
 $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
 -->
 
-<project basedir=".." name="platform-IDE">
+<project basedir=".." name="jxse-IDE">
     <import file="../build.xml"/>
     
     <!-- xxx: would "antcall execute ..." but can't pass sysprop structure -->

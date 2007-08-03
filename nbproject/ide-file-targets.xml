@@ -47,7 +47,7 @@ This license is based on the BSD license adopted by the Apache Foundation.
 $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
 -->
 
-<project basedir=".." name="platform-IDE">
+<project basedir=".." name="jxse-IDE-file">
     <import file="../build.xml"/>
 
     <target name="compile-selected-files-in-core-src" depends="prepare" if="netbeans.home" description="Compile selected core source files">
@@ -159,7 +159,7 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
       </java>
     </target>
 
-    <target name="debug-single-test" depends="test.compile" if="netbeans.home" description="Console JUnit test runner">
+    <target name="debug-single-test" depends="test.compile" if="netbeans.home" description="Console JUnit test Debug">
       <fail unless="classname">Must set property 'classname'</fail>
 
       <delete dir="${tmp}/JUnit" />
@@ -177,7 +177,7 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
           <pathelement location="${tools}/junit.jar" />
       </path>
 
-      <nbjpdastart addressproperty="jpda.address" name="Junit ${classname}" transport="dt_socket">
+      <nbjpdastart addressproperty="jpda.address" name="JUnit ${classname}" transport="dt_socket">
           <classpath>
               <path refid="runtest.classpath"/>
           </classpath>
