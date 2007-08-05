@@ -143,7 +143,6 @@ public final class RelayTransport implements EndpointListener, Module {
     static final int DEFAULT_CLIENT_QUEUE_SIZE = 20;
 
     private PeerGroup group = null;
-    private ModuleImplAdvertisement implAdvertisement = null;
 
     private String serviceName = null;
 
@@ -155,7 +154,7 @@ public final class RelayTransport implements EndpointListener, Module {
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         this.group = group;
-        this.implAdvertisement = (ModuleImplAdvertisement) implAdv;
+        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) implAdv;
 
         this.serviceName = assignedID.getUniqueValue().toString();
 
@@ -178,7 +177,7 @@ public final class RelayTransport implements EndpointListener, Module {
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
                 }
             } catch (NoSuchElementException failed) {
-                ;
+                //ignored
             } catch (IllegalArgumentException failed) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                     LOG.log(Level.SEVERE, "Error in relay advertisement", failed);
@@ -364,16 +363,12 @@ public final class RelayTransport implements EndpointListener, Module {
     // use that server feature
     static Message createPIDRequestMessage() {
         Message message = new Message();
-
         message.addMessageElement(RELAY_NS, PID_REQUEST_ELEMENT);
-
         return message;
     }
 
     static Message createPIDResponseMessage(String pidStr) {
-
         Message message = new Message();
-
         message.addMessageElement(RELAY_NS, PID_RESPONSE_ELEMENT);
         setString(message, PEERID_ELEMENT, pidStr);
 
@@ -382,11 +377,8 @@ public final class RelayTransport implements EndpointListener, Module {
 
     static Message createConnectMessage(long lease, boolean doReturnAdv, boolean doFlushQueue) {
         Message message = new Message();
-
         String request = createConnectString(lease, doReturnAdv, doFlushQueue);
-
         setString(message, REQUEST_ELEMENT, request);
-
         return message;
     }
 
@@ -429,26 +421,26 @@ public final class RelayTransport implements EndpointListener, Module {
 
     static Message createDisconnectMessage() {
         Message message = new Message();
-
         message.addMessageElement(RELAY_NS, DISCONNECT_REQUEST_ELEMENT);
-
         return message;
     }
 
     static Message createDisconnectedMessage() {
         Message message = new Message();
-
         message.addMessageElement(RELAY_NS, DISCONNECTED_RESPONSE_ELEMENT);
-
         return message;
     }
 
     /**
      * Convinence function for setting a string element with the relay namespace
+     *
+     * @param message the message
+     * @param elementName message element name
+     * @param value the value of the string
      */
-    static void setString(Message message, String tag, String value) {
+    static void setString(Message message, String elementName, String value) {
         // create a new String Element with the given value
-        StringMessageElement sme = new StringMessageElement(tag, value, null);
+        StringMessageElement sme = new StringMessageElement(elementName, value, null);
 
         // add the new element to the message
         message.addMessageElement(RELAY_NS, sme);
@@ -457,17 +449,19 @@ public final class RelayTransport implements EndpointListener, Module {
     /**
      * Convinence function for getting a String from the element with the given
      * tag and relay namespace
+     *
+     * @param message the message
+     * @param elementName the value of the string
+     * @return the string value, null if the element does not exist
      */
-    static String getString(Message message, String tag) {
+    static String getString(Message message, String elementName) {
         // get the requested element
-        MessageElement element = message.getMessageElement(RelayTransport.RELAY_NS, tag);
+        MessageElement element = message.getMessageElement(RelayTransport.RELAY_NS, elementName);
 
         // if the element is not present, return null
         if (element == null) {
             return null;
         }
-
-        // return the string
         return element.toString();
     }
 }

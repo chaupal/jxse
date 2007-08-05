@@ -1117,15 +1117,13 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 return;
             }
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("pipeMsgEvent()");
-            }
-            
             boolean isResponse = (RelayTransport.getString(message, RelayTransport.RESPONSE_ELEMENT) != null);
-            
             String peerId = RelayTransport.getString(message, RelayTransport.PEERID_ELEMENT);
             
             if (peerId == null || peerId.equals(server.peerId)) {
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("pipeMsgEvent() discarding message no response PID defined, or loopback ");
+                }
                 return;
             }
             
@@ -1140,7 +1138,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             }
             
             Advertisement adv;
-            
             try {
                 // XXX bondolo 20041207 Force parsing of MessageElement as 
                 // XMLUTF8 rather than the actual mime type associated with the
@@ -1200,36 +1197,22 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     // Very defensive. I care a lot more not to break anything
                     // at this stage, than to have optimal functionality.
                     
-                    RdvAdvertisement myAdv = RelayServer.createRdvAdvertisement(server.group.getPeerAdvertisement()
-                            ,
-                            server.serviceName);
-                    
-                    if (myAdv == null) {
-                        return;
-                    } // huh ?
-                    
+                    RdvAdvertisement myAdv = RelayServer.createRdvAdvertisement(server.group.getPeerAdvertisement(), server.serviceName);
+
                     // Need to convert the other party's string pid into
                     // a real pid.
                     PeerID otherPid = null;
-                    
                     try {
-                        otherPid = (PeerID)
-                                IDFactory.fromURI(new URI(ID.URIEncodingName, ID.URNNamespace + ":" + peerId, null));
+                        otherPid = (PeerID) IDFactory.fromURI(new URI(ID.URIEncodingName, ID.URNNamespace + ":" + peerId, null));
                     } catch (Exception ex) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                             LOG.log(Level.WARNING, "Bad peerid : " + peerId, ex);
                         }
                         
                     }
-                    
-                    if (otherPid == null) {
-                        return;
-                    } // huh ?
-                    
+
                     PipeService pipeService = server.group.getPipeService();
-                    
                     if (pipeService == null) {
-                        
                         return; // Funny. We're receiving messages, after all.
                     }
                     
@@ -1241,7 +1224,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     // The correct API, if it existed, would be respond().
                     
                     OutputPipe retPipe = null;
-                    
                     try {
                         retPipe = pipeService.createOutputPipe(pipeAdv, Collections.singleton(otherPid), 2 * TimeUtils.ASECOND);
                         if (retPipe == null) {
@@ -1285,7 +1267,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         public void run() {
             try {
                 OutputPipe outputPipe = null;
-                
                 PipeService pipeService = server.group.getPipeService();
                 
                 while (doRun && inputPipe == null) {
@@ -1359,9 +1340,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 }
                 
                 while (doRun) {
-                    RdvAdvertisement adv = RelayServer.createRdvAdvertisement(server.group.getPeerAdvertisement()
-                            ,
-                            server.serviceName);
+                    RdvAdvertisement adv = RelayServer.createRdvAdvertisement(server.group.getPeerAdvertisement(), server.serviceName);
                     
                     // Make sure that the version that can be discovered
                     // is consistent.
@@ -1416,7 +1395,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 }
             } finally {
                 cacheThread = null;
-                
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                     LOG.info("Cache thread quitting.");
                 }
@@ -1425,9 +1403,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         protected void startCache() {
             doRun = true;
-            cacheThread = new Thread(server.group.getHomeThreadGroup(), this
-                    ,
-                    "RelayCache Worker Thread for " + server.publicAddress);
+            cacheThread = new Thread(server.group.getHomeThreadGroup(), this, "RelayCache Worker Thread for " + server.publicAddress);
             cacheThread.setDaemon(true);
             cacheThread.start();
         }
@@ -1485,7 +1461,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     }
     
     private static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String name) {
-        
         try {
             // FIX ME: 10/19/2002 lomax@jxta.org. We need to properly set up the service ID. Unfortunately
             // this current implementation of the PeerView takes a String as a service name and not its ID.

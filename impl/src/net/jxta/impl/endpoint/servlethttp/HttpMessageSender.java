@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.servlethttp;
-
 
 import java.util.Iterator;
 import java.util.Map;
@@ -75,7 +73,6 @@ import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.Messenger;
 
 import net.jxta.exception.PeerGroupException;
-
 
 /**
  * Simple Client MessageSender
@@ -114,7 +111,7 @@ class HttpMessageSender implements MessageSender {
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
             StringBuilder configInfo = new StringBuilder( "Configuring HTTP Client Message Transport : " + servletHttpTransport.assignedID);
 
-            configInfo.append("\n\tPublic Address = " + publicAddress);
+            configInfo.append("\n\tPublic Address = ").append(publicAddress);
             LOG.config(configInfo.toString());
         }        
     }

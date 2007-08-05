@@ -141,7 +141,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      *      <li>Values are {@link net.jxta.protocol.RouteAdvertisement}.</li>
      *  </ul>
      */
-    private final Map activeRelays = new Hashtable();
+    private final Map<EndpointAddress, RouteAdvertisement> activeRelays = new Hashtable<EndpointAddress, RouteAdvertisement>();
     
     /**
      * Our source for relay servers.
@@ -913,7 +913,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 messenger = null;
             }
             
-            List endpointAddresses = null;
+            List<String> endpointAddresses = null;
             
             // check for a relay advertisement
             if (relayAdv != null) {
@@ -926,7 +926,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 // silly but if we use getVetorEndpointAddresses, we get
                 // strings. It's realy simpler to have only one kind of obj
                 // inthere.
-                endpointAddresses = new ArrayList(1);
+                endpointAddresses = new ArrayList<String>(1);
                 endpointAddresses.add(relayAddress.toString());
             }
             
@@ -940,9 +940,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             }
             
             // try each endpoint address until one is successful
-            for (int i = 0; i < endpointAddresses.size(); i++) {
-                String s = (String) endpointAddresses.get(i);
-
+            for (String s : endpointAddresses) {
                 if (s == null) {
                     continue;
                 }
@@ -1159,7 +1157,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             PeerAdvertisement padv = pg.getPeerAdvertisement();
             XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
             
-            RouteAdvertisement route = null;
+            RouteAdvertisement route;
             
             if (myParam == null) {
                 // we should have found a route here. This is not good
@@ -1247,7 +1245,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             // get the advertisement of the associated endpoint address as we
             // need to get the peer Id and available route
             
-            PeerAdvertisement padv = null;
+            PeerAdvertisement padv;
             
             // update our peer advertisement
             padv = group.getPeerAdvertisement();
@@ -1314,7 +1312,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         
         Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
-        for (RouteAdvertisement route : (Iterable<RouteAdvertisement>) activeRelays.values()) {
+        for (RouteAdvertisement route : activeRelays.values()) {
             try {
                 // publish our route if pg is not null
                 if (pg != null) {

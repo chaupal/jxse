@@ -87,6 +87,11 @@ public class RelayReferralSeedingManager extends URISeedingManager {
     
     /**
      *  Get an instance of RelayReferralSeedingManager.
+     *
+     * @param aclLocation acl URI
+     * @param allowOnlySeeds if <code>true</code> allow only seeds
+     * @param group the peer group
+     * @param serviceName Service name
      */
     public RelayReferralSeedingManager(URI aclLocation, boolean allowOnlySeeds, PeerGroup group, String serviceName) {
         super(aclLocation, allowOnlySeeds, group, serviceName);
@@ -144,7 +149,6 @@ public class RelayReferralSeedingManager extends URISeedingManager {
                     result.add(eachRoute);
                 }
             }
-                
         return result.toArray(new RouteAdvertisement[result.size()]);
     }
     
@@ -194,7 +198,6 @@ public class RelayReferralSeedingManager extends URISeedingManager {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Found " + result.size() + " relay seeds.");
         }
-        
         return result;
     }
 }

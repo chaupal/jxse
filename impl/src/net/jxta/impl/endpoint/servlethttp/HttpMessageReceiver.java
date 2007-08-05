@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.servlethttp;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -91,7 +89,6 @@ import net.jxta.endpoint.MessengerEventListener;
 import net.jxta.exception.PeerGroupException;
 
 import net.jxta.impl.util.TimeUtils;
-
 
 /**
  * Simple Message Receiver for server side.
@@ -156,12 +153,11 @@ class HttpMessageReceiver implements MessageReceiver {
         initFromProperties(prop);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder(
-                    "Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
 
-            configInfo.append("\n\tMin threads=" + MIN_LISTENER_THREADS);
-            configInfo.append("\n\tMax threads=" + MAX_LISTENER_THREADS);
-            configInfo.append("\n\tMax thread idle time=" + MAX_THREAD_IDLE_DURATION + "ms");
+            configInfo.append("\n\tMin threads=").append(MIN_LISTENER_THREADS);
+            configInfo.append("\n\tMax threads=").append(MAX_LISTENER_THREADS);
+            configInfo.append("\n\tMax thread idle time=").append(MAX_THREAD_IDLE_DURATION).append("ms");
             
             LOG.config(configInfo.toString());
         }
@@ -245,9 +241,7 @@ class HttpMessageReceiver implements MessageReceiver {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Could not start server", e);
             }
-
             PeerGroupException failure = new PeerGroupException("Could not start server");
-
             failure.initCause(e);
             throw failure;
         }
@@ -291,8 +285,7 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    public Iterator getPublicAddresses() {
-
+    public Iterator<EndpointAddress> getPublicAddresses() {
         return Collections.unmodifiableList(publicAddresses).iterator();
     }
 
@@ -324,6 +317,9 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * Returns a Properties instance for jxta.properties if the file exists;
      * otherwise, returns null.
+     *
+     * @param fromFile properties file
+     * @return the properties object
      */
     private static Properties getJxtaProperties(File fromFile) {
         Properties prop = new Properties();
@@ -351,7 +347,7 @@ class HttpMessageReceiver implements MessageReceiver {
                 try {
                     in.close();
                 } catch (IOException ignored) {
-                    ;
+                    //ignored
                 }
                 in = null;
             }
@@ -360,12 +356,13 @@ class HttpMessageReceiver implements MessageReceiver {
                 LOG.warning(fromFile.getPath() + " cannot be found");
             }
         }
-        
         return prop;
     }
     
     /**
      * Reads the properties from the jxta.properties file
+     *
+     * @param prop properties to init from
      */
     private void initFromProperties(Properties prop) {
         

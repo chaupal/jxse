@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint.servlethttp;
 
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -86,7 +85,6 @@ import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
-
 
 /**
  *  Simple messenger that simply posts a message to a URL.
@@ -151,12 +149,7 @@ final class HttpClientMessenger extends BlockingMessenger {
      * The ServletHttpTransport that created this object.
      */
     private final ServletHttpTransport servletHttpTransport;
-    
-    /**
-     *  The Return Address element we will add to all messages we send.
-     */
-    private final EndpointAddress srcAddress;
-    
+
     /**
      *  The Return Address element we will add to all messages we send.
      */
@@ -192,8 +185,8 @@ final class HttpClientMessenger extends BlockingMessenger {
         super(servletHttpTransport.getEndpointService().getGroup().getPeerGroupID(), destAddr, true);
         
         this.servletHttpTransport = servletHttpTransport;
-        
-        this.srcAddress = srcAddr;
+
+        EndpointAddress srcAddress = srcAddr;
         this.srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddr.toString(), null);
         
         String protoAddr = destAddr.getProtocolAddress();
@@ -891,7 +884,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                         try {
                             inputStream.close();
                         } catch (IOException ignored) {
-                            ;
+                            //ignored
                         }
                     }
                 }

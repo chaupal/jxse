@@ -172,15 +172,13 @@ class RelayServerClient implements Runnable {
         }
 
         try {
-            Message message = null;
+            Message message;
             int failedInARow = 0;
 
             while (true) {
 
                 message = null;
-                Messenger holdIt = null;
-                boolean wasOOB = false;
-
+                Messenger holdIt;
                 synchronized (this) {
                     // Messenger + message is the condition to continue running
                     // We do not want to dequeue messages for sending before knowing if
@@ -215,7 +213,6 @@ class RelayServerClient implements Runnable {
                     if (outOfBandMessage != null) {
                         message = outOfBandMessage;
                         outOfBandMessage = null;
-                        wasOOB = true;
                     } else {
                         message = messageList.take();
                         if (message == null) {
@@ -225,11 +222,11 @@ class RelayServerClient implements Runnable {
                                 if (outOfBandMessage != null) {
                                     message = outOfBandMessage;
                                     outOfBandMessage = null;
-                                    wasOOB = true;
                                 } else {
                                     message = messageList.take();
                                 }
                             } catch (InterruptedException ie) {
+                                //ignored
                             }
                             if (message == null) {
                                 thread = null; // Make sure a thread will be created if
@@ -658,7 +655,7 @@ class RelayServerClient implements Runnable {
             EndpointAddress destAddressToUse = getDestAddressToUse(serviceName, serviceParam);
 
             MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME,
-                    destAddressToUse.toString(), (MessageElement) null);
+                    destAddressToUse.toString(), null);
 
             message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
 
