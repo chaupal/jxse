@@ -832,15 +832,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                                 LOG.fine("Received " + incomingMsg + " from " + senderURL);
                             }
                             
-                            try {
-                                HttpClientMessenger.this.servletHttpTransport.getEndpointService().demux(incomingMsg);
-                            } catch (Throwable e) {
-                                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                    LOG.log(Level.WARNING, "Failure demuxing an incoming message", e);
-                                }
-                                
-                                throw e;
-                            }
+                            servletHttpTransport.executor.execute(new MessageProcessor(incomingMsg));
                             
                             // note that we received a message
                             lastUsed = TimeUtils.timeNow();
@@ -900,6 +892,26 @@ final class HttpClientMessenger extends BlockingMessenger {
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 LOG.info("Message polling stopped for " + senderURL);
             }
+        }
+    }
+
+    /**
+     * A small class for processing individual messages. 
+     */ 
+    private class MessageProcessor implements Runnable {
+        
+        private Message msg;
+        
+        MessageProcessor(Message msg) {
+            this.msg = msg;
+        }
+        
+        public void run() {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Demuxing " + msg + " from " + senderURL);
+            }
+            
+            servletHttpTransport.getEndpointService().demux(msg);
         }
     }
 }

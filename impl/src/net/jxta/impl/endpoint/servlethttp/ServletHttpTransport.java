@@ -64,6 +64,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import java.net.UnknownHostException;
+import java.util.concurrent.Executor;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -94,6 +95,7 @@ import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.protocol.HTTPAdv;
 
 import net.jxta.impl.meter.*;
+import net.jxta.impl.peergroup.StdPeerGroup;
 
 /**
  * A JXTA Message Transport
@@ -123,6 +125,11 @@ public final class ServletHttpTransport implements Module {
     PeerGroup group;
     ID assignedID;
     ModuleImplAdvertisement implAdvertisement;
+    
+    /**
+     * The executor used by HttpClientMessenger
+     */
+    Executor executor;
 
     /**
      * The endpoint we attach to.
@@ -190,6 +197,8 @@ public final class ServletHttpTransport implements Module {
         this.group = group;
         this.assignedID = assignedID;
         implAdvertisement = (ModuleImplAdvertisement) impl;
+        
+        this.executor = ((StdPeerGroup) group).getExecutor();
 
         // Get out invariable parameters from the implAdv
         XMLElement param = (XMLElement) implAdvertisement.getParam();
