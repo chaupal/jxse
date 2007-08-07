@@ -678,6 +678,16 @@ public class NetworkConfigurator {
     }
     
     /**
+     * Gets the ID which will be used for new net peer group instances.
+     * <p/>
+     *
+     * @return the infrastructure PeerGroupID as a string
+     */
+    public String getInfrastructureIDStr() {
+        return infraPeerGroupConfig.getPeerGroupID().toString();
+    }
+    
+    /**
      * Sets the infrastructure PeerGroup name meta-data
      *
      * @param name the Infrastructure PeerGroup name
@@ -685,6 +695,15 @@ public class NetworkConfigurator {
      */
     public void setInfrastructureName(String name) {
         infraPeerGroupConfig.setName(name);
+    }
+    
+    /**
+     * Gets the infrastructure PeerGroup name meta-data
+     *
+     * @return the Infrastructure PeerGroup name
+     */
+    public String getInfrastructureName() {
+        return infraPeerGroupConfig.getName();
     }
     
     /**
