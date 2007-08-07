@@ -53,12 +53,23 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
 
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.*;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
@@ -67,6 +78,7 @@ import net.jxta.impl.cm.Cm;
 import net.jxta.impl.cm.SrdiIndex;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
@@ -79,20 +91,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import net.jxta.document.StructuredDocument;
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -100,16 +112,19 @@ import java.util.logging.Logger;
  */
 public class StdPeerGroup extends GenericPeerGroup {
     
+    /**
+     *  Logger
+     */
     private final static transient Logger LOG = Logger.getLogger(StdPeerGroup.class.getName());
-    
+            
     // A few things common to all ImplAdv for built-in things.
     public static final XMLDocument STD_COMPAT = mkCS();
-    public static final String MODULE_IMPL_STD_URI = "http://www.jxta.org/download/jxta.jar";
+    public static final String MODULE_IMPL_STD_URI = "http://jxta-jxse.dev.java.net/download/jxta.jar";
     public static final String MODULE_IMPL_STD_PROVIDER = "sun.com";
     
     protected static final String STD_COMPAT_FORMAT = "Efmt";
     
-    // FIXME 20061206 bondolo Update this to "JRE1.5" after June 2007 release. 2.4.1 and earlier don't do version comparison correctly.
+    // FIXME 20061206 bondolo Update this to "JRE1.5" after 2.5 release. 2.4.1 and earlier don't do version comparison correctly.
     
     /**
      * The Specification title and Specification version we require.
@@ -117,25 +132,108 @@ public class StdPeerGroup extends GenericPeerGroup {
     protected static final String STD_COMPAT_FORMAT_VALUE = "JDK1.4.1";
     protected static final String STD_COMPAT_BINDING = "Bind";
     protected static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
+    
+    static {
+        try {
+            Enumeration<URL> providerLists = GenericPeerGroup.class.getClassLoader().getResources("META-INF/services/net.jxta.platform.Module");
 
+            while (providerLists.hasMoreElements()) {
+                try {
+                    URI providerList = providerLists.nextElement().toURI();
+
+                    registerFromFile(providerList);
+                } catch (URISyntaxException badURI) {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.log(Level.WARNING, "Failed to convert service URI", badURI);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to locate provider lists", ex);
+            }
+        }
+    }
+
+    /**
+     * Register instance classes given a URI to a file containing modules
+     * which must be found on the current class path. Comments are marked with 
+     * a '#', the pound sign. Any following text on any line in the file are 
+     * ignored.
+     * <p/>
+     * Each line of the file contains a module spec ID, the class name and the 
+     * Module description. The fields are separated by whitespace.
+     * 
+     * @param providerList the URI to a file containing a list of modules
+     * @return {@code true} if at least one of the instance classes could be
+     * registered otherwise {@code false}.
+     */
+    private static boolean registerFromFile(URI providerList) {
+        boolean registeredSomething = false;
+        InputStream urlStream = null;
+        
+        try {
+            urlStream = providerList.toURL().openStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
+
+            String provider;
+
+            while ((provider = reader.readLine()) != null) {
+                int comment = provider.indexOf('#');
+
+                if (comment != -1) {
+                    provider = provider.substring(0, comment);
+                }
+                    
+                provider = provider.trim();
+
+                if (provider.length() > 0) {
+                    try {
+                        String[] parts = provider.split("\\s", 3);
+                        
+                        if(3 == parts.length) {
+                            ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
+                            ModuleImplAdvertisement moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, parts[1], parts[2]);
+
+                            getJxtaLoader().defineClass(moduleImplAdv);
+                            
+                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                                LOG.fine("Registered Module " + msid + " : " + parts[1]);
+                            }
+                        } else {
+                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                                LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'");
+                            }
+                        }
+                    } catch (Exception allElse) {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'", allElse);
+                        }
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to read provider list " + providerList, ex);
+            }
+            return false;
+        } finally {
+            if(null != urlStream) {
+                try {
+                    urlStream.close();
+                } catch(IOException ignored) {
+                    
+                }
+            }
+        }
+
+        return registeredSomething;
+    }
+
+    /**
+     *  If {@code true} then the PeerGroup has been started.
+     */
     private volatile boolean started = false;
-    
-    /**
-     * The minimum number of Threads our Executor will reserve. Once started
-     * these Threads will remain
-     */
-    private static int COREPOOLSIZE = 5;
-    
-    /**
-     * The maximum number of Threads our Executor will allocate.
-     */
-    private static int MAXPOOLSIZE = 150;
-    
-    /**
-     * The number of seconds that Threads above {@code COREPOOLSIZE} will
-     * remain idle before terminating.
-     */
-    private static int KEEPALIVETIME = 15;
     
     /**
      * The order in which we started the services.
@@ -146,9 +244,9 @@ public class StdPeerGroup extends GenericPeerGroup {
      * A map of the Message Transports for this group.
      * <p/>
      * <ul>
-     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     * <li>values are {@link net.jxta.platform.Module}, but should also be
-     * {@link net.jxta.endpoint.MessageTransport}</li>
+     *   <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
+     *   <li>values are {@link net.jxta.platform.Module}, but should also be
+     *   {@link net.jxta.endpoint.MessageTransport}</li>
      * </ul>
      */
     private final Map<ModuleClassID, Object> messageTransports = new HashMap<ModuleClassID, Object>();
@@ -170,25 +268,11 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     private Cm cm = null;
     
-    /**
-     * The PeerGroup ThreadPool
-     */
-    private ThreadPoolExecutor threadPool;
-    
-    /**
-     * Queue for tasks waiting to be run by our {@code Executor}.
-     */
-    private final BlockingQueue<Runnable> taskQueue;
-    
-    private final Set<ModuleClassID> disabledModules = new HashSet<ModuleClassID>();
-    
-    private ModuleImplAdvertisement allPurposeImplAdv = null;
-    
     private static XMLDocument mkCS() {
         XMLDocument doc = (XMLDocument)
                 StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
         
-        Element e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
+        XMLElement e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
 
         doc.appendChild(e);
         
@@ -198,69 +282,9 @@ public class StdPeerGroup extends GenericPeerGroup {
     }
 
     /**
-     * Our rejected execution handler which has the effect of pausing the
-     * caller until the task can be executed or queued.
-     */
-    private static class CallerBlocksPolicy implements RejectedExecutionHandler {
-        public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
-            BlockingQueue<Runnable> queue = executor.getQueue();
-
-            while (!executor.isShutdown()) {
-                executor.purge();
-
-                try {
-                    boolean pushed = queue.offer(runnable, 500, TimeUnit.MILLISECONDS);
-                    
-                    if (pushed) {
-                        break;
-                    }
-                } catch (InterruptedException woken) {
-                    // This is our entire handling of interruption. If the 
-                    // interruption signaled a state change of the executor our
-                    // while() loop condition will handle termination.
-                    Thread.interrupted();
-                    continue;
-                }
-
-                // Couldn't push? Add a thread!
-                synchronized (executor) {
-                    int currentMax = executor.getMaximumPoolSize();
-                    int newMax = Math.min(currentMax + 1, MAXPOOLSIZE * 2);
-                    
-                    if (newMax != currentMax) {
-                        executor.setMaximumPoolSize(newMax);
-                    }
-                    
-                    // If we are already at the max, increase the core size
-                    if (newMax == (MAXPOOLSIZE * 2)) {
-                        int currentCore = executor.getCorePoolSize();
-                        
-                        int newCore = Math.min(currentCore + 1, MAXPOOLSIZE * 2);
-                        
-                        if (currentCore != newCore) {
-                            executor.setCorePoolSize(newCore);
-                        } else {
-                            // Core size is at the max too. We just have to wait.
-                            continue;
-                        }
-                    }
-                }
-                
-                // Should work now.
-                executor.execute(runnable);
-                break;
-            }
-        }
-    }
-
-    /**
      * constructor
      */
     public StdPeerGroup() {
-        // todo convert these hardcoded settings into group config params
-        this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
-        this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, KEEPALIVETIME, TimeUnit.SECONDS, taskQueue);
-        threadPool.setRejectedExecutionHandler(new CallerBlocksPolicy());
     }
     
     /**
@@ -372,22 +396,6 @@ public class StdPeerGroup extends GenericPeerGroup {
             ModuleClassID classID = anEntry.getKey();
             Object value = anEntry.getValue();
             
-            // If it is disabled, strip it.
-            if (disabledModules.contains(classID)) {
-                if (value instanceof ModuleClassID) {
-                    if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                        LOG.config("Module disabled by configuration : " + classID);
-                    }
-                } else {
-                    if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                        LOG.config("Module disabled by configuration : " + ((ModuleImplAdvertisement) value).getDescription());
-                    }
-                }
-                
-                eachModule.remove();
-                continue;
-            }
-            
             // Already loaded.
             if (value instanceof Module) {
                 continue;
@@ -420,18 +428,12 @@ public class StdPeerGroup extends GenericPeerGroup {
                 anEntry.setValue(theModule);
             } catch (Exception e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not load module for class ID " + classID, e);
-                }
-                if (value instanceof ModuleClassID) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Will be missing from peer group: " + classID + " (" + e.getMessage() + ").");
-                    }
-                } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING
-                                ,
-                                "Will be missing from peer group: " + ((ModuleImplAdvertisement) value).getDescription() + " ("
-                                + e.getMessage() + ").");
+                    LOG.log(Level.WARNING, "Could not load module for class ID : " + classID, e);
+                    if (value instanceof ModuleImplAdvertisement) {
+                        LOG.log(Level.WARNING, "Will be missing from peer group : " + 
+                                ((ModuleImplAdvertisement) value).getDescription() );
+                    } else {
+                        LOG.log(Level.WARNING, "Will be missing from peer group: " + value );
                     }
                 }
                 eachModule.remove();
@@ -553,8 +555,8 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
-     * This method loads and initializes all modules
-     * described in the given implementation advertisement. Then, all modules
+     * This method loads and initializes all of the peer group modules
+     * described in the provided implementation advertisement. Then, all modules
      * are placed in a list and the list is processed iteratively. During each
      * iteration, the {@link Module#startApp(String[])} method of each module
      * is invoked once. Iterations continue until no progress is being made or
@@ -605,15 +607,17 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
             return;
         }
-
+        
         // Set-up the minimal GenericPeerGroup
         super.initFirst(parent, assignedID, impl);
         
-        // initialize cm before starting services. Do not refer to assignedID, as it could be
-        // null, in which case the group ID has been generated automatically by super.initFirst()
+        // assignedID might have been null. It is now the peer group ID.
+        assignedID = getPeerGroupID();
+        
+        // initialize cm before starting services.        
         try {
-            cm = new Cm(getHomeThreadGroup(), getStoreHome(), getPeerGroupID().getUniqueValue().toString()
-                    ,
+            cm = new Cm(getHomeThreadGroup(), 
+                    getStoreHome(), assignedID.getUniqueValue().toString(),
                     Cm.DEFAULT_GC_MAX_INTERVAL, false);
         } catch (Exception e) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -625,31 +629,37 @@ public class StdPeerGroup extends GenericPeerGroup {
         // flush srdi for this group
         SrdiIndex.clearSrdi(this);
         
-        /*
-         * Build the list of modules disabled by config.
-         */
-        ConfigParams conf = getConfigAdvertisement();
-
-        if (conf != null) {
-            for (Map.Entry anEntry : conf.getServiceParamsEntrySet()) {
-                XMLElement e = (XMLElement) anEntry.getValue();
-
-                if (e.getChildren("isOff").hasMoreElements()) {
-                    disabledModules.add((ModuleClassID) anEntry.getKey());
-                }
-            }
-        }
-        
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
         
-        /*
-         * Load all the modules from the advertisement
-         */
+        // Load the list of peer group services from the impl advertisement params.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdv.getParam());
         
         Map<ModuleClassID, Object> initServices = new HashMap<ModuleClassID, Object>(paramAdv.getServices());
         
         initServices.putAll(paramAdv.getProtos());
+        
+        // Remove the modules disabled in the configuration file.
+        ConfigParams conf = getConfigAdvertisement();
+
+        if (conf != null) {
+            for (Map.Entry<ID, StructuredDocument> anEntry : conf.getServiceParamsEntrySet()) {
+                Element e = anEntry.getValue();
+
+                if (e.getChildren("isOff").hasMoreElements()) {
+                    Object value = initServices.remove((ModuleClassID) anEntry.getKey());
+                    
+                    if (value instanceof ModuleImplAdvertisement) {
+                        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                            LOG.config("Module disabled by configuration : " + ((ModuleImplAdvertisement) value).getDescription());
+                        }
+                    } else {
+                        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                            LOG.config("Module disabled by configuration : " + value);
+                        }
+                    }
+                }
+            }
+        }        
         
         loadAllModules(initServices, true);
         
@@ -657,15 +667,14 @@ public class StdPeerGroup extends GenericPeerGroup {
         applications.putAll(paramAdv.getApps());
         
         // Make a list of all the things we need to start.
-        // There is an a-priori order, but we'll iterate over the
-        // list until all where able to complete their start phase
-        // or no progress is made. Since we give to modules the opportunity
-        // to pretend that they are making progress, we need to have a
-        // safeguard: we will not iterate through the list more than N^2 + 1
-        // times without at least one module completing; N being the number
-        // of modules still in the list. That should cover the worst case
-        // scenario and still allow the process to eventually fail if it has
-        // no chance of success.
+        // There is an a-priori order, but we'll iterate over the list until all
+        // where able to complete their start phase or no progress is made. 
+        // Since we give to modules the opportunity to pretend that they are 
+        // making progress, we need to have a safeguard: we will not iterate 
+        // through the list more than N^2 + 1 times without at least one module 
+        // completing; N being the number of modules still in the list. This 
+        // should cover the worst case scenario and still allow the process to 
+        // eventually fail if it has no chance of success.
         
         int iterations = 0;
         int maxIterations = initServices.size() * initServices.size() + iterations + 1;
@@ -778,8 +787,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             try {
                 // Discovery service adv could not be published localy,
                 // since at that time there was no local discovery to
-                // publish to. FIXME: this is really a cherry on the cake.
-                // no-one realy cares
+                // publish to.
                 discoveryService.publish(discoveryService.getImplAdvertisement(), DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
                 
                 // Try to publish our impl adv within this group. (it was published
@@ -836,14 +844,14 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 ? ((MessageTransport) anMT).getProtocolName()
                                 : anMT.getClass().getName());
             }
-            Iterator eachApp = applications.entrySet().iterator();
+            Iterator<Map.Entry<ModuleClassID,Object>> eachApp = applications.entrySet().iterator();
             
             if (eachApp.hasNext()) {
                 configInfo.append("\n\t\tApplications :");
             }
             while (eachApp.hasNext()) {
-                Map.Entry anEntry = (Map.Entry) eachApp.next();
-                ModuleClassID aMCID = (ModuleClassID) anEntry.getKey();
+                Map.Entry<ModuleClassID,Object> anEntry = eachApp.next();
+                ModuleClassID aMCID = anEntry.getKey();
                 Object anApp = anEntry.getValue();
                 
                 if (anApp instanceof ModuleImplAdvertisement) {
@@ -859,110 +867,77 @@ public class StdPeerGroup extends GenericPeerGroup {
     }
     
     /**
-     * {@inheritDoc}
+     *  {@inheritDoc}
+     *  <p/>
+     *  This method builds the <b>complete</b> default Peer Group 
+     *  ModuleImplAdvertisement. The ModuleImplAdvertisement which is returned 
+     *  by the JxtaLoader does not contain the params section which identifies 
+     *  the services which the default Peer Group includes.
+     *  <p/>
+     *  FIXME 20070801 bondolo To improve compatibility with existing 
+     *  applications the returned {@code ModuleImplAdvertisement} will contain  
+     *  embedded {@code ModuleImplAdvertisement}s for the referenced services as  
+     *  opposed to {@code ModuleSpecID}s. This is because JXSE 2.4.1 and earlier 
+     *  do not handle load failures of modules loaded by spec id correctly. 
+     *  After JXSE 2.5 is released this should be changed to use the better
+     *  {@code ModuleSpecID} based peer group module specification.
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        
-        // Build it only the first time; then clone it.
-        if (allPurposeImplAdv != null) {
-            return allPurposeImplAdv.clone();
-        }
-        
+        JxtaLoader loader = getJxtaLoader();
+
         // grab an impl adv
-        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName()
-                ,
-                "General Purpose Peer Group Implementation");
+        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.allPurposePeerGroupSpecID);
         
+        // Create the service list for the group.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
         ModuleImplAdvertisement moduleAdv;
         
+        
         // set the services
-        Hashtable<ModuleClassID, Object> services = new Hashtable<ModuleClassID, Object>();
         
         // core services
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refEndpointSpecID, "net.jxta.impl.endpoint.EndpointServiceImpl"
-                ,
-                "Reference Implementation of the Endpoint service");
-        services.put(PeerGroup.endpointClassID, moduleAdv);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
+        paramAdv.addService(PeerGroup.endpointClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refResolverSpecID, "net.jxta.impl.resolver.ResolverServiceImpl"
-                ,
-                "Reference Implementation of the Resolver service");
-        services.put(PeerGroup.resolverClassID, moduleAdv);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
+        paramAdv.addService(PeerGroup.resolverClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refMembershipSpecID, "net.jxta.impl.membership.none.NoneMembershipService"
-                ,
-                "Reference Implementation of the None Membership service");
-        services.put(PeerGroup.membershipClassID, moduleAdv);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(refAccessSpecID, "net.jxta.impl.access.always.AlwaysAccessService"
-                ,
-                "Reference Implementation of the Always Access service");
-        services.put(PeerGroup.accessClassID, moduleAdv);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
+        paramAdv.addService(PeerGroup.accessClassID, moduleAdv);
         
         // standard services
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refDiscoverySpecID, "net.jxta.impl.discovery.DiscoveryServiceImpl"
-                ,
-                "Reference Implementation of the Discovery service");
-        services.put(PeerGroup.discoveryClassID, moduleAdv);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
+        paramAdv.addService(PeerGroup.discoveryClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refRendezvousSpecID, "net.jxta.impl.rendezvous.RendezVousServiceImpl"
-                ,
-                "Reference Implementation of the Rendezvous service");
-        services.put(PeerGroup.rendezvousClassID, moduleAdv);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
+        paramAdv.addService(PeerGroup.rendezvousClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refPipeSpecID, "net.jxta.impl.pipe.PipeServiceImpl"
-                ,
-                "Reference Implementation of the Pipe service");
-        services.put(PeerGroup.pipeClassID, moduleAdv);
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
+        paramAdv.addService(PeerGroup.pipeClassID, moduleAdv);
         
-        moduleAdv = mkImplAdvBuiltin(PeerGroup.refPeerinfoSpecID, "net.jxta.impl.peer.PeerInfoServiceImpl"
-                ,
-                "Reference Implementation of the Peerinfo service");
-        services.put(PeerGroup.peerinfoClassID, moduleAdv);
-        
-        paramAdv.setServices(services);
-        
-        // NO Transports.
-        Hashtable<ModuleClassID, Object> protos = new Hashtable<ModuleClassID, Object>();
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
+        paramAdv.addService(PeerGroup.peerinfoClassID, moduleAdv);
 
-        paramAdv.setProtos(protos);
         
-        // Main app is the shell Build a ModuleImplAdv for the shell
-        ModuleImplAdvertisement newAppAdv = (ModuleImplAdvertisement)
-                AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
-        
-        // The shell's spec id is a canned one.
-        newAppAdv.setModuleSpecID(PeerGroup.refShellSpecID);
-        
-        // Same compat than the group.
-        newAppAdv.setCompat(implAdv.getCompat());
-        newAppAdv.setUri(implAdv.getUri());
-        newAppAdv.setProvider(implAdv.getProvider());
-        
-        // Make up a description
-        newAppAdv.setDescription("JXTA Shell Reference Implementation");
-        
-        // Tack in the class name
-        newAppAdv.setCode("net.jxta.impl.shell.bin.Shell.Shell");
-        
-        // Put that in a new table of Apps and replace the entry in paramAdv
-        Hashtable<ModuleClassID, Object> newApps = new Hashtable<ModuleClassID, Object>();
+        // Applications
 
-        newApps.put(PeerGroup.applicationClassID, newAppAdv);
-        paramAdv.setApps(newApps);
-        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+        if(null != moduleAdv) {        
+            paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
+        }
+
         // Insert the newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
         
         implAdv.setParam(paramElement);
         
-        allPurposeImplAdv = implAdv;
-        
-        return implAdv.clone();
+        return implAdv;
     }
     
     /**
@@ -978,22 +953,13 @@ public class StdPeerGroup extends GenericPeerGroup {
      * Return a map of the applications for this group.
      * <p/>
      * <ul>
-     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     * <li>values are {@link net.jxta.platform.Module} or
-     * {@link net.jxta.protocol.ModuleImplAdvertisement}</li>
+     *   <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
+     *   <li>values are {@link net.jxta.platform.Module} or
+     *   {@link net.jxta.protocol.ModuleImplAdvertisement}</li>
      * </ul>
      * @return a map of the applications for this group.
      */
     public Map<ModuleClassID, Object> getApplications() {
         return Collections.unmodifiableMap(applications);
-    }
-    
-    /**
-     * Returns the executor pool
-     *
-     * @return the executor pool
-     */
-    public ThreadPoolExecutor getExecutor() {
-        return threadPool;
     }
 }

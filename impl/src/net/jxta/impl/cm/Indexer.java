@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.cm;
-
 
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.data.Key;
@@ -85,11 +83,10 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public final class Indexer {
 
     /**
-     * Our logger
+     * The logger
      */
     private final static transient Logger LOG = Logger.getLogger(Indexer.class.getName());
 
@@ -204,7 +201,6 @@ public final class Indexer {
         }
                 
         Iterator<Map.Entry<String, NameIndexer>> eachIndex = indices.entrySet().iterator();
-
         while (eachIndex.hasNext()) {
             Map.Entry<String, NameIndexer> anEntry = eachIndex.next();
             
@@ -231,7 +227,6 @@ public final class Indexer {
         }
         
         listDB.close();
-            
         return true;
     }
 
@@ -303,9 +298,7 @@ public final class Indexer {
 
         if (query != null) {
             int op = query.getOperator();
-
             if (op == IndexQuery.EW || op == IndexQuery.NEW || op == IndexQuery.BWX) {
-
                 query = new IndexQuery(IndexQuery.ANY, query.getValues());
                 cb = new EndsWithCallback(op, new SearchCallback(listDB, callback), query.getValue(0));
             }
@@ -320,13 +313,11 @@ public final class Indexer {
                 }
                 while (i.hasNext()) {
                     NameIndexer index = i.next();
-
                     index.query(query, new SearchCallback(listDB, callback));
                 }
             }
         } else {
             NameIndexer indexer = indices.get(name);
-
             if (indexer == null) {
                 return;
             }
@@ -372,7 +363,6 @@ public final class Indexer {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                 StringBuilder message = new StringBuilder().append("Adding a reference at position :").append(listPos).append(" to ").append(name).append(" index, Key: ").append(
                         indexables.get(name));
-
                 LOG.finer(message.toString());
             }
             indexer.add(indexKey, listPos);

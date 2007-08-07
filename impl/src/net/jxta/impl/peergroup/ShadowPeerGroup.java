@@ -73,8 +73,7 @@ public class ShadowPeerGroup extends StdPeerGroup {
      * {@inheritDoc}
      *
      * <p/>This implementation initializes the configuration advertisement with
-     * that of the parent group and otherwise behave exactly like its
-     * superclass.
+     * that of the parent group and otherwise behave exactly like its superclass.
      **/
     @Override
     protected void initFirst(PeerGroup parent, ID assignedID, Advertisement impl) throws PeerGroupException {

@@ -68,9 +68,10 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.platform.JxtaLoader;
+import net.jxta.protocol.ModuleImplAdvertisement;
 
 
 /**
@@ -129,6 +130,7 @@ public final class WorldPeerGroupFactory {
         // Establish the default store location via long established hackery.
         String jxta_home = System.getProperty("JXTA_HOME", ".jxta/");
         
+        // ensure that it ends in a seperator.
         if (!jxta_home.endsWith(File.separator)) {
             jxta_home += File.separator;
         }
@@ -202,7 +204,8 @@ public final class WorldPeerGroupFactory {
      * Group. This reference should be explicitly unreferenced when it is no
      * longer needed.
      *
-     * @return A strong (reference counted) interface object for the World Peer Group.
+     * @return A strong (reference counted) interface object for the World Peer 
+     * Group.
      * @see PeerGroup#unref()
      */
     public PeerGroup getInterface() {
@@ -214,7 +217,7 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      *
      * @return A weak (non-reference counted) interface object for the World
-     *         Peer Group.
+     * Peer Group.
      * @see PeerGroup#getWeakInterface()
      */
     public PeerGroup getWeakInterface() {
@@ -222,9 +225,7 @@ public final class WorldPeerGroupFactory {
     }
     
     /**
-     * Determine the class to use from "net.jxta.impl.config". This should be
-     * located somewhere on the JXTA class path. Normally it is located in
-     * jxta.jar
+     * Determine the class to use for the World PeeerGroup. 
      *
      * @return The Class which has been configured to be used for
      * World Peer Group instances.
@@ -232,17 +233,24 @@ public final class WorldPeerGroupFactory {
      * be used for the World Peer Group.
      */
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
+            
         try {
-            ResourceBundle rsrcs = ResourceBundle.getBundle("net.jxta.impl.config");
+            // XXX 20070713 bondolo Temporary hack to resolve class load order issue.
+            String unused = net.jxta.impl.peergroup.StdPeerGroup.STD_COMPAT.toString();
             
-            String worldPeerGroupClassName = rsrcs.getString("PlatformPeerGroupClassName").trim();
-            Class worldPeerGroupClass = Class.forName(worldPeerGroupClassName);
+            JxtaLoader loader = net.jxta.impl.peergroup.StdPeerGroup.getJxtaLoader();
             
-            return worldPeerGroupClass;
+            ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
+            
+            if(null == worldGroupImplAdv) {
+                throw new PeerGroupException("Could not locate World PeerGroup Module Implementation.");
+            }
+            
+            return Class.forName(worldGroupImplAdv.getCode());
         } catch (RuntimeException failed) {
-            throw new PeerGroupException("Could not load world peer group class.", failed);
+            throw new PeerGroupException("Could not load World PeerGroup class.", failed);
         } catch (ClassNotFoundException failed) {
-            throw new PeerGroupException("Could not load world peer group class.", failed);
+            throw new PeerGroupException("Could not load World PeerGroup class.", failed);
         }
     }
     
@@ -261,23 +269,22 @@ public final class WorldPeerGroupFactory {
      * @return the WorldPeerGroup
      */
     private PeerGroup newWorldPeerGroup(Class worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
+        if (!storeHome.isAbsolute()) {
+            LOG.severe("storeHome must be an absolute URI.");
+            throw new PeerGroupException("storeHome must be an absolute URI.");
+        }
+
+        if (storeHome.isOpaque()) {
+            LOG.severe("Opaque storeHome is not currently supported.");
+            throw new PeerGroupException("Opaque storeHome is not currently supported.");
+        }
+            
         synchronized (PeerGroup.globalRegistry) {
-            PeerGroup result = PeerGroup.globalRegistry.lookupInstance(PeerGroupID.worldPeerGroupID);
-            
-            if (null != result) {
-                throw new PeerGroupException(
-                        "Only a single instance of the World Peer Group may be instantiated at a single time.");
+            if (PeerGroup.globalRegistry.registeredInstance(PeerGroupID.worldPeerGroupID)) {
+                throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a single time.");
             }
             
-            if (!storeHome.isAbsolute()) {
-                LOG.severe("storeHome must be an absolute URI.");
-                throw new PeerGroupException("storeHome must be an absolute URI.");
-            }
-            
-            if (storeHome.isOpaque()) {
-                LOG.severe("Opaque storeHome is not currently supported.");
-                throw new PeerGroupException("Opaque storeHome is not currently supported.");
-            }
+            PeerGroup result = null;
             
             try {
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {

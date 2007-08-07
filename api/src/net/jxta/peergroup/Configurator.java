@@ -63,7 +63,10 @@ import net.jxta.protocol.ConfigParams;
 /**
  * A configurator is responsible for the persistence and validation of
  * configuration parameters.
+ *
+ * @deprecated This interface has been replaced with the {@link net.jxta.platform.NetworkConfigurator}.
  **/
+@Deprecated
 public interface Configurator {
     
     /**

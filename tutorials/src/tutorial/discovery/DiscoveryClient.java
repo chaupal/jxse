@@ -55,7 +55,6 @@
  */
 package tutorial.discovery;
 
-
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
@@ -67,9 +66,8 @@ import net.jxta.protocol.DiscoveryResponseMsg;
 import java.io.File;
 import java.util.Enumeration;
 
-
 /**
- * Illustrates the use of Discovery Service
+ * Illustrates the use of the Discovery Service
  */
 public class DiscoveryClient implements DiscoveryListener {
 
@@ -81,8 +79,7 @@ public class DiscoveryClient implements DiscoveryListener {
      */
     public DiscoveryClient() {
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryClient"
-                    ,
+            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryClient",
                     new File(new File(".cache"), "DiscoveryClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -129,16 +126,23 @@ public class DiscoveryClient implements DiscoveryListener {
                 try {
                     System.out.println("Sleeping for :" + waittime);
                     Thread.sleep(waittime);
-                } catch (Exception e) {// ignored
+                } catch (Exception e) {
+                    // ignored
                 }
                 System.out.println("Sending a Discovery Message");
                 // look for any peer
-                discovery.getRemoteAdvertisements(// no specific peer (propagate)
-                        null, // Adv type
-                        DiscoveryService.ADV, // Attribute = name
-                        "Name", // Value = the tutorial
-                        "Discovery tutorial", // one advertisement response is all we are looking for
-                        1, // no query specific listener. we are using a global listener
+                discovery.getRemoteAdvertisements(
+                        // no specific peer (propagate)
+                        null,
+                        // Adv type
+                        DiscoveryService.ADV,
+                        // Attribute = name
+                        "Name",
+                        // Value = the tutorial
+                        "Discovery tutorial",
+                        // one advertisement response is all we are looking for
+                        1,
+                        // no query specific listener. we are using a global listener
                         null);
             }
         } catch (Exception e) {
@@ -157,8 +161,7 @@ public class DiscoveryClient implements DiscoveryListener {
         DiscoveryResponseMsg res = ev.getResponse();
 
         // let's get the responding peer's advertisement
-        System.out.println(
-                " [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + ev.getSource() + "  ]");
+        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + ev.getSource() + "  ]");
 
         Advertisement adv;
         Enumeration en = res.getAdvertisements();

@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
-
 
 import net.jxta.peergroup.PeerGroupID;
 
@@ -63,7 +61,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
 
 /**
  * Extends Channel Messenger behaviour to provide asynchronous message sending
@@ -96,11 +93,15 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
         /**
          * No action deferred.
          */
-        ACTION_NONE, /**
+        ACTION_NONE,
+        /**
          * Must send the current message.
-         */ ACTION_SEND, /**
+         */
+        ACTION_SEND,
+        /**
          * Must report failure to connect.
-         */ ACTION_CONNECT
+         */
+        ACTION_CONNECT
     }
 
     /**

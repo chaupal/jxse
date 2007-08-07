@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint;
-
 
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.ChannelMessenger;
@@ -78,7 +76,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
-
+import net.jxta.platform.Module;
 
 /**
  * Provides an interface object appropriate for applications using the endpoint
@@ -87,12 +85,21 @@ import java.util.WeakHashMap;
  */
 class EndpointServiceInterface implements EndpointService {
 
+    /**
+     *  The service interface that we will be fronting.
+     */
     private final EndpointServiceImpl theRealThing;
+    
+    /**
+     *  The number of active instances of this class. We use this for deciding
+     *  when to instantiate and shutdown the listener adaptor.
+     */
+    private static int activeInstanceCount = 0;
 
     /**
-     * The object that emulates the legacy send-message-with-listener and get-messenger-with-listener APIs.
+     * Provides emulation of the legacy send-message-with-listener and get-messenger-with-listener APIs.
      */
-    private final ListenerAdaptor listenerAdaptor;
+    private static ListenerAdaptor listenerAdaptor;
 
     /**
      * The cache of channels. If a given owner of this EndpointService interface
@@ -115,24 +122,48 @@ class EndpointServiceInterface implements EndpointService {
 
     /**
      * Builds a new interface object.
-     * @param endpointService the endpoint service
+     *
+     * @param endpointService the endpoint service that we will front.
      */
     public EndpointServiceInterface(EndpointServiceImpl endpointService) {
         theRealThing = endpointService;
-        this.listenerAdaptor = new ListenerAdaptor(theRealThing.getGroup().getHomeThreadGroup());
+        synchronized(this.getClass()) {
+            activeInstanceCount++;
+            
+            if(1 == activeInstanceCount) {
+                listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup());
+            }
+        }
+    }
+
+    /**
+     *  {@inheritDoc}
+     *  <p/>
+     *  This is rather heavy-weight if instances are frequently created and 
+     *  discarded since finalization significantly delays GC.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        synchronized(this.getClass()) {
+            activeInstanceCount--;
+            
+            if(0 == activeInstanceCount) {
+                listenerAdaptor.shutdown();
+                listenerAdaptor = null;
+            }
+        }
+        super.finalize();
     }
 
     /**
      * {@inheritDoc}
      * <p/>
-     * it is there only to satisfy the requirements of the
-     * interface that we implement. Ultimately, the API should define
-     * two levels of interfaces: one for the real service implementation
-     * and one for the interface object. Right now it feels a bit heavy
-     * to so that since the only different between the two would be
-     * init() and may-be getName().
+     * it is there only to satisfy the requirements of the interface that we
+     * implement. Ultimately, the API should define two levels of interfaces :
+     * one for the real service implementation and one for the interface object. 
+     * Right now it feels a bit heavy to so that since the only different 
+     * between the two would be init() and may-be getName().
      */
-    // FIXME: This is meaningless for the interface object;
     public void init(PeerGroup pg, ID id, Advertisement ia) {}
 
     /**
@@ -143,7 +174,7 @@ class EndpointServiceInterface implements EndpointService {
      * protects the real object's start/stop methods from being called
      */
     public int startApp(String[] arg) {
-        return 0;
+        return Module.START_OK;
     }
 
     /**
@@ -202,10 +233,10 @@ class EndpointServiceInterface implements EndpointService {
             Reference<Messenger> existing = channelCache.get(addr);
 
             if (existing != null) {
-                Messenger m = existing.get();
+                Messenger messenger = existing.get();
 
-                if ((m != null) && ((m.getState() & Messenger.USABLE) != 0)) {
-                    return m;
+                if ((messenger != null) && ((messenger.getState() & Messenger.USABLE) != 0)) {
+                    return messenger;
                 }
             }
         }
@@ -231,8 +262,7 @@ class EndpointServiceInterface implements EndpointService {
         // "therealThing" lives. When that happens, this interface object will have to know which group it works
         // for without asking "theRealThing".
 
-        ChannelMessenger res = (ChannelMessenger) found.getChannelMessenger(theRealThing.getGroup().getPeerGroupID()
-                ,
+        ChannelMessenger res = (ChannelMessenger) found.getChannelMessenger(theRealThing.getGroup().getPeerGroupID(),
                 addr.getServiceName(), addr.getServiceParameter());
 
         synchronized (channelCache) {
@@ -243,10 +273,10 @@ class EndpointServiceInterface implements EndpointService {
             Reference<Messenger> existing = channelCache.get(addr);
 
             if (existing != null) {
-                Messenger m = existing.get();
+                Messenger messenger = existing.get();
 
-                if ((m != null) && ((m.getState() & Messenger.USABLE) != 0)) {
-                    return m;
+                if ((messenger != null) && ((messenger.getState() & Messenger.USABLE) != 0)) {
+                    return messenger;
                 }
             }
 
@@ -271,23 +301,23 @@ class EndpointServiceInterface implements EndpointService {
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
 
         // Get an unresolved messenger (that's immediate).
-        Messenger m = getMessengerImmediate(addr, hint);
+        Messenger messenger = getMessengerImmediate(addr, hint);
 
-        if (m == null) {
+        if (messenger == null) {
             return null;
         }
 
         // Now ask the messenger to resolve: this legacy blocking API ensures 
         // that only successfully resolved messengers are ever returned.
-        m.resolve();
+        messenger.resolve();
         try {
-            m.waitState(Messenger.RESOLVED | Messenger.TERMINAL, TimeUtils.AMINUTE);
+            messenger.waitState(Messenger.RESOLVED | Messenger.TERMINAL, TimeUtils.AMINUTE);
         } catch (InterruptedException ie) {
             Thread.interrupted(); // Do the mythology thing.
         }
 
         // See how it went
-        int state = m.getState();
+        int state = messenger.getState();
 
         if ((state & Messenger.TERMINAL) != 0) {
             return null;
@@ -298,7 +328,7 @@ class EndpointServiceInterface implements EndpointService {
         }
 
         // Okay, good for vanilla application consumption.
-        return m;
+        return messenger;
     }
 
     /**
@@ -440,13 +470,6 @@ class EndpointServiceInterface implements EndpointService {
         return theRealThing.removeMessengerEventListener(listener, prio);
     }
 
-    // We do not have much choice here, since applications are supposed to ditch interface objects without much thinking. Note:
-    // this will never happen if, by any chance listenerAdaptor has a direct or indirect ref to this.
-    @Override
-    protected void finalize() {
-        listenerAdaptor.shutdown();
-    }
-
     /**
      * {@inheritDoc}
      *
@@ -455,19 +478,19 @@ class EndpointServiceInterface implements EndpointService {
     @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint) {
 
-        Messenger m = getMessengerImmediate(addr, hint);
+        Messenger messenger = getMessengerImmediate(addr, hint);
 
-        if (m == null) {
+        if (messenger == null) {
             return false;
         }
 
-        if (!listenerAdaptor.watchMessenger(listener, m)) {
+        if (!listenerAdaptor.watchMessenger(listener, messenger)) {
             return false;
         }
 
         // Make sure that resolution is being attempted if not already in progress.
 
-        m.resolve();
+        messenger.resolve();
 
         return true;
     }

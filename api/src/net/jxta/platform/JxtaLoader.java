@@ -92,6 +92,14 @@ public abstract class JxtaLoader extends URLClassLoader {
     }
     
     /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public void addURL(URL url) {
+        super.addURL(url);
+    }
+    
+    /**
      * Finds and loads the class with the specified spec ID from the URL search
      * path. Any URLs referring to JAR files are loaded and opened as needed
      * until the class is found.
@@ -100,7 +108,7 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  @throws ClassNotFoundException if the class could not be found.
      *  @return the resulting class.
      */
-    public abstract Class findClass(ModuleSpecID spec) throws ClassNotFoundException;
+    public abstract Class<? extends Module> findClass(ModuleSpecID spec) throws ClassNotFoundException;
     
     /**
      *  Loads the class with the specified spec ID from the URL search
@@ -110,7 +118,7 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  @throws ClassNotFoundException if the class could not be found.
      *  @return the resulting class.
      */
-    public abstract Class loadClass(ModuleSpecID spec) throws ClassNotFoundException;
+    public abstract Class<? extends Module> loadClass(ModuleSpecID spec) throws ClassNotFoundException;
     
     /**
      *  Defines a new class from a Module Impl Advertisement.
@@ -119,7 +127,7 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  specification
      *  @return The Class object that was created from the specified class data.
      */
-    public abstract Class defineClass(ModuleImplAdvertisement impl);
+    public abstract Class<? extends Module> defineClass(ModuleImplAdvertisement impl);
 
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the
@@ -132,10 +140,12 @@ public abstract class JxtaLoader extends URLClassLoader {
     public abstract ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz);
 
     /**
-     *  {@inheritDoc}
+     *  Finds the ModuleImplAdvertisement for the associated class in the 
+     *  context of this ClassLoader.
+     *
+     *  @param msid The module spec id who's ModuleImplAdvertisement is desired.
+     *  @return The matching {@code ModuleImplAdvertisement} otherwise
+     *  {@code null} if there is no known association.
      */
-    @Override
-    public void addURL(URL url) {
-        super.addURL(url);
-    }
+    public abstract ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid);
 }

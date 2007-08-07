@@ -99,7 +99,7 @@ import java.util.Enumeration;
 public class ModuleSpecAdv extends ModuleSpecAdvertisement {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(ModuleSpecAdv.class.getName());
 
@@ -137,19 +137,25 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
          */
 
         public Advertisement newInstance(net.jxta.document.Element root) {
-            return new ModuleSpecAdv(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
+
+            return new ModuleSpecAdv((XMLElement) root);
         }
     }
 
+    /**
+     *  Private constructor for new instances. Use the instantiator.
+     */
     private ModuleSpecAdv() {}
 
-    private ModuleSpecAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
-
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private ModuleSpecAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";

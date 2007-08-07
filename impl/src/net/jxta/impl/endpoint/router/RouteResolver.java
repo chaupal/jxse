@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.router;
-
 
 import net.jxta.credential.Credential;
 import net.jxta.document.*;
@@ -87,7 +85,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 /**
  * Handles dynamic route resolution.
@@ -226,12 +223,10 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
 
                 synchronized (RouteResolver.this) {
                     Credential cred = (Credential) evt.getNewValue();
-                    XMLDocument credentialDoc = null;
-
+                    XMLDocument credentialDoc;
                     if (null != cred) {
                         try {
                             credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
-                            
                             currentCredential = new CurrentCredential(cred, credentialDoc);
                         } catch (Exception all) {
                             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -292,18 +287,18 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
-                configInfo.append("\n\t\tModule Spec ID: " + implAdvertisement.getModuleSpecID());
-                configInfo.append("\n\t\tImpl Description : " + implAdvertisement.getDescription());
-                configInfo.append("\n\t\tImpl URI : " + implAdvertisement.getUri());
-                configInfo.append("\n\t\tImpl Code : " + implAdvertisement.getCode());
+                configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
+                configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
+                configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
+                configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             }
 
             configInfo.append("\n\tGroup Params :");
-            configInfo.append("\n\t\tGroup : " + group);
-            configInfo.append("\n\t\tPeer ID : " + group.getPeerID());
+            configInfo.append("\n\t\tGroup : ").append(group);
+            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
 
             configInfo.append("\n\tConfiguration:");
-            configInfo.append("\n\t\tUse Route Resolver : " + useRouteResolver());
+            configInfo.append("\n\t\tUse Route Resolver : ").append(useRouteResolver());
             LOG.config(configInfo.toString());
         }
     }
@@ -347,7 +342,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 // set the initial version of the default credential.
                 currentCredential = null;
                 Credential credential = membership.getDefaultCredential();
-                XMLDocument credentialDoc = null;
+                XMLDocument credentialDoc;
 
                 if (null != credential) {
                     credentialDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
@@ -369,7 +364,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>Careful that stopApp() could in theory be called before startApp().
+     * Careful that stopApp() could in theory be called before startApp().
      */
     public void stopApp() {
 
@@ -398,6 +393,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
 
     /**
      * enable routeResolver usage
+     * @param enable if true, enables route resolver
      */
     void enableRouteResolver(boolean enable) {
         useRouteResolver = enable;
@@ -459,9 +455,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 credentialDoc = null;
             }
           
-            ResolverQuery query = new ResolverQuery(routerSName, credentialDoc, localPeerId.toString(), doc.toString()
-                    ,
-                    qid.incrementAndGet());
+            ResolverQuery query = new ResolverQuery(routerSName, credentialDoc, localPeerId.toString(), doc.toString(), qid.incrementAndGet());
 
             // only run SRDI if we are a rendezvous
             // FIXME 20060106 bondolo This is not dynamic enough. The route 
@@ -579,7 +573,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                     ip = null;
                 }
             } catch (Throwable ignored) {
-                ;
+                //ignored
             }
         }
 
@@ -633,9 +627,8 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             try {
                 // build the candidate route using the
                 // route response from the respondant peer
-                RouteAdvertisement candidateRoute = RouteAdvertisement.newRoute(EndpointRouter.addr2pid(destPeer)
-                        ,
-                        EndpointRouter.addr2pid(routingPeer), (Vector) dstRoute.getVectorHops().clone());
+                RouteAdvertisement candidateRoute = RouteAdvertisement.newRoute(EndpointRouter.addr2pid(destPeer),
+                        EndpointRouter.addr2pid(routingPeer),(Vector) dstRoute.getVectorHops().clone());
 
                 // cleanup the candidate route from any loop and remove the local peer extra
                 // cycle
@@ -648,11 +641,8 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Route response outdated: NACK responder");
                     }
-                    generateNACKRoute(EndpointRouter.addr2pid(routingPeer), EndpointRouter.addr2pid(destPeer)
-                            ,
-                            dstRoute.getVectorHops());
+                    generateNACKRoute(EndpointRouter.addr2pid(routingPeer), EndpointRouter.addr2pid(destPeer), dstRoute.getVectorHops());
                     return;
-
                 }
 
                 // get the address of the first hop in the route to verify that
@@ -832,16 +822,11 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             LOG.fine("processQuery starts");
         }
 
-        RouteQuery routeQuery = null;
-
+        RouteQuery routeQuery;
         try {
             Reader ip = new StringReader(query.getQuery());
-
-            XMLDocument asDoc = (XMLDocument)
-                    StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, ip);
-
+            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, ip);
             routeQuery = new RouteQuery(asDoc);
-
         } catch (RuntimeException e) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Malformed Route query ", e);
@@ -948,8 +933,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 // alternate routing peers...should we leave them ?
                 // For now, we keep the full dest, but wack the hops.
 
-                route = (RouteAdvertisement)
-                        AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
+                route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
 
                 AccessPointAdvertisement ap = (AccessPointAdvertisement)
                         AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
@@ -1101,7 +1085,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             }
             res.setResponse(routeResponse.toString());
 
-            resolver.sendResponse(query.getSrc(), res);
+            resolver.sendResponse(query.getSrcPeer().toString(), res);
             return ResolverService.OK;
 
         } catch (Exception ee) {
@@ -1128,7 +1112,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
      * @param dest     original destination of the message
      * @param origHops original hops
      */
-    protected void generateNACKRoute(PeerID src, PeerID dest, Vector origHops) {
+    protected void generateNACKRoute(PeerID src, PeerID dest, Vector<AccessPointAdvertisement> origHops) {
 
         // As long as the group is partially initialized, do not bother
         // trying to send NACKS. We can't: it just causes NPEs.
@@ -1216,17 +1200,13 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 LOG.fine("Received a SRDI messsage in group" + group.getPeerGroupName());
             }
 
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
-                    ,
-                    new StringReader(message.getPayload()));
-
+            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
             srdiMsg = new SrdiMessageImpl(asDoc);
         } catch (Exception e) {
             // we don't understand this msg, let's skip it
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "corrupted SRDI message", e);
             }
-
             return false;
         }
 
@@ -1258,9 +1238,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             // acceptable, since it is localized
             srdiIndex.add(srdiMsg.getPrimaryKey(), "DstPID", entry.key, pid, entry.expiration);
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "Primary Key [" + srdiMsg.getPrimaryKey() + "] key [DstPID]" + " value [" + entry.key + "] exp ["
-                        + entry.expiration + "]");
+                LOG.fine("Primary Key [" + srdiMsg.getPrimaryKey() + "] key [DstPID]" + " value [" + entry.key + "] exp [" + entry.expiration + "]");
             }
         }
 
@@ -1300,7 +1278,6 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
         for (Iterator<ID> each = router.getAllRoutedRouteAddresses(); each.hasNext();) {
             ID pid = each.next();
             SrdiMessage.Entry entry = new SrdiMessage.Entry(pid.toString(), "", Long.MAX_VALUE);
-
             routeIx.addElement(entry);
         }
 
@@ -1310,7 +1287,9 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 return;
             }
 
-            srdiMsg = new SrdiMessageImpl(group.getPeerID(), 1, // one hop
+            srdiMsg = new SrdiMessageImpl(group.getPeerID(),
+                    // one hop
+                    1,
                     "route", routeIx);
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1350,7 +1329,6 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             }
             if (peer == null) {
                 PeerID destPeer = srdi.getReplicaPeer(id.toString());
-
                 peer = destPeer;
             }
             // don't push anywhere if we do not have a replica
@@ -1448,7 +1426,6 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 srdiIndex.remove(pid);
             }
         }
-        
         return clean;
     }
 

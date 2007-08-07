@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.servlethttp;
-
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -89,7 +87,6 @@ import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
-
 
 /**
  *  This is a simple servlet that accepts JXTA Messages from clients using HTTP
@@ -163,7 +160,6 @@ public class HttpMessageServlet extends HttpServlet {
             pingResponseBytes = peerId.getBytes("UTF-8");
         } catch (java.io.UnsupportedEncodingException never) {
             // UTF-8 is always available.
-            ;
         }
     }
 
@@ -595,77 +591,73 @@ public class HttpMessageServlet extends HttpServlet {
     /**
      *  Debugging output.
      */
-    
-     private static void printRequest(HttpServletRequest req) {
-     final char nl = '\n';
-     StringBuilder b = new StringBuilder();
+    private static void printRequest(HttpServletRequest req) {
+        final char nl = '\n';
+        StringBuilder builder = new StringBuilder();
 
-     b.append("HTTP request:" + nl);
-     b.append("  AUTH_TYPE: " + req.getAuthType() + nl);
-     b.append("  CONTEXT_PATH: " + req.getContextPath() + nl);
+        builder.append("HTTP request:" + nl);
+        builder.append("  AUTH_TYPE: ").append(req.getAuthType()).append(nl);
+        builder.append("  CONTEXT_PATH: ").append(req.getContextPath()).append(nl);
 
-     Cookie[] cookies = req.getCookies();
+        Cookie[] cookies = req.getCookies();
 
-     if (cookies != null) {
-     for (int i = 0; i < cookies.length; i++) {
-     b.append("  COOKIE[" + i + "]:" + nl);
-     b.append("    comment: " + cookies[i].getComment() + nl);
-     b.append("    domain: " + cookies[i].getDomain() + nl);
-     b.append("    max age: " + cookies[i].getMaxAge() + nl);
-     b.append("    name: " + cookies[i].getName() + nl);
-     b.append("    path: " + cookies[i].getPath() + nl);
-     b.append("    secure: " + cookies[i].getSecure() + nl);
-     b.append("    value: " + cookies[i].getValue() + nl);
-     b.append("    version: " + cookies[i].getVersion() + nl);
-     }
-     }
+        if (cookies != null) {
+            for (int i = 0; i < cookies.length; i++) {
+                builder.append("  COOKIE[").append(i).append("]:" + nl);
+                builder.append("    comment: ").append(cookies[i].getComment()).append(nl);
+                builder.append("    domain: ").append(cookies[i].getDomain()).append(nl);
+                builder.append("    max age: ").append(cookies[i].getMaxAge()).append(nl);
+                builder.append("    name: ").append(cookies[i].getName()).append(nl);
+                builder.append("    path: ").append(cookies[i].getPath()).append(nl);
+                builder.append("    secure: ").append(cookies[i].getSecure()).append(nl);
+                builder.append("    value: ").append(cookies[i].getValue()).append(nl);
+                builder.append("    version: ").append(cookies[i].getVersion()).append(nl);
+            }
+        }
 
-     for (Enumeration headers = req.getHeaderNames(); headers.hasMoreElements();) {
-     String header = (String) headers.nextElement();
+        for (Enumeration headers = req.getHeaderNames(); headers.hasMoreElements();) {
+            String header = (String) headers.nextElement();
+            builder.append("  HEADER[").append(header).append("]: ").append(req.getHeader(header)).append(nl);
+        }
 
-     b.append("  HEADER[" + header + "]: " + req.getHeader(header) + nl);
-     }
+        builder.append("  METHOD: ").append(req.getMethod()).append(nl);
+        builder.append("  PATH_INFO: ").append(req.getPathInfo()).append(nl);
+        builder.append("  PATH_TRANSLATED: ").append(req.getPathTranslated()).append(nl);
+        builder.append("  QUERY_STRING: ").append(req.getQueryString()).append(nl);
+        builder.append("  REMOTE_USER: ").append(req.getRemoteUser()).append(nl);
+        builder.append("  REQUESTED_SESSION_ID: ").append(req.getRequestedSessionId()).append(nl);
+        builder.append("  REQUEST_URI: ").append(req.getRequestURI()).append(nl);
+        builder.append("  SERVLET_PATH: ").append(req.getServletPath()).append(nl);
+        builder.append("  REMOTE_USER: ").append(req.getRemoteUser()).append(nl);
+        builder.append("  isSessionIdFromCookie: ").append(req.isRequestedSessionIdFromCookie()).append(nl);
+        builder.append("  isSessionIdFromURL: ").append(req.isRequestedSessionIdFromURL()).append(nl);
+        builder.append("  isSessionIdValid: ").append(req.isRequestedSessionIdValid()).append(nl);
 
-     b.append("  METHOD: " + req.getMethod() + nl);
-     b.append("  PATH_INFO: " + req.getPathInfo() + nl);
-     b.append("  PATH_TRANSLATED: " + req.getPathTranslated() + nl);
-     b.append("  QUERY_STRING: " + req.getQueryString() + nl);
-     b.append("  REMOTE_USER: " + req.getRemoteUser() + nl);
-     b.append("  REQUESTED_SESSION_ID: " + req.getRequestedSessionId() + nl);
-     b.append("  REQUEST_URI: " + req.getRequestURI() + nl);
-     b.append("  SERVLET_PATH: " + req.getServletPath() + nl);
-     b.append("  REMOTE_USER: " + req.getRemoteUser() + nl);
-     b.append("  isSessionIdFromCookie: " + req.isRequestedSessionIdFromCookie() + nl);
-     b.append("  isSessionIdFromURL: " + req.isRequestedSessionIdFromURL() + nl);
-     b.append("  isSessionIdValid: " + req.isRequestedSessionIdValid() + nl);
+        for (Enumeration attributes = req.getAttributeNames(); attributes.hasMoreElements();) {
+            String attribute = (String) attributes.nextElement();
+            builder.append("  ATTRIBUTE[").append(attribute).append("]: ").append(req.getAttribute(attribute)).append(nl);
+        }
 
-     for (Enumeration attributes = req.getAttributeNames(); attributes.hasMoreElements();) {
-     String attribute = (String) attributes.nextElement();
+        builder.append("  ENCODING: ").append(req.getCharacterEncoding()).append(nl);
+        builder.append("  CONTENT_LENGTH: ").append(req.getContentLength()).append(nl);
+        builder.append("  CONTENT_TYPE: ").append(req.getContentType()).append(nl);
+        builder.append("  LOCALE: ").append(req.getLocale().toString()).append(nl);
 
-     b.append("  ATTRIBUTE[" + attribute + "]: " + req.getAttribute(attribute) + nl);
-     }
+        for (Enumeration parameters = req.getParameterNames(); parameters.hasMoreElements();) {
+            String parameter = (String) parameters.nextElement();
+            builder.append("  PARAMETER[").append(parameter).append("]: ").append(req.getParameter(parameter)).append(nl);
+        }
 
-     b.append("  ENCODING: " + req.getCharacterEncoding() + nl);
-     b.append("  CONTENT_LENGTH: " + req.getContentLength() + nl);
-     b.append("  CONTENT_TYPE: " + req.getContentType() + nl);
-     b.append("  LOCALE: " + req.getLocale().toString() + nl);
+        builder.append("  PROTOCOL: ").append(req.getProtocol()).append(nl);
+        builder.append("  REMOTE_ADDR: ").append(req.getRemoteAddr()).append(nl);
+        builder.append("  REMOTE_HOST: ").append(req.getRemoteHost()).append(nl);
+        builder.append("  SCHEME: ").append(req.getScheme()).append(nl);
+        builder.append("  SERVER_NAME: ").append(req.getServerName()).append(nl);
+        builder.append("  SERVER_PORT: ").append(req.getServerPort()).append(nl);
+        builder.append("  isSecure: ").append(req.isSecure());
 
-     for (Enumeration parameters = req.getParameterNames(); parameters.hasMoreElements();) {
-     String parameter = (String) parameters.nextElement();
-
-     b.append("  PARAMETER[" + parameter + "]: " + req.getParameter(parameter) + nl);
-     }
-
-     b.append("  PROTOCOL: " + req.getProtocol() + nl);
-     b.append("  REMOTE_ADDR: " + req.getRemoteAddr() + nl);
-     b.append("  REMOTE_HOST: " + req.getRemoteHost() + nl);
-     b.append("  SCHEME: " + req.getScheme() + nl);
-     b.append("  SERVER_NAME: " + req.getServerName() + nl);
-     b.append("  SERVER_PORT: " + req.getServerPort() + nl);
-     b.append("  isSecure: " + req.isSecure());
-
-     LOG.finest(b.toString());
-     }
+        LOG.finest(builder.toString());
+    }
 
     /**
      *  A servlet request.

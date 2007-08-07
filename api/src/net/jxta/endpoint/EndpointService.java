@@ -230,41 +230,51 @@ public interface EndpointService extends Service, EndpointListener {
      * Adds the specified listener for all messenger creation.
      *
      * @param listener The listener that will be called.
-     * @param priority Order of precedence requested (from 0 to 2). 2 has
-     *                 highest precedence Listeners are called in decreasing order of
-     *                 precedence. Listeners with equal precedence are called in an unspecified
-     *                 order. There cannot be more than one listener object for a given
-     *                 precedence. Redundant calls have no effect.
+     * @param priority Order of precedence requested (from 0 to 2). 2 has the
+     * highest precedence. Listeners are called in decreasing order of 
+     * precedence. Listeners with equal precedence are called in an unspecified
+     * order. There cannot be more than one listener object for a given 
+     * precedence. Redundant calls have no effect.
      * @return true if the listener was added, otherwise false.
      */
     public boolean addMessengerEventListener(MessengerEventListener listener, int priority);
 
     /**
-     * Propagates the given message through all the Message Transports that are
-     * available to this endpoint. Each Message Transport may interpret the
-     * request for propagation differently. The Endpoint Service does not define
-     * which destinations the message will actually reach.
-     *
-     * @param srcMsg       the message to be propagated.
-     * @param serviceName  a destination service name
-     * @param serviceParam a destination queue name within that service
-     * @throws IOException if the message could not be propagated
+     * Propagates (broadcasts) a message via all available Message Transports.
+     * Each Message Transport that implements propagation will send the message
+     * using it's broadcast functionality to a configured broadcast address. Any
+     * peers in the same network scope listening on that broadcast address will
+     * receive the propagated message.
+     * <p/>
+     * The message will be sent using the default TTL value (which is 
+     * unspecified).
+     * 
+     * @param message The message to be propagated. The message will not be
+     * modified by this method.
+     * @param serviceName  The name of the destination service.
+     * @param serviceParam An optional parameter for the destination service or
+     * {@code null}.
+     * @throws IOException Thrown if the message could not be propagated.
      */
-    public void propagate(Message srcMsg, String serviceName, String serviceParam) throws IOException;
+    public void propagate(Message message, String serviceName, String serviceParam) throws IOException;
 
     /**
-     * Propagates the given message through all the Message Transports that are
-     * available to this endpoint. Each Message Transport may interpret the
-     * request for propagation differently. The Endpoint Service does not define
-     * which destinations the message will actually reach.
-     *
-     * @param srcMsg       the message to be propagated.
-     * @param serviceName  a destination service name
-     * @param serviceParam a destination queue name within that service
-     * @param initialTTL   The requested initial TTL for this message. This value
-     *                     may be reduced by the implementation.
+     * Propagates (broadcasts) a message via all available Message Transports.
+     * Each Message Transport that implements propagation will send the message
+     * using it's broadcast functionality to a configured broadcast address. Any
+     * peers in the same network scope listening on that broadcast address will
+     * receive the propagated message.
+     * 
+     * @param message The message to be propagated. The message will not be
+     * modified by this method.
+     * @param serviceName  The name of the destination service.
+     * @param serviceParam An optional parameter for the destination service or
+     * {@code null}.
+     * @param initialTTL The requested initial TTL for this message. The actual
+     * TTL value used may be lower than this value but will never be higher.
+     * @throws IOException Thrown if the message could not be propagated.
      */
-    public void propagate(Message srcMsg, String serviceName, String serviceParam, int initialTTL);
+    public void propagate(Message message, String serviceName, String serviceParam, int initialTTL);
 
     /**
      * Verifies that the given address can be reached. The method, and accuracy
@@ -275,9 +285,9 @@ public interface EndpointService extends Service, EndpointListener {
      * @param addr is the Endpoint Address to ping.
      * @return {@code true} if the address can be reached otherwise {@code false}.
      * @deprecated The cost of performing this operation is generally the same
-     *             as getting a Messenger for the destination. Using {@code getMessenger()}
-     *             is a better approach because the resulting Messenger is generally needed
-     *             soon after ping.
+     * as getting a Messenger for the destination. Using {@code getMessenger()}
+     * is a better approach because the resulting Messenger is generally needed
+     * soon after ping.
      */
     @Deprecated
     public boolean ping(EndpointAddress addr);
@@ -296,12 +306,12 @@ public interface EndpointService extends Service, EndpointListener {
      * </li>
      * </ol>
      *
-     * @param listener     the listener
-     * @param serviceName  The name of the service destination which will be
-     *                     matched against destination endpoint addresses.
-     * @param serviceParam String containing the value of the service
-     *                     parameter which will be matched against destination endpoint addresses.
-     *                     May be null.
+     * @param listener The listener which will be called when messages are
+     * received for the registered destination.
+     * @param serviceName The name of the service destination which will be
+     * matched against incoming message destination endpoint addresses.
+     * @param serviceParam An optional service parameter value which will be 
+     * matched against destination endpoint addresses. May be null.
      * @return true if the listener was registered, otherwise false.
      */
     public boolean addIncomingMessageListener(EndpointListener listener, String serviceName, String serviceParam);
@@ -334,19 +344,19 @@ public interface EndpointService extends Service, EndpointListener {
      * <p/>
      * The listener is invoked for a message when:
      * <ul>
-     * <li>The message contains an element which matches exactly the
-     * values specified by namespace and name.</li>
-     * <p/>
-     * <li>The message contains an element who's namespace value matches
-     * exactly the specified namespace value and the specified name is
-     * {@code null}.</li>
-     * <p/>
-     * <li>The message contains an element who's names value matches
-     * exactly the specified name value and the specified namespace is
-     * {@code null}.</li>
-     * <p/>
-     * <li>The specified name value and the specified namespace are both
-     * {@code null}.</li>
+     *   <li>The message contains a message element which matches exactly the
+     *   values specified by namespace and name.</li>
+     *  
+     *   <li>The message contains a message element who's namespace value 
+     *   matches exactly the specified namespace value and the specified name is
+     *   {@code null}.</li>
+     *  
+     *   <li>The message contains a message element who's names value matches
+     *   exactly the specified name value and the specified namespace is
+     *   {@code null}.</li>
+     * 
+     *   <li>The specified name value and the specified namespace are both
+     *   {@code null}.</li>
      * </ul>
      *
      * @param listener  The filter which will be called.
@@ -365,19 +375,19 @@ public interface EndpointService extends Service, EndpointListener {
      * <p/>
      * The listener is invoked for a message when:
      * <ul>
-     * <li>The message contains an element which matches exactly the
-     * values specified by namespace and name.</li>
-     * <p/>
-     * <li>The message contains an element who's namespace value matches
-     * exactly the specified namespace value and the specified name is
-     * {@code null}.</li>
-     * <p/>
-     * <li>The message contains an element who's names value matches
-     * exactly the specified name value and the specified namespace is
-     * {@code null}.</li>
-     * <p/>
-     * <li>The specified name value and the specified namespace are both
-     * {@code null}.</li>
+     *   <li>The message contains a message element which matches exactly the
+     *   values specified by namespace and name.</li>
+     *  
+     *   <li>The message contains a message element who's namespace value 
+     *   matches exactly the specified namespace value and the specified name is
+     *   {@code null}.</li>
+     *  
+     *   <li>The message contains a message element who's names value matches
+     *   exactly the specified name value and the specified namespace is
+     *   {@code null}.</li>
+     * 
+     *   <li>The specified name value and the specified namespace are both
+     *   {@code null}.</li>
      * </ul>
      *
      * @param listener  The filter which will be called.
@@ -391,7 +401,8 @@ public interface EndpointService extends Service, EndpointListener {
     public void addOutgoingMessageFilterListener(MessageFilterListener listener, String namespace, String name);
 
     /**
-     * Removes the given listener previously registered under the given element name
+     * Removes the given listener previously registered under the given element 
+     * name
      *
      * @param listener  the listener to remove
      * @param namespace the name space
@@ -415,7 +426,7 @@ public interface EndpointService extends Service, EndpointListener {
      * Delivers the provided message to the correct listener as specified by
      * the message's destination address.
      * <p/>
-     * Two additional common elements are optionally used by Message
+     * Two additional common message elements are optionally used by Message
      * Transports in conjunction with the Endpoint Service. Message Transports
      * may typically provide received messages to the Endpoint Service
      * containing these elements and the Endpoint service will dispatch the
@@ -423,30 +434,31 @@ public interface EndpointService extends Service, EndpointListener {
      * mechanisms for determining message source and destination addresses and
      * need not use these elements.
      * <p/>
-     * The {@code jxta:EndpointSourceAddress} contains an Endpoint Address
-     * for the source of this message. The source address has a variety of
-     * meanings based upon the usage of the underlying Message Transport. For
-     * low level transports such as TCP or HTTP the source address is the return
-     * address of the peer from which the message was received, ie. the hop
-     * address. For higher level Message Transports such as the Endpoint Router
-     * Transport or the TLS transport the source address is the virtual Endpoint
-     * Address of the peer which originated the message regardless of any
-     * intervening hops the message may have made.
+     * The {@code jxta:EndpointSourceAddress} Message Element contains an 
+     * Endpoint Address for the source of this message. The source address has a
+     * variety of meanings based upon the usage of the underlying Message 
+     * Transport. For low level transports such as TCP or HTTP the source 
+     * address is the return address of the peer from which the message was 
+     * received, ie. the hop address. For higher level Message Transports such 
+     * as the Endpoint Router Transport or the TLS transport the source address 
+     * is the virtual Endpoint Address of the peer which originated the message 
+     * regardless of any intervening hops the message may have made.
      * <p/>
-     * The {@code jxta:EndpointDestinationAddress} contains an Endpoint
-     * Address which will be used by the Endpoint Service to dispatch a received
-     * message to the recipient specified by the service name and service
-     * parameter. The protocol address is also provided to the recipient service
-     * and can be used in some protocols for determining how the message was
-     * received. For example a service may wish to handle messages which were
-     * sent directly differently than messages which were sent via propagation.
+     * The {@code jxta:EndpointDestinationAddress} Message Element contains an 
+     * Endpoint Address which will be used by the Endpoint Service to dispatch a
+     * received message to the recipient specified by the service name and 
+     * service parameter. The protocol address is also provided to the recipient 
+     * service and can be used in some protocols for determining how the message 
+     * was received. For example a service may wish to handle messages which
+     * were sent directly differently than messages which were sent via 
+     * propagation.
      *
      * @param msg The message to be delivered.
      * @deprecated Please convert your code to use the
-     *             {@link EndpointListener#processIncomingMessage(Message,EndpointAddress,EndpointAddress)}
-     *             method instead. The addressing method used by demux() was never part of
-     *             the formal JXTA protocol specification but was a defacto part because
-     *             demux() depended upon it.
+     * {@link EndpointListener#processIncomingMessage(Message,EndpointAddress,EndpointAddress)}
+     * method instead. The addressing method used by demux() was never part of
+     * the formal JXTA protocol specification but was a defacto part because
+     * demux() depended upon it.
      */
     @Deprecated
     public void demux(Message msg);
@@ -478,8 +490,8 @@ public interface EndpointService extends Service, EndpointListener {
      * this method.
      *
      * @param transpt the MessageTransport to be removed.
-     * @return {@code true} if the transport was removed, otherwise
-     *         {@code false}.
+     * @return {@code true} if the Message Transport was removed, otherwise
+     * {@code false}.
      */
     public boolean removeMessageTransport(MessageTransport transpt);
 
@@ -496,7 +508,7 @@ public interface EndpointService extends Service, EndpointListener {
      *
      * @param name The protocol name of the MessageTransport.
      * @return The Message Transport for the specified protocol name or
-     *         {@code null} if there is no matching Message Transport
+     * {@code null} if there is no matching Message Transport
      */
     public MessageTransport getMessageTransport(String name);
 
@@ -506,7 +518,7 @@ public interface EndpointService extends Service, EndpointListener {
      *
      * @param addr the destination address.
      * @return The messenger or {@code null} is returned if the destination
-     *         address is not reachable.
+     * address is not reachable.
      */
     public Messenger getMessenger(EndpointAddress addr);
 
@@ -518,10 +530,10 @@ public interface EndpointService extends Service, EndpointListener {
      * @param addr     the destination for the messenger.
      * @param hint     the messenger hint, if any, otherwise null.
      * @return {@code true} if the messenger is queued for construction
-     *         otherwise {@code false}.
+     * otherwise {@code false}.
      * @deprecated This method is being phased out. Prefer one of the other
-     *             non-blocking variants. If a listener style paradigm is required, use
-     *             {@link ListenerAdaptor} which emulates this functionality.
+     * non-blocking variants. If a listener style paradigm is required, use
+     * {@link ListenerAdaptor} which emulates this functionality.
      */
     @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint);

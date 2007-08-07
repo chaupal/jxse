@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004 Sun Microsystems, Inc.  All rights reserved.
+ * Copyright (c) 2002-2007 Sun Micro//Systems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
  *  
@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous.rpv;
 
 
@@ -65,74 +66,72 @@ import net.jxta.id.ID;
  * to search for elements in the sorted set that the local PeerView is, without having
  * enough information to create a valid PeerViewElement.
  */
-public class PeerViewDestination implements Comparable {
-
+class PeerViewDestination implements Comparable<PeerViewDestination> {
+    
     /**
-     * An explicit endpoint address. This is normally a peerID based address but we happen
-     * to need it more often in the address form (it has also occured in the past that it could
-     * usefully be a real transport address).
+     * The peer which is associated with this element.
      */
-    private EndpointAddress destAddress = null;
-
-    /**
-     * Constructs a PeerViewDestination from the given endpoint address.
-     */
-    public PeerViewDestination(EndpointAddress addr) {
-        destAddress = addr;
-    }
-
+    private final ID peerid;
+    
     /**
      * Constructs a PeerViewDestination from a (peer)ID.
      */
-    public PeerViewDestination(ID peerId) {
-        destAddress = new EndpointAddress("jxta", peerId.getUniqueValue().toString(), null, null);
+    PeerViewDestination(ID destination) {
+        peerid = destination;
     }
-
-    /**
-     * returns the destination address.
-     */
-    public EndpointAddress getDestAddress() {
-        return destAddress;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Note that only the protocol address and at a lower order the protocol name are considered
-     * for comparision.
-     */
-    public int compareTo(Object other) {
-        PeerViewDestination pve = (PeerViewDestination) other;
-
-        int result = destAddress.getProtocolAddress().compareTo(pve.destAddress.getProtocolAddress());
-
-        if (result != 0) {
-            return result;
-        }
-
-        return destAddress.getProtocolName().compareTo(pve.destAddress.getProtocolName());
-    }
-
+    
     /**
      *  {@inheritDoc}
      */
     @Override
     public boolean equals(Object other) {
-
-        if (null == other) {
-            return false;
-        }
+        
         if (this == other) {
             return true;
         }
-        return 0 == compareTo(other);
+        
+        if( other instanceof PeerViewDestination ) {
+            return 0 == compareTo((PeerViewDestination) other);
+        } else {
+            return false;
+        }
     }
-
+    
     /**
      *  {@inheritDoc}
      */
     @Override
     public int hashCode() {
-        return destAddress.hashCode();
+        return peerid.hashCode();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * Note that this compares the unique value of the id.
+     */
+    public int compareTo(PeerViewDestination pve) {
+        String myUniqueValue = peerid.getUniqueValue().toString();
+        String itsUniqueValue = pve.peerid.getUniqueValue().toString();
+
+        return myUniqueValue.compareTo(itsUniqueValue);
+    }
+
+    /**
+     *  Get the peer id of the peer associated with this connection.
+     *
+     *  @return    The peer id of the connected peer.
+     */
+    public ID getPeerID() {
+        return peerid;
+    }
+    
+    /**
+     *  returns the destination address.
+     *
+     *  @return The endpoint address of the connected peer.
+     */
+    public EndpointAddress getDestAddress() {
+        return new EndpointAddress(peerid, null, null);
     }
 }

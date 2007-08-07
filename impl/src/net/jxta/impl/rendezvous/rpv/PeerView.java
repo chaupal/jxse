@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2004 Sun Microsystems, Inc.  All rights reserved.
+ * Copyright (c) 2002-2007 Sun Micro//Systems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
  *  
@@ -57,45 +57,6 @@
 package net.jxta.impl.rendezvous.rpv;
 
 
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLDocument;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointListener;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.TextDocumentMessageElement;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.impl.endpoint.EndpointUtils;
-import net.jxta.impl.endpoint.relay.RelayReferralSeedingManager;
-import net.jxta.impl.protocol.RdvConfigAdv;
-import net.jxta.impl.rendezvous.RendezVousServiceImpl;
-import net.jxta.impl.util.SeedingManager;
-import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.URISeedingManager;
-import net.jxta.logging.Logging;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.pipe.InputPipe;
-import net.jxta.pipe.OutputPipe;
-import net.jxta.pipe.PipeID;
-import net.jxta.pipe.PipeMsgEvent;
-import net.jxta.pipe.PipeMsgListener;
-import net.jxta.pipe.PipeService;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.PeerAdvertisement;
-import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.protocol.RdvAdvertisement;
-import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.rendezvous.RendezvousEvent;
-import net.jxta.rendezvous.RendezvousListener;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -116,6 +77,47 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointListener;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.endpoint.TextDocumentMessageElement;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.pipe.InputPipe;
+import net.jxta.pipe.OutputPipe;
+import net.jxta.pipe.PipeID;
+import net.jxta.pipe.PipeMsgEvent;
+import net.jxta.pipe.PipeMsgListener;
+import net.jxta.pipe.PipeService;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.protocol.RdvAdvertisement;
+import net.jxta.protocol.RouteAdvertisement;
+import net.jxta.rendezvous.RendezvousEvent;
+import net.jxta.rendezvous.RendezvousListener;
+
+import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.impl.endpoint.relay.RelayReferralSeedingManager;
+import net.jxta.impl.protocol.RdvConfigAdv;
+import net.jxta.impl.rendezvous.RendezVousServiceImpl;
+import net.jxta.impl.util.SeedingManager;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.URISeedingManager;
+
 
 /**
  * This class models a Rendezvous Peer View (RPV):
@@ -135,7 +137,7 @@ import java.util.logging.Logger;
 public final class PeerView implements EndpointListener, RendezvousListener {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(PeerView.class.getName());
 
@@ -176,9 +178,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * include this element, but when sending another peer's RdvAdvertisement,
      * this element is included.
      */
-    static final MessageElement CACHED_RADV_ELEMENT = new StringMessageElement(CACHED_RADV_ELEMENT_NAME, Boolean.TRUE.toString()
-            ,
-            null);
+    static final MessageElement CACHED_RADV_ELEMENT = new StringMessageElement(CACHED_RADV_ELEMENT_NAME, Boolean.TRUE.toString(), null);
 
     /**
      * Message element name that specifies the route advertisement of the
@@ -240,6 +240,10 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     private static final int DEFAULT_SEEDING_RDVPEERS = 5;
 
     private final PeerGroup group;
+    
+    /**
+     *  The group in which our propagate pipe will run.
+     */
     private final PeerGroup advertisingGroup;
     private final RendezVousServiceImpl rdvService;
     private final EndpointService endpoint;
@@ -330,10 +334,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
     /**
      * Listeners for PeerView Events.
-     * <p/>
-     * <ul>
-     * <li>Values are {@link PeerViewListener}.
-     * </ul>
      */
     private final Set<PeerViewListener> rpvListeners = Collections.synchronizedSet(new HashSet<PeerViewListener>());
 
@@ -364,10 +364,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
     /**
      * This is the accumulated view by an instance of this class.
-     * <p/>
-     * Values are {@see net.jxta.impl.rendezvous.rpv.PeerViewElement}
      */
-    private final SortedSet localView = Collections.synchronizedSortedSet(new TreeSet());
+    private final SortedSet<PeerViewDestination> localView = Collections.synchronizedSortedSet(new TreeSet<PeerViewDestination>());
 
     /**
      * PVE for ourself.
@@ -409,7 +407,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * @param name             The identifying name for this Peer View instance.
      */
     public PeerView(PeerGroup group, PeerGroup advertisingGroup, RendezVousServiceImpl rdvService, String name) {
-
         this.group = group;
         this.advertisingGroup = advertisingGroup;
         this.rdvService = rdvService;
@@ -455,18 +452,16 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         useOnlySeeds = rdvConfigAdv.getUseOnlySeeds();
 
-        boolean probeRelays = rdvConfigAdv.getProbeRelays();
-
         if (rdvConfigAdv.getMinHappyPeerView() > 0) {
             minHappyPeerView = rdvConfigAdv.getMinHappyPeerView();
         }
 
         URISeedingManager seedingManager;
 
-        if (null == advertisingGroup) {
-            seedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, probeRelays, group);
+        if ((null == advertisingGroup) && rdvConfigAdv.getProbeRelays()) {
+            seedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
         } else {
-            seedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), false);
+            seedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
         }
 
         for (URI aSeeder : Arrays.asList(rdvConfigAdv.getSeedingURIs())) {
@@ -513,9 +508,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         }
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info(
-                    "PeerView created for group \"" + group.getPeerGroupName() + "\" [" + group.getPeerGroupID() + "] name \""
-                    + name + "\"");
+            LOG.info( "PeerView created for group \"" + group.getPeerGroupName() +
+                    "\" [" + group.getPeerGroupID() + "] name \"" + name + "\"");
         }
     }
 
@@ -673,7 +667,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         boolean isNewbie = false;
         boolean added = false;
         PeerViewElement pve;
-        int viewSize = 0;
 
         synchronized (localView) {
             PeerViewElement newbie = new PeerViewElement(endpoint, radv);
@@ -692,8 +685,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     pve.setRdvAdvertisement(radv);
                 }
             }
-
-            viewSize = localView.size();
         }
 
         if (!isNewbie && isFromEdge && !isCached) {
@@ -715,7 +706,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         /*
          * Now, see what if any message we have to send as a result.
-         * There are four kind of messages we can send:
+         * There are three kinds of messages we can send:
          *
          * - A response with ourselves, if we're being probed and we're
          * a rdv.
@@ -728,87 +719,58 @@ public final class PeerView implements EndpointListener, RendezvousListener {
          * We may send more than one message.
          */
 
-        // Type 1: respond with self.
-        // We need to do that whenever we're being probed and we're an rdv,
-        // and the adv we got is that of the sender (!cached - otherwise we
-        // can't respond to the sender, it's a kick message that tells us about
-        // another peer, which is handled by Type 2 below).
-        // This could happen along with Type 2 below.
-        if (!isCached && !isResponse) {
-            boolean status = send(pve, self, true, false);
+        boolean status = false;
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Type 1 (Respond with self) : Sent to " + pve + " result=" + status);
+        if (!isCached) {
+            if (!isResponse) {
+                // Type 1: Respond to probe
+                //
+                // We are being probed by an edge peer or peerview member. We respond
+                // with our own advertisement.
+                status = send(pve, self, true, false);
+
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Type 1 (Respond with self PVE) : Sent to " + pve + " result =" + status);
+                }
+
+                // Type 3: Respond with random entry from our PV when we are probed.
+                //
+                // Respond with a strategized adv from our view.
+                PeerViewElement sendpve = replyStrategy.next();
+
+                if ((sendpve != null) && !pve.equals(sendpve) && !self.equals(sendpve)) {
+                    status = send(pve, sendpve, true, false);
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Type 3 (Respond with random PVE) : Sent " + sendpve + " to " + pve + " result=" + status);
+                    }
+                }
+            } else {
+                // Heartbeat: do nothing.
             }
-        }
-
-        // Type 2: probe it.
-        // We need to probe if we do not have it in our view and it is
-        // a cached adv (from a third party, so non-authoritative) which
-        // can be found either in a response or in a kick message.
-        // OR, if it is a probe from a peer that we do not know (in which
-        // case we will probe here if it pretends to be an rdv, and also
-        // respond (see Type 1, above) - only if it is NOT a response).
-        // If isNewbie && added, isCached cannot be true, so we do not
-        // need to check for added; (isCached && isNewbie) is enough.
-        // If isNewbie && added, response cannot be false, so there is
-        // no need to check for added; (isNewbie && ! reponse) is enough.
-        // Whatchout: do not always probe cached things we got in a response
-        // because we'd likely get another response with another cached
-        // adv, thus cascading through all rdvs.
-        // What we do is to use the information only if our view is way small.
-        // in order to garantee connectivity for the future.
-        // If useOnlySeeds, we're not allowed to use other than our
-        // seed rdvs, so do not probe anything we learn from 3rd party. 
-        if (!useOnlySeeds && isNewbie) {
-            if ((isCached && !isResponse) || (!isCached && !isResponse && !isFromEdge)) {
-                boolean status = send(pve, self, false, false);
+        } else if (isResponse) {
+            if (isNewbie && !useOnlySeeds && !isFromEdge) {
+                // Type 2: Probe a peer we have just learned about from a referral.
+                //
+                // If useOnlySeeds, we're not allowed to talk to peers other than our 
+                // seeds, so do not probe anything we learn from 3rd party. (Probing of
+                // seeds happens as part of the "kick" strategy).
+                status = send(pve, self, false, false);
 
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Type 2 (Probe PVE) : Probed " + pve + " result=" + status);
                 }
+            } else {
+                // Already known or ignoring: do nothing.
             }
-        }
-
-        // Type 3: respond with random cached adv because being probed (likely
-        // by an edge, but we don't care, even another rdv could benefit from it).
-        // This could happen along with Type 2 above although it is rather
-        // unlikely.
-        // Respond with a strategized adv from our view.
-        //
-        // This always happens along with Type 1 and sometimes along with
-        // Type 2 in the same time: we could send three messages. That would
-        // be if we receive a probe from another rdv that we we do not know
-        // yet and we're an rdv ourselves. So, we'll respond with ourselves,
-        // we will probe the sender since it pretends to be an rdv, and we
-        // also will send a chosen rdv from our view and send it (done here).
-        // Note, it could mean a cascade of probes to all rdvs: the recipient
-        // of our cached adv would then probe it, thus receiving another
-        // cached adv, which it would probe, etc.
-        // This phenomenon is prevented in Type 2 by probing cached peers
-        // such responses only if the view is small enough.
-        // NOTE: rdv peers do not need this all that much and we could
-        // avoid it for them, but it should not cause much problems so we
-        // might as well leave it for  now.
-
-        if (!isCached && !isResponse) {
-            // Someone is looking for rdvs. try to help.
-
-            PeerViewElement sendpve = replyStrategy.next();
-
-            if ((sendpve != null) && !pve.equals(sendpve) && !self.equals(sendpve)) {
-                boolean status = send(pve, sendpve, true, false);
-
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Type 3 (Respond with random pve) : Sent " + sendpve + " to " + pve + " result=" + status);
-                }
-            }
+        } else {
+            // Invalid : do nothing.
         }
     }
 
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("fallsthrough")
     public void rendezvousEvent(RendezvousEvent event) {
 
         if (closed) {
@@ -1046,8 +1008,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 } else {
                     // We have a full route, send it to the virtual address of the route!
                     if (null == getPeerViewElement(aSeed.getDestPeerID())) {
-                        EndpointAddress aSeedHost = new EndpointAddress("jxta", aSeed.getDestPeerID().getUniqueValue().toString()
-                                ,
+                        EndpointAddress aSeedHost = new EndpointAddress("jxta", aSeed.getDestPeerID().getUniqueValue().toString(),
                                 null, null);
 
                         send(aSeedHost, aSeed, self, false, false);
@@ -1484,7 +1445,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         }
     }
 
-    static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String name) {
+    static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String serviceName) {
 
         try {
             // FIX ME: 10/19/2002 lomax@jxta.org. We need to properly set up the service ID. Unfortunately
@@ -1498,7 +1459,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             rdv.setPeerID(padv.getPeerID());
             rdv.setGroupID(padv.getPeerGroupID());
-            rdv.setServiceName(name);
+            rdv.setServiceName(serviceName);
             rdv.setName(padv.getName());
 
             RouteAdvertisement ra = EndpointUtils.extractRouteAdv(padv);
@@ -1821,9 +1782,9 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      *
      * @return A SortedSet which is the current local view of the peerview
      */
-    public SortedSet getView() {
+    public SortedSet<PeerViewElement> getView() {
         synchronized (localView) {
-            return new TreeSet(localView);
+            return new TreeSet<PeerViewElement>((SortedSet)localView);
         }
     }
 
@@ -1961,17 +1922,17 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             final PeerViewElement oldDown = downPeer;
             final PeerViewElement oldUp = upPeer;
 
-            SortedSet headSet = localView.headSet(self);
+            SortedSet<PeerViewDestination> headSet = localView.headSet(self);
 
-            if (headSet.size() > 0) {
+            if (!headSet.isEmpty()) {
                 downPeer = (PeerViewElement) headSet.last();
             } else {
                 downPeer = null;
             }
 
-            SortedSet tailSet = localView.tailSet(self);
+            SortedSet<PeerViewDestination> tailSet = localView.tailSet(self);
 
-            if (tailSet.size() > 0) {
+            if (!tailSet.isEmpty()) {
                 if (self.equals(tailSet.first())) {
                     Iterator eachTail = tailSet.iterator();
 
@@ -2004,6 +1965,11 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      */
     private final class WatchdogTask extends TimerTask {
 
+        /**
+         *  The number of iterations that the watchdog task has executed.
+         */
+        int iterations = 0;
+        
         WatchdogTask() {}
 
         /**
@@ -2020,6 +1986,15 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     LOG.fine("Watchdog task executing for group " + PeerView.this.group.getPeerGroupID());
                 }
 
+                refreshSelf();
+                
+                if(0 == (iterations % 5)) {
+                    DiscoveryService discovery = group.getDiscoveryService();
+                    if(null != discovery) {
+                        discovery.publish(self.getRdvAdvertisement(), WATCHDOG_PERIOD * 10, WATCHDOG_PERIOD * 5);
+                    }
+                }
+                
                 PeerViewElement up = PeerView.this.getUpPeer();
 
                 if (up != null) {
@@ -2062,6 +2037,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
                 }
             }
+            
+            iterations++;
         }
     }
 

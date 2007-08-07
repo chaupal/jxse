@@ -92,7 +92,7 @@ import java.util.logging.Logger;
  */
 public class ListenerAdaptor implements Runnable {
 
-    // FIXME - jice 20040413: Eventhough it is not as critical as it used to be we should get rid of old, never resolved entries..
+    // FIXME - jice 20040413: Eventhough it is not as critical as it used to be we should get rid of old, never resolved entries.
     // Attempts are supposed to always fail or succeed rather soon. Here, we trust transports in that matter. Is it safe ?
 
     /**
@@ -116,9 +116,9 @@ public class ListenerAdaptor implements Runnable {
     private final SimpleSelector selector = new SimpleSelector();
 
     /**
-     * Are we asked to stop ?
+     * Have we been shutdown?
      */
-    private volatile boolean stopped = false;
+    private volatile boolean shutdown = false;
 
     /**
      * The ThreadGroup in which this adaptor will run.
@@ -134,21 +134,11 @@ public class ListenerAdaptor implements Runnable {
         this.threadGroup = threadGroup;
     }
 
-    private synchronized void stop() {
-
-        stopped = true;
-
-        // Stop the thread if it was ever created.
-        if (bgThread != null) {
-            bgThread.interrupt();
-            bgThread = null;
-        }
-    }
-
     /**
-     * Cannot be re-started. Do not call once stopped.
+     * Cannot be re-started. Do not call once shutdown.
      */
-    private void init() {
+    private synchronized void init() {
+        assert !shutdown;
 
         if (bgThread != null) {
             return;
@@ -159,8 +149,14 @@ public class ListenerAdaptor implements Runnable {
         bgThread.start();
     }
 
-    public void shutdown() {
-        stop();
+    public synchronized void shutdown() {
+        shutdown = true;
+
+        // Stop the thread if it was ever created.
+        Thread bg = bgThread;
+        if (bg != null) {
+            bg.interrupt();
+        }
     }
 
     /**
@@ -181,14 +177,13 @@ public class ListenerAdaptor implements Runnable {
      * Select the given message and invoke the given listener when the message sending is complete.
      *
      * @param listener The listener to invoke. If null the resolution will take place, but obviously no listener will be invoked.
-     * @param m        The message being sent.
+     * @param message  The message being sent.
      * @return true if the message was registered successfully or the listener is null. If true it is guaranteed that the listener
      *         will be invoked unless null. If false, it is guaranteed that the listener will not be invoked.
      */
-    public boolean watchMessage(OutgoingMessageEventListener listener, Message m) {
+    public boolean watchMessage(OutgoingMessageEventListener listener, Message message) {
         synchronized (this) {
-
-            if (stopped) {
+            if (shutdown) {
                 return false;
             }
 
@@ -201,19 +196,18 @@ public class ListenerAdaptor implements Runnable {
             init();
 
             // First we must ensure that if the state changes we'll get to handle it.
-            ListenerContainer allListeners = inprogress.get(m.getIdentityReference());
+            MessageListenerContainer allListeners = (MessageListenerContainer) inprogress.get(message.getIdentityReference());
 
             if (allListeners == null) {
-                // Use ArrayList. The code is optimized for that.
                 allListeners = new MessageListenerContainer();
-                inprogress.put(m.getIdentityReference(), allListeners);
+                inprogress.put(message.getIdentityReference(), allListeners);
             }
             allListeners.add(listener);
         }
 
         // When we do that, the selector get notified. Therefore we will always check the initial state automatically. If the
         // selectable is already done with, the listener will be called by the selector's handler.
-        m.register(selector);
+        message.register(selector);
 
         return true;
     }
@@ -221,15 +215,15 @@ public class ListenerAdaptor implements Runnable {
     /**
      * Select the given messenger and invoke the given listener when the messenger is resolved.
      *
-     * @param listener The listener to invoke. If null the resolution will take place, but obviously no listener will be invoked.
-     * @param m        The messenger being resolved.
+     * @param listener  The listener to invoke. If null the resolution will take place, but obviously no listener will be invoked.
+     * @param messenger The messenger being resolved.
      * @return true if the messenger was registered successfully or the listener is null. If true it is guaranteed that the listener
      *         will be invoked unless null. If false, it is guaranteed that the listener will not be invoked.
      */
-    public boolean watchMessenger(MessengerEventListener listener, Messenger m) {
+    public boolean watchMessenger(MessengerEventListener listener, Messenger messenger) {
         synchronized (this) {
 
-            if (stopped) {
+            if (shutdown) {
                 return false;
             }
 
@@ -242,19 +236,19 @@ public class ListenerAdaptor implements Runnable {
             init();
 
             // First we must ensure that if the state changes we'll get to handle it.
-            ListenerContainer allListeners = inprogress.get(m.getIdentityReference());
+            MessengerListenerContainer allListeners = (MessengerListenerContainer) inprogress.get(messenger.getIdentityReference());
 
             if (allListeners == null) {
                 // Use ArrayList. The code is optimized for that.
                 allListeners = new MessengerListenerContainer();
-                inprogress.put(m.getIdentityReference(), allListeners);
+                inprogress.put(messenger.getIdentityReference(), allListeners);
             }
             allListeners.add(listener);
         }
 
         // When we do that, the selector get notified. Therefore we will always check the initial state automatically. If the
         // selectable is already done with, the listener will be called by the selector's handler.
-        m.register(selector);
+        messenger.register(selector);
 
         return true;
     }
@@ -262,60 +256,56 @@ public class ListenerAdaptor implements Runnable {
     /*
      * Any sort of listener type.
      */
-    static abstract class ListenerContainer extends ArrayList<java.util.EventListener> {
+    static abstract class ListenerContainer<S extends SimpleSelectable, L extends java.util.EventListener> extends ArrayList<L> {
 
         public ListenerContainer() {
             super(1);
         }
 
-        protected abstract void giveUp(SimpleSelectable what, Throwable how);
+        protected abstract void giveUp(S what, Throwable how);
 
-        protected abstract void process(SimpleSelectable what);
+        protected abstract void process(S what);
     }
 
 
     /**
      * For messages
      */
-    class MessageListenerContainer extends ListenerContainer {
+    @SuppressWarnings("serial")
+    class MessageListenerContainer extends ListenerContainer<Message, OutgoingMessageEventListener> {
 
-        private void messageDone(Message m, OutgoingMessageEvent event) {
-
+        private void messageDone(Message message, OutgoingMessageEvent event) {
             // Note: synchronization is externally provided. When this method is invoked, this
             // object has already been removed from the map, so the list of listener cannot change.
 
-            // Do not throw an iterator in the landfill for such a trivial case: optimize for an array list.
-            int i = size();
-
             if (event == OutgoingMessageEvent.SUCCESS) {
                 // Replace it with a msg-specific one.
-                event = new OutgoingMessageEvent(m, null);
+                event = new OutgoingMessageEvent(message, null);
 
-                while (i-- > 0) {
+                for (OutgoingMessageEventListener eachListener : this) {
                     try {
-                        ((OutgoingMessageEventListener) get(i)).messageSendSucceeded(event);
+                        eachListener.messageSendSucceeded(event);
+                    } catch (Throwable any) {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.log(Level.WARNING, "Uncaught throwable from listener", any);
+                        }
+                    }
+                }
+            } else {
+                if (event == OutgoingMessageEvent.OVERFLOW) {
+                    // Replace it with a msg-specific one.
+                    event = new OutgoingMessageEvent(message, null);
+                }
+
+                for (OutgoingMessageEventListener eachListener : this) {
+                    try {
+                        eachListener.messageSendFailed(event);
                     } catch (Throwable any) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                             LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
                         }
                     }
                 }
-                return;
-            }
-
-            if (event == OutgoingMessageEvent.OVERFLOW) {
-                // Replace it with a msg-specific one.
-                event = new OutgoingMessageEvent(m, null);
-            }
-
-            while (i-- > 0) {
-                try {
-                    ((OutgoingMessageEventListener) get(i)).messageSendFailed(event);
-                } catch (Throwable any) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
-                    }
-                }
             }
         }
 
@@ -323,50 +313,45 @@ public class ListenerAdaptor implements Runnable {
          * {@inheritDoc}
          */
         @Override
-        protected void process(SimpleSelectable what) {
-
-            Message m = (Message) what;
-
-            OutgoingMessageEvent event = (OutgoingMessageEvent) m.getMessageProperty(Messenger.class);
+        protected void process(Message message) {
+            OutgoingMessageEvent event = (OutgoingMessageEvent) message.getMessageProperty(Messenger.class);
 
             if (event == null) {
                 return;
             }
 
             // Remove this container-selectable binding
-            forgetSelectable(what);
+            forgetSelectable(message);
 
             // Invoke app listeners
-            messageDone(m, event);
+            messageDone(message, event);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        protected void giveUp(SimpleSelectable what, Throwable how) {
-            messageDone((Message) what, new OutgoingMessageEvent((Message) what, how));
+        protected void giveUp(Message m, Throwable how) {
+            messageDone(m, new OutgoingMessageEvent(m, how));
         }
     }
-
 
     /**
      * For messengers
      */
-    class MessengerListenerContainer extends ListenerContainer {
+    @SuppressWarnings("serial")
+    class MessengerListenerContainer extends ListenerContainer<Messenger, MessengerEventListener> {
 
-        private void messengerDone(Messenger m) {
+        private void messengerDone(Messenger messenger) {
 
             // Note: synchronization is externally provided. When this method is invoked, this
             // object has already been removed from the map, so the list of listener cannot change.
 
-            // Do not throw an iterator in the landfill for such a trivial case: optimize for an array list.
-            int i = size();
-            MessengerEvent event = new MessengerEvent(ListenerAdaptor.this, m, null);
+            MessengerEvent event = new MessengerEvent(ListenerAdaptor.this, messenger, null);
 
-            while (i-- > 0) {
+            for (MessengerEventListener eachListener : this) {
                 try {
-                    ((MessengerEventListener) get(i)).messengerReady(event);
+                    eachListener.messengerReady(event);
                 } catch (Throwable any) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
@@ -379,30 +364,27 @@ public class ListenerAdaptor implements Runnable {
          * {@inheritDoc}
          */
         @Override
-        protected void process(SimpleSelectable what) {
-
-            Messenger m = (Messenger) what;
-
-            if ((m.getState() & (Messenger.RESOLVED | Messenger.TERMINAL)) == 0) {
+        protected void process(Messenger messenger) {
+            if ((messenger.getState() & (Messenger.RESOLVED | Messenger.TERMINAL)) == 0) {
                 return;
             }
 
             // Remove this container-selectable binding
-            forgetSelectable(what);
+            forgetSelectable(messenger);
 
-            if ((m.getState() & Messenger.USABLE) == 0) {
-                m = null;
+            if ((messenger.getState() & Messenger.USABLE) == 0) {
+                messenger = null;
             }
 
             // Invoke app listeners
-            messengerDone(m);
+            messengerDone(messenger);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        protected void giveUp(SimpleSelectable what, Throwable how) {
+        protected void giveUp(Messenger m, Throwable how) {
             messengerDone(null);
         }
     }
@@ -412,21 +394,21 @@ public class ListenerAdaptor implements Runnable {
      */
     public void run() {
         try {
-            while (!stopped) {
+            while (!shutdown) {
                 try {
                     Collection<SimpleSelectable> changed = selector.select();
 
-                    for (SimpleSelectable m : changed) {
-                        ListenerContainer listeners = null;
+                    for (SimpleSelectable simpleSelectable : changed) {
+                        ListenerContainer listeners;
 
                         synchronized (this) {
-                            listeners = inprogress.get(m.getIdentityReference());
+                            listeners = inprogress.get(simpleSelectable.getIdentityReference());
                         }
                         if (listeners == null) {
-                            m.unregister(selector);
+                            simpleSelectable.unregister(selector);
                             continue;
                         }
-                        listeners.process(m);
+                        listeners.process(simpleSelectable);
                     }
                 } catch (InterruptedException ie) {
                     Thread.interrupted();
@@ -440,7 +422,7 @@ public class ListenerAdaptor implements Runnable {
             // There won't be any other thread. This thing is dead if that
             // happens. And it really shouldn't.
             synchronized (this) {
-                stopped = true;
+                shutdown = true;
             }
         } finally {
             try {
@@ -448,13 +430,13 @@ public class ListenerAdaptor implements Runnable {
                 IOException failed = new IOException("Endpoint interface terminated");
 
                 for (Map.Entry<IdentityReference, ListenerContainer> entry : inprogress.entrySet()) {
-                    SimpleSelectable m = entry.getKey().getObject();
+                    SimpleSelectable simpleSelectable = entry.getKey().getObject();
                     ListenerContainer listeners = entry.getValue();
 
-                    m.unregister(selector);
+                    simpleSelectable.unregister(selector);
 
                     if (listeners != null) {
-                        listeners.giveUp(m, failed);
+                        listeners.giveUp(simpleSelectable, failed);
                     }
                 }
                 inprogress.clear();
@@ -463,6 +445,8 @@ public class ListenerAdaptor implements Runnable {
                     LOG.log(Level.SEVERE, "Uncaught Throwable while shutting down background thread", anyOther);
                 }
             }
+
+            bgThread = null;
         }
     }
 }

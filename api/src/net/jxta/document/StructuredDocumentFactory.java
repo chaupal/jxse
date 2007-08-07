@@ -345,7 +345,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  {@inheritDoc}
      */
     @Override
-    protected Class getClassForKey() {
+    protected Class<MimeMediaType> getClassForKey() {
         return MimeMediaType.class;
     }
     
@@ -353,7 +353,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  {@inheritDoc}
      */
     @Override
-    protected Class getClassOfInstantiators() {
+    protected Class<Instantiator> getClassOfInstantiators() {
         // our key is the doctype names.
         return Instantiator.class;
     }

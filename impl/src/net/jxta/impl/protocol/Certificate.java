@@ -87,14 +87,14 @@ import java.util.*;
 public class Certificate {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(Certificate.class.getName());
 
     /**
      *
      **/
-    private List certs = null;
+    private List<X509Certificate> certs = null;
 
     /**
      **/
@@ -104,7 +104,7 @@ public class Certificate {
 
     public Certificate(Element root) {
         this();
-        certs = new ArrayList();
+        certs = new ArrayList<X509Certificate>();
         initialize(root);
     }
 
@@ -118,15 +118,15 @@ public class Certificate {
     }
 
     public X509Certificate[] getCertificates() {
-        return (X509Certificate[]) certs.toArray(new X509Certificate[certs.size()]);
+        return certs.toArray(new X509Certificate[certs.size()]);
     }
 
     public void setCertificates(X509Certificate[] certs) {
-        this.certs = new ArrayList(Arrays.asList(certs));
+        this.certs = new ArrayList<X509Certificate>(Arrays.asList(certs));
     }
 
-    public void setCertificates(List certs) {
-        this.certs = new ArrayList(certs);
+    public void setCertificates(List<X509Certificate> certs) {
+        this.certs = new ArrayList<X509Certificate>(certs);
     }
 
     /**
@@ -165,7 +165,7 @@ public class Certificate {
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
-            certs.add(cf.generateCertificate(new ByteArrayInputStream(cert_der)));
+            certs.add((X509Certificate) cf.generateCertificate(new ByteArrayInputStream(cert_der)));
         } catch (IOException error) {
             throw new IllegalArgumentException("bad certificate.");
         } catch (CertificateException error) {
@@ -205,7 +205,7 @@ public class Certificate {
         String encodedCert;
 
         try {
-            encodedCert = PSEUtils.base64Encode(((X509Certificate) certs.get(0)).getEncoded());
+            encodedCert = PSEUtils.base64Encode((certs.get(0)).getEncoded());
         } catch (CertificateEncodingException failed) {
             IllegalStateException failure = new IllegalStateException("bad certificate.");
 
@@ -220,22 +220,21 @@ public class Certificate {
             throw failure;
         }
 
-        StructuredTextDocument doc = (StructuredTextDocument)
-                StructuredDocumentFactory.newStructuredDocument(encodeAs, getMessageType(), encodedCert);
+        StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, getMessageType(), encodedCert);
 
         if (doc instanceof XMLDocument) {
             ((XMLDocument) doc).addAttribute("xmlns:jxta", "http://jxta.org");
             ((XMLDocument) doc).addAttribute("xml:space", "preserve");
         }
 
-        Iterator eachCert = certs.iterator();
+        Iterator<X509Certificate> eachCert = certs.iterator();
 
         eachCert.next(); // skip me.
 
         Element addTo = doc;
 
         while (eachCert.hasNext()) {
-            X509Certificate anIssuer = (X509Certificate) eachCert.next();
+            X509Certificate anIssuer = eachCert.next();
 
             try {
                 encodedCert = PSEUtils.base64Encode(anIssuer.getEncoded());

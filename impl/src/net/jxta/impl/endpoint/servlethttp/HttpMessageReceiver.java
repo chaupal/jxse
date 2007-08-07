@@ -1,60 +1,58 @@
 /*
- *
- * $Id: HttpMessageReceiver.java,v 1.31 2007/02/09 00:04:32 mcumings Exp $
- *
- * Copyright (c) 2001 Sun Microsystems, Inc.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:
- *       "This product includes software developed by the
- *       Sun Microsystems, Inc. for Project JXTA."
- *    Alternately, this acknowledgment may appear in the software itself,
- *    if and wherever such third-party acknowledgments normally appear.
- *
- * 4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA"
- *    must not be used to endorse or promote products derived from this
- *    software without prior written permission. For written
- *    permission, please contact Project JXTA at http://www.jxta.org.
- *
- * 5. Products derived from this software may not be called "JXTA",
- *    nor may "JXTA" appear in their name, without prior written
- *    permission of Sun.
- *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL SUN MICROSYSTEMS OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- * ====================================================================
- *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of Project JXTA.  For more
- * information on Project JXTA, please see
- * <http://www.jxta.org/>.
- *
- * This license is based on the BSD license adopted by the Apache Foundation.
+ * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
+ *  
+ *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions are met:
+ *  
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *  
+ *  2. Redistributions in binary form must reproduce the above copyright notice, 
+ *     this list of conditions and the following disclaimer in the documentation 
+ *     and/or other materials provided with the distribution.
+ *  
+ *  3. The end-user documentation included with the redistribution, if any, must 
+ *     include the following acknowledgment: "This product includes software 
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
+ *     Alternately, this acknowledgment may appear in the software itself, if 
+ *     and wherever such third-party acknowledgments normally appear.
+ *  
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
+ *     not be used to endorse or promote products derived from this software 
+ *     without prior written permission. For written permission, please contact 
+ *     Project JXTA at http://www.jxta.org.
+ *  
+ *  5. Products derived from this software may not be called "JXTA", nor may 
+ *     "JXTA" appear in their name, without prior written permission of Sun.
+ *  
+ *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *  
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
+ *  States and other countries.
+ *  
+ *  Please see the license information page at :
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
+ *  the license in source files.
+ *  
+ *  ====================================================================
+ *  
+ *  This software consists of voluntary contributions made by many individuals 
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see 
+ *  http://www.jxta.org.
+ *  
+ *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.servlethttp;
 
 import java.io.File;
@@ -144,25 +142,22 @@ class HttpMessageReceiver implements MessageReceiver {
      */
     private MessengerEventListener messengerEventListener;
 
-    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport,
-            List<EndpointAddress> publicAddresses,
-            InetAddress useInterface, int port) throws PeerGroupException {
+    public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddresses = publicAddresses;
        
         // read settings from the properties file
-        Properties prop = getJxtaProperties( new File( new File(servletHttpTransport.getEndpointService().getGroup().getStoreHome()), "jxta.properties") );
+        Properties prop = getJxtaProperties(
+                new File(new File(servletHttpTransport.getEndpointService().getGroup().getStoreHome()), "jxta.properties"));
         
         initFromProperties(prop);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " +
-                                                         servletHttpTransport.assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
 
-            configInfo.append("\n\tMin threads=" + MIN_LISTENER_THREADS);
-            configInfo.append("\n\tMax threads=" + MAX_LISTENER_THREADS);
-            configInfo.append("\n\tMax thread idle time=" +
-                              MAX_THREAD_IDLE_DURATION + "ms");
+            configInfo.append("\n\tMin threads=").append(MIN_LISTENER_THREADS);
+            configInfo.append("\n\tMax threads=").append(MAX_LISTENER_THREADS);
+            configInfo.append("\n\tMax thread idle time=").append(MAX_THREAD_IDLE_DURATION).append("ms");
             
             LOG.config(configInfo.toString());
         }
@@ -180,8 +175,8 @@ class HttpMessageReceiver implements MessageReceiver {
         // "LOG_CLASSES" is a Jetty thing.
         if (System.getProperty("LOG_CLASSES") == null) {
             LoggerLogSink logSink = new LoggerLogSink();
-            Logger jettyLogger = Logger.getLogger(
-                org.mortbay.http.HttpServer.class.getName());
+            Logger jettyLogger = Logger.getLogger(org.mortbay.http.HttpServer.class.getName());
+
             logSink.setLogger(jettyLogger);
             try {
                 logSink.start();
@@ -238,7 +233,6 @@ class HttpMessageReceiver implements MessageReceiver {
         handler.addServlet(MSG_RECEIVER_RELATIVE_URI, HttpMessageServlet.class.getName());
     }
 
-    
     synchronized void start() throws PeerGroupException {
         try {
             server.start();
@@ -247,9 +241,7 @@ class HttpMessageReceiver implements MessageReceiver {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Could not start server", e);
             }
-
             PeerGroupException failure = new PeerGroupException("Could not start server");
-
             failure.initCause(e);
             throw failure;
         }
@@ -293,8 +285,7 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    public Iterator getPublicAddresses() {
-
+    public Iterator<EndpointAddress> getPublicAddresses() {
         return Collections.unmodifiableList(publicAddresses).iterator();
     }
 
@@ -326,8 +317,11 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * Returns a Properties instance for jxta.properties if the file exists;
      * otherwise, returns null.
+     *
+     * @param fromFile properties file
+     * @return the properties object
      */
-    private static Properties getJxtaProperties( File fromFile ) {
+    private static Properties getJxtaProperties(File fromFile) {
         Properties prop = new Properties();
         InputStream in = null;
         
@@ -347,15 +341,13 @@ class HttpMessageReceiver implements MessageReceiver {
                 prop.load(in);
             } catch (IOException e) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Error reading " + fromFile.getPath(),
-                            e);
+                    LOG.log(Level.SEVERE, "Error reading " + fromFile.getPath(), e);
                 }
-            }
-            finally {
+            } finally {
                 try {
                     in.close();
                 } catch (IOException ignored) {
-                    ;
+                    //ignored
                 }
                 in = null;
             }
@@ -364,12 +356,13 @@ class HttpMessageReceiver implements MessageReceiver {
                 LOG.warning(fromFile.getPath() + " cannot be found");
             }
         }
-        
         return prop;
     }
     
     /**
      * Reads the properties from the jxta.properties file
+     *
+     * @param prop properties to init from
      */
     private void initFromProperties(Properties prop) {
         

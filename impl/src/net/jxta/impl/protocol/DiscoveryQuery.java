@@ -149,7 +149,7 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
      *      }
      *  </code></pre>
      *
-     * @param raw the element to be processed.
+     * @param elem the element to be processed.
      * @return true if the element was recognized, otherwise false.
      */
     protected boolean handleElement(XMLElement elem) {

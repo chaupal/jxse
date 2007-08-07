@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package tutorial.propagated;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLDocument;
@@ -88,8 +86,6 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Hashtable;
-import java.util.logging.Level;
-
 
 /**
  * Simple example to illustrate the use of propagated pipes
@@ -129,7 +125,11 @@ public class PropagatedPipeServer implements PipeMsgListener {
     private transient Map<PeerID, OutputPipe> pipeCache = new Hashtable<PeerID, OutputPipe>();
     public static final String ROUTEADV = "ROUTE";
     private RouteControl routeControl = null;
-    private MessageElement routeAdvElement = null;
+    private MessageElement routeAdvElement;
+
+    public PropagatedPipeServer() {
+        routeAdvElement = null;
+    }
 
     /**
      * Gets the pipeAdvertisement attribute of the PropagatedPipeServer class
@@ -195,12 +195,15 @@ public class PropagatedPipeServer implements PipeMsgListener {
                 } else {
                     outputPipe = pipeCache.get(pid);
                 }
-                outputPipe.send(pong);
+                boolean sucess = outputPipe.send(pong);
+                System.out.println("Send pong message status :"+sucess);
             } else {
                 // send it to all
                 System.out.println("unable to create a peerID from :" + sel.toString());
                 outputPipe = pipeService.createOutputPipe(pipeAdv, 1000);
-                outputPipe.send(pong);
+                boolean sucess = outputPipe.send(pong);
+                System.out.println("Send pong message status :"+sucess);
+
             }
         } catch (IOException ex) {
             if (pid != null && outputPipe != null) {
@@ -232,14 +235,9 @@ public class PropagatedPipeServer implements PipeMsgListener {
     private void processRoute(final Message msg) {
         try {
             final MessageElement routeElement = msg.getMessageElement(NAMESPACE, ROUTEADV);
-
             if (routeElement != null && routeControl != null) {
-                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(routeElement.getMimeType()
-                        ,
-                        routeElement.getStream());
-                final RouteAdvertisement route = (RouteAdvertisement)
-                        AdvertisementFactory.newAdvertisement(asDoc);
-
+                XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(routeElement.getMimeType(), routeElement.getStream());
+                final RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
                 routeControl.addRoute(route);
             }
         } catch (IOException io) {
@@ -259,8 +257,7 @@ public class PropagatedPipeServer implements PipeMsgListener {
         NetworkManager manager = null;
 
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "PropagatedPipeServer"
-                    ,
+            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "PropagatedPipeServer",
                     new File(new File(".cache"), "PropagatedPipeServer").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -277,9 +274,7 @@ public class PropagatedPipeServer implements PipeMsgListener {
             RouteAdvertisement route = server.routeControl.getMyLocalRoute();
 
             if (route != null) {
-                server.routeAdvElement = new TextDocumentMessageElement(ROUTEADV
-                        ,
-                        (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8), null);
+                server.routeAdvElement = new TextDocumentMessageElement(ROUTEADV, (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8), null);
             }
         }
 

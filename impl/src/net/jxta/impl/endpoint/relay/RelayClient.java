@@ -53,37 +53,15 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.relay;
-
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.Vector;
-
-import java.io.IOException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointAddress;
@@ -96,6 +74,11 @@ import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.Messenger;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.protocol.RelayConfigAdv;
+import net.jxta.impl.util.SeedingManager;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.URISeedingManager;
+import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.AccessPointAdvertisement;
@@ -103,11 +86,19 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
-import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.protocol.RelayConfigAdv;
-import net.jxta.impl.util.SeedingManager;
-import net.jxta.impl.util.URISeedingManager;
-
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * RelayClient manages the relationship with the RelayServer(s)
@@ -121,8 +112,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     private final static transient Logger LOG = Logger.getLogger(RelayClient.class.getName());
     
     private final static long DEFAULT_EXPIRATION = 20L * TimeUtils.AMINUTE;
-    private final static long DAY_EXPIRATION = TimeUtils.ADAY;
-    
+
     private final PeerGroup group;
     private final String serviceName;
     private EndpointService endpoint;
@@ -151,7 +141,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      *      <li>Values are {@link net.jxta.protocol.RouteAdvertisement}.</li>
      *  </ul>
      */
-    private final Map activeRelays = new Hashtable();
+    private final Map<EndpointAddress, RouteAdvertisement> activeRelays = new Hashtable<EndpointAddress, RouteAdvertisement>();
     
     /**
      * Our source for relay servers.
@@ -174,7 +164,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 ? relayConfig.getMessengerPollInterval()
                 : RelayTransport.DEFAULT_POLL_INTERVAL;
         
-        URISeedingManager uriSeedingManager = new URISeedingManager(relayConfig.getAclUri(), relayConfig.getUseOnlySeeds());
+        URISeedingManager uriSeedingManager = new URISeedingManager(relayConfig.getAclUri(), relayConfig.getUseOnlySeeds(), group, serviceName);
         
         for (EndpointAddress aSeeder : Arrays.asList(relayConfig.getSeedRelays())) {
             uriSeedingManager.addSeed(aSeeder.toURI());
@@ -195,15 +185,15 @@ public class RelayClient implements MessageReceiver, Runnable {
             StringBuilder configInfo = new StringBuilder("Configuring Relay Client");
             
             configInfo.append("\n\tGroup Params :");
-            configInfo.append("\n\t\tGroup : " + group.getPeerGroupName());
-            configInfo.append("\n\t\tGroup ID : " + group.getPeerGroupID());
-            configInfo.append("\n\t\tPeer ID : " + group.getPeerID());
+            configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
+            configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
+            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
             configInfo.append("\n\tConfiguration :");
-            configInfo.append("\n\t\tService Name : " + serviceName);
-            configInfo.append("\n\t\tPublic Address : " + publicAddress);
-            configInfo.append("\n\t\tMax Relay Servers : " + maxServers);
-            configInfo.append("\n\t\tMax Lease Length : " + leaseLengthToRequest + "ms.");
-            configInfo.append("\n\t\tMessenger Poll Interval : " + messengerPollInterval + "ms.");
+            configInfo.append("\n\t\tService Name : ").append(serviceName);
+            configInfo.append("\n\t\tPublic Address : ").append(publicAddress);
+            configInfo.append("\n\t\tMax Relay Servers : ").append(maxServers);
+            configInfo.append("\n\t\tMax Lease Length : ").append(leaseLengthToRequest).append("ms.");
+            configInfo.append("\n\t\tMessenger Poll Interval : ").append(messengerPollInterval).append("ms.");
             LOG.config(configInfo.toString());
         }
     }
@@ -617,10 +607,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 try {
                     wait(waitTimeout);
                 } catch (InterruptedException e) {
-                    // ignore interrupt
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "wait got interrupted early ", e);
-                    }
+                    Thread.interrupted();
                 }
                 
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -926,7 +913,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 messenger = null;
             }
             
-            List endpointAddresses = null;
+            List<String> endpointAddresses = null;
             
             // check for a relay advertisement
             if (relayAdv != null) {
@@ -939,7 +926,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 // silly but if we use getVetorEndpointAddresses, we get
                 // strings. It's realy simpler to have only one kind of obj
                 // inthere.
-                endpointAddresses = new ArrayList(1);
+                endpointAddresses = new ArrayList<String>(1);
                 endpointAddresses.add(relayAddress.toString());
             }
             
@@ -953,23 +940,21 @@ public class RelayClient implements MessageReceiver, Runnable {
             }
             
             // try each endpoint address until one is successful
-            for (int i = 0; i < endpointAddresses.size(); i++) {
-                String s = (String) endpointAddresses.get(i);
-                
+            for (String s : endpointAddresses) {
                 if (s == null) {
                     continue;
                 }
                 EndpointAddress addr = new EndpointAddress(s);
-                
+
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("find transport for " + addr);
                 }
                 // get the list of messengers on this endpoint
                 Iterator transports = client.endpoint.getAllMessageTransports();
-                
+
                 while (transports.hasNext() && messenger == null) {
                     MessageTransport transport = (MessageTransport) transports.next();
-                    
+
                     // only try transports that are senders and allow routing
                     if (transport instanceof MessageSender && ((MessageSender) transport).allowsRouting()) {
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -993,7 +978,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                             EndpointAddress addrToUse = new EndpointAddress(addr, "EndpointService:" + client.groupName
                                     ,
                                     client.serviceName + "/" + reqStr);
-                            
+
                             messenger = ((MessageSender) transport).getMessenger(addrToUse, null);
                             if (messenger != null && messenger.isClosed()) {
                                 messenger = null;
@@ -1018,7 +1003,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                     }
                 }
             }
-            
+
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("messenger=" + messenger);
             }
@@ -1124,14 +1109,12 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
         
         // need to notify all our listeners
-        Iterator e = activeRelayListeners.iterator();
-        
-        while (e.hasNext()) {
-            PeerGroup pg = (PeerGroup) e.next();
-            
+
+        for (Object activeRelayListener : activeRelayListeners) {
+            PeerGroup pg = (PeerGroup) activeRelayListener;
             addRelay(pg, relayRoute);
         }
-        
+
         // maintain the list of active relays
         activeRelays.put(address, relayRoute);
         return true;
@@ -1144,14 +1127,12 @@ public class RelayClient implements MessageReceiver, Runnable {
     public synchronized boolean removeActiveRelay(EndpointAddress address, RouteAdvertisement relayRoute) {
         
         // need to notify all our listeners
-        Iterator e = activeRelayListeners.iterator();
-        
-        while (e.hasNext()) {
-            PeerGroup pg = (PeerGroup) e.next();
-            
+
+        for (Object activeRelayListener : activeRelayListeners) {
+            PeerGroup pg = (PeerGroup) activeRelayListener;
             removeRelay(pg, relayRoute);
         }
-        
+
         activeRelays.remove(address);
         
         return true;
@@ -1162,8 +1143,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      * so the Route Advertisement of the PeerAdvertisement is
      * updated
      *
-     * @param address address of the relay to add
-     * @return boolean true of false if it succeeded
+     * @param relayRoute address of the relay to add
      */
     private void addRelay(PeerGroup pg, RouteAdvertisement relayRoute) {
         
@@ -1177,7 +1157,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             PeerAdvertisement padv = pg.getPeerAdvertisement();
             XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
             
-            RouteAdvertisement route = null;
+            RouteAdvertisement route;
             
             if (myParam == null) {
                 // we should have found a route here. This is not good
@@ -1252,10 +1232,9 @@ public class RelayClient implements MessageReceiver, Runnable {
      * remove relay hop from the peer advertisement
      *
      * @param group which peer advertisement needs to be updated
-     * @param address address of the relay to be removed
-     * @return boolean true if operation succeeded
+     * @param relayRoute address of the relay to be removed
      */
-    private void removeRelay(PeerGroup pg, RouteAdvertisement relayRoute) {
+    private void removeRelay(PeerGroup group, RouteAdvertisement relayRoute) {
         
         // we can keep the advertisement for now (should remove it)
         // remove the relay from its active list
@@ -1266,10 +1245,10 @@ public class RelayClient implements MessageReceiver, Runnable {
             // get the advertisement of the associated endpoint address as we
             // need to get the peer Id and available route
             
-            PeerAdvertisement padv = null;
+            PeerAdvertisement padv;
             
             // update our peer advertisement
-            padv = pg.getPeerAdvertisement();
+            padv = group.getPeerAdvertisement();
             XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
             
             RouteAdvertisement route = null;
@@ -1311,7 +1290,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             padv.putServiceParam(assignedID, myParam);
             
             // publish the new advertisement
-            DiscoveryService discovery = pg.getDiscoveryService();
+            DiscoveryService discovery = group.getDiscoveryService();
             
             if (discovery != null) {
                 discovery.publish(padv, DiscoveryService.DEFAULT_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
@@ -1332,15 +1311,13 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
         
         Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
-        
-        for (Iterator<RouteAdvertisement> e = activeRelays.values().iterator(); e.hasNext();) {
-            RouteAdvertisement route = e.next();
-            
+
+        for (RouteAdvertisement route : activeRelays.values()) {
             try {
                 // publish our route if pg is not null
                 if (pg != null) {
                     DiscoveryService discovery = pg.getDiscoveryService();
-                    
+
                     if (discovery != null) {
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                             LOG.fine("publishing route to active relay " + route.display());
@@ -1354,15 +1331,15 @@ public class RelayClient implements MessageReceiver, Runnable {
                 }
                 continue;
             }
-            
+
             hops.add(route.getDest());
         }
-        
+
         return hops;        
     }
     
     // convert an endpointRouterAddress into a PeerID
-    private final static PeerID addr2pid(EndpointAddress addr) {
+    private static PeerID addr2pid(EndpointAddress addr) {
         try {
             URI asURI = new URI(ID.URIEncodingName, ID.URNNamespace + ":" + addr.getProtocolAddress(), null);
             

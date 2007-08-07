@@ -174,23 +174,40 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
      * Tracks the state of our worker thread.
      */
     enum WorkerState {
-
         /**
          * Find a new eligible destination peer which is listening on the pipe.
          */
-        STARTMIGRATE, /**
+        STARTMIGRATE, 
+        
+        /**
          * Issue resolution queries and wait for responses
-         */ PENDINGMIGRATE, /**
+         */ 
+        PENDINGMIGRATE, 
+         
+         /**
          * Determine if the destination peer is still listening on the pipe.
-         */ STARTVERIFY, /**
+         */ 
+        STARTVERIFY, 
+        
+        /**
          * Issue verify queries and wait for responses
-         */ PENDINGVERIFY, /**
+         */ 
+        PENDINGVERIFY, 
+        
+        /**
          * Acquire a messenger to the destination peer.
-         */ ACQUIREMESSENGER, /**
+         */ 
+        ACQUIREMESSENGER, 
+        
+        /**
          * Send messages via the messenger to the destination peer.
-         */ SENDMESSAGES, /**
+         */ 
+        SENDMESSAGES, 
+        
+        /**
          * Exit.
-         */ CLOSED
+         */ 
+        CLOSED
     }
 
     /**

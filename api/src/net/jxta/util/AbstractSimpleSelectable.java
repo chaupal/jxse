@@ -55,13 +55,11 @@
  */
 package net.jxta.util;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
-
 
 /**
  * This a tool to implement selectable objects. It may be composed or extended.
@@ -98,8 +96,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
      * <p/>
      * We use a weakHashMap as a set. The elements in the set are the keys. No values.
      */
-    private final Map<SimpleSelectable, Object> myListeners = Collections.synchronizedMap(
-            new WeakHashMap<SimpleSelectable, Object>(2));
+    private final Map<SimpleSelectable, Object> myListeners = Collections.synchronizedMap(new WeakHashMap<SimpleSelectable, Object>(2));
 
     /**
      * Standard constructor for cases where the selectable object is this

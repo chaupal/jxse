@@ -57,6 +57,9 @@
 package net.jxta.impl.peergroup;
 
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 import net.jxta.access.AccessService;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -107,6 +110,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -117,9 +125,14 @@ import java.util.logging.Logger;
 public abstract class GenericPeerGroup implements PeerGroup {
     
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(GenericPeerGroup.class.getName());
+    
+    /**
+     *  Holder for configuration parameters for groups in the process of being created.
+     */
+    private final static Map<ID, ConfigParams> group_configs = Collections.synchronizedMap(new HashMap<ID, ConfigParams>());
     
     /**
      * The loader - use the getter and setter for modifying the ClassLoader for
@@ -129,15 +142,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * scoped. We are currently allowing classes to loaded into contexts which
      * they should not be known.
      */
-    private static JxtaLoader loader = new RefJxtaLoader(new URL[0], new CompatibilityEquater() {
+    private final static JxtaLoader loader = new RefJxtaLoader(new URL[0], new CompatibilityEquater() {
         public boolean compatible(Element test) {
             return StdPeerGroup.isCompatible(test);
         }
     });
-    
-    // FIXME 20060217 bondolo We should be loading the class loader with the
-    // net.jxta.impl.config#stdPeerGroupClass moduleImplAdv so that it is used
-    // for peer group instances.
     
     /*
      * Shortcuts to well known services.
@@ -232,19 +241,89 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     private ThreadGroup threadGroup = null;
     
+    
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * We do not want to count on the invoker to properly unreference the group
+     * object that we return; this call is often used in a loop and it is silly
+     * to increment and decrement ref-counts for references that are sure to 
+     * live shorter than the referee.
+     * <p/>
+     * On the other hand it is dangerous for us to share our reference object to
+     * the parent group. That's where weak interface objects come in handy. We
+     * can safely make one and give it away.
+     */
+    public PeerGroup getParentGroup() {
+        if (parentGroup == null) {
+            return null;
+        }
+        return parentGroup.getWeakInterface();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public URI getStoreHome() {
+        return jxtaHome;
+    }
+    
+    /**
+     * Sets the root location for the store to be used by this peergroup.
+     * <p/>
+     * This should be set early in the peer group's life and then never
+     * changed.
+     *
+     * @param newHome The new store location.
+     */
+    protected void setStoreHome(URI newHome) {
+        jxtaHome = newHome;
+    }
+    
+    /**
+     * The minimum number of Threads our Executor will reserve. Once started
+     * these Threads will remain.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    protected final int COREPOOLSIZE = 5;
+
+    
+    /**
+     * The number of seconds that Threads above {@code COREPOOLSIZE} will
+     * remain idle before terminating.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    protected final long KEEPALIVETIME = 15;
+
+    
+    /**
+     * The intended upper bound on the number of threads we will allow our 
+     * Executor to create. We will allow the pool to grow to twice this size if
+     * we run out of threads.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    protected final int MAXPOOLSIZE = 50;
+
+    
+    /**
+     * Queue for tasks waiting to be run by our {@code Executor}.
+     */
+    protected BlockingQueue<Runnable> taskQueue;
+
+    
+    /**
+     * The PeerGroup ThreadPool
+     */
+    protected ThreadPoolExecutor threadPool;
+
     /**
      * {@inheritDoc}
      */
     public static JxtaLoader getJxtaLoader() {
         return loader;
-    }
-    
-    /**
-     * Sets an alternate class loader to be used.
-     * @param newLoader the new class loader
-     */
-    public static void setJxtaLoader(JxtaLoader newLoader) {
-        loader = newLoader;
     }
     
     public GenericPeerGroup() {
@@ -610,27 +689,25 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if ((null != implAdv.getCode()) && (null != implAdv.getUri())) {
             try {
                 // Good one. Try it.
-                
-                Class clazz;
+                Class<Module> clazz;
                 
                 try {
-                    clazz = loader.findClass(implAdv.getModuleSpecID());
+                    clazz = (Class<Module>) loader.findClass(implAdv.getModuleSpecID());
                 } catch (ClassNotFoundException notLoaded) {
-                    clazz = loader.defineClass(implAdv);
+                    clazz = (Class<Module>) loader.defineClass(implAdv);
                 }
                 
                 if (null == clazz) {
                     throw new ClassNotFoundException("Cannot load class (" + implAdv.getCode() + ") : " + assigned);
                 }
                 
-                newMod = (Module) clazz.newInstance();
+                newMod = clazz.newInstance();
                 
                 newMod.init(privileged ? this : (PeerGroup) getInterface(), assigned, implAdv);
                 
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info(
-                            "Loaded" + (privileged ? " privileged" : "") + " module : " + implAdv.getDescription() + " ("
-                            + implAdv.getCode() + ")");
+                    LOG.info( "Loaded" + (privileged ? " privileged" : "") + 
+                            " module : " + implAdv.getDescription() + " (" + implAdv.getCode() + ")");
                 }
             } catch (Exception ex) {
                 try {
@@ -638,8 +715,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 } catch (Throwable ignored) {// If this does not work, nothing needs to be done.
                 }
                 throw new PeerGroupException("Could not load module for : " + assigned + " (" + implAdv.getDescription() + ")", ex);
-            }
-            
+            }            
         } else {
             String error;
 
@@ -678,7 +754,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Advertisement is sought, compatibility is checked on all candidates and
      * load is attempted. The first one that is compatible and loads
      * successfully is initialized and returned.
-     *
+     * 
      * @param assignedID Id to be assigned to that module (usually its ClassID).
      * @param specID     The specID of this module.
      * @param where      May be one of: {@code Here}, {@code FromParent}, or
@@ -696,59 +772,50 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected Module loadModule(ID assignedID, ModuleSpecID specID, int where, boolean privileged) {
         
-        boolean fromHere = (where == Here || where == Both);
-        boolean fromParent = (where == FromParent || where == Both);
-        
-        List<Advertisement> all = new ArrayList<Advertisement>();
-        
-        if (fromHere && (null != discovery)) {
-            Collection<Advertisement> here = discoverSome(discovery, DiscoveryService.ADV, "MSID", specID.toString(), 120
-                    ,
-                    ModuleImplAdvertisement.class);
+        List<Advertisement> allModuleImplAdvs = new ArrayList<Advertisement>();
 
-            all.addAll(here);
+        ModuleImplAdvertisement loadedImplAdv = loader.findModuleImplAdvertisement(specID);
+        if(null != loadedImplAdv) {
+            // We already have a module defined for this spec id. Use that.
+            allModuleImplAdvs.add(loadedImplAdv);
+        } else {
+            // Search for a module to use.
+            boolean fromHere = (where == Here || where == Both);
+            boolean fromParent = (where == FromParent || where == Both);
+
+            if (fromHere && (null != discovery)) {
+                Collection<Advertisement> here = discoverSome(discovery, DiscoveryService.ADV, 
+                        "MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
+
+                allModuleImplAdvs.addAll(here);
+            }
+
+            if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
+                Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV, 
+                        "MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
+
+                allModuleImplAdvs.addAll(parent);
+            }
         }
         
-        if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
-            Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV, "MSID"
-                    ,
-                    specID.toString(), 120, ModuleImplAdvertisement.class);
-
-            all.addAll(parent);
-        }
-        
-        Iterator<Advertisement> allModuleImpls = all.iterator();
         Throwable recentFailure = null;
         
-        while (allModuleImpls.hasNext()) {
-            ModuleImplAdvertisement found = null;
+        for (Advertisement eachAdv : allModuleImplAdvs) {
+            if( !(eachAdv instanceof ModuleImplAdvertisement) ) {
+                continue;
+            }
+            
+            ModuleImplAdvertisement foundImpl = (ModuleImplAdvertisement) eachAdv;
             
             try {
-                found = (ModuleImplAdvertisement) allModuleImpls.next();
-                
-                // Here's one.
-                // First check that the MSID is realy the one we're
-                // looking for. It could have appeared somewhere else
-                // in the adv than where we're looking, and discovery
-                // doesn't know the difference.
-                if (!found.getModuleSpecID().equals(specID)) {
+                // First check that the MSID is really the one we're looking for.
+                // It could have appeared somewhere else in the adv than where
+                // we're looking, and discovery doesn't know the difference.
+                if (!specID.equals(foundImpl.getModuleSpecID())) {
                     continue;
                 }
                 
-                // Try it. If "found" is not useable it will trigger an 
-                // exception and we'll try the next.
-                
-                Module newMod = loadModule(assignedID, found, privileged);
-                
-                if (null != discovery) {
-                    try {
-                        discovery.publish(found, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
-                    } catch (IOException nopublish) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Could not publish module impl adv.", nopublish);
-                        }
-                    }
-                }
+                Module newMod = loadModule(assignedID, foundImpl, privileged);
                 
                 // If we reach that point, the module is good.
                 return newMod;
@@ -756,6 +823,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 // Incompatible implementation.
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, "Incompatbile impl adv");
+                }
+                continue;
+            } catch (PeerGroupException failed) {
+                // Initialization failure.
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Initialization failed", failed);
                 }
                 continue;
             } catch (Throwable e) {
@@ -778,7 +851,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         
         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Could not find a loadable implementation of SpecID: " + specID);
+            LOG.warning("Could not find a loadable implementation for SpecID: " + specID);
         }
         
         return null;
@@ -795,11 +868,28 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Sets the configuration advertisement for this peer group.
      *
      * @param config The configuration advertisement which will be used for
-     *               this peer group or {@code null} if no configuration advertisement is to
-     *               be used.
+     * this peer group or {@code null} if no configuration advertisement is to
+     * be used.
      */
     protected void setConfigAdvertisement(ConfigParams config) {
         configAdvertisement = config;
+    }
+    
+    /**
+     *  Adds configuration parameters for the specified group. The configuration
+     *  parameters remain cached until either the specified group is started or
+     *  the parameters are replaced.
+     *  
+     *  @param groupid The group for who's params are being provided.
+     *  @param params The parameters to be provided to the peer group when it is
+     *  created.
+     */
+    public static void setGroupConfigAdvertisement(ID groupid, ConfigParams params) {
+        if( null != params) {                
+            group_configs.put(groupid, params);
+        } else {
+            group_configs.remove(groupid);
+        }
     }
     
     /*
@@ -868,6 +958,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
             jxtaHome = parentGroup.getStoreHome();
         }
         
+        // Set the peer configuration before we start.
+        if((null != assignedID) && (null == getConfigAdvertisement())) {
+            setConfigAdvertisement(group_configs.remove(assignedID));
+        }
+        
         try {
             // FIXME 20030919 bondolo@jxta.org This setup doesnt give us any
             // capability to use seed material or parent group.
@@ -907,7 +1002,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
             // }
             
             // Do our part of the PeerAdv construction.
-            // FIXME bondolo 20051011 ??? what is the FIXME for?
             if ((configAdvertisement != null) && (configAdvertisement instanceof PlatformConfig)) {
                 PlatformConfig platformConfig = (PlatformConfig) configAdvertisement;
                 
@@ -952,7 +1046,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     // If we did not get a valid peer id, we'll initialize it here.
                     peerAdvertisement.setPeerID(IDFactory.newPeerID((PeerGroupID) assignedID));
                 } else {
-                    // We're not the platform, which is the authoritative source of these values.
+                    // We're not the world peer group, which is the authoritative source of these values.
                     peerAdvertisement.setPeerID(parentGroup.getPeerAdvertisement().getPeerID());
                     peerAdvertisement.setName(parentGroup.getPeerAdvertisement().getName());
                     peerAdvertisement.setDesc(parentGroup.getPeerAdvertisement().getDesc());
@@ -1033,6 +1127,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 : Thread.currentThread().getThreadGroup();
         
         threadGroup = new ThreadGroup(parentThreadGroup, "Group " + peerGroupAdvertisement.getPeerGroupID());
+        
+        this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
+        this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, 
+                KEEPALIVETIME, TimeUnit.SECONDS, 
+                taskQueue,
+                new PeerGroupThreadFactory(getHomeThreadGroup()),
+                new CallerBlocksPolicy(MAXPOOLSIZE));
         
         /*
          * The rest of construction and initialization are left to the
@@ -1531,29 +1632,105 @@ public abstract class GenericPeerGroup implements PeerGroup {
         
         return (AccessService) access.getInterface();
     }
-    
+
     /**
-     * {@inheritDoc}
-     * <p/>
-     * We do not want to count on the invoker to properly unreference
-     * the group object that we return; this call is often used in a
-     * loop and it is silly to increment and decrement ref-counts for
-     * references that are sure to live shorter than the referee.
-     * On the other hand it is dangerous for us to share our reference
-     * object to the parent group. That's where weak interface objects
-     * come in handy. We can safely make one and give it away.
+     * Returns the executor pool
+     *
+     * @return the executor pool
      */
-    public PeerGroup getParentGroup() {
-        if (parentGroup == null) {
-            return null;
-        }
-        return parentGroup.getWeakInterface();
+    public Executor getExecutor() {
+        return threadPool;
     }
     
     /**
-     * {@inheritDoc}
+     * Our rejected execution handler which has the effect of pausing the
+     * caller until the task can be executed or queued.
      */
-    public URI getStoreHome() {
-        return jxtaHome;
+    private static class CallerBlocksPolicy implements RejectedExecutionHandler {
+        
+        /**
+         *  The target maximum pool size. We will only exceed this amount if we
+         *  are failing to make progress.
+         */        
+        private final int MAXPOOLSIZE;
+        
+        private CallerBlocksPolicy(int maxPoolSize) {
+            MAXPOOLSIZE = maxPoolSize;
+        }
+        
+        public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
+            BlockingQueue<Runnable> queue = executor.getQueue();
+
+            while (!executor.isShutdown()) {
+                executor.purge();
+
+                try {
+                    boolean pushed = queue.offer(runnable, 500, TimeUnit.MILLISECONDS);
+                    
+                    if (pushed) {
+                        break;
+                    }
+                } catch (InterruptedException woken) {
+                    // This is our entire handling of interruption. If the 
+                    // interruption signaled a state change of the executor our
+                    // while() loop condition will handle termination.
+                    Thread.interrupted();
+                    continue;
+                }
+
+                // Couldn't push? Add a thread!
+                synchronized (executor) {
+                    int currentMax = executor.getMaximumPoolSize();
+                    int newMax = Math.min(currentMax + 1, MAXPOOLSIZE * 2);
+                    
+                    if (newMax != currentMax) {
+                        executor.setMaximumPoolSize(newMax);
+                    }
+                    
+                    // If we are already at the max, increase the core size
+                    if (newMax == (MAXPOOLSIZE * 2)) {
+                        int currentCore = executor.getCorePoolSize();
+                        
+                        int newCore = Math.min(currentCore + 1, MAXPOOLSIZE * 2);
+                        
+                        if (currentCore != newCore) {
+                            executor.setCorePoolSize(newCore);
+                        } else {
+                            // Core size is at the max too. We just have to wait.
+                            continue;
+                        }
+                    }
+                }
+                
+                // Should work now.
+                executor.execute(runnable);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Our thread factory that adds the threads to our thread group and names
+     * the thread to something recognizable.
+     */
+    static class PeerGroupThreadFactory implements ThreadFactory {
+        final AtomicInteger threadNumber = new AtomicInteger(1);
+        final ThreadGroup threadgroup;
+
+        PeerGroupThreadFactory(ThreadGroup threadgroup) {
+            this.threadgroup = threadgroup;
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(threadgroup, r,
+                                  "Executor - " + threadNumber.getAndIncrement(),
+                                  0);
+            
+            if(t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
     }
 }

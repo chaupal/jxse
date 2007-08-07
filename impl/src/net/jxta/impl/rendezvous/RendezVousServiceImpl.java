@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,7 +112,6 @@ import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.impl.util.TimeUtils;
-
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -684,7 +681,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      *  {@inheritDoc}
      */
-    public void propagate(Enumeration destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
+    public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         
         RendezVousServiceProvider currentProvider = provider;
 
@@ -710,7 +707,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      *  {@inheritDoc}
      */
-    public void walk(Vector destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
+    public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         
         RendezVousServiceProvider currentProvider = provider;
 
@@ -733,7 +730,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             return result;
         }
         
-        Collection<PeerViewElement> allPVE = new ArrayList(currView.getView());
+        Collection<PeerViewElement> allPVE = new ArrayList<PeerViewElement>(currView.getView());
         
         for (PeerViewElement pve : allPVE) {
             RdvAdvertisement adv = pve.getRdvAdvertisement();

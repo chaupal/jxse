@@ -78,7 +78,7 @@ import java.util.Enumeration;
  *  @see net.jxta.document.StructuredTextDocument
  *  @see net.jxta.document.TextElement
  */
-public interface Element<E extends Element< E >> {
+public interface Element<E extends Element<E>> {
     
     /**
      * Get the key associated with this Element.
@@ -115,26 +115,27 @@ public interface Element<E extends Element< E >> {
     
     /**
      *  Add a child element to this element. The child element must be from the
-     *  document as the element it is to be added to.
+     *  document as the element it is to be added to. Elements are created using
+     *  either {@link StructuredDocument#createElement(Object)} or
+     *  {@link StructuredDocument#createElement(Object, Object)}.
      *
-     *  @param element the element to be added as a child
+     *  @param element The element to be added as a child.
      */
     void appendChild(E element);
     
     /**
      *  Returns an enumeration of the immediate children of this element.
      *
-     *  @return Enumeration An enumeration containing all of the children of
-     *  this element.
+     *  @return Enumeration containing all of the children of this element.
      */
     Enumeration<E> getChildren();
     
     /**
-     *  Returns an enumeration of the immediate children of this element whose
-     *  name match the specified key.
+     *  Returns an enumeration of the immediate children of this element who
+     *  match the specified key.
      *
      *  @param key The key which will be matched against.
-     *  @return Enumeration enumeration containing all of the children of this
+     *  @return Enumeration containing all of the matching children of this 
      *  element.
      */
     Enumeration<E> getChildren(Object key);

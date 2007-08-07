@@ -64,17 +64,19 @@ import net.jxta.peergroup.Configurator;
 /**
  * Defines a configurator for the JXTA Platform peer group.
  *
- * @author james todd [gonzo at jxta dot org]
+ * @deprecated This interface has been replaced with the {@link net.jxta.platform.NetworkConfigurator}.
  */
+@Deprecated
 public interface PlatformConfigurator extends Configurator {
 
     /**
      * Retrieve the associated {@link net.jxta.impl.protocol.PlatformConfig} and
-     * potentially reconfigure the parameters before returning.
+     * potentially performing any required configuration of the parameters 
+     * before returning.
      *
      * @return PlatformConfig
-     * @throws net.jxta.exception.ConfiguratorException
-     *          if configuration error occurs
+     * @throws net.jxta.exception.ConfiguratorException If configuration error 
+     * occurs.
      */
     public PlatformConfig getPlatformConfig() throws ConfiguratorException;
 
@@ -87,11 +89,11 @@ public interface PlatformConfigurator extends Configurator {
 
     /**
      * Sets the reconfiguration status to the specified status. If
-     * <code>true</code> then reconfiguration will be forced the next time the
+     * {@code true} then reconfiguration will be forced the next time the
      * {@link net.jxta.impl.protocol.PlatformConfig} is retrieved.
      *
-     * @param forceReconfig If <code>true</code> then a forced reconfiguration
-     *                      will occur the next time {@link #getPlatformConfig()} is called.
+     * @param forceReconfig If {@code true} then a forced reconfiguration will
+     * occur the next time {@link #getPlatformConfig()} is called.
      */
     public void setReconfigure(boolean forceReconfig);
 
@@ -99,8 +101,8 @@ public interface PlatformConfigurator extends Configurator {
      * Determine if a forced reconfiguration is set for the next call to
      * {@link #getPlatformConfig()}.
      *
-     * @return Returns <code>true</code> if a forced reconfiguration
-     *         will occur the next time {@link #getPlatformConfig()} is called.
+     * @return Returns {@code true} if a forced reconfiguration will occur the
+     * next time {@link #getPlatformConfig()} is called.
      */
     public boolean isReconfigure();
 }

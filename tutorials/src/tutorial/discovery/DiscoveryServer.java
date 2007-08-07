@@ -87,8 +87,7 @@ public class DiscoveryServer implements DiscoveryListener {
      */
     public DiscoveryServer() {
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryServer"
-                    ,
+            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryServer",
                     new File(new File(".cache"), "DiscoveryServer").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -108,7 +107,6 @@ public class DiscoveryServer implements DiscoveryListener {
      */
     public static void main(String args[]) {
         DiscoveryServer disocveryServer = new DiscoveryServer();
-
         disocveryServer.start();
     }
 
@@ -153,8 +151,7 @@ public class DiscoveryServer implements DiscoveryListener {
         DiscoveryResponseMsg res = ev.getResponse();
 
         // let's get the responding peer's advertisement
-        System.out.println(
-                " [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + ev.getSource() + "  ]");
+        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + ev.getSource() + "  ]");
 
         Advertisement adv;
         Enumeration en = res.getAdvertisements();

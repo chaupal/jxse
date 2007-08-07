@@ -275,7 +275,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      * {@inheritDoc}
      */
     @Override
-    public void propagate(Enumeration<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) {
+    public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) {
 
         ttl = Math.min(ttl, MAX_TTL);
 
@@ -352,7 +352,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      * {@inheritDoc}
      */
     @Override
-    public void walk(Vector<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
+    public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
 
         propagate(destPeerIDs.elements(), msg, serviceName, serviceParam, ttl);
     }

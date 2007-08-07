@@ -72,6 +72,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+import net.jxta.platform.Module;
 
 
 /**
@@ -86,22 +87,22 @@ public class RefJxtaLoader extends JxtaLoader {
     private final CompatibilityEquater equator;
 
     /**
-     * <p/><ul>
-     * <li>Keys are {@link net.jxta.platform.ModuleSpecID}.</li>
-     * <li>Values are {@link java.util.Map}.
      * <ul>
-     * <li>Keys are {@link java.lang.String} Compatibility Statements serialized as XML UTF-8</li>
-     * <li>Values are {@link java.lang.Class}.</li>
-     * </ul>
-     * </li>
+     *     <li>Keys are {@link net.jxta.platform.ModuleSpecID}.</li>
+     *     <li>Values are {@link java.util.Map}.
+     *         <ul>
+     *             <li>Keys are {@link java.lang.String} Compatibility Statements serialized as XML UTF-8</li>
+     *             <li>Values are {@link java.lang.Class}<? extends Module>.</li>
+     *         </ul>
+     *     </li>
      * </ul>
      */
-    private final Map<ModuleSpecID, Map<String, Class>> classes = new HashMap<ModuleSpecID, Map<String, Class>>();
+    private final Map<ModuleSpecID, Map<String, Class<? extends Module>>> classes = new HashMap<ModuleSpecID, Map<String, Class<? extends Module>>>();
 
     /**
      * Classes and ImplAdvs we have known. Weak Map so that classes can be GCed.
      */
-    private final Map<Class, ModuleImplAdvertisement> implAdvs = new WeakHashMap<Class, ModuleImplAdvertisement>();
+    private final Map<Class<? extends Module>, ModuleImplAdvertisement> implAdvs = new WeakHashMap<Class<? extends Module>, ModuleImplAdvertisement>();
 
     /**
      * Construct a new loader for the specified URLS with the default parent
@@ -138,7 +139,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return the class
      * @throws ClassNotFoundException if class not found
      */
-    protected Class loadClass(String name, URL url, boolean resolve) throws ClassNotFoundException {
+    protected Class<?> loadClass(String name, URL url, boolean resolve) throws ClassNotFoundException {
         try {
             return loadClass(name, resolve);
         } catch (ClassNotFoundException e) {
@@ -155,7 +156,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * {@inheritDoc}
      */
     @Override
-    public Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 
         Class<?> newClass = findLoadedClass(name);
 
@@ -228,15 +229,15 @@ public class RefJxtaLoader extends JxtaLoader {
      * {@inheritDoc}
      */
     @Override
-    public synchronized Class findClass(ModuleSpecID spec) throws ClassNotFoundException {
+    public synchronized Class<? extends Module> findClass(ModuleSpecID spec) throws ClassNotFoundException {
 
-        Map<String, Class> compats = classes.get(spec);
+        Map<String, Class<? extends Module>> compats = classes.get(spec);
 
         if (null == compats) {
             throw new ClassNotFoundException("No matching class for : " + spec);
         }
 
-        for (Map.Entry<String, Class> anEntry : compats.entrySet()) {
+        for (Map.Entry<String, Class<? extends Module>> anEntry : compats.entrySet()) {
             String aCompat = anEntry.getKey();
 
             StructuredDocument asDoc;
@@ -259,7 +260,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * {@inheritDoc}
      */
     @Override
-    public Class loadClass(ModuleSpecID spec) throws ClassNotFoundException {
+    public Class<? extends Module> loadClass(ModuleSpecID spec) throws ClassNotFoundException {
 
         Class found = findClass(spec);
 
@@ -284,13 +285,13 @@ public class RefJxtaLoader extends JxtaLoader {
      * {@inheritDoc}
      */
     @Override
-    public synchronized Class defineClass(ModuleImplAdvertisement impl) throws ClassFormatError {
+    public synchronized Class<? extends Module> defineClass(ModuleImplAdvertisement impl) throws ClassFormatError {
         String asString = impl.getCompat().toString();
 
-        Map<String, Class> compats = classes.get(impl.getModuleSpecID());
+        Map<String, Class<? extends Module>> compats = classes.get(impl.getModuleSpecID());
 
         if (null == compats) {
-            compats = new HashMap<String, Class>();
+            compats = new HashMap<String, Class<? extends Module>>();
             classes.put(impl.getModuleSpecID(), compats);
         }
 
@@ -320,6 +321,30 @@ public class RefJxtaLoader extends JxtaLoader {
     public ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz) {
         ModuleImplAdvertisement result = implAdvs.get(clazz);
 
-        return result;
+        if(null == result) {
+            return null;
+        } else {
+            return result.clone();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
+        Class<? extends Module> moduleClass;
+        
+        try {
+            moduleClass = findClass(msid);
+        } catch(ClassNotFoundException failed) {
+            return null;
+        }
+        
+        if( null == moduleClass) {
+            return null;
+        } else {
+            return findModuleImplAdvertisement(moduleClass);
+        }
     }
 }

@@ -53,9 +53,7 @@ Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.protocol;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.ExtendableAdvertisement;
@@ -67,6 +65,7 @@ import net.jxta.peergroup.PeerGroupID;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -75,7 +74,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.Vector;
-
 
 /**
  * Advertisement used to represent a route to a peer. Routes are represented in
@@ -108,13 +106,13 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     /**
      * AccessPointAdvertisement of destination peer.
      */
-    private AccessPointAdvertisement dest = (AccessPointAdvertisement)
+    private transient AccessPointAdvertisement dest = (AccessPointAdvertisement)
             AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
     /**
      * Semi-ordered list of alternative hops to the destination.
      */
-    private Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
+    private transient Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
     /**
      *  Cached value for {@link #getID()}
@@ -127,6 +125,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * <b>WARNING hops may be MODIFIED.</b>
      *
      * @param destPid  destination
+     * @param firsthop first hop node ID
      * @param hops     routes
      * @return the new route
      */
@@ -308,6 +307,10 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      */
     @Override
     public synchronized ID getID() {
+        if(null == dest.getPeerID()) {
+            throw new IllegalStateException("Destination peerID not defined. Incomplete RouteAdvertisement");
+        }
+        
         if (hashID == null) {
             try {
                 // We have not yet built it. Do it now
@@ -342,6 +345,11 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         }
 
         dest.setPeerID(pid);
+        
+        // recalculate hash.
+        synchronized(this) {
+            hashID = null;
+        }
     }
 
     /**
@@ -382,7 +390,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      *                  destination access point. Warning: The vector of endpoint addresses
      *                  is specified as a vector of String. Each string representing
      *                  one endpoint address.
-     * @deprecated Use {@link #getDest()} and modify AccessPointAdvertisement directly.
+     * @deprecated Use {@link #addDestEndpointAddresses(List<EndpointAddress>)} instead.
      */
     @Deprecated
     public void addDestEndpointAddresses(Vector<String> addresses) {
@@ -446,11 +454,29 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     }
 
     /**
+     *  Returns the endpoint addresses of the destination peer in their 
+     *  preferred order.
+     *
+     *  @return The {@code EndpointAddress}es of the destination peer.
+     */
+    public List<EndpointAddress> getDestEndpointAddresses() {
+        List<EndpointAddress> result = new ArrayList<EndpointAddress>();
+        
+        Enumeration<String> eachEA = dest.getEndpointAddresses();
+        
+        while(eachEA.hasMoreElements()) {
+            result.add(new EndpointAddress(eachEA.nextElement()));
+        }
+        
+        return result;
+    }
+    
+    /**
      * Set the route destination endpoint addresses
      *
      * @param ea vector of endpoint addresses. Warning: The vector is not copied
      * and is used directly.
-     * @deprecated Use {@link #getDest()} and modify AccessPointAdvertisement directly.
+     * @deprecated Use {@link #addDestEndpointAddress(EndpointAddress)} instead.
      */
     @Deprecated
     public void setDestEndpointAddresses(Vector<String> ea) {

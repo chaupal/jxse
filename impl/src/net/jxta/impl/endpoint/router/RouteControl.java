@@ -160,8 +160,7 @@ public class RouteControl {
         if (firstHop != null) {
             firstHopPid = firstHop.getPeerID();
 
-            // The first hop is ourselves. Remove it a move to the new first
-            // hop if any
+            // The first hop is ourselves. Remove it a move to the new first hop if any
             if (localPeerId.equals(firstHopPid)) {
                 route.removeHop(firstHopPid);
                 firstHop = route.getFirstHop();
@@ -180,8 +179,7 @@ public class RouteControl {
             if (router.isLocalRoute(destAddress) || router.isRoutedRoute(route.getDestPeerID())) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Skipping add Route " + destAddress + " already exists");
-                    LOG.fine(
-                            "isLocalRoute() " + router.isLocalRoute(destAddress) + " isRoutedRoute() : "
+                    LOG.fine("isLocalRoute() " + router.isLocalRoute(destAddress) + " isRoutedRoute() : "
                             + router.isRoutedRoute(route.getDestPeerID()));
                 }
                 return ALREADY_EXIST;

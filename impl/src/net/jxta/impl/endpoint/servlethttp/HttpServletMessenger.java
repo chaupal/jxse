@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.servlethttp;
-
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -75,7 +73,6 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.util.TimeUtils;
-
 
 /**
  * Simple messenger that waits for a message to give back to the requesting client
@@ -179,6 +176,11 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     /**
      *  Standard constructor.
+     *
+     * @param peerGroupID the peer group id
+     * @param srcAddress  source address
+     * @param logicalAddress logical address
+     * @param validFor validity in milliseconds
      */
     HttpServletMessenger(PeerGroupID peerGroupID, EndpointAddress srcAddress, EndpointAddress logicalAddress, long validFor) {
         

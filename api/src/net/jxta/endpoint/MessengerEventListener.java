@@ -55,9 +55,7 @@
  */
 package net.jxta.endpoint;
 
-
 import java.util.EventListener;
-
 
 /**
  * A listener for MessengerEvents.

@@ -68,39 +68,38 @@ import net.jxta.platform.ModuleSpecID;
 
 
 /**
- * A ModuleSpecAdvertisement describes a module specification.
- * Its main purpose is to provide references to the documentation
- * needed in order to create conforming implementations of that
- * specification. A secondary use is, optionally, to make running instances
- * usable remotely, by publishing any or all of the following:<br>
- * <ul>
- *  <li> PipeAdvertisement
- *  <li> ModuleSpecID of a proxy module
- *  <li> ModuleSpecID of an authenticator module
+ * Provides the references that describe a module specification. Typically this
+ * includes references to the documentation needed in order to create conforming
+ * implementations of the specification. A secondary use is, optionally, to make 
+ * running instances usable remotely, by publishing any or all of the following:
+ * <br><ul>
+ *    <li> PipeAdvertisement
+ *    <li> ModuleSpecID of a proxy module
+ *    <li> ModuleSpecID of an authenticator module
  * </ul>
- *
- * <p/>Not all modules are usable remotely, it is up to the specification
- * creator to make that choice. However, if the specification dictates it, all
+ * <p/>
+ * Not all modules are usable remotely, it is up to the specification creator to
+ * make that choice. However, if the specification dictates it, all
  * implementations can be expected to support it.
- *
- * <p/>Note that the Standard PeerGroup implementation of the java reference
- * implementation does <em>not</em> support replacing a group service with
- * a pipe to a remote instance. However, nothing prevents a particular
+ * <p/>
+ * Note that the Standard PeerGroup implementation included with the JXSE
+ * reference implementation does <em>not</em> support replacing a group service 
+ * with a pipe to a remote instance. However, nothing prevents a particular
  * implementation of a group from using a proxy module in place of the fully
- * version; provided that the API (and therefore the ClassIDs) of the proxy
- * and local versions are identical.
- *
- * <p/>Note also that in the case of the local+proxy style, it is up to the
- * implementation of both sides to figure-out which pipe to listen to or
- * connect to. The safest method is probably for the full version to seek its
- * own ModuleSpecAdvertisement, and for the proxy version to accept the
- * full version's ModuleSpecAdvertisement as a parameter.
- * Alternatively if the proxy version is completely dedicated to the
- * specification that it proxies, both sides may have the PipeID and type
- * hard-coded.
+ * version; provided that the API (and therefore the ClassIDs) of the proxy and
+ * local versions are identical.
+ * <p/>
+ * Note also that in the case of the local+proxy style, it is up to the
+ * implementation of both sides to figure-out which pipe to listen to or connect
+ * to. The safest method is probably for the full version to seek its own
+ * ModuleSpecAdvertisement, and for the proxy version to accept the full
+ * version's ModuleSpecAdvertisement as a parameter. Alternatively, if the proxy
+ * version is completely dedicated to the specification that it proxies, both
+ * sides may have the PipeID and type hard-coded.
  * 
  * @see net.jxta.platform.ModuleSpecID
  * @see net.jxta.protocol.PipeAdvertisement
+ * @see net.jxta.protocol.ModuleClassAdvertisement
  * @see net.jxta.protocol.ModuleImplAdvertisement
  * @see net.jxta.document.Advertisement
  */
@@ -115,9 +114,6 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
     private PipeAdvertisement pipeAdv = null;
     private ModuleSpecID proxySpecID = null;
     private ModuleSpecID authSpecID = null;
-
-    // The module interprets this. It is not necessarily final and immutable
-    // so it may need cloning for making a fully correct clone adv.
     private StructuredDocument param = null;
 
     /**
@@ -154,7 +150,7 @@ public abstract class ModuleSpecAdvertisement extends ExtendableAdvertisement im
             clone.setPipeAdvertisement(getPipeAdvertisement());
             clone.setProxySpecID(getProxySpecID());
             clone.setAuthSpecID(getAuthSpecID());
-            clone.setParam(getParam());
+            clone.setParam(param);
 
             return clone;
         } catch (CloneNotSupportedException impossible) {

@@ -57,24 +57,29 @@
 package net.jxta.impl.endpoint.router;
 
 
-import net.jxta.document.*;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
- * Message element Router. This element is added to every
- * message to carry route information for the EndpointRouter service
+ * Message element Router. This element is added to every message to carry route
+ * information for the EndpointRouter service.
  */
 
 public class EndpointRouterMessage {
@@ -149,7 +154,7 @@ public class EndpointRouterMessage {
 
             XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(rmElem);
 
-            Enumeration each;
+            Enumeration<XMLElement> each;
             XMLElement e;
 
             each = doc.getChildren();
@@ -160,7 +165,7 @@ public class EndpointRouterMessage {
 
             while (each.hasMoreElements()) {
                 try {
-                    e = (XMLElement) each.nextElement();
+                    e = each.nextElement();
 
                     if (e.getName().equals(SrcTag)) {
                         srcAddress = new EndpointAddress(e.getTextValue());
@@ -178,7 +183,7 @@ public class EndpointRouterMessage {
                     }
 
                     if (e.getName().equals(GatewayForwardTag)) {
-                        for (Enumeration eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
+                        for (Enumeration<XMLElement> eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
 
                             if (forwardGateways == null) {
                                 forwardGateways = new Vector<AccessPointAdvertisement>();
@@ -186,7 +191,7 @@ public class EndpointRouterMessage {
                             if (forwardCache == null) {
                                 forwardCache = new Vector<XMLElement>();
                             }
-                            XMLElement aXpt = (XMLElement) eachXpt.nextElement();
+                            XMLElement aXpt = eachXpt.nextElement();
                             AccessPointAdvertisement xptAdv = (AccessPointAdvertisement)
                                     AdvertisementFactory.newAdvertisement(aXpt);
 
@@ -198,7 +203,7 @@ public class EndpointRouterMessage {
                     }
 
                     if (e.getName().equals(GatewayReverseTag)) {
-                        for (Enumeration eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
+                        for (Enumeration<XMLElement> eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
 
                             if (reverseGateways == null) {
                                 reverseGateways = new Vector<AccessPointAdvertisement>();
@@ -206,7 +211,7 @@ public class EndpointRouterMessage {
                             if (reverseCache == null) {
                                 reverseCache = new Vector<XMLElement>();
                             }
-                            XMLElement aXpt = (XMLElement) eachXpt.nextElement();
+                            XMLElement aXpt = eachXpt.nextElement();
                             AccessPointAdvertisement xptAdv = (AccessPointAdvertisement)
                                     AdvertisementFactory.newAdvertisement(aXpt);
 
@@ -291,7 +296,7 @@ public class EndpointRouterMessage {
             if (forwardCache != null) {
                 for (int i = 0; i < forwardCache.size(); ++i) {
                     try {
-                        Element xptDoc = forwardCache.elementAt(i);
+                        XMLElement xptDoc = forwardCache.elementAt(i);
 
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
                     } catch (Exception e1) {
@@ -321,7 +326,7 @@ public class EndpointRouterMessage {
             if (reverseCache != null) {
                 for (int i = 0; i < reverseCache.size(); ++i) {
                     try {
-                        Element xptDoc = reverseCache.elementAt(i);
+                        XMLElement xptDoc = reverseCache.elementAt(i);
 
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
                     } catch (Exception e1) {

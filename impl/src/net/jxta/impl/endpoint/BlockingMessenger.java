@@ -123,15 +123,18 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         /**
          *  No deferred action.
          */
-        ACTION_NONE, /**
+        ACTION_NONE, 
+        
+        /**
          *  Must send message.
-         */ ACTION_SEND, /**
+         */
+        ACTION_SEND,
+        
+        /**
          *  Must report failure to connect.
-         */ ACTION_CONNECT
-    }
-
-
-    ;
+         */
+        ACTION_CONNECT
+    };
     
     /**
      * The outstanding message.
@@ -439,11 +442,10 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         if (selfDestruct) {
             selfDestructTask = new TimerTask() {
 
-                @Override
-
                 /**
                  * {@inheritDoc}
                  */
+                @Override
                 public void run() {
                     try {
                         if (isIdleImpl()) {
@@ -519,7 +521,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     /**
      *
      * {@inheritDoc} 
-     *
+     * <p/>
      * We overload isClosed because many messengers still use super.isClosed() 
      * as part of their own implementation or don't override it at all. They 
      * expect it to be true only when all is shutdown; not while we're closing 
@@ -529,13 +531,13 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      */
     @Override
     public boolean isClosed() {
-        return ((!lieToOldTransports) && (getState() & TERMINAL) != 0);
+        return (!lieToOldTransports) && super.isClosed();
     }
 
     /**
      * {@inheritDoc}
-     *
-     * <p/> getLogicalDestinationAddress() requires resolution (it's the address advertised by the other end).
+     * <p/>
+     * getLogicalDestinationAddress() requires resolution (it's the address advertised by the other end).
      * For a blocking messenger it's easy. We're born resolved. So, just ask the implementor what it is.
      */
     public final EndpointAddress getLogicalDestinationAddress() {
@@ -686,13 +688,10 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         }
 
         // Not queued. Either closed, or currently sending. If inputClosed, that's what we report.
-        msg.setMessageProperty(Messenger.class
-                ,
-                closed
-                ? new OutgoingMessageEvent(msg
-                ,
-                new IOException("This messenger is closed. " + "It cannot be used to send messages."))
-                : OutgoingMessageEvent.OVERFLOW);
+        msg.setMessageProperty(Messenger.class,
+                closed ? 
+                    new OutgoingMessageEvent(msg, new IOException("This messenger is closed. " + "It cannot be used to send messages.")) : 
+                    OutgoingMessageEvent.OVERFLOW);
         return false;
     }
 
@@ -717,8 +716,8 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         // Our transport is always in the same group. If the channel's target group is the same, no group
         // redirection is ever needed.
 
-        return new BlockingMessengerChannel(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service
-                ,
+        return new BlockingMessengerChannel(getDestinationAddress(), 
+                homeGroupID.equals(redirection) ? null : redirection, service,
                 serviceParam);
     }
 

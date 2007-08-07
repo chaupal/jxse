@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
-
 
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
@@ -66,7 +64,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This is a messenger meant to be shared by multiple channels and automatically
@@ -117,17 +114,20 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * actions that cluster are closeInput and closeOutput. We do not defer 
      * those.
      */
-
     private enum DeferredAction {
 
         /**
          * No action deferred.
          */
-        ACTION_NONE, /**
+        ACTION_NONE,
+        /**
          * Must send the current message.
-         */ ACTION_SEND, /**
+         */
+        ACTION_SEND,
+        /**
          * Must report failure to connect.
-         */ ACTION_CONNECT
+         */
+        ACTION_CONNECT
     }
 
     /**
@@ -159,8 +159,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * and then abandoning the channel. This is has to be dealt with at another level; limiting the number of channels
      * per application, or having a global limit on messages...TBD.
      */
-    private final WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel> resolvingChannels = new WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel>(
-            4);
+    private final WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel> resolvingChannels = new WeakHashMap<ThreadedMessengerChannel, ThreadedMessengerChannel>(4);
 
     /**
      * A default channel where we put messages that are send directly through
@@ -179,7 +178,6 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     private class ThreadedMessengerChannel extends AsyncChannelMessenger {
 
         public ThreadedMessengerChannel(EndpointAddress baseAddress, PeerGroupID redirection, String origService, String origServiceParam, int queueSize, boolean connected) {
-
             super(baseAddress, redirection, origService, origServiceParam, queueSize, connected);
         }
 
@@ -373,7 +371,6 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * regardless the number of concurrent threads invoking the exposed methods, and it can only happen once per deferred action
      * performed.
      */
-
     public void run() {
 
         try {
@@ -758,9 +755,9 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
         // Our transport is always in the same group. If the channel's target group is the same, no group
         // redirection is ever needed.
-        return new ThreadedMessengerChannel(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service
-                ,
-                serviceParam, channelQueueSize, (stateMachine.getState() & (RESOLVED & USABLE)) != 0); // are we happily resolved ?
+        // are we happily resolved ?
+        return new ThreadedMessengerChannel(getDestinationAddress(), homeGroupID.equals(redirection) ? null : redirection, service,
+                serviceParam, channelQueueSize, (stateMachine.getState() & (RESOLVED & USABLE)) != 0);
     }
 
     /*
@@ -787,7 +784,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * Send a message blocking as needed until the message is sent.
      *
-     * @param message The message to send.
+     * @param msg The message to send.
      * @param service The destination service.
      * @param param The destination serivce param.
      * @throws IOException Thrown for errors encountered while sending the message.

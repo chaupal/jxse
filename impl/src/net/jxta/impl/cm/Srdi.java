@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.cm;
-
 
 import net.jxta.credential.Credential;
 import net.jxta.document.MimeMediaType;
@@ -97,7 +95,6 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Srdi is a service which provides SRDI functionalities such as :
@@ -431,7 +428,6 @@ public class Srdi implements Runnable, RendezvousListener {
         } else {
             // pick some random entries out of the list
             List<PeerID> newPeers = randomResult(peers, threshold);
-
             forwardQuery(newPeers, query);
         }
     }
@@ -446,10 +442,8 @@ public class Srdi implements Runnable, RendezvousListener {
     protected List<PeerID> randomResult(List<PeerID> result, int threshold) {
         if (threshold < result.size()) {
             List<PeerID> res = new ArrayList<PeerID>(threshold);
-
             for (int i = 0; i < threshold; i++) {
                 int rand = random.nextInt(result.size());
-
                 res.add(result.get(rand));
                 result.remove(rand);
             }
@@ -510,12 +504,9 @@ public class Srdi implements Runnable, RendezvousListener {
             ResolverSrdiMsgImpl resSrdi = new ResolverSrdiMsgImpl(handlername, credential, srdi.toString());
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        MessageFormat.format("[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName()
-                                ,
+                LOG.fine(MessageFormat.format("[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName(),
                                 handlername, primaryKey, peerid));
             }
-
             resolver.sendSrdi(peerid.toString(), resSrdi);
         } catch (Exception e) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -527,6 +518,7 @@ public class Srdi implements Runnable, RendezvousListener {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("fallthrough")
     public void rendezvousEvent(RendezvousEvent event) {
 
         int theEventType = event.getType();
@@ -543,7 +535,7 @@ public class Srdi implements Runnable, RendezvousListener {
                     rdvEventLock.notify();
                 }
 
-                /*
+               /*
                 *  FALLSTHRU
                 */
             case RendezvousEvent.RDVRECONNECT:
@@ -554,7 +546,7 @@ public class Srdi implements Runnable, RendezvousListener {
             case RendezvousEvent.CLIENTRECONNECT:
             case RendezvousEvent.BECAMERDV:
             case RendezvousEvent.BECAMEEDGE:
-                // XXX 20031110 bondolo@jxta.org perhaps becoming edge one should cause it to wake up so that run() switch to
+                // XXX 20031110 bondolo perhaps becoming edge one should cause it to wake up so that run() switch to
                 // don't do anything.
                 break;
 
@@ -597,7 +589,6 @@ public class Srdi implements Runnable, RendezvousListener {
             while (!stop) {
                 // upon connection we will have to republish
                 republish |= republishSignal.compareAndSet(true, false);
-
                 waitingForRdv = group.isRendezvous() || !group.getRendezVousService().isConnectedToRendezVous() ||
                         group.getRendezVousService().getRendezVousStatus() == RendezVousStatus.ADHOC;
 
@@ -621,12 +612,9 @@ public class Srdi implements Runnable, RendezvousListener {
             }
         } catch (Throwable all) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE
-                        ,
+                LOG.log(Level.SEVERE,
                         "Uncaught Throwable in " + Thread.currentThread().getName() + "[" + group.getPeerGroupName() + " / "
-                                + handlername + "]"
-                        ,
-                        all);
+                                + handlername + "]",all);
             }
         }
     }

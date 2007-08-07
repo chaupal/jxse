@@ -55,41 +55,51 @@
  */
 package net.jxta.impl.endpoint.tcp;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ClosedSelectorException;
+import java.nio.channels.IllegalBlockingModeException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EmptyStackException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Attributable;
 import net.jxta.document.Attribute;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.TextElement;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.MessagePropagater;
 import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerEvent;
 import net.jxta.endpoint.MessengerEventListener;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.WireFormatMessage;
-import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.impl.endpoint.EndpointServiceImpl;
-import net.jxta.impl.endpoint.IPUtils;
-import net.jxta.impl.endpoint.LoopbackMessenger;
-import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
-import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
-import net.jxta.impl.endpoint.transportMeter.TransportMeter;
-import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
-import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
-import net.jxta.impl.meter.MonitorManager;
-import net.jxta.impl.peergroup.StdPeerGroup;
-import net.jxta.impl.protocol.TCPAdv;
-import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peer.PeerID;
@@ -99,22 +109,20 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.*;
-import java.nio.channels.spi.SelectorProvider;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.jxta.impl.endpoint.IPUtils;
+import net.jxta.impl.endpoint.LoopbackMessenger;
+import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
+import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
+import net.jxta.impl.meter.MonitorManager;
+import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.impl.util.TimeUtils;
+
 
 /**
- * This class implements the TCP Message Transport
+ * This class implements the TCP Message Transport.
  *
  * @see net.jxta.endpoint.MessageTransport
  * @see net.jxta.endpoint.MessagePropagater
@@ -123,7 +131,7 @@ import java.util.logging.Logger;
  * @see net.jxta.endpoint.EndpointService
  * @see <a href="http://spec.jxta.org/v1.0/docbook/JXTAProtocols.html#trans-tcpipt">JXTA Protocols Specification : Standard JXTA Transport Bindings</a>
  */
-public class TcpTransport implements Runnable, Module, MessageSender, MessageReceiver, MessagePropagater {
+public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
     /**
      * Logger
@@ -162,7 +170,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
     private String serverName = null;
     private List<EndpointAddress> publicAddresses = new ArrayList<EndpointAddress>();
     private EndpointAddress publicAddress = null;
-    private MessageElement msgSrcAddrElement = null;
 
     private String interfaceAddressStr;
     InetAddress usingInterface;
@@ -172,17 +179,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
     private boolean isClosed = false;
 
-    private boolean allowMulticast = true;
-    private String multicastAddress = "224.0.1.85";
-    private int multicastPortNb = 1234;
-    private int multicastPacketSize = 16384;
-    private EndpointAddress mAddress = null;
-    private InetAddress propagateInetAddress;
-    private int propagatePort;
-    private int propagateSize;
-    private Thread multicastThread = null;
-    private MulticastSocket multicastSocket = null;
-
     private long messagesSent = 0;
     private long messagesReceived = 0;
     private long bytesSent = 0;
@@ -191,12 +187,11 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
     PeerGroup group = null;
     EndpointService endpoint = null;
-    ThreadPoolExecutor executor;
+    Executor executor;
 
     private String protocolName = "tcp";
     private TransportMeter unicastTransportMeter;
     private TransportMeter multicastTransportMeter;
-    private TransportBindingMeter multicastTransportBindingMeter;
 
     private boolean publicAddressOnly = false;
 
@@ -216,7 +211,8 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
     ThreadGroup myThreadGroup = null;
 
     /**
-     * The maximum number of write selectors we will maintain in our cache.
+     * The maximum number of write selectors we will maintain in our cache per
+     * transport instance.
      */
     protected final static int MAX_WRITE_SELECTORS = 20;
 
@@ -224,23 +220,28 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
      * A cache we maintain for selectors writing messages to the socket.
      */
     private final static Stack<Selector> writeSelectorCache = new Stack<Selector>();
-    private MulticastProcessor multicastProcessor;
+    
+    /**
+     *  The number of excess write selectors believed to be in the pool. 
+     */
+    private int extraWriteSelectors = 0;
 
     /**
      * Construct a new TcpTransport instance
      */
     public TcpTransport() {
+        // Add some selectors to the pool.
         try {
-            try {
-                for (int i = 0; i < MAX_WRITE_SELECTORS; i++) {
-                    writeSelectorCache.add(Selector.open());
-                }
-            } catch (IOException ex) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe("Could not create the write selector pool");
-                }
-                throw ex;
+            for (int i = 0; i < MAX_WRITE_SELECTORS; i++) {
+                writeSelectorCache.add(Selector.open());
             }
+        } catch (IOException ex) {
+            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                LOG.severe("Failed adding selector to  write selector pool");
+            }
+        }
+
+        try {
             String connectTOStr = System.getProperty("sun.net.client.defaultConnectTimeout");
 
             if (connectTOStr != null) {
@@ -251,24 +252,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                 LOG.warning("Could not parse system property: sun.net.client.defaultConnectTimeout");
             }
         }
-    }
-
-    /**
-     * Getter for property 'allowMulticast'.
-     *
-     * @return Value for property 'allowMulticast'.
-     */
-    public boolean isAllowMulticast() {
-        return allowMulticast;
-    }
-
-    /**
-     * Setter for property 'allowMulticast'.
-     *
-     * @param allowMulticast Value to set for property 'allowMulticast'.
-     */
-    public void setAllowMulticast(boolean allowMulticast) {
-        this.allowMulticast = allowMulticast;
     }
 
     /**
@@ -374,7 +357,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                 return false;
             }
 
-            // todo 20020630 bondolo@jxta.org Compare the multicasts.
             Iterator<EndpointAddress> itsAddrs = likeMe.publicAddresses.iterator();
 
             for (EndpointAddress publicAddress1 : publicAddresses) {
@@ -404,7 +386,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
     }
 
     /**
-     * Initialization of the TcpTransport (called by Platform)
+     *  {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
@@ -413,260 +395,225 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
         this.executor = ((StdPeerGroup) group).getExecutor();
 
-        try {
-            ConfigParams configAdv = group.getConfigAdvertisement();
+        ConfigParams configAdv = group.getConfigAdvertisement();
 
-            // Get out invariable parameters from the implAdv
-            Element param = implAdvertisement.getParam();
+        // Get out invariable parameters from the implAdv
+        XMLElement param = (XMLElement) implAdvertisement.getParam();
 
-            if (param != null) {
-                Enumeration list = param.getChildren("Proto");
+        if (param != null) {
+            Enumeration<XMLElement> list = param.getChildren("Proto");
 
-                if (list.hasMoreElements()) {
-                    TextElement pname = (TextElement) list.nextElement();
-                    protocolName = pname.getTextValue();
-                }
+            if (list.hasMoreElements()) {
+                XMLElement pname = list.nextElement();
+                protocolName = pname.getTextValue();
+            }
+        }
+
+        // Get our peer-defined parameters in the configAdv
+        param = (XMLElement) configAdv.getServiceParam(assignedID);
+        if(null == param) {
+            throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
+        }
+        
+        Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+
+        // get the TransportAdv
+        if (tcpChilds.hasMoreElements()) {
+            param = tcpChilds.nextElement();
+            Attribute typeAttr = param.getAttribute("type");
+
+            if (!TCPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
+                throw new IllegalArgumentException("transport adv is not a " + TCPAdv.getAdvertisementType());
             }
 
-            // Get our peer-defined parameters in the configAdv
-            param = configAdv.getServiceParam(assignedID);
-            Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
-
-            // get the TransportAdv
             if (tcpChilds.hasMoreElements()) {
-                param = (Element) tcpChilds.nextElement();
-                Attribute typeAttr = ((Attributable) param).getAttribute("type");
-
-                if (!TCPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
-                    throw new IllegalArgumentException("transport adv is not a " + TCPAdv.getAdvertisementType());
-                }
-
-                if (tcpChilds.hasMoreElements()) {
-                    throw new IllegalArgumentException("Multiple transport advs detected for " + assignedID);
-                }
-            } else {
-                throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
+                throw new IllegalArgumentException("Multiple transport advs detected for " + assignedID);
             }
+        } else {
+            throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
+        }
 
-            Advertisement paramsAdv = null;
+        Advertisement paramsAdv = null;
 
+        try {
+            paramsAdv = AdvertisementFactory.newAdvertisement(param);
+        } catch (NoSuchElementException notThere) {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Could not find parameter document", notThere);
+            }
+        }
+
+        if (!(paramsAdv instanceof TCPAdv)) {
+            throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
+        }
+
+        TCPAdv adv = (TCPAdv) paramsAdv;
+
+        // determine the local interface to use. If the user specifies
+        // one, use that. Otherwise, use the all the available interfaces.
+        interfaceAddressStr = adv.getInterfaceAddress();
+        if (interfaceAddressStr != null) {
             try {
-                paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
-            } catch (NoSuchElementException notThere) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Could not find parameter document", notThere);
-                }
-            }
-
-            if (!(paramsAdv instanceof TCPAdv)) {
-                throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
-            }
-
-            try {
-                messengerSelector = SelectorProvider.provider().openSelector();
-            } catch (IOException e) {
+                usingInterface = InetAddress.getByName(interfaceAddressStr);
+            } catch (UnknownHostException failed) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not create a messenger selector", e);
+                    LOG.warning("Invalid address for local interface address, using default");
                 }
-            }
-
-            TCPAdv adv = (TCPAdv) paramsAdv;
-
-            // determine the local interface to use. If the user specifies
-            // one, use that. Otherwise, use the all the available interfaces.
-            interfaceAddressStr = adv.getInterfaceAddress();
-            if (interfaceAddressStr != null) {
-                try {
-                    usingInterface = InetAddress.getByName(interfaceAddressStr);
-                } catch (UnknownHostException failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Invalid address for local interface address, using default");
-                    }
-                    usingInterface = IPUtils.ANYADDRESS;
-                }
-            } else {
                 usingInterface = IPUtils.ANYADDRESS;
             }
+        } else {
+            usingInterface = IPUtils.ANYADDRESS;
+        }
 
-            serverName = adv.getServer();
+        serverName = adv.getServer();
 
-            // Even when server is not enabled, we use the serverSocketPort
-            // as a discriminant for the simulated network partitioning,
-            // human readable messages, and a few things of that sort.
-            serverSocketPort = adv.getPort();
+        // Even when server is not enabled, we use the serverSocketPort as a 
+        // discriminant for the simulated network partitioning, human readable
+        // messages, and a few things of that sort.
+        serverSocketPort = adv.getPort();
 
-            // should we expose other than a public address if one was
-            // specified ?
-            publicAddressOnly = adv.getPublicAddressOnly();
+        // should we expose other than a public address if one was specified?
+        publicAddressOnly = adv.getPublicAddressOnly();
 
-            // Start the servers
-            myThreadGroup = new ThreadGroup(group.getHomeThreadGroup(), "TcpTransport " + usingInterface.getHostAddress());
+        // Start the servers
+        if (adv.isServerEnabled()) {
+            try {
+            unicastServer = new IncomingUnicastServer(this, usingInterface, serverSocketPort, adv.getStartPort(), adv.getEndPort());
+            } catch( IOException failed ) {
+                throw new PeerGroupException( "Failed to open server socket.", failed);
+            }
 
-            if (adv.isServerEnabled()) {
-                unicastServer = new IncomingUnicastServer(this, usingInterface, serverSocketPort, adv.getStartPort(), adv.getEndPort());
-                InetSocketAddress boundAddresss = unicastServer.getLocalSocketAddress();
+            InetSocketAddress boundAddress = unicastServer.getLocalSocketAddress();
 
-                // TODO bondolo 20040628 Save the port back as a preference to TCPAdv
+            // TODO bondolo 20040628 Save the port back as a preference to TCPAdv
+            /*
+            if(-1 != adv.getStartPort()) {
+                adv.setPort(boundAddress.getPort());
+            }
+            */
+            
+            // Build the publicAddresses :
+            // first in the list is the "public server name". We don't try to
+            // resolve this since it might not be resolvable in the context we 
+            // are running in, we just assume it's good.
+            if (serverName != null) {
+                // use speced server name.
+                EndpointAddress newAddr = new EndpointAddress(protocolName, serverName, null, null);
+                publicAddresses.add(newAddr);
+            }
 
-                // Build the publicAddresses :
-                // first in the list is the "public server name". We don't try to
-                // resolve this since it might not be resolvable in the context
-                // we are running in, we just assume it's good.
-                if (serverName != null) {
-                    // use speced server name.
-                    EndpointAddress newAddr = new EndpointAddress(protocolName, serverName, null, null);
-                    publicAddresses.add(newAddr);
-                }
+            // then add the rest of the local interfaces as appropriate. Unless
+            // we find an non-loopback interface, we're in local only mode.
+            boolean localOnly = true;
 
-                // then add the rest of the local interfaces as appropriate
-                // Unless we find an non-loopback interface, we're in local
-                // only mode.
-                boolean localOnly = true;
+            if (usingInterface.equals(IPUtils.ANYADDRESS)) {
+                // its wildcarded
+                Iterator eachLocal = IPUtils.getAllLocalAddresses();
+                List<EndpointAddress> wildAddrs = new ArrayList<EndpointAddress>();
 
-                if (usingInterface.equals(IPUtils.ANYADDRESS)) {
-                    // its wildcarded
-                    Iterator eachLocal = IPUtils.getAllLocalAddresses();
-                    List<EndpointAddress> wildAddrs = new ArrayList<EndpointAddress>();
+                while (eachLocal.hasNext()) {
+                    InetAddress anAddress = (InetAddress) eachLocal.next();
+                    String hostAddress = IPUtils.getHostAddress(anAddress);
+                    EndpointAddress newAddr = new EndpointAddress(protocolName,
+                            hostAddress + ":" + Integer.toString(boundAddress.getPort()), null, null);
 
-                    while (eachLocal.hasNext()) {
-                        InetAddress anAddress = (InetAddress) eachLocal.next();
-                        String hostAddress = IPUtils.getHostAddress(anAddress);
-                        EndpointAddress newAddr = new EndpointAddress(protocolName,
-                                hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
-
-                        // don't add it if its already in the list
-                        if (!anAddress.isLoopbackAddress()) {
-                            localOnly = false;
-                        }
-
-                        if (!publicAddresses.contains(newAddr)) {
-                            wildAddrs.add(newAddr);
-                        }
-                    }
-
-                    // we sort them so that later equals() will be deterministic.
-                    // the result of IPUtils.getAllLocalAddresses() is not known
-                    // to be sorted.
-                    Collections.sort(wildAddrs, new Comparator<EndpointAddress>() {
-                        public int compare(EndpointAddress one, EndpointAddress two) {
-                            return one.toString().compareTo(two.toString());
-                        }
-
-                        public boolean equals(Object that) {
-                            return (this == that);
-                        }
-                    });
-
-                    // Add public addresses:
-                    // don't add them if we have a hand-set public address
-                    // and the publicAddressOnly property is set.
-                    if (!(serverName != null && publicAddressOnly)) {
-                        publicAddresses.addAll(wildAddrs);
-                    }
-                } else {
-                    // use specified interface
-                    if (!usingInterface.isLoopbackAddress()) {
+                    // don't add it if its already in the list
+                    if (!anAddress.isLoopbackAddress()) {
                         localOnly = false;
                     }
 
-                    String hostAddress = IPUtils.getHostAddress(usingInterface);
-                    EndpointAddress newAddr = new EndpointAddress(protocolName,
-                            hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
-
-                    // Add public address:
-                    // don't add it if its already in the list
-                    // don't add it if specified as public address and publicAddressOnly
-                    if (!(serverName != null && publicAddressOnly)) {
-                        if (!publicAddresses.contains(newAddr)) {
-                            publicAddresses.add(newAddr);
-                        }
+                    if (!publicAddresses.contains(newAddr)) {
+                        wildAddrs.add(newAddr);
                     }
                 }
 
-                // If the only available interface is LOOPBACK,
-                // then make sure we use only that (that includes
-                // resetting the outgoing/listening interface
-                // from ANYADDRESS to LOOPBACK).
+                // we sort them so that later equals() will be deterministic.
+                // the result of IPUtils.getAllLocalAddresses() is not known to 
+                // be sorted.
+                Collections.sort(wildAddrs, new Comparator<EndpointAddress>() {
+                    public int compare(EndpointAddress one, EndpointAddress two) {
+                        return one.toString().compareTo(two.toString());
+                    }
+
+                    public boolean equals(Object that) {
+                        return (this == that);
+                    }
+                });
+
+                // Add public addresses:
+                // don't add them if we have a hand-set public address and the
+                // publicAddressOnly property is set.
+                if (!(serverName != null && publicAddressOnly)) {
+                    publicAddresses.addAll(wildAddrs);
+                }
+            } else {
+                // use specified interface
+                if (!usingInterface.isLoopbackAddress()) {
+                    localOnly = false;
+                }
+
+                String hostAddress = IPUtils.getHostAddress(usingInterface);
+                EndpointAddress newAddr = new EndpointAddress(protocolName,
+                        hostAddress + ":" + Integer.toString(boundAddress.getPort()), null, null);
+
+                // Add public address:
+                // don't add it if its already in the list
+                // don't add it if specified as public address and publicAddressOnly
+                if (!(serverName != null && publicAddressOnly)) {
+                    if (!publicAddresses.contains(newAddr)) {
+                        publicAddresses.add(newAddr);
+                    }
+                }
+            }
+
+            // If the only available interface is LOOPBACK, then make sure we 
+            // use only that (that includes resetting the outgoing/listening 
+            // interface from ANYADDRESS to LOOPBACK).
+
+            if (localOnly) {
+                usingInterface = IPUtils.LOOPBACK;
+                publicAddresses.clear();
+                String hostAddress = IPUtils.getHostAddress(usingInterface);
+                EndpointAddress pubAddr = new EndpointAddress(protocolName,
+                        hostAddress + ":" + Integer.toString(boundAddress.getPort()), null, null);
+
+                publicAddresses.add(pubAddr);
+            }
+
+            // Set the "preferred" public address. This is the address we will 
+            // use for identifying outgoing requests.
+            publicAddress = publicAddresses.get(0);
+        } else {
+            // Only the outgoing interface matters.
+            // Verify that ANY interface does not in fact mean LOOPBACK only. If
+            // that's the case, we want to make that explicit, so that 
+            // consistency checks regarding the allowed use of that interface
+            // work properly.
+            if (usingInterface.equals(IPUtils.ANYADDRESS)) {
+                boolean localOnly = true;
+                Iterator eachLocal = IPUtils.getAllLocalAddresses();
+
+                while (eachLocal.hasNext()) {
+                    InetAddress anAddress = (InetAddress) eachLocal.next();
+
+                    if (!anAddress.isLoopbackAddress()) {
+                        localOnly = false;
+                        break;
+                    }
+                }
 
                 if (localOnly) {
                     usingInterface = IPUtils.LOOPBACK;
-                    publicAddresses.clear();
-                    String hostAddress = IPUtils.getHostAddress(usingInterface);
-                    EndpointAddress pubAddr = new EndpointAddress(protocolName
-                            ,
-                            hostAddress + ":" + Integer.toString(boundAddresss.getPort()), null, null);
-
-                    publicAddresses.add(pubAddr);
-                }
-
-                // Set the "prefered" public address. This is the address we
-                // will use for identifying outgoing requests.
-                publicAddress = publicAddresses.get(0);
-            } else {
-                // Only the outgoing interface matters.
-                // Verify that ANY interface does not in fact mean
-                // LOOPBACK only. If that's the case, we want to make
-                // that explicit, so that consistency checks regarding
-                // the allowed use of that interface work properly.
-                if (usingInterface.equals(IPUtils.ANYADDRESS)) {
-                    boolean localOnly = true;
-                    Iterator eachLocal = IPUtils.getAllLocalAddresses();
-
-                    while (eachLocal.hasNext()) {
-                        InetAddress anAddress = (InetAddress) eachLocal.next();
-
-                        if (!anAddress.isLoopbackAddress()) {
-                            localOnly = false;
-                            break;
-                        }
-                    }
-
-                    if (localOnly) {
-                        usingInterface = IPUtils.LOOPBACK;
-                    }
-                }
-
-                // The "public" address is just an internal label
-                // it is not usefull to anyone outside.
-                // IMPORTANT: we set the port to zero, to signify that this
-                // address is not realy usable. This means that the
-                // TCP restriction port HACK will NOT be consistent in stopping
-                // multicasts if you do not enable incoming connections.
-                String hostAddress = IPUtils.getHostAddress(usingInterface);
-
-                publicAddress = new EndpointAddress(protocolName, hostAddress + ":0", null, null);
-            }
-
-            msgSrcAddrElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, publicAddress.toString(), null);
-
-            // Get the multicast configuration.
-            allowMulticast = adv.getMulticastState();
-            if (allowMulticast) {
-                multicastAddress = adv.getMulticastAddr();
-                multicastPortNb = adv.getMulticastPort();
-                multicastPacketSize = adv.getMulticastSize();
-
-                mAddress = new EndpointAddress(protocolName, multicastAddress + ":" + Integer.toString(multicastPortNb), null
-                        ,
-                        null);
-
-                // Create the multicast input socket
-                propagatePort = multicastPortNb;
-                propagateSize = multicastPacketSize;
-                propagateInetAddress = InetAddress.getByName(multicastAddress);
-                multicastSocket = new MulticastSocket(new InetSocketAddress(usingInterface, propagatePort));
-                try {
-                    multicastSocket.setLoopbackMode(false);
-                } catch (SocketException ignored) {// We may not be able to set loopback mode. It is
-                    // inconsistent whether an error will occur if the set fails.
                 }
             }
-        } catch (Exception e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Initialization exception", e);
-            }
 
-            throw new PeerGroupException("Initialization exception", e);
+            // The "public" address is just an internal label
+            // it is not usefull to anyone outside.
+            // IMPORTANT: we set the port to zero, to signify that this address
+            // is not realy usable.
+            String hostAddress = IPUtils.getHostAddress(usingInterface);
+
+            publicAddress = new EndpointAddress(protocolName, hostAddress + ":0", null, null);
         }
 
         // Tell tell the world about our configuration.
@@ -690,15 +637,10 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
             configInfo.append("\n\t\tPublic address: ").append(serverName == null ? "(unspecified)" : serverName);
             configInfo.append("\n\t\tInterface address: ").append(
                     interfaceAddressStr == null ? "(unspecified)" : interfaceAddressStr);
-            configInfo.append("\n\t\tMulticast State: ").append(allowMulticast ? "Enabled" : "Disabled");
-
-            if (allowMulticast) {
-                configInfo.append("\n\t\t\tMulticastAddr: ").append(multicastAddress);
-                configInfo.append("\n\t\t\tMulticastPort: ").append(multicastPortNb);
-                configInfo.append("\n\t\t\tMulticastPacketSize: ").append(multicastPacketSize);
-            }
 
             configInfo.append("\n\tConfiguration :");
+            configInfo.append("\n\t\tUsing Interface: ").append(usingInterface.getHostAddress());
+
             if (null != unicastServer) {
                 if (-1 == unicastServer.getStartPort()) {
                     configInfo.append("\n\t\tUnicast Server Bind Addr: ").append(usingInterface.getHostAddress()).append(":").append(
@@ -712,15 +654,10 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                 configInfo.append("\n\t\tUnicast Server : disabled");
             }
 
-            if (allowMulticast) {
-                configInfo.append("\n\t\tMulticast Server Bind Addr: ").append(multicastSocket.getLocalSocketAddress());
-            }
             configInfo.append("\n\t\tPublic Addresses: ");
             configInfo.append("\n\t\t\tDefault Endpoint Addr : ").append(publicAddress);
 
-            for (Object publicAddress1 : publicAddresses) {
-                EndpointAddress anAddr = (EndpointAddress) publicAddress1;
-
+            for (EndpointAddress anAddr : publicAddresses) {
                 configInfo.append("\n\t\t\tEndpoint Addr : ").append(anAddr);
             }
             LOG.config(configInfo.toString());
@@ -740,7 +677,15 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
             return Module.START_AGAIN_STALLED;
         }
 
-        messengerSelectorThread = new Thread(myThreadGroup, new MessengerSelectorThread(), "MessengerSelectorThread for " + this);
+        try {
+            messengerSelector = SelectorProvider.provider().openSelector();
+        } catch (IOException e) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Could not create a messenger selector", e);
+            }
+        }
+
+        messengerSelectorThread = new Thread(group.getHomeThreadGroup(), new MessengerSelectorThread(), "TCP Transport MessengerSelectorThread for " + this);
         messengerSelectorThread.setDaemon(true);
         messengerSelectorThread.start();
 
@@ -758,26 +703,10 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
         // do not exist yet ! (And get an NPE because we do not have the messenger listener set).
 
         if (unicastServer != null) {
-            if (!unicastServer.start(myThreadGroup)) {
+            if (!unicastServer.start()) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                     LOG.severe("Unable to start TCP Unicast Server");
                 }
-                return -1;
-            }
-        }
-
-        if (allowMulticast) {
-            try {
-                multicastSocket.joinGroup(propagateInetAddress);
-                multicastThread = new Thread(myThreadGroup, this, "TCP Multicast Server Listener");
-                multicastProcessor = new MulticastProcessor();
-                multicastThread.setDaemon(true);
-                multicastThread.start();
-            } catch (IOException soe) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe("Could not join multicast group, setting Multicast off");
-                }
-                allowMulticast = false;
                 return -1;
             }
         }
@@ -788,20 +717,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
             if (transportServiceMonitor != null) {
                 unicastTransportMeter = transportServiceMonitor.createTransportMeter("TCP", publicAddress);
-            }
-        }
-
-        if (allowMulticast) {
-            if (TransportMeterBuildSettings.TRANSPORT_METERING) {
-                TransportServiceMonitor transportServiceMonitor = (TransportServiceMonitor) MonitorManager.getServiceMonitor(group,
-                        MonitorResources.transportServiceMonitorClassID);
-
-                if (transportServiceMonitor != null) {
-                    multicastTransportMeter = transportServiceMonitor.createTransportMeter("Multicast", mAddress);
-                    multicastTransportBindingMeter = getMulticastTransportBindingMeter(mAddress);
-                    multicastTransportBindingMeter.connectionEstablished(true, 0); // Since multicast is connectionless, force it to appear outbound connected
-                    multicastTransportBindingMeter.connectionEstablished(false, 0); // Since multicast is connectionless, force it to appear inbound connected
-                }
             }
         }
 
@@ -823,11 +738,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
 
         isClosed = true;
         
-        if (null != multicastProcessor) {
-            multicastProcessor.stop();
-            multicastProcessor = null;
-        }
-        
         if (unicastServer != null) {
             unicastServer.stop();
             unicastServer = null;
@@ -845,11 +755,10 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                 }
             }
         }
-
-        if (multicastSocket != null) {
-            multicastSocket.close();
-            multicastSocket = null;
-            multicastThread = null;
+        
+        // Inform the pool that we don't need as many write selectors.
+        synchronized(writeSelectorCache) {
+            extraWriteSelectors += MAX_WRITE_SELECTORS;
         }
 
         endpoint.removeMessageTransport(this);
@@ -964,145 +873,9 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
     }
 
     /**
-     * Handles incoming multicasts.
-     */
-    public void run() {
-
-        if (!allowMulticast) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Multicast disabled");
-            }
-            return;
-        }
-
-        try {
-
-            byte[] buffer;
-
-            while (true) {
-                if (isClosed) {
-                    return;
-                }
-
-                buffer = new byte[propagateSize];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-                try {
-                    multicastSocket.receive(packet);
-                    if (isClosed) {
-                        return;
-                    }
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("multicast message received from :" + packet.getAddress().getHostAddress());
-                    }
-                    multicastProcessor.put(packet);
-                } catch (Exception e) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE) && (!isClosed)) {
-                        LOG.log(Level.SEVERE, "failure during multicast receive", e);
-                    }
-                    if (isClosed) {
-                        return;
-                    }
-                    break;
-                }
-                packet = null;
-            }
-        } catch (Throwable all) {
-            if (isClosed) {
-                return;
-            }
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-            }
-        }
-    }
-
-    /**
      * {@inheritDoc}
      * <p/>
-     * <p/>Synchronized to not allow concurrent IP multicast: this
-     * naturally bounds the usage of ip-multicast boolean be linear and not
-     * exponential.
-     */
-    public synchronized boolean propagate(Message message, String pName, String pParams, int initalTTL) {
-        if (!allowMulticast) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Multicast disabled, returning");
-            }
-            return false;
-        }
-
-        long sendStartTime = System.currentTimeMillis();
-        int numBytesInPacket = 0;
-
-        try {
-            if (TransportMeterBuildSettings.TRANSPORT_METERING) {
-                sendStartTime = System.currentTimeMillis();
-            }
-
-            message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, msgSrcAddrElement);
-
-            // First build the destination and source addresses
-            EndpointAddress destAddr = new EndpointAddress(mAddress, pName, pParams);
-            MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME
-                    ,
-                    destAddr.toString(), null);
-
-            message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
-
-            WireFormatMessage serialed = WireFormatMessageFactory.toWire(message, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
-            MessagePackageHeader header = new MessagePackageHeader();
-
-            header.setContentTypeHeader(serialed.getMimeType());
-            header.setContentLengthHeader(serialed.getByteLength());
-
-            try {
-                header.replaceHeader("srcEA", getPublicAddress().toString().getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException never) {
-                // utf-8 is a required encoding.
-                throw new IllegalStateException("utf-8 encoding support missing!");
-            }
-
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream(multicastPacketSize);
-
-            buffer.write('J');
-            buffer.write('X');
-            buffer.write('T');
-            buffer.write('A');
-            header.sendToStream(buffer);
-            serialed.sendToStream(buffer);
-            buffer.flush();
-            buffer.close();
-            numBytesInPacket = buffer.size();
-
-            DatagramPacket packet = new DatagramPacket(buffer.toByteArray(), numBytesInPacket, propagateInetAddress, propagatePort);
-
-            multicastSocket.send(packet);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Sent Multicast message to :" + pName + "/" + pParams);
-            }
-            if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.messageSent(true, message, System.currentTimeMillis() - sendStartTime
-                        ,
-                        numBytesInPacket);
-            }
-            return true;
-        } catch (IOException e) {
-            if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.sendFailure(true, message, System.currentTimeMillis() - sendStartTime,
-                        numBytesInPacket);
-            }
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Multicast socket send failed", e);
-            }
-            return false;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * <p/>This implementation tries to open a connection, and after tests the
+     * This implementation tries to open a connection, and after tests the
      * result.
      */
     public boolean ping(EndpointAddress addr) {
@@ -1166,14 +939,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
         }
     }
 
-    TransportBindingMeter getMulticastTransportBindingMeter(EndpointAddress destinationAddress) {
-        if (multicastTransportMeter != null) {
-            return multicastTransportMeter.getTransportBindingMeter(group.getPeerID(), destinationAddress);
-        } else {
-            return null;
-        }
-    }
-
     void messengerReadyEvent(Messenger newMessenger, EndpointAddress connAddr) {
         messengerEventListener.messengerReady(new MessengerEvent(this, newMessenger, connAddr));
     }
@@ -1189,12 +954,13 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
     }
 
     /**
-     * Getter for property 'selector'.
+     * Get a write selector from the cache.
      *
-     * @return Value for property 'selector'.
-     * @throws InterruptedException if interrupted
+     * @return A write selector.
+     * @throws InterruptedException If interrupted while waiting for a selector
+     *  to become available.
      */
-    public Selector getSelector() throws InterruptedException {
+    Selector getSelector() throws InterruptedException {
         synchronized (writeSelectorCache) {
             Selector selector = null;
 
@@ -1232,11 +998,16 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
      *
      * @param selector the selector to put back into the pool
      */
-    public void returnSelector(Selector selector) {
+    void returnSelector(Selector selector) {
         synchronized (writeSelectorCache) {
-            writeSelectorCache.push(selector);
-            // it does not hurt to notify, even if there are no waiters
-            writeSelectorCache.notify();
+            if( extraWriteSelectors > 0 )  {
+                // Allow the selector to be discarded.
+                extraWriteSelectors--;
+            } else {
+                writeSelectorCache.push(selector);
+                // it does not hurt to notify, even if there are no waiters
+                writeSelectorCache.notify();
+            }
         }
     }
 
@@ -1369,7 +1140,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
      * @param channel   the socket channel.
      * @param messenger the messenger to attach to the channel.
      */
-    public void register(SocketChannel channel, TcpMessenger messenger) {
+    void register(SocketChannel channel, TcpMessenger messenger) {
         regisMap.put(messenger, channel);
         messengerSelector.wakeup();
     }
@@ -1379,7 +1150,7 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
      *
      * @param channel the socket channel.
      */
-    public void unregister(SocketChannel channel) {
+    void unregister(SocketChannel channel) {
         unregisMap.add(channel);
         messengerSelector.wakeup();
     }
@@ -1459,197 +1230,6 @@ public class TcpTransport implements Runnable, Module, MessageSender, MessageRec
                             LOG.log(Level.FINE, "Key is already cancelled, removing key from registeration map", e);
                         }
                     }
-                }
-            }
-        }
-        executor.purge();
-    }
-
-    /**
-     * a class with it's own threadpool dedicated to processing datagrams
-     * Note: could use the group threadpool instead, chose not to as it may introduce unfairness in a storm
-     *
-     */
-    private class MulticastProcessor implements Runnable {
-
-        private ThreadPoolExecutor threadPool;
-        private final static int MAXPOOLSIZE = 5;
-        private final ArrayBlockingQueue<DatagramPacket> queue = new ArrayBlockingQueue<DatagramPacket>(MAXPOOLSIZE * 2);
-
-        /**
-         * Default constructor
-         */
-        MulticastProcessor() {
-            this.threadPool = new ThreadPoolExecutor(2, MAXPOOLSIZE,
-                                                     20, TimeUnit.SECONDS,
-                                                     new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2));
-            threadPool.setRejectedExecutionHandler(new CallerBlocksPolicy(MAXPOOLSIZE));
-        }
-
-        /**
-         * Stops this thread
-         */
-        public void stop() {
-            threadPool.shutdownNow();
-            queue.clear();
-        }
-
-        /**
-         * Puts a datagram on the queue
-         *
-         * @param packet the datagram
-         */
-        void put(DatagramPacket packet) {
-            try {
-                queue.put(packet);
-                threadPool.execute(this);
-            } catch (InterruptedException e) {
-                if (Logging.SHOW_SEVERE) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable", e);
-                }
-            }
-        }
-
-        /**
-         * Handle a byte buffer from a multi-cast. This assumes that processing of
-         * the buffer is lightweight. Formerly there used to be a delegation to
-         * worker threads. The way queuing works has changed though and it should
-         * be ok to do the receiver right on the server thread.
-         *
-         * @param packet the message packet.
-         */
-        public void processMulticast(DatagramPacket packet) {
-            if (!allowMulticast) {
-                return;
-            }
-            int size = packet.getLength();
-            byte[] buffer = packet.getData();
-
-            long messageReceiveBeginTime = System.currentTimeMillis();
-
-            try {
-                if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                    messageReceiveBeginTime = System.currentTimeMillis();
-                }
-                if (size < 4) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("damaged multicast discarded");
-                    }
-                    return;
-                }
-
-                if (('J' != buffer[0]) || ('X' != buffer[1]) || ('T' != buffer[2]) || ('A' != buffer[3])) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("damaged multicast discarded");
-                    }
-                    return;
-                }
-
-                ByteBuffer bbuffer = ByteBuffer.wrap(buffer, 4, size - 4);
-                MessagePackageHeader header = new MessagePackageHeader();
-
-                if (header.readHeader(bbuffer)) {
-                    MimeMediaType msgMime = header.getContentTypeHeader();
-                    // TODO 20020730 bondolo@jxta.org Do something with content-coding here.
-
-                    // read the message!
-                    Message msg = WireFormatMessageFactory.fromBuffer(bbuffer, msgMime, null);
-
-                    // Give the message to the EndpointService Manager
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("handing multicast message to EndpointService");
-                    }
-
-                    if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                        multicastTransportBindingMeter.messageReceived(false, msg,
-                                messageReceiveBeginTime - System.currentTimeMillis(), size);
-                    }
-                    // Demux the message for the upper layers.
-                    endpoint.demux(msg);
-                }
-            } catch (Throwable e) {
-                if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                    multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - System.currentTimeMillis(), size);
-                }
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "processMulticast : discard incoming multicast message - exception ", e);
-                }
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public void run() {
-            try {
-                DatagramPacket packet = queue.take();
-                processMulticast(packet);
-            } catch (InterruptedException ie) {
-                // we are being interrupted to stop
-            } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable", all);
-                }
-            }
-        }
-    }
-
-
-    /**
-     * This is copied from StdPeerGroup.  it should be factored out in a utility class and used by both StdPeerGroup and
-     * this class.
-     */
-    private static class CallerBlocksPolicy implements RejectedExecutionHandler {
-        int max;
-
-        CallerBlocksPolicy(int max) {
-            this.max = max;
-        }
-
-        public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
-            BlockingQueue<Runnable> queue = executor.getQueue();
-
-            while (!executor.isShutdown()) {
-                boolean pushed;
-
-                try {
-                    executor.purge();
-                    pushed = queue.offer(runnable, 3, TimeUnit.SECONDS);
-                    if (pushed) {
-                        break;
-                    }
-                } catch (InterruptedException woken) {
-                    // This is our entire handling of interruption. If the
-                    // interruption signaled a state change of the executor our
-                    // while() loop condition will handle termination.
-                    Thread.interrupted();
-                    continue;
-                }
-
-                // Couldn't push? Add a thread!
-                synchronized (executor) {
-                    int currentMax = executor.getMaximumPoolSize();
-                    int newMax = Math.min(currentMax + 1, max * 2);
-
-                    if (newMax != currentMax) {
-                        executor.setMaximumPoolSize(newMax);
-                    }
-
-                    // If we are already at the max, increase the core size
-                    if (newMax == (max * 2)) {
-                        int currentCore = executor.getCorePoolSize();
-                        int newCore = Math.min(currentCore + 1, max * 2);
-
-                        if (currentCore != newCore) {
-                            executor.setCorePoolSize(newCore);
-                        } else {
-                            // Core size is at the max too. We just have to wait.
-                            continue;
-                        }
-                    }
-                    // Should work now.
-                    executor.execute(runnable);
-                    break;
                 }
             }
         }

@@ -56,7 +56,6 @@
 
 package net.jxta.impl.rendezvous.edge;
 
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +107,6 @@ import net.jxta.impl.rendezvous.rpv.PeerviewSeedingManager;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
-
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -194,15 +192,14 @@ public class EdgePeerRdvService extends StdRendezVousService {
             LEASE_MARGIN = rdvConfigAdv.getLeaseMargin();
         }
         
+        String serviceName = rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString();
         if (PeerGroupID.worldPeerGroupID.equals(group.getParentGroup().getPeerGroupID())) {
             URISeedingManager uriSeedingManager;
             
             if (rdvConfigAdv.getProbeRelays()) {
-                uriSeedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds()
-                        ,
-                        rdvConfigAdv.getProbeRelays(), group);
+                uriSeedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group, serviceName);
             } else {
-                uriSeedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds());
+                uriSeedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), rdvConfigAdv.getUseOnlySeeds(), group, serviceName);
             }
             
             for (URI aSeeder : Arrays.asList(rdvConfigAdv.getSeedingURIs())) {
@@ -215,9 +212,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             
             this.seedingManager = uriSeedingManager;
         } else {
-            this.seedingManager = new PeerviewSeedingManager(rdvConfigAdv.getAclUri(), group, group.getParentGroup()
-                    ,
-                    rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
+            this.seedingManager = new PeerviewSeedingManager(rdvConfigAdv.getAclUri(), group, group.getParentGroup(), serviceName);
         }
         
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -381,9 +376,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-                    + serviceParam);
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"+ serviceParam);
         }
         
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
@@ -444,7 +437,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
      * {@inheritDoc}
      */
     @Override
-    public void walk(Vector<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
+    public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
         
         propagate(destPeerIDs.elements(), msg, serviceName, serviceParam, initialTTL);
     }

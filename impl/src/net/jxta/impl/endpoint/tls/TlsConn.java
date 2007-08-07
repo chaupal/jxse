@@ -431,8 +431,7 @@ class TlsConn {
     boolean sendToRemoteTls(Message msg) throws IOException {
         
         synchronized (acquireMessengerLock) {
-            if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
-                
+            if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {                
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Getting messenger for " + destAddr);
                 }
@@ -452,7 +451,7 @@ class TlsConn {
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending " + msg + " to endpoint " + destAddr);
+            LOG.fine("Sending " + msg + " to " + destAddr);
         }
         
         // Good we have a messenger. Send the message.

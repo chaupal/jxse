@@ -96,7 +96,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     <target>signjar</target>
                 </action>
                 <action name="compile.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>compile-selected-files-in-core-src</target>
                     <context>
                         <property>files</property>
@@ -109,7 +109,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     </context>
                 </action>
                 <action name="compile.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>compile-selected-files-in-core-src</target>
                     <context>
                         <property>files</property>
@@ -122,7 +122,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     </context>
                 </action>
                 <action name="compile.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>compile-selected-files-in-ext-src</target>
                     <context>
                         <property>files</property>
@@ -135,7 +135,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     </context>
                 </action>
                 <action name="compile.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>compile-selected-files-in-test-src</target>
                     <context>
                         <property>files</property>
@@ -148,7 +148,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     </context>
                 </action>
                 <action name="compile.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>compile-selected-files-in-tutorials-src</target>
                     <context>
                         <property>files</property>
@@ -165,7 +165,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     <target>debug-runshell</target>
                 </action>
                 <action name="debug.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>debug-single-tutorial</target>
                     <context>
                         <property>classname</property>
@@ -178,7 +178,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     </context>
                 </action>
                 <action name="run.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>run-single-tutorial</target>
                     <context>
                         <property>classname</property>
@@ -191,7 +191,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     </context>
                 </action>
                 <action name="debug.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>debug-single-test</target>
                     <context>
                         <property>classname</property>
@@ -204,7 +204,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     </context>
                 </action>
                 <action name="run.single">
-                    <script>nbproject/ide-targets.xml</script>
+                    <script>nbproject/ide-file-targets.xml</script>
                     <target>run-single-test</target>
                     <context>
                         <property>classname</property>
@@ -292,7 +292,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             </compilation-unit>
             <compilation-unit>
                 <package-root>tutorials/src</package-root>
-                <classpath mode="compile">api/src</classpath>
+                <classpath mode="compile">api/src:dist/jxta.jar</classpath>
                 <built-to>tutorials/classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>

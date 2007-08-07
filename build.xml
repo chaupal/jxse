@@ -46,7 +46,7 @@ This license is based on the BSD license adopted by the Apache Foundation.
 
 $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
 -->
-<project name="platform" basedir="." default="signjar">
+<project name="platform" basedir="." default="all">
   <description>
 
    Build the JTXA platform Project
@@ -148,12 +148,13 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <delete dir="${build_meter}" />
     <delete dir="${build}" />
     <delete dir="${build_test}" />    
-    <delete dir="${build_tutorials}" />    
     <delete dir="${dist}" />
     <delete dir="${doc}" />
     <delete dir="${jnlp}" />
     <delete dir="${rpm}" />
     <delete dir="${tmp}" />
+    
+    <ant inheritAll="false" antfile="${basedir}/tutorials/build.xml" target="clean"/>    
   </target>
   
   <target name="paths">
@@ -208,6 +209,12 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <tstamp />
 
     <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}" />    
+    <mkdir dir="${build_meter_target}" />
+    <mkdir dir="${build_test}" />
+    <mkdir dir="${dist}" />
+    <mkdir dir="${doc}" />
+    <mkdir dir="${jnlp}" />
     <mkdir dir="${tmp}" />
 
     <!-- set up version property -->
@@ -230,9 +237,6 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         <isset property="net.jxta.build.jnlp.baseurl" />
       </not>
     </condition>
-
-    <!-- Create the directory structure into which Metering Settings source files are generated -->
-    <mkdir dir="${build_meter_target}" />
   </target>
 
   <!-- Checks if metering config files are up to date -->
@@ -276,12 +280,10 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     
     <!-- Delete all existing class files -->
     <delete dir="${build}" />
+    <mkdir dir="${build}" />
   </target>
   
-  <target name="compile" depends="prepare, meterConfig" description="Compile the source files">
-
-    <!-- Compile the API and Implementation -->
-    <mkdir dir="${build}" />
+  <target name="compile" depends="prepare, meterConfig" description="Compile the API and Implementation">      
     <javac compiler="${net.jxta.build.compiler}" destdir="${build}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
       <compilerarg compiler="modern" value="-Xlint:all,-deprecation,-serial,-unchecked"/>
       <classpath>
@@ -292,39 +294,59 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     </javac>
   </target>
 
-  <target name="source-zip" depends="clean,prepare" description="Creates source zip file">
-    <zip destfile="${dist}/jxse-src-${net.jxta.build.version}.zip">
-      <zipfileset dir="${basedir}" prefix="jxse-src-${net.jxta.build.version}">
+  <target name="source-tbz2" depends="prepare" description="Creates source tar.bz2 file">
+    <delete file="${dist}/jxse-src-${net.jxta.build.version}.tar.bz2" />
+
+    <tar destfile="${dist}/jxse-src-${net.jxta.build.version}.tar.bz2" compression="bzip2" longfile="gnu">
+      <tarfileset dir="${basedir}" prefix="jxse-src-${net.jxta.build.version}">
         <exclude name="**/.*" />
-        <exclude name="dist/**" />
-        <exclude name="**/classes/**" />
-        <exclude name="jnlp/**" />
-        <exclude name="rpm/**" />
-        <exclude name="tmp/**" />
         <exclude name="**/.*/**" />
-      </zipfileset>
-    </zip>
+        <exclude name="**/classes/**" />
+        <exclude name="dist/**" />
+        <exclude name="jnlp/**" />
+        <exclude name="nbproject/private/**" />
+        <exclude name="tmp/**" />
+        <exclude name="rpm/**" />
+        <exclude name="www/**" />
+      </tarfileset>
+    </tar>
   </target>
 
-  <target name="source-tgz" depends="clean,prepare" description="Creates source tar.gz file">
+  <target name="source-tgz" depends="prepare" description="Creates source tar.gz file">
     <delete file="${dist}/jxse-src-${net.jxta.build.version}.tar.gz" />
 
     <tar destfile="${dist}/jxse-src-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
       <tarfileset dir="${basedir}" prefix="jxse-src-${net.jxta.build.version}">
         <exclude name="**/.*" />
-        <exclude name="dist/**" />
+        <exclude name="**/.*/**" />
         <exclude name="**/classes/**" />
+        <exclude name="dist/**" />
         <exclude name="jnlp/**" />
+        <exclude name="nbproject/private/**" />
         <exclude name="tmp/**" />
         <exclude name="rpm/**" />
-        <exclude name="**/.*/**" />
+        <exclude name="www/**" />
       </tarfileset>
     </tar>
   </target>
 
-  <target name="jar" depends="compile" description="Creates Unsigned JXTA Platform and Extensions Jar file">
-    <mkdir dir="${dist}" />
+  <target name="source-zip" depends="prepare" description="Creates source zip file">
+    <zip destfile="${dist}/jxse-src-${net.jxta.build.version}.zip" comment="JXSE ${net.jxta.build.version} -- ${DSTAMP}">
+      <zipfileset dir="${basedir}" prefix="jxse-src-${net.jxta.build.version}">
+        <exclude name="**/.*" />
+        <exclude name="**/.*/**" />
+        <exclude name="**/classes/**" />
+        <exclude name="dist/**" />
+        <exclude name="jnlp/**" />
+        <exclude name="nbproject/private/**" />
+        <exclude name="rpm/**" />
+        <exclude name="tmp/**" />
+        <exclude name="www/**" />
+      </zipfileset>
+    </zip>
+  </target>
 
+  <target name="jar" depends="compile" description="Creates Unsigned JXTA Platform and Extensions Jar file">
     <jar basedir="${build}" jarfile="${jxtajar}">
       <fileset file="${basedir}/license.txt" />
       <fileset dir="${basedir}/api/src">
@@ -392,8 +414,6 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
   </target>
 
   <target name="jnlp" depends="signjar" description="Build JXTA JNLP distribution">
-    <mkdir dir="${jnlp}" />
-
     <copy todir="${jnlp}/lib" flatten="true">
       <fileset dir="${dist}">
         <include name="*.jar" />
@@ -488,7 +508,6 @@ href="bcprov-ext.jnlp">
     <javadoc source="${source}" destdir="${impldoc}" access="package" use="true" overview="${basedir}/impl/src/net/jxta/impl/overview.html" windowtitle="JXTA Java SE Reference Implementation" additionalparam="-notimestamp -breakiterator -quiet">
       <link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
       <link href="http://www.bouncycastle.org/docs/docs1.5/" />
-      <link href="http://jetty.mortbay.org/javadoc/" />
       <link href="http://java.sun.com/products/servlet/2.3/javadoc/" />
       <link href="https://jxta-docs.dev.java.net/nonav/jxse-javadoc/current/api/" offline="true" packagelistLoc="${apidoc}" />
       <sourcepath>
@@ -503,13 +522,15 @@ href="bcprov-ext.jnlp">
     </javadoc>
   </target>
 
-  <target name="javadoc-zip" depends="javadoc" description="Creates zip file of javadoc">
-    <zip destfile="${dist}/jxse-doc-${net.jxta.build.version}.zip">
+  <target name="javadoc-tbz2" depends="javadoc" description="creates tar.bz2 file of javadoc">
+    <delete file="${dist}/jxse-doc-${net.jxta.build.version}.tar.bz2" />
+
+    <tar destfile="${dist}/jxse-doc-${net.jxta.build.version}.tar.bz2" compression="bzip2" longfile="gnu">
       <exclude name="**/CVS/**" />
       <exclude name="**/.*" />
-      <fileset dir="${apidoc}/.." includes="api/" />
-      <fileset dir="${impldoc}/.." includes="impl/" />
-    </zip>
+      <tarfileset dir="${apidoc}/.." includes="api/" />
+      <tarfileset dir="${impldoc}/.." includes="impl/" />
+    </tar>
   </target>
 
   <target name="javadoc-tgz" depends="javadoc" description="creates tar.gz file of javadoc">
@@ -523,28 +544,24 @@ href="bcprov-ext.jnlp">
     </tar>
   </target>
 
-  <target name="lib-zip" depends="signjar" description="Creates zip file of libs">
-    <zip destfile="${dist}/jxse-lib-${net.jxta.build.version}.zip">
-      <fileset file="${basedir}/license.txt" />
-
-      <zipfileset dir="${lib}">
-        <include name="**/*.jar" />
-      </zipfileset>
-
-      <zipfileset dir="${dist}">
-        <include name="**/*.jar" />
-      </zipfileset>
+  <target name="javadoc-zip" depends="javadoc" description="Creates zip file of javadoc">
+    <zip destfile="${dist}/jxse-doc-${net.jxta.build.version}.zip" comment="JXSE JavaDoc ${net.jxta.build.version} -- ${DSTAMP}">
+      <exclude name="**/CVS/**" />
+      <exclude name="**/.*" />
+      <fileset dir="${apidoc}/.." includes="api/" />
+      <fileset dir="${impldoc}/.." includes="impl/" />
     </zip>
   </target>
 
-  <target name="lib-tgz" depends="signjar" description="creates tar.gz file of libs">
-    <delete file="${dist}/jxse-lib-${net.jxta.build.version}.tar.gz" />
+  <target name="lib-tbz2" depends="signjar" description="creates tar.bz2 file of libs">
+    <delete file="${dist}/jxse-lib-${net.jxta.build.version}.tar.bz2" />
 
-    <tar destfile="${dist}/jxse-lib-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
+    <tar destfile="${dist}/jxse-lib-${net.jxta.build.version}.tar.bz2" compression="bzip2" longfile="gnu">
       <tarfileset file="${basedir}/license.txt" />
 
       <tarfileset dir="${lib}">
         <include name="**/*.jar" />
+        <include name="**/*LICENSE*" />
       </tarfileset>
 
       <tarfileset dir="${dist}">
@@ -553,11 +570,41 @@ href="bcprov-ext.jnlp">
     </tar>
   </target>
   
+  <target name="lib-tgz" depends="signjar" description="creates tar.gz file of libs">
+    <delete file="${dist}/jxse-lib-${net.jxta.build.version}.tar.gz" />
+
+    <tar destfile="${dist}/jxse-lib-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset file="${basedir}/license.txt" />
+
+      <tarfileset dir="${lib}">
+        <include name="**/*.jar" />
+        <include name="**/*LICENSE*" />
+      </tarfileset>
+
+      <tarfileset dir="${dist}">
+        <include name="**/*.jar" />
+      </tarfileset>
+    </tar>
+  </target>
+
+  <target name="lib-zip" depends="signjar" description="Creates zip file of libs">
+    <zip destfile="${dist}/jxse-lib-${net.jxta.build.version}.zip" comment="JXSE ${net.jxta.build.version} -- ${DSTAMP}">
+      <fileset file="${basedir}/license.txt" />
+
+      <zipfileset dir="${lib}">
+        <include name="**/*.jar" />
+        <include name="**/*LICENSE*" />
+      </zipfileset>
+
+      <zipfileset dir="${dist}">
+        <include name="**/*.jar" />
+      </zipfileset>
+    </zip>
+  </target>
+  
   <!-- Run targets, useful for testing the platform -->
   
   <target name="runshell" depends="signjar" description="Start the shell">
-    <!-- xxx: would "antcall execute ..." but can't pass sysprop structure -->
- 
     <java classname="net.jxta.impl.peergroup.Boot" fork="yes">
       <jvmarg value="-Xms${net.jxta.jvm.xms}" />
       <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
@@ -577,8 +624,6 @@ href="bcprov-ext.jnlp">
   <!-- JUnit Testing Targets -->
 
   <target name="test.compile" depends="compile" description="Compiles JUnit tests.">
-    <mkdir dir="${build_test}" />
-    
     <javac compiler="${net.jxta.build.compiler}" destdir="${build_test}" source="${source}" target="${source}" debug="${debug}" deprecation="off" optimize="${optimize}">
       <classpath>
         <pathelement location="${build}" />
@@ -640,17 +685,6 @@ href="bcprov-ext.jnlp">
     <delete dir="${tmp}/Junit" />
   </target>
 
-  <!-- java wrapper -->
-  <target name="execute">
-    <java classname="${main}" fork="yes" spawn="yes">
-      <classpath refid="classpath" />
-      <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-      <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-      <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-      <sysproperty key="JXTA_HOME" value="${net.jxta.jxta_home}" />
-    </java>
-  </target>
-
   
   <target name="tutorials.compile" description="Compiles tutorials">
     <ant inheritAll="false" antfile="${basedir}/tutorials/build.xml" target="compile"/>
@@ -661,7 +695,7 @@ href="bcprov-ext.jnlp">
   
   <target name="all" depends="clean, signjar" description="Clean build of core targets" />
 
-  <target name="dist" depends="all, lib-zip, lib-tgz, jnlp, javadoc, javadoc-zip, javadoc-tgz, source-zip, source-tgz" description="Clean build of all dist targets">
+  <target name="dist" depends="clean, source-tbz2, source-tgz, source-zip, lib-tbz2, lib-tgz, lib-zip, jnlp, javadoc-tbz2, javadoc-tgz, javadoc-zip" description="Clean build of all dist targets">
     <ant inheritAll="false" antfile="${basedir}/tutorials/build.xml" target="dist"/>    
   </target>
 </project>

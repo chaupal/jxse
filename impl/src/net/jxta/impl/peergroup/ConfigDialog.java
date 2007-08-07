@@ -961,13 +961,6 @@ public class ConfigDialog extends Frame {
         /**
          * {@inheritDoc}
          */
-        public boolean getState() {
-            return useMe.getState();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
         public void itemStateChanged(ItemEvent e) {
             setState(useMe.getState());
         }
@@ -1099,16 +1092,18 @@ public class ConfigDialog extends Frame {
     /**
      * Manages Rendezvous service options
      */
-    final static class RdvPanel extends BorderPanelGBL {
+    final static class RdvPanel extends BorderPanelGBL implements ItemListener {
 
+        private final Checkbox useRdv;
         private final Checkbox useOnlySeeds;
         private final HostListPanel seeding;
         private final HostListPanel seeds;
 
-        RdvPanel(boolean onlySeeds) {
+        RdvPanel(boolean useARdv, boolean onlySeeds) {
             super("Rendezvous Settings");
 
-            useOnlySeeds = new Checkbox("Use only configured seed rendezvous", null, onlySeeds);
+            useRdv = new Checkbox("Use a rendezvous", null, useARdv);
+            useOnlySeeds = new Checkbox("Use only configured seeds", null, onlySeeds);
             seeds = new HostListPanel("Seeds", "Rendezvous seed peers", true, false);
             seeding = new HostListPanel("Seeding", "Rendezvous seeding URIs", true, false);
 
@@ -1117,9 +1112,16 @@ public class ConfigDialog extends Frame {
             c1.gridx = 0;
             c1.gridy = 0;
             c1.anchor = GridBagConstraints.LINE_START;
+            add(useRdv, c1);
+            useRdv.addItemListener(this);
+
+            c1.gridx++;
+            c1.anchor = GridBagConstraints.LINE_END;
             add(useOnlySeeds, c1);
 
+            c1.gridx = 0;
             c1.gridy++;
+            c1.gridwidth = 2;
             c1.weightx = 1.0;
             c1.fill = GridBagConstraints.HORIZONTAL;
             c1.anchor = GridBagConstraints.LINE_START;
@@ -1127,6 +1129,15 @@ public class ConfigDialog extends Frame {
 
             c1.gridy++;
             add(seeds, c1);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void itemStateChanged(ItemEvent e) {
+            seeds.setEnabled(useRdv.getState());
+            seeding.setEnabled(useRdv.getState());
+            useOnlySeeds.setEnabled(useRdv.getState());
         }
     }
 
@@ -1146,7 +1157,7 @@ public class ConfigDialog extends Frame {
             super("Relay Settings");
 
             useRelay = new Checkbox("Use a relay", null, useARelay);
-            useOnlySeeds = new Checkbox("Use only configured seed relays", null, onlySeeds);
+            useOnlySeeds = new Checkbox("Use only configured seeds", null, onlySeeds);
             useOnlySeeds.setEnabled(useARelay);
             seeds = new HostListPanel("Seeds", "Relay seed peers", useARelay, false);
             seeding = new HostListPanel("Seeding", "Relay seeding URIs", useARelay, false);
@@ -1163,8 +1174,8 @@ public class ConfigDialog extends Frame {
             c1.anchor = GridBagConstraints.LINE_END;
             add(useOnlySeeds, c1);
 
-            c1.gridy++;
             c1.gridx = 0;
+            c1.gridy++;
             c1.gridwidth = 2;
             c1.weightx = 1.0;
             c1.fill = GridBagConstraints.HORIZONTAL;
@@ -1402,6 +1413,7 @@ public class ConfigDialog extends Frame {
 
         // Rendezvous Settings
         boolean isRendezvous;
+        boolean isAdhoc;        
         boolean onlySeeds;
         List<String> seedRdvs = new ArrayList<String>();
         List<String> seedingRdvs = new ArrayList<String>();
@@ -1414,6 +1426,8 @@ public class ConfigDialog extends Frame {
             rdvConfigAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
 
             isRendezvous = (RendezVousConfiguration.RENDEZVOUS == rdvConfigAdv.getConfiguration());
+
+            isAdhoc = (RendezVousConfiguration.AD_HOC == rdvConfigAdv.getConfiguration());
 
             onlySeeds = rdvConfigAdv.getUseOnlySeeds();
 
@@ -1488,17 +1502,14 @@ public class ConfigDialog extends Frame {
 
         enablingPanel = new EnablingPanel(isRelay, isRendezvous, isJxmeProxy);
 
-        tcpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_TCP, tcpEnabled, "TCP Settings", defaultInterfaceAddressT
-                ,
-                defaultPortT, clientDefaultT, serverDefaultT, defaultServerNameT, defaultServerPortT, noPublicAddressesT
-                ,
+        tcpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_TCP, tcpEnabled, "TCP Settings", defaultInterfaceAddressT,
+                defaultPortT, clientDefaultT, serverDefaultT, defaultServerNameT, defaultServerPortT, noPublicAddressesT,
                 multicastEnabledT);
 
-        httpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_HTTP, httpEnabled, "HTTP Settings", defaultInterfaceAddressH
-                ,
+        httpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_HTTP, httpEnabled, "HTTP Settings", defaultInterfaceAddressH,
                 defaultPortH, clientDefaultH, serverDefaultH, defaultServerNameH, defaultServerPortH, noPublicAddressesH);
 
-        rdvPanel = new RdvPanel(onlySeeds);
+        rdvPanel = new RdvPanel(!isAdhoc, onlySeeds);
 
         // add the relays
 
@@ -1696,7 +1707,7 @@ public class ConfigDialog extends Frame {
         }
 
         // make sure *some* transport is enabled.
-        if ((!(httpPanel.getState())) && (!(tcpPanel.getState()))) {
+        if ((!(httpPanel.useMe.getState())) && (!(tcpPanel.useMe.getState()))) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("At least one of TCP or HTTP must be enabled.");
             pages.showPage("Advanced");
@@ -1714,8 +1725,7 @@ public class ConfigDialog extends Frame {
             }
 
             // Check the http port fields.
-            boolean valid = verifyAddr("HTTP", httpPanel.publicAddr.getState(), httpPanel.ifAddr.getPort()
-                    ,
+            boolean valid = verifyAddr("HTTP", httpPanel.publicAddr.getState(), httpPanel.ifAddr.getPort(),
                     httpPanel.publicAddr.getHost(), httpPanel.publicAddr.getPort());
 
             if (!valid) {
@@ -1726,16 +1736,15 @@ public class ConfigDialog extends Frame {
         // tcp settings
         if (tcpPanel.useMe.getState()) {
             // make sure at least incoming or outgoing enabled.
-            if (!tcpPanel.clientEnabled.getState() && !tcpPanel.publicAddr.getState()) {
+            if (!tcpPanel.clientEnabled.getState() && !tcpPanel.publicAddr.getState() && !tcpPanel.multicast.getState()) {
                 helpLabel.setForeground(Color.red.darker());
-                helpLabel.setText("Must enable incoming and/or outcoming to enable TCP");
+                helpLabel.setText("Must enable at least one of incoming, outcoming or multicast to enable TCP");
                 pages.showPage("Advanced");
                 return false;
             }
 
             // Check the tcp port fields.
-            boolean valid = verifyAddr("TCP", tcpPanel.publicAddr.getState(), tcpPanel.ifAddr.getPort()
-                    ,
+            boolean valid = verifyAddr("TCP", tcpPanel.publicAddr.getState(), tcpPanel.ifAddr.getPort(),
                     tcpPanel.publicAddr.getHost(), tcpPanel.publicAddr.getPort());
 
             if (!valid) {
@@ -1743,24 +1752,24 @@ public class ConfigDialog extends Frame {
             }
         }
 
-        if (!relayPanel.useRelay.getState() && (!httpPanel.getState() || !httpPanel.publicAddr.getState())
-                && (!tcpPanel.getState() || !tcpPanel.publicAddr.getState())) {
+        if (!relayPanel.useRelay.getState() && (!httpPanel.useMe.getState() || !httpPanel.publicAddr.getState())
+                && (!tcpPanel.useMe.getState() || !tcpPanel.publicAddr.getState())) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("Must use Relay if incoming not enabled for TCP and/or HTTP");
             pages.showPage("Relay/Rendezvous");
             return false;
         }
 
-        if (enablingPanel.isRelay.getState() && (!httpPanel.getState() || !httpPanel.publicAddr.getState())
-                && (!tcpPanel.getState() || !tcpPanel.publicAddr.getState())) {
+        if (enablingPanel.isRelay.getState() && (!httpPanel.useMe.getState() || !httpPanel.publicAddr.getState())
+                && (!tcpPanel.useMe.getState() || !tcpPanel.publicAddr.getState())) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("Must enable incoming for TCP and/or HTTP to enable Relay");
             pages.showPage("Advanced");
             return false;
         }
 
-        if (enablingPanel.isRendezvous.getState() && (!httpPanel.getState() || !httpPanel.publicAddr.getState())
-                && (!tcpPanel.getState() || !tcpPanel.publicAddr.getState())) {
+        if (enablingPanel.isRendezvous.getState() && (!httpPanel.useMe.getState() || !httpPanel.publicAddr.getState())
+                && (!tcpPanel.useMe.getState() || !tcpPanel.publicAddr.getState())) {
             helpLabel.setForeground(Color.red.darker());
             helpLabel.setText("Must enable incoming for TCP and/or HTTP to enable Rendezvous");
             pages.showPage("Advanced");
@@ -1836,7 +1845,7 @@ public class ConfigDialog extends Frame {
 
             httpAdv.setPublicAddressOnly(httpPanel.getPubAddrOnly());
 
-            configAdv.putServiceParam(PeerGroup.httpProtoClassID, wrapParm(httpAdv, httpPanel.getState()));
+            configAdv.putServiceParam(PeerGroup.httpProtoClassID, wrapParm(httpAdv, httpPanel.useMe.getState()));
 
             // Save tcp configuration
             TCPAdv tcpAdv = (TCPAdv) AdvertisementFactory.newAdvertisement(TCPAdv.getAdvertisementType());
@@ -1879,7 +1888,7 @@ public class ConfigDialog extends Frame {
 
             tcpAdv.setPublicAddressOnly(tcpPanel.getPubAddrOnly());
 
-            configAdv.putServiceParam(PeerGroup.tcpProtoClassID, wrapParm(tcpAdv, tcpPanel.getState()));
+            configAdv.putServiceParam(PeerGroup.tcpProtoClassID, wrapParm(tcpAdv, tcpPanel.useMe.getState()));
 
             // save the proxy service settings
             XMLDocument proxy = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
@@ -1894,7 +1903,8 @@ public class ConfigDialog extends Frame {
             RdvConfigAdv rdvConf = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
 
             rdvConf.setConfiguration(
-                    enablingPanel.isRendezvous.getState() ? RendezVousConfiguration.RENDEZVOUS : RendezVousConfiguration.EDGE);
+                    enablingPanel.isRendezvous.getState() ? RendezVousConfiguration.RENDEZVOUS : 
+                            rdvPanel.useRdv.getState() ? RendezVousConfiguration.EDGE : RendezVousConfiguration.AD_HOC);
             rdvConf.setUseOnlySeeds(rdvPanel.useOnlySeeds.getState());
 
             for (String s2 : Arrays.asList(rdvPanel.seeds.getItems())) {

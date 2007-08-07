@@ -53,16 +53,16 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.protocol;
-
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
 
 import net.jxta.document.AdvertisementFactory;
@@ -81,14 +81,13 @@ import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.RouteAdvertisement;
 
-
 /**
  * Implements the Resolver Query Message according to the
  * schema defined by the core JXTA Peer Resolver Protocol (PRP).
- *
+ * <p/>
  * <p/><pre>
  * &lt;xs:element name="ResolverQuery" type="jxta:ResolverQuery"/>
- *
+ * <p/>
  * &lt;xs:complexType name="ResolverQuery">
  *   &lt;xs:all>
  *     &lt;xs:element ref="jxta:Cred" minOccurs="0"/>
@@ -102,9 +101,9 @@ import net.jxta.protocol.RouteAdvertisement;
  *   &lt;/xs:all>
  * &lt;/xs:complexType>
  * </pre>
- *
- * <p/><ephasis>IMPORTANT</emphasis>: a ResolverQuery contains an internal 
- * state, the hopCount, which is incremented by various services that needs to. 
+ * <p/>
+ * <p/><ephasis>IMPORTANT</emphasis>: a ResolverQuery contains an internal
+ * state, the hopCount, which is incremented by various services that needs to.
  * As a result, a ResolverQuery may have to be cloned when the hopCount state
  * needs to be reset.
  *
@@ -115,20 +114,20 @@ import net.jxta.protocol.RouteAdvertisement;
 public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
 
     /**
-     * The Log4J logger
+     * The logger
      */
     private final static Logger LOG = Logger.getLogger(ResolverQuery.class.getName());
 
     private static final String handlernameTag = "HandlerName";
-    private static final String  credentialTag = "jxta:Cred";
-    private static final String     queryIdTag = "QueryID";
-    private static final String     hopCountTag = "HC";
-    private static final String   srcPeerIdTag = "SrcPeerID";
-    private static final String   srcRouteTag = "SrcPeerRoute";
-    private static final String       queryTag = "Query";
+    private static final String credentialTag = "jxta:Cred";
+    private static final String queryIdTag = "QueryID";
+    private static final String hopCountTag = "HC";
+    private static final String srcPeerIdTag = "SrcPeerID";
+    private static final String srcRouteTag = "SrcPeerRoute";
+    private static final String queryTag = "Query";
 
     /**
-     *   Default constructor
+     * Default constructor
      */
     public ResolverQuery() {
         super();
@@ -137,13 +136,12 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
     /**
      * Construct a doc from strings
      *
-     *  @deprecated use the individual accessor methods instead.
-     *
      * @param HandlerName the handler name
      * @param Credential  credential document
      * @param pId         source PeerID
      * @param Query       opaque query string
      * @param qid         query ID
+     * @deprecated use the individual accessor methods instead.
      */
     @Deprecated
     public ResolverQuery(String HandlerName, StructuredDocument Credential, String pId, String Query, int qid) {
@@ -172,8 +170,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         String doctype = doc.getName();
 
         if (!getAdvertisementType().equals(doctype)) {
-            throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
+            throw new IllegalArgumentException("Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
         }
         readIt(doc);
 
@@ -181,15 +178,15 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         if (null == getHandlerName()) {
             throw new IllegalArgumentException("Query message does not contain a handler name.");
         }
-        
+
         if (null == getQuery()) {
             throw new IllegalArgumentException("Query message does not contain a query.");
         }
-        
+
         if (null == getSrcPeer()) {
             throw new IllegalArgumentException("Query message does not define a source.");
         }
-        
+
         RouteAdvertisement ra = getSrcPeerRoute();
 
         if ((null != ra) && (null == ra.getDestPeerID())) {
@@ -199,6 +196,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
 
     /**
      * parses an XML document into this object
+     *
      * @param doc the element
      */
     public void readIt(XMLElement doc) {
@@ -253,15 +251,16 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
             // processing this tag in the future.
             if (elem.getName().equals(srcPeerIdTag)) {
                 try {
-                    URI srcURI = new URI(elem.getTextValue());
-                    
-                    setSrcPeer(IDFactory.fromURI(srcURI));
+                    String value = elem.getTextValue();
+                    if (value != null && value.length() > 0) {
+                        URI srcURI = new URI(elem.getTextValue());
+                        setSrcPeer(IDFactory.fromURI(srcURI));
+                    }
                 } catch (URISyntaxException failed) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "Bad ID in message", failed);
                     }
                     RuntimeException failure = new IllegalArgumentException("Bad ID in message");
-
                     failure.initCause(failed);
                     throw failure;
                 }
@@ -284,15 +283,15 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         if (null == getHandlerName()) {
             throw new IllegalStateException("Query message does not contain a handler name.");
         }
-        
+
         if (null == getQuery()) {
             throw new IllegalStateException("Query message does not contain a query.");
         }
-        
+
         if (null == getSrcPeer()) {
             throw new IllegalStateException("Query message does not define a source.");
         }
-        
+
         RouteAdvertisement ra = getSrcPeerRoute();
 
         if ((null != ra) && (null == ra.getDestPeerID())) {
@@ -329,21 +328,18 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         if (radv != null) {
             e = adv.createElement(srcRouteTag);
             adv.appendChild(e);
-        
-            StructuredTextDocument xptDoc = (StructuredTextDocument)
-                    radv.getDocument(encodeAs);
-
+            StructuredTextDocument xptDoc = (StructuredTextDocument)radv.getDocument(encodeAs);
             StructuredDocumentUtils.copyElements(adv, e, xptDoc);
         }
-        
+
         e = adv.createElement(queryTag, getQuery());
         adv.appendChild(e);
         return adv;
     }
 
     /**
-     *  {@inheritDoc}
-     *  <p/>Result is the query as an XML string.
+     * {@inheritDoc}
+     * <p/>Result is the query as an XML string.
      */
     @Override
     public String toString() {
@@ -351,7 +347,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public ResolverQuery clone() {

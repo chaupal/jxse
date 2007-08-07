@@ -94,12 +94,12 @@ public abstract class ACLSeedingManager implements SeedingManager {
     /**
      *  The access control list which controls which hosts are allowed.
      */
-    protected final URI aclLocation;
+    private final URI aclLocation;
     
     /**
      *  The last known modification time of the ACL.
      */
-    protected long aclLastModified = 0;
+    private long aclLastModified = 0;
     
     /**
      *  Manages access to the seeds.
@@ -110,7 +110,7 @@ public abstract class ACLSeedingManager implements SeedingManager {
      *  The absolute time in milliseconds after which we will attempt to refresh
      *  the access control list from the acl URI.
      */
-    protected long nextACLrefreshTime = 0;
+    private long nextACLrefreshTime = 0;
     
     /**
      *  Constructs a new ACL seeding manager.
@@ -128,7 +128,7 @@ public abstract class ACLSeedingManager implements SeedingManager {
             nextACLrefreshTime = Long.MAX_VALUE;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      *
@@ -189,5 +189,5 @@ public abstract class ACLSeedingManager implements SeedingManager {
         }
         
         return acl.isAllowed(radv.getDestPeerID());
-    }
+    }    
 }

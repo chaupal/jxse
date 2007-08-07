@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -86,7 +84,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This abstract class must be extended for all RendezVous Service providers
  * that are managed by RendezVousServiceImpl.
@@ -98,7 +95,7 @@ import java.util.logging.Logger;
 public abstract class RendezVousServiceProvider implements EndpointListener {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static Logger LOG = Logger.getLogger(RendezVousServiceProvider.class.getName());
 
@@ -188,8 +185,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
     /**
      * Supply arguments and starts this service if it hadn't started by itself.
      * <p/>
-     * Currently this service starts by itself and does not expect
-     * arguments.
+     * Currently this service starts by itself and does not expect arguments.
      * @return 0 if successful
      * @param arg argument params
      */
@@ -244,7 +240,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
     protected void stopApp() {
         EndpointListener shouldbeMe = rdvService.endpoint.removeIncomingMessageListener(PropSName, PropPName);
 
-        if (this != shouldbeMe) {
+        if ((null != shouldbeMe) && (this != shouldbeMe)) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Unregistered listener was not as expected." + this + " != " + shouldbeMe);
             }
@@ -376,7 +372,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      *                     Service implementation is free to decrease that value.
      * @throws java.io.IOException if an io error occurs
      */
-    public abstract void propagate(Enumeration<ID> destPeerIds, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
+    public abstract void propagate(Enumeration<? extends ID> destPeerIds, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
 
     /**
      * Propagates a message onto as many peers on the local network
@@ -480,7 +476,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      *                     Service implementation is free to decrease that value.
      * @throws IOException when walking the message is impossible (network failure)
      */
-    public abstract void walk(Vector<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
+    public abstract void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException;
 
     /**
      * Process a propagated message.
@@ -556,8 +552,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * @throws java.io.IOException if an io error occurs
      */
     protected void sendToNetwork(Message msg, RendezVousPropagateMessage propHdr) throws IOException {
-        msg = msg.clone();
-
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Endpoint propagating " + msg + " (" + propHdr.getMsgId() + ")");
         }
@@ -574,7 +568,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * @return endpointAddress for this peer id.
      */
     protected static EndpointAddress mkAddress(String destPeer, String serv, String parm) {
-        ID asID = null;
+        ID asID;
 
         try {
             asID = IDFactory.fromURI(new URI(destPeer));

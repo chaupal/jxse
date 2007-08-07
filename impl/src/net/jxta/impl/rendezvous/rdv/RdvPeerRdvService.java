@@ -223,11 +223,10 @@ public class RdvPeerRdvService extends StdRendezVousService {
         if ((null == advGroup) || PeerGroupID.worldPeerGroupID.equals(advGroup.getPeerGroupID())) {
             // For historical reasons, we publish in our own group rather than
             // the parent if our parent is the world group.
-            advGroup = group;
+            advGroup = null;
         }
 
-        rpv = new PeerView(group, advGroup, rdvService
-                ,
+        rpv = new PeerView(group, advGroup, rdvService,
                 rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -392,9 +391,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-                    + serviceParam);
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to :" + 
+                    "\n\tsvc name:" + serviceName + "\tsvc params:" + serviceParam);
         }
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
@@ -424,9 +422,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "Propagating " + msg + "(TTL=" + useTTL + ") in group to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-                    + serviceParam);
+            LOG.fine( "Propagating " + msg + "(TTL=" + useTTL + ") in group to :" + 
+                    "\n\tsvc name:" + serviceName + "\tsvc params:" + serviceParam);
         }
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
@@ -723,7 +720,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      * {@inheritDoc}
      */
     @Override
-    public void walk(Vector<ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
+    public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
         if (closed) {
             return;
         }

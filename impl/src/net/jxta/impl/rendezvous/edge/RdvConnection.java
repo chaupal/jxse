@@ -106,32 +106,6 @@ public class RdvConnection extends PeerConnection {
         return super.toString() + " / " + Long.toString(TimeUtils.toRelativeTimeMillis(beginRenewalAt));
     }
     
-    public synchronized boolean peerAdvertisementHasChanged() {
-        
-        boolean changed = false;
-        PeerAdvertisement currPeerAdv = group.getPeerAdvertisement();
-        int currModCount = currPeerAdv.getModCount();
-        
-        if ((cachedPeerAdvertisement != currPeerAdv) || (cachedModCount != currModCount)) {
-            
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "PeerAdvertisement has changed :" + "\n\t" + System.identityHashCode(cachedPeerAdvertisement) + " != "
-                        + System.identityHashCode(currPeerAdv) + "\n\t" + cachedModCount + " != " + currModCount);
-            }
-            
-            // If our peer adv has changed, it is possible that our rdv has lost
-            // all routes to us. Refresh its knowlege by reconnecting.
-            
-            cachedPeerAdvertisement = currPeerAdv;
-            cachedModCount = currModCount;
-            
-            changed = true;
-        }
-        
-        return changed;
-    }
-    
     /**
      *  {@inheritDoc}
      */

@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.cm;
-
 
 import net.jxta.id.IDFactory;
 import net.jxta.impl.util.TimeUtils;
@@ -91,7 +89,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * SrdiIndex
@@ -404,8 +401,7 @@ public class SrdiIndex implements Runnable {
         }
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'"
+            LOG.fine( "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'"
                     + value + "\'");
         }
 
@@ -432,7 +428,6 @@ public class SrdiIndex implements Runnable {
                 // seperate the index name from attribute
                 if (indexName.startsWith(primaryKey)) {
                     NameIndexer idxr = map.get(indexName);
-
                     idxr.query(null, new SearchCallback(cacheDB, res, Integer.MAX_VALUE, gcPeerTBL));
                 }
             }
@@ -521,7 +516,6 @@ public class SrdiIndex implements Runnable {
         public boolean indexInfo(Value val, long pos) {
 
             Record record = null;
-
             synchronized (cacheDB) {
                 try {
                     record = cacheDB.readRecord(pos);
@@ -766,7 +760,6 @@ public class SrdiIndex implements Runnable {
         // wakeup and die
         try {
             Thread temp = gcThread;
-
             if (temp != null) {
                 synchronized (temp) {
                     temp.notify();

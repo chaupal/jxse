@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
-
 
 /**
  * An event which provides notification of the the transmission status of an
@@ -97,7 +95,6 @@ public class OutgoingMessageEvent extends java.util.EventObject {
      */
     public OutgoingMessageEvent(Message source, Throwable failure) {
         super(source);
-
         this.failure = failure;
     }
 

@@ -65,10 +65,10 @@ import java.util.Iterator;
  */
 class PeerViewSequentialStrategy implements PeerViewStrategy {
     
-    private SortedSet set;
+    private final SortedSet<PeerViewDestination> set;
     private PeerViewElement current;
     
-    PeerViewSequentialStrategy(SortedSet aset) {
+    PeerViewSequentialStrategy(SortedSet<PeerViewDestination> aset) {
         set = aset;
         reset();
     }
@@ -88,7 +88,7 @@ class PeerViewSequentialStrategy implements PeerViewStrategy {
         synchronized (set) {
             do {
                 if (null == current) {
-                    if (set.size() > 0) {
+                    if (!set.isEmpty()) {
                         // no current, take the first
                         current = (PeerViewElement) set.first();
                         break;
@@ -97,12 +97,12 @@ class PeerViewSequentialStrategy implements PeerViewStrategy {
                         break;
                     }
                 } else {
-                    SortedSet tail = set.tailSet(current);
+                    SortedSet<PeerViewDestination> tail = set.tailSet(current);
 
-                    Iterator fromTail = tail.iterator();
+                    Iterator<PeerViewDestination> fromTail = tail.iterator();
                     
                     if (fromTail.hasNext()) {
-                        Comparable tailFirst = (Comparable) fromTail.next();
+                        PeerViewDestination tailFirst = fromTail.next();
                         
                         if (0 == current.compareTo(tailFirst)) {
                             if (fromTail.hasNext()) {

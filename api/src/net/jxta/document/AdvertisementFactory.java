@@ -193,7 +193,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
      *  {@inheritDoc}
      */
     @Override
-    public Class getClassOfInstantiators() {
+    public Class<Instantiator> getClassOfInstantiators() {
         // our key is the doctype names.
         return Instantiator.class;
     }
@@ -202,7 +202,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
      *  {@inheritDoc}
      */
     @Override
-    public Class getClassForKey() {
+    public Class<String> getClassForKey() {
         // our key is the doctype names.
         return java.lang.String.class;
     }

@@ -102,7 +102,7 @@ import net.jxta.protocol.PipeAdvertisement;
 public class PipeAdv extends PipeAdvertisement {
 
     /**
-     *  Log4J Logger
+     *  Logger
      */
     private final static Logger LOG = Logger.getLogger(PipeAdv.class.getName());
 
@@ -134,21 +134,25 @@ public class PipeAdv extends PipeAdvertisement {
          *  {@inheritDoc}
          */
         public Advertisement newInstance(Element root) {
-            return new PipeAdv(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
+
+            return new PipeAdv((XMLElement) root);
         }
     }
 
     /**
-     *  Use the Instantiator through the factory
+     *  Private constructor for new instances. Use the instantiator.
      */
     private PipeAdv() {}
 
-    private PipeAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private PipeAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -255,8 +259,7 @@ public class PipeAdv extends PipeAdvertisement {
 
         if ((null == getType()) || (0 == getType().length())) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning(
-                        "Pipe type not set. Defaulting to " + PipeService.UnicastType + "."
+                LOG.warning("Pipe type not set. Defaulting to " + PipeService.UnicastType + "."
                         + "\n This default is deprecated. Please set the pipe type in your code.");
             }
 

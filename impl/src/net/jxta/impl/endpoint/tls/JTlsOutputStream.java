@@ -183,10 +183,8 @@ class JTlsOutputStream extends OutputStream {
 
     /**
      *   The collection of messages available for re-transmission.
-     *
-     *   elements are {@link RetrQElt}
-     **/
-    List retrQ = new Vector(25, 5);
+     */
+    final List<RetrQElt> retrQ = new Vector<RetrQElt>(25, 5);
 
     // running average of receipients Input Queue
     private int nIQTests = 0;
@@ -368,7 +366,7 @@ class JTlsOutputStream extends OutputStream {
 
                 // check if the queue has gone dead.
                 if (retrQ.size() > 0) {
-                    long inQueue = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), ((RetrQElt) retrQ.get(0)).enqueuedAt);
+                    long inQueue = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), retrQ.get(0).enqueuedAt);
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("write : Retry queue idle for " + inQueue);
@@ -402,8 +400,7 @@ class JTlsOutputStream extends OutputStream {
                     }
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                "write() wait 60ms for ACK while enqueuing seqn#" + sequenceNumber + "\n\tremote IQ free space = "
+                        LOG.fine("write() wait 60ms for ACK while enqueuing seqn#" + sequenceNumber + "\n\tremote IQ free space = "
                                 + mrrIQFreeSpace + "\n\tMIN free space to continue = " + (rmaxQSize / 5) + "" + "\n\tretQ.size()="
                                 + retrQ.size());
                     }
@@ -524,7 +521,7 @@ class JTlsOutputStream extends OutputStream {
                         if (0 != y) {
                             dumpRETRQ.append(", ");
                         }
-                        RetrQElt r = (RetrQElt) retrQ.get(y);
+                        RetrQElt r = retrQ.get(y);
 
                         dumpRETRQ.append(r.seqnum);
                     }
@@ -698,7 +695,7 @@ class JTlsOutputStream extends OutputStream {
             }
 
             for (int j = 0; j < numberToRetrans; j++) {
-                RetrQElt r = (RetrQElt) retrQ.get(j);
+                RetrQElt r = retrQ.get(j);
 
                 // Mark message as retransmission
                 // need to know if a msg was retr or not for RTT eval
@@ -868,18 +865,14 @@ class JTlsOutputStream extends OutputStream {
 
                     synchronized (retrQ) {
                         if (retrQ.size() > 0) {
-                            oldestInQueueWait = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow()
-                                    ,
-                                    ((RetrQElt) (retrQ.get(0))).enqueuedAt);
+                            oldestInQueueWait = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), retrQ.get(0).enqueuedAt);
                         } else {
                             oldestInQueueWait = 0;
                         }
                     }
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                "RETRANS : Last ACK " + sinceLastACK + "ms ago. Age of oldest in Queue " + oldestInQueueWait
-                                + "ms");
+                        LOG.fine("RETRANS : Last ACK " + sinceLastACK + "ms ago. Age of oldest in Queue " + oldestInQueueWait + "ms");
                     }
 
                     // see if the queue has gone dead
@@ -936,8 +929,7 @@ class JTlsOutputStream extends OutputStream {
                         }
 
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine(
-                                    "RETRANS : RETRANSMISSION " + retransed + " retrans " + nAtThisRTO + " at this RTO (" + RTO
+                            LOG.fine("RETRANS : RETRANSMISSION " + retransed + " retrans " + nAtThisRTO + " at this RTO (" + RTO
                                     + ") " + nretransmitted + " total retrans");
                         }
                     } else {

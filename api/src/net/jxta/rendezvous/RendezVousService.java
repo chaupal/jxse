@@ -271,7 +271,7 @@ public interface RendezVousService extends Service {
      * @param  ttl              The requested TTL for the message.
      * @exception  IOException  if an io error occurs
      */
-    public void propagate(Enumeration destPeerIds, Message msg, String serviceName, String serviceParam, int ttl) throws IOException;
+    public void propagate(Enumeration<? extends ID> destPeerIds, Message msg, String serviceName, String serviceParam, int ttl) throws IOException;
 
     /**
      * Propagates a message to members of the peer group reachable via the
@@ -427,7 +427,7 @@ public interface RendezVousService extends Service {
      * @param  ttl           is the maximum TTL of the message.
      * @throws  IOException  when walking the message is impossible (network failure)
      */
-    public void walk(Vector destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) throws IOException;
+    public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) throws IOException;
 
     /**
      * Returns a vector of RdvAdvertisement of the local view of rendezvous peers.
