@@ -58,6 +58,7 @@ package net.jxta.impl.endpoint.relay;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -214,7 +215,7 @@ class RelayServerClient implements Runnable {
                         message = outOfBandMessage;
                         outOfBandMessage = null;
                     } else {
-                        message = messageList.take();
+                        message = messageList.poll(0, TimeUnit.MILLISECONDS);
                         if (message == null) {
                             try {
                                 thread_idle = true;
@@ -223,7 +224,7 @@ class RelayServerClient implements Runnable {
                                     message = outOfBandMessage;
                                     outOfBandMessage = null;
                                 } else {
-                                    message = messageList.take();
+                                    message = messageList.poll(0, TimeUnit.MILLISECONDS);
                                 }
                             } catch (InterruptedException ie) {
                                 //ignored
