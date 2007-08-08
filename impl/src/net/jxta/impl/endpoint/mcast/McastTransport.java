@@ -183,14 +183,14 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
     private InetAddress multicastInetAddress;
 
     /**
-     * The "return address" we will advertise.
-     */
-    private EndpointAddress publicAddress = null;
-
-    /**
      * The port number will send/receive upon.
      */
     private int multicastPort = 1234;
+
+    /**
+     * The "return address" we will advertise.
+     */
+    private EndpointAddress publicAddress = new EndpointAddress(protocolName, multicastAddress + ":" + Integer.toString(multicastPort), null, null);
 
     /**
      * The maximum size of multicast messages we will send and the size of the
@@ -235,6 +235,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
     private TransportMeter multicastTransportMeter;
     private TransportBindingMeter multicastTransportBindingMeter;
+    private transient boolean disabled = false;
 
     /**
      * Construct a new McastTransport instance
@@ -323,9 +324,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         TCPAdv adv = (TCPAdv) paramsAdv;
-
         if (!adv.getMulticastState()) {
-            throw new PeerGroupException("IP Multicast Message Transport is disabled.");
+            disabled = true;
+            return;
+            //throwing an exception prevents startup.  This also provides no way of disabling multicast
+            //throw new PeerGroupException("IP Multicast Message Transport is disabled.");
         }
 
         // Determine the local interface to use. If the user specifies one, use
@@ -354,7 +357,6 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         if (usingInterface.equals(IPUtils.ANYADDRESS)) {
             boolean localOnly = true;
             Iterator<InetAddress> eachLocal = IPUtils.getAllLocalAddresses();
-
             while (eachLocal.hasNext()) {
                 InetAddress anAddress = eachLocal.next();
                 if (!anAddress.isLoopbackAddress()) {
@@ -385,9 +387,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         assert multicastInetAddress.isMulticastAddress();
-
         publicAddress = new EndpointAddress(protocolName, multicastAddress + ":" + Integer.toString(multicastPort), null, null);
-
         multicastPacketSize = adv.getMulticastSize();
 
         // Create the multicast input socket
@@ -441,8 +441,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      * {@inheritDoc}
      */
     public synchronized int startApp(String[] arg) {
-        endpoint = group.getEndpointService();
+        if (disabled) {
+            return Module.START_OK;
+        }
 
+        endpoint = group.getEndpointService();
         if (null == endpoint) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Stalled until there is an endpoint service");
@@ -459,14 +462,15 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             if (transportServiceMonitor != null) {
                 multicastTransportMeter = transportServiceMonitor.createTransportMeter("Multicast", publicAddress);
                 multicastTransportBindingMeter = getMulticastTransportBindingMeter(publicAddress);
-                multicastTransportBindingMeter.connectionEstablished(true, 0); // Since multicast is connectionless, force it to appear outbound connected
-                multicastTransportBindingMeter.connectionEstablished(false, 0); // Since multicast is connectionless, force it to appear inbound connected
+                // Since multicast is connectionless, force it to appear outbound connected
+                multicastTransportBindingMeter.connectionEstablished(true, 0);
+                // Since multicast is connectionless, force it to appear inbound connected
+                multicastTransportBindingMeter.connectionEstablished(false, 0);
             }
         }
 
         // We're fully ready to function.
         MessengerEventListener messengerEventListener = endpoint.addMessageTransport(this);
-
         if (messengerEventListener == null) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.severe("Transport registration refused");
@@ -476,7 +480,6 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         // Cannot start before registration
         multicastProcessor = new DatagramProcessor(((StdPeerGroup) group).getExecutor());
-
         multicastThread = new Thread(group.getHomeThreadGroup(), this, "IP Multicast Listener for " + publicAddress);
         multicastThread.setDaemon(true);
         multicastThread.start();
@@ -501,7 +504,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      * {@inheritDoc}
      */
     public synchronized void stopApp() {
-        if (isClosed) {
+        if (isClosed || disabled) {
             return;
         }
 
@@ -520,8 +523,10 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         endpoint.removeMessageTransport(this);
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-            multicastTransportBindingMeter.connectionClosed(true, 0); // Since multicast is connectionless, force it to appear outbound disconnected
-            multicastTransportBindingMeter.connectionClosed(false, 0); // Since multicast is connectionless, force it to appear inbound disconnected
+            // Since multicast is connectionless, force it to appear outbound disconnected
+            multicastTransportBindingMeter.connectionClosed(true, 0);
+            // Since multicast is connectionless, force it to appear inbound disconnected
+            multicastTransportBindingMeter.connectionClosed(false, 0);
         }
     }
 
@@ -857,7 +862,6 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         public void run() {
             try {
                 DatagramPacket packet;
-
                 while (!stopped && (null != (packet = queue.poll()))) {
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                         LOG.log(Level.FINER, "Processing incoming datagram packet : " + packet);
