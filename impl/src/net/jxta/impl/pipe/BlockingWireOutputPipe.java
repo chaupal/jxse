@@ -187,7 +187,7 @@ class BlockingWireOutputPipe implements OutputPipe {
                     destMessenger.close();
                     destMessenger = null;
                 }
-                throw new IOException("Unable to create a messenger");
+                throw new IOException("Unable to create a messenger to " + destination.toString());
             }
         }
     }
