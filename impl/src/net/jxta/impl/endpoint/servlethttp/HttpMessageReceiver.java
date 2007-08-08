@@ -149,7 +149,6 @@ class HttpMessageReceiver implements MessageReceiver {
         // read settings from the properties file
         Properties prop = getJxtaProperties(
                 new File(new File(servletHttpTransport.getEndpointService().getGroup().getStoreHome()), "jxta.properties"));
-        
         initFromProperties(prop);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
@@ -163,13 +162,13 @@ class HttpMessageReceiver implements MessageReceiver {
         }
         
         // Configure Jetty Logging
-        if (!Logging.SHOW_FINER) {
+        if (!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER))) {
             Log.instance().disableLog();
         }
         
-        org.mortbay.util.Code.setDebug(Logging.SHOW_FINER);
-        org.mortbay.util.Code.setSuppressWarnings(!Logging.SHOW_WARNING);
-        org.mortbay.util.Code.setSuppressStack(!Logging.SHOW_FINER);
+        org.mortbay.util.Code.setDebug(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER));
+        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)));
+        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)));
 
         // Setup the logger to match the rest of JXTA unless explicitly configured.
         // "LOG_CLASSES" is a Jetty thing.
@@ -319,7 +318,7 @@ class HttpMessageReceiver implements MessageReceiver {
      * otherwise, returns null.
      *
      * @param fromFile properties file
-     * @return the properties object
+     * @return the properties object or null if properties file was not found
      */
     private static Properties getJxtaProperties(File fromFile) {
         Properties prop = new Properties();
@@ -331,30 +330,22 @@ class HttpMessageReceiver implements MessageReceiver {
                 LOG.fine("Read properties from " + fromFile.getPath());
             }
         } catch (FileNotFoundException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("no properties in " + fromFile.getPath());
-            }
+            return null;
         }
         
-        if (in != null) {
+        try {
+            prop.load(in);
+        } catch (IOException e) {
+            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "Error reading " + fromFile.getPath(), e);
+            }
+        } finally {
             try {
-                prop.load(in);
-            } catch (IOException e) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Error reading " + fromFile.getPath(), e);
-                }
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                    //ignored
-                }
-                in = null;
+                in.close();
+            } catch (IOException ignored) {
+                //ignored
             }
-        } else {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning(fromFile.getPath() + " cannot be found");
-            }
+            in = null;
         }
         return prop;
     }
@@ -366,9 +357,13 @@ class HttpMessageReceiver implements MessageReceiver {
      */
     private void initFromProperties(Properties prop) {
         
-        if (prop != null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Using jxta.properties to configure HTTP server");
+        if (prop == null) {
+            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                LOG.fine("jxta.properties not found: using default values");
+            }
+        } else {
+            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                LOG.config("Using jxta.properties to configure HTTP server");
             }
             
             String minThreadsStr = prop.getProperty("HttpServer.MinThreads");
@@ -403,10 +398,6 @@ class HttpMessageReceiver implements MessageReceiver {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("Invalid HttpServer.MaxThreadIdleTime value; using default");
                 }
-            }
-        } else {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("jxta.properties not found: using default values");
             }
         }
     }    
