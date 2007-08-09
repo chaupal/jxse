@@ -143,7 +143,7 @@ class RelayServerClient implements Runnable {
         this.server = server;
         this.clientPeerId = clientPeerId;
         this.leaseLength = leaseLength;
-        this.stallTimeout = stallTimeout;
+        RelayServerClient.stallTimeout = stallTimeout;
 
         clientAddr = new EndpointAddress("jxta", clientPeerId, null, null);
         endpoint = server.getEndpointService();
@@ -177,7 +177,6 @@ class RelayServerClient implements Runnable {
             int failedInARow = 0;
 
             while (true) {
-
                 message = null;
                 Messenger holdIt;
                 synchronized (this) {
@@ -501,6 +500,10 @@ class RelayServerClient implements Runnable {
 
     /**
      * add a message to the tail of the list
+     *
+     * @param message  the message
+     * @param outOfBand if true, indicates outbound
+     * @throws IOException if an io error occurs
      */
     private void queueMessage(Message message, boolean outOfBand) throws IOException {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -508,25 +511,20 @@ class RelayServerClient implements Runnable {
         }
 
         synchronized (this) {
-            while(true) {
-                if (isClosed) {
-                    throw new IOException("Client has been disconnected");
-                 }
+            if (isClosed) {
+                throw new IOException("Client has been disconnected");
+            }
 
-                if (outOfBand) {
-                    // We have a single oob message pending.
-                    outOfBandMessage = message;
-                    break;
-                } else {
-                    // We will simply discard the latest msg when the queue is full
-                    // to avoid penalty of dropping earlier reliable message
-                    if (!messageList.offer(message)) {
-                        if (Logging.SHOW_WARNING) {
-                            LOG.warning("Dropping relayed message " + 
-                                    message.toString() + " for peer " + clientPeerId);
-                        }                        
+            if (outOfBand) {
+                // We have a single oob message pending.
+                outOfBandMessage = message;
+            } else {
+                // We will simply discard the latest msg when the queue is full
+                // to avoid penalty of dropping earlier reliable message
+                if (!messageList.offer(message)) {
+                    if (Logging.SHOW_WARNING) {
+                        LOG.warning("Dropping relayed message " + message.toString() + " for peer " + clientPeerId);
                     }
-                    break;
                 }
             }
 
