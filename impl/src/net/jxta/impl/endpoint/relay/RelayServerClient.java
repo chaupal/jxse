@@ -518,10 +518,13 @@ class RelayServerClient implements Runnable {
                     outOfBandMessage = message;
                     break;
                 } else {
-                    try {
-                        messageList.put(message);
-                    } catch(InterruptedException woken) {
-                        continue;
+                    // We will simply discard the latest msg when the queue is full
+                    // to avoid penalty of dropping earlier reliable message
+                    if (!messageList.offer(message)) {
+                        if (Logging.SHOW_WARNING) {
+                            LOG.warning("Dropping relayed message " + 
+                                    message.toString() + " for peer " + clientPeerId);
+                        }                        
                     }
                     break;
                 }
