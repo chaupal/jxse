@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.pipe;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
@@ -67,7 +66,6 @@ import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.util.Set;
-
 
 /**
  * This class implements the Secure non blocking Output Pipe
@@ -108,14 +106,11 @@ class SecureOutputPipe extends NonBlockingOutputPipe {
 
         if (!sent && isClosed()) {
             IOException failed = new IOException("Could not enqueue " + msg + " for sending. Pipe is closed.");
-
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, failed.getMessage(), failed);
             }
-
             throw failed;
         }
-
         return sent;
     }
 
@@ -124,11 +119,6 @@ class SecureOutputPipe extends NonBlockingOutputPipe {
      */
     @Override
     protected EndpointAddress mkAddress(ID destPeer, ID pipeID) {
-
-        EndpointAddress addr = new EndpointAddress("jxtatls", destPeer.getUniqueValue().toString(), "PipeService"
-                ,
-                pipeID.toString());
-
-        return addr;
+       return new EndpointAddress("jxtatls", destPeer.getUniqueValue().toString(), "PipeService", pipeID.toString());
     }
 }

@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.pipe;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
@@ -73,7 +72,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * Implements the {@link net.jxta.pipe.InputPipe} interface by listening on the
  * endpoint for messages to service "PipeService" and a param of the Pipe ID.
@@ -81,7 +79,7 @@ import java.util.logging.Logger;
 class InputPipeImpl implements EndpointListener, InputPipe {
 
     /**
-     * log4J logger
+     * logger
      */
     private final static Logger LOG = Logger.getLogger(InputPipeImpl.class.getName());
 
@@ -142,9 +140,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
                 LOG.warning("Pipe is being finalized without being previously closed. This is likely a bug.");
             }
         }
-
         close();
-
         super.finalize();
     }
 
@@ -159,7 +155,6 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      * {@inheritDoc}
      */
     public Message poll(int timeout) throws InterruptedException {
-
         if (listener == null) {
             return (Message) queue.pop(timeout);
         } else {
@@ -174,11 +169,9 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      * {@inheritDoc}
      */
     public synchronized void close() {
-
         if (closed) {
             return;
         }
-
         closed = true;
 
         // Close the queue
@@ -187,14 +180,12 @@ class InputPipeImpl implements EndpointListener, InputPipe {
         }
 
         listener = null;
-
         // Remove myself from the pipe registrar.
         if (!registrar.forget(this)) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("close() : pipe was not registered with registrar.");
             }
         }
-
         registrar = null;
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -206,7 +197,6 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      * {@inheritDoc}
      */
     public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-
         // if we are closed, ignore any additional messages
         if (closed) {
             return;
@@ -214,34 +204,26 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         // XXX: header check, security and such should be done here
         // before pushing the message onto the queue.
-
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Received " + msg + " from " + srcAddr + " for " + pipeID);
         }
-
         // determine where demux the msg, to listener, or onto the queue
-
         if (null == queue) {
             PipeMsgListener temp = listener;
-
             if (null == temp) {
                 return;
             }
 
             PipeMsgEvent event = new PipeMsgEvent(this, msg, (PipeID) pipeID);
-
             try {
                 temp.pipeMsgEvent(event);
             } catch (Throwable ignored) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in listener for : " + pipeID + "(" + temp.getClass().getName() + ")"
-                            ,
-                            ignored);
+                    LOG.log(Level.SEVERE, "Uncaught Throwable in listener for : " + pipeID + "(" + temp.getClass().getName() + ")", ignored);
                 }
             }
         } else {
             boolean pushed = false;
-
             while (!pushed && !queue.isClosed()) {
                 try {
                     pushed = queue.push(msg, TimeUtils.ASECOND);
@@ -252,8 +234,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 synchronized (this) {
-                    LOG.fine(
-                            "Queued " + msg + " for " + pipeID + "\n\tqueue closed : " + queue.isClosed() + "\tnumber in queue : "
+                    LOG.fine("Queued " + msg + " for " + pipeID + "\n\tqueue closed : " + queue.isClosed() + "\tnumber in queue : "
                             + queue.getCurrentInQueue() + "\tnumber queued : " + queue.getNumEnqueued() + "\tnumber dequeued : "
                             + queue.getNumDequeued());
                 }

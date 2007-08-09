@@ -117,7 +117,7 @@ import java.util.logging.Logger;
 class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, PipeRegistrar {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(PipeResolver.class.getName());
 

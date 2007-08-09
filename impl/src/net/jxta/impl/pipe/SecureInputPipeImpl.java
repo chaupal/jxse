@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.pipe;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.tls.TlsTransport;
@@ -67,7 +66,6 @@ import java.util.logging.Logger;
 
 import java.io.IOException;
 
-
 /**
  * Implements the {@link net.jxta.pipe.InputPipe} interface by listening on the
  * endpoint for messages to service "PipeService" and a param of the Pipe ID.
@@ -78,13 +76,13 @@ public class SecureInputPipeImpl extends InputPipeImpl {
     /**
      * Constructor for the SecureInputPipeImpl object
      *
-     * @param r   pipe resolver
+     * @param pipeResolver   pipe resolver
      * @param adv pipe advertisement
      * @throws IOException  if an io error occurs
      */
-    SecureInputPipeImpl(PipeResolver r, PipeAdvertisement adv) throws IOException {
+    SecureInputPipeImpl(PipeResolver pipeResolver, PipeAdvertisement adv) throws IOException {
 
-        this(r, adv, null);
+        this(pipeResolver, adv, null);
     }
 
     /**
