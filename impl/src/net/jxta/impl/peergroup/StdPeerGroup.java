@@ -62,6 +62,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -104,6 +105,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.document.StructuredDocument;
 
 /**
@@ -111,36 +113,34 @@ import net.jxta.document.StructuredDocument;
  * plugin services listed in its impl advertisement.
  */
 public class StdPeerGroup extends GenericPeerGroup {
-    
+
     /**
-     *  Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(StdPeerGroup.class.getName());
-            
+
     // A few things common to all ImplAdv for built-in things.
     public static final XMLDocument STD_COMPAT = mkCS();
     public static final String MODULE_IMPL_STD_URI = "http://jxta-jxse.dev.java.net/download/jxta.jar";
     public static final String MODULE_IMPL_STD_PROVIDER = "sun.com";
-    
+
     protected static final String STD_COMPAT_FORMAT = "Efmt";
-    
+
     // FIXME 20061206 bondolo Update this to "JRE1.5" after 2.5 release. 2.4.1 and earlier don't do version comparison correctly.
-    
+
     /**
      * The Specification title and Specification version we require.
      */
     protected static final String STD_COMPAT_FORMAT_VALUE = "JDK1.4.1";
     protected static final String STD_COMPAT_BINDING = "Bind";
     protected static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
-    
+
     static {
         try {
             Enumeration<URL> providerLists = GenericPeerGroup.class.getClassLoader().getResources("META-INF/services/net.jxta.platform.Module");
-
             while (providerLists.hasMoreElements()) {
                 try {
                     URI providerList = providerLists.nextElement().toURI();
-
                     registerFromFile(providerList);
                 } catch (URISyntaxException badURI) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -157,46 +157,44 @@ public class StdPeerGroup extends GenericPeerGroup {
 
     /**
      * Register instance classes given a URI to a file containing modules
-     * which must be found on the current class path. Comments are marked with 
-     * a '#', the pound sign. Any following text on any line in the file are 
+     * which must be found on the current class path. Comments are marked with
+     * a '#', the pound sign. Any following text on any line in the file are
      * ignored.
      * <p/>
-     * Each line of the file contains a module spec ID, the class name and the 
+     * Each line of the file contains a module spec ID, the class name and the
      * Module description. The fields are separated by whitespace.
-     * 
+     *
      * @param providerList the URI to a file containing a list of modules
      * @return {@code true} if at least one of the instance classes could be
-     * registered otherwise {@code false}.
+     *         registered otherwise {@code false}.
      */
     private static boolean registerFromFile(URI providerList) {
         boolean registeredSomething = false;
         InputStream urlStream = null;
-        
+
         try {
             urlStream = providerList.toURL().openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
 
             String provider;
-
             while ((provider = reader.readLine()) != null) {
                 int comment = provider.indexOf('#');
 
                 if (comment != -1) {
                     provider = provider.substring(0, comment);
                 }
-                    
+
                 provider = provider.trim();
 
                 if (provider.length() > 0) {
                     try {
                         String[] parts = provider.split("\\s", 3);
-                        
-                        if(3 == parts.length) {
+
+                        if (3 == parts.length) {
                             ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
                             ModuleImplAdvertisement moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, parts[1], parts[2]);
-
                             getJxtaLoader().defineClass(moduleImplAdv);
-                            
+
                             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                                 LOG.fine("Registered Module " + msid + " : " + parts[1]);
                             }
@@ -218,39 +216,38 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
             return false;
         } finally {
-            if(null != urlStream) {
+            if (null != urlStream) {
                 try {
                     urlStream.close();
-                } catch(IOException ignored) {
-                    
+                } catch (IOException ignored) {
+
                 }
             }
         }
-
         return registeredSomething;
     }
 
     /**
-     *  If {@code true} then the PeerGroup has been started.
+     * If {@code true} then the PeerGroup has been started.
      */
     private volatile boolean started = false;
-    
+
     /**
      * The order in which we started the services.
      */
     private final List<ModuleClassID> moduleStartOrder = new ArrayList<ModuleClassID>();
-    
+
     /**
      * A map of the Message Transports for this group.
      * <p/>
      * <ul>
-     *   <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     *   <li>values are {@link net.jxta.platform.Module}, but should also be
-     *   {@link net.jxta.endpoint.MessageTransport}</li>
+     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
+     * <li>values are {@link net.jxta.platform.Module}, but should also be
+     * {@link net.jxta.endpoint.MessageTransport}</li>
      * </ul>
      */
     private final Map<ModuleClassID, Object> messageTransports = new HashMap<ModuleClassID, Object>();
-    
+
     /**
      * A map of the applications for this group.
      * <p/>
@@ -262,20 +259,19 @@ public class StdPeerGroup extends GenericPeerGroup {
      * </ul>
      */
     private final Map<ModuleClassID, Object> applications = new HashMap<ModuleClassID, Object>();
-    
+
     /**
      * Cache for this group.
      */
     private Cm cm = null;
-    
+
     private static XMLDocument mkCS() {
-        XMLDocument doc = (XMLDocument)
-                StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
-        
+        XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
+
         XMLElement e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
 
         doc.appendChild(e);
-        
+
         e = doc.createElement(STD_COMPAT_BINDING, STD_COMPAT_BINDING_VALUE);
         doc.appendChild(e);
         return doc;
@@ -286,7 +282,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     public StdPeerGroup() {
     }
-    
+
     /**
      * An internal convenience method essentially for bootstrapping.
      * Make a standard ModuleImplAdv for any service that comes builtin this
@@ -302,17 +298,17 @@ public class StdPeerGroup extends GenericPeerGroup {
     protected static ModuleImplAdvertisement mkImplAdvBuiltin(ModuleSpecID specID, String code, String descr) {
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement)
                 AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
-        
+
         implAdv.setModuleSpecID(specID);
         implAdv.setCompat(STD_COMPAT);
         implAdv.setCode(code);
         implAdv.setUri(MODULE_IMPL_STD_URI);
         implAdv.setProvider(MODULE_IMPL_STD_PROVIDER);
         implAdv.setDescription(descr);
-        
+
         return implAdv;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -320,7 +316,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     public boolean compatible(Element compat) {
         return isCompatible(compat);
     }
-    
+
     /**
      * Evaluates if the given compatibility statement makes the module that
      * bears it is loadable by this group.
@@ -331,28 +327,26 @@ public class StdPeerGroup extends GenericPeerGroup {
     static boolean isCompatible(Element compat) {
         boolean formatOk = false;
         boolean bindingOk = false;
-        
+
         try {
             Enumeration hisChildren = compat.getChildren();
             int i = 0;
-
             while (hisChildren.hasMoreElements()) {
-                
                 // Stop after 2 elements; there shall not be more.
                 if (++i > 2) {
                     return false;
                 }
-                
+
                 Element e = (Element) hisChildren.nextElement();
                 String key = (String) e.getKey();
                 String val = (String) e.getValue();
 
                 if (STD_COMPAT_FORMAT.equals(key)) {
                     Package javaLangPackage = Package.getPackage("java.lang");
-                    
+
                     boolean specMatches;
                     String version;
-                    
+
                     if (val.startsWith("JDK") || val.startsWith("JRE")) {
                         specMatches = true;
                         version = val.substring(3).trim(); // allow for spaces.
@@ -363,7 +357,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         specMatches = false;
                         version = null;
                     }
-                    
+
                     formatOk = specMatches && javaLangPackage.isCompatibleWith(version);
                 } else if (STD_COMPAT_BINDING.equals(key) && STD_COMPAT_BINDING_VALUE.equals(val)) {
                     bindingOk = true;
@@ -374,10 +368,10 @@ public class StdPeerGroup extends GenericPeerGroup {
         } catch (Exception any) {
             return false;
         }
-        
+
         return formatOk && bindingOk;
     }
-    
+
     /**
      * Builds a table of modules indexed by their class ID.
      * The values are the loaded modules, the keys are their classId.
@@ -388,19 +382,19 @@ public class StdPeerGroup extends GenericPeerGroup {
      *                   the group loading them, otherwise its an interface object.
      */
     protected void loadAllModules(Map<ModuleClassID, Object> modules, boolean privileged) {
-        
+
         Iterator<Map.Entry<ModuleClassID, Object>> eachModule = modules.entrySet().iterator();
-        
+
         while (eachModule.hasNext()) {
             Map.Entry<ModuleClassID, Object> anEntry = eachModule.next();
             ModuleClassID classID = anEntry.getKey();
             Object value = anEntry.getValue();
-            
+
             // Already loaded.
             if (value instanceof Module) {
                 continue;
             }
-            
+
             // Try and load it.
             try {
                 Module theModule = null;
@@ -420,27 +414,27 @@ public class StdPeerGroup extends GenericPeerGroup {
                     eachModule.remove();
                     continue;
                 }
-                
+
                 if (theModule == null) {
                     throw new PeerGroupException("Could not find a loadable implementation for : " + classID);
                 }
-                
+
                 anEntry.setValue(theModule);
             } catch (Exception e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Could not load module for class ID : " + classID, e);
                     if (value instanceof ModuleImplAdvertisement) {
-                        LOG.log(Level.WARNING, "Will be missing from peer group : " + 
-                                ((ModuleImplAdvertisement) value).getDescription() );
+                        LOG.log(Level.WARNING, "Will be missing from peer group : " +
+                                ((ModuleImplAdvertisement) value).getDescription());
                     } else {
-                        LOG.log(Level.WARNING, "Will be missing from peer group: " + value );
+                        LOG.log(Level.WARNING, "Will be missing from peer group: " + value);
                     }
                 }
                 eachModule.remove();
             }
         }
     }
-    
+
     /**
      * The group does not care for start args, and does not come-up
      * with args to pass to its main app. So, until we decide on something
@@ -452,31 +446,31 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     @Override
     public int startApp(String[] arg) {
-        
+
         if (!initComplete) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.severe("Group has not been initialized or init failed.");
             }
             return -1;
         }
-        
+
         // FIXME: maybe concurrent callers should be blocked until the
         // end of startApp(). That could mean forever, though.
         if (started) {
             return Module.START_OK;
         }
-        
+
         started = true;
-        
+
         // Normally does nothing, but we have to.
         int res = super.startApp(arg);
-        
+
         if (Module.START_OK != res) {
             return res;
         }
-        
+
         loadAllModules(applications, false); // Apps are non-privileged;
-        
+
         res = 0;
         Iterator<ModuleClassID> appKeys = applications.keySet().iterator();
 
@@ -494,7 +488,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
         return res;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -514,12 +508,12 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
             }
         }
-        
+
         applications.clear();
         // shutdown the threadpool
         threadPool.shutdownNow();
         Collections.reverse(moduleStartOrder);
-        
+
         for (ModuleClassID aModule : moduleStartOrder) {
             try {
                 if (messageTransports.containsKey(aModule)) {
@@ -535,23 +529,23 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
             }
         }
-        
+
         moduleStartOrder.clear();
-        
+
         if (!messageTransports.isEmpty()) {
             LOG.warning(messageTransports.size() + " message transports could not be shut down during peer group stop.");
         }
-        
+
         messageTransports.clear();
-        
+
         super.stopApp();
-        
+
         if (cm != null) {
             cm.stop();
             cm = null;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      * <p/>
@@ -600,23 +594,23 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     @Override
     protected synchronized void initFirst(PeerGroup parent, ID assignedID, Advertisement impl) throws PeerGroupException {
-        
+
         if (initComplete) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("You cannot initialize a PeerGroup more than once !");
             }
             return;
         }
-        
+
         // Set-up the minimal GenericPeerGroup
         super.initFirst(parent, assignedID, impl);
-        
+
         // assignedID might have been null. It is now the peer group ID.
         assignedID = getPeerGroupID();
-        
+
         // initialize cm before starting services.        
         try {
-            cm = new Cm(getHomeThreadGroup(), 
+            cm = new Cm(getHomeThreadGroup(),
                     getStoreHome(), assignedID.getUniqueValue().toString(),
                     Cm.DEFAULT_GC_MAX_INTERVAL, false);
         } catch (Exception e) {
@@ -625,19 +619,19 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
             throw new PeerGroupException("Error during creation of local store", e);
         }
-        
+
         // flush srdi for this group
         SrdiIndex.clearSrdi(this);
-        
+
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
-        
+
         // Load the list of peer group services from the impl advertisement params.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdv.getParam());
-        
+
         Map<ModuleClassID, Object> initServices = new HashMap<ModuleClassID, Object>(paramAdv.getServices());
-        
+
         initServices.putAll(paramAdv.getProtos());
-        
+
         // Remove the modules disabled in the configuration file.
         ConfigParams conf = getConfigAdvertisement();
 
@@ -647,7 +641,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 if (e.getChildren("isOff").hasMoreElements()) {
                     Object value = initServices.remove((ModuleClassID) anEntry.getKey());
-                    
+
                     if (value instanceof ModuleImplAdvertisement) {
                         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
                             LOG.config("Module disabled by configuration : " + ((ModuleImplAdvertisement) value).getDescription());
@@ -659,13 +653,13 @@ public class StdPeerGroup extends GenericPeerGroup {
                     }
                 }
             }
-        }        
-        
+        }
+
         loadAllModules(initServices, true);
-        
+
         // Applications are shelved until startApp()
         applications.putAll(paramAdv.getApps());
-        
+
         // Make a list of all the things we need to start.
         // There is an a-priori order, but we'll iterate over the list until all
         // where able to complete their start phase or no progress is made. 
@@ -675,27 +669,27 @@ public class StdPeerGroup extends GenericPeerGroup {
         // completing; N being the number of modules still in the list. This 
         // should cover the worst case scenario and still allow the process to 
         // eventually fail if it has no chance of success.
-        
+
         int iterations = 0;
         int maxIterations = initServices.size() * initServices.size() + iterations + 1;
-        
+
         boolean progress = true;
-        
+
         while (!initServices.isEmpty() && (progress || (iterations < maxIterations))) {
             progress = false;
             iterations++;
-            
+
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
             }
-            
+
             Iterator<Map.Entry<ModuleClassID, Object>> eachService = initServices.entrySet().iterator();
-            
+
             while (eachService.hasNext()) {
                 Map.Entry<ModuleClassID, Object> anEntry = eachService.next();
                 ModuleClassID mcid = anEntry.getKey();
                 Module aModule = (Module) anEntry.getValue();
-                
+
                 int res;
 
                 try {
@@ -706,68 +700,68 @@ public class StdPeerGroup extends GenericPeerGroup {
                     }
                     res = -1;
                 }
-                
+
                 switch (res) {
-                case Module.START_OK:
-                    // One done. Remove from allStart and recompute maxIteration.
-                        
-                    if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                        LOG.info("Module started : " + aModule);
-                    }
-                    if (aModule instanceof Service) {
-                        addService(mcid, (Service) aModule);
-                    } else {
-                        messageTransports.put(mcid, aModule);
-                    }
-                        
-                    moduleStartOrder.add(mcid);
-                    eachService.remove();
-                    progress = true;
-                    break;
-                        
-                case Module.START_AGAIN_PROGRESS:
-                    progress = true;
-                    break;
-                        
-                case Module.START_AGAIN_STALLED:
-                    break;
-                        
-                default: // (negative)
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Service failed to start (" + res + ") : " + aModule);
-                    }
-                    eachService.remove();
-                    progress = true;
-                    break;
+                    case Module.START_OK:
+                        // One done. Remove from allStart and recompute maxIteration.
+
+                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+                            LOG.info("Module started : " + aModule);
+                        }
+                        if (aModule instanceof Service) {
+                            addService(mcid, (Service) aModule);
+                        } else {
+                            messageTransports.put(mcid, aModule);
+                        }
+
+                        moduleStartOrder.add(mcid);
+                        eachService.remove();
+                        progress = true;
+                        break;
+
+                    case Module.START_AGAIN_PROGRESS:
+                        progress = true;
+                        break;
+
+                    case Module.START_AGAIN_STALLED:
+                        break;
+
+                    default: // (negative)
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.warning("Service failed to start (" + res + ") : " + aModule);
+                        }
+                        eachService.remove();
+                        progress = true;
+                        break;
                 }
             }
-            
+
             if (progress) {
                 maxIterations = initServices.size() * initServices.size() + iterations + 1;
             }
         }
-        
+
         // Uh-oh. Services co-dependency prevented them from starting.
         if (!initServices.isEmpty()) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 StringBuilder failed = new StringBuilder(
                         "No progress is being made in starting services after " + iterations + " iterations. Giving up.");
-                
+
                 failed.append("\nThe following services could not be started : ");
-                
+
                 for (Map.Entry<ModuleClassID, Object> aService : initServices.entrySet()) {
                     failed.append("\n\t");
                     failed.append(aService.getKey());
                     failed.append(" : ");
                     failed.append(aService.getValue());
                 }
-                
+
                 LOG.severe(failed.toString());
             }
-            
+
             throw new PeerGroupException("No progress is being made in starting services. Giving up.");
         }
-        
+
         // Make sure all the required services are loaded.
         try {
             checkServices();
@@ -775,11 +769,11 @@ public class StdPeerGroup extends GenericPeerGroup {
             LOG.log(Level.SEVERE, "Missing peer group service", e);
             throw new PeerGroupException("Missing peer group service", e);
         }
-        
+
         /*
-         * Publish a few things that have not been published in this
-         * group yet.
-         */
+        * Publish a few things that have not been published in this
+        * group yet.
+        */
         DiscoveryService discoveryService = getDiscoveryService();
 
         if (discoveryService != null) {
@@ -789,7 +783,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 // since at that time there was no local discovery to
                 // publish to.
                 discoveryService.publish(discoveryService.getImplAdvertisement(), DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
-                
+
                 // Try to publish our impl adv within this group. (it was published
                 // in the parent automatically when loaded.
                 discoveryService.publish(implAdv, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
@@ -798,31 +792,31 @@ public class StdPeerGroup extends GenericPeerGroup {
                     LOG.log(Level.WARNING, "Failed to publish Impl adv within group.", nevermind);
                 }
             }
-        }        
+        }
     }
-    
+
     /**
      * {@inheritDoc}
      * <p/>
-     * Nothing special for now, but we might want to move some steps from 
+     * Nothing special for now, but we might want to move some steps from
      * initFirst() in the future.
      */
     @Override
     protected synchronized void initLast() throws PeerGroupException {
 
         super.initLast();
-        
+
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
             StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
-            
+
             configInfo.append("\n\tConfiguration :");
             configInfo.append("\n\t\tCompatibility Statement :\n\t\t\t");
             StringBuilder indent = new StringBuilder(STD_COMPAT.toString().trim());
             int from = indent.length();
-            
+
             while (from > 0) {
                 int returnAt = indent.lastIndexOf("\n", from);
-                
+
                 from = returnAt - 1;
                 if ((returnAt >= 0) && (returnAt != indent.length())) {
                     indent.insert(returnAt + 1, "\t\t\t");
@@ -830,7 +824,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             }
             configInfo.append(indent);
             Iterator eachProto = messageTransports.entrySet().iterator();
-            
+
             if (eachProto.hasNext()) {
                 configInfo.append("\n\t\tMessage Transports :");
             }
@@ -838,25 +832,25 @@ public class StdPeerGroup extends GenericPeerGroup {
                 Map.Entry anEntry = (Map.Entry) eachProto.next();
                 ModuleClassID aMCID = (ModuleClassID) anEntry.getKey();
                 Module anMT = (Module) anEntry.getValue();
-                
+
                 configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(
                         (anMT instanceof MessageTransport)
                                 ? ((MessageTransport) anMT).getProtocolName()
                                 : anMT.getClass().getName());
             }
-            Iterator<Map.Entry<ModuleClassID,Object>> eachApp = applications.entrySet().iterator();
-            
+            Iterator<Map.Entry<ModuleClassID, Object>> eachApp = applications.entrySet().iterator();
+
             if (eachApp.hasNext()) {
                 configInfo.append("\n\t\tApplications :");
             }
             while (eachApp.hasNext()) {
-                Map.Entry<ModuleClassID,Object> anEntry = eachApp.next();
+                Map.Entry<ModuleClassID, Object> anEntry = eachApp.next();
                 ModuleClassID aMCID = anEntry.getKey();
                 Object anApp = anEntry.getValue();
-                
+
                 if (anApp instanceof ModuleImplAdvertisement) {
                     ModuleImplAdvertisement adv = (ModuleImplAdvertisement) anApp;
-                    
+
                     configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(adv.getCode());
                 } else {
                     configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(anApp.getClass().getName());
@@ -865,22 +859,22 @@ public class StdPeerGroup extends GenericPeerGroup {
             LOG.config(configInfo.toString());
         }
     }
-    
+
     /**
-     *  {@inheritDoc}
-     *  <p/>
-     *  This method builds the <b>complete</b> default Peer Group 
-     *  ModuleImplAdvertisement. The ModuleImplAdvertisement which is returned 
-     *  by the JxtaLoader does not contain the params section which identifies 
-     *  the services which the default Peer Group includes.
-     *  <p/>
-     *  FIXME 20070801 bondolo To improve compatibility with existing 
-     *  applications the returned {@code ModuleImplAdvertisement} will contain  
-     *  embedded {@code ModuleImplAdvertisement}s for the referenced services as  
-     *  opposed to {@code ModuleSpecID}s. This is because JXSE 2.4.1 and earlier 
-     *  do not handle load failures of modules loaded by spec id correctly. 
-     *  After JXSE 2.5 is released this should be changed to use the better
-     *  {@code ModuleSpecID} based peer group module specification.
+     * {@inheritDoc}
+     * <p/>
+     * This method builds the <b>complete</b> default Peer Group
+     * ModuleImplAdvertisement. The ModuleImplAdvertisement which is returned
+     * by the JxtaLoader does not contain the params section which identifies
+     * the services which the default Peer Group includes.
+     * <p/>
+     * FIXME 20070801 bondolo To improve compatibility with existing
+     * applications the returned {@code ModuleImplAdvertisement} will contain
+     * embedded {@code ModuleImplAdvertisement}s for the referenced services as
+     * opposed to {@code ModuleSpecID}s. This is because JXSE 2.4.1 and earlier
+     * do not handle load failures of modules loaded by spec id correctly.
+     * After JXSE 2.5 is released this should be changed to use the better
+     * {@code ModuleSpecID} based peer group module specification.
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
@@ -888,58 +882,56 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         // grab an impl adv
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.allPurposePeerGroupSpecID);
-        
+
         // Create the service list for the group.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
         ModuleImplAdvertisement moduleAdv;
-        
-        
+
         // set the services
-        
+
         // core services
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
         paramAdv.addService(PeerGroup.endpointClassID, moduleAdv);
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
         paramAdv.addService(PeerGroup.resolverClassID, moduleAdv);
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
         paramAdv.addService(PeerGroup.membershipClassID, moduleAdv);
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
         paramAdv.addService(PeerGroup.accessClassID, moduleAdv);
-        
+
         // standard services
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
         paramAdv.addService(PeerGroup.discoveryClassID, moduleAdv);
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
         paramAdv.addService(PeerGroup.rendezvousClassID, moduleAdv);
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
         paramAdv.addService(PeerGroup.pipeClassID, moduleAdv);
-        
+
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
         paramAdv.addService(PeerGroup.peerinfoClassID, moduleAdv);
 
-        
         // Applications
 
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
-        if(null != moduleAdv) {        
+        if (null != moduleAdv) {
             paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
         }
 
         // Insert the newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
-        
+
         implAdv.setParam(paramElement);
-        
+
         return implAdv;
     }
-    
+
     /**
      * Returns the cache manager associated with this group.
      *
@@ -948,15 +940,16 @@ public class StdPeerGroup extends GenericPeerGroup {
     public Cm getCacheManager() {
         return cm;
     }
-    
+
     /**
      * Return a map of the applications for this group.
      * <p/>
      * <ul>
-     *   <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
-     *   <li>values are {@link net.jxta.platform.Module} or
-     *   {@link net.jxta.protocol.ModuleImplAdvertisement}</li>
+     * <li>keys are {@link net.jxta.platform.ModuleClassID}</li>
+     * <li>values are {@link net.jxta.platform.Module} or
+     * {@link net.jxta.protocol.ModuleImplAdvertisement}</li>
      * </ul>
+     *
      * @return a map of the applications for this group.
      */
     public Map<ModuleClassID, Object> getApplications() {

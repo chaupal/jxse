@@ -8,11 +8,9 @@
  */
 package net.jxta.impl.peergroup;
 
-
 import net.jxta.exception.ConfiguratorException;
 
 import java.util.List;
-
 
 /**
  * A configurator exception which is generated when intervention

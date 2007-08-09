@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -70,7 +68,6 @@ import java.io.*;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A minimal Platform Configurator. This implementation can load a
@@ -87,7 +84,7 @@ import java.util.logging.Logger;
 public class NullConfigurator implements PlatformConfigurator {
 
     /**
-     * Log4J logger
+     * logger
      */
     private final static transient Logger LOG = Logger.getLogger(NullConfigurator.class.getName());
 

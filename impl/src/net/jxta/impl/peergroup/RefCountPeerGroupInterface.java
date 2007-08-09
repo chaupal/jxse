@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.peergroup;
 
-
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
@@ -65,7 +64,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-
 
 /**
  * RefCountPeerGroupInterface is a PeerGroupInterface object that
@@ -82,6 +80,8 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
     /**
      * Constructs an interface object that front-ends a given
      * PeerGroup object.
+     *
+     * @param theRealThing the peer group
      */
     RefCountPeerGroupInterface(GenericPeerGroup theRealThing) {
         super(theRealThing);
@@ -153,11 +153,9 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
      * @return Service An interface object that implements
      *         this service and nothing more.
      */
-
     @Override
     public Service getInterface() {
         PeerGroup temp = groupImpl;
-
         if (null == temp) {
             throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
         }

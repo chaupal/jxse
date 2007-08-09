@@ -55,13 +55,11 @@
  */
 package net.jxta.impl.peergroup;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
 
 import net.jxta.exception.PeerGroupException;
-
 
 /**
  * ShadowPeerGroup is almost a regular StdPeerGroup, except that it borrows its
