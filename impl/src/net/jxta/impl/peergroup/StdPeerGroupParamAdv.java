@@ -96,7 +96,7 @@ import java.util.logging.Logger;
 public class StdPeerGroupParamAdv {
 
     /**
-     *  Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(StdPeerGroupParamAdv.class.getName());
 
@@ -112,75 +112,77 @@ public class StdPeerGroupParamAdv {
     // their kind, but right now it helps to keep them categorized as follows.
     
     /**
-     *  The services which will be loaded for this peer group.
-     *  <p/>
-     *  <ul>
-     *      <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
-     *      <li>Values are {@link net.jxta.platform.ModuleSpecID} or
-     *      {@link net.jxta.peergroup.ModuleImplAdvertisement}.</li>
-     *  </ul>
+     * The services which will be loaded for this peer group.
+     * <p/>
+     * <ul>
+     *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
+     *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
+     * </ul>
      */    
     private final Map<ModuleClassID, Object> services = new HashMap<ModuleClassID, Object>();
     
     /**
-     *  The protocols (message transports) which will be loaded for this peer 
-     *  group.
-     *  <p/>
-     *  <ul>
-     *      <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
-     *      <li>Values are {@link net.jxta.platform.ModuleSpecID} or
-     *      {@link net.jxta.peergroup.ModuleImplAdvertisement}.</li>
-     *  </ul>
+     * The protocols (message transports) which will be loaded for this peer
+     * group.
+     * <p/>
+     * <ul>
+     *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
+     *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
+     * </ul>
      */    
     private final Map<ModuleClassID, Object> transports = new HashMap<ModuleClassID, Object>();
     
     /**
-     *  The applications which will be loaded for this peer group.
-     *  <p/>
-     *  <ul>
-     *      <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
-     *      <li>Values are {@link net.jxta.platform.ModuleSpecID} or
-     *      {@link net.jxta.peergroup.ModuleImplAdvertisement}.</li>
-     *  </ul>
+     * The applications which will be loaded for this peer group.
+     * <p/>
+     * <ul>
+     *     <li>Keys are {@link net.jxta.platform.ModuleClassID}.</li>
+     *     <li>Values are {@link net.jxta.platform.ModuleSpecID} or
+     *     {@link net.jxta.protocol.ModuleImplAdvertisement}.</li>
+     * </ul>
      */    
     private final Map<ModuleClassID, Object> apps = new HashMap<ModuleClassID, Object>();
 
     /**
-     *  Private constructor for new instances.
+     * Private constructor for new instances.
      */
-    public StdPeerGroupParamAdv() {}
+    public StdPeerGroupParamAdv() {
+    }
 
     /**
-     *  Private constructor for serialized instances.
+     * Private constructor for serialized instances.
+     *
+     * @param root the root element
      */
     public StdPeerGroupParamAdv(Element root) {
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
-        
         initialize((XMLElement) root);
     }
 
     /**
-     *  Private constructor for xml serialized instances.
-     *  
-     *  @param doc The XML serialization of the advertisement.
+     * Private constructor for xml serialized instances.
+     *
+     * @param doc The XML serialization of the advertisement.
      */
     public StdPeerGroupParamAdv(XMLElement doc) {
         initialize(doc);
     }
 
     /**
-     *  Add a service to the set of services entries described in this 
-     *  Advertisement.
+     * Add a service to the set of services entries described in this
+     * Advertisement.
      *
-     *  @param mcid The module class id of the module being added.
-     *  @param module The module being added.
+     * @param mcid   The module class id of the module being added.
+     * @param module The module being added.
      */
     public void addService(ModuleClassID mcid, Object module) {
         services.put(mcid, module);
     }
-    
+
     /**
      * Return the services entries described in this Advertisement.
      * <p/>
@@ -195,11 +197,11 @@ public class StdPeerGroupParamAdv {
     }
 
     /**
-     *  Add a protocol (message transport) to the set of protocol entries 
-     *  described in this Advertisement.
+     * Add a protocol (message transport) to the set of protocol entries
+     * described in this Advertisement.
      *
-     *  @param mcid The module class id of the module being added.
-     *  @param module The module being added.
+     * @param mcid   The module class id of the module being added.
+     * @param module The module being added.
      */
     public void addProto(ModuleClassID mcid, Object module) {
         transports.put(mcid, module);
@@ -212,18 +214,18 @@ public class StdPeerGroupParamAdv {
      * Advertisement. Modifying it results in changes to this Advertisement.
      * For safety the Map should be copied before being modified.
      *
-     * @return  the protocols (message transports) entries described in this Advertisement.
+     * @return the protocols (message transports) entries described in this Advertisement.
      */
     public Map<ModuleClassID, Object> getProtos() {
         return transports;
     }
 
     /**
-     *  Add an application to the set of application entries described in this
-     *  Advertisement.
+     * Add an application to the set of application entries described in this
+     * Advertisement.
      *
-     *  @param mcid The module class id of the module being added.
-     *  @param module The module being added.
+     * @param mcid   The module class id of the module being added.
+     * @param module The module being added.
      */
     public void addApp(ModuleClassID mcid, Object module) {
         apps.put(mcid, module);
@@ -245,7 +247,7 @@ public class StdPeerGroupParamAdv {
     /**
      * Replaces the table of services described by this Advertisement. All
      * existing entries are lost.
-     * 
+     *
      * @param servicesTable the services table
      */
     public void setServices(Map<ModuleClassID, Object> servicesTable) {
@@ -263,7 +265,7 @@ public class StdPeerGroupParamAdv {
     /**
      * Replaces the table of protocols described by this Advertisement. All
      * existing entries are lost.
-     * 
+     *
      * @param protosTable the protocol table
      */
     public void setProtos(Map<ModuleClassID, Object> protosTable) {
@@ -281,7 +283,7 @@ public class StdPeerGroupParamAdv {
     /**
      * Replaces the table of applications described by this Advertisement. All
      * existing entries are lost.
-     * 
+     *
      * @param appsTable the application table
      */
     public void setApps(Map<ModuleClassID, Object> appsTable) {
@@ -339,7 +341,7 @@ public class StdPeerGroupParamAdv {
 
                 while (fields.hasMoreElements()) {
                     XMLElement field = fields.nextElement();
-                    
+
                     String fieldName = field.getName();
 
                     if (MCID_TAG.equals(fieldName)) {
@@ -376,7 +378,7 @@ public class StdPeerGroupParamAdv {
             } else {
                 theValue = specID;
             }
-            
+
             if (classID == null) {
                 classID = specID.getBaseClass();
             }
@@ -457,7 +459,6 @@ public class StdPeerGroupParamAdv {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("unsupported class in modules table");
                 }
-                
                 throw new IllegalStateException("unsupported class in modules table : " + val);
             }
         }
