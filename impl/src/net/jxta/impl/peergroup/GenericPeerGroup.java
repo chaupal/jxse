@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
-
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -117,7 +115,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Provides common services for most peer group implementations.
@@ -824,13 +821,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, "Incompatbile impl adv");
                 }
-                continue;
             } catch (PeerGroupException failed) {
                 // Initialization failure.
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Initialization failed", failed);
                 }
-                continue;
             } catch (Throwable e) {
                 recentFailure = e;
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -975,10 +970,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
             } else {
                 if (parentGroup != null) {
                     DiscoveryService disco = parentGroup.getDiscoveryService();
-                    
                     if (null != disco) {
                         Enumeration found = disco.getLocalAdvertisements(DiscoveryService.GROUP, "GID", assignedID.toString());
-                        
                         if (found.hasMoreElements()) {
                             peerGroupAdvertisement = (PeerGroupAdvertisement) found.nextElement();
                         }
@@ -1018,7 +1011,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
                         }
                         
                         Advertisement paramsAdv = null;
-
                         try {
                             paramsAdv = AdvertisementFactory.newAdvertisement(param);
                         } catch (NoSuchElementException noadv) {// ignored
@@ -1257,7 +1249,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 Throwable trace = new Throwable("Stack Trace");
                 StackTraceElement elements[] = trace.getStackTrace();
-
                 LOG.info("[" + getPeerGroupID() + "] GROUP REF COUNT DECCREMENTED TO: " + masterRefCount + " by\n\t" + elements[2]);
             }
             
@@ -1275,7 +1266,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         
         stopApp();
-        
         masterRefCount = Integer.MIN_VALUE;
     }
     
@@ -1351,7 +1341,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         
         parentDiscovery.publish(peerGroupAdvertisement, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
-        
         published = true;
     }
     
@@ -1361,7 +1350,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
     public PeerGroup newGroup(Advertisement pgAdv) throws PeerGroupException {
         
         PeerGroupAdvertisement adv = (PeerGroupAdvertisement) pgAdv;
-        
         PeerGroupID gid = adv.getPeerGroupID();
         
         if ((gid == null) || ID.nullID.equals(gid)) {
@@ -1432,7 +1420,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 LOG.log(Level.WARNING, "Could not publish group or implementation:", any);
             }
         }
-        
         return (PeerGroup) theNewGroup.getInterface();
     }
     
@@ -1482,7 +1469,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (null == peerAdvertisement) {
             throw new IllegalStateException("PeerGroup not sufficiently initialized");
         }
-        
         return peerAdvertisement.getName();
     }
     
@@ -1494,7 +1480,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (null == peerGroupAdvertisement) {
             throw new IllegalStateException("PeerGroup not sufficiently initialized");
         }
-        
         return peerGroupAdvertisement.getName();
     }
     
@@ -1518,7 +1503,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (null == peerAdvertisement) {
             throw new IllegalStateException("PeerGroup not sufficiently initialized");
         }
-        
         return peerAdvertisement.getPeerID();
     }
     
@@ -1629,7 +1613,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (access == null) {
             return null;
         }
-        
         return (AccessService) access.getInterface();
     }
 
@@ -1721,16 +1704,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
             this.threadgroup = threadgroup;
         }
 
-        public Thread newThread(Runnable r) {
-            Thread t = new Thread(threadgroup, r,
-                                  "Executor - " + threadNumber.getAndIncrement(),
-                                  0);
-            
-            if(t.isDaemon())
-                t.setDaemon(false);
-            if (t.getPriority() != Thread.NORM_PRIORITY)
-                t.setPriority(Thread.NORM_PRIORITY);
-            return t;
+        public Thread newThread(Runnable runnable) {
+            Thread thread = new Thread(threadgroup, runnable,  "Executor - " + threadNumber.getAndIncrement(), 0);
+            if(thread.isDaemon())
+                thread.setDaemon(false);
+            if (thread.getPriority() != Thread.NORM_PRIORITY)
+                thread.setPriority(Thread.NORM_PRIORITY);
+            return thread;
         }
     }
 }
