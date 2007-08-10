@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package tutorial.service;
-
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.AdvertisementFactory;
@@ -80,7 +78,6 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-
 /**
  * ServiceServer side: This is the server side of the JXTA-EX1 example. The
  * server side application advertises the JXTA-EX1 service, starts the
@@ -93,7 +90,6 @@ import java.net.URISyntaxException;
  * printed to the screen. We run the server as a daemon in an infinite
  * loop, waiting to receive client messages.
  */
-
 public class ServiceServer {
 
     static PeerGroup netPeerGroup = null;
@@ -110,7 +106,6 @@ public class ServiceServer {
 
     public static void main(String args[]) {
         ServiceServer myapp = new ServiceServer();
-
         System.out.println("Starting Service Peer ....");
         myapp.startJxta();
         System.out.println("Good Bye ....");
@@ -119,8 +114,7 @@ public class ServiceServer {
 
     private void startJxta() {
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "ServiceServer"
-                    ,
+            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "ServiceServer",
                     new File(new File(".cache"), "ServiceServer").toURI());
             manager.startNetwork();
         } catch (Exception e) {

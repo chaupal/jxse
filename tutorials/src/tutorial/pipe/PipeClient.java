@@ -55,7 +55,6 @@
  */
 package tutorial.pipe;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.StringMessageElement;
@@ -74,7 +73,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-
 /**
  * This tutorial illustrates the use of JXTA Pipes to exchange messages.
  * <p/>
@@ -91,7 +89,7 @@ public class PipeClient implements OutputPipeListener {
     private PipeService pipeService;
     private PipeAdvertisement pipeAdv;
     private OutputPipe outputPipe;
-    private final Object lock = new String("lock");
+    private final Object lock = new Object();
 
     /**
      * Network is JXTA platform wrapper used to configure, start, and stop the
@@ -112,8 +110,7 @@ public class PipeClient implements OutputPipeListener {
     public PipeClient(boolean waitForRendezvous) {
         this.waitForRendezvous = waitForRendezvous;
         try {
-            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "PipeClient"
-                    ,
+            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "PipeClient",
                     new File(new File(".cache"), "PipeClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {

@@ -55,7 +55,6 @@
  */
 package tutorial.multicast;
 
-
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
 import net.jxta.socket.JxtaMulticastSocket;
@@ -64,7 +63,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.Date;
-
 
 /**
  * Simple example to illustrate the use of JxtaMulticastSocket
@@ -80,8 +78,7 @@ public class JxtaMulticastSocketClient {
         NetworkManager manager = null;
 
         try {
-            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.EDGE, "JxtaMulticastSocketClient"
-                    ,
+            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.EDGE, "JxtaMulticastSocketClient",
                     new File(new File(".cache"), "JxtaMulticastSocketClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -102,7 +99,6 @@ public class JxtaMulticastSocketClient {
 
         Date date = new Date(System.currentTimeMillis());
         String hello = "Hello on : " + date.toString();
-
         try {
             DatagramPacket packet = new DatagramPacket(hello.getBytes(), hello.length());
 

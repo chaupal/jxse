@@ -66,7 +66,6 @@
  */
 package tutorial.service;
 
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredTextDocument;
@@ -84,7 +83,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.File;
 import java.util.Enumeration;
-
 
 /**
  * ServiceClient Side: This is the client side of the JXTA-EX1
@@ -108,7 +106,6 @@ public class ServiceClient {
 
     public static void main(String args[]) {
         ServiceClient myapp = new ServiceClient();
-
         System.out.println("Starting ServiceClient peer ....");
         myapp.startJxta();
         System.out.println("Good Bye ....");
@@ -117,8 +114,7 @@ public class ServiceClient {
 
     private void startJxta() {
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "ServiceClient"
-                    ,
+            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "ServiceClient",
                     new File(new File(".cache"), "ServiceClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -146,7 +142,6 @@ public class ServiceClient {
         // Let's try to locate the service advertisement we will loop until we find it!
         System.out.println("searching for the JXTA-EX1 Service advertisement");
         Enumeration en;
-
         while (true) {
             try {
                 // let's look first in our local cache to see if we have it! We try to discover an adverisement
@@ -166,9 +161,11 @@ public class ServiceClient {
                 try {
                     // sleep as much as we want. Yes we should implement asynchronous listener pipe...
                     Thread.sleep(2000);
-                } catch (Exception e) {// ignored
+                } catch (Exception e) {
+                    // ignored
                 }
-            } catch (IOException e) {// found nothing!  move on
+            } catch (IOException e) {
+                // found nothing!  move on
             }
             System.out.print(".");
         }

@@ -55,7 +55,6 @@
  */
 package tutorial.socket;
 
-
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.PipeAdvertisement;
@@ -64,7 +63,6 @@ import net.jxta.socket.JxtaSocket;
 import java.io.*;
 import java.util.Arrays;
 import java.text.MessageFormat;
-
 
 /**
  * This tutorial illustrates the use JxtaSocket. It attempts to bind a
@@ -99,8 +97,7 @@ public class SocketClient {
 
     public SocketClient(boolean waitForRendezvous) {
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient"
-                    ,
+            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
                     new File(new File(".cache"), "SocketClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -120,17 +117,19 @@ public class SocketClient {
      */
     public void run() {
         try {
-
             if (waitForRendezvous) {
                 manager.waitForRendezvousConnection(0);
             }
 
             long start = System.currentTimeMillis();
-
             System.out.println("Connecting to the server");
-            JxtaSocket socket = new JxtaSocket(netPeerGroup, // no specific peerid
-                    null, pipeAdv, // connection timeout: 5 seconds
-                    5000, // reliable connection
+            JxtaSocket socket = new JxtaSocket(netPeerGroup,
+                    // no specific peerid
+                    null,
+                    pipeAdv,
+                    // connection timeout: 5 seconds
+                    5000,
+                    // reliable connection
                     true);
 
             // get the socket output stream
@@ -142,7 +141,6 @@ public class SocketClient {
             DataInput dis = new DataInputStream(in);
 
             long total = ITERATIONS * (long) PAYLOADSIZE * 2;
-
             System.out.println("Sending/Receiving " + total + " bytes.");
 
             dos.writeLong(ITERATIONS);
@@ -167,11 +165,8 @@ public class SocketClient {
             long finish = System.currentTimeMillis();
             long elapsed = finish - start;
 
-            System.out.println(
-                    MessageFormat.format("EOT. Processed {0} bytes in {1} ms. Throughput = {2} KB/sec.", total, elapsed
-                    ,
+            System.out.println(MessageFormat.format("EOT. Processed {0} bytes in {1} ms. Throughput = {2} KB/sec.", total, elapsed,
                     (total / elapsed) * 1000 / 1024));
-
             socket.close();
             System.out.println("Socket connection closed");
         } catch (IOException io) {

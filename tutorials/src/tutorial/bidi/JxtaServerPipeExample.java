@@ -169,7 +169,8 @@ public class JxtaServerPipeExample {
                 // Get message
                 if (msgElement.toString() == null) {
                     System.out.println("null msg received");
-                } else {// System.out.println("Got Message :" + msgElement.toString());
+                } else {
+                    // System.out.println("Got Message :" + msgElement.toString());
                 }
             } catch (Exception e) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -181,7 +182,7 @@ public class JxtaServerPipeExample {
         /**
          * Send a series of messages over a pipe
          *
-         * @param pipe Description of the Parameter
+         * @param pipe the pipe to send messages over
          */
         private void sendTestMessages(JxtaBiDiPipe pipe) {
             long t0, t1, t2, t3, delta;
@@ -206,8 +207,12 @@ public class JxtaServerPipeExample {
                         System.out.println(" completed message sequence #" + i + " in :" + delta);
                     }
                 }
-                t3 = System.currentTimeMillis();
-                System.out.println(" completed " + ITERATIONS / ((t3 - t2) / 1000) + " transactions/sec. Total time :" + (t3 - t2));
+                t3 = System.currentTimeMillis() +10;
+                long t4 = t3 - t2;
+                if (t4 <= 1000) {
+                    t4 = 1000;
+                }
+                System.out.println(" completed " + ITERATIONS / (t4 / 1000) + " transactions/sec. Total time :" + (t3 - t2));
             } catch (Exception ie) {
                 ie.printStackTrace();
             }
@@ -219,20 +224,28 @@ public class JxtaServerPipeExample {
         public void run() {
             try {
                 sendTestMessages(pipe);
+                Thread.sleep(10000);
+                System.out.println("Closing the pipe");
                 pipe.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
+        /**
+         * @{inheritDoc}
+         */
         public void messageSendFailed(OutgoingMessageEvent event) {
             System.out.println("Message send failed "+event.toString());
         }
 
+        /**
+         * @{inheritDoc}
+         */
         public void messageSendSucceeded(OutgoingMessageEvent event) {
             synchronized(throttleLock) {
                 throttleLock.notify();
             }
-
         }
     }
 

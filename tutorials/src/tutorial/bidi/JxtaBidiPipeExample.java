@@ -107,9 +107,13 @@ public class JxtaBidiPipeExample implements PipeMsgListener, OutgoingMessageEven
                 manager.waitForRendezvousConnection(0);
             }
             System.out.println("Attempting to establish a connection");
-            pipe.connect(netPeerGroup, null, JxtaServerPipeExample.getPipeAdvertisement(), 60000,
-                    // register as a message listener
-                    this);
+            pipe.connect(netPeerGroup,
+                         // any listening node will do
+                         null,
+                         JxtaServerPipeExample.getPipeAdvertisement(),
+                          10000,
+                         // register as a message listener
+                         this);
             // at this point we need to keep references around until data xchange
             // is complete
             System.out.println("JxtaBiDiPipe pipe created");
@@ -146,7 +150,7 @@ public class JxtaBidiPipeExample implements PipeMsgListener, OutgoingMessageEven
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Received a response");
             }
-            // get the message element named SenderMessage
+            // Get the message element named SenderMessage
             MessageElement msgElement = msg.getMessageElement(SenderMessage, SenderMessage);
 
             // Get message
@@ -160,9 +164,12 @@ public class JxtaBidiPipeExample implements PipeMsgListener, OutgoingMessageEven
             // If JxtaServerPipeExample.ITERATIONS # of messages received, it is
             // no longer needed to wait. notify main to exit gracefully
             if (count >= JxtaServerPipeExample.ITERATIONS) {
+                System.out.println("Received all messages");
                 synchronized (completeLock) {
                     completeLock.notify();
                 }
+            } else {
+                System.out.println("Received "+count+" out of "+JxtaServerPipeExample.ITERATIONS);
             }
         } catch (Exception e) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
