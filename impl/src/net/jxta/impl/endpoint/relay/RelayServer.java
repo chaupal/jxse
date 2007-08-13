@@ -1100,7 +1100,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     // New entry and map full. Remove one at random.
                     RdvAdvertisement[] keys = relayAdvCache.keySet().toArray(new RdvAdvertisement[0]);
                     
-                    relayAdvCache.remove(keys[rand.nextInt(keys.length)]);
+                    relayAdvCache.remove(keys[rand.nextInt(keys.length)].getID().toString());
                 }
                 
                 return replaced;
