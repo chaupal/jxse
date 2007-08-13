@@ -53,14 +53,14 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.limited;
-
 
 import java.io.IOException;
 
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
@@ -72,7 +72,6 @@ import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvGreeter;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 
-
 /**
  * The limited range rendezvous peer greeter.
  *
@@ -82,22 +81,22 @@ import net.jxta.impl.rendezvous.rpv.PeerViewElement;
  * @see net.jxta.impl.protocol.LimitedRangeRdvMsg
  */
 public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
-    
+
     /**
-     *  Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(LimitedRangeGreeter.class.getName());
-    
+
     /**
-     *  The walk we are associated with.
+     * The walk we are associated with.
      */
     private final LimitedRangeWalk walk;
-    
+
     /**
-     *  XXX It would be nice to avoid making another link to the endpoint.
+     * XXX It would be nice to avoid making another link to the endpoint.
      */
     private final EndpointService endpoint;
-    
+
     /**
      * Constructor
      *
@@ -105,9 +104,9 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
      */
     public LimitedRangeGreeter(LimitedRangeWalk walk) {
         this.walk = walk;
-        
+
         this.endpoint = walk.getPeerGroup().getEndpointService();
-        
+
         if (!endpoint.addIncomingMessageListener(this, walk.getWalkServiceName(), walk.getWalkServiceParam())) {
             throw new IllegalStateException("Could not register endpoint listener for greeter.");
         }
@@ -116,29 +115,29 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
             LOG.info("Listening on " + walk.getWalkServiceName() + "/" + walk.getWalkServiceParam());
         }
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public synchronized void stop() {
         endpoint.removeIncomingMessageListener(walk.getWalkServiceName(), walk.getWalkServiceParam());
     }
-    
+
     /**
-     *  {@inheritDoc}
-     *
-     *  <p/> Listens on "LR-Greeter"&lt;groupid>/&lt;walkSvc>&lt;walkParam>
-     *
-     *  <p/>Currently, all this method has to do, is to invoke the upper layer.
+     * {@inheritDoc}
+     * <p/>
+     *  Listens on "LR-Greeter"&lt;groupid>/&lt;walkSvc>&lt;walkParam>
+     * <p/>
+     * Currently, all this method has to do, is to invoke the upper layer.
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-        
+
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Processing " + message + " from " + srcAddr);
         }
-        
+
         LimitedRangeRdvMsg rdvMsg = LimitedRangeWalk.getRdvMessage(message);
-        
+
         // Check and update the Limited Range Rdv Message
         if (null == rdvMsg) {
             // Message is invalid, drop it
@@ -147,18 +146,18 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
             }
             return;
         }
-        
+
         if (rdvMsg.getTTL() <= 0) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("No TTL remaining for " + message + ". Dropping it.");
             }
             return;
         }
-    
+
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Limited Range Greeter calling listener");
         }
-        
+
         try {
             walk.getListener().processIncomingMessage(message, srcAddr, dstAddr);
         } catch (Throwable ignored) {
@@ -167,24 +166,24 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
             }
         }
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void replyMessage(Message msg, Message reply) throws IOException {
         LimitedRangeRdvMsg rdvMsg = LimitedRangeWalk.getRdvMessage(msg);
-        
+
         if (rdvMsg == null) {
             // No RdvMessage. This message was not received by this Greeter.
             throw new IOException("LimitedRangeWalker was not able to send message" + ": not from this greeter");
         }
-        
+
         PeerViewElement pve = walk.getPeerView().getPeerViewElement(rdvMsg.getSrcPeerID());
-        
+
         if (null == pve) {
             throw new IOException("LimitedRangeWalker was not able to send message" + ": no pve");
         }
-        
+
         if (!pve.sendMessage(msg, rdvMsg.getSrcSvcName(), rdvMsg.getSrcSvcParams())) {
             throw new IOException("LimitedRangeWalker was not able to send message" + ": send failed");
         }

@@ -53,56 +53,53 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.peergroup.PeerGroup;
 
-
 /**
- *  A Walk implements a particular protocol/behavior policy for sending messages
- *  through the Rendezvous Peers. A walk strategy is composed of a Walker and a
- *  Greeter. The Walker is used for sending messages according to the strategy.
- *  The Greeter receives messages and forwards them to a local listener and may
- *  provide the ability to continue a walk.
+ * A Walk implements a particular protocol/behavior policy for sending messages
+ * through the Rendezvous Peers. A walk strategy is composed of a Walker and a
+ * Greeter. The Walker is used for sending messages according to the strategy.
+ * The Greeter receives messages and forwards them to a local listener and may
+ * provide the ability to continue a walk.
+ * <p/>
+ * <p/>Each walk is associated with a source service name and service param.
+ * These are the name and optional parameter of the service that uses the
+ * RdvWalk.
  *
- *  <p/>Each walk is associated with a source service name and service param. 
- *  These are the name and optional parameter of the service that uses the
- *  RdvWalk. 
- *
- *  @see net.jxta.impl.rendezvous.RdvWalker
- *  @see net.jxta.impl.rendezvous.RdvGreeter
+ * @see net.jxta.impl.rendezvous.RdvWalker
+ * @see net.jxta.impl.rendezvous.RdvGreeter
  */
 public abstract class RdvWalk {
-    
+
     /**
-     *  Peergroup in which this walk is running.
+     * Peergroup in which this walk is running.
      */
     protected final PeerGroup group;
-    
+
     /**
-     *  Intended recipient of messages received as part of this walk.
+     * Intended recipient of messages received as part of this walk.
      */
     protected final EndpointListener listener;
-    
+
     /**
-     *  Service name used by the (client) of this walk.
+     * Service name used by the (client) of this walk.
      */
     protected final String srcServiceName;
-    
+
     /**
-     *  Optional service parameter used by the client of this walk.
+     * Optional service parameter used by the client of this walk.
      */
     protected final String srcServiceParam;
-        
+
     /**
      * Standard constructor
      *
-     * @param group Peergroup in which this walk is running.
-     * @param listener Intended recipient of messages received as part of this walk.
-     * @param srcServiceName Service name used by the client of this walk.
+     * @param group           Peergroup in which this walk is running.
+     * @param listener        Intended recipient of messages received as part of this walk.
+     * @param srcServiceName  Service name used by the client of this walk.
      * @param srcServiceParam Optional service parameter used by the client of this walk.
      */
     public RdvWalk(PeerGroup group, EndpointListener listener, String srcServiceName, String srcServiceParam) {
@@ -111,28 +108,28 @@ public abstract class RdvWalk {
         this.srcServiceName = srcServiceName;
         this.srcServiceParam = srcServiceParam;
     }
-    
+
     /**
-     *  Stop the walk.
+     * Stop the walk.
      */
     public abstract void stop();
-    
+
     /**
      * Get/Create a walker to be used with this walk.
      *
      * @return A walker to be used with this walk. {@code null} is returned if
-     * no greeter is available or the walk has been stopped.
+     *         no greeter is available or the walk has been stopped.
      */
     public abstract RdvWalker getWalker();
-    
+
     /**
      * Get/Create a greeter to be used with this walk.
      *
      * @return A greeter to be used with this walk. {@code null} is returned if
-     * no greeter is available or the walk has been stopped.
+     *         no greeter is available or the walk has been stopped.
      */
     public abstract RdvGreeter getGreeter();
-    
+
     /**
      * Return the Peer Group in which this walk occurs.
      *
@@ -141,7 +138,7 @@ public abstract class RdvWalk {
     public PeerGroup getPeerGroup() {
         return group;
     }
-    
+
     /**
      * Return the listener associated with this walk
      *
@@ -150,7 +147,7 @@ public abstract class RdvWalk {
     public EndpointListener getListener() {
         return listener;
     }
-    
+
     /**
      * Return the source Service Name for this walk.
      *
@@ -159,7 +156,7 @@ public abstract class RdvWalk {
     public String getServiceName() {
         return srcServiceName;
     }
-    
+
     /**
      * Return the source Service Param for this walk.
      *

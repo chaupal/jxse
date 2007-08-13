@@ -55,9 +55,9 @@
  */
 package net.jxta.impl.rendezvous.rdv;
 
-
 import java.util.logging.Logger;
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
 
 import net.jxta.id.ID;
@@ -67,38 +67,37 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.impl.rendezvous.PeerConnection;
 import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 
-
 /**
- *  Manages a connection with a client peer.
- **/
+ * Manages a connection with a client peer.
+ */
 public class ClientConnection extends PeerConnection {
-    
+
     /**
-     *  Log4J Logger
-     **/
+     * Logger
+     */
     private final static transient Logger LOG = Logger.getLogger(ClientConnection.class.getName());
-    
+
     /**
-     *  Constructor for the PeerConnection object
+     * Constructor for the PeerConnection object
      *
-     * @param  group The group context.
-     * @param  rdvService The rendezvous service instance this connection is associated with.
-     * @param  peer The peer id of the connection.
+     * @param group      The group context.
+     * @param rdvService The rendezvous service instance this connection is associated with.
+     * @param peer       The peer id of the connection.
      */
     public ClientConnection(PeerGroup group, RendezVousServiceImpl rdvService, ID peer) {
         super(group, rdvService.endpoint, peer);
     }
-    
+
     /**
-     *  Declare that we are connected.
-     * 
-     *  @param padv The peer advertisement of the peer.
-     *  @param leaseDuration The duration of the lease which is offered to the client.
+     * Declare that we are connected.
+     *
+     * @param padv          The peer advertisement of the peer.
+     * @param leaseDuration The duration of the lease which is offered to the client.
      */
     public void connect(PeerAdvertisement padv, long leaseDuration) {
 
         super.connect(leaseDuration);
-        
+
         // We will almost certainly need a messenger soon. Get it now.
         getCachedMessenger(padv);
     }

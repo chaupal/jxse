@@ -53,15 +53,12 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import java.io.IOException;
 
 import net.jxta.endpoint.Message;
 import net.jxta.peer.PeerID;
-
 
 /**
  * A walker is responsible for implementing the strategy of sending messages for
@@ -71,23 +68,23 @@ import net.jxta.peer.PeerID;
  * @see net.jxta.impl.rendezvous.RdvGreeter
  */
 public interface RdvWalker {
-    
+
     /**
      * Walk a message to other Rendezvous peers participating into the walk. An
      * initial rendezvous peer can be optionally provided as a hint.
      *
-     * @param destPeer An optional PeerID of the peer which will be the initial
-     * recipient of the walked message.
-     * @param msg The message to walk. The message will be modified.
-     * @param serviceName The name of the service.
+     * @param destPeer     An optional PeerID of the peer which will be the initial
+     *                     recipient of the walked message.
+     * @param msg          The message to walk. The message will be modified.
+     * @param serviceName  The name of the service.
      * @param serviceParam The parameter of the service.
-     * @param ttl The maximum TTL of the message. This value may be decreased by
-     * the Walker implementation, but will never be increased.
+     * @param ttl          The maximum TTL of the message. This value may be decreased by
+     *                     the Walker implementation, but will never be increased.
      * @throws IOException If the message was not sent to any other rendezvous
-     * peers.
+     *                     peers.
      */
     public void walkMessage(PeerID destPeer, Message msg, String serviceName, String serviceParam, int ttl) throws IOException;
-    
+
     /**
      * Stop the walker. Some walkers may implement a strategy that has state and
      * this method will stop any internal processing.
