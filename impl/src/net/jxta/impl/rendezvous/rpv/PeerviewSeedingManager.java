@@ -55,10 +55,8 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -78,8 +76,6 @@ import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
-import net.jxta.id.IDFactory;
-import net.jxta.id.ID;
 
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
@@ -91,7 +87,6 @@ import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
 
-
 /**
  *  A Seeding Manager which uses the peerview advertisement pipes in order to 
  *  locate seed peers for a given peer group.
@@ -99,7 +94,7 @@ import net.jxta.protocol.PipeAdvertisement;
 public class PeerviewSeedingManager extends ACLSeedingManager implements EndpointListener {
     
     /**
-     *  Log4J Logger
+     *  Logger
      */
     private static final transient Logger LOG = Logger.getLogger(PeerviewSeedingManager.class.getName());
     
@@ -138,6 +133,11 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
     /**
      * Creates a new instance of PeerviewSeedingManager 
+     *
+     * @param aclLocation ACL uri
+     * @param group the group context
+     * @param advGroup the advertising group
+     * @param name service name
      */
     public PeerviewSeedingManager(URI aclLocation, PeerGroup group, PeerGroup advGroup, String name) {
         super(aclLocation);
@@ -148,22 +148,19 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         
         advPipeAdv = PeerView.makeWirePipeAdvertisement(advGroup, group, name);
         
-        group.getEndpointService().addIncomingMessageListener(this, PeerView.SERVICE_NAME
-                ,
-                group.getPeerGroupID().getUniqueValue().toString());
+        group.getEndpointService().addIncomingMessageListener(this, PeerView.SERVICE_NAME,group.getPeerGroupID().getUniqueValue().toString());
     }
     
     /**
      * {@inheritDoc}
      */
     public void stop() {
-        group.getEndpointService().removeIncomingMessageListener(PeerView.SERVICE_NAME
-                ,
-                group.getPeerGroupID().getUniqueValue().toString());
+        group.getEndpointService().removeIncomingMessageListener(PeerView.SERVICE_NAME, group.getPeerGroupID().getUniqueValue().toString());
     }
     
     /**
-     * 
+     *  Adds a rpv seed
+     * @param seed the seed
      */
     public void addSeed(RouteAdvertisement seed) {
         peerview.add(seed);
@@ -226,9 +223,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
             if (peerview.isEmpty()) {
                 unsuccessfulProbes++;
-
-                untilNextRefresh = Math.min(unsuccessfulProbes * MINIMUM_PEERVIEW_REFRESH_INTERVAL
-                        ,
+                untilNextRefresh = Math.min(unsuccessfulProbes * MINIMUM_PEERVIEW_REFRESH_INTERVAL,
                         STANDARD_PEERVIEW_REFRESH_INTERVAL);
             } else {
                 untilNextRefresh = STANDARD_PEERVIEW_REFRESH_INTERVAL;
@@ -243,7 +238,9 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
     }
     
     /**
-     *  Make a PeerView Message
+     *  Make a PeerView Message.
+     *
+     * @return a peer view message
      */
     private Message makeMessage() {
         
@@ -366,17 +363,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             String srcPeer = srcAddr.toString();
-            
-            if ("jxta".equals(srcAddr.getProtocolName())) {
-                try {
-                    String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
-                    
-                    ID asID = IDFactory.fromURI(new URI(idstr));
-                } catch (URISyntaxException failed) {}
-            }
-            
-            LOG.fine(
-                    "[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
+            LOG.fine("[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
                     + (isFailure ? " failure" : "") + " message (" + msg.toString() + ")" + (isFromEdge ? " from edge" : "")
                     + " regarding \"" + radv.getName() + "\" from " + srcPeer);
         }
