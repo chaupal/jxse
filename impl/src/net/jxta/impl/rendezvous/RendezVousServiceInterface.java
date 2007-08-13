@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -81,24 +79,25 @@ import net.jxta.service.Service;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.platform.Module;
 
-
 /**
  * This class implements the RendezVousService interface.
  */
 public class RendezVousServiceInterface implements RendezVousService {
-    
+
     RendezVousServiceImpl impl = null;
-    
+
     /**
      * The only authorized constructor.
+     *
+     * @param theRealThing the wrapped service
      */
     RendezVousServiceInterface(RendezVousServiceImpl theRealThing) {
         impl = theRealThing;
     }
-    
+
     /**
-     *  {@inheritDoc}
-     *
+     * {@inheritDoc}
+     * <p/>
      * <p/>Since THIS is already such an object, it returns itself.
      * FIXME: it is kind of absurd to have this method part of the
      * interface but we do not want to define two levels of Service interface
@@ -107,18 +106,18 @@ public class RendezVousServiceInterface implements RendezVousService {
     public Service getInterface() {
         return this;
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public ModuleImplAdvertisement getImplAdvertisement() {
         return impl.getImplAdvertisement();
     }
-    
+
     /**
-     *  {@inheritDoc}
-     *
-     *  <p/>FIXME: This is meaningless for the interface object;
+     * {@inheritDoc}
+     * <p/>
+     * <p/>FIXME: This is meaningless for the interface object;
      * it is there only to satisfy the requirements of the
      * interface that we implement. Ultimately, the API should define
      * two levels of interfaces: one for the real service implementation
@@ -126,211 +125,213 @@ public class RendezVousServiceInterface implements RendezVousService {
      * to so that since the only different between the two would be
      * init() and may-be getName().
      */
-    
-    public void init(PeerGroup pg, ID assignedID, Advertisement impl) {}
-    
+
+    public void init(PeerGroup pg, ID assignedID, Advertisement impl) {
+    }
+
     /**
-     *  {@inheritDoc}
-     *
-     *  <p/>This is here for temporary class hierarchy reasons.
+     * {@inheritDoc}
+     * <p/>
+     * <p/>This is here for temporary class hierarchy reasons.
      * it is ALWAYS ignored. By definition, the interface object
      * protects the real object's start/stop methods from being called
      */
     public int startApp(String[] arg) {
         return Module.START_OK;
     }
-    
+
     /**
-     *  {@inheritDoc}
-     *
-     *  <p/>This is here for temporary class hierarchy reasons.
+     * {@inheritDoc}
+     * <p/>
+     * <p/>This is here for temporary class hierarchy reasons.
      * it is ALWAYS ignored. By definition, the interface object
      * protects the real object's start/stop methods from being called
-     *
+     * <p/>
      * <p/>This request is currently ignored.
      */
-    public void stopApp() {}
-    
+    public void stopApp() {
+    }
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void connectToRendezVous(PeerAdvertisement adv) throws IOException {
         impl.connectToRendezVous(adv);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void connectToRendezVous(EndpointAddress addr) throws IOException {
         impl.connectToRendezVous(addr);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void challengeRendezVous(ID peer, long delay) {
         impl.challengeRendezVous(peer, delay);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void disconnectFromRendezVous(ID rendezVous) {
         impl.disconnectFromRendezVous(rendezVous);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public Enumeration<ID> getConnectedRendezVous() {
         Collection<ID> connectedPeers = getConnectedPeerIDs();
-        
+
         return Collections.enumeration(connectedPeers);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public Enumeration<ID> getDisconnectedRendezVous() {
         Collection<ID> empty = Collections.emptyList();
-        
+
         return Collections.enumeration(empty);
     }
-    
+
     /**
      * This portion is for peers that are RendezVous
      */
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void startRendezVous() {
         impl.startRendezVous();
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void stopRendezVous() {
         impl.stopRendezVous();
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public Enumeration<ID> getConnectedPeers() {
         Collection<ID> connectedPeers = getConnectedPeerIDs();
-        
+
         return Collections.enumeration(connectedPeers);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public Vector<ID> getConnectedPeerIDs() {
         return impl.getConnectedPeerIDs();
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean addPropagateListener(String serviceName, String serviceParam, EndpointListener listener) {
 
         return impl.addPropagateListener(serviceName, serviceParam, listener);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public EndpointListener removePropagateListener(String serviceName, String serviceParam, EndpointListener listener) {
 
         return impl.removePropagateListener(serviceName, serviceParam, listener);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void addListener(RendezvousListener listener) {
-        
+
         impl.addListener(listener);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean removeListener(RendezvousListener listener) {
-        
+
         return impl.removeListener(listener);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
-    public void propagate(Message msg, String serviceName, String serviceParam, int    defaultTTL) throws IOException {
-        
+    public void propagate(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
+
         impl.propagate(msg, serviceName, serviceParam, defaultTTL);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void propagate(Enumeration<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
-        
+
         impl.propagate(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void walk(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
-        
+
         impl.walk(msg, serviceName, serviceParam, defaultTTL);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
-        
+
         impl.walk(destPeerIDs, msg, serviceName, serviceParam, defaultTTL);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public Vector<RdvAdvertisement> getLocalWalkView() {
-        
+
         return impl.getLocalWalkView();
     }
-       
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void propagateToNeighbors(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         impl.propagateToNeighbors(msg, serviceName, serviceParam, defaultTTL);
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int defaultTTL) throws IOException {
         impl.propagateInGroup(msg, serviceName, serviceParam, defaultTTL);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean isConnectedToRendezVous() {
         return impl.isConnectedToRendezVous();
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean isRendezVous() {
         return impl.isRendezVous();
     }
-    
+
     /**
      * @inheritDoc
      */
@@ -339,33 +340,35 @@ public class RendezVousServiceInterface implements RendezVousService {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean setAutoStart(boolean auto) {
         return impl.setAutoStart(auto);
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public boolean setAutoStart(boolean auto, long period) {
         return impl.setAutoStart(auto, period);
     }
 
     /**
-     *  Get the current peerview. This is for debugging purposes only.
+     * Get the current peerview. This is for debugging purposes only.
      *
-     *  @deprecated This is private for debugging and diagnostics only.
+     * @return the peer view
+     * @deprecated This is private for debugging and diagnostics only.
      */
-    @Deprecated    
+    @Deprecated
     public PeerView getPeerView() {
         return impl.getPeerView();
     }
-    
+
     /**
-     *  Get the current provider. This is for debugging purposes only.
+     * Get the current provider. This is for debugging purposes only.
      *
-     *  @deprecated This is private for debugging and diagnostics only.
+     * @return the provider
+     * @deprecated This is private for debugging and diagnostics only.
      */
     @Deprecated
     public net.jxta.impl.rendezvous.RendezVousServiceProvider getRendezvousProvider() {
