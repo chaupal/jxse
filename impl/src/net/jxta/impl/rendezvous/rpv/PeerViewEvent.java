@@ -53,36 +53,33 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.rpv;
-
 
 import java.util.EventObject;
 
-
 /**
- *  Container for PeerViewEvent events.
- **/
+ * Container for PeerViewEvent events.
+ */
 public class PeerViewEvent extends EventObject {
 
-    public static final int        ADD = 10;
-    public static final int     REMOVE = 11;
-    public static final int       FAIL = 12;
+    public static final int ADD = 10;
+    public static final int REMOVE = 11;
+    public static final int FAIL = 12;
 
     private static final String EVENTNAMES[] = {
-        "ADD", "REMOVE", "FAIL"
+            "ADD", "REMOVE", "FAIL"
     };
 
     private int type;
-    private PeerViewElement  element;
-  
+    private PeerViewElement element;
+
     /**
-     *  Creates a new event
+     * Creates a new event
      *
-     *  @param source The peer view which is generating the event.
-     *  @param type the event type
-     *  @param element the peer associated with the event
-     **/
+     * @param source  The peer view which is generating the event.
+     * @param type    the event type
+     * @param element the peer associated with the event
+     */
     public PeerViewEvent(Object source, int type, PeerViewElement element) {
         super(source);
         this.type = type;
@@ -90,36 +87,35 @@ public class PeerViewEvent extends EventObject {
     }
 
     /**
-     *  {@inheritDoc}
-     **/
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         String eventType;
-        
+
         if ((type >= ADD) && (type <= FAIL)) {
             eventType = EVENTNAMES[type - ADD];
         } else {
             eventType = "UNKNOWN (" + type + ")";
         }
-        
+
         return super.toString() + " : " + eventType + " for " + element;
     }
-    
-    /**
-     *  Returns the event type
-     *
-     *  @return int type
-     **/
-    public int getType() {
 
+    /**
+     * Returns the event type
+     *
+     * @return int type
+     */
+    public int getType() {
         return type;
     }
-   
+
     /**
-     *  Returns the PeerViewElement
+     * Returns the PeerViewElement
      *
-     *  @return the peer view element associated with the event
-     **/
+     * @return the peer view element associated with the event
+     */
     public PeerViewElement getPeerViewElement() {
 
         return element;

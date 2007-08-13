@@ -55,49 +55,47 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-
 import java.util.Random;
 import java.util.SortedSet;
 import java.util.Iterator;
 
-
 /**
  * Random with replacement
- **/
+ */
 class PeerViewRandomWithReplaceStrategy implements PeerViewStrategy {
-    
+
     private static Random random = new Random();
     private SortedSet set = null;
-    
+
     PeerViewRandomWithReplaceStrategy(SortedSet set) {
         this.set = set;
     }
-    
+
     /**
-     *  {@inheritDoc}
-     **/
-    public void reset() {}
-    
+     * {@inheritDoc}
+     */
+    public void reset() {
+    }
+
     /**
-     *  {@inheritDoc}
-     **/
+     * {@inheritDoc}
+     */
     public PeerViewElement next() {
         synchronized (set) {
             if (set.isEmpty()) {
                 return null;
             }
-            
+
             int i = random.nextInt(set.size());
-            
+
             // return the ith element
             int n = 0;
             Iterator si = set.iterator();
-            
+
             while (n < i) {
                 si.next();
                 n++;
             }
-
             return (PeerViewElement) si.next();
         }
     }
