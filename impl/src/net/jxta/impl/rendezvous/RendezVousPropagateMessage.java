@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import net.jxta.document.Attributable;
 import net.jxta.document.Attribute;
@@ -77,14 +75,13 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This class defines the wire format of the Propagation header for messages.
  */
 public class RendezVousPropagateMessage {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(RendezVousPropagateMessage.class.getName());
 
@@ -104,7 +101,7 @@ public class RendezVousPropagateMessage {
     private String destSName = null;
     private String destSParam = null;
     private int TTL = Integer.MIN_VALUE;
-    private final Set visited = new LinkedHashSet();
+    private final Set<URI> visited = new LinkedHashSet<URI>();
 
     /**
      * Constructor for the RendezVousPropagateMessage object
@@ -249,10 +246,10 @@ public class RendezVousPropagateMessage {
     /**
      * Sets the TTL attribute of the RendezVousPropagateMessage object
      *
-     * @param t The new TTL value
+     * @param ttl The new TTL value
      */
-    public void setTTL(int t) {
-        TTL = t;
+    public void setTTL(int ttl) {
+        TTL = ttl;
     }
 
     /**
@@ -330,7 +327,6 @@ public class RendezVousPropagateMessage {
             e = doc.createElement(PathTag, aVisited.toString());
             doc.appendChild(e);
         }
-
         return doc;
     }
 }
