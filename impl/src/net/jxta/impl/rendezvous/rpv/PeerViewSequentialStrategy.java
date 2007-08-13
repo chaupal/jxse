@@ -55,36 +55,34 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-
 import java.util.SortedSet;
 import java.util.Iterator;
-
 
 /**
  * Sequential
  */
 class PeerViewSequentialStrategy implements PeerViewStrategy {
-    
+
     private final SortedSet<PeerViewDestination> set;
     private PeerViewElement current;
-    
+
     PeerViewSequentialStrategy(SortedSet<PeerViewDestination> aset) {
         set = aset;
         reset();
     }
-    
+
     /**
-     *  {@inheritDoc}
-     **/
+     * {@inheritDoc}
+     */
     public void reset() {
         current = null;
     }
-    
+
     /**
-     *  {@inheritDoc}
-     **/
+     * {@inheritDoc}
+     */
     public PeerViewElement next() {
-                    
+
         synchronized (set) {
             do {
                 if (null == current) {
@@ -100,10 +98,10 @@ class PeerViewSequentialStrategy implements PeerViewStrategy {
                     SortedSet<PeerViewDestination> tail = set.tailSet(current);
 
                     Iterator<PeerViewDestination> fromTail = tail.iterator();
-                    
+
                     if (fromTail.hasNext()) {
                         PeerViewDestination tailFirst = fromTail.next();
-                        
+
                         if (0 == current.compareTo(tailFirst)) {
                             if (fromTail.hasNext()) {
                                 // first in tail is current so the new current
@@ -125,9 +123,10 @@ class PeerViewSequentialStrategy implements PeerViewStrategy {
                         current = null;
                     }
                 }
+                //FIXME by hamada this does not loop, current is always null, is the intended behavior?
             } while (null == current);
         }
-        
+
         return current;
     }
 }
