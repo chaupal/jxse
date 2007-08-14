@@ -64,8 +64,8 @@ import java.util.WeakHashMap;
 /**
  * This a tool to implement selectable objects. It may be composed or extended.
  * <p/>
- * {@code SimpleSelectable} objects that are not {@code SimpleSelector}
- * objects only report changes to their listeners.
+ * {@code SimpleSelectable} objects that are not {@code SimpleSelector} objects
+ * only report changes to their listeners.
  * <p/>
  * The listeners of a {@code SimpleSelectable} may be {@code SimpleSelector}
  * objects or other {@code SimpleSelectable} objects. However the method to
@@ -78,7 +78,7 @@ import java.util.WeakHashMap;
 public abstract class AbstractSimpleSelectable implements SimpleSelectable {
 
     /**
-     * The identity refererence for this selectable.
+     * The identity reference for this selectable.
      *
      * @see SimpleSelectable.IdentityReference
      */
@@ -94,7 +94,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     /**
      * Registered Change Listeners.
      * <p/>
-     * We use a weakHashMap as a set. The elements in the set are the keys. No values.
+     * We use a weakHashMap as a Set. The values are never used.
      */
     private final Map<SimpleSelectable, Object> myListeners = Collections.synchronizedMap(new WeakHashMap<SimpleSelectable, Object>(2));
 
@@ -107,7 +107,8 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     }
 
     /**
-     * Standard constructor for cases where the selectable object is some other object.
+     * Standard constructor for cases where the selectable object is some other
+     * object.
      *
      * @param srcObject the source object
      */
@@ -123,8 +124,10 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     }
 
     /**
-     * Tells whether there are registered selectors right now, or not.  A simpleselectable that also registers with something
-     * else may want to unregister (with the obvious consistency precautions) if it nolonger has selectors of its own.
+     * Tells whether there are registered selectors right now, or not.  A 
+     * SimpleSelectable that also registers with something else may want to 
+     * unregister (with the obvious consistency precautions) if it no longer has
+     * selectors of its own.
      *
      * @return true if there are listeners.
      */
@@ -166,15 +169,18 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     }
 
     /**
-     * This method tells us that something changed and so we need to notify our selectors by invoking their itemChanged
-     * method. This is normally invoked internally by the implementation. One of the reasons for the implementation to invoke this
-     * method is that a SimpleSelectable object that this one is registered with has changed and so has invoked the itemChanged
-     * method.  However, the correlation between the two is left up to the implementation.
+     * This method tells us that something changed and so we need to notify our 
+     * selectors by invoking their {@code itemChanged()} method. This is 
+     * normally invoked internally by the implementation. One of the reasons for
+     * the implementation to invoke this method is that a SimpleSelectable
+     * object that this one is registered with has changed and so has invoked 
+     * the itemChanged method.  However, the correlation between the two is left 
+     * up to the implementation.
      * <p/>
      * No external synchronization needed, nor desirable.
      *
-     * @return false if there are no selectors left (that's a suggestion for the implementation to use haveListeners and possibly
-     *         unregister itself).
+     * @return false if there are no selectors left (that's a suggestion for the 
+     * implementation to use haveListeners and possibly unregister itself).
      */
     protected final boolean notifyChange() {
         Collection<SimpleSelectable> listeners = new ArrayList<SimpleSelectable>(myListeners.keySet());
