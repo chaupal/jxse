@@ -145,7 +145,7 @@ public class TCPAdv extends TransportAdvertisement {
      *  Returns the identifying type of this Advertisement.
      *
      *  <p/><b>Note:</b> This is a static method. It cannot be used to determine
-     *  the runtime type of an advertisment. ie.
+     *  the runtime type of an advertisement. ie.
      *  </p><code><pre>
      *      Advertisement adv = module.getSomeAdv();
      *      String advType = adv.getAdvertisementType();
@@ -153,8 +153,8 @@ public class TCPAdv extends TransportAdvertisement {
      *
      *  <p/><b>This is wrong and does not work the way you might expect.</b>
      *  This call is not polymorphic and calls
-     *  Advertiement.getAdvertisementType() no matter what the real type of the
-     *  advertisment.
+     *  Advertisement.getAdvertisementType() no matter what the real type of the
+     *  advertisement.
      *
      * @return String the type of advertisement
      */
@@ -300,7 +300,7 @@ public class TCPAdv extends TransportAdvertisement {
      * preference and any port in range will be used. The <code>0</code>
      * specifies that the Socket API dynamic port allocation should be used.
      * For values <code>1-65535</code> the value specifies the required port on
-     * which the TCP tranport will listen.
+     * which the TCP transport will listen.
      *
      * @return the port
      */
@@ -316,7 +316,7 @@ public class TCPAdv extends TransportAdvertisement {
      * preference and any port in range will be used. The <code>0</code>
      * specifies that the Socket API dynamic port allocation should be used.
      * For values <code>1-65535</code> the value specifies the required port on
-     * which the TCP tranport will listen.
+     * which the TCP transport will listen.
      *
      * @param port the port on which to listen.
      */
