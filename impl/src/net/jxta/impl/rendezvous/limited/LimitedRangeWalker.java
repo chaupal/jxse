@@ -53,14 +53,14 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.limited;
-
 
 import java.io.IOException;
 
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
 
 import net.jxta.document.MimeMediaType;
@@ -74,112 +74,112 @@ import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvWalker;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 
-
 /**
- *  The Limited Range Walker is designed to be used by Rendezvous Peer in
- *  order to propagate a message amongst them. A target destination peer
+ * The Limited Range Walker is designed to be used by Rendezvous Peer in
+ * order to propagate a message amongst them. A target destination peer
  * is used in order to send the message to a primary peer. Then, depending
  * on the TTL, the message is duplicated into two messages, each of them
- *  being sent in opposite "directions" of the RPV.
+ * being sent in opposite "directions" of the RPV.
  */
 public class LimitedRangeWalker implements RdvWalker {
-    
+
     /**
-     *  Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(LimitedRangeWalker.class.getName());
-    
+
     /**
-     *  The walk we are associated with.
+     * The walk we are associated with.
      */
     private final LimitedRangeWalk walk;
-    
+
     /**
-     *  Constructor
+     * Constructor
      *
-     *  @param walk The walk we will be associated with.
+     * @param walk The walk we will be associated with.
      */
     public LimitedRangeWalker(LimitedRangeWalk walk) {
         this.walk = walk;
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
-    public void stop() {}
-    
+    public void stop() {
+    }
+
     /**
-     *  {@inheritDoc}
-     *
-     *  <p/>Sends message on :
-     *  <pre>
+     * {@inheritDoc}
+     * <p/>
+     * Sends message on :
+     * <pre>
      *  "LR-Greeter"&lt;groupid>/&lt;walkSvc>&lt;walkParam>
      *  </pre>
-     *
-     *  <p/>XXX bondolo 20060720 This method will currently fail to walk the
-     *  message to the DOWN peer if there is a failure sending the message to
-     *  the UP peer. Perhaps it would be better to ignore any errors from
-     *  sending to either peer?
+     * <p/>
+     * XXX bondolo 20060720 This method will currently fail to walk the
+     * message to the DOWN peer if there is a failure sending the message to
+     * the UP peer. Perhaps it would be better to ignore any errors from
+     * sending to either peer?
      */
     private void walkMessage(Message msg, LimitedRangeRdvMsg rdvMsg) throws IOException {
-        
+
         LimitedRangeRdvMsg.WalkDirection dir = rdvMsg.getDirection();
-        
+
         if ((dir == LimitedRangeRdvMsg.WalkDirection.BOTH) || (dir == LimitedRangeRdvMsg.WalkDirection.UP)) {
             PeerViewElement upPeer = walk.getPeerView().getUpPeer();
 
             if ((upPeer != null) && upPeer.isAlive()) {
                 Message newMsg = msg.clone();
-                
+
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Walking " + newMsg + " [UP] to " + upPeer);
                 }
-                
+
                 rdvMsg.setDirection(LimitedRangeRdvMsg.WalkDirection.UP);
-                
+
                 updateRdvMessage(newMsg, rdvMsg);
                 upPeer.sendMessage(newMsg, walk.getWalkServiceName(), walk.getWalkServiceParam());
             }
         }
-        
+
         if ((dir == LimitedRangeRdvMsg.WalkDirection.BOTH) || (dir == LimitedRangeRdvMsg.WalkDirection.DOWN)) {
             PeerViewElement downPeer = walk.getPeerView().getDownPeer();
 
             if ((downPeer != null) && downPeer.isAlive()) {
                 Message newMsg = msg.clone();
-                
+
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Walking " + newMsg + " [DOWN] to " + downPeer);
                 }
-                
+
                 rdvMsg.setDirection(LimitedRangeRdvMsg.WalkDirection.DOWN);
-                
+
                 updateRdvMessage(newMsg, rdvMsg);
                 downPeer.sendMessage(newMsg, walk.getWalkServiceName(), walk.getWalkServiceParam());
             }
         }
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void walkMessage(PeerID destination, Message msg, String srcSvcName, String srcSvcParam, int ttl) throws IOException {
-        
+
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Walking " + msg + " to " + srcSvcName + "/" + srcSvcParam);
         }
-        
+
         // Check if there is already a Rdv Message
         LimitedRangeRdvMsg rdvMsg = LimitedRangeWalk.getRdvMessage(msg);
-        
+
         if (rdvMsg == null) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Creating new Walk Header for " + msg + " with TTL=" + ttl);
             }
-            
+
             // Create a new one.
             rdvMsg = new LimitedRangeRdvMsg();
-            
+
             rdvMsg.setTTL(Integer.MAX_VALUE); // will be reduced.
             rdvMsg.setDirection(LimitedRangeRdvMsg.WalkDirection.BOTH);
             rdvMsg.setSrcPeerID(walk.getPeerGroup().getPeerID());
@@ -189,65 +189,65 @@ public class LimitedRangeWalker implements RdvWalker {
             // decrement TTL before walk.
             rdvMsg.setTTL(rdvMsg.getTTL() - 1);
         }
-        
+
         int useTTL = Math.min(ttl, rdvMsg.getTTL());
-        
+
         useTTL = Math.min(useTTL, walk.getPeerView().getView().size() + 1);
-        
+
         rdvMsg.setTTL(useTTL);
-        
+
         if (useTTL <= 0) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("LimitedRangeWalker was not able to send " + msg + " : No TTL remaining");
             }
-            
+
             return;
         }
-        
+
         // Forward the message according to the direction set in the Rdv Message.
         if (null != destination) {
             Message tmp = msg.clone();
-            
+
             updateRdvMessage(tmp, rdvMsg);
             sendToPeer(destination, walk.getWalkServiceName(), walk.getWalkServiceParam(), tmp);
         } else {
             walkMessage(msg, rdvMsg);
         }
     }
-    
+
     /**
      * Replace the old version of the rdvMsg
      *
-     *  @param msg The message to be updated.
-     *  @param rdvMsg The LimitedRangeRdvMsg which will update the message.
+     * @param msg    The message to be updated.
+     * @param rdvMsg The LimitedRangeRdvMsg which will update the message.
      * @return the updated message
      */
     private Message updateRdvMessage(Message msg, LimitedRangeRdvMsg rdvMsg) {
         XMLDocument asDoc = (XMLDocument) rdvMsg.getDocument(MimeMediaType.XMLUTF8);
         MessageElement el = new TextDocumentMessageElement(LimitedRangeWalk.ELEMENTNAME, asDoc, null);
-        
+
         msg.replaceMessageElement("jxta", el);
-        
+
         return msg;
     }
-    
+
     /**
-     *  Sends the provided message to the specified peer. The peer must be a
-     *  current member of the PeerView.
+     * Sends the provided message to the specified peer. The peer must be a
+     * current member of the PeerView.
      *
-     *  @param dest The destination peer.
-     *  @param svcName The destinations service.
-     *  @param svcParam The destination service params.
-     *  @param msg The message to send.
-     *  @throws IOException Thrown for problems sending the message.
+     * @param dest     The destination peer.
+     * @param svcName  The destinations service.
+     * @param svcParam The destination service params.
+     * @param msg      The message to send.
+     * @throws IOException Thrown for problems sending the message.
      */
     private void sendToPeer(PeerID dest, String svcName, String svcParam, Message msg) throws IOException {
         PeerViewElement pve = walk.getPeerView().getPeerViewElement(dest);
-        
+
         if (null == pve) {
             throw new IOException("LimitedRangeWalker was not able to send " + msg + " : no pve");
         }
-        
+
         if (!pve.sendMessage(msg, svcName, svcParam)) {
             throw new IOException("LimitedRangeWalker was not able to send " + msg + " : send failed");
         }

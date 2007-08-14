@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.pipe;
 
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.Message;
@@ -73,7 +72,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * An implementation of Ouput Pipe which sends messages on the pipe
  * asynchronously. The <code>send()</code> method for this implementation will
@@ -82,7 +80,7 @@ import java.util.logging.Logger;
 class NonBlockingWireOutputPipe implements OutputPipe {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(NonBlockingWireOutputPipe.class.getName());
 
@@ -189,8 +187,8 @@ class NonBlockingWireOutputPipe implements OutputPipe {
             // also throw it here to void the extra operations
             throw new IOException("Pipe closed");
         }
-        WireHeader header = new WireHeader();
 
+        WireHeader header = new WireHeader();
         header.setPipeID(getPipeID());
         header.setSrcPeer(peerGroup.getPeerID());
         header.setTTL(destPeers.isEmpty() ? 200 : 1);
@@ -200,7 +198,6 @@ class NonBlockingWireOutputPipe implements OutputPipe {
         MessageElement elem = new TextDocumentMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAME, asDoc, null);
 
         Message msg = message.clone();
-
         msg.replaceMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAMESPACE, elem);
         return sendUnModified(msg, header);
     }

@@ -97,7 +97,7 @@ public interface Attributable {
     String addAttribute(Attribute newAttrib);
 
     /**
-     * Returns an enumerations of the attributes assosicated with this object.
+     * Returns an enumerations of the attributes associated with this object.
      * Each element is of type Attribute.
      *
      * @return Enumeration the attributes associated with this object.
@@ -106,7 +106,7 @@ public interface Attributable {
 
     /**
      * Returns a single attribute which matches the name provided. If no such
-     * named attribute exists then null is returned. For impelementations of
+     * named attribute exists then null is returned. For implementations of
      * this interface which support multiple values for each name only the
      * first value will be returned. To access all values for a name you must
      * use getAttributes.

@@ -93,10 +93,8 @@ public class SocketServer {
     public final static String SOCKETIDSTR = "urn:jxta:uuid-59616261646162614E5047205032503393B5C2F6CA7A41FBB0F890173088E79404";
 
     public SocketServer() throws IOException, PeerGroupException {
-        NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer"
-                ,
+        NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer",
                 new File(new File(".cache"), "SocketServer").toURI());
-
         manager.startNetwork();
         netPeerGroup = manager.getNetPeerGroup();
     }
@@ -125,7 +123,6 @@ public class SocketServer {
 
         System.out.println("Starting ServerSocket");
         JxtaServerSocket serverSocket = null;
-
         try {
             serverSocket = new JxtaServerSocket(netPeerGroup, createSocketAdvertisement(), 10);
             serverSocket.setSoTimeout(0);
@@ -139,11 +136,9 @@ public class SocketServer {
             try {
                 System.out.println("Waiting for connections");
                 Socket socket = serverSocket.accept();
-
                 if (socket != null) {
                     System.out.println("New socket connection accepted");
                     Thread thread = new Thread(new ConnectionHandler(socket), "Connection Handler Thread");
-
                     thread.start();
                 }
             } catch (Exception e) {
@@ -182,7 +177,6 @@ public class SocketServer {
                 System.out.println(MessageFormat.format("Sending/Receiving {0} bytes.", total));
                 while (current < iterations) {
                     byte[] buf = new byte[size];
-
                     dis.readFully(buf);
                     out.write(buf);
                     out.flush();
@@ -194,10 +188,7 @@ public class SocketServer {
 
                 long finish = System.currentTimeMillis();
                 long elapsed = finish - start;
-
-                System.out.println(
-                        MessageFormat.format("EOT. Received {0} bytes in {1} ms. Throughput = {2} KB/sec.", total, elapsed
-                        ,
+                System.out.println(MessageFormat.format("EOT. Received {0} bytes in {1} ms. Throughput = {2} KB/sec.", total, elapsed,
                         (total / elapsed) * 1000 / 1024));
                 socket.close();
                 System.out.println("Connection closed");
@@ -226,7 +217,6 @@ public class SocketServer {
         try {
             Thread.currentThread().setName(SocketServer.class.getName() + ".main()");
             SocketServer socEx = new SocketServer();
-
             socEx.run();
         } catch (Throwable e) {
             System.err.println("Failed : " + e);

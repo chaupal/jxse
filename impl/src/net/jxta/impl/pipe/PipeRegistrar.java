@@ -55,9 +55,7 @@
  */
 package net.jxta.impl.pipe;
 
-
 import net.jxta.pipe.InputPipe;
-
 
 /**
  * Interface for classes which manage input pipe registrations.

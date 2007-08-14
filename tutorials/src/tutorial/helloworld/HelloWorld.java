@@ -55,11 +55,9 @@
  */
 package tutorial.helloworld;
 
-
 import net.jxta.platform.NetworkManager;
 import java.text.MessageFormat;
 import java.io.File;
-
 
 /**
  * A example of strating and stopping JXTA

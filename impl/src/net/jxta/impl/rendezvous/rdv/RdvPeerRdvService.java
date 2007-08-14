@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.rdv;
-
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -103,7 +101,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
  * implements the rendezvous server portion of the standard JXTA Rendezvous
@@ -115,7 +112,7 @@ import java.util.logging.Logger;
 public class RdvPeerRdvService extends StdRendezVousService {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static Logger LOG = Logger.getLogger(RdvPeerRdvService.class.getName());
 
@@ -151,6 +148,9 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
     /**
      * Constructor for the RdvPeerRdvService object
+     *
+     * @param group      the peer group
+     * @param rdvService the rendezvous service object
      */
     public RdvPeerRdvService(PeerGroup group, RendezVousServiceImpl rdvService) {
 
@@ -391,7 +391,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to :" + 
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to :" +
                     "\n\tsvc name:" + serviceName + "\tsvc params:" + serviceParam);
         }
 
@@ -422,7 +422,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine( "Propagating " + msg + "(TTL=" + useTTL + ") in group to :" + 
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") in group to :" +
                     "\n\tsvc name:" + serviceName + "\tsvc params:" + serviceParam);
         }
 
@@ -554,7 +554,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     private void processDisconnectRequest(Message msg) {
 
-        PeerAdvertisement adv = null;
+        PeerAdvertisement adv;
 
         try {
             MessageElement elem = msg.getMessageElement("jxta", DisconnectRequest);
@@ -638,7 +638,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning(
                             "Max clients exceeded, declining lease request from: " + padv.getName() + " [" + padv.getPeerID()
-                            + "]");
+                                    + "]");
                 }
             }
         }
@@ -690,7 +690,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine(
                     "Undirected walk of " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-                    + serviceParam);
+                            + serviceParam);
         }
 
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
@@ -731,7 +731,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine(
                     "Directed walk of " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-                    + serviceParam);
+                            + serviceParam);
         }
 
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
@@ -807,7 +807,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine(
                             "Client GC " + gcedClients + " of " + allClients.size() + " clients completed in "
-                            + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), gcStart) + "ms.");
+                                    + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), gcStart) + "ms.");
                 }
             } catch (Throwable all) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -856,7 +856,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(
                         "Calling local listener for [" + realDest.getServiceName() + " / " + realDest.getServiceParameter()
-                        + "] with " + msg);
+                                + "] with " + msg);
             }
 
             rdvService.endpoint.processIncomingMessage(msg, srcAddr, realDest);

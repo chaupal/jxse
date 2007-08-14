@@ -91,8 +91,7 @@ import java.util.logging.Logger;
  * &lt;/jxta:System>
  * </pre>
  */
-public class AdvertisementTutorial extends Advertisement
-        implements Comparable, Cloneable, Serializable {
+public class AdvertisementTutorial extends Advertisement implements Comparable, Cloneable, Serializable {
     private String hwarch;
     private String hwvendor;
     private ID id = ID.nullID;
@@ -119,12 +118,13 @@ public class AdvertisementTutorial extends Advertisement
      * to properly index and retrieve these advertisements locally and on the
      * network
      */
-    private final static String[] fields = { idTag, nameTag, hwarchTag};
+    private final static String[] fields = {idTag, nameTag, hwarchTag};
 
     /**
      * Default Constructor
      */
-    public AdvertisementTutorial() {}
+    public AdvertisementTutorial() {
+    }
 
     /**
      * Construct from a StructuredDocument
@@ -151,7 +151,6 @@ public class AdvertisementTutorial extends Advertisement
     public AdvertisementTutorial(InputStream stream) throws IOException {
         StructuredTextDocument doc = (StructuredTextDocument)
                 StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, stream);
-
         initialize(doc);
     }
 

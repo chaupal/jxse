@@ -53,13 +53,10 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.rpv;
-
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
-
 
 /**
  * This class contains only the comparable portion of PeerViewElement, so that it is possible
@@ -85,16 +82,8 @@ class PeerViewDestination implements Comparable<PeerViewDestination> {
      */
     @Override
     public boolean equals(Object other) {
-        
-        if (this == other) {
-            return true;
-        }
-        
-        if( other instanceof PeerViewDestination ) {
-            return 0 == compareTo((PeerViewDestination) other);
-        } else {
-            return false;
-        }
+        return this == other || other instanceof PeerViewDestination && 0 == compareTo((PeerViewDestination) other);
+
     }
     
     /**

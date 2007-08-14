@@ -55,10 +55,8 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +64,7 @@ import java.util.Set;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
 
 import net.jxta.document.Advertisement;
@@ -78,8 +77,6 @@ import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
-import net.jxta.id.IDFactory;
-import net.jxta.id.ID;
 
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
@@ -91,144 +88,144 @@ import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
 
-
 /**
- *  A Seeding Manager which uses the peerview advertisement pipes in order to 
- *  locate seed peers for a given peer group.
+ * A Seeding Manager which uses the peerview advertisement pipes in order to
+ * locate seed peers for a given peer group.
  */
 public class PeerviewSeedingManager extends ACLSeedingManager implements EndpointListener {
-    
+
     /**
-     *  Log4J Logger
+     * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(PeerviewSeedingManager.class.getName());
-    
+
     /**
-     *  This is the minimum interval at which we will refresh our "peerview"
+     * This is the minimum interval at which we will refresh our "peerview"
      */
     protected final static long MINIMUM_PEERVIEW_REFRESH_INTERVAL = 1 * TimeUtils.AMINUTE;
-    
+
     /**
-     *  The standard time interval after which we will refresh our "peerview"
+     * The standard time interval after which we will refresh our "peerview"
      */
     protected final static long STANDARD_PEERVIEW_REFRESH_INTERVAL = 20 * TimeUtils.AMINUTE;
-    
+
     /**
-     *  Our mock peerview we use to keep responses.
+     * Our mock peerview we use to keep responses.
      */
     protected Set<RouteAdvertisement> peerview = new HashSet<RouteAdvertisement>();
-    
+
     /**
-     *  The absolute time at which we will refresh our "PeerView"
+     * The absolute time at which we will refresh our "PeerView"
      */
     protected long nextPeerViewRefresh = 0;
-    
+
     /**
-     *  The absolute time at which we will refresh our "PeerView"
+     * The absolute time at which we will refresh our "PeerView"
      */
     protected int unsuccessfulProbes = 0;
-    
+
     protected final PeerGroup advGroup;
-    
+
     protected final PeerGroup group;
-    
+
     protected final String name;
-    
+
     protected final PipeAdvertisement advPipeAdv;
 
     /**
-     * Creates a new instance of PeerviewSeedingManager 
+     * Creates a new instance of PeerviewSeedingManager
+     *
+     * @param aclLocation ACL uri
+     * @param group       the group context
+     * @param advGroup    the advertising group
+     * @param name        service name
      */
     public PeerviewSeedingManager(URI aclLocation, PeerGroup group, PeerGroup advGroup, String name) {
         super(aclLocation);
-        
+
         this.group = group;
         this.advGroup = advGroup;
         this.name = name;
-        
+
         advPipeAdv = PeerView.makeWirePipeAdvertisement(advGroup, group, name);
-        
-        group.getEndpointService().addIncomingMessageListener(this, PeerView.SERVICE_NAME
-                ,
-                group.getPeerGroupID().getUniqueValue().toString());
+
+        group.getEndpointService().addIncomingMessageListener(this, PeerView.SERVICE_NAME, group.getPeerGroupID().getUniqueValue().toString());
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void stop() {
-        group.getEndpointService().removeIncomingMessageListener(PeerView.SERVICE_NAME
-                ,
-                group.getPeerGroupID().getUniqueValue().toString());
+        group.getEndpointService().removeIncomingMessageListener(PeerView.SERVICE_NAME, group.getPeerGroupID().getUniqueValue().toString());
     }
-    
+
     /**
-     * 
+     * Adds a rpv seed
+     *
+     * @param seed the seed
      */
     public void addSeed(RouteAdvertisement seed) {
         peerview.add(seed);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public URI[] getActiveSeedURIs() {
         throw new UnsupportedOperationException("Not supported.");
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public synchronized RouteAdvertisement[] getActiveSeedRoutes() {
         refreshActiveSeeds();
-        
+
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>();
-        
+
         for (RouteAdvertisement anRA : peerview) {
             result.add(anRA.clone());
         }
 
         return result.toArray(new RouteAdvertisement[result.size()]);
     }
-        
+
     /**
      * {@inheritDoc}
      */
     @Override
     public synchronized boolean isAcceptablePeer(RouteAdvertisement radv) {
         boolean acceptable = peerview.contains(radv);
-        
+
         return acceptable && super.isAcceptablePeer(radv);
     }
-    
+
     protected void refreshActiveSeeds() {
         if (TimeUtils.timeNow() < nextPeerViewRefresh) {
             return;
         }
-        
+
         // remove the old stale entries.
         peerview.clear();
-        
+
         Message message = makeMessage();
-        
+
         try {
             PipeService pipes = advGroup.getPipeService();
-            
+
             OutputPipe output = pipes.createOutputPipe(advPipeAdv, 30 * TimeUtils.ASECOND);
 
             output.send(message);
-            
+
             output.close();
-        
+
             // Only update the refresh if we we able to send.
-            
+
             long untilNextRefresh;
 
             if (peerview.isEmpty()) {
                 unsuccessfulProbes++;
-
-                untilNextRefresh = Math.min(unsuccessfulProbes * MINIMUM_PEERVIEW_REFRESH_INTERVAL
-                        ,
+                untilNextRefresh = Math.min(unsuccessfulProbes * MINIMUM_PEERVIEW_REFRESH_INTERVAL,
                         STANDARD_PEERVIEW_REFRESH_INTERVAL);
             } else {
                 untilNextRefresh = STANDARD_PEERVIEW_REFRESH_INTERVAL;
@@ -238,41 +235,43 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         } catch (IOException failed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Failed sending " + message + ".", failed);
-            } 
+            }
         }
     }
-    
+
     /**
-     *  Make a PeerView Message
+     * Make a PeerView Message.
+     *
+     * @return a peer view message
      */
     private Message makeMessage() {
-        
+
         Message msg = new Message();
-        
+
         msg.addMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.EDGE_ELEMENT);
-        
+
         RdvAdvertisement radv = PeerView.createRdvAdvertisement(group.getPeerAdvertisement(), name);
-        
+
         XMLDocument doc = (XMLDocument) radv.getDocument(MimeMediaType.XMLUTF8);
-        
+
         MessageElement msge = new TextDocumentMessageElement(PeerView.MESSAGE_ELEMENT_NAME, doc, null);
-        
+
         msg.addMessageElement(PeerView.MESSAGE_NAMESPACE, msge);
-        
+
         return msg;
     }
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * <p/>Listener for "PeerView"/&lt;peergroup-unique-id> and propagate pipes.
-     **/
+     */
     public synchronized void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-        
+
         // check what kind of message this is (response or not).
         boolean isResponse = false;
         MessageElement me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.MESSAGE_ELEMENT_NAME);
-        
+
         if (me == null) {
             me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.RESPONSE_ELEMENT_NAME);
             if (me == null) {
@@ -284,9 +283,9 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
                 isResponse = true;
             }
         }
-        
+
         Advertisement adv;
-        
+
         try {
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
 
@@ -302,37 +301,37 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
             }
             return;
         }
-        
+
         if (!(adv instanceof RdvAdvertisement)) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Response does not contain radv (" + adv.getAdvertisementType() + ")");
             }
             return;
         }
-        
+
         RdvAdvertisement radv = (RdvAdvertisement) adv;
-        
+
         if (null == radv.getRouteAdv()) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Radv does not contain route");
             }
             return;
         }
-        
+
         // See if we can find a src route adv in the message.s
         me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.SRCROUTEADV_ELEMENT_NAME);
         if (me != null) {
             try {
                 XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
                 Advertisement routeAdv = AdvertisementFactory.newAdvertisement(asDoc);
-                
+
                 if (!(routeAdv instanceof RouteAdvertisement)) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.warning("Advertisement is not a RouteAdvertisement");
                     }
                 } else {
                     RouteAdvertisement rdvRouteAdv = radv.getRouteAdv().clone();
-                    
+
                     // XXX we stich them together even if in the end it gets optimized away
                     RouteAdvertisement.stichRoute(rdvRouteAdv, (RouteAdvertisement) routeAdv);
                     radv.setRouteAdv(rdvRouteAdv);
@@ -348,44 +347,34 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
             }
         }
         me = null;
-        
+
         // Is this a message about ourself?
         if (group.getPeerID().equals(radv.getPeerID())) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Received a PeerView message about self. Discard.");
             }
-            
+
             return;
         }
-        
+
         // Collect the various flags.
-        
+
         boolean isFailure = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.FAILURE_ELEMENT_NAME) != null);
         boolean isCached = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.CACHED_RADV_ELEMENT_NAME) != null);
         boolean isFromEdge = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.EDGE_ELEMENT_NAME) != null);
-        
+
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             String srcPeer = srcAddr.toString();
-            
-            if ("jxta".equals(srcAddr.getProtocolName())) {
-                try {
-                    String idstr = ID.URIEncodingName + ":" + ID.URNNamespace + ":" + srcAddr.getProtocolAddress();
-                    
-                    ID asID = IDFactory.fromURI(new URI(idstr));
-                } catch (URISyntaxException failed) {}
-            }
-            
-            LOG.fine(
-                    "[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
+            LOG.fine("[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
                     + (isFailure ? " failure" : "") + " message (" + msg.toString() + ")" + (isFromEdge ? " from edge" : "")
                     + " regarding \"" + radv.getName() + "\" from " + srcPeer);
         }
-        
+
         if (!isResponse || isFailure || isCached || isFromEdge) {
             // We don't care about anything except responses from active rdvs.
             return;
         }
-        
+
         peerview.add(radv.getRouteAdv());
     }
 }

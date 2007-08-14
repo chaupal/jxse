@@ -120,8 +120,7 @@ public class PropagatedPipeClient implements PipeMsgListener {
         NetworkManager manager = null;
 
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "PropagatedPipeClient"
-                    ,
+            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "PropagatedPipeClient",
                     new File(new File(".cache"), "PropagatedPipeClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {

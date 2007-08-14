@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.edge;
 
 import java.net.URI;
@@ -363,8 +362,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
      */
     @Override
     public void disconnectFromRendezVous(ID peerId) {
-        
-        removeRdv((PeerID) peerId, false);
+        removeRdv(peerId, false);
     }
     
     /**
@@ -564,6 +562,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
      * Remove the specified rendezvous from our collection of rendezvous.
      *
      * @param rdvid the id of the rendezvous to remove.
+     * @param requested if true, indicates a requested operation
      */
     private void removeRdv(ID rdvid, boolean requested) {
         

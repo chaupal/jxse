@@ -53,12 +53,9 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.rpv;
 
-
 import java.util.EventListener;
-
 
 /**
  *  The listener interface for receiving PeerView events
@@ -70,6 +67,5 @@ public interface PeerViewListener extends EventListener {
      * @param event the peerViewEvent event
      */
     void peerViewEvent(PeerViewEvent event);
-
 }
 

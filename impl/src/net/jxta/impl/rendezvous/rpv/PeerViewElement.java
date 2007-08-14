@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.rpv;
-
 
 import java.io.IOException;
 
@@ -70,7 +68,6 @@ import net.jxta.protocol.RdvAdvertisement;
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
 
 /**
  * An element of the PeerView.

@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.rendezvous.edge;
 
-
 import net.jxta.id.ID;
 import net.jxta.impl.rendezvous.PeerConnection;
 import net.jxta.impl.rendezvous.RendezVousServiceImpl;
@@ -64,92 +63,93 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
 
-
 /**
- *  Manages a connection with a client or a rendezvous peer.
+ * Manages a connection with a client or a rendezvous peer.
  */
 public class RdvConnection extends PeerConnection {
-    
+
     /**
-     *  Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(RdvConnection.class.getName());
-    
+
     protected long leasedTil;
     protected long beginRenewalAt;
-    
+
     protected PeerAdvertisement cachedPeerAdvertisement = null;
     protected int cachedModCount = -1;
-    
+
     /**
-     *  Constructor for the PeerConnection object
+     * Constructor for the PeerConnection object
      *
-     * @param  group          group context
-     * @param  rdvService     the rendezvous service to use for sending messages.
-     * @param  peer         destination peerid
+     * @param group      group context
+     * @param rdvService the rendezvous service to use for sending messages.
+     * @param peer       destination peerid
      */
     public RdvConnection(PeerGroup group, RendezVousServiceImpl rdvService, ID peer) {
         super(group, rdvService.endpoint, peer);
-        
+
         cachedPeerAdvertisement = group.getPeerAdvertisement();
         cachedModCount = cachedPeerAdvertisement.getModCount();
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
         return super.toString() + " / " + Long.toString(TimeUtils.toRelativeTimeMillis(beginRenewalAt));
     }
-    
+
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     protected void setLease(long leaseDuration) {
         setLease(leaseDuration, 0);
     }
-    
+
     /**
-     *  Set the lease duration in relative milliseconds.
+     * Set the lease duration in relative milliseconds.
      *
-     *  @param  leaseDuration the lease duration in relative milliseconds.
-     *  @param  earlyRenewal  amount of time in relative milliseconds before lease end to begin renewal
+     * @param leaseDuration the lease duration in relative milliseconds.
+     * @param earlyRenewal  amount of time in relative milliseconds before lease end to begin renewal
      */
     public void setLease(long leaseDuration, long earlyRenewal) {
-        
+
         if (leaseDuration < earlyRenewal) {
             throw new IllegalArgumentException("Renewal scheduled before begining of lease");
         }
-        
+
         super.setLease(leaseDuration);
         beginRenewalAt = TimeUtils.toAbsoluteTimeMillis(leaseDuration - earlyRenewal);
     }
-    
+
     /**
-     *  Declare that we are connected.
+     * Declare that we are connected.
      *
-     * @param padv the node advertisement
-     * @param leaseDuration  lease duration in milliseconds
-     * @param earlyRenewal early renwal in milliseconds
+     * @param padv          the node advertisement
+     * @param leaseDuration lease duration in milliseconds
+     * @param earlyRenewal  early renwal in milliseconds
      */
     public void connect(PeerAdvertisement padv, long leaseDuration, long earlyRenewal) {
         super.connect(leaseDuration);
-        
+
         setLease(leaseDuration, earlyRenewal);
-        
+
         // We will almost certainly need a messenger soon. Get it now.
         getCachedMessenger(padv);
     }
 
     /**
-     *  Time at which the lease needs renewal in absolute milliseconds.
+     * Time at which the lease needs renewal in absolute milliseconds.
      *
-     *@return    The lease value
+     * @return The lease value
      */
     public long getRenewal() {
         return beginRenewalAt;

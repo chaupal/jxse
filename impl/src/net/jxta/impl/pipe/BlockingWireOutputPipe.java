@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.pipe;
 
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
@@ -75,7 +74,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This Object is created when a call to PipeService.createOutputPipe(propgateAdv) with a Set containing a single
  * PeerID.  This pipe blocks until a valid messeger is created (i.e. resolved and useable). With this object it is
@@ -87,7 +85,7 @@ import java.util.logging.Logger;
 class BlockingWireOutputPipe implements OutputPipe {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(NonBlockingWireOutputPipe.class.getName());
 

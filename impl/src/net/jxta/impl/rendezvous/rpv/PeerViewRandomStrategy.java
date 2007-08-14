@@ -55,18 +55,16 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 
-
 /**
  * Random without replacement
- **/
+ */
 final class PeerViewRandomStrategy implements PeerViewStrategy {
-    
+
     private SortedSet set;
     private List copy = new ArrayList();
 
@@ -74,37 +72,36 @@ final class PeerViewRandomStrategy implements PeerViewStrategy {
         this.set = set;
         reset();
     }
-    
+
     /**
-     *  {@inheritDoc}
-     **/
+     * {@inheritDoc}
+     */
     public void reset() {
         copy.clear();
         copy.addAll(set);
         Collections.shuffle(copy);
     }
-    
+
     /**
-     *  {@inheritDoc}
-     **/
+     * {@inheritDoc}
+     */
     public PeerViewElement next() {
         synchronized (set) {
             if (set.isEmpty()) {
                 copy.clear();
                 return null;
             }
-            
+
             if (copy.isEmpty()) {
                 reset();
             }
-            
+
             PeerViewElement pve = (PeerViewElement) copy.remove(0);
-            
+
             if (set.contains(pve)) {
                 return pve;
             }
         }
-        
         return next();
     }
 }

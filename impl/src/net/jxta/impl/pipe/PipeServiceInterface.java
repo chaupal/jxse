@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
-
 
 import net.jxta.document.Advertisement;
 import net.jxta.id.ID;
@@ -68,7 +66,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 
 /**
  * This class implements the Pipe interface.

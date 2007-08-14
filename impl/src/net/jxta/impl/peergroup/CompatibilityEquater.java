@@ -53,12 +53,9 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
 
-
 import net.jxta.document.Element;
-
 
 public interface CompatibilityEquater {
 

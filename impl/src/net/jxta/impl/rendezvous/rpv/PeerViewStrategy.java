@@ -55,24 +55,23 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-
 /**
- *  Describes a strategy for iterating over the values in a peerview.
- **/
+ * Describes a strategy for iterating over the values in a peerview.
+ */
 interface PeerViewStrategy {
 
     /**
-     *  Reset the strategy. The meaning of reset depends entirely on the strategy
-     *  which is used to return peer view elements.
-     **/
+     * Reset the strategy. The meaning of reset depends entirely on the strategy
+     * which is used to return peer view elements.
+     */
     void reset();
-    
+
     /**
-     *  Return the next PeerView Element using the strategy applied by this 
-     *  instance.
+     * Return the next PeerView Element using the strategy applied by this
+     * instance.
      *
-     *  @return the next peer view element in sequence or null if the peerview
-     *  is empty.
-     **/
+     * @return the next peer view element in sequence or null if the peerview
+     *         is empty.
+     */
     PeerViewElement next();
 }

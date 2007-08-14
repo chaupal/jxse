@@ -103,8 +103,7 @@ public class PipeServer implements PipeMsgListener {
     public PipeServer() {
         manager = null;
         try {
-            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "PipeServer"
-                    ,
+            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "PipeServer",
                     new File(new File(".cache"), "PipeServer").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -127,7 +126,6 @@ public class PipeServer implements PipeMsgListener {
      */
     public static void main(String args[]) {
         PipeServer server = new PipeServer();
-
         server.start();
     }
 
@@ -205,7 +203,6 @@ public class PipeServer implements PipeMsgListener {
     public void pipeMsgEvent(PipeMsgEvent event) {
 
         Message msg;
-
         try {
             // Obtain the message from the event
             msg = event.getMessage();
@@ -235,7 +232,6 @@ public class PipeServer implements PipeMsgListener {
             System.out.println("null msg received");
         } else {
             Date date = new Date(System.currentTimeMillis());
-
             System.out.println("Message received at :" + date.toString());
             System.out.println("Message  created at :" + msgElement.toString());
         }

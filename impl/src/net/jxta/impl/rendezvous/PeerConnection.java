@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import java.util.Enumeration;
 
@@ -73,18 +71,20 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
+
 import net.jxta.impl.endpoint.EndpointUtils;
 
-
 /**
- *  Manages a connection with a remote client or a rendezvous peer.
+ * Manages a connection with a remote client or a rendezvous peer.
  */
 public abstract class PeerConnection implements OutgoingMessageEventListener {
 
     /**
-     *  Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(PeerConnection.class.getName());
 
@@ -92,37 +92,37 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     protected final EndpointService endpoint;
 
     /**
-     *  ID of the remote peer.
+     * ID of the remote peer.
      */
     protected final ID peerid;
 
     /**
-     *  Cached name of the peer for display purposes.
+     * Cached name of the peer for display purposes.
      */
     protected String peerName = null;
 
     /**
-     *  If true then we believe we are still connected to the remote peer.
+     * If true then we believe we are still connected to the remote peer.
      */
     protected volatile boolean connected = true;
 
     /**
-     *  The absolute time in milliseconds at which we expect this connection to
-     *  expire unless renewed.
+     * The absolute time in milliseconds at which we expect this connection to
+     * expire unless renewed.
      */
     protected long leasedTil = -1;
 
     /**
-     *  A cached messenger to be used for sending messages to the remote peer.
+     * A cached messenger to be used for sending messages to the remote peer.
      */
     protected Messenger cachedMessenger = null;
 
     /**
-     *  Constructor for the PeerConnection object
+     * Constructor for the PeerConnection object
      *
-     * @param  group          group context
-     * @param  endpoint       the endpoint service to use for sending messages.
-     * @param  peerid         destination peerid
+     * @param group    group context
+     * @param endpoint the endpoint service to use for sending messages.
+     * @param peerid   destination peerid
      */
     public PeerConnection(PeerGroup group, EndpointService endpoint, ID peerid) {
         this.group = group;
@@ -133,21 +133,17 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     }
 
     /**
-     *  {@inheritDoc}
-     *
-     *  <p/>performs PeerID comparison
+     * {@inheritDoc}
+     * <p/>
+     * <p/>performs PeerID comparison
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof PeerConnection) {
-            return peerid.equals(((PeerConnection) obj).peerid);
-        } else {
-            return false;
-        }
+        return obj instanceof PeerConnection && peerid.equals(((PeerConnection) obj).peerid);
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -155,7 +151,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -163,82 +159,82 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void messageSendFailed(OutgoingMessageEvent event) {
         // If it's just a case of queue overflow, ignore it.
         if (event.getFailure() == null) {
             return;
         }
-
         setConnected(false);
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void messageSendSucceeded(OutgoingMessageEvent event) {// hurray!
     }
 
     /**
-     *  Get the peer id of the peer associated with this connection.
+     * Get the peer id of the peer associated with this connection.
      *
-     *  @return    The peer id of the connected peer.
+     * @return The peer id of the connected peer.
      */
     public ID getPeerID() {
         return peerid;
     }
 
     /**
-     *  Get the peer name. If the symbolic name is available, use it,
-     *  otherwise returns the peer id.
+     * Get the peer name. If the symbolic name is available, use it,
+     * otherwise returns the peer id.
      *
-     *  @return    The name of the connected peer.
+     * @return The name of the connected peer.
      */
     public String getPeerName() {
         return peerName;
     }
 
     /**
-     *  set the peer name.
+     * set the peer name.
+     *
+     * @param name the peer name
      */
     protected void setPeerName(String name) {
         peerName = name;
     }
 
     /**
-     *  Set the lease duration in relative milliseconds.
+     * Set the lease duration in relative milliseconds.
      *
-     *  @param  leaseDuration the lease duration in relative milliseconds.
+     * @param leaseDuration the lease duration in relative milliseconds.
      */
     protected void setLease(long leaseDuration) {
         leasedTil = TimeUtils.toAbsoluteTimeMillis(leaseDuration);
     }
 
     /**
-     *  Time at which the lease will expire in absolute milliseconds.
+     * Time at which the lease will expire in absolute milliseconds.
      *
-     * @return    The lease value
+     * @return The lease value
      */
     public long getLeaseEnd() {
         return leasedTil;
     }
 
     /**
-     *  Declare that we are connected for the specified amount of time.
+     * Declare that we are connected for the specified amount of time.
      *
-     *  @param leaseDuration The duration of the lease in relative milliseconds.
+     * @param leaseDuration The duration of the lease in relative milliseconds.
      */
     protected void connect(long leaseDuration) {
         setLease(leaseDuration);
-
         setConnected(true);
     }
 
     /**
-     *  Test if the connection is still active.
+     * Test if the connection is still active.
      *
-     * @return    The connected value
+     * @return The connected value
      */
     public boolean isConnected() {
         connected &= (TimeUtils.toRelativeTimeMillis(leasedTil) >= 0);
@@ -247,25 +243,24 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     }
 
     /**
-     *  Set the connection state. This operation must be idempotent.
+     * Set the connection state. This operation must be idempotent.
      *
-     *  @param isConnected The new connected state. Be very careful when
-     *  setting <code>true</code> state without setting a new lease.
+     * @param isConnected The new connected state. Be very careful when
+     *                    setting <code>true</code> state without setting a new lease.
      */
     public void setConnected(boolean isConnected) {
         connected = isConnected;
     }
 
     /**
-     *  Return a messenger suitable for communicating to this peer.
+     * Return a messenger suitable for communicating to this peer.
      *
-     *  @deprecated Preferred style is to pass the connection object around and
-     *  use the sendMessage method rather than getting the messenger.
-     *
-     *  @return a messenger for sending to this peer or <code>null</code> if
-     *  none is available.
+     * @return a messenger for sending to this peer or <code>null</code> if
+     *         none is available.
+     * @deprecated Preferred style is to pass the connection object around and
+     *             use the sendMessage method rather than getting the messenger.
      */
-    @Deprecated    
+    @Deprecated
     protected Messenger getCachedMessenger() {
 
         // We don't do the check on existing messenger under synchronization
@@ -288,10 +283,9 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
                         padv = (PeerAdvertisement) each.nextElement();
                     }
                 } catch (Exception ignored) {
-                    ;
+                    //ignored
                 }
             }
-
             result = getCachedMessenger(padv);
         }
 
@@ -299,12 +293,12 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     }
 
     /**
-     *  Return a messenger suitable for communicating to this peer.
+     * Return a messenger suitable for communicating to this peer.
      *
-     *  @param padv A peer advertisement which will be used for route hints if
-     *  a new messenger is needed.
-     *  @return a messenger for sending to this peer or <code>null</code> if
-     *  none is available.
+     * @param padv A peer advertisement which will be used for route hints if
+     *             a new messenger is needed.
+     * @return a messenger for sending to this peer or <code>null</code> if
+     *         none is available.
      */
     protected synchronized Messenger getCachedMessenger(PeerAdvertisement padv) {
         if ((null != padv) && !peerid.equals(padv.getPeerID())) {
@@ -354,14 +348,14 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     }
 
     /**
-     *  Send a message to the remote peer.
+     * Send a message to the remote peer.
      *
-     *  @param msg  the message to send.
-     *  @param service  The destination service.
-     *  @param param    Parameters for the destination service.
-     *  @return <true>true</true> if the message was queued to be sent, 
-     *  otherwise <code>false</code>. A <code>true</code> result does not mean 
-     *  that the destination peer will receive the message.
+     * @param msg     the message to send.
+     * @param service The destination service.
+     * @param param   Parameters for the destination service.
+     * @return <true>true</true> if the message was queued to be sent,
+     *         otherwise <code>false</code>. A <code>true</code> result does not mean
+     *         that the destination peer will receive the message.
      */
     public boolean sendMessage(Message msg, String service, String param) {
         Messenger messenger = getCachedMessenger();

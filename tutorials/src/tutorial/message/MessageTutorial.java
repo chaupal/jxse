@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package tutorial.message;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -83,7 +81,6 @@ import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
 
 /**
  * A simple and re-usable example of manipulating JXATA Messages. Included in
@@ -293,14 +290,11 @@ public class MessageTutorial {
         try {
             System.out.println("------------------Begin Message---------------------");
             WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, new MimeMediaType("application/x-jxta-msg"), null);
-
             System.out.println("Message Size :" + serialed.getByteLength());
-
             ElementIterator it = msg.getMessageElements();
 
             while (it.hasNext()) {
                 MessageElement el = it.next();
-
                 System.out.println("Element : " + it.getNamespace() + " :: " + el.getElementName());
                 if (verbose) {
                     System.out.println("[" + el + "]");
@@ -317,7 +311,6 @@ public class MessageTutorial {
      */
     public static void stringExample() {
         Message message = new Message();
-
         addStringToMessage(message, "TutorialNameSpace", "String Test", "This is a test");
         printMessageStats(message, true);
         System.out.println("String Value :" + getStringFromMessage(message, "TutorialNameSpace", "String Test"));
@@ -328,7 +321,6 @@ public class MessageTutorial {
      */
     public static void longExample() {
         Message message = new Message();
-
         addLongToMessage(message, "TutorialNameSpace", "long test", Long.MAX_VALUE);
         printMessageStats(message, true);
         System.out.println("long Value :" + getLongFromMessage(message, "TutorialNameSpace", "long test"));
@@ -339,7 +331,6 @@ public class MessageTutorial {
      */
     public static void intExample() {
         Message message = new Message();
-
         addIntegerToMessage(message, "TutorialNameSpace", "int test", Integer.MAX_VALUE);
         printMessageStats(message, true);
         System.out.println("int Value :" + getIntegerFromMessage(message, "TutorialNameSpace", "int test"));
@@ -350,10 +341,8 @@ public class MessageTutorial {
      */
     public static void byteArrayExample() {
         Message message = new Message();
-
         try {
             File file = new File("message.tst");
-
             file.createNewFile();
             RandomAccessFile raf = new RandomAccessFile(file, "rw");
 
@@ -381,22 +370,18 @@ public class MessageTutorial {
      */
     public static void xmlDocumentExample() {
         Message message = new Message();
-        PipeAdvertisement pipeAdv = (PipeAdvertisement)
-                AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
+        PipeAdvertisement pipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
 
         pipeAdv.setPipeID(IDFactory.newPipeID(PeerGroupID.defaultNetPeerGroupID));
         pipeAdv.setType(PipeService.UnicastType);
-        message.addMessageElement("MESSAGETUT"
-                ,
+        message.addMessageElement("MESSAGETUT",
                 new TextDocumentMessageElement("MESSAGETUT", (XMLDocument) pipeAdv.getDocument(MimeMediaType.XMLUTF8), null));
         MessageElement msgElement = message.getMessageElement("MESSAGETUT", "MESSAGETUT");
 
         try {
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(msgElement.getMimeType()
-                    ,
+            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(msgElement.getMimeType(),
                     msgElement.getStream());
             PipeAdvertisement newPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
-
             System.out.println(newPipeAdv.toString());
         } catch (IOException e) {
             // This is thrown if the message element could not be read.

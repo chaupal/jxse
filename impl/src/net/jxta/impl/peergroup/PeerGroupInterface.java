@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
-
 
 import net.jxta.access.AccessService;
 import net.jxta.discovery.DiscoveryService;
@@ -88,7 +86,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
 
-
 /**
  * PeerGroupInterface provides a pure interface object that permits interaction
  * with the actual PeerGroup implementation without giving access to the real
@@ -101,7 +98,7 @@ import java.util.Iterator;
 class PeerGroupInterface implements PeerGroup {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(PeerGroupInterface.class.getName());
 

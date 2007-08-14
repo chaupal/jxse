@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
-
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -77,7 +75,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * An implementation of Ouput Pipe which sends messages on the pipe
  * asynchronously. The <code>send()</code> method for this implementation will
@@ -86,7 +83,7 @@ import java.util.logging.Logger;
 class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnable {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(NonBlockingOutputPipe.class.getName());
 
@@ -256,7 +253,6 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                 LOG.warning("Pipe is being finalized without being previously closed. This is likely a bug.");
             }
         }
-
         close();
         super.finalize();
     }
@@ -320,7 +316,6 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         }
 
         boolean pushed = false;
-
         while (!queue.isClosed()) {
             try {
                 pushed = queue.push(msg, 250 * TimeUtils.AMILLISECOND);
@@ -332,15 +327,12 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
         if (!pushed && queue.isClosed()) {
             IOException failed = new IOException("Could not enqueue " + msg + " for sending. Pipe is closed.");
-
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, failed.getMessage(), failed);
             }
             throw failed;
         }
-
         startServiceThread();
-
         return pushed;
     }
 
@@ -430,8 +422,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             // state loop
             while (WorkerState.CLOSED != workerstate) {
                 synchronized (this) {
-                    LOG.fine(
-                            "NON-BLOCKING WORKER AT STATE : " + workerstate
+                    LOG.fine("NON-BLOCKING WORKER AT STATE : " + workerstate
                             + ((WorkerState.SENDMESSAGES == workerstate)
                                     ? "\n\t" + TimeUtils.toRelativeTimeMillis(nextVerifyAt, TimeUtils.timeNow())
                                     + " until verify."

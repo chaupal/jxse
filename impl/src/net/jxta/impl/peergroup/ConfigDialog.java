@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
-
 
 import java.awt.*;
 import java.awt.event.*;
@@ -77,7 +75,6 @@ import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.protocol.*;
 import net.jxta.impl.protocol.RdvConfigAdv.RendezVousConfiguration;
-
 
 /**
  * The standard and much loved AWT Configuration dialog
@@ -309,23 +306,23 @@ public class ConfigDialog extends Frame {
         @Override
         public void paint(Graphics g) {
             switch (style) {
-            case GROOVE:
-                paintGroove(g);
-                break;
+                case GROOVE:
+                    paintGroove(g);
+                    break;
 
-            case BUMP:
-                paintBump(g);
-                break;
+                case BUMP:
+                    paintBump(g);
+                    break;
 
-            case RAISED:
-                paintRaised(g);
-                break;
+                case RAISED:
+                    paintRaised(g);
+                    break;
 
-            case LOWERED:
-                paintLowered(g);
-                break;
+                case LOWERED:
+                    paintLowered(g);
+                    break;
 
-            default:
+                default:
             }
             super.paint(g);
         }
@@ -867,7 +864,7 @@ public class ConfigDialog extends Frame {
 
 
         ;
-        
+
         private final Checkbox useMe;
         private final Checkbox pubAddrOnly;
         private final Checkbox multicast;
@@ -1062,7 +1059,8 @@ public class ConfigDialog extends Frame {
         /**
          * {@inheritDoc}
          */
-        public void actionPerformed(ActionEvent e) {}
+        public void actionPerformed(ActionEvent e) {
+        }
     }
 
 
@@ -1413,7 +1411,7 @@ public class ConfigDialog extends Frame {
 
         // Rendezvous Settings
         boolean isRendezvous;
-        boolean isAdhoc;        
+        boolean isAdhoc;
         boolean onlySeeds;
         List<String> seedRdvs = new ArrayList<String>();
         List<String> seedingRdvs = new ArrayList<String>();
@@ -1868,7 +1866,7 @@ public class ConfigDialog extends Frame {
                     tcpAdv.setEndPort(0);
                 }
             } catch (NumberFormatException ignored) {
-                ; /* verifyInput already checked it */
+                /* verifyInput already checked it */
             }
 
             tcpAdv.setClientEnabled(tcpPanel.clientEnabled.getState());
@@ -1903,7 +1901,7 @@ public class ConfigDialog extends Frame {
             RdvConfigAdv rdvConf = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
 
             rdvConf.setConfiguration(
-                    enablingPanel.isRendezvous.getState() ? RendezVousConfiguration.RENDEZVOUS : 
+                    enablingPanel.isRendezvous.getState() ? RendezVousConfiguration.RENDEZVOUS :
                             rdvPanel.useRdv.getState() ? RendezVousConfiguration.EDGE : RendezVousConfiguration.AD_HOC);
             rdvConf.setUseOnlySeeds(rdvPanel.useOnlySeeds.getState());
 
@@ -1973,7 +1971,7 @@ public class ConfigDialog extends Frame {
     private XMLDocument wrapParm(Advertisement srcAdv, boolean enabled) {
         try {
             XMLDocument advDoc = (XMLDocument) srcAdv.getDocument(MimeMediaType.XMLUTF8);
-            
+
             XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
             StructuredDocumentUtils.copyElements(doc, doc, advDoc);

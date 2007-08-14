@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
-
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -76,7 +74,6 @@ import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This implementation provides the ability to reconfigure a JXTA PlatformConfig
  * via an AWT based dialog. This is the original JXTA configuration mechanism.
@@ -84,7 +81,7 @@ import java.util.logging.Logger;
 public class DefaultConfigurator extends AutomaticConfigurator {
 
     /**
-     * Log4J logger
+     * logger
      */
     private final static transient Logger LOG = Logger.getLogger(DefaultConfigurator.class.getName());
 
@@ -111,11 +108,9 @@ public class DefaultConfigurator extends AutomaticConfigurator {
         }
 
         File jxtaHomeDir = new File(jxtaHome);
-
         try {
             boolean forceReconfig;
             File file = new File(jxtaHomeDir, "reconf");
-
             forceReconfig = file.exists();
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -127,11 +122,9 @@ public class DefaultConfigurator extends AutomaticConfigurator {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Could not check \'reconf\' file. Assuming it exists.", ex1);
             }
-
             if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
                 LOG.config("Reconfig required - error getting \'reconf\' file");
             }
-
             return true;
         }
     }
@@ -220,8 +213,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
             try {
                 if (java.awt.EventQueue.isDispatchThread()) {
-                    LOG.severe(
-                            "The JXTA AWT Configuration Dialog cannot be run from the event dispatch thread. It\'s modal nature is fundamentally incompatible with running on the event dispatch thread. Either change to a different Configurator via PeerGroupFactory.setConfiguratorClass() or start JXTA from the application main Thread before starting your GUI via invokeLater().");
+                    LOG.severe("The JXTA AWT Configuration Dialog cannot be run from the event dispatch thread. It\'s modal nature is fundamentally incompatible with running on the event dispatch thread. Either change to a different Configurator via PeerGroupFactory.setConfiguratorClass() or start JXTA from the application main Thread before starting your GUI via invokeLater().");
                     // cruel but fair, the alternative is a UI deadlock.
                     System.exit(1);
                 }
@@ -265,8 +257,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
                 if ("yes".equalsIgnoreCase(answer)) {
                     save();
-                    System.out.println(
-                            "Exiting; edit the file \"" + configFile.getPath()
+                    System.out.println("Exiting; edit the file \"" + configFile.getPath()
                             + "\", remove the file \"reconf\", and then launch JXTA again.");
                     throw new JxtaError("Manual Configuration Requested");
                 } else {

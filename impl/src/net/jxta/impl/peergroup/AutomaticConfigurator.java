@@ -161,9 +161,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
                 LOG.config("New PlatformConfig Advertisement");
             }
-
             advertisement = (PlatformConfig) AdvertisementFactory.newAdvertisement(PlatformConfig.getAdvertisementType());
-
             advertisement.setDescription("Platform Config Advertisement created by : " + AutomaticConfigurator.class.getName());
         }
 

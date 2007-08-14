@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.StructuredDocumentFactory;
@@ -84,14 +82,13 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * The Wire (Propagated) Pipe Service.
  */
 public class WirePipeImpl implements EndpointListener {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static Logger LOG = Logger.getLogger(WirePipeImpl.class.getName());
 
@@ -138,7 +135,6 @@ public class WirePipeImpl implements EndpointListener {
     WirePipeImpl(PeerGroup group, PipeResolver pipeResolver) {
         this.group = group;
         this.pipeResolver = pipeResolver;
-
         this.wireParam = group.getPeerGroupID().getUniqueValue().toString();
     }
 
@@ -166,17 +162,14 @@ public class WirePipeImpl implements EndpointListener {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Stalled until there is an endpoint service");
             }
-
             return Module.START_AGAIN_STALLED;
         }
 
         rendezvous = group.getRendezVousService();
-
         if (null == rendezvous) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Stalled until there is a rendezvous service");
             }
-
             return Module.START_AGAIN_STALLED;
         }
 
@@ -189,7 +182,6 @@ public class WirePipeImpl implements EndpointListener {
             }
             throw new IllegalStateException("Failed registering Endpoint Listener");
         }
-
         return Module.START_OK;
     }
 
@@ -203,7 +195,6 @@ public class WirePipeImpl implements EndpointListener {
             // Close all of the wire pipes.
             aWirePipe.close();
         }
-
         wirePipes.clear();
 
         // Clear our listener
@@ -222,9 +213,7 @@ public class WirePipeImpl implements EndpointListener {
      * @throws IOException error creating input pipe
      */
     InputPipe createInputPipe(PipeAdvertisement adv, PipeMsgListener listener) throws IOException {
-
         WirePipe wirePipe = getWirePipe(adv);
-
         return new InputPipeImpl(wirePipe, adv, listener);
     }
 
@@ -238,9 +227,7 @@ public class WirePipeImpl implements EndpointListener {
      * @return OuputPipe corresponding OutputPipe
      */
     NonBlockingWireOutputPipe createOutputPipe(PipeAdvertisement adv, Set<? extends ID> peers) {
-
         WirePipe wirePipe = getWirePipe(adv);
-
         return new NonBlockingWireOutputPipe(group, wirePipe, adv, peers);
     }
 
@@ -259,17 +246,13 @@ public class WirePipeImpl implements EndpointListener {
 
             if (null == wirePipe) {
                 // No.. There is none. Create a new one.
-
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Creating new wire pipe for " + adv.getPipeID());
                 }
-
                 wirePipe = new WirePipe(group, pipeResolver, this, adv);
-
                 wirePipes.put(adv.getPipeID(), wirePipe);
             }
         }
-
         return wirePipe;
     }
 
@@ -299,13 +282,10 @@ public class WirePipeImpl implements EndpointListener {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Creating new wire pipe for " + adv.getPipeID());
                 }
-
                 wirePipe = new WirePipe(group, pipeResolver, this, adv);
-
                 wirePipes.put(pipeID, wirePipe);
             }
         }
-
         return wirePipe;
     }
 
@@ -321,7 +301,6 @@ public class WirePipeImpl implements EndpointListener {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Removing wire pipe for " + pipeID);
             }
-
             return null != wirePipes.remove(pipeID);
         }
     }
@@ -345,9 +324,7 @@ public class WirePipeImpl implements EndpointListener {
         WireHeader header;
 
         try {
-            XMLDocument doc = (XMLDocument)
-                    StructuredDocumentFactory.newStructuredDocument(elem);
-
+            XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
             header = new WireHeader(doc);
         } catch (Exception e) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -357,7 +334,6 @@ public class WirePipeImpl implements EndpointListener {
         }
 
         WirePipe wirePipe = getWirePipe(header.getPipeID(), rendezvous.isRendezVous());
-
         if (null != wirePipe) {
             wirePipe.processIncomingMessage(message, header, srcAddr, dstAddr);
         } else {

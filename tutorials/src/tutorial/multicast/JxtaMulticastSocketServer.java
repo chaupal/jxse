@@ -94,8 +94,7 @@ public class JxtaMulticastSocketServer {
         } catch (URISyntaxException use) {
             use.printStackTrace();
         }
-        PipeAdvertisement advertisement = (PipeAdvertisement)
-                AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
+        PipeAdvertisement advertisement = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
 
         advertisement.setPipeID(socketID);
         // set to type to propagate
@@ -114,8 +113,7 @@ public class JxtaMulticastSocketServer {
         net.jxta.platform.NetworkManager manager = null;
 
         try {
-            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "JxtaMulticastSocketServer"
-                    ,
+            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "JxtaMulticastSocketServer",
                     new File(new File(".cache"), "JxtaMulticastSocketServer").toURI());
             manager.startNetwork();
         } catch (Exception e) {
@@ -125,7 +123,6 @@ public class JxtaMulticastSocketServer {
 
         System.out.println("Creating JxtaMulticastSocket");
         JxtaMulticastSocket mcastSocket = null;
-
         try {
             mcastSocket = new JxtaMulticastSocket(manager.getNetPeerGroup(), getSocketAdvertisement());
             System.out.println("LocalAddress :" + mcastSocket.getLocalAddress());

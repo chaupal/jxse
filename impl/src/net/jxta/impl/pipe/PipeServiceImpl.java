@@ -107,7 +107,7 @@ import java.text.MessageFormat;
 public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
     /**
-     * The log4J Logger
+     * The Logger
      */
     private final static Logger LOG = Logger.getLogger(PipeServiceImpl.class.getName());
 
@@ -198,7 +198,6 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
          * @param event <code>net.jxta.pipe.outputPipeEvent</code> event
          */
         public synchronized void outputPipeEvent(OutputPipeEvent event) {
-
             // we only accept the first event.
             if (null == this.event) {
                 this.event = event;
@@ -389,7 +388,6 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
         }
 
         InputPipe inputPipe;
-
         // create an InputPipe.
         if (type.equals(PipeService.UnicastType)) {
             inputPipe = new InputPipeImpl(pipeResolver, adv, listener);
@@ -488,7 +486,6 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
         if (null == type) {
             IllegalArgumentException failed = new IllegalArgumentException("Pipe type was not set");
-
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, failed.getMessage(), failed);
             }
@@ -519,10 +516,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
                     listener.outputPipeEvent(newevent);
                 } catch (Throwable ignored) {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE
-                                ,
-                                "Uncaught Throwable in listener for " + pipeId + " (" + listener.getClass().getName() + ")"
-                                ,
+                        LOG.log(Level.SEVERE,
+                                "Uncaught Throwable in listener for " + pipeId + " (" + listener.getClass().getName() + ")",
                                 ignored);
                     }
                 }
@@ -543,9 +538,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
                         pipeResolver.callListener(queryid, pipeId, local.getType(), group.getPeerID(), false);
                     } else {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning(
-                                    MessageFormat.format("rejecting local pipe ({0}) because type is not ({1})", local.getType()
-                                    ,
+                            LOG.warning(MessageFormat.format("rejecting local pipe ({0}) because type is not ({1})", local.getType(),
                                     pipeAdv.getType()));
                         }
                     }
@@ -635,10 +628,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
         }
 
         PipeID pipeID;
-
         try {
             URI aPipeID = new URI(opID);
-
             pipeID = (PipeID) IDFactory.fromURI(aPipeID);
         } catch (URISyntaxException badID) {
             throw new IllegalArgumentException("Bad pipe ID: " + opID);
@@ -724,7 +715,6 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
             // Generate an event when the output pipe was succesfully opened.
             OutputPipeEvent newevent = new OutputPipeEvent(this.getInterface(), op, pipeID.toString(), queryID);
-
             try {
                 pipeHolder.listener.outputPipeEvent(newevent);
             } catch (Throwable ignored) {

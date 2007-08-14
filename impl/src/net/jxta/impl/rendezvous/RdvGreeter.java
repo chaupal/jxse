@@ -53,14 +53,11 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
-
 
 import java.io.IOException;
 
 import net.jxta.endpoint.Message;
-
 
 /**
  * A Greeter is reponsible for receiving messages from walkers, and push them to
@@ -74,14 +71,14 @@ public interface RdvGreeter {
     /**
      * Reply to a message received by the Greeter.
      *
-     * @param msg The source message received previously by the Greeter
+     * @param msg   The source message received previously by the Greeter
      * @param reply The reply message to be sent to the source of the message.
      * @throws IOException when the reply cannot be sent.
-     **/
+     */
     public void replyMessage(Message msg, Message reply) throws IOException;
 
     /**
      * Stop the greeter
-     **/
+     */
     public void stop();
 }

@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.rpv;
-
 
 import java.io.IOException;
 import java.net.URI;
@@ -117,7 +115,6 @@ import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
-
 
 /**
  * This class models a Rendezvous Peer View (RPV):
@@ -237,7 +234,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * This value is the maximum number of rendezvous peers that will be
      * send our own advertisement at boot time.
      */
-    private static final int DEFAULT_SEEDING_RDVPEERS = 5;
+    //private static final int DEFAULT_SEEDING_RDVPEERS = 5;
 
     private final PeerGroup group;
     
@@ -719,7 +716,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
          * We may send more than one message.
          */
 
-        boolean status = false;
+        boolean status;
 
         if (!isCached) {
             if (!isResponse) {
@@ -951,7 +948,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      */
     public boolean probeAddress(EndpointAddress address, RouteAdvertisement hint) {
 
-        PeerViewElement holdIt = null;
+        PeerViewElement holdIt;
 
         synchronized (localView) {
             holdIt = self;
@@ -979,7 +976,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         }
 
         // Schedule sending propagated query to our local network neighbors.
-        send((EndpointAddress) null, null, self, false, false);
+        send(null, null, self, false, false);
 
         long iterations = 0;
 
@@ -1425,7 +1422,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      */
     private void refreshSelf() {
 
-        RdvAdvertisement radv = null;
+        RdvAdvertisement radv;
 
         synchronized (this) {
             PeerAdvertisement newPadv = group.getPeerAdvertisement();
@@ -1744,9 +1741,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
          */
         @Override
         public boolean cancel() {
-
             boolean res = super.cancel();
-
             return res;
         }
 
