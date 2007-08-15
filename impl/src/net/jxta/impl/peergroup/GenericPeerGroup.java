@@ -170,7 +170,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * This group's implAdvertisement.
      */
-    private ModuleImplAdvertisement implAdvertisement = null;
+    protected ModuleImplAdvertisement implAdvertisement = null;
     
     /**
      * This peer's config advertisement.

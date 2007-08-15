@@ -55,30 +55,71 @@
  */
 package net.jxta.impl.peergroup;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.CardLayout;
+import java.awt.Checkbox;
+import java.awt.Choice;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import net.jxta.document.*;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
+import net.jxta.endpoint.EndpointAddress;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.TransportAdvertisement;
-import net.jxta.endpoint.EndpointAddress;
 
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.ConfiguratorException;
 
 import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.membership.pse.PSEUtils;
-import net.jxta.impl.protocol.*;
+import net.jxta.impl.protocol.HTTPAdv;
+import net.jxta.impl.protocol.PSEConfigAdv;
+import net.jxta.impl.protocol.PlatformConfig;
+import net.jxta.impl.protocol.RdvConfigAdv;
 import net.jxta.impl.protocol.RdvConfigAdv.RendezVousConfiguration;
+import net.jxta.impl.protocol.RelayConfigAdv;
+import net.jxta.impl.protocol.TCPAdv;
 
 /**
  * The standard and much loved AWT Configuration dialog
  */
+@SuppressWarnings("serial")
 public class ConfigDialog extends Frame {
 
     static final GridBagConstraints stdConstr;
@@ -1252,16 +1293,13 @@ public class ConfigDialog extends Frame {
             }
         }
 
-        // Logging settings
-        String dftDebugLevel = configAdv.getDebugLevel();
-
         // JXME Proxy Settings
         boolean isJxmeProxy = false;
 
         try {
             param = (XMLElement) configAdv.getServiceParam(PeerGroup.proxyClassID);
 
-            if (param != null && !param.getChildren("isOff").hasMoreElements()) {
+            if (param != null && configAdv.isSvcEnabled(PeerGroup.proxyClassID)) {
                 isJxmeProxy = true;
             }
         } catch (Exception nobigdeal) {
@@ -1284,13 +1322,13 @@ public class ConfigDialog extends Frame {
         try {
             param = (XMLElement) configAdv.getServiceParam(PeerGroup.tcpProtoClassID);
 
-            tcpEnabled = !param.getChildren("isOff").hasMoreElements();
+            tcpEnabled = configAdv.isSvcEnabled(PeerGroup.tcpProtoClassID);
 
-            Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+            Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
             // get the TransportAdv from either TransportAdv or tcpAdv
             if (tcpChilds.hasMoreElements()) {
-                param = (XMLElement) tcpChilds.nextElement();
+                param = tcpChilds.nextElement();
             } else {
                 throw new IllegalStateException("Missing TCP Advertisment");
             }
@@ -1299,8 +1337,6 @@ public class ConfigDialog extends Frame {
 
             clientDefaultT = tcpAdv.isClientEnabled();
             serverDefaultT = tcpAdv.isServerEnabled();
-
-            String configModeT = tcpAdv.getConfigMode();
 
             defaultInterfaceAddressT = tcpAdv.getInterfaceAddress();
 
@@ -1354,13 +1390,13 @@ public class ConfigDialog extends Frame {
         try {
             param = (XMLElement) configAdv.getServiceParam(PeerGroup.httpProtoClassID);
 
-            httpEnabled = !param.getChildren("isOff").hasMoreElements();
+            httpEnabled = configAdv.isSvcEnabled(PeerGroup.httpProtoClassID);
 
-            Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+            Enumeration<XMLElement> httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
             // get the TransportAdv from either TransportAdv
             if (httpChilds.hasMoreElements()) {
-                param = (XMLElement) httpChilds.nextElement();
+                param = httpChilds.nextElement();
             } else {
                 throw new IllegalStateException("Missing HTTP Advertisment");
             }
@@ -1370,8 +1406,6 @@ public class ConfigDialog extends Frame {
 
             clientDefaultH = httpAdv.isClientEnabled();
             serverDefaultH = httpAdv.isServerEnabled();
-
-            String configModeH = httpAdv.getConfigMode();
 
             defaultInterfaceAddressH = httpAdv.getInterfaceAddress();
 

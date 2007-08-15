@@ -81,10 +81,10 @@ import java.util.logging.Logger;
 
 
 /**
- * Configuration container for the World Peer Group. For historical reasons it
- * is also used for the Net Peer Group.
+ * Configuration container for the World Peer Group. For historical reasons the
+ * same configuration container and instance is also used for the Net Peer Group.
  */
-public final class PlatformConfig extends ConfigParams implements Cloneable {
+public final class PlatformConfig extends GroupConfig implements Cloneable {
 
     private static final String advType = "jxta:PlatformConfig";
 
@@ -111,7 +111,11 @@ public final class PlatformConfig extends ConfigParams implements Cloneable {
          * {@inheritDoc}
          */
         public Advertisement newInstance(Element root) {
-            return new PlatformConfig(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(advType + " only supports XLMElement");
+            }
+
+            return new PlatformConfig((XMLElement) root);
         }
     }
 
@@ -120,8 +124,6 @@ public final class PlatformConfig extends ConfigParams implements Cloneable {
     private static final String PID_TAG = "PID";
     private static final String NAME_TAG = "Name";
     private static final String DESC_TAG = "Desc";
-    private static final String[] fields = { NAME_TAG, PID_TAG};
-    protected boolean preserve = false;
 
     /**
      * The id of this peer.
@@ -147,14 +149,9 @@ public final class PlatformConfig extends ConfigParams implements Cloneable {
     /**
      * Use the Instantiator through the factory
      *
-     * @param root the element
+     * @param doc the element
      */
-    PlatformConfig(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
+    PlatformConfig(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -165,14 +162,13 @@ public final class PlatformConfig extends ConfigParams implements Cloneable {
         }
 
         if (!doctype.equals(getAdvertisementType()) && !getAdvertisementType().equals(typedoctype)) {
-            throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
+            throw new IllegalArgumentException( "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            Element elem = (Element) elements.nextElement();
+            XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -198,7 +194,31 @@ public final class PlatformConfig extends ConfigParams implements Cloneable {
 
         return result;
     }
-
+    
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        if(this == other) {
+            return true;
+        }
+        
+        if(other instanceof PlatformConfig) {
+            PlatformConfig likeMe = (PlatformConfig) other;
+            
+            boolean se = super.equals(likeMe);
+            
+            boolean ne = ((null == name) && (null == likeMe.name)) || ((null != name) && name.equals(likeMe.name));
+            boolean ie = ((null == pid) && (null == likeMe.pid)) || ((null != pid) && pid.equals(likeMe.pid));
+            boolean de = ((null == description) && (null == likeMe.description)) || ((null != description) && description.equals(likeMe.description));
+            
+            return se && ne && ie && de;
+        }
+        
+        return false;
+    }
+    
     /**
      * returns the advertisement type
      *
@@ -390,8 +410,25 @@ public final class PlatformConfig extends ConfigParams implements Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public Document getDocument(MimeMediaType encodeAs) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs, false);
+    public StructuredDocument getDocument(MimeMediaType encodeAs) {
+        return getDocument(encodeAs, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public StructuredDocument getDocument(MimeMediaType encodeAs, boolean preserve) {
+        StructuredDocument doc = (StructuredDocument) super.getDocument(encodeAs, preserve);
+        
+        return doc;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean addDocumentElements(StructuredDocument adv) {
 
         Element e;
         // peer ID is optional. (at least for the PlatformConfig it is)
@@ -414,16 +451,9 @@ public final class PlatformConfig extends ConfigParams implements Cloneable {
         if (desc != null) {
             StructuredDocumentUtils.copyElements(adv, adv, desc);
         }
-
+        
         super.addDocumentElements(adv);
-        return adv;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String[] getIndexFields() {
-        return fields;
+        return true;
     }
 }

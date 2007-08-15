@@ -116,7 +116,8 @@ import net.jxta.impl.protocol.TCPAdv;
  * This class implements the IP Multicast Message Transport.
  * <p/>
  * <b>Important Note:</b> This implementation was formerly a portion of the TCP
- * Message Transport and currently uses it's configuration advertisement.
+ * Message Transport and currently uses the TCP Transport's configuration 
+ * advertisement.
  *
  * @see net.jxta.endpoint.MessageTransport
  * @see net.jxta.endpoint.MessagePropagater
@@ -324,11 +325,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         TCPAdv adv = (TCPAdv) paramsAdv;
+        
+        // Check if we are disabled. If so, don't bother with the rest of config.
         if (!adv.getMulticastState()) {
             disabled = true;
             return;
-            //throwing an exception prevents startup.  This also provides no way of disabling multicast
-            //throw new PeerGroupException("IP Multicast Message Transport is disabled.");
         }
 
         // Determine the local interface to use. If the user specifies one, use
@@ -398,10 +399,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         try {
+            // Surprisingly, "true" means disable....
             multicastSocket.setLoopbackMode(false);
         } catch (SocketException ignored) {
-            // We may not be able to set loopback mode. It is
-            // inconsistent whether an error will occur if the set fails.
+            // We may not be able to set loopback mode. It is inconsistent
+            // whether an error will occur if the set fails.
         }
 
         // Tell tell the world about our configuration.
@@ -442,7 +444,10 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      */
     public synchronized int startApp(String[] arg) {
         if (disabled) {
-            return Module.START_OK;
+            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+                LOG.info("IP Multicast Message Transport disabled.");
+            }
+            return Module.START_DISABLED;
         }
 
         endpoint = group.getEndpointService();

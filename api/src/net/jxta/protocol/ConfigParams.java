@@ -94,11 +94,17 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     private final Map<ID, StructuredDocument> params = new HashMap<ID, StructuredDocument>();
     
     /**
-     * A table of advertisements to be interpreted by each service.
+     * A map of advertisements to be interpreted by each service.
      * For safe operation we clone the advertisements when they are added to the
      * map and only ever return clones of the advertisements.
      */
     private final Map<ID, Advertisement> ads = new HashMap<ID, Advertisement>();
+    
+    /**
+     *  The ids of the advertisements and/or params which have been explicitly
+     *  marked as disabled.
+     */
+    private final Set<ID> disabled = new HashSet<ID>();
     
     /**
      * Counts the changes made to this object. The API increments it every time
@@ -116,7 +122,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     public static String getAdvertisementType() {
         return "jxta:CP";
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -134,12 +140,37 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 result.ads.put(anEntry.getKey(), anEntry.getValue().clone());
             }
             
+            result.disabled.addAll(disabled);
+            
             return result;
         } catch (CloneNotSupportedException impossible) {
             throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        if(this == other) {
+            return true;
+        }
+        
+        if(other instanceof ConfigParams) {
+            ConfigParams likeMe = (ConfigParams) other;
+            
+            boolean ep = params.equals(likeMe.params);
+            boolean ea = ads.equals(likeMe.ads);
+            boolean ed = disabled.equals(likeMe.disabled);            
+            
+            return ep && ea && ed;
+        }
+        
+        return false;
+    }
+
+        
     /**
      * {@inheritDoc}
      */
@@ -161,6 +192,9 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         XMLElement elem = (XMLElement) raw;
         
         if (SVC_TAG.equals(elem.getName())) {
+            Attribute disabledAttr = elem.getAttribute("disabled");
+            boolean isDisabled = (null != disabledAttr) && Boolean.parseBoolean(disabledAttr.getValue());
+            
             Enumeration<XMLElement> elems = elem.getChildren();
             
             ID key = null;
@@ -187,7 +221,17 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             }
             
             if (key != null && param != null) {
+                if(!isDisabled) {
+                    // Backwards compatibility support.
+                    Enumeration<XMLElement> isOff = param.getChildren("isOff");
+                    
+                    isDisabled = isOff.hasMoreElements();
+                }            
+
                 putServiceParam(key, param);
+                if(isDisabled) {
+                    disabled.add(key);
+                }
             } else {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("Incomplete Service Param : id=" + key + " param=" + param);
@@ -203,7 +247,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     /**
      * Return the advertisement as a document.
      *
-     * @param adv the document to add elements to.
+     *  @param adv the document to add elements to.
      *  @return true if elements were added otherwise false.
      */
     public boolean addDocumentElements(StructuredDocument adv) {
@@ -215,6 +259,10 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             Element s = adv.createElement(SVC_TAG);
 
             adv.appendChild(s);
+            
+            if(disabled.contains(anID)) {
+                ((Attributable)s).addAttribute("disabled", "true");
+            }
             
             Element e = adv.createElement(MCID_TAG, anID.toString());
 
@@ -230,6 +278,10 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             Element s = adv.createElement(SVC_TAG);
 
             adv.appendChild(s);
+            
+            if(disabled.contains(anID)) {
+                ((Attributable)s).addAttribute("disabled", "true");
+            }
             
             Element e = adv.createElement(MCID_TAG, anID.toString());
 
@@ -281,7 +333,13 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             return;
         }
         
+        boolean isDisabled = false;
+        
         if (param instanceof XMLElement) {
+            Enumeration<XMLElement> isOff = param.getChildren("isOff");
+            
+            isDisabled = isOff.hasMoreElements();
+            
             Advertisement adv = null;
             
             try {
@@ -292,14 +350,34 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             }
             
             if (null != adv) {
-                ads.put(key, adv);
+                setSvcConfigAdvertisement(key,adv, !isDisabled);
                 return;
             }
         }
         
         StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
+        
+        if(isDisabled) {
+            disabled.add(key);
+        } else {
+            disabled.remove(key);
+        }
 
         params.put(key, newDoc);
+    }
+    
+        
+    /**
+     * Puts an advertisement into the service parameters table under the given
+     * key. The key is usually a {@code ModuleClassID}. This method makes a
+     * clone of the advertisement.
+     *
+     * @param key The key.
+     * @param adv The advertisement, a clone of which is stored or {@code null}
+     * to forget this key.
+     */
+    public void setSvcConfigAdvertisement(ID key, Advertisement adv) {
+        setSvcConfigAdvertisement(key, adv, true);
     }
     
     /**
@@ -308,14 +386,22 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * clone of the advertisement.
      *
      * @param key The key.
-     * @param adv The advertisement, a clone of which is stored.
+     * @param adv The advertisement, a clone of which is stored or {@code null}
+     * to forget this key.
+     * @param enabled If true then the service is enabled or disabled if false.
      */
-    public void setSvcConfigAdvertisement(ID key, Advertisement adv) {
+    public void setSvcConfigAdvertisement(ID key, Advertisement adv, boolean enabled) {
         incModCount();
         
         params.remove(key);
         ads.remove(key);
         
+        if(enabled) {
+            disabled.remove(key);
+        } else {
+            disabled.add(key);
+        }
+
         if (null == adv) {
             return;
         }
@@ -328,7 +414,20 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
             }
                 
             throw new IllegalArgumentException("Unclonable Advertisements may not be used : " + adv.getClass().getName());
-        }
+        }        
+    }
+    
+    /**
+     * Gets an advertisement from the service parameters table under the given
+     * key. The key is usually a {@code ModuleClassID}. This method makes a
+     * clone of the advertisement.
+     *
+     * @param key The key.
+     * @return If {@code true} then the service is enabled otherwise {@false} if
+     * the service is disabled.
+     */
+    public boolean isSvcEnabled(ID key) {
+        return !disabled.contains(key);
     }
     
     /**
@@ -384,6 +483,14 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         }
         
         StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
+        
+        if(disabled.contains(key)) {
+            Enumeration<Element> isOffAlready = newDoc.getChildren("isOff");
+            
+            if(!isOffAlready.hasMoreElements()) {
+                newDoc.appendChild(newDoc.createElement("isOff", null));
+            }
+        }
 
         return newDoc;
     }
@@ -421,6 +528,11 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         
         StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
         
+        if(disabled.contains(key)) {
+            newDoc.appendChild(newDoc.createElement("isOff", null));
+            disabled.remove(key);
+        }
+        
         return newDoc;
     }
     
@@ -453,7 +565,13 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         result.putAll(params);
         
         for (Map.Entry<ID, Advertisement> anEntry : ads.entrySet()) {
-            result.put(anEntry.getKey(), (XMLDocument) anEntry.getValue().getDocument(MimeMediaType.XMLUTF8));
+            XMLDocument entryDoc = (XMLDocument) anEntry.getValue().getDocument(MimeMediaType.XMLUTF8);
+            
+            if(disabled.contains(anEntry.getKey())) {
+                entryDoc.appendChild(entryDoc.createElement("isOff", null));
+            }
+
+            result.put(anEntry.getKey(), entryDoc);
         }
         
         return Collections.unmodifiableSet(result.entrySet());

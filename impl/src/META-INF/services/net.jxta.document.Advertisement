@@ -18,3 +18,4 @@ net.jxta.impl.protocol.ModuleClassAdv
 net.jxta.impl.protocol.RouteAdv
 net.jxta.impl.protocol.AccessPointAdv
 net.jxta.impl.protocol.SignedAdv
+net.jxta.impl.protocol.GroupConfig
