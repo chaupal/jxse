@@ -277,7 +277,7 @@ public class RendezVousPropagateMessage {
      * @return the path this message travelled.
      */
     public URI[] getPath() {
-        return (URI[]) visited.toArray(new URI[visited.size()]);
+        return visited.toArray(new URI[visited.size()]);
     }
 
     public Document getDocument(MimeMediaType encodeAs) {
