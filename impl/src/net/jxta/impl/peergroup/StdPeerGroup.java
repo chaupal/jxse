@@ -59,6 +59,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -95,18 +96,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.jxta.document.StructuredDocument;
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -153,6 +144,9 @@ public class StdPeerGroup extends GenericPeerGroup {
                 LOG.log(Level.WARNING, "Failed to locate provider lists", ex);
             }
         }
+        
+        // XXX Force redefinition of StdPeerGroup implAdvertisement.
+        getJxtaLoader().defineClass(getDefaultModuleImplAdvertisement());
     }
     
     /**
@@ -192,7 +186,22 @@ public class StdPeerGroup extends GenericPeerGroup {
                         
                         if (3 == parts.length) {
                             ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
-                            ModuleImplAdvertisement moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, parts[1], parts[2]);
+                            String code = parts[1];
+                            String description = parts[2];
+                            
+                            ModuleImplAdvertisement moduleImplAdv;
+                            
+                            try {
+                                Class<?> moduleClass = Class.forName(code);
+                            
+                                Method getImplAdvMethod = moduleClass.getMethod("getDefaultModuleImplAdvertisement");
+                                
+                                moduleImplAdv = (ModuleImplAdvertisement) getImplAdvMethod.invoke(null);
+                            } catch(Exception failed) {
+                                // Use default ModuleImplAdvertisement.
+                                moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, code, description);
+                            }
+                            
                             getJxtaLoader().defineClass(moduleImplAdv);
                             
                             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -278,12 +287,6 @@ public class StdPeerGroup extends GenericPeerGroup {
     }
     
     /**
-     * constructor
-     */
-    public StdPeerGroup() {
-    }
-    
-    /**
      * An internal convenience method essentially for bootstrapping.
      * Make a standard ModuleImplAdv for any service that comes builtin this
      * reference implementation.
@@ -295,7 +298,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * @param descr  description
      * @return a ModuleImplAdvertisement
      */
-    protected static ModuleImplAdvertisement mkImplAdvBuiltin(ModuleSpecID specID, String code, String descr) {
+    static ModuleImplAdvertisement mkImplAdvBuiltin(ModuleSpecID specID, String code, String descr) {
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement)
         AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
         
@@ -307,6 +310,70 @@ public class StdPeerGroup extends GenericPeerGroup {
         implAdv.setDescription(descr);
         
         return implAdv;
+    }
+    
+    /**
+     *  Create and populate the default module impl Advertisement for this class.
+     *
+     *  @return The default module impl advertisement for this class.
+     */
+    private static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
+        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(), "General Purpose Peer Group Implementation");
+
+        // Create the service list for the group.
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+        ModuleImplAdvertisement moduleAdv;
+        
+        // set the services
+        
+        // core services
+        JxtaLoader loader = getJxtaLoader();
+
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
+        paramAdv.addService(PeerGroup.endpointClassID, moduleAdv);
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
+        paramAdv.addService(PeerGroup.resolverClassID, moduleAdv);
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, moduleAdv);
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
+        paramAdv.addService(PeerGroup.accessClassID, moduleAdv);
+        
+        // standard services
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
+        paramAdv.addService(PeerGroup.discoveryClassID, moduleAdv);
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
+        paramAdv.addService(PeerGroup.rendezvousClassID, moduleAdv);
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
+        paramAdv.addService(PeerGroup.pipeClassID, moduleAdv);
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
+        paramAdv.addService(PeerGroup.peerinfoClassID, moduleAdv);
+        
+        // Applications
+        
+        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+        if (null != moduleAdv) {
+            paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
+        }
+        
+        // Insert the newParamAdv in implAdv
+        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
+        
+        implAdv.setParam(paramElement);
+        
+        return implAdv;
+    }
+    
+    /**
+     * constructor
+     */
+    public StdPeerGroup() {
     }
     
     /**
@@ -507,9 +574,6 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
         
         messageTransports.clear();
-        
-        // shutdown the threadpool
-        threadPool.shutdownNow();
         
         super.stopApp();
         
@@ -873,11 +937,6 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
-     * This method builds the <b>complete</b> default Peer Group
-     * ModuleImplAdvertisement. The ModuleImplAdvertisement which is returned
-     * by the JxtaLoader does not contain the params section which identifies
-     * the services which the default Peer Group includes.
-     * <p/>
      * FIXME 20070801 bondolo To improve compatibility with existing
      * applications the returned {@code ModuleImplAdvertisement} will contain
      * embedded {@code ModuleImplAdvertisement}s for the referenced services as
@@ -893,55 +952,10 @@ public class StdPeerGroup extends GenericPeerGroup {
         // grab an impl adv
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.allPurposePeerGroupSpecID);
         
-        // Create the service list for the group.
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-        ModuleImplAdvertisement moduleAdv;
-        
-        // set the services
-        
-        // core services
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
-        paramAdv.addService(PeerGroup.endpointClassID, moduleAdv);
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.resolverClassID, moduleAdv);
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, moduleAdv);
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
-        paramAdv.addService(PeerGroup.accessClassID, moduleAdv);
-        
-        // standard services
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
-        paramAdv.addService(PeerGroup.discoveryClassID, moduleAdv);
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
-        paramAdv.addService(PeerGroup.rendezvousClassID, moduleAdv);
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
-        paramAdv.addService(PeerGroup.pipeClassID, moduleAdv);
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
-        paramAdv.addService(PeerGroup.peerinfoClassID, moduleAdv);
-        
-        // Applications
-        
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
-        if (null != moduleAdv) {
-            paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
-        }
-        
-        // Insert the newParamAdv in implAdv
-        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
-        
-        implAdv.setParam(paramElement);
-        
         return implAdv;
     }
     
+
     /**
      * Returns the cache manager associated with this group.
      *

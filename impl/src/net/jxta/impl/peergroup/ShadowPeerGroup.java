@@ -56,10 +56,15 @@
 package net.jxta.impl.peergroup;
 
 import net.jxta.document.Advertisement;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
 
 import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.endpoint.cbjx.CbJxDefs;
+import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.protocol.ModuleImplAdvertisement;
 
 /**
  * ShadowPeerGroup is almost a regular StdPeerGroup, except that it borrows its
@@ -67,6 +72,50 @@ import net.jxta.exception.PeerGroupException;
  */
 public class ShadowPeerGroup extends StdPeerGroup {
 
+    /**
+     *  Create and populate the default module impl Advertisement for this class.
+     *
+     *  @return The default module impl advertisement for this class.
+     */
+    public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
+        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.refNetPeerGroupSpecID, ShadowPeerGroup.class.getName(), "Default Network PeerGroup reference implementation");
+            
+        // Build the param section now.
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+
+        // Set the services
+
+        // "Core" Services
+        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
+        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
+        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
+
+        // "Standard" Services
+        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
+        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
+        paramAdv.addService(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
+        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
+        paramAdv.addService(PeerGroup.proxyClassID, PeerGroup.refProxySpecID);
+
+        // High-level Message Transports.
+
+        paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
+        paramAdv.addProto(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
+        paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
+        paramAdv.addProto(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
+
+        // Main app is the shell
+        paramAdv.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
+
+        // Pour our newParamAdv in implAdv
+        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
+
+        implAdv.setParam(paramElement);
+
+        return implAdv;
+    }
+    
     /**
      * {@inheritDoc}
      *

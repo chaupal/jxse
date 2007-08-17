@@ -103,6 +103,47 @@ public class Platform extends StdPeerGroup {
     private final static transient Logger LOG = Logger.getLogger(Platform.class.getName());
 
     /**
+     *  Create and populate the default module impl Advertisement for this class.
+     *
+     *  @return The default module impl advertisement for this class.
+     */
+    public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
+        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.refPlatformSpecID, Platform.class.getName(), "Standard World PeerGroup Reference Implementation");
+
+        // Build the param section now.
+        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
+
+        // Do the Services
+
+        // "Core" Services
+        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
+        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
+        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
+
+        // "Standard" Services
+
+        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
+        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
+        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
+
+        // Do the Message Transports
+
+        paramAdv.addProto(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
+        paramAdv.addProto(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
+        paramAdv.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
+
+        // Do the Applications
+
+        // (none)
+
+        // Insert the paramAdv in the World PeerGroup Impl Advertisement.
+        implAdv.setParam((XMLDocument) paramAdv.getDocument(MimeMediaType.XMLUTF8));
+
+        return implAdv;
+    }
+
+    /**
      * This constructor was originally the standard constructor and must be
      * retained in case the World PeerGroup is accidentally instantiated via
      * the module loading infrastructure.
@@ -143,18 +184,9 @@ public class Platform extends StdPeerGroup {
         }
 
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
-
-        // if we weren't given a module impl adv then make one from scratch.
-        if (null == implAdv) {
-            try {
-                // Build the World PeerGroup's impl adv.
-                implAdv = mkWorldPeerGroupImplAdv();
-            } catch (Throwable e) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Fatal Error making World PeerGroup Impl Adv", e);
-                }
-                throw new PeerGroupException("Fatal Error making World PeerGroup Impl Adv", e);
-            }
+        
+        if(null == implAdv) {
+            implAdv = getJxtaLoader().findModuleImplAdvertisement(getClass());
         }
 
         if (null != jxtaHome) {
@@ -189,53 +221,6 @@ public class Platform extends StdPeerGroup {
     }
 
     /**
-     * This method builds a <b>complete</b> ModuleImplAdvertisement for the
-     * World Peer Group. The ModuleImplAdvertisement which is returned by the
-     * JxtaLoader does not contain the params section which identifies the
-     * services which the World Peer Group includes.
-     *
-     * @return The Module Implementation Advertisement for the World Peer Group.
-     */
-    private static ModuleImplAdvertisement mkWorldPeerGroupImplAdv() throws Exception {
-        JxtaLoader loader = getJxtaLoader();
-
-        // Start building the implAdv for the World PeerGroup intself.
-        ModuleImplAdvertisement worldGroupDef = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
-
-        // Build the param section now.
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-
-        // Do the Services
-
-        // "Core" Services
-        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
-        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
-        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
-
-        // "Standard" Services
-
-        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
-        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
-        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
-
-        // Do the Message Transports
-
-        paramAdv.addProto(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
-        paramAdv.addProto(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
-        paramAdv.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
-
-        // Do the Applications
-
-        // (none)
-
-        // Insert the paramAdv in the World PeerGroup Impl Advertisement.
-        worldGroupDef.setParam((XMLDocument) paramAdv.getDocument(MimeMediaType.XMLUTF8));
-
-        return worldGroupDef;
-    }
-
-    /**
      * Returns a ModuleImplAdvertisement suitable for the Network Peer Group.
      * <p/>
      * The ModuleImplAdvertisement returned differs from the one returned by
@@ -250,48 +235,11 @@ public class Platform extends StdPeerGroup {
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
         JxtaLoader loader = getJxtaLoader();
 
-        // Make a new impl adv
         // For now, use the well know NPG naming, it is not identical to the 
         // allPurpose PG because we use the class ShadowPeerGroup which 
         // initializes the peer config from its parent.
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.refNetPeerGroupSpecID);
-
-        // Build the param section now.
-        StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-
-        // Set the services
-
-        // "Core" Services
-        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
-        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
-        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
-
-        // "Standard" Services
-        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
-        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
-        paramAdv.addService(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
-        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
-        paramAdv.addService(PeerGroup.proxyClassID, PeerGroup.refProxySpecID);
-
-        // High-level Message Transports.
-
-        paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
-        paramAdv.addProto(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
-        paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
-        paramAdv.addProto(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
-
-        // Main app is the shell
-        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
-        if (null != moduleAdv) {
-            paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
-        }
-
-        // Pour our newParamAdv in implAdv
-        XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
-
-        implAdv.setParam(paramElement);
-
+        
         return implAdv;
     }
 
