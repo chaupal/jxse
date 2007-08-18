@@ -1004,7 +1004,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     }
                 } else {
                     // We have a full route, send it to the virtual address of the route!
-                    if (null == getPeerViewElement(aSeed.getDestPeerID())) {
+                    // FIXME malveaux 20070816 Second part of conjunct can be removed once 'self' is included in the peerview
+                    if ((null == getPeerViewElement(aSeed.getDestPeerID())) && !group.getPeerID().equals(aSeed.getDestPeerID())) {
                         EndpointAddress aSeedHost = new EndpointAddress("jxta", aSeed.getDestPeerID().getUniqueValue().toString(),
                                 null, null);
 
