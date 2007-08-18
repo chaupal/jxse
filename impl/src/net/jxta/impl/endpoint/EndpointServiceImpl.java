@@ -1459,9 +1459,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 continue;
             }
 
-            if (!(transpt instanceof MessageSender)) { // Do we allow non-senders in the list ?
+            if (!(transpt instanceof MessageSender)) {
                 continue;
             }
+            
             return (MessageSender) transpt;
         }
         return null;
@@ -1510,7 +1511,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     return found;
                 }
 
-                // It has been GCed or is nolonger USABLE. Make room for a new one.
+                // It has been GCed or is no longer USABLE. Make room for a new one.
                 messengerMap.remove(addr);
             }
 
