@@ -114,7 +114,7 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
      */
     private static final Logger LOG = Logger.getLogger(RouteAdv.class.getName());
 
-    private static final String[] INDEX_FIELDS = { DEST_PID_TAG};
+    private static final String[] INDEX_FIELDS = {DEST_PID_TAG};
 
     /**
      * Instantiator for our advertisement
@@ -168,8 +168,7 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
         }
 
         if (!doctype.equals(getAdvertisementType()) && !getAdvertisementType().equals(typedoctype)) {
-            throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
+            throw new IllegalArgumentException("Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
         Enumeration elements = doc.getChildren();
@@ -199,6 +198,14 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
     @Override
     public RouteAdv clone() {
         return (RouteAdv) super.clone();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
     }
 
     /**
