@@ -79,49 +79,7 @@ import java.util.Enumeration;
 public class SignedAdv extends SignedAdvertisement {
 
     /**
-     * Instantiator for SignedAdv
-     */
-    public static class Instantiator implements AdvertisementFactory.Instantiator {
-
-        /**
-         * Returns the identifying type of this Advertisement.
-         *
-         * @return String the type of advertisement
-         * @since JXTA 1.0
-         */
-        public String getAdvertisementType() {
-            return ADV_TYPE;
-        }
-
-        /**
-         * Constructs an instance of <CODE>Advertisement</CODE> matching the type
-         * specified by the <CODE>advertisementType</CODE> parameter.
-         *
-         * @return The instance of <CODE>Advertisement</CODE> or null if it
-         *         could not be created.
-         * @since JXTA 1.0
-         */
-        public Advertisement newInstance() {
-            return new SignedAdv();
-        }
-
-        /**
-         * Constructs an instance of <CODE>Advertisement</CODE> matching the type
-         * specified by the <CODE>advertisementType</CODE> parameter.
-         *
-         * @param root Specifies a portion of a StructuredDocument which will be
-         *             converted into an Advertisement.
-         * @return The instance of <CODE>Advertisement</CODE> or null if it
-         *         could not be created.
-         * @since JXTA 1.0
-         */
-        public Advertisement newInstance(Element root) {
-            return new SignedAdv(root);
-        }
-    }
-
-    /**
-     * Log4J Logger
+     * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(SignedAdv.class.getName());
 
@@ -129,13 +87,43 @@ public class SignedAdv extends SignedAdvertisement {
 
     private static final String[] INDEX_FIELDS = {};
 
+    /**
+     * Instantiator for SignedAdv
+     */
+    public static class Instantiator implements AdvertisementFactory.Instantiator {
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getAdvertisementType() {
+            return ADV_TYPE;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Advertisement newInstance() {
+            return new SignedAdv();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Advertisement newInstance(Element root) {
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
+            return new SignedAdv((XMLElement) root);
+        }
+    }
+
     private byte[] signature = null;
 
     /**
      * Returns the identifying type of this Advertisement.
      * <p/>
      * <p/><b>Note:</b> This is a static method. It cannot be used to determine
-     * the runtime type of an advertisment. ie.
+     * the runtime type of an advertisement. ie.
      * </p><code><pre>
      *      Advertisement adv = module.getSomeAdv();
      *      String advType = adv.getAdvertisementType();
@@ -143,8 +131,8 @@ public class SignedAdv extends SignedAdvertisement {
      * <p/>
      * <p/><b>This is wrong and does not work the way you might expect.</b>
      * This call is not polymorphic and calls
-     * Advertiement.getAdvertisementType() no matter what the real type of the
-     * advertisment.
+     * Advertisement.getAdvertisementType() no matter what the real type of the
+     * advertisement.
      *
      * @return String the type of advertisement
      */
@@ -152,15 +140,18 @@ public class SignedAdv extends SignedAdvertisement {
         return ADV_TYPE;
     }
 
-    private SignedAdv() {}
+    /**
+     *  Private constructor for new instances. Use the instantiator.
+     */
+    private SignedAdv() {
+    }
 
-    private SignedAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
-
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private SignedAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -189,6 +180,14 @@ public class SignedAdv extends SignedAdvertisement {
 
         // Sanity Check!!!
 
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
     }
 
     /**

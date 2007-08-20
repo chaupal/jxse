@@ -133,7 +133,11 @@ public class HTTPAdv extends TransportAdvertisement {
          * {@inheritDoc}
          */
         public Advertisement newInstance(Element root) {
-            return new HTTPAdv(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
+
+            return new HTTPAdv((XMLElement) root);
         }
     }
 
@@ -141,7 +145,7 @@ public class HTTPAdv extends TransportAdvertisement {
      * Returns the identifying type of this Advertisement.
      * <p/>
      * <p/><b>Note:</b> This is a static method. It cannot be used to determine
-     * the runtime type of an advertisment. ie.
+     * the runtime type of an advertisement. ie.
      * </p><code><pre>
      *      Advertisement adv = module.getSomeAdv();
      *      String advType = adv.getAdvertisementType();
@@ -149,8 +153,8 @@ public class HTTPAdv extends TransportAdvertisement {
      * <p/>
      * <p/><b>This is wrong and does not work the way you might expect.</b>
      * This call is not polymorphic and calls
-     * Advertiement.getAdvertisementType() no matter what the real type of the
-     * advertisment.
+     * Advertisement.getAdvertisementType() no matter what the real type of the
+     * advertisement.
      *
      * @return String the type of advertisement
      */
@@ -158,15 +162,18 @@ public class HTTPAdv extends TransportAdvertisement {
         return "jxta:HTTPTransportAdvertisement";
     }
 
-    private HTTPAdv() {}
+    /**
+     *  Private constructor for new instances. Use the instantiator.
+     */
+    private HTTPAdv() {
+    }
 
-    private HTTPAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
-
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private HTTPAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -226,6 +233,14 @@ public class HTTPAdv extends TransportAdvertisement {
         if (null == getProtocol()) {
             setProtocol("http");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
     }
 
     /**

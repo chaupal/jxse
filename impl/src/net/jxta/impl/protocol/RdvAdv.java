@@ -131,22 +131,26 @@ public class RdvAdv extends RdvAdvertisement {
          * {@inheritDoc}
          **/
         public Advertisement newInstance(Element root) {
-            return new RdvAdv(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
+        
+            return new RdvAdv((XMLElement) root);
         }
     }
     
     /**
-     *  Constructor for new advertisements. Use Instantiator
-     **/
-    private RdvAdv() {}
-    
-    private RdvAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-        
-        XMLElement doc = (XMLElement) root;
-        
+     *  Private constructor for new instances. Use the instantiator.
+     */
+    private RdvAdv() {
+    }
+
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private RdvAdv(XMLElement doc) {
         String doctype = doc.getName();
         
         String typedoctype = "";
@@ -187,6 +191,14 @@ public class RdvAdv extends RdvAdvertisement {
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
+    }
+
     /**
      *  {@inheritDoc}
      **/

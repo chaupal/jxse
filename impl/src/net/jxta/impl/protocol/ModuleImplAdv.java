@@ -132,7 +132,11 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
          * {@inheritDoc}
          */
         public Advertisement newInstance(Element root) {
-            return new ModuleImplAdv(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
+            }
+
+            return new ModuleImplAdv((XMLElement) root);
         }
     }
 
@@ -146,13 +150,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
      *
      * @param root The portion of a document containing the ModuleImplAdv.
      */
-    private ModuleImplAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
-
+    private ModuleImplAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -196,6 +194,14 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
         if (null == compat) {
             throw new IllegalArgumentException("Compatibility statement was not initialized by advertisement");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
     }
 
     /**
