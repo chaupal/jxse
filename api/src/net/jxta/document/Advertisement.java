@@ -72,17 +72,19 @@ import net.jxta.id.ID;
  *
  *  <p>Each Advertisement holds a document that represents the advertisement.
  *  Advertisements are typically represented as a text document (XML). The
- *  {@link Advertisement#getDocument( MimeMediaType ) getDocument(mimetype)}
+ *  {@link Advertisement#getDocument(MimeMediaType) getDocument(mimetype)}
  *  method is used to generate representations of the advertisement. Different
  *  representations are available via mime type selection. Typical mime types
  *  are "text/xml" or "text/plain" that generate textual representations for the
  *  Advertisements.
  *
- *  <p>Advertisements are created via {@link AdvertisementFactory}. This is done
- *  because public Advertisement sub-classes are normally abstract with private
- *  sub-classes unique to the implementation.
+ *  <p>Advertisements are created via {@link AdvertisementFactory} rather than 
+ *  through use of constructors. This is done because public the Advertisement 
+ *  sub-classes are typically abstract. The actual implementations are provided 
+ *  by private sub-classes.
  *
  *  @see net.jxta.document.AdvertisementFactory
+ *  @see net.jxta.document.ExtendableAdvertisement
  *  @see net.jxta.id.ID
  *  @see net.jxta.document.Document
  *  @see net.jxta.document.MimeMediaType
@@ -91,10 +93,27 @@ public abstract class Advertisement {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public Advertisement clone() throws CloneNotSupportedException {
         return (Advertisement) super.clone();
+    }
+    
+    /**
+     * Return a string representation of this advertisement. The string will
+     * contain the advertisement pretty-print formatted as a UTF-8 encoded XML
+     * Document.
+     *
+     * @return A String containing the advertisement.
+     */
+    @Override
+    public String toString() {        
+        XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
+        
+        // Force pretty printing
+        doc.addAttribute("xml:space", "default");
+            
+        return doc.toString();
     }
     
     /**
@@ -109,10 +128,10 @@ public abstract class Advertisement {
      *
      *  <p/><b>This is wrong and does not work the way you might expect.</b>
      *  This call is not polymorphic and calls
-     *  Advertisement.getAdvertisementType() no matter what the real type of the
-     *  advertisement.
+     *  {@code Advertisement.getAdvertisementType()} no matter what the real
+     *  type of the advertisement.
      *
-     * @return String the type of advertisement
+     * @return The type of advertisement.
      */
     public static String getAdvertisementType() {
         throw new UnsupportedOperationException(
@@ -123,12 +142,13 @@ public abstract class Advertisement {
      *  Returns the identifying type of this Advertisement. Unlike
      *  {@link #getAdvertisementType()} this method will return the correct
      *  runtime type of an Advertisement object.
+     *  <p/>
+     *  This implementation is provided for existing advertisements which do not
+     *  provide their own implementation. In most cases you should provide your
+     *  own implementation for efficiency reasons.
      *
-     *  <p/>This implementation is provided so as to NOT break the code of
-     *  existing advertisements. In most cases you should provide your own
-     *  implementation for efficiency reasons.
-     *
-     *  @return the identifying type of this Advertisement
+     *  @since JXSE 2.1.1
+     *  @return The identifying type of this Advertisement.
      */
     public String getAdvType() {
         try {
@@ -155,27 +175,29 @@ public abstract class Advertisement {
     }
     
     /**
-     *  Write advertisement into a document. <code>asMimeType</code> is a mime
-     *  media-type specification and provides the form of the document which is
-     *  being requested. Two standard document forms are defined.
-     *  <code>"text/plain"</code> encodes the document in a "pretty-print"
-     *  format for human viewing and <code>"text/xml"<code> which provides an
-     *  XML format.
+     *  Write this advertisement into a document of the requested type. Two 
+     *  standard document forms are defined. <code>"text/plain"</code> encodes 
+     *  the document in a "pretty-print" format for human viewing and 
+     *  <code>"text/xml"<code> which provides an XML format.
      *
-     *  @param asMimeType  MimeMediaType format representation requested
-     *  @return Document   the document to be used in the construction
+     *  @param asMimeType MimeMediaType format representation requested.
+     *  @return The {@code Advertisement} represented as a {@code Document} of
+     *  the requested MIME Media Type.
      */
     public abstract Document getDocument(MimeMediaType asMimeType);
     
     /**
-     *  Returns a unique ID suitable for indexing of this Advertisement.
-     *
-     *  <p/>The ID is supposed to be unique and is not guaranteed to be of
-     *  any particular subclass of ID. Each class of advertisement is
-     *  responsible for the choice of ID to return. The value for the ID
+     *  Returns an ID which identifies this {@code Advertisement} as uniquely as 
+     *  possible. This ID is typically used as the primary key for indexing of
+     *  the Advertisement within databases. 
+     *  <p/>
+     *  Each advertisement sub-class must choose an appropriate implementation
+     *  which returns canonical and relatively unique ID values for it's
+     *  instances. Since this ID is commonly used for indexing, the IDs returned
+     *  must be as unique as possible to avoid collisions. The value for the ID 
      *  returned can either be:
-     *
-     * <p><ul>
+     *  <p/>
+     *  <ul>
      *      <li>An ID which is already part of the advertisement definition
      *      and is relatively unique between advertisements instances. For
      *      example, the Peer Advertisement returns the Peer ID.</li>
@@ -187,38 +209,23 @@ public abstract class Advertisement {
      *      <li>ID.nullID for advertisement types which are not readily indexed.
      *      </li>
      *  </ul>
-     *
-     *  <p/>Since this ID is normally used for indexing, the IDs returned must
-     *  be as unique as possible to avoid collisions.
-     *
-     *  <p/>For Advertisement types which normally return non-ID.nullID values
+     *  <p/>
+     *  For Advertisement types which normally return non-ID.nullID values
      *  no ID should be returned when asked to generate an ID while the
      *  Advertisement is an inconsistent state (example: uninitialized index
-     *  fields). Instead <code>java.lang.IllegalStateException</code> should be
+     *  fields). Instead {@link java.lang.IllegalStateException} should be
      *  thrown.
      *
-     *  @return ID An ID that uniquely identifies the advertisement or ID.nullID
-     *  if this advertisement is of a type that is not normally indexed.
+     *  @return An ID that relatively uniquely identifies this advertisement 
+     *  or {@code ID.nullID} if this advertisement is of a type that is not 
+     *  normally indexed.
      */
     public abstract ID getID();
     
     /**
-     * returns an array of String fields to index the advertisement on.
+     * Returns the element names on which this advertisement should be indexed.
      *
-     * @return String [] attributes to index this advertisement on.
+     * @return The element names on which this advertisement should be indexed.
      */
     public abstract String[] getIndexFields();
-    
-    /**
-     * Return a string representation of this advertisement. The string will
-     * contain the advertisement formated as a UTF-8 encoded XML Document.
-     *
-     * @return String A String containing the advertisement.
-     */
-    @Override
-    public String toString() {        
-        XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
-            
-        return doc.toString();
-    }
 }
