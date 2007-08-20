@@ -94,6 +94,9 @@ public class CbJxMessenger extends BlockingMessenger {
      */
     private Messenger outBoundMessenger = null;
 
+    /**
+     *  The transport we are working for.
+     */
     private final CbJxTransport transport;
 
     /**
@@ -119,7 +122,7 @@ public class CbJxMessenger extends BlockingMessenger {
 
         newDestAddr = new EndpointAddress("jxta", dest.getProtocolAddress(), CbJxTransport.cbjxServiceName, null);
 
-        outBoundMessenger = transport.endpoint.getMessenger(newDestAddr);
+        outBoundMessenger = transport.endpoint.getMessengerImmediate(newDestAddr, null);
 
         if (null == outBoundMessenger) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -135,12 +138,9 @@ public class CbJxMessenger extends BlockingMessenger {
      */
     @Override
     public void closeImpl() {
-        // We do not use self destruction, so it is not impossible for the outBoundMessenger to become unreferenced without ever
-        // being closed. No longer an issue: it is just a channel.
-        super.close();
-
         synchronized (acquireMessengerLock) {
             outBoundMessenger.close();
+            outBoundMessenger = null;
         }
     }
 
@@ -154,15 +154,13 @@ public class CbJxMessenger extends BlockingMessenger {
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Since CbJx is a virtual transport and consumes very few resources there
+     * is no point to doing idle teardown.
      */
     @Override
     public boolean isIdleImpl() {
-
-        // XXX: Since we do not use self destruction, this is likely dead code.
-
-        Messenger tmp = outBoundMessenger; // we don't get the lock.
-
-        return null == tmp || tmp.isIdle();
+        return false;
     }
 
     /**
@@ -170,7 +168,6 @@ public class CbJxMessenger extends BlockingMessenger {
      */
     @Override
     public void sendMessageBImpl(Message msg, String service, String serviceParam) throws IOException {
-
         msg = msg.clone();
 
         EndpointAddress destAddressToUse = getDestAddressToUse(service, serviceParam);
@@ -182,9 +179,6 @@ public class CbJxMessenger extends BlockingMessenger {
         // add the cbjx info to the message
         msg = transport.addCryptoInfo(msg, destAddressToUse);
 
-        boolean sent = false;
-
-        while (!sent) {
             if (isClosed()) {
                 IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
 
@@ -196,42 +190,31 @@ public class CbJxMessenger extends BlockingMessenger {
             }
 
             // and sends out the message
-            sent = sendTo(msg);
-        }
+        sendTo( msg );
     }
 
     /**
      * Send a message via the underlying messenger.
      *
      * @param msg The message to send to the remote peer.
-     * @return {@code true} then message was sent, otherwise {@code false}.
      * @throws IOException if there was a problem sending the message.
-     */
-    boolean sendTo(Message msg) throws IOException {
+     **/
+    void sendTo( Message msg ) throws IOException {
 
         synchronized (acquireMessengerLock) {
-            if (isClosed()) {
-                return false;
-            }
-
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
 
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Getting messenger for " + newDestAddr);
                 }
 
-                // Get a messenger.  FIXME - jice@jxta.org 20040413: This should absolutely never happen. We close the underlying
-                // messenger only when this.closeImpl() is invoked. At which point we have no message to send. Okay, the
-                // underlying messenger might have broken.  We should leave it broken. This is mostly the original
-                // code. Transports should get a deeper retrofit eventually.
-                outBoundMessenger = transport.endpoint.getMessenger(newDestAddr);
+                outBoundMessenger = transport.endpoint.getMessengerImmediate(newDestAddr, null);
 
                 if (outBoundMessenger == null) {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                         LOG.severe("Could not get messenger for " + newDestAddr);
                     }
 
-                    // calling super.close() won't do. We must shoot an exception.
                     throw new IOException("Underlying messenger could not be repaired");
                 }
             }
@@ -243,6 +226,5 @@ public class CbJxMessenger extends BlockingMessenger {
 
         // Good we have a messenger. Send the message.
         outBoundMessenger.sendMessageB(msg, null, null);
-        return true;
     }
 }
