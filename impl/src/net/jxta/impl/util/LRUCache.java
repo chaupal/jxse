@@ -15,18 +15,16 @@
  */
 package net.jxta.impl.util;
 
-
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- *  This class implements a Generic LRU Cache
+ * This class implements a Generic LRU Cache
  *
- *@author    Ignacio J. Ortega
- *@author    Mohamed Abdelaziz
+ * @author Ignacio J. Ortega
+ * @author Mohamed Abdelaziz
  */
 
 public class LRUCache {
@@ -38,9 +36,9 @@ public class LRUCache {
     private final transient Hashtable nodes;
 
     /**
-     *  Constructor for the LRUCache object
+     * Constructor for the LRUCache object
      *
-     *@param  size  Description of the Parameter
+     * @param size Description of the Parameter
      */
     public LRUCache(int size) {
         currentSize = 0;
@@ -49,7 +47,7 @@ public class LRUCache {
     }
 
     /**
-     *  clear the cache
+     * clear the cache
      */
     public void clear() {
         first = null;
@@ -58,6 +56,7 @@ public class LRUCache {
 
     /**
      * returns the number of elements currently in cache
+     *
      * @return the number of elements in cache
      */
     public int size() {
@@ -65,10 +64,10 @@ public class LRUCache {
     }
 
     /**
-     *  retrieve an object from cache
+     * retrieve an object from cache
      *
-     *@param  key  key
-     *@return      object
+     * @param key key
+     * @return object
      */
     public Object get(Object key) {
         CacheNode node = (CacheNode) nodes.get(key);
@@ -86,10 +85,8 @@ public class LRUCache {
 
     protected Iterator iterator(int size) {
         List list = new ArrayList();
-        Iterator it = nodes.values().iterator();
-
-        while (it.hasNext()) {
-            list.add(((CacheNode) it.next()).value);
+        for (Object o : nodes.values()) {
+            list.add(((CacheNode) o).value);
             if (list.size() >= size) {
                 break;
             }
@@ -122,10 +119,10 @@ public class LRUCache {
     }
 
     /**
-     *  puts an object into cache
+     * puts an object into cache
      *
-     *@param  key    key to store value by
-     *@param  value  object to insert
+     * @param key   key to store value by
+     * @param value object to insert
      */
     public void put(Object key, Object value) {
         CacheNode node = (CacheNode) nodes.get(key);
@@ -148,10 +145,10 @@ public class LRUCache {
     }
 
     /**
-     *  remove an object from cache
+     * remove an object from cache
      *
-     *@param  key  key
-     *@return      Object removed
+     * @param key key
+     * @return Object removed
      */
     public Object remove(Object key) {
         CacheNode node = (CacheNode) nodes.get(key);
@@ -174,7 +171,7 @@ public class LRUCache {
     }
 
     /**
-     *  removes the last enry from cache
+     * removes the last enry from cache
      */
     private void removeLast() {
         if (last != null) {
@@ -188,7 +185,7 @@ public class LRUCache {
     }
 
     /**
-     *  cache node object wrapper
+     * cache node object wrapper
      */
     protected class CacheNode {
         Object key;
@@ -198,9 +195,10 @@ public class LRUCache {
         Object value;
 
         /**
-         *  Constructor for the CacheNode object
+         * Constructor for the CacheNode object
          */
-        CacheNode() {}
+        CacheNode() {
+        }
     }
 }
 
