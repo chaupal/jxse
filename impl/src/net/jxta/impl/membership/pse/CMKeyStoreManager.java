@@ -300,4 +300,16 @@ public class CMKeyStoreManager implements KeyStoreManager {
         
         keystore_cm.remove("Raw", keystore_location.toString());
     }
+
+    /**
+     *  {@inheritDoc}
+     **/
+    public String toString() {
+       StringBuilder sb = new StringBuilder("PSE keystore details:  \n");
+       sb.append("   Class:  ").append(this.getClass().getName()).append("\n");
+       sb.append("   Type:  ").append(keystore_type==null ? "<default>" : keystore_type).append("\n");
+       sb.append("   Provider:  ").append(keystore_provider==null ? "<default>" : keystore_provider).append("\n");
+       sb.append("   Location:  ").append(keystore_location==null ? "<default>" : keystore_location.toString()).append("\n");
+       return sb.toString();
+    }
 }
