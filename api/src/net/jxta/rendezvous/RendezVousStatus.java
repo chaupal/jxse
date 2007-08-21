@@ -59,90 +59,42 @@ package net.jxta.rendezvous;
 /**
  * A static "enum" class for RendezVous Status.
  */
-public abstract class RendezVousStatus {
+public enum RendezVousStatus {
 
     /**
      * No RendezVous Service is configured.
      */
-    public final static RendezVousStatus NONE = new RendezVousStatus() {
-
-        @Override
-        public String toString() {
-            return "NONE";
-        }
-    };
+   NONE,
 
     /**
      * An unknown RendezVous Service is configured.
      */
-    public final static RendezVousStatus UNKNOWN = new RendezVousStatus() {
-
-        @Override
-        public String toString() {
-            return "UNKNOWN";
-        }
-    };
+    UNKNOWN,
 
     /**
      * An ad hoc (connectionless) RendezVous Service is configured.
      */
-    public final static RendezVousStatus ADHOC = new RendezVousStatus() {
-
-        @Override
-        public String toString() {
-            return "ADHOC";
-        }
-    };
+    ADHOC,
 
     /**
      * RendezVous Service is configured as an edge peer.
      */
-    public final static RendezVousStatus EDGE = new RendezVousStatus() {
-
-        @Override
-        public String toString() {
-            return "EDGE";
-        }
-    };
+    EDGE,
 
     /**
      * RendezVous Service is configured to automatically choose, but is
      * currently running as an edge.
      */
-    public final static RendezVousStatus AUTO_EDGE = new RendezVousStatus() {
-
-        @Override
-        public String toString() {
-            return "AUTO_EDGE";
-        }
-    };
+    AUTO_EDGE,
 
     /**
      * RendezVous Service is configured to automatically choose, but is
      * currently running as a Rendezvous.
      */
-    public final static RendezVousStatus AUTO_RENDEZVOUS = new RendezVousStatus() {
-
-        @Override
-        public String toString() {
-            return "AUTO_RENDEZVOUS";
-        }
-    };
+    AUTO_RENDEZVOUS,
 
     /**
      * RendezVous Service is configured as an rendezvous peer.
      */
-    public final static RendezVousStatus RENDEZVOUS = new RendezVousStatus() {
-
-        @Override
-        public String toString() {
-            return "RENDEZVOUS";
-        }
-    };
-
-    /**
-     * Constructor for the RendezVousStatus object
-     */
-    private RendezVousStatus() {}
+    RENDEZVOUS
 }
-
