@@ -190,6 +190,14 @@ public class PipeAdv extends PipeAdvertisement {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
+    }
+
+    /**
      *  {@inheritDoc}
      */
     @Override

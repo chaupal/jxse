@@ -180,6 +180,14 @@ public class PeerGroupAdv extends PeerGroupAdvertisement {
      * {@inheritDoc}
      */
     @Override
+    public String getAdvType() {
+        return getAdvertisementType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected boolean handleElement(Element raw) {
 
         if (super.handleElement(raw)) {

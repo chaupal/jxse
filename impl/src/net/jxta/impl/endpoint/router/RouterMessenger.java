@@ -60,7 +60,6 @@ package net.jxta.impl.endpoint.router;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.BlockingMessenger;
-import net.jxta.impl.endpoint.IllegalTransportLoopException;
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
@@ -215,8 +214,7 @@ class RouterMessenger extends BlockingMessenger {
             router.removeRoute(EndpointRouter.addr2pid(destPeer));
 
             // reset the router message for the next attempt.
-            message.removeMessageElement(
-                    message.getMessageElement(EndpointRouterMessage.MESSAGE_NS, EndpointRouterMessage.MESSAGE_NAME));
+            message.removeMessageElement(message.getMessageElement(EndpointRouterMessage.MESSAGE_NS, EndpointRouterMessage.MESSAGE_NAME));
         }
 
         if (lastFailure == null) {
@@ -230,7 +228,7 @@ class RouterMessenger extends BlockingMessenger {
         // it could be this messenger as well. For illegal transport loops
         // the invoking messenger should close, not this one.
 
-        if (!(lastFailure instanceof IllegalTransportLoopException)) {
+        if (!(lastFailure instanceof IllegalStateException)) {
             // FIXME - jice@jxta.org 20040413: as for all the transports. This used to be how this messenger broke itself.  Now,
             // all it does is too pretend that someone called for a nice close...just before the exception we throw causes the
             // BlockingMessenger state machine to go into breackage mode. Ultimately transports should get a deeper retrofit.
@@ -252,7 +250,6 @@ class RouterMessenger extends BlockingMessenger {
             throw (Error) lastFailure;
         } else {
             IOException failure = new IOException("Failed sending " + message);
-
             failure.initCause(lastFailure);
             throw failure;
         }

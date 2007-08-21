@@ -1378,7 +1378,7 @@ public class NetworkConfigurator {
         
         // TCP
         XMLElement param = (XMLElement) platformConfig.getServiceParam(PeerGroup.tcpProtoClassID);
-        tcpEnabled = !param.getChildren("isOff").hasMoreElements();
+        tcpEnabled = platformConfig.isSvcEnabled(PeerGroup.tcpProtoClassID);
         Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
         
         // get the TransportAdv from either TransportAdv or tcpConfig
@@ -1392,7 +1392,7 @@ public class NetworkConfigurator {
         // HTTP
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.httpProtoClassID);
-            httpEnabled = !param.getChildren("isOff").hasMoreElements();
+            httpEnabled = platformConfig.isSvcEnabled(PeerGroup.httpProtoClassID);
             
             Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
             
@@ -1413,7 +1413,7 @@ public class NetworkConfigurator {
         // ProxyService
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.proxyClassID);
-            if ((param != null && !param.getChildren("isOff").hasMoreElements())) {
+            if (param != null && !platformConfig.isSvcEnabled(PeerGroup.proxyClassID)) {
                 mode = mode | PROXY_SERVER;
             }
         } catch (Exception failure) {
@@ -1444,7 +1444,7 @@ public class NetworkConfigurator {
         // Relay
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.relayProtoClassID);
-            if (param != null && !param.getChildren("isOff").hasMoreElements()) {
+            if (param != null && !platformConfig.isSvcEnabled(PeerGroup.relayProtoClassID)) {
                 mode = mode | RELAY_OFF;
             }
             // backwards compatibility

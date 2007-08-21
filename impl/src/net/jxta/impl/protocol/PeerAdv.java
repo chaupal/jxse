@@ -108,7 +108,7 @@ import net.jxta.protocol.PeerAdvertisement;
 public class PeerAdv extends PeerAdvertisement {
 
     /**
-     *  Log4J Logger
+     *  Logger
      **/
     private static final Logger LOG = Logger.getLogger(PeerAdv.class.getName());
     
@@ -201,6 +201,14 @@ public class PeerAdv extends PeerAdvertisement {
         }
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
+    }
+
     /**
      *  {@inheritDoc}
      **/

@@ -137,15 +137,13 @@ public class SocketClient extends TestCase {
             }
         }
         
-        
-        
         pipeAdv = SocketServer.getSocketAdvertisement();
     }
     
     /**
      * Interact with the server.
      */
-    public void singleTest(int run, double loss, double delayRatio) {
+    public void singleTest(int run, long iterations, double loss, double delayRatio) {
         try {
             
             long start = System.currentTimeMillis();
@@ -185,16 +183,16 @@ public class SocketClient extends TestCase {
             // get the socket input stream
             InputStream in = socket.getInputStream();
             DataInput dis = new DataInputStream(in);
-            long total = ITERATIONS * (long) PAYLOADSIZE * 2;
+            long total = iterations * (long) PAYLOADSIZE * 2;
             
             System.out.println("Sending/Receiving " + total + " bytes.");
             
-            dos.writeLong(ITERATIONS);
+            dos.writeLong(iterations);
             dos.writeInt(PAYLOADSIZE);
             
             long current = 0;
             
-            while (current < ITERATIONS) {
+            while (current < iterations) {
                 byte[] out_buf = new byte[PAYLOADSIZE];
                 byte[] in_buf = new byte[PAYLOADSIZE];
                 
@@ -230,7 +228,7 @@ public class SocketClient extends TestCase {
             for (double loss = 0.0; loss < MAX_MESSAGE_LOSS; loss += MESSAGE_LOSS_INCREMENT) {
                 for (double delays = 0.0; delays < MAX_MESSAGE_DELAY; delays += MESSAGE_DELAY_INCREMENT) {
                     for (int i = 1; i <= RUNS; i++) {
-                        singleTest(i, loss, delays);
+                        singleTest(i, ITERATIONS, loss, delays);
                     }
                 }
             }
@@ -247,7 +245,7 @@ public class SocketClient extends TestCase {
         try {
             for (double loss = 0.0; loss < MAX_MESSAGE_LOSS; loss += MESSAGE_LOSS_INCREMENT) {
                 for (int i = 1; i <= RUNS; i++) {
-                    singleTest(i, loss, 0.0);
+                    singleTest(i, ITERATIONS, loss, 0.0);
                 }
             }
         } catch (Throwable e) {
@@ -263,7 +261,7 @@ public class SocketClient extends TestCase {
         try {
             for (double delays = 0.0; delays < MAX_MESSAGE_DELAY; delays += MESSAGE_DELAY_INCREMENT) {
                 for (int i = 1; i <= RUNS; i++) {
-                    singleTest(i, 0.0, delays);
+                    singleTest(i, ITERATIONS, 0.0, delays);
                 }
             }
         } catch (Throwable e) {
@@ -271,7 +269,21 @@ public class SocketClient extends TestCase {
             fail("Failed : " + e);
         }
     }
-    
+     
+    /**
+     */
+    public void testDefault() {
+        
+        try {
+            for (int i = 1; i <= RUNS; i++) {
+                singleTest(i, ITERATIONS, 0.0, 0.0);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace(System.err);
+            fail("Failed : " + e);
+        }
+    }
+   
     /**
      *  Just like a JxtaSocket, but with built in faultiness! (not meant to be
      *  used in real applications).

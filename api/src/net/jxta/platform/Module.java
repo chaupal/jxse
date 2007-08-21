@@ -137,6 +137,15 @@ public interface Module {
      * starting of a set of modules eventually succeeds or fails.
      **/
     public static final int START_AGAIN_STALLED = 2;
+        
+    /**
+     * This return result is used to indicate that the module refuses to start
+     * because it has been configured to be disabled or otherwise cannot run
+     * (missing hardware, missing system resources, etc.) The module will not be
+     * functional and should be discarded but the failure to load may be ignored 
+     * by the loader at it's discretion.
+     */
+    public static final int START_DISABLED = Integer.MIN_VALUE + 100;
     
     /**
      * Initialize the module, passing it its peer group and advertisement.

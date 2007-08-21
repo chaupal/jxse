@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.router;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -76,12 +74,10 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
- * Message element Router. This element is added to every message to carry route
+ * Router Message element. This element is added to every message to carry route 
  * information for the EndpointRouter service.
  */
-
 public class EndpointRouterMessage {
 
     /**
@@ -102,6 +98,7 @@ public class EndpointRouterMessage {
     private EndpointAddress srcAddress = null; // PeerID-based EndpointAddress
     private EndpointAddress destAddress = null; // PeerID-based EndpointAddress
     private EndpointAddress lastHop = null; // Plain PeerID
+    
     private transient Vector<AccessPointAdvertisement> forwardGateways = null;
     private transient Vector<XMLElement> forwardCache = null;
     private transient Vector<AccessPointAdvertisement> reverseGateways = null;
@@ -204,7 +201,6 @@ public class EndpointRouterMessage {
 
                     if (e.getName().equals(GatewayReverseTag)) {
                         for (Enumeration<XMLElement> eachXpt = e.getChildren(); eachXpt.hasMoreElements();) {
-
                             if (reverseGateways == null) {
                                 reverseGateways = new Vector<AccessPointAdvertisement>();
                             }
@@ -223,18 +219,20 @@ public class EndpointRouterMessage {
                     }
 
                     if (e.getName().equals(RouteAdvertisement.getAdvertisementType())) {
-                        radv = (RouteAdvertisement)
-                                AdvertisementFactory.newAdvertisement(e);
+                        radv = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(e);
                     }
-                } catch (Exception ee) {// keep going
+                } catch (Exception ee) {
+                    // keep going
                 }
             }
+            
             // XXX 20040929 bondolo Should be doing validation here.
 
             // All parsed ok, we're in sync.
             rmExists = true;
             rmDirty = false;
-        } catch (Exception eee) {// give up. The dirty flag will get the element removed
+        } catch (Exception eee) {
+            // give up. The dirty flag will get the element removed
             // from the message (if there was one) and we'll report
             // there was none.
         }
@@ -288,16 +286,12 @@ public class EndpointRouterMessage {
             doc.appendChild(e);
         }
 
-        AccessPointAdvertisement gateway;
-
         e = doc.createElement(GatewayForwardTag);
         doc.appendChild(e);
         if ((forwardGateways != null) && (!forwardGateways.isEmpty())) {
             if (forwardCache != null) {
-                for (int i = 0; i < forwardCache.size(); ++i) {
+                for (XMLElement xptDoc : forwardCache) {
                     try {
-                        XMLElement xptDoc = forwardCache.elementAt(i);
-
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
                     } catch (Exception e1) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -308,26 +302,23 @@ public class EndpointRouterMessage {
                     }
                 }
             } else {
-                for (int i = 0; i < forwardGateways.size(); ++i) {
+                for (AccessPointAdvertisement gateway : forwardGateways) {
                     try {
-                        gateway = forwardGateways.elementAt(i);
                         XMLDocument xptDoc = (XMLDocument) gateway.getDocument(MimeMediaType.XMLUTF8);
-
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
-                    } catch (Exception e1) {}
+                    } catch (Exception ignored) {
+                        //ignored
+                    }
                 }
             }
         }
 
-        gateway = null;
         e = doc.createElement(GatewayReverseTag);
         doc.appendChild(e);
-        if ((reverseGateways != null) && (reverseGateways.size() > 0)) {
+        if ((reverseGateways != null) && (!reverseGateways.isEmpty())) {
             if (reverseCache != null) {
-                for (int i = 0; i < reverseCache.size(); ++i) {
+                for (XMLElement xptDoc : reverseCache) {
                     try {
-                        XMLElement xptDoc = reverseCache.elementAt(i);
-
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
                     } catch (Exception e1) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -338,13 +329,12 @@ public class EndpointRouterMessage {
                     }
                 }
             } else {
-                for (int i = 0; i < reverseGateways.size(); ++i) {
+                 for (AccessPointAdvertisement gateway : reverseGateways) {
                     try {
-                        gateway = reverseGateways.elementAt(i);
                         XMLDocument xptDoc = (XMLDocument) gateway.getDocument(MimeMediaType.XMLUTF8);
-
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
-                    } catch (Exception e1) {// ignored
+                    } catch (Exception e1) {
+                        // ignored
                     }
                 }
             }
@@ -453,9 +443,6 @@ public class EndpointRouterMessage {
             return null;
         }
 
-        // No inplace changes allowed, we need to keep the cache
-        // consistent: clone
-
         return (Vector<AccessPointAdvertisement>) reverseGateways.clone();
     }
 
@@ -471,7 +458,7 @@ public class EndpointRouterMessage {
 
     // Used only for debugging
     public String display() {
-        StringBuilder msgInfo = new StringBuilder("Process Incoming : ");
+        StringBuilder msgInfo = new StringBuilder("Endpoint Router Message : ");
 
         msgInfo.append("\n\tsrc=");
         msgInfo.append((srcAddress != null) ? srcAddress : "none");
@@ -482,25 +469,22 @@ public class EndpointRouterMessage {
         msgInfo.append("\n\tembedded radv= ");
         msgInfo.append(radv != null ? radv.display() : "none");
         if (forwardGateways != null) {
-            msgInfo.append("    Forward Hops:");
+            msgInfo.append("\n\tForward Hops:");
             for (int i = 0; i < forwardGateways.size(); ++i) {
                 try {
                     msgInfo.append("   [").append(i).append("] ");
                     msgInfo.append(forwardGateways.elementAt(i).getPeerID());
-                } catch (Exception ez1) {
+                }
+                catch (Exception ez1) {
                     break;
                 }
             }
         }
         if (reverseGateways != null) {
-            msgInfo.append("    Reverse Hops:");
+            msgInfo.append("\n\tReverse Hops:");
             for (int i = 0; i < reverseGateways.size(); ++i) {
-                try {
                     msgInfo.append("   [").append(i).append("] ");
                     msgInfo.append(reverseGateways.elementAt(i).getPeerID());
-                } catch (Exception ez1) {
-                    break;
-                }
             }
         }
         return msgInfo.toString();

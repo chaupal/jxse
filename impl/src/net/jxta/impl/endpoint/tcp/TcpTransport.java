@@ -863,11 +863,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                     LOG.warning("Could not get messenger for " + dst + " : " + caught.getMessage());
                 }
             }
-
             if (caught instanceof RuntimeException) {
                 throw (RuntimeException) caught;
             }
-
             return null;
         }
     }

@@ -71,7 +71,6 @@ import net.jxta.endpoint.MessengerEventListener;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.endpoint.IllegalTransportLoopException;
 import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.TimerThreadNamer;
@@ -2390,15 +2389,13 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         EndpointRouterMessage routerMsg = new EndpointRouterMessage(message, true);
 
         if (routerMsg.isDirty()) {
-
             // Oops there was one in the message already. This must be a
             // low-level protocol looping back through the router. The relay can
             // be led to do that in some corner cases.
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Probable transport recursion");
             }
-
-            throw new IllegalTransportLoopException("RouterMessage element already present");
+            throw new IllegalStateException("RouterMessage element already present");
         }
 
         routerMsg.setSrcAddress(localPeerAddr);

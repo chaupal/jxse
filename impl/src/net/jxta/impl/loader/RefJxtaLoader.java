@@ -307,9 +307,10 @@ public class RefJxtaLoader extends JxtaLoader {
             }
 
             compats.put(asString, loaded);
-
-            implAdvs.put(loaded, impl);
         }
+
+        // Force update of impl advertisement. 
+        implAdvs.put(loaded, impl);
 
         return loaded;
     }

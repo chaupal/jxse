@@ -110,6 +110,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -170,7 +172,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * This group's implAdvertisement.
      */
-    private ModuleImplAdvertisement implAdvertisement = null;
+    protected ModuleImplAdvertisement implAdvertisement = null;
     
     /**
      * This peer's config advertisement.
@@ -237,7 +239,51 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * mostly useless) ThreadGroup features.
      */
     private ThreadGroup threadGroup = null;
+        
+    /**
+     * The minimum number of Threads our Executor will reserve. Once started
+     * these Threads will remain.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    private final int COREPOOLSIZE = 0;
+
     
+    /**
+     * The number of seconds that Threads above {@code COREPOOLSIZE} will
+     * remain idle before terminating.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    private final long KEEPALIVETIME = 15;
+
+    
+    /**
+     * The intended upper bound on the number of threads we will allow our 
+     * Executor to create. We will allow the pool to grow to twice this size if
+     * we run out of threads.
+     *
+     * todo convert these hardcoded settings into group config params.
+     */
+    private final int MAXPOOLSIZE = 50;
+
+    
+    /**
+     * Queue for tasks waiting to be run by our {@code Executor}.
+     */
+    private BlockingQueue<Runnable> taskQueue;
+
+    
+    /**
+     * The PeerGroup ThreadPool
+     */
+    private ThreadPoolExecutor threadPool;
+    
+    /**
+     * The PeerGroup ScheduledExecutor
+     */
+    private ScheduledThreadPoolExecutor scheduledExecutor;    
+
     
     /**
      * {@inheritDoc}
@@ -276,45 +322,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
     protected void setStoreHome(URI newHome) {
         jxtaHome = newHome;
     }
-    
-    /**
-     * The minimum number of Threads our Executor will reserve. Once started
-     * these Threads will remain.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    protected final int COREPOOLSIZE = 5;
-
-    
-    /**
-     * The number of seconds that Threads above {@code COREPOOLSIZE} will
-     * remain idle before terminating.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    protected final long KEEPALIVETIME = 15;
-
-    
-    /**
-     * The intended upper bound on the number of threads we will allow our 
-     * Executor to create. We will allow the pool to grow to twice this size if
-     * we run out of threads.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    protected final int MAXPOOLSIZE = 50;
-
-    
-    /**
-     * Queue for tasks waiting to be run by our {@code Executor}.
-     */
-    protected BlockingQueue<Runnable> taskQueue;
-
-    
-    /**
-     * The PeerGroup ThreadPool
-     */
-    protected ThreadPoolExecutor threadPool;
 
     /**
      * {@inheritDoc}
@@ -333,8 +340,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
-        
+    public boolean equals(Object target) {        
         if (!(target instanceof PeerGroup)) {
             return false;
         }
@@ -426,8 +432,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *                  match.
      * @return a Collection of advertisements
      */
-    private Collection<Advertisement> discoverSome(DiscoveryService discovery, int type, String attr, String value, int seconds, Class thisClass) {
-        
+    private Collection<Advertisement> discoverSome(DiscoveryService discovery, int type, String attr, String value, int seconds, Class thisClass) {        
         long discoverUntil = TimeUtils.toAbsoluteTimeMillis(seconds * TimeUtils.ASECOND);
         long lastRemoteAt = 0; // no previous remote discovery made.
         
@@ -476,8 +481,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * @param thisClass The Advertisement class which the advertisement must match.
      * @return a Collection of advertisements
      */
-    private Advertisement discoverOne(int type, String attr, String value, int seconds, Class thisClass) {
-        
+    private Advertisement discoverOne(int type, String attr, String value, int seconds, Class thisClass) {        
         Iterator<Advertisement> res = discoverSome(discovery, type, attr, value, seconds, thisClass).iterator();
         
         if (!res.hasNext()) {
@@ -1124,8 +1128,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
         this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, 
                 KEEPALIVETIME, TimeUnit.SECONDS, 
                 taskQueue,
-                new PeerGroupThreadFactory(getHomeThreadGroup()),
+                new PeerGroupThreadFactory("Executor", getHomeThreadGroup()),
                 new CallerBlocksPolicy(MAXPOOLSIZE));
+        
+        this.scheduledExecutor = new ScheduledThreadPoolExecutor(1,
+            new PeerGroupThreadFactory("Scheduled Executor", getHomeThreadGroup()));
         
         /*
          * The rest of construction and initialization are left to the
@@ -1223,6 +1230,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
             parentGroup.unref();
             parentGroup = null;
         }
+        
+        // shutdown the threadpool
+        threadPool.shutdownNow();
+        scheduledExecutor.shutdownNow();
         
         // No longer initialized.
         initComplete = false;
@@ -1624,6 +1635,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
     public Executor getExecutor() {
         return threadPool;
     }
+
+    /**
+     * Returns the scheduled executor. The
+     *
+     * @return the scheduled executor
+     */
+    public ScheduledExecutorService getScheduledExecutor() {
+        // FIXME 20070815 bondolo We should return a proxy object to disable shutdown()
+        return scheduledExecutor;
+    }
     
     /**
      * Our rejected execution handler which has the effect of pausing the
@@ -1698,14 +1719,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     static class PeerGroupThreadFactory implements ThreadFactory {
         final AtomicInteger threadNumber = new AtomicInteger(1);
+        final String name;
         final ThreadGroup threadgroup;
 
-        PeerGroupThreadFactory(ThreadGroup threadgroup) {
+        PeerGroupThreadFactory(String name, ThreadGroup threadgroup) {
+            this.name = name;
             this.threadgroup = threadgroup;
         }
 
         public Thread newThread(Runnable runnable) {
-            Thread thread = new Thread(threadgroup, runnable,  "Executor - " + threadNumber.getAndIncrement(), 0);
+            Thread thread = new Thread(threadgroup, runnable,  name + " - " + threadNumber.getAndIncrement(), 0);
             if(thread.isDaemon())
                 thread.setDaemon(false);
             if (thread.getPriority() != Thread.NORM_PRIORITY)

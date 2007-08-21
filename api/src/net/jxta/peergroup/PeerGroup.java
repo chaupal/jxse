@@ -139,13 +139,13 @@ public interface PeerGroup extends Service {
      * (a year)
      */
     // without casting to long we lose precision
-    public final static long DEFAULT_LIFETIME = (long) 1000 * (long) 3600 * (long) 24 * (long) 365L;
+    public final static long DEFAULT_LIFETIME = (long) 1000 * (long) 3600 * (long) 24 * 365L;
 
     /**
      * Default expiration time for discovered group advertisements. (2 weeks)
      */
     // without casting to long we lose precision
-    public final static long DEFAULT_EXPIRATION = (long) 1000 * (long) 3600 * (long) 24 * (long) 14L;
+    public final static long DEFAULT_EXPIRATION = (long) 1000 * (long) 3600 * (long) 24 * 14L;
 
     /**
      * Global registry of instantiated peer groups. We allow only a single

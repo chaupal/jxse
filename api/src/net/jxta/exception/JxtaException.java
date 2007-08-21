@@ -62,6 +62,7 @@ package net.jxta.exception;
  * indicates conditions that a reasonable application might want to catch.
  * 
  */
+@SuppressWarnings("serial")
 public class JxtaException extends Exception {
 
     /**

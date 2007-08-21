@@ -157,7 +157,7 @@ public class StdPeerGroupParamAdv {
      * @param root the root element
      */
     public StdPeerGroupParamAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
+        if (!(root instanceof XMLElement)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
         initialize((XMLElement) root);

@@ -91,6 +91,10 @@ public class SocketServer extends TestCase {
     
     private static transient PeerGroup netPeerGroup = null;
     
+    private static transient JxtaServerSocket serverSocket = null;
+    
+    private static boolean closed = false;
+    
     public SocketServer() throws IOException, PeerGroupException {
         synchronized (SocketServer.class) {
             try {
@@ -121,37 +125,7 @@ public class SocketServer extends TestCase {
     /**
      * wait for connections
      */
-    public void connectionHandler() {
-        System.out.println("Starting ServerSocket");
-        JxtaServerSocket serverSocket = null;
-        
-        try {
-            FaultyJxtaServerSocket.loss = 0.05;
-            FaultyJxtaServerSocket.delay = 0.5;
-            
-            serverSocket = new FaultyJxtaServerSocket(netPeerGroup, getSocketAdvertisement(), 10);
-            serverSocket.setSoTimeout(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-        
-        while (true) {
-            try {
-                System.out.println("Waiting for connection");
-                Socket socket = serverSocket.accept();
-                
-                // set reliable
-                if (socket != null) {
-                    System.out.println("socket created");
-                    Thread thread = new Thread(new ConnectionHandler(socket), "Connection Handler Thread");
-                    
-                    thread.start();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    public void acceptHandler() {
     }
     
     private class ConnectionHandler implements Runnable {
@@ -179,6 +153,11 @@ public class SocketServer extends TestCase {
                 
                 long iterations = dis.readLong();
                 int size = dis.readInt();
+                
+                if(0 == iterations) {
+                    closed = true;
+                    serverSocket.close();
+                }
                 
                 long total = iterations * (long) size * 2;
                 
@@ -217,11 +196,33 @@ public class SocketServer extends TestCase {
     }
     
     public void testServerSocket() {
-        try {
-            
+        try {            
             SocketServer socEx = new SocketServer();
             
-            socEx.connectionHandler();
+            System.out.println("Starting ServerSocket");
+
+            FaultyJxtaServerSocket.loss = 0.05;
+            FaultyJxtaServerSocket.delay = 0.5;
+
+            serverSocket = new FaultyJxtaServerSocket(netPeerGroup, getSocketAdvertisement(), 10);
+            serverSocket.setSoTimeout(0);
+
+            while (!closed) {
+                try {
+                    System.out.println("Waiting for connections");
+                    Socket socket = serverSocket.accept();
+
+                    // set reliable
+                    if (socket != null) {
+                        System.out.println("socket created");
+                        Thread thread = new Thread(new ConnectionHandler(socket), "Connection Handler Thread");
+                        thread.setDaemon(true);
+                        thread.start();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (Throwable e) {
             System.err.println("Failed : " + e);
             e.printStackTrace(System.err);

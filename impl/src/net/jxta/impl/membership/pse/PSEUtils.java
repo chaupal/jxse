@@ -144,12 +144,9 @@ public final class PSEUtils {
                 LOG.info("Loaded Security Providers into system class loader");
             }
         } catch (Exception disallowed) {
-
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE
-                        ,
-                        "Can\'t load Security Providers into System Class Loader, using local class loader (this may not work)"
-                        ,
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING,
+                        "Failed loading Security Providers into System Class Loader. Will try local class loader (which may not work)",
                         disallowed);
             }
 

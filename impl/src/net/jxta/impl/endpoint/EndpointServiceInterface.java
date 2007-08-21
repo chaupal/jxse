@@ -146,7 +146,6 @@ class EndpointServiceInterface implements EndpointService {
     protected void finalize() throws Throwable {
         synchronized(this.getClass()) {
             activeInstanceCount--;
-            
             if(0 == activeInstanceCount) {
                 listenerAdaptor.shutdown();
                 listenerAdaptor = null;
@@ -234,7 +233,6 @@ class EndpointServiceInterface implements EndpointService {
 
             if (existing != null) {
                 Messenger messenger = existing.get();
-
                 if ((messenger != null) && ((messenger.getState() & Messenger.USABLE) != 0)) {
                     return messenger;
                 }
@@ -254,7 +252,7 @@ class EndpointServiceInterface implements EndpointService {
             return null;
         }
 
-        // Get a channel for that servicename and serviceparam. redirect to this grp.
+        // Get a channel for that servicename and serviceparam. redirect to this group.
 
         // NOTE: This assumes that theRealThing.getGroup() is really the group where the application that obtained
         // this interface object lives. This is the case today because all groups have their own endpoint service.
@@ -266,25 +264,20 @@ class EndpointServiceInterface implements EndpointService {
                 addr.getServiceName(), addr.getServiceParameter());
 
         synchronized (channelCache) {
-
             // We have to check again. May be we did all that in parallel with some other thread and it beat
             // us to the finish line. In which case, substitute the existing one and throw ours away.
-
             Reference<Messenger> existing = channelCache.get(addr);
 
             if (existing != null) {
                 Messenger messenger = existing.get();
-
                 if ((messenger != null) && ((messenger.getState() & Messenger.USABLE) != 0)) {
                     return messenger;
                 }
             }
-
             // The listenerAdaptor of this interface obj is used to support the sendMessage-with-listener API.
             res.setMessageWatcher(listenerAdaptor);
             channelCache.put(res.getDestinationAddress(), new WeakReference<Messenger>(res));
         }
-
         return res;
     }
 
@@ -313,10 +306,10 @@ class EndpointServiceInterface implements EndpointService {
         try {
             messenger.waitState(Messenger.RESOLVED | Messenger.TERMINAL, TimeUtils.AMINUTE);
         } catch (InterruptedException ie) {
-            Thread.interrupted(); // Do the mythology thing.
+            Thread.interrupted();
         }
 
-        // See how it went
+        // check the state
         int state = messenger.getState();
 
         if ((state & Messenger.TERMINAL) != 0) {
@@ -326,8 +319,6 @@ class EndpointServiceInterface implements EndpointService {
             // Not failed yet. But too late for us.
             return null;
         }
-
-        // Okay, good for vanilla application consumption.
         return messenger;
     }
 
@@ -375,7 +366,6 @@ class EndpointServiceInterface implements EndpointService {
         // But that will have to wait until we have criteria to decide who
         // gets an interface object and who gets the real thing. In the
         // meantime just do it.
-
         return theRealThing.addMessageTransport(transpt);
     }
 
@@ -387,7 +377,6 @@ class EndpointServiceInterface implements EndpointService {
         // But that will have to wait until we have criteria to decide who
         // gets an interface object and who gets the real thing. In the
         // meantime just do it.
-
         return theRealThing.removeMessageTransport(transpt);
     }
 
@@ -409,7 +398,6 @@ class EndpointServiceInterface implements EndpointService {
      * {@inheritDoc}
      */
     public boolean addIncomingMessageListener(EndpointListener listener, String serviceName, String serviceParam) {
-
         return theRealThing.addIncomingMessageListener(listener, serviceName, serviceParam);
     }
 
@@ -417,7 +405,6 @@ class EndpointServiceInterface implements EndpointService {
      * {@inheritDoc}
      */
     public EndpointListener getIncomingMessageListener(String serviceName, String serviceParam) {
-
         return theRealThing.getIncomingMessageListener(serviceName, serviceParam);
     }
 
@@ -477,9 +464,7 @@ class EndpointServiceInterface implements EndpointService {
      */
     @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint) {
-
         Messenger messenger = getMessengerImmediate(addr, hint);
-
         if (messenger == null) {
             return false;
         }
@@ -489,9 +474,7 @@ class EndpointServiceInterface implements EndpointService {
         }
 
         // Make sure that resolution is being attempted if not already in progress.
-
         messenger.resolve();
-
         return true;
     }
 }

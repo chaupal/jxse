@@ -272,7 +272,6 @@ public interface EndpointService extends Service, EndpointListener {
      * {@code null}.
      * @param initialTTL The requested initial TTL for this message. The actual
      * TTL value used may be lower than this value but will never be higher.
-     * @throws IOException Thrown if the message could not be propagated.
      */
     public void propagate(Message message, String serviceName, String serviceParam, int initialTTL);
 

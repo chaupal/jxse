@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint;
-
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -120,7 +118,6 @@ import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements the frontend for all the JXTA  endpoint protocols, as
@@ -229,7 +226,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     private String localPeerId = null;
     private boolean useParentEndpoint = DEFAULT_USE_PARENT_ENDPOINT;
-    private PeerGroup parentGroup = null;
     private EndpointService parentEndpoint = null;
     private String myServiceName = null;
 
@@ -524,12 +520,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         }
 
-        parentGroup = group.getParentGroup();
+        PeerGroup parentGroup = group.getParentGroup();
 
         if (useParentEndpoint && parentGroup != null) {
-
             parentEndpoint = parentGroup.getEndpointService();
-
             parentEndpoint.addMessengerEventListener(this, EndpointService.LowPrecedence);
         }
 
@@ -1433,8 +1427,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             address += "/" + serviceParam;
         }
 
-        EndpointListener removedListener = null;
-
+        EndpointListener removedListener;
         synchronized (incomingMessageListeners) {
             removedListener = incomingMessageListeners.remove(address);
         }
@@ -1446,13 +1439,15 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 parentEndpoint.removeIncomingMessageListener(myServiceName, address);
             }
         }
-
         return removedListener;
     }
 
     /**
      * Returns a local transport that can send to the given address. For now
      * this is based only on the protocol name.
+     *
+     * @param addr the endpoint address
+     * @return the transport if the address protocol is supported by this transport
      */
     private MessageSender getLocalSenderForAddress(EndpointAddress addr) {
 
@@ -1460,18 +1455,16 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         while (localTransports.hasNext()) {
             MessageTransport transpt = localTransports.next();
-
             if (!transpt.getProtocolName().equals(addr.getProtocolName())) {
                 continue;
             }
 
-            if (!(transpt instanceof MessageSender)) { // Do we allow non-senders in the list ?
+            if (!(transpt instanceof MessageSender)) {
                 continue;
             }
-
+            
             return (MessageSender) transpt;
         }
-
         return null;
     }
 
@@ -1518,7 +1511,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     return found;
                 }
 
-                // It has been GCed or is nolonger USABLE. Make room for a new one.
+                // It has been GCed or is no longer USABLE. Make room for a new one.
                 messengerMap.remove(addr);
             }
 
@@ -1584,7 +1577,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Trying address \'" + addr + "\' with : " + sender);
             }
-
             messenger = sender.getMessenger(addr, hint);
         }
 
@@ -1593,7 +1585,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 LOG.fine("Couldn\'t create messenger for : " + addr);
             }
         }
-
         return messenger;
     }
 
@@ -1673,7 +1664,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // and the relay too.
 
         Messenger messenger = event.getMessenger();
-        Messenger messengerForHere = messenger;
+        Messenger messengerForHere;
         EndpointAddress connAddr = event.getConnectionAddress();
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1759,7 +1750,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             // remove returned. It is unlikely to be a problem for messenger
             // events, but if it is, then we'll have to add reader-writer synch.
             Collection<MessengerEventListener> allML = new ArrayList<MessengerEventListener>(passiveMessengerListeners[prec]);
-
             for (MessengerEventListener listener : allML) {
                 try {
                     if (listener.messengerReady(newMessenger)) {
@@ -1781,7 +1771,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Nobody cared about " + event);
         }
-
         return false;
     }
 
@@ -1797,7 +1786,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     private void addActiveRelayListener(PeerGroup listeningGroup) {
         PeerGroup parentGroup = group.getParentGroup();
-
         while (parentGroup != null) {
             EndpointService parentEndpoint = parentGroup.getEndpointService();
 

@@ -179,11 +179,11 @@ public class AutomaticConfigurator extends NullConfigurator {
         // Check the HTTP Message Transport parameters.
         XMLDocument http = (XMLDocument) advertisement.getServiceParam(PeerGroup.httpProtoClassID);
         HTTPAdv httpAdv = null;
-        boolean httpDisabled = false;
+        boolean httpEnabled = true;
 
         if (http != null) {
             try {
-                httpDisabled = http.getChildren("isOff").hasMoreElements();
+                httpEnabled = advertisement.isSvcEnabled(PeerGroup.httpProtoClassID);
 
                 XMLElement param = null;
 
@@ -197,7 +197,7 @@ public class AutomaticConfigurator extends NullConfigurator {
                 if (null != param) {
                     httpAdv = (HTTPAdv) AdvertisementFactory.newAdvertisement(param);
 
-                    if (!httpDisabled) {
+                    if (httpEnabled) {
                         // check if the interface address is still valid.
                         String intf = httpAdv.getInterfaceAddress();
 
@@ -257,7 +257,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         XMLDocument httAdvDoc = (XMLDocument) httpAdv.getDocument(MimeMediaType.XMLUTF8);
 
         StructuredDocumentUtils.copyElements(http, http, httAdvDoc);
-        if (httpDisabled) {
+        if (!httpEnabled) {
             http.appendChild(http.createElement("isOff"));
         }
         advertisement.putServiceParam(PeerGroup.httpProtoClassID, http);
@@ -265,11 +265,11 @@ public class AutomaticConfigurator extends NullConfigurator {
         // Check the TCP Message Transport parameters.
         XMLDocument tcp = (XMLDocument) advertisement.getServiceParam(PeerGroup.tcpProtoClassID);
         TCPAdv tcpAdv = null;
-        boolean tcpDisabled = false;
+        boolean tcpEnabled = true;
 
         if (tcp != null) {
             try {
-                tcpDisabled = tcp.getChildren("isOff").hasMoreElements();
+                tcpEnabled = advertisement.isSvcEnabled(PeerGroup.tcpProtoClassID);
 
                 XMLElement param = null;
 
@@ -283,7 +283,7 @@ public class AutomaticConfigurator extends NullConfigurator {
                 if (null != param) {
                     tcpAdv = (TCPAdv) AdvertisementFactory.newAdvertisement(param);
 
-                    if (!tcpDisabled) {
+                    if (tcpEnabled) {
                         String intf = tcpAdv.getInterfaceAddress();
 
                         if ((null != intf) && !isValidInetAddress(intf)) {
@@ -344,7 +344,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         tcp = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
         StructuredDocumentUtils.copyElements(tcp, tcp, (XMLDocument) tcpAdv.getDocument(MimeMediaType.XMLUTF8));
-        if (tcpDisabled) {
+        if (!tcpEnabled) {
             tcp.appendChild(tcp.createElement("isOff"));
         }
         advertisement.putServiceParam(PeerGroup.tcpProtoClassID, tcp);

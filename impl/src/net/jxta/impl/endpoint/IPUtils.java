@@ -228,7 +228,7 @@ public final class IPUtils {
                 while (allIntfAddr.hasMoreElements()) {
                     InetAddress anAddr = allIntfAddr.nextElement();
                     
-                    if (anAddr.isLoopbackAddress()) {
+                    if (anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress()) {
                         continue;
                     }
                     

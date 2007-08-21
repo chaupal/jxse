@@ -98,7 +98,7 @@ public class ModuleClassAdv extends ModuleClassAdvertisement {
     private static final String nameTag = "Name";
     private static final String idTag = "MCID";
     private static final String descTag = "Desc";
-    private static final String[] fields = { nameTag, idTag};
+    private static final String[] fields = {nameTag, idTag};
 
     public static class Instantiator implements AdvertisementFactory.Instantiator {
 
@@ -119,12 +119,12 @@ public class ModuleClassAdv extends ModuleClassAdvertisement {
         /**
          * {@inheritDoc}
          */
-        public Advertisement newInstance(net.jxta.document.Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
+        public Advertisement newInstance(Element root) {
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
 
-        return new ModuleClassAdv((XMLElement) root);
+            return new ModuleClassAdv((XMLElement) root);
         }
     }
 
@@ -170,6 +170,14 @@ public class ModuleClassAdv extends ModuleClassAdvertisement {
         if (null == getModuleClassID()) {
             throw new IllegalArgumentException("Module Class ID was not specified.");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAdvType() {
+        return getAdvertisementType();
     }
 
     /**

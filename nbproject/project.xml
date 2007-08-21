@@ -292,7 +292,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             </compilation-unit>
             <compilation-unit>
                 <package-root>tutorials/src</package-root>
-                <classpath mode="compile">api/src:dist/jxta.jar</classpath>
+                <classpath mode="compile">api/src:impl/src</classpath>
                 <built-to>tutorials/classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>

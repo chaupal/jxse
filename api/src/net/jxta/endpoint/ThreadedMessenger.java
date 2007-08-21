@@ -120,10 +120,12 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
          * No action deferred.
          */
         ACTION_NONE,
+        
         /**
          * Must send the current message.
          */
         ACTION_SEND,
+        
         /**
          * Must report failure to connect.
          */
@@ -463,7 +465,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
             if (theMsg == null) {
                 // done with that channel for now. (And it knows it). Move to the next channel. Actually
-                // it should have been removed when we poped the last message, except if we went down upon sending it.
+                // it should have been removed when we popped the last message, except if we went down upon sending it.
                 // In that later case, we leave the channel queue as is so that we cannot have to report, idle
                 // in the same time than down.
                 synchronized (stateMachine) {
