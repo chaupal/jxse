@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.router;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -75,7 +73,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Router Message element. This element is added to every message to carry route 
@@ -289,8 +286,6 @@ public class EndpointRouterMessage {
             doc.appendChild(e);
         }
 
-        AccessPointAdvertisement gateway;
-
         e = doc.createElement(GatewayForwardTag);
         doc.appendChild(e);
         if ((forwardGateways != null) && (!forwardGateways.isEmpty())) {
@@ -310,15 +305,14 @@ public class EndpointRouterMessage {
                 for (AccessPointAdvertisement gateway : forwardGateways) {
                     try {
                         XMLDocument xptDoc = (XMLDocument) gateway.getDocument(MimeMediaType.XMLUTF8);
-
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
-                    } catch (Exception e1) {
+                    } catch (Exception ignored) {
+                        //ignored
                     }
                 }
             }
         }
 
-        gateway = null;
         e = doc.createElement(GatewayReverseTag);
         doc.appendChild(e);
         if ((reverseGateways != null) && (!reverseGateways.isEmpty())) {
@@ -338,7 +332,6 @@ public class EndpointRouterMessage {
                  for (AccessPointAdvertisement gateway : reverseGateways) {
                     try {
                         XMLDocument xptDoc = (XMLDocument) gateway.getDocument(MimeMediaType.XMLUTF8);
-
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
                     } catch (Exception e1) {
                         // ignored
