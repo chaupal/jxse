@@ -119,7 +119,7 @@ import java.util.logging.Logger;
 public final class RdvConfigAdv extends ExtendableAdvertisement implements Cloneable {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(RdvConfigAdv.class.getName());
 
@@ -146,7 +146,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
          * {@inheritDoc}
          */
         public Advertisement newInstance(Element root) {
-            return new RdvConfigAdv(root);
+            if (!XMLElement.class.isInstance(root)) {
+                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+            }
+
+            return new RdvConfigAdv((XMLElement) root);
         }
     }
 
@@ -250,14 +254,28 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * Possible Rendezvous configurations.
      */
     public enum RendezVousConfiguration {
-        AD_HOC, EDGE, RENDEZVOUS
+        
+        /**
+         *  Connectionless 
+         */
+        AD_HOC, 
+        
+        /**
+         *  Edge peer
+         */
+        EDGE, 
+                
+        /**
+         *  Rendezvous peer
+         */
+        RENDEZVOUS
     }
 
     /**
      * Returns the identifying type of this Advertisement.
      * <p/>
      * <p/><b>Note:</b> This is a static method. It cannot be used to determine
-     * the runtime type of an advertisment. ie.
+     * the runtime type of an advertisement. ie.
      * </p><code><pre>
      *      Advertisement adv = module.getSomeAdv();
      *      String advType = adv.getAdvertisementType();
@@ -265,8 +283,8 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * <p/>
      * <p/><b>This is wrong and does not work the way you might expect.</b>
      * This call is not polymorphic and calls
-     * Advertiement.getAdvertisementType() no matter what the real type of the
-     * advertisment.
+     * Advertisement.getAdvertisementType() no matter what the real type of the
+     * advertisement.
      *
      * @return String the type of advertisement
      */
@@ -274,15 +292,17 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
         return advType;
     }
 
+    /**
+     *  Private constructor for new instances. Use the instantiator.
+     */
     private RdvConfigAdv() {}
 
-    private RdvConfigAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
-
+    /**
+     *  Private constructor for xml serialized instances. Use the instantiator.
+     *  
+     *  @param doc The XML serialization of the advertisement.
+     */
+    private RdvConfigAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
