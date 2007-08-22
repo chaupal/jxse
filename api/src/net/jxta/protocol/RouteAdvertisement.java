@@ -136,8 +136,12 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         }
         
         for (AccessPointAdvertisement apa : hops) {
+            if (null == apa) {
+                throw new IllegalArgumentException("Bad route. null APA.");
+            }
+
             if (apa.getPeerID() == null) {
-                throw new IllegalArgumentException("Bad route. Incomplete apa.");
+                throw new IllegalArgumentException("Bad route. Incomplete APA.");
             }
         }
         
@@ -173,7 +177,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         try {
             RouteAdvertisement a = (RouteAdvertisement) super.clone();
             
-            a.setDest(getDest().clone());
+            a.setDest(getDest());
             
             // deep copy of the hops
             Vector<AccessPointAdvertisement> clonehops = getVectorHops();
@@ -224,9 +228,9 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     }
 
     /**
-     * Compare if two routes are equals. Equals means
-     * the same number of hops and the same endpoint addresses
-     * for each hop and the destination
+     * Compare if two routes are equals. Equals means same destination with the
+     * same endpoint addresses and thee same number of hops and the same 
+     * endpoint addresses for each hop.
      *
      * @param target the route to compare against
      * @return boolean true if the route is equal to this route otherwise false
@@ -244,7 +248,13 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
         RouteAdvertisement route = (RouteAdvertisement) target;
 
+        // check the destination
+        if(!dest.equals(route.getDest())) {
+            return false;
+        }
+
         // check each of the hops
+        
         // routes need to have the same size
         if (hops.size() != route.size()) {
             return false;
@@ -260,16 +270,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
             }
         }
 
-        if (dest == null && route.getDest() == null) {
-            return true;
-        }
-
-        if (dest == null || route.getDest() == null) {
-            return false;
-        }
-
-        // chek the destination
-        return dest.equals(route.getDest());
+        return true;
     }
 
     /**
@@ -341,7 +342,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      */
     public void setDestPeerID(PeerID pid) {
         if ((null != pid) && (null != dest.getPeerID()) && (!pid.equals(dest.getPeerID()))) {
-            throw new IllegalStateException("Changing the peer id of the destination APA.");
+            throw new IllegalStateException("Changing the peer id of the destination APA." + pid + " != " + dest.getPeerID());
         }
 
         dest.setPeerID(pid);
@@ -369,16 +370,21 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * the AccessPointAdvertisement</b>.
      *
      * @param ap AccessPointAdvertisement of the destination peer
-     * @deprecated Because this method unsafely sets destination AccessPointAdvertisement it will be removed.
      */
-    @Deprecated
     public void setDest(AccessPointAdvertisement ap) {
         PeerID destPid = dest.getPeerID();
 
-        this.dest = ap;
+        this.dest = ap.clone();
         
-        if (null != destPid) {
-            setDestPeerID(destPid);
+        if ((null != destPid) && (null != dest.getPeerID()) && (!destPid.equals(dest.getPeerID()))) {
+            throw new IllegalStateException("Changed the peer id of the destination APA." + destPid + " != " + dest.getPeerID() );
+        }
+
+        dest.setPeerID(destPid);
+        
+        // recalculate hash.
+        synchronized(this) {
+            hashID = null;
         }
     }
 

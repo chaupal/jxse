@@ -171,10 +171,10 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
             throw new IllegalArgumentException("Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -282,19 +282,21 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
             adv.appendChild(e0);
         }
 
+        Element e1 = adv.createElement("Dst");
+
+        adv.appendChild(e1);
+
         AccessPointAdvertisement dest = getDest();
 
-        if (dest != null) {
-            // create the copy without the PID
-            AccessPointAdvertisement accessPointAdvertisement = dest.clone();
-
-            accessPointAdvertisement.setPeerID(null);
-            StructuredDocument xptDoc = (StructuredDocument) accessPointAdvertisement.getDocument(encodeAs);
-            Element e1 = adv.createElement("Dst");
-
-            adv.appendChild(e1);
-            StructuredDocumentUtils.copyElements(adv, e1, xptDoc);
+        // create a copy without the PID if necessary (the pid is redundant)
+        AccessPointAdvertisement destAPA = dest;
+        if(null != dest.getPeerID()) {
+            destAPA = dest.clone();
+            destAPA.setPeerID(null);
         }
+        
+        StructuredDocument xptDoc = (StructuredDocument) destAPA.getDocument(encodeAs);
+        StructuredDocumentUtils.copyElements(adv, e1, xptDoc);
 
         Enumeration<AccessPointAdvertisement> eachHop = getHops();
 
@@ -312,7 +314,7 @@ public class RouteAdv extends RouteAdvertisement implements Cloneable {
                     continue;
                 }
 
-                StructuredDocument xptDoc = (StructuredDocument) hop.getDocument(encodeAs);
+                xptDoc = (StructuredDocument) hop.getDocument(encodeAs);
                     
                 StructuredDocumentUtils.copyElements(adv, e2, xptDoc);
             }
