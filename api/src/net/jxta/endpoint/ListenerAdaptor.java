@@ -74,18 +74,18 @@ import java.util.logging.Logger;
 /**
  * The legacy getMessenger asynchronous API never returns any object to the invoker until a messenger could actually be made,
  * allowing the application to supply a listener to be invoked when the operation completes. The legacy Messenger API also
- * provides a method to send messages that calls a listener to report the outcome of the operation.  <p/>
+ * provides a method to send messages that calls a listener to report the outcome of the operation.
  * <p/>
  * The model has changed, so that an asynchronous messenger is made unresolved and returned immediately to the invoker, which can
  * then request opening or even just send a message to force the opening. Subsequently, the messenger can be used as a control
- * block to monitor progress with {@link Messenger#register} and {@link Messenger#waitState}.<p/>
+ * block to monitor progress with {@link Messenger#register} and {@link Messenger#waitState}.
  * <p/>
  * Likewise, the outcome of sending a message is a property of that message. Messages can be selected to monitor property changes
  * with {@link Message#register} and {@link net.jxta.endpoint.Message#getMessageProperty(Object)} (the outcome property key is
- * <code>Messenger.class</code>).<p/>
+ * <code>Messenger.class</code>).
  * <p/>
  * This class here provides the legacy listener model on top of the new model for applications that prefer listeners. This class
- * is used internally to emulate the legacy listener behaviour, so that applications do not need to be adapted.<p/>
+ * is used internally to emulate the legacy listener behaviour, so that applications do not need to be adapted.
  * <p/>
  * Note: one instance of this class gets instantiated by each EndpointService interface. However, it does not start using any
  * resources until it first gets used.<p/>
