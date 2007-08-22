@@ -53,16 +53,19 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.proxy;
-
 
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
-import net.jxta.endpoint.*;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointListener;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
@@ -73,8 +76,18 @@ import net.jxta.impl.util.LRUCache;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.pipe.*;
-import net.jxta.protocol.*;
+import net.jxta.pipe.InputPipe;
+import net.jxta.pipe.OutputPipe;
+import net.jxta.pipe.OutputPipeEvent;
+import net.jxta.pipe.OutputPipeListener;
+import net.jxta.pipe.PipeMsgEvent;
+import net.jxta.pipe.PipeMsgListener;
+import net.jxta.pipe.PipeService;
+import net.jxta.protocol.DiscoveryResponseMsg;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.PeerGroupAdvertisement;
+import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.service.Service;
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
@@ -84,7 +97,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import net.jxta.platform.Module;
 
@@ -165,7 +183,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
     private PipeService pipe = null;
     private ModuleImplAdvertisement implAdvertisement = null;
 
-    private final LRUCache searchRequests = new LRUCache(25); // Currently unused
+    private final LRUCache<Integer, Requestor> searchRequests = new LRUCache<Integer, Requestor>(25); // Currently unused
     private final Map<String, PipeListenerList> pipeListeners = new TreeMap<String, PipeListenerList>();
 
     /**
@@ -197,14 +215,14 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             StringBuilder configInfo = new StringBuilder("Configuring JXME Proxy Service : " + assignedID);
 
             configInfo.append("\n\tImplementation :");
-            configInfo.append("\n\t\tModule Spec ID: " + implAdvertisement.getModuleSpecID());
-            configInfo.append("\n\t\tImpl Description : " + implAdvertisement.getDescription());
-            configInfo.append("\n\t\tImpl URI : " + implAdvertisement.getUri());
-            configInfo.append("\n\t\tImpl Code : " + implAdvertisement.getCode());
+            configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
+            configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
+            configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
+            configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             configInfo.append("\n\tGroup Params :");
-            configInfo.append("\n\t\tGroup : " + group.getPeerGroupName());
-            configInfo.append("\n\t\tGroup ID : " + group.getPeerGroupID());
-            configInfo.append("\n\t\tPeer ID : " + group.getPeerID());
+            configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
+            configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
+            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
             LOG.config(configInfo.toString());
         }
     }
@@ -225,7 +243,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
         needed = group.getDiscoveryService();
-
         if (null == needed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Stalled until there is a discovery service");
@@ -235,7 +252,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
         needed = group.getPipeService();
-
         if (null == needed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Stalled until there is a pipe service");
@@ -253,11 +269,9 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
         endpoint.addIncomingMessageListener(this, serviceName, serviceParameter);
-
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("JXME Proxy Service started.");
         }
-
         return Module.START_OK;
     }
 
@@ -308,8 +322,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             // This changes should be pulled out as soon as ERM is implemented
             // in a more inteligent and effective way so that it doesn't
             // have any impact on JXME peers.
-            EndpointAddress relayAddr = new EndpointAddress("relay", srcAddr.getProtocolAddress(), srcAddr.getServiceName()
-                    ,
+            EndpointAddress relayAddr = new EndpointAddress("relay", srcAddr.getProtocolAddress(), srcAddr.getServiceName(),
                     srcAddr.getServiceParameter());
 
             requestor = Requestor.createRequestor(group, message, relayAddr, 0);
@@ -329,12 +342,10 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             if (REQUEST_JOIN.equals(request)) {
                 handleJoinRequest(requestor, popString(ID_TAG, message), popString(ARG_TAG, message));
             } else if (REQUEST_CREATE.equals(request)) {
-                handleCreateRequest(requestor, popString(TYPE_TAG, message), popString(NAME_TAG, message)
-                        ,
+                handleCreateRequest(requestor, popString(TYPE_TAG, message), popString(NAME_TAG, message),
                         popString(ID_TAG, message), popString(ARG_TAG, message));
             } else if (REQUEST_SEARCH.equals(request)) {
-                handleSearchRequest(requestor, popString(TYPE_TAG, message), popString(ATTRIBUTE_TAG, message)
-                        ,
+                handleSearchRequest(requestor, popString(TYPE_TAG, message), popString(ATTRIBUTE_TAG, message),
                         popString(VALUE_TAG, message), popString(THRESHOLD_TAG, message));
             } else if ("listen".equals(request)) {
                 handleListenRequest(requestor, popString(ID_TAG, message));
@@ -379,10 +390,9 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         // So far so good. Try to start a proxy in that grp.
         try {
             // Fork this proxy into the new grp.
-            ProxyService p = new ProxyService();
-
-            p.init(g, assignedID, implAdvertisement);
-            p.startApp(null);
+            ProxyService proxyService = new ProxyService();
+            proxyService.init(g, assignedID, implAdvertisement);
+            proxyService.startApp(null);
         } catch (Exception e) {
             requestor.notifyError(e.getMessage());
             return;
@@ -414,7 +424,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                         LOG.log(Level.WARNING, "Could not publish peer advertisement", e);
                     }
                 }
-
                 requestor.send(adv, RESPONSE_SUCCESS);
             } else {
                 requestor.notifyError("could not create advertisement");
@@ -455,14 +464,11 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
     private void handleSearchRequest(Requestor requestor, String type, String attribute, String value, String threshold) {
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "handleSearchRequest type=" + type + " attribute=" + attribute + " value=" + value + " threshold=" + threshold);
+            LOG.fine("handleSearchRequest type=" + type + " attribute=" + attribute + " value=" + value + " threshold=" + threshold);
         }
 
         int discoveryType;
-
         int thr = DEFAULT_THRESHOLD;
-
         try {
             thr = Integer.parseInt(threshold);
         } catch (NumberFormatException nex) {
@@ -480,7 +486,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             discoveryType = DiscoveryService.ADV;
         }
 
-        Enumeration each = null;
+        Enumeration<Advertisement> each = null;
 
         try {
             each = discovery.getLocalAdvertisements(discoveryType, attribute, value);
@@ -489,9 +495,8 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
         int i = 0;
-
         while (each.hasMoreElements() && i < thr) {
-            Advertisement adv = (Advertisement) each.nextElement();
+            Advertisement adv = each.nextElement();
 
             // notify the requestor of the result
             // FIXME this can be optimized by sending all adv's in a
@@ -554,7 +559,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                 requestor.notifyError("could not listen to pipe");
                 return;
             }
-
             pipeListeners.put(pipeId, list);
         }
 
@@ -638,7 +642,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
 
     class PendingPipe {
-
         private ClientMessage pending;
 
         public PendingPipe() {
@@ -685,7 +688,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         // check if there are local listeners
 
         PipeListenerList list = pipeListeners.get(pipeId);
-
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("local listener list " + list);
         }
@@ -892,7 +894,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             return null;
         }
 
-        Enumeration each;
+        Enumeration<Advertisement> each;
 
         try {
             each = discovery.getLocalAdvertisements(DiscoveryService.ADV, attribute, value);
@@ -906,7 +908,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         PipeAdvertisement pipeAdv = null;
 
         while (each.hasMoreElements()) {
-            Advertisement adv = (Advertisement) each.nextElement();
+            Advertisement adv = each.nextElement();
 
             // take the first match
             if (adv instanceof PipeAdvertisement) {
@@ -927,20 +929,17 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             LOG.fine("discoveryEvent " + event);
         }
 
-        Requestor requestor = (Requestor) searchRequests.get(event.getQueryID());
-
+        Requestor requestor = searchRequests.get(event.getQueryID());
         if (requestor == null) {
             return;
         }
 
         DiscoveryResponseMsg response = event.getResponse();
-
         if (response == null) {
             return;
         }
 
-        Enumeration each = response.getResponses();
-
+        Enumeration<Advertisement> each = response.getAdvertisements();
         if (each == null || !each.hasMoreElements()) {
             return;
         }
@@ -950,13 +949,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         while (each.hasMoreElements() && i < requestor.getThreshold()) {
             try {
-                String str = (String) each.nextElement();
-
-                // Create Advertisement from response.
-                Advertisement adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, new StringReader(str));
-
-                // notify the requestor of the result
-                requestor.send(adv, RESPONSE_RESULT);
+                requestor.send(each.nextElement(), RESPONSE_RESULT);
             } catch (Exception e) {
                 // this should not happen unless a bad result is returned
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -1007,7 +1000,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
         PendingPipe p = (PendingPipe) pendingPipes.remove(event.getPipeID());
 
-        // Noone cares (anylonger). TBD should it be removed then??
+        // No one cares (anylonger). TBD should it be removed then??
         if (p == null) {
             event.getOutputPipe().close();
             return;
@@ -1085,7 +1078,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         int size() {
             int size = list.size();
-
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("size " + size);
             }
@@ -1098,14 +1090,13 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             LOG.fine("send list.size = " + list.size());
 
             message.addMessageElement(PROXYNS, sme);
-
             message.addMessageElement(PROXYNS, new StringMessageElement(ID_TAG, id, null));
 
             // removed all element that are known to be not needed
-            Iterator elements = message.getMessageElements();
+            Iterator<MessageElement> elements = message.getMessageElements();
 
             while (elements.hasNext()) {
-                MessageElement el = (MessageElement) elements.next();
+                MessageElement el = elements.next();
                 String name = el.getElementName();
 
                 if (name.startsWith("RendezVousPropagate")) {
@@ -1142,7 +1133,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             }
 
             Iterator<Requestor> iterator = list.iterator();
-
             try {
                 while (iterator.hasNext()) {
                     Requestor requestor = iterator.next();
@@ -1164,9 +1154,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
          */
         @Override
         public String toString() {
-            String str = "PipeListenerList size=" + list.size();
-
-            return str;
+            return "PipeListenerList size=" + list.size();
         }
     }
 
