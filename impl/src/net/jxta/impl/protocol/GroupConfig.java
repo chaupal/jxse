@@ -188,8 +188,8 @@ public class GroupConfig extends ConfigParams implements Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public Document getDocument(MimeMediaType encodeAs, boolean preserve) {
-        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs, preserve);
+    public StructuredDocument getDocument(MimeMediaType encodeAs) {
+        StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
         
         addDocumentElements(adv);
         

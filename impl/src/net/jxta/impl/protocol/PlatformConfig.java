@@ -410,24 +410,6 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public StructuredDocument getDocument(MimeMediaType encodeAs) {
-        return getDocument(encodeAs, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public StructuredDocument getDocument(MimeMediaType encodeAs, boolean preserve) {
-        StructuredDocument doc = (StructuredDocument) super.getDocument(encodeAs, preserve);
-        
-        return doc;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean addDocumentElements(StructuredDocument adv) {
 
         Element e;

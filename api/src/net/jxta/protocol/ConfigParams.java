@@ -124,6 +124,14 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
     }
 
     /**
+     *  Default Constructor. We want all ConfigParams derived advertisements to
+     *  pretty print. 
+     */
+    protected ConfigParams() {
+        super(true);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override
