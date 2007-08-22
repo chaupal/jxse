@@ -70,6 +70,29 @@ package net.jxta.document;
 public abstract class ExtendableAdvertisement extends Advertisement {
 
     /**
+     *  If {@code true} then the advertisement will be pretty print formatted
+     *  when it is output as XML. Currently this must be specified at 
+     *  construction time as it is normally a preference per advertisement type.
+     */
+    private transient boolean formatted;
+    
+    /**
+     *  Default constructor. The advertisement will *not* be pretty-printed when
+     *  it is output as XML.
+     */
+    protected ExtendableAdvertisement() {
+        this(false);
+    }
+    
+    /**
+     *  @param formatted If {@code true} then the advertisement will be pretty 
+     *  print formatted when it is output as XML.
+     */
+    protected ExtendableAdvertisement(boolean formatted) {
+        this.formatted = formatted;
+    }
+    
+    /**
      * Returns the base type of this advertisement hierarchy. Typically, only
      * the most basic advertisement of a type will implement this method and
      * declare it as <code>final</code>.
@@ -145,23 +168,11 @@ public abstract class ExtendableAdvertisement extends Advertisement {
     /**
      * {@inheritDoc}
      * <p/>
-     * We don't have any content to add, just build the document instance
-     * and return it to implementations that actually do something with it.
+     * We don't have any content to add, just build the document instance and 
+     * return it to implementations that actually do something with it.
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        return getDocument(encodeAs, true);
-    }
-
-    /**
-     * We don't have any content to add, just build the document instance
-     * and return it to implementations that actually do something with it.
-     *
-     * @param encodeAs content encoding
-     * @param preserve if true preserves space
-     * @return the document representing the advertisement
-     */
-    public Document getDocument(MimeMediaType encodeAs, boolean preserve) {
         Document adv = StructuredDocumentFactory.newStructuredDocument(encodeAs, getBaseAdvType());
 
         if (!(adv instanceof Attributable)) {
@@ -172,7 +183,7 @@ public abstract class ExtendableAdvertisement extends Advertisement {
             XMLDocument xmlAdv = (XMLDocument) adv;
 
             xmlAdv.addAttribute("xmlns:jxta", "http://jxta.org");
-            if (preserve) {
+            if (!formatted) {
                 xmlAdv.addAttribute("xml:space", "preserve");
             }
         }
@@ -180,6 +191,7 @@ public abstract class ExtendableAdvertisement extends Advertisement {
         if (!getBaseAdvType().equals(getAdvType())) {
             ((Attributable) adv).addAttribute("type", getAdvType());
         }
+        
         return adv;
     }
 }
