@@ -88,7 +88,7 @@ import java.util.logging.Logger;
  * This abstract class must be extended for all RendezVous Service providers
  * that are managed by RendezVousServiceImpl.
  * <p/>
- * <p/>Implementors of providers are responsible for using appropriate
+ * Implementors of providers are responsible for using appropriate
  * synchronization. The RendezvousServiceImpl provides synchronization control
  * only only those methods which involve changing the active provider.
  */
@@ -125,15 +125,15 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
     /**
      *
-     * @param g the peergroup
+     * @param group the peergroup
      * @param rdvService the implementation
      */
-    protected RendezVousServiceProvider(PeerGroup g, RendezVousServiceImpl rdvService) {
+    protected RendezVousServiceProvider(PeerGroup group, RendezVousServiceImpl rdvService) {
 
-        this.group = g;
+        this.group = group;
         this.rdvService = rdvService;
 
-        PropPName = group.getPeerGroupID().getUniqueValue().toString();
+        PropPName = this.group.getPeerGroupID().getUniqueValue().toString();
         PROP_HDR_ELEMENT_NAME = RendezVousPropagateMessage.Name + PropPName;
     }
 
@@ -488,22 +488,18 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected void processReceivedMessage(Message message, RendezVousPropagateMessage propHdr, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        EndpointListener listener = rdvService.endpoint.getIncomingMessageListener(dstAddr.getServiceName()
-                ,
+        EndpointListener listener = rdvService.endpoint.getIncomingMessageListener(dstAddr.getServiceName(),
                 dstAddr.getServiceParameter());
 
         if (listener != null) {
-            // We have a local listener for this message.
-            // Deliver it.
+            // We have a local listener for this message. Deliver it.
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "Calling local listener " + listener.getClass().getName() + " for [" + dstAddr.getServiceName() + "/"
+                LOG.fine("Calling local listener " + listener.getClass().getName() + " for [" + dstAddr.getServiceName() + "/"
                         + dstAddr.getServiceParameter() + "] with " + message + " (" + propHdr.getMsgId() + ")");
             }
 
             rdvService.endpoint.processIncomingMessage(message, srcAddr, dstAddr);
-
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedMessageProcessedLocally();
             }
@@ -520,8 +516,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             // repropagate(message, propHdr, dstAddr.getServiceName(), dstAddr.getServiceParameter());
         } else {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "No message listener found for ServiceName :" + dstAddr.getServiceName() + " ServiceParam :"
+                LOG.fine("No message listener found for ServiceName :" + dstAddr.getServiceName() + " ServiceParam :"
                         + dstAddr.getServiceParameter());
             }
         }
@@ -569,7 +564,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected static EndpointAddress mkAddress(String destPeer, String serv, String parm) {
         ID asID;
-
         try {
             asID = IDFactory.fromURI(new URI(destPeer));
         } catch (URISyntaxException caught) {
@@ -589,7 +583,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      */
     protected static EndpointAddress mkAddress(ID destPeer, String serv, String parm) {
         EndpointAddress addr = new EndpointAddress(RDV_MSG_NAMESPACE_NAME, destPeer.getUniqueValue().toString(), serv, parm);
-
         return addr;
     }
 
@@ -609,14 +602,12 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
         try {
             StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(elem);
-
             return new RendezVousPropagateMessage(asDoc);
         } catch (IOException failed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Could not get prop header of " + msg, failed);
             }
             IllegalArgumentException failure = new IllegalArgumentException("Could not get prop header of " + msg);
-
             failure.initCause(failed);
             throw failure;
         }
@@ -633,7 +624,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
 
         try {
             propHdr = getPropHeader(msg);
-
             if (null == propHdr) {
                 // No header. Discard the message
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -653,10 +643,8 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.invalidMessageReceived();
             }
-
             return null;
         }
-
         // Look at the Propagate header if any and check for loops.
         // Do not remove it; we do not have to change it yet, and we have
         // do look at it at different places and looking costs less on
@@ -686,7 +674,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.receivedDuplicateMessage();
             }
-
             return null;
         }
 
@@ -701,7 +688,6 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             }
             return null;
         }
-
         // Message is valid
         return propHdr;
     }
@@ -726,8 +712,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
         MessageElement elem = new TextDocumentMessageElement(PROP_HDR_ELEMENT_NAME, propHdrDoc, null);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    (newHeader ? "Added" : "Updated") + " prop header for " + msg + " (" + propHdr.getMsgId() + ") TTL = "
+            LOG.fine((newHeader ? "Added" : "Updated") + " prop header for " + msg + " (" + propHdr.getMsgId() + ") TTL = "
                     + propHdr.getTTL());
         }
 
