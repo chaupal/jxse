@@ -15,25 +15,26 @@
  */
 package net.jxta.impl.util;
 
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * This class implements a Generic LRU Cache
+ * This class implements a Generic LRU Cache. The cache is not thread-safe.
  *
  * @author Ignacio J. Ortega
  * @author Mohamed Abdelaziz
  */
 
-public class LRUCache {
+public class LRUCache<K, V> {
 
-    private transient int cacheSize;
+    private final transient int cacheSize;
     private transient int currentSize;
-    private transient CacheNode first;
-    private transient CacheNode last;
-    private final transient Hashtable nodes;
+    private transient CacheNode<K, V> first;
+    private transient CacheNode<K, V> last;
+    private final transient Map<K, CacheNode<K, V>> nodes;
 
     /**
      * Constructor for the LRUCache object
@@ -43,7 +44,7 @@ public class LRUCache {
     public LRUCache(int size) {
         currentSize = 0;
         cacheSize = size;
-        nodes = new Hashtable(size);
+        nodes = new HashMap<K, CacheNode<K, V>>(size);
     }
 
     /**
@@ -52,6 +53,8 @@ public class LRUCache {
     public void clear() {
         first = null;
         last = null;
+        nodes.clear();
+        currentSize = 0;
     }
 
     /**
@@ -69,8 +72,8 @@ public class LRUCache {
      * @param key key
      * @return object
      */
-    public Object get(Object key) {
-        CacheNode node = (CacheNode) nodes.get(key);
+    public V get(K key) {
+        CacheNode<K, V> node = nodes.get(key);
 
         if (node != null) {
             moveToHead(node);
@@ -79,14 +82,15 @@ public class LRUCache {
         return null;
     }
 
-    public boolean contains(Object key) {
-        return nodes.contains(key);
+    public boolean contains(K key) {
+        return nodes.keySet().contains(key);
     }
 
-    protected Iterator iterator(int size) {
-        List list = new ArrayList();
-        for (Object o : nodes.values()) {
-            list.add(((CacheNode) o).value);
+    protected Iterator<V> iterator(int size) {
+        List<V> list = new ArrayList<V>();
+
+        for (CacheNode<K, V> node : nodes.values()) {
+            list.add(node.value);
             if (list.size() >= size) {
                 break;
             }
@@ -94,7 +98,7 @@ public class LRUCache {
         return list.iterator();
     }
 
-    private void moveToHead(CacheNode node) {
+    private void moveToHead(CacheNode<K, V> node) {
         if (node == first) {
             return;
         }
@@ -124,8 +128,8 @@ public class LRUCache {
      * @param key   key to store value by
      * @param value object to insert
      */
-    public void put(Object key, Object value) {
-        CacheNode node = (CacheNode) nodes.get(key);
+    public void put(K key, V value) {
+        CacheNode<K, V> node = nodes.get(key);
 
         if (node == null) {
             if (currentSize >= cacheSize) {
@@ -136,10 +140,9 @@ public class LRUCache {
             } else {
                 currentSize++;
             }
-            node = new CacheNode();
+            node = new CacheNode<K, V>(key, value);
         }
         node.value = value;
-        node.key = key;
         moveToHead(node);
         nodes.put(key, node);
     }
@@ -150,8 +153,8 @@ public class LRUCache {
      * @param key key
      * @return Object removed
      */
-    public Object remove(Object key) {
-        CacheNode node = (CacheNode) nodes.get(key);
+    public V remove(K key) {
+        CacheNode<K, V> node = nodes.get(key);
 
         if (node != null) {
             if (node.prev != null) {
@@ -167,11 +170,15 @@ public class LRUCache {
                 first = node.next;
             }
         }
-        return node;
+        if (node != null) {
+            return node.value;
+        } else {
+            return null;
+        }
     }
 
     /**
-     * removes the last enry from cache
+     * removes the last entry from cache
      */
     private void removeLast() {
         if (last != null) {
@@ -187,17 +194,22 @@ public class LRUCache {
     /**
      * cache node object wrapper
      */
-    protected class CacheNode {
-        Object key;
-        CacheNode next;
+    protected class CacheNode<K, V> {
+        final K key;
+        CacheNode<K, V> next;
 
-        CacheNode prev;
-        Object value;
+        CacheNode<K, V> prev;
+        V value;
 
         /**
          * Constructor for the CacheNode object
+         *
+         * @param key   key
+         * @param value value
          */
-        CacheNode() {
+        CacheNode(K key, V value) {
+            this.key = key;
+            this.value = value;
         }
     }
 }
