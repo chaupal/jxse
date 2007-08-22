@@ -117,7 +117,7 @@ class RouteCM implements Module {
      * advertisements. If {@code false} then only the in-memory route table is
      * used.
      * <p/>
-     * <p/>We start out {@code false} until the module is started.
+     * We start out {@code false} until the module is started.
      */
     private boolean useCM = false;
     
@@ -132,7 +132,7 @@ class RouteCM implements Module {
      * PeerGroup Service Handle
      */
     private PeerGroup group = null;
-    private LRUCache lruCache = new LRUCache(100);
+    private LRUCache<ID, RouteAdvertisement> lruCache = new LRUCache<ID, RouteAdvertisement>(100);
     
     /**
      * EndpointRouter pointer
@@ -250,7 +250,7 @@ class RouteCM implements Module {
         String peerIDStr = peerID.toString();
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(2);
         if (lruCache.contains(peerID)) {
-            result.add((RouteAdvertisement)lruCache.get(peerID));
+            result.add(lruCache.get(peerID));
             return result.iterator();
         }
         // check first if we have a route advertisement
