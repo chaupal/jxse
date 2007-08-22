@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint;
-
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -64,7 +62,9 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
 
 import net.jxta.endpoint.AbstractMessenger;
@@ -79,7 +79,6 @@ import net.jxta.util.SimpleSelectable;
 
 import net.jxta.impl.util.TimeUtils;
 
-
 /**
  * This class is a near-drop-in replacement for the previous BlockingMessenger class.
  * To subclassers (that is, currently, transports) the only difference is that some
@@ -91,20 +90,19 @@ import net.jxta.impl.util.TimeUtils;
  *
  * This the only base messenger class meant to be extended by outside code that is in the impl tree. The
  * reason being that what it replaces was there already and that new code should not become dependant upon it.
- *
  */
 public abstract class BlockingMessenger extends AbstractMessenger {
 
     /**
-     *  Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(BlockingMessenger.class.getName());
 
     /**
      * The self destruct timer.
-     *
-     * <p/>When a messenger has become idle, it is closed. As a side effect, it 
-     * makes the owning canonical messenger, if any, subject to removal if it is 
+     * <p/>
+     * When a messenger has become idle, it is closed. As a side effect, it
+     * makes the owning canonical messenger, if any, subject to removal if it is
      * otherwise unreferenced.
      */
     private final static transient Timer timer = new Timer("BlockingMessenger self destruct timer", true);
@@ -119,23 +117,22 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * performing deferred actions recursively. That simplifies the code.
      */
     private enum DeferredAction {
-        
         /**
-         *  No deferred action.
+         * No deferred action.
          */
-        ACTION_NONE, 
-        
+        ACTION_NONE,
+
         /**
-         *  Must send message.
+         * Must send message.
          */
         ACTION_SEND,
-        
+
         /**
-         *  Must report failure to connect.
+         * Must report failure to connect.
          */
         ACTION_CONNECT
-    };
-    
+    }
+
     /**
      * The outstanding message.
      */
@@ -162,7 +159,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     private boolean inputClosed = false;
 
     /**
-     * Need to know which group this transport lives in, so that we can suppress 
+     * Need to know which group this transport lives in, so that we can suppress
      * channel redirection when in the same group. This is currently the norm.
      */
     private final PeerGroupID homeGroupID;
@@ -210,7 +207,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
          */
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         @Override
         protected void connectAction() {
@@ -218,7 +215,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         @Override
         protected void startAction() {
@@ -226,7 +223,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         @Override
         protected void closeInputAction() {
@@ -235,7 +232,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         @Override
         protected void closeOutputAction() {
@@ -300,51 +297,54 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         public int getState() {
             return BlockingMessenger.this.getState();
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         public void resolve() {
             BlockingMessenger.this.resolve();
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          */
         public void close() {
             BlockingMessenger.this.close();
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          *
-         *  <p/>Address rewriting done here.
+         * <p/>
+         * Address rewriting done here.
          */
         public boolean sendMessageN(Message msg, String service, String serviceParam) {
             return BlockingMessenger.this.sendMessageN(msg, effectiveService(service), effectiveParam(service, serviceParam));
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          *
-         *  <p/>Address rewriting done here.
+         * <p/>
+         * Address rewriting done here.
          */
         public void sendMessageB(Message msg, String service, String serviceParam) throws IOException {
             BlockingMessenger.this.sendMessageB(msg, effectiveService(service), effectiveParam(service, serviceParam));
         }
 
         /**
-         *  {@inheritDoc}
+         * {@inheritDoc}
          *
-         *  <p/>We're supposed to return the complete destination, including 
-         *  service and param specific to that channel. It is not clear, whether
-         *  this should include the cross-group mangling, though. For now, let's
-         *  say it does not.
+         * <p/>
+         * We're supposed to return the complete destination, including
+         * service and param specific to that channel. It is not clear, whether
+         * this should include the cross-group mangling, though. For now, let's
+         * say it does not.
          */
         public EndpointAddress getLogicalDestinationAddress() {
             EndpointAddress rawLogical = getLogicalDestinationImpl();
@@ -366,7 +366,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
                 BlockingMessenger.this.unregisterListener(this);
 
                 if (!haveListeners()) {
-                    return; 
+                    return;
                 }
 
                 // Ooops collision. We should not have unregistered. Next time, then. In case of collision, the end result
@@ -376,9 +376,9 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         }
 
         /**
-         *  {@inheritDoc}
-         *
-         *  <p/>Always make sure we're registered with the shared messenger.
+         * {@inheritDoc}
+         * <p/>
+         * Always make sure we're registered with the shared messenger.
          */
         @Override
         protected void registerListener(SimpleSelectable l) {
@@ -394,19 +394,20 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         currentThrowable = null;
     }
 
-    /** Constructor.
-     *
-     * <p/>We start in the CONNECTED state, we pretend to have a queue of size 1, and we can never re-connect.  Although this
+    /**
+     * Constructor.
+     * <p/>
+     * We start in the CONNECTED state, we pretend to have a queue of size 1, and we can never re-connect.  Although this
      * messenger fully respects the asynchronous semantics, it is saturated as soon as one msg is being send, and if not
      * saturated, send is actually performed by the invoker thread. So return is not completely immediate.  This is a barely
      * acceptable implementation, but this is also a transition adapter that is bound to disappear one release from now. The main
      * goal is to get things going until transports are adapted.
      *
-     * @param homeGroupID the group that this messenger works for. This is the group of the endpoint service or transport
-     * that created this messenger.
-     * @param dest where messages should be addressed to
+     * @param homeGroupID  the group that this messenger works for. This is the group of the endpoint service or transport
+     *                     that created this messenger.
+     * @param dest         where messages should be addressed to
      * @param selfDestruct true if this messenger must self close destruct when idle. <b>Warning:</b> If selfDestruct is used,
-     * this messenger will remained referenced for as long as isIdleImpl returns false.
+     *                     this messenger will remained referenced for as long as isIdleImpl returns false.
      */
 
     public BlockingMessenger(PeerGroupID homeGroupID, EndpointAddress dest, boolean selfDestruct) {
@@ -422,8 +423,8 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
         /*
          * Sets up a timer task that will close this messenger if it says to have become idle. It will keep it referenced
-         * until then.<p/>
-         *
+         * until then.
+         * <p/>
          * As long as this timer task is scheduled, this messenger is not subject to GC. Therefore, its owner, if any, which is strongly
          * referenced, is not subject to GC either. This avoids prematurely closing open connections just because a destination is
          * not currently in use, which we would have to do if CanonicalMessengers could be GCed independantly (and which would
@@ -458,7 +459,6 @@ public abstract class BlockingMessenger extends AbstractMessenger {
                             LOG.log(Level.SEVERE, "Uncaught Throwable in selfDescructTask. ", uncaught);
                         }
                     }
-                    
                     cancel();
                 }
             };
@@ -492,12 +492,12 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * Assemble a destination address for a message based upon the messenger
      * destination address.
      *
-     * @param service The destination service or null.
+     * @param service      The destination service or null.
      * @param serviceParam The destination service parameter or null.
      */
     protected EndpointAddress getDestAddressToUse(String service, String serviceParam) {
         EndpointAddress result = getDestinationAddress();
-        
+
         return new EndpointAddress(result, service, serviceParam);
     }
 
@@ -519,12 +519,11 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     }
 
     /**
-     *
-     * {@inheritDoc} 
+     * {@inheritDoc}
      * <p/>
-     * We overload isClosed because many messengers still use super.isClosed() 
-     * as part of their own implementation or don't override it at all. They 
-     * expect it to be true only when all is shutdown; not while we're closing 
+     * We overload isClosed because many messengers still use super.isClosed()
+     * as part of their own implementation or don't override it at all. They
+     * expect it to be true only when all is shutdown; not while we're closing
      * gently.
      *
      * FIXME - jice@jxta.org 20040413: transports should get a deeper retrofit eventually.
@@ -560,7 +559,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
         synchronized (stateMachine) {
             stateMachine.closeEvent();
-            
+
             action = eventCalled();
         }
 
@@ -575,7 +574,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      */
     public void sendMessageB(Message msg, String service, String serviceParam) throws IOException {
 
-        DeferredAction action = DeferredAction.ACTION_NONE;
+        DeferredAction action;
 
         synchronized (stateMachine) {
             try {
@@ -589,7 +588,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
             if (inputClosed) {
                 throw new IOException("Messenger is closed. It cannot be used to send messages");
             }
-                
+
             // We store the four elements of a pending msg separately. We do not want to pour millions of tmp objects on the GC for
             // nothing.
 
@@ -632,11 +631,9 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         if (failure instanceof Error) {
             throw (Error) failure;
         }
-        
-        IOException failed = new IOException("Failure sending message");
 
+        IOException failed = new IOException("Failure sending message");
         failed.initCause(failure);
-        
         throw failed;
     }
 
@@ -689,9 +686,9 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
         // Not queued. Either closed, or currently sending. If inputClosed, that's what we report.
         msg.setMessageProperty(Messenger.class,
-                closed ? 
-                    new OutgoingMessageEvent(msg, new IOException("This messenger is closed. " + "It cannot be used to send messages.")) : 
-                    OutgoingMessageEvent.OVERFLOW);
+                closed ?
+                        new OutgoingMessageEvent(msg, new IOException("This messenger is closed. " + "It cannot be used to send messages.")) :
+                        OutgoingMessageEvent.OVERFLOW);
         return false;
     }
 
@@ -716,7 +713,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         // Our transport is always in the same group. If the channel's target group is the same, no group
         // redirection is ever needed.
 
-        return new BlockingMessengerChannel(getDestinationAddress(), 
+        return new BlockingMessengerChannel(getDestinationAddress(),
                 homeGroupID.equals(redirection) ? null : redirection, service,
                 serviceParam);
     }
@@ -734,18 +731,19 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
     private void performDeferredAction(DeferredAction action) {
         switch (action) {
-        case ACTION_SEND:
-            sendIt();
-            break;
+            case ACTION_SEND:
+                sendIt();
+                break;
 
-        case ACTION_CONNECT:
-            cantConnect();
-            break;
+            case ACTION_CONNECT:
+                cantConnect();
+                break;
         }
     }
 
     /**
      * A shortHand for a frequently used sequence. MUST be called while synchronized on stateMachine.
+     *
      * @return the deferred action.
      */
     private DeferredAction eventCalled() {
@@ -778,7 +776,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
             return;
         }
 
-        DeferredAction action = DeferredAction.ACTION_NONE;
+        DeferredAction action;
 
         try {
             sendMessageBImpl(currentMessage, currentService, currentParam);
@@ -840,7 +838,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      *
      * @param message The message to send.
      * @param service The destination service.
-     * @param param The destination serivce param.
+     * @param param   The destination serivce param.
      * @throws IOException Thrown for errors encountered while sending the message.
      */
     protected abstract void sendMessageBImpl(Message message, String service, String param) throws IOException;
@@ -851,7 +849,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * idle. BlockingMessenger leaves the evaluation to the transport but does the work automatically. <b>Important:</b> if
      * self destruction is used, this method must work; not just return false. See the constructor. In general, if closeImpl does
      * not need to do anything, then self destruction is not needed.
-     * 
+     *
      * @return {@code true} if theis messenger is, by it's own definition, idle.
      */
     protected abstract boolean isIdleImpl();
