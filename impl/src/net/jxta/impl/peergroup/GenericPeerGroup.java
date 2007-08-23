@@ -94,6 +94,7 @@ import net.jxta.resolver.ResolverService;
 import net.jxta.service.Service;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URL;
@@ -109,6 +110,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -246,7 +248,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *
      * todo convert these hardcoded settings into group config params.
      */
-    private final int COREPOOLSIZE = 0;
+    private final int COREPOOLSIZE = 5;
 
     
     /**
@@ -265,7 +267,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *
      * todo convert these hardcoded settings into group config params.
      */
-    private final int MAXPOOLSIZE = 50;
+    private final int MAXPOOLSIZE = 100;
 
     
     /**
@@ -1124,14 +1126,26 @@ public abstract class GenericPeerGroup implements PeerGroup {
         
         threadGroup = new ThreadGroup(parentThreadGroup, "Group " + peerGroupAdvertisement.getPeerGroupID());
         
-        this.taskQueue = new ArrayBlockingQueue<Runnable>(MAXPOOLSIZE * 2);
-        this.threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, 
+        taskQueue = new ArrayBlockingQueue<Runnable>(COREPOOLSIZE * 2);
+        threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE, 
                 KEEPALIVETIME, TimeUnit.SECONDS, 
                 taskQueue,
                 new PeerGroupThreadFactory("Executor", getHomeThreadGroup()),
-                new CallerBlocksPolicy(MAXPOOLSIZE));
+                new CallerBlocksPolicy());
         
-        this.scheduledExecutor = new ScheduledThreadPoolExecutor(1,
+        // Try to allow core threads to idle out. (Requires a 1.6 method)
+        try {
+            Method allowCoreThreadTimeOut = threadPool.getClass().getMethod("allowCoreThreadTimeOut", Boolean.class);
+            
+            allowCoreThreadTimeOut.invoke(threadPool, Boolean.TRUE);            
+        } catch(Throwable ohWell) {
+            // Our attempt failed.
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Failed to enable 'allowCoreThreadTimeOut'", ohWell);
+            }
+        }
+        
+        scheduledExecutor = new ScheduledThreadPoolExecutor(1,
             new PeerGroupThreadFactory("Scheduled Executor", getHomeThreadGroup()));
         
         /*
@@ -1648,20 +1662,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
     
     /**
      * Our rejected execution handler which has the effect of pausing the
-     * caller until the task can be executed or queued.
+     * caller until the task can be queued.
      */
     private static class CallerBlocksPolicy implements RejectedExecutionHandler {
         
-        /**
-         *  The target maximum pool size. We will only exceed this amount if we
-         *  are failing to make progress.
-         */        
-        private final int MAXPOOLSIZE;
-        
-        private CallerBlocksPolicy(int maxPoolSize) {
-            MAXPOOLSIZE = maxPoolSize;
+        private CallerBlocksPolicy() {
         }
         
+        /**
+         * {@inheritDoc}
+         */
         public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
             BlockingQueue<Runnable> queue = executor.getQueue();
 
@@ -1675,40 +1685,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
                         break;
                     }
                 } catch (InterruptedException woken) {
-                    // This is our entire handling of interruption. If the 
-                    // interruption signaled a state change of the executor our
-                    // while() loop condition will handle termination.
-                    Thread.interrupted();
-                    continue;
+                    throw new RejectedExecutionException("Interrupted while attempting to enqueue", woken);
                 }
-
-                // Couldn't push? Add a thread!
-                synchronized (executor) {
-                    int currentMax = executor.getMaximumPoolSize();
-                    int newMax = Math.min(currentMax + 1, MAXPOOLSIZE * 2);
-                    
-                    if (newMax != currentMax) {
-                        executor.setMaximumPoolSize(newMax);
-                    }
-                    
-                    // If we are already at the max, increase the core size
-                    if (newMax == (MAXPOOLSIZE * 2)) {
-                        int currentCore = executor.getCorePoolSize();
-                        
-                        int newCore = Math.min(currentCore + 1, MAXPOOLSIZE * 2);
-                        
-                        if (currentCore != newCore) {
-                            executor.setCorePoolSize(newCore);
-                        } else {
-                            // Core size is at the max too. We just have to wait.
-                            continue;
-                        }
-                    }
-                }
-                
-                // Should work now.
-                executor.execute(runnable);
-                break;
             }
         }
     }
