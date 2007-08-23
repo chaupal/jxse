@@ -76,9 +76,8 @@ import net.jxta.protocol.RouteQueryMsg;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Set;
-
 
 /**
  * RouteQuery message used by the Endpoint Routing protocol to
@@ -102,7 +101,7 @@ public class RouteQuery extends RouteQueryMsg {
      * @param srcRoute source source
      * @param badhops  lis of AccessPointAdvertisements
      */
-    public RouteQuery(PeerID dest, RouteAdvertisement srcRoute, Set<PeerID> badhops) {
+    public RouteQuery(PeerID dest, RouteAdvertisement srcRoute, Collection<PeerID> badhops) {
 
         setDestPeerID(dest);
         setSrcRoute(srcRoute);
@@ -225,7 +224,7 @@ public class RouteQuery extends RouteQueryMsg {
     }
 
     /**
-     * return a string representaion of this RouteQuery doc
+     * return a string representation of this RouteQuery doc
      */
     @Override
     public String toString() {
