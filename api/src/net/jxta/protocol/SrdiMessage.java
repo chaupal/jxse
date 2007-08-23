@@ -184,7 +184,7 @@ public abstract class SrdiMessage {
      *
      * @return the entries of this SrdiMessage
      */
-    public Collection getEntries() {
+    public Collection<Entry> getEntries() {
         return new ArrayList<Entry>(entries);
     }
 
