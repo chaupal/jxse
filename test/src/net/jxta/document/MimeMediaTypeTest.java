@@ -335,6 +335,67 @@ public class MimeMediaTypeTest extends TestCase {
         System.out.println( stop - start + "ms for " + trials + " identical types on " + concurrency + " threads.");        
     }
     
+    public void testInternUniquesContention() {
+        final int concurrency = 50;
+        final int trials = 10000;
+        long stop;
+        
+        ExecutorService executor = Executors.newCachedThreadPool();
+        
+        // Pre-create threads.
+        for(int spawn = 0; spawn < concurrency; spawn++) {
+            executor.execute( new Runnable() {
+                public void run() {
+                    try {
+                        Thread.sleep(500);
+                    } catch(InterruptedException woken) {
+                        
+                    }
+                }
+            });
+        }
+        
+        try {
+            Thread.sleep(500);
+        } catch(InterruptedException woken) {
+            
+        }
+        
+        System.runFinalization();
+        System.gc();
+        System.gc();
+        
+        final long start = System.currentTimeMillis();
+        for(int each = 0; each < concurrency; each++) {
+            final String runcount = "Run #" + each;
+            executor.execute( new Runnable() {
+                public void run() {
+                    System.err.println( runcount + " start " + (System.currentTimeMillis() - start));
+                    
+                    MimeMediaType [] mimes = new MimeMediaType[trials];
+                    
+                    for(int each = 0; each < trials; each++) {
+                        mimes[each] = new MimeMediaType(new String("text/xml; charset=\"" + runcount + each + "\"" )).intern();
+                    }
+                    
+                    System.err.println( runcount + " done " + (System.currentTimeMillis() - start));
+                }
+            });
+        }
+       
+        executor.shutdown();
+        try {
+            executor.awaitTermination(60, TimeUnit.SECONDS);
+        } catch(InterruptedException woken) {
+            
+        }
+        stop = System.currentTimeMillis();
+        System.err.flush();
+        System.out.flush();
+        
+        System.out.println( stop - start + "ms for " + trials + " unique types on " + concurrency + " threads.");        
+    }
+    
     public void testSerialization() {
         MimeMediaType one = new MimeMediaType("text/xml");
         
