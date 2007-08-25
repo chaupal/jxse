@@ -56,12 +56,12 @@
 package net.jxta.document;
 
 
-import net.jxta.document.MimeMediaType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 
 import junit.framework.*;
 
@@ -177,6 +177,100 @@ public class MimeMediaTypeTest extends TestCase {
         assertTrue(newInterned == valueInterned);
     }
     
+    public void testInternPerformance() {
+        int trials = 200000;
+        String [] strings = new String[trials];
+        MimeMediaType [] mimes = new MimeMediaType[trials];
+        
+        for(int each = 0; each < trials; each++) {
+            strings[each] = new String("text/xml; charset=\"UTF-87\"");
+        }
+        
+        long start;
+        long stop;
+        
+        System.runFinalization();
+        System.gc();
+        System.gc();
+        
+        start = System.currentTimeMillis();        
+        for(int each = 0; each < trials; each++) {
+            mimes[each] = new MimeMediaType(strings[each]);
+        }
+        stop = System.currentTimeMillis();
+        System.out.println( stop - start + "ms for " + trials + " identical types.");
+        
+        System.runFinalization();
+        System.gc();
+        System.gc();
+        
+        start = System.currentTimeMillis();        
+        for(int each = 0; each < trials; each++) {
+            mimes[each] = new MimeMediaType(strings[each]).intern();
+        }
+        stop = System.currentTimeMillis();
+        System.out.println( stop - start + "ms for " + trials + " identical interned types.");
+        
+        Arrays.fill(strings, null);
+        Arrays.fill(mimes, null);
+                
+        for(int each = 0; each < trials; each++) {
+            strings[each] = new String("text/xml; charset=\"UTF-XX" + each + "\"");
+        }
+        
+        System.runFinalization();
+        System.gc();
+        System.gc();
+        
+        start = System.currentTimeMillis();        
+        for(int each = 0; each < trials; each++) {
+            mimes[each] = new MimeMediaType(strings[each]);
+        }
+        stop = System.currentTimeMillis();
+        System.out.println( stop - start + "ms for " + trials + " unique types.");
+        
+        System.runFinalization();
+        System.gc();
+        System.gc();
+        
+        start = System.currentTimeMillis();        
+        for(int each = 0; each < trials; each++) {
+            mimes[each] = new MimeMediaType(strings[each]).intern();
+        }
+        stop = System.currentTimeMillis();
+        System.out.println( stop - start + "ms for " + trials + " unique interned types.");
+                
+                
+        Arrays.fill(strings, null);
+        Arrays.fill(mimes, null);
+
+        for(int each = 0; each < trials; each++) {
+            strings[each] = new String("text/xml; charset=\"UTF-XX" + (each % 100) + "\"");
+        }
+        
+        System.runFinalization();
+        System.gc();
+        System.gc();
+        
+        start = System.currentTimeMillis();        
+        for(int each = 0; each < trials; each++) {
+            mimes[each] = new MimeMediaType(strings[each]);
+        }
+        stop = System.currentTimeMillis();
+        System.out.println( stop - start + "ms for " + trials + " non-unique types.");
+        
+        System.runFinalization();
+        System.gc();
+        System.gc();
+        
+        start = System.currentTimeMillis();        
+        for(int each = 0; each < trials; each++) {
+            mimes[each] = new MimeMediaType(strings[each]).intern();
+        }
+        stop = System.currentTimeMillis();
+        System.out.println( stop - start + "ms for " + trials + " non-unique interned types.");
+    }
+            
     public void testSerialization() {
         MimeMediaType one = new MimeMediaType("text/xml");
         
