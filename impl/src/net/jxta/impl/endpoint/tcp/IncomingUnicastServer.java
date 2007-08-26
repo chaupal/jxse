@@ -267,7 +267,7 @@ public class IncomingUnicastServer implements Runnable {
                             ServerSocketChannel nextReady = (ServerSocketChannel) key.channel();
                             SocketChannel inputSocket = nextReady.accept();
 
-                            if (inputSocket == null) {
+                            if ((inputSocket == null) || (inputSocket.socket() == null)) {
                                 continue;
                             }
 
