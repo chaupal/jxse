@@ -147,6 +147,8 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
       </path>
 
       <java classname="${classname}" fork="yes">
+        <jvmarg value="-ea" />
+        <jvmarg value="-esa" />
         <jvmarg value="-Xms${net.jxta.jvm.xms}" />
         <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
         <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
@@ -190,6 +192,8 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
       <java classname="junit.textui.TestRunner" fork="yes">
         <jvmarg value="-Xdebug" />
         <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
+        <jvmarg value="-ea" />
+        <jvmarg value="-esa" />
         <jvmarg value="-Xms${net.jxta.jvm.xms}" />
         <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
         <sysproperty key="JXTA_HOME" value="${tmp}/JUnit" />
@@ -231,6 +235,8 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
       <java classname="${classname}" fork="yes">
         <jvmarg value="-Xdebug" />
         <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
+        <jvmarg value="-ea" />
+        <jvmarg value="-esa" />
         <jvmarg value="-Xms${net.jxta.jvm.xms}" />
         <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
         <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
@@ -257,6 +263,8 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
         <java classname="net.jxta.impl.peergroup.Boot" fork="yes">
           <jvmarg value="-Xdebug" />
           <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
+          <jvmarg value="-ea" />
+          <jvmarg value="-esa" />
           <jvmarg value="-Xms${net.jxta.jvm.xms}" />
           <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
           <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
