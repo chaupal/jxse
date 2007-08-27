@@ -56,7 +56,9 @@
 package tutorial.bidi;
 
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.endpoint.*;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
@@ -83,7 +85,7 @@ public class JxtaServerPipeExample {
     /**
      * Number of messages to send
      */
-    public final static int ITERATIONS = 1000;
+    public final static int ITERATIONS = 10 * 1000;
     private transient PeerGroup netPeerGroup = null;
     private transient JxtaServerPipe serverPipe;
     private final static Logger LOG = Logger.getLogger(JxtaServerPipeExample.class.getName());
@@ -92,7 +94,6 @@ public class JxtaServerPipeExample {
     private transient NetworkManager manager = null;
     private final transient File home = new File(new File(".cache"), "server");
     private final String receipt = "Receipt";
-    private final Object throttleLock = new Object();
 
     /**
      * Constructor for the JxtaServerPipeExample object
@@ -128,7 +129,7 @@ public class JxtaServerPipeExample {
      * Connection wrapper. Once started, it send a message, awaits a response.
      * repeats the above steps for a pre-defined number of iterations
      */
-    private class ConnectionHandler implements Runnable, PipeMsgListener, OutgoingMessageEventListener {
+    private class ConnectionHandler implements Runnable, PipeMsgListener {
         JxtaBiDiPipe pipe = null;
 
         /**
@@ -195,17 +196,16 @@ public class JxtaServerPipeExample {
                     String data = "Seq #" + i;
 
                     msg.addMessageElement(SenderMessage, new StringMessageElement(SenderMessage, data, null));
-                    System.out.println("Sending message :" + i);
+                    //System.out.println("Sending message :" + i);
                     // t0 = System.currentTimeMillis();
-                    pipe.sendMessage(msg, this);
-                    synchronized(throttleLock) {
-                        throttleLock.wait(40);
-                    }
+                    pipe.sendMessage(msg);
+                    /*
                     t1 = System.currentTimeMillis();
                     delta = (t1 - t0);
                     if (delta > 50) {
                         System.out.println(" completed message sequence #" + i + " in :" + delta);
                     }
+                    */
                 }
                 t3 = System.currentTimeMillis() +10;
                 long t4 = t3 - t2;
@@ -229,22 +229,6 @@ public class JxtaServerPipeExample {
                 pipe.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-        }
-
-        /**
-         * @{inheritDoc}
-         */
-        public void messageSendFailed(OutgoingMessageEvent event) {
-            System.out.println("Message send failed "+event.toString());
-        }
-
-        /**
-         * @{inheritDoc}
-         */
-        public void messageSendSucceeded(OutgoingMessageEvent event) {
-            synchronized(throttleLock) {
-                throttleLock.notify();
             }
         }
     }
@@ -280,7 +264,7 @@ public class JxtaServerPipeExample {
         System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
         JxtaServerPipeExample eg = new JxtaServerPipeExample();
         try {
-            System.out.println(JxtaServerPipeExample.getPipeAdvertisement().toString());
+            //System.out.println(JxtaServerPipeExample.getPipeAdvertisement().toString());
             eg.serverPipe = new JxtaServerPipe(eg.netPeerGroup, JxtaServerPipeExample.getPipeAdvertisement());
             // block forever until a connection is accepted
             eg.serverPipe.setPipeTimeout(0);

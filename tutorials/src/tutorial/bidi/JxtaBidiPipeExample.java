@@ -57,8 +57,6 @@ package tutorial.bidi;
 
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.OutgoingMessageEventListener;
-import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.PipeMsgEvent;
@@ -79,102 +77,31 @@ import java.util.logging.Logger;
  * (JxtaServerPipeExample), then wait until all the messages are receieved
  * asynchronously
  */
-public class JxtaBidiPipeExample implements PipeMsgListener, OutgoingMessageEventListener {
+public class JxtaBidiPipeExample {
     private final static Logger LOG = Logger.getLogger(JxtaBidiPipeExample.class.getName());
     private transient NetworkManager manager = null;
     private final transient File home = new File(new File(".cache"), "client");
-    private transient JxtaBiDiPipe pipe;
     private final static String SenderMessage = "pipe_tutorial";
     private final static String completeLock = "completeLock";
-    private int count = 0;
 
     public JxtaBidiPipeExample(boolean waitForRendezvous) {
         try {
             manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "JxtaBidiPipeExample", home.toURI());
             manager.startNetwork();
+            if (waitForRendezvous) {
+                // wait until a connection to a rendezvous is established
+                manager.waitForRendezvousConnection(0);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
         }
         // manager.login("principal", "password");
         PeerGroup netPeerGroup = manager.getNetPeerGroup();
-
-        try {
-            pipe = new JxtaBiDiPipe();
-            pipe.setReliable(true);
-            if (waitForRendezvous) {
-                // wait until a connection to a rendezvous is established
-                manager.waitForRendezvousConnection(0);
-            }
-            System.out.println("Attempting to establish a connection");
-            pipe.connect(netPeerGroup,
-                         // any listening node will do
-                         null,
-                         JxtaServerPipeExample.getPipeAdvertisement(),
-                          10000,
-                         // register as a message listener
-                         this);
-            // at this point we need to keep references around until data xchange
-            // is complete
-            System.out.println("JxtaBiDiPipe pipe created");
-            waitUntilCompleted();
-            manager.stopNetwork();
-        } catch (IOException e) {
-            System.out.println("failed to bind the JxtaBiDiPipe due to the following exception");
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-
-    /**
-     * This is the PipeListener interface. Expect a call to this method
-     * When a message is received.
-     * when we get a message, print out the message on the console
-     *
-     * @param event message event
-     */
-    public void pipeMsgEvent(PipeMsgEvent event) {
-
-        Message msg;
-        Message response;
-
-        try {
-            // grab the message from the event
-            msg = event.getMessage();
-            if (msg == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Received an empty message, returning");
-                }
-                return;
-            }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Received a response");
-            }
-            // Get the message element named SenderMessage
-            MessageElement msgElement = msg.getMessageElement(SenderMessage, SenderMessage);
-
-            // Get message
-            if (msgElement.toString() == null) {
-                System.out.println("null msg received");
-            }
-            count++;
-            response = msg.clone();
-            System.out.println("Sending response to " + msgElement.toString()+" Count:"+count);
-            pipe.sendMessage(response, this);
-            // If JxtaServerPipeExample.ITERATIONS # of messages received, it is
-            // no longer needed to wait. notify main to exit gracefully
-            if (count >= JxtaServerPipeExample.ITERATIONS) {
-                System.out.println("Received all messages");
-                synchronized (completeLock) {
-                    completeLock.notify();
-                }
-            } else {
-                System.out.println("Received "+count+" out of "+JxtaServerPipeExample.ITERATIONS);
-            }
-        } catch (Exception e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(e.toString());
-            }
+        for (int i= 0; i<10; i++) {
+            Thread thread = new Thread(new Connection(netPeerGroup), "Connection Thread "+i);
+            thread.start();
         }
     }
 
@@ -185,7 +112,6 @@ public class JxtaBidiPipeExample implements PipeMsgListener, OutgoingMessageEven
                 completeLock.wait();
             }
             System.out.println("Done.");
-            pipe.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,18 +124,96 @@ public class JxtaBidiPipeExample implements PipeMsgListener, OutgoingMessageEven
      */
     public static void main(String args[]) {
         System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
+
         String value = System.getProperty("RDVWAIT", "false");
         boolean waitForRendezvous = Boolean.valueOf(value);
         new JxtaBidiPipeExample(waitForRendezvous);
     }
 
-    public void messageSendFailed(OutgoingMessageEvent event) {
-        System.out.println("Message send failed "+event.toString());
-        event.getFailure().printStackTrace();
-    }
 
-    public void messageSendSucceeded(OutgoingMessageEvent event) {
-        System.out.println("Message send succeeded "+event.toString());
+    private class Connection implements Runnable, PipeMsgListener {
+        PeerGroup peerGroup;
+        JxtaBiDiPipe pipe = null;
+        private int count = 0;        
+        Connection(PeerGroup peerGroup) {
+            this.peerGroup = peerGroup;
+        }
+
+    /**
+     * This is the PipeListener interface. Expect a call to this method
+     * When a message is received.
+     * when we get a message, print out the message on the console
+     *
+     * @param event message event
+     */
+    public void pipeMsgEvent(PipeMsgEvent event) {
+            Message msg;
+            Message response;
+            try {
+                // grab the message from the event
+                msg = event.getMessage();
+                if (msg == null) {
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Received an empty message, returning");
+                    }
+                    return;
+                }
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Received a response");
+                }
+                // Get the message element named SenderMessage
+                MessageElement msgElement = msg.getMessageElement(SenderMessage, SenderMessage);
+
+                // Get message
+                if (msgElement.toString() == null) {
+                    System.out.println("null msg received");
+                }
+                count++;
+                response = msg.clone();
+                //System.out.println("Sending response to " + msgElement.toString()+" Count:"+count);
+                pipe.sendMessage(response);
+                // If JxtaServerPipeExample.ITERATIONS # of messages received, it is
+                // no longer needed to wait. notify main to exit gracefully
+                if (count >= JxtaServerPipeExample.ITERATIONS) {
+                    System.out.println("Received all messages");
+                    synchronized (completeLock) {
+                        completeLock.notify();
+                    }
+                } else {
+                   // System.out.println("Received "+count+" out of "+JxtaServerPipeExample.ITERATIONS);
+                }
+            } catch (Exception e) {
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine(e.toString());
+                }
+            }
+        }
+
+
+        /**
+         * Main processing method for the ConnectionHandler object
+         */
+        public void run() {
+            try {
+                pipe = new JxtaBiDiPipe();
+                pipe.setReliable(true);
+                System.out.println("Attempting to establish a connection");
+                pipe.connect(peerGroup,
+                             // any listening node will do
+                             null,
+                             JxtaServerPipeExample.getPipeAdvertisement(),
+                             10000,
+                             // register as a message listener
+                             this);
+                // at this point we need to keep references around until data xchange
+                // is complete
+                System.out.println("JxtaBiDiPipe pipe created");
+            } catch (IOException e) {
+                System.out.println(Thread.currentThread().getName()+" failed to bind the JxtaBiDiPipe due to the following exception");
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        }
     }
 }
 
