@@ -378,7 +378,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
             throw new IllegalStateException("Changed the peer id of the destination APA." + destPid + " != " + dest.getPeerID() );
         }
 
-        if(null != destPid)
+        if(null != destPid) {
             dest.setPeerID(destPid);
         }
         
