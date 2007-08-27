@@ -177,24 +177,7 @@ public class RouteResponse extends RouteResponseMsg {
      * return a Document representation of this object
      */
     @Override
-    public Document getDocument(MimeMediaType asMimeType) {
-        
-        if (null == getSrcRoute()) {
-            throw new IllegalStateException("Missing source route.");
-        }
-        
-        if (null == getDestRoute()) {
-            throw new IllegalStateException("Missing destination route.");
-        }
-
-        if (null == getSrcRoute().getDestPeerID()) {
-            throw new IllegalStateException("Bad source route.");
-        }
-        
-        if (null == getDestRoute().getDestPeerID()) {
-            throw new IllegalStateException("Bad destination route.");
-        }
-
+    public Document getDocument(MimeMediaType asMimeType) {        
         if (null == getSrcRoute()) {
             throw new IllegalStateException("Missing source route.");
         }
@@ -250,17 +233,10 @@ public class RouteResponse extends RouteResponseMsg {
      */
     @Override
     public String toString() {
+        XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
 
-        try {
-            XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
+        doc.addAttribute("xml:space", "default");
 
-            return doc.toString();
-        } catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new UndeclaredThrowableException(e);
-            }
-        }
+        return doc.toString();
     }
 }
