@@ -58,7 +58,6 @@ package net.jxta.impl.xindice.core.filer;
  *
 
  */
-
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.DBObject;
 import net.jxta.impl.xindice.core.data.Key;
@@ -67,14 +66,12 @@ import net.jxta.impl.xindice.core.data.RecordSet;
 import net.jxta.impl.xindice.core.data.Value;
 import net.jxta.impl.xindice.util.Named;
 
-
 /**
  * Filer is the low-level file management interface for Xindice.  A Filer object
  * is implemented in order to provide a data source to the Xindice Collection
  * class.  Filers are developed to perform transparent storage and retrieval to
  * and from heterogenous data sources (such as FTP, HTTP, RDBMS, etc...)
  */
-
 public interface Filer extends Named, DBObject {
 
     /**
@@ -83,6 +80,7 @@ public interface Filer extends Named, DBObject {
      *
      * @param key The Record's Key
      * @return The returned Record
+     * @throws net.jxta.impl.xindice.core.DBException if a db exception occurs
      */
     Record readRecord(Key key) throws DBException;
 
@@ -92,6 +90,7 @@ public interface Filer extends Named, DBObject {
      *
      * @param pos The Record's position
      * @return The returned Record
+     * @throws net.jxta.impl.xindice.core.DBException if a db exception occurs
      */
     Record readRecord(long pos) throws DBException;
 
@@ -102,6 +101,7 @@ public interface Filer extends Named, DBObject {
      * @param value The Record's Value
      * @return 0 if the Record could not be written, the starting
      * offset of the Record otherwise (used for indexing)
+     * @throws net.jxta.impl.xindice.core.DBException if a db exception occurs
      */
     long writeRecord(Key key, Value value) throws DBException;
 
@@ -111,6 +111,7 @@ public interface Filer extends Named, DBObject {
      *
      * @param key The Record's Key
      * @return Whether or not the Record was deleted
+     * @throws net.jxta.impl.xindice.core.DBException if a db exception occurs
      */
     boolean deleteRecord(Key key) throws DBException;
 
@@ -118,6 +119,7 @@ public interface Filer extends Named, DBObject {
      * getRecordCount returns the number of Records in the Filer.
      *
      * @return The Record count
+     * @throws net.jxta.impl.xindice.core.DBException if a db exception occurs
      */
     long getRecordCount() throws DBException;
 
@@ -125,11 +127,13 @@ public interface Filer extends Named, DBObject {
      * getRecordSet returns a RecordSet object for the current Filer.
      *
      * @return The Filer Enumerator
+     * @throws net.jxta.impl.xindice.core.DBException if a db exception occurs
      */
     RecordSet getRecordSet() throws DBException;
    
     /**
      * flush forcefully flushes any unwritten buffers to disk.
+     * @throws net.jxta.impl.xindice.core.DBException if a db exception occurs
      */
     void flush() throws DBException;
 }
