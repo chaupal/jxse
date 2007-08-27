@@ -831,14 +831,14 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      */
     public Messenger getMessenger(EndpointAddress dst, Object hintIgnored) {
 
-        EndpointAddress plainAddr = new EndpointAddress(dst, null, null);
-
-        if (!plainAddr.getProtocolName().equals(getProtocolName())) {
+        if (!dst.getProtocolName().equalsIgnoreCase(getProtocolName())) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Cannot make messenger for protocol: " + plainAddr.getProtocolName());
+                LOG.warning("Cannot make messenger for protocol: " + dst.getProtocolName());
             }
             return null;
         }
+
+        EndpointAddress plainAddr = new EndpointAddress(dst, null, null);
 
         // If the destination is one of our addresses including loopback, we 
         // return a loopback messenger.
