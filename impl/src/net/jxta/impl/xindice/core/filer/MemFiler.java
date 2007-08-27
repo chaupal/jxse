@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,8 +53,8 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
@@ -72,13 +69,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
 /**
  * MemFiler is an In-Memory Filer implementation for Xindice.  MemFiler can be
  * used for temporary collections and caching.  It's basically a layering on
  * top of HashMap.
  */
-
 public final class MemFiler implements Filer {
     private Map<Key, Record> hashTable = null;
     private Map<Long, Key> posTable = null;

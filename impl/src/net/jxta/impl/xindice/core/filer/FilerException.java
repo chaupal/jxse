@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,17 +53,15 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.DBException;
-
 
 /**
  * A FilerException is thrown by a Filer if an exception occurs
  * in the managing of the Filer.
  */
-
 public class FilerException extends DBException {
     public FilerException(int faultCode) {
         super(faultCode);

@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,17 +53,15 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core.filer;
 
-import net.jxta.impl.xindice.core.*;
-
+import net.jxta.impl.xindice.core.FaultCodes;
 
 /**
  * A BTreeNotFoundException is thrown by the BTree if a Value
  * can't be found in the BTree.
  */
-
 public final class BTreeNotFoundException extends BTreeException {
     public BTreeNotFoundException() {
         super(FaultCodes.IDX_VALUE_NOT_FOUND);

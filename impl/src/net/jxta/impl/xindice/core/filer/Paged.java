@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,8 +53,8 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
@@ -77,13 +74,11 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Paged is a paged file implementation that is foundation for both the
@@ -109,11 +104,10 @@ import java.util.logging.Logger;
  * <br>FIXME: Currently it seems that maxkeysize is not used anywhere.
  * <br>TODO: Introduce Paged interface, implementations.
  */
-
 public abstract class Paged {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static Logger LOG = Logger.getLogger(Paged.class.getName());
 
@@ -158,13 +152,13 @@ public abstract class Paged {
      * Cache contains weak references to the Page objects, keys are page numbers (Long objects).
      * Access synchronized by this map itself.
      */
-    private final Map pages = new WeakHashMap();
+    private final Map<Long, WeakReference<Page>> pages = new WeakHashMap<Long, WeakReference<Page>>();
 
     /**
      * Cache of modified pages waiting to be written out.
      * Access is synchronized by the {@link #dirtyLock}.
      */
-    private Map dirty = new HashMap();
+    private Map<Long, Page> dirty = new HashMap<Long, Page>();
 
     /**
      * Lock for synchronizing access to the {@link #dirty} map.
@@ -175,7 +169,7 @@ public abstract class Paged {
      * Random access file descriptors cache.
      * Access to it and to {@link #descriptorsCount} is synchronized by itself.
      */
-    private final Stack descriptors = new Stack();
+    private final Stack<RandomAccessFile> descriptors = new Stack<RandomAccessFile>();
 
     /**
      * The number of random access file objects that exist, either in the
@@ -236,12 +230,14 @@ public abstract class Paged {
      * Obtain RandomAccessFile ('descriptor') object out of the pool.
      * If no descriptors available, and maximum amount already allocated,
      * the call will block.
+     * @return the file
+     * @throws java.io.IOException if an io error occurs
      */
     protected final RandomAccessFile getDescriptor() throws IOException {
         synchronized (descriptors) {
             // If there are descriptors in the cache return one.
             if (!descriptors.empty()) {
-                return (RandomAccessFile) descriptors.pop();
+                return descriptors.pop();
             }
             // Otherwise we need to get one some other way.
 
@@ -255,7 +251,7 @@ public abstract class Paged {
             while (true) {
                 try {
                     descriptors.wait();
-                    return (RandomAccessFile) descriptors.pop();
+                    return descriptors.pop();
                 } catch (InterruptedException e) {// Ignore, and continue to wait
                 } catch (EmptyStackException e) {// Ignore, and continue to wait
                 }
@@ -265,6 +261,7 @@ public abstract class Paged {
 
     /**
      * Puts a RandomAccessFile ('descriptor') back into the descriptor pool.
+     * @param raf the file to add
      */
     protected final void putDescriptor(RandomAccessFile raf) {
         if (raf != null) {
@@ -277,6 +274,7 @@ public abstract class Paged {
 
     /**
      * Closes a RandomAccessFile ('descriptor') and removes it from the pool.
+     * @param raf the file to close
      */
     protected final void closeDescriptor(RandomAccessFile raf) {
         if (raf != null) {
@@ -301,32 +299,32 @@ public abstract class Paged {
      */
     protected final Page getPage(long pageNum) throws IOException {
         final Long lp = pageNum;
-        Page p;
+        Page page;
 
         synchronized (this) {
             // Check if it's in the dirty cache
             // No need to synchronize on dirtyLock thanks to atomic assignment
-            p = (Page) dirty.get(lp);
+            page = dirty.get(lp);
 
             // if not check if it's already loaded in the page cache
-            if (p == null) {
-                WeakReference ref = (WeakReference) pages.get(lp);
+            if (page == null) {
+                WeakReference<Page> ref = pages.get(lp);
 
                 if (ref != null) {
-                    p = (Page) ref.get();
+                    page = ref.get();
                 }
             }
 
             // if still not found we need to create it and add it to the page cache.
-            if (p == null) {
-                p = new Page(lp);
-                pages.put(p.pageNum, new WeakReference(p));
+            if (page == null) {
+                page = new Page(lp);
+                pages.put(page.pageNum, new WeakReference<Page>(page));
             }
         }
 
         // Load the page from disk if necessary
-        p.read();
-        return p;
+        page.read();
+        return page;
     }
 
     /**
@@ -624,7 +622,7 @@ public abstract class Paged {
 
                     // Close descriptors in cache
                     while (!descriptors.empty()) {
-                        closeDescriptor((RandomAccessFile) descriptors.pop());
+                        closeDescriptor(descriptors.pop());
                     }
                     // Attempt to close descriptors in use. Max wait time = 0.5s * MAX_DESCRIPTORS
                     int n = descriptorsCount;
@@ -639,7 +637,7 @@ public abstract class Paged {
                         if (descriptors.isEmpty()) {
                             n--;
                         } else {
-                            closeDescriptor((RandomAccessFile) descriptors.pop());
+                            closeDescriptor(descriptors.pop());
                         }
                     }
                     if (descriptorsCount > 0) {
@@ -662,11 +660,7 @@ public abstract class Paged {
     public boolean drop() throws DBException {
         try {
             close();
-            if (exists()) {
-                return getFile().delete();
-            } else {
-                return true;
-            }
+            return !exists() || getFile().delete();
         } catch (Exception e) {
             throw new FilerException(FaultCodes.COL_CANNOT_DROP, "Can't drop " + file.getName(), e);
         }
@@ -693,11 +687,11 @@ public abstract class Paged {
         int error = 0;
 
         // Obtain collection of dirty pages
-        Collection pages;
+        Collection<Page> pages;
 
         synchronized (dirtyLock) {
             pages = dirty.values();
-            dirty = new HashMap();
+            dirty = new HashMap<Long, Page>();
         }
 
         // Flush dirty pages
@@ -980,6 +974,7 @@ public abstract class Paged {
         /**
          * The size of the FileHeader. Usually 1 OS Page.
          * This method should be called only while initializing Paged, not during normal processing.
+         * @param headerSize the new header size
          */
         public synchronized final void setHeaderSize(short headerSize) {
             this.headerSize = headerSize;
@@ -988,6 +983,7 @@ public abstract class Paged {
 
         /**
          * The size of the FileHeader.  Usually 1 OS Page
+         * @return the header size
          */
         public synchronized final short getHeaderSize() {
             return headerSize;
@@ -996,6 +992,7 @@ public abstract class Paged {
         /**
          * The size of a page. Usually a multiple of a FS block.
          * This method should be called only while initializing Paged, not during normal processing.
+         * @param pageSize the new page size
          */
         public synchronized final void setPageSize(int pageSize) {
             this.pageSize = pageSize;
@@ -1005,6 +1002,7 @@ public abstract class Paged {
 
         /**
          * The size of a page.  Usually a multiple of a FS block
+         * @return the page size
          */
         public synchronized final int getPageSize() {
             return pageSize;
@@ -1013,6 +1011,7 @@ public abstract class Paged {
         /**
          * The number of pages in primary storage.
          * This method should be called only while initializing Paged, not during normal processing.
+         * @param pageCount the new page count
          */
         public synchronized final void setPageCount(long pageCount) {
             this.pageCount = pageCount;
@@ -1021,6 +1020,7 @@ public abstract class Paged {
 
         /**
          * The number of pages in primary storage
+         * @return the page count
          */
         public synchronized final long getPageCount() {
             return pageCount;
@@ -1029,6 +1029,7 @@ public abstract class Paged {
         /**
          * The number of total pages in the file.
          * This method should be called only while initializing Paged, not during normal processing.
+         * @param totalCount the new total count
          */
         public synchronized final void setTotalCount(long totalCount) {
             this.totalCount = totalCount;
@@ -1042,6 +1043,7 @@ public abstract class Paged {
 
         /**
          * The number of total pages in the file
+         * @return the total count
          */
         public synchronized final long getTotalCount() {
             return totalCount;
@@ -1049,6 +1051,7 @@ public abstract class Paged {
 
         /**
          * The first free page in unused secondary space
+         * @param firstFreePage the new first free page
          */
         public synchronized final void setFirstFreePage(long firstFreePage) {
             this.firstFreePage = firstFreePage;
@@ -1057,6 +1060,7 @@ public abstract class Paged {
 
         /**
          * The first free page in unused secondary space
+         * @return the first free page
          */
         public synchronized final long getFirstFreePage() {
             return firstFreePage;
@@ -1064,6 +1068,7 @@ public abstract class Paged {
 
         /**
          * The last free page in unused secondary space
+         * @param lastFreePage sets the last free page
          */
         public synchronized final void setLastFreePage(long lastFreePage) {
             this.lastFreePage = lastFreePage;
@@ -1072,6 +1077,7 @@ public abstract class Paged {
 
         /**
          * The last free page in unused secondary space
+         * @return the last free page
          */
         public synchronized final long getLastFreePage() {
             return lastFreePage;
@@ -1081,6 +1087,7 @@ public abstract class Paged {
          * Set the size of a page header.
          * <p/>
          * Normally, 64 is sufficient.
+         * @param pageHeaderSize the new page header size
          */
         public synchronized final void setPageHeaderSize(byte pageHeaderSize) {
             this.pageHeaderSize = pageHeaderSize;
@@ -1092,6 +1099,7 @@ public abstract class Paged {
          * Get the size of a page header.
          * <p/>
          * Normally, 64 is sufficient
+         * @return the page header size
          */
         public synchronized final byte getPageHeaderSize() {
             return pageHeaderSize;
@@ -1101,6 +1109,7 @@ public abstract class Paged {
          * Set the maximum number of bytes a key can be.
          * <p/>
          * Normally, 256 is good
+         * @param maxKeySize the new max key size
          */
         public synchronized final void setMaxKeySize(short maxKeySize) {
             this.maxKeySize = maxKeySize;
@@ -1111,6 +1120,7 @@ public abstract class Paged {
          * Get the maximum number of bytes.
          * <p/>
          * Normally, 256 is good.
+         * @return max key size
          */
         public synchronized final short getMaxKeySize() {
             return maxKeySize;
@@ -1134,6 +1144,7 @@ public abstract class Paged {
 
         /**
          * The number of records being managed by the file (not pages)
+         * @return the record count
          */
         public synchronized final long getRecordCount() {
             return recordCount;
@@ -1206,6 +1217,7 @@ public abstract class Paged {
 
         /**
          * The status of this page (UNUSED, RECORD, DELETED, etc...)
+         * @param status the new status
          */
         public synchronized final void setStatus(byte status) {
             this.status = status;
@@ -1214,6 +1226,7 @@ public abstract class Paged {
 
         /**
          * The status of this page (UNUSED, RECORD, DELETED, etc...)
+         * @return the status
          */
         public synchronized final byte getStatus() {
             return status;
@@ -1230,6 +1243,7 @@ public abstract class Paged {
 
         /**
          * The length of the Key
+         * @param keyLen the new key length
          */
         public synchronized final void setKeyLen(int keyLen) {
             this.keyLen = keyLen;
@@ -1238,6 +1252,7 @@ public abstract class Paged {
 
         /**
          * The length of the Key
+         * @return the key length
          */
         public synchronized final int getKeyLen() {
             return keyLen;
@@ -1245,6 +1260,7 @@ public abstract class Paged {
 
         /**
          * The hashed value of the Key for quick comparisons
+         * @param keyHash sets the key hash
          */
         public synchronized final void setKeyHash(int keyHash) {
             this.keyHash = keyHash;
@@ -1253,6 +1269,7 @@ public abstract class Paged {
 
         /**
          * The hashed value of the Key for quick comparisons
+         * @return the key hash
          */
         public synchronized final int getKeyHash() {
             return keyHash;
@@ -1260,6 +1277,7 @@ public abstract class Paged {
 
         /**
          * The length of the Data
+         * @param dataLen sets the data length
          */
         public synchronized final void setDataLen(int dataLen) {
             this.dataLen = dataLen;
@@ -1268,6 +1286,7 @@ public abstract class Paged {
 
         /**
          * The length of the Data
+         * @return the data length
          */
         public synchronized final int getDataLen() {
             return dataLen;
@@ -1275,6 +1294,7 @@ public abstract class Paged {
 
         /**
          * The length of the Record's value
+         * @param recordLen sets the record length
          */
         public synchronized void setRecordLen(int recordLen) {
             this.recordLen = recordLen;
@@ -1283,6 +1303,7 @@ public abstract class Paged {
 
         /**
          * The length of the Record's value
+         * @return record length
          */
         public synchronized final int getRecordLen() {
             return recordLen;
@@ -1290,6 +1311,7 @@ public abstract class Paged {
 
         /**
          * The next page for this Record (if overflowed)
+         * @param nextPage next page
          */
         public synchronized final void setNextPage(long nextPage) {
             this.nextPage = nextPage;
@@ -1298,6 +1320,7 @@ public abstract class Paged {
 
         /**
          * The next page for this Record (if overflowed)
+         * @return next page
          */
         public synchronized final long getNextPage() {
             return nextPage;
@@ -1348,6 +1371,7 @@ public abstract class Paged {
 
         /**
          * Reads a page into the memory, once. Subsequent calls are ignored.
+         * @throws java.io.IOException if an io error occurs
          */
         public synchronized void read() throws IOException {
             if (data == null) {
@@ -1379,6 +1403,7 @@ public abstract class Paged {
         /**
          * Writes out the header into the this.data, and adds a page to the set of
          * dirty pages.
+         * @throws java.io.IOException if an io error occurs
          */
         public void write() throws IOException {
             // Write out the header into the this.data
@@ -1397,6 +1422,7 @@ public abstract class Paged {
 
         /**
          * Flushes content of the dirty page into the file
+         * @throws java.io.IOException if an io error occurs
          */
         public synchronized void flush() throws IOException {
             RandomAccessFile raf = null;

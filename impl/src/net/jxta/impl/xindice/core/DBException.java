@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,18 +53,16 @@ package net.jxta.impl.xindice.core;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core;
 
-import net.jxta.impl.xindice.util.*;
-
+import net.jxta.impl.xindice.util.XindiceException;
 
 /**
  * A DBException is thrown by the database if an exception occurs in the
  * managing (creating, dropping) database objects such as Collections,
  * Indexes, and XMLObjects.
  */
-
 public class DBException extends XindiceException {
     public int faultCode;
 

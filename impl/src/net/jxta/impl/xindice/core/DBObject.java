@@ -76,6 +76,7 @@ public interface DBObject {
      * DBObject, such as disk files, etc.
      *
      * @return Whether or not the DBObject was created
+     * @throws DBException if a DB error occurs
      */
     boolean create() throws DBException;
 
@@ -83,6 +84,7 @@ public interface DBObject {
      * open opens the DBObject
      *
      * @return Whether or not the DBObject was opened
+     * @throws DBException if a DB error occurs
      */
     boolean open() throws DBException;
 
@@ -90,6 +92,7 @@ public interface DBObject {
      * isOpened returns whether or not the DBObject is opened for business.
      *
      * @return The open status of the DBObject
+     * @throws DBException if a DB error occurs
      */
     boolean isOpened() throws DBException;
 
@@ -100,6 +103,7 @@ public interface DBObject {
      * perform a connection check.
      *
      * @return Whether or not the physical resource exists
+     * @throws DBException if a DB error occurs
      */
     boolean exists() throws DBException;
 
@@ -109,6 +113,7 @@ public interface DBObject {
      * references to the DBObject in its own context.
      *
      * @return Whether or not the DBObject was dropped
+     * @throws DBException if a DB error occurs
      */
     boolean drop() throws DBException;
 
@@ -116,6 +121,7 @@ public interface DBObject {
      * close closes the DBObject
      *
      * @return Whether or not the DBObject was closed
+     * @throws DBException if a DB error occurs
      */
     boolean close() throws DBException;
 }

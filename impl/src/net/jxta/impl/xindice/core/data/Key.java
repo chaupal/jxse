@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.data;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,9 +53,8 @@ package net.jxta.impl.xindice.core.data;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
-
+package net.jxta.impl.xindice.core.data;
 
 /**
  * Key extends Value by providing a hash value for the Key.

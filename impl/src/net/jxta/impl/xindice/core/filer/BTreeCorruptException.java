@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,11 +53,10 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core.filer;
 
-import net.jxta.impl.xindice.core.*;
-
+import net.jxta.impl.xindice.core.FaultCodes;
 
 /**
  * A BTreecorruptException is thrown by the BTree if the BTree

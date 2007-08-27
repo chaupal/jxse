@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,15 +53,13 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
-
+package net.jxta.impl.xindice.core.filer;
 
 /**
  * A BTreeException is thrown by the BTree if an exception occurs
  * in the managing of the BTree.
  */
-
 public class BTreeException extends FilerException {
     public BTreeException(int faultCode) {
         super(faultCode);

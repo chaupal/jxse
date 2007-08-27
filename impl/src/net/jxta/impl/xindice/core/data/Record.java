@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.data;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,17 +53,15 @@ package net.jxta.impl.xindice.core.data;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core.data;
 
 import java.util.Map;
-
 
 /**
  * Record is a container for Key/Value pairs.  Record also provides
  * metadata for a Value stored in the database.
  */
-
 public final class Record {
     public static final String CREATED = "created";
     public static final String MODIFIED = "modified";

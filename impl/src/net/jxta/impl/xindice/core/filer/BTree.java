@@ -118,7 +118,7 @@ public class BTree extends Paged {
      * Cache contains weak references to the BTreeNode objects, keys are page numbers (Long objects).
      * Access synchronized by this map itself.
      */
-    private final Map cache = new WeakHashMap();
+    private final Map<Long, WeakReference<BTreeNode>> cache = new WeakHashMap<Long, WeakReference<BTreeNode>>();
 
     private BTreeFileHeader fileHeader;
     private BTreeRootInfo rootInfo;
@@ -140,6 +140,8 @@ public class BTree extends Paged {
      * have been written to the device.
      * by default sync is true.
      * {@link java.io.FileDescriptor}
+     * @param sync if true, invokes FD.sync(), an expensive operation, required to ensure high consistency, especially
+     * with system failures.
      */
     public void setSync(boolean sync) {
         this.sync = sync;
@@ -174,7 +176,7 @@ public class BTree extends Paged {
                 rootNode.ph.setStatus(LEAF);
                 rootNode.write();
                 synchronized (cache) {
-                    cache.put(rootNode.page.getPageNum(), new WeakReference(rootNode));
+                    cache.put(rootNode.page.getPageNum(), new WeakReference<BTreeNode>(rootNode));
                 }
                 close();
                 return true;
@@ -196,6 +198,8 @@ public class BTree extends Paged {
      * @param value The Value to add
      * @param pointer The pointer to associate with it
      * @return The previous value for the pointer (or -1)
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public long addValue(Value value, long pointer) throws IOException, BTreeException {
         return getRootNode().addValue(value, pointer);
@@ -211,6 +215,8 @@ public class BTree extends Paged {
      * @param value The Value to add
      * @param pointer The pointer to associate with it
      * @return The previous value for the pointer (or -1)
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public long addValue(BTreeRootInfo root, Value value, long pointer) throws IOException, BTreeException {
         return getRootNode(root).addValue(value, pointer);
@@ -222,6 +228,8 @@ public class BTree extends Paged {
      *
      * @param value The Value to remove
      * @return The pointer that was associated with it
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public long removeValue(Value value) throws IOException, BTreeException {
         return getRootNode().removeValue(value);
@@ -234,6 +242,8 @@ public class BTree extends Paged {
      * @param root The BTree's root information (for nested trees)
      * @param value The Value to remove
      * @return The pointer that was associated with it
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public long removeValue(BTreeRootInfo root, Value value) throws IOException, BTreeException {
         return getRootNode(root).removeValue(value);
@@ -245,6 +255,8 @@ public class BTree extends Paged {
      *
      * @param value The Value to find
      * @return The pointer that was associated with it
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public long findValue(Value value) throws IOException, BTreeException {
         return getRootNode().findValue(value);
@@ -257,6 +269,8 @@ public class BTree extends Paged {
      * @param root The BTree's root information (for nested trees)
      * @param value The Value to find
      * @return The pointer that was associated with it
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public long findValue(BTreeRootInfo root, Value value) throws IOException, BTreeException {
         return getRootNode(root).findValue(value);
@@ -268,6 +282,8 @@ public class BTree extends Paged {
      *
      * @param query The IndexQuery to use (or null for everything)
      * @param callback The callback instance
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public void query(IndexQuery query, BTreeCallback callback) throws IOException, BTreeException {
         getRootNode().query(query, callback);
@@ -280,6 +296,8 @@ public class BTree extends Paged {
      * @param root The BTree's root information (for nested trees)
      * @param query The IndexQuery to use (or null for everything)
      * @param callback The callback instance
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     public void query(BTreeRootInfo root, IndexQuery query, BTreeCallback callback) throws IOException, BTreeException {
         getRootNode(root).query(query, callback);
@@ -291,13 +309,13 @@ public class BTree extends Paged {
      *
      * @param v The sub-tree Value to create
      * @return The new BTreeRootInfo instance
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     protected final BTreeRootInfo createBTreeRoot(Value v) throws IOException, BTreeException {
         BTreeNode n = createBTreeNode(BTree.LEAF, null);
-
         n.write();
-
-        long position = n.page.getPageNum().longValue();
+        long position = n.page.getPageNum();
 
         addValue(v, position);
         return new BTreeRootInfo(v, position);
@@ -310,13 +328,15 @@ public class BTree extends Paged {
      * @param root The BTreeRootInfo to build off of
      * @param v The sub-tree Value to create
      * @return The new BTreeRootInfo instance
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     protected final BTreeRootInfo createBTreeRoot(BTreeRootInfo root, Value v) throws IOException, BTreeException {
         BTreeNode n = createBTreeNode(BTree.LEAF, null);
 
         n.write();
 
-        long position = n.page.getPageNum().longValue();
+        long position = n.page.getPageNum();
 
         addValue(v, position);
         return new BTreeRootInfo(root, v, position);
@@ -328,6 +348,8 @@ public class BTree extends Paged {
      *
      * @param v The sub-tree Value to search for
      * @return The new BTreeRootInfo instance
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     protected final BTreeRootInfo findBTreeRoot(Value v) throws IOException, BTreeException {
         long position = findValue(v);
@@ -343,6 +365,8 @@ public class BTree extends Paged {
      * @param root The BTreeRootInfo to search from
      * @param v The sub-tree Value to search for
      * @return The new BTreeRootInfo instance
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     protected final BTreeRootInfo findBTreeRoot(BTreeRootInfo root, Value v) throws IOException, BTreeException {
         long position = findValue(root, v);
@@ -358,18 +382,20 @@ public class BTree extends Paged {
      *
      * @param root The root to reset
      * @param newRoot the new root node to use
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     protected final void setRootNode(BTreeRootInfo root, BTreeNode newRoot) throws IOException, BTreeException {
         BTreeRootInfo parent = root.getParent();
 
         if (parent == null) {
             rootNode = newRoot;
-            long p = rootNode.page.getPageNum().longValue();
+            long p = rootNode.page.getPageNum();
 
             rootInfo.setPage(p);
             fileHeader.setRootPage(p);
         } else {
-            long p = newRoot.page.getPageNum().longValue();
+            long p = newRoot.page.getPageNum();
 
             root.setPage(p);
             addValue(parent, root.name, p);
@@ -383,6 +409,8 @@ public class BTree extends Paged {
      * This method is not thread safe.
      *
      * @param rootNode the new root node to use
+     * @throws java.io.IOException if an io error occurs
+     * @throws BTreeException if a DB exception occurs
      */
     protected final void setRootNode(BTreeNode rootNode) throws IOException, BTreeException {
         setRootNode(rootInfo, rootNode);
@@ -417,10 +445,10 @@ public class BTree extends Paged {
             BTreeNode node = null;
 
             synchronized (cache) {
-                WeakReference ref = (WeakReference) cache.get(new Long(page));
+                WeakReference<BTreeNode> ref = cache.get(page);
 
                 if (ref != null) {
-                    node = (BTreeNode) ref.get();
+                    node = ref.get();
                 }
 
                 if (node == null) {
@@ -429,7 +457,7 @@ public class BTree extends Paged {
                     node.parent = parent;
                 }
 
-                cache.put(node.page.getPageNum(), new WeakReference(node));
+                cache.put(node.page.getPageNum(), new WeakReference<BTreeNode>(node));
             }
 
             node.read();
@@ -448,7 +476,7 @@ public class BTree extends Paged {
 
         node.ph.setStatus(status);
         synchronized (cache) {
-            cache.put(p.getPageNum(), new WeakReference(node));
+            cache.put(p.getPageNum(), new WeakReference<BTreeNode>(node));
         }
         return node;
     }
@@ -539,6 +567,8 @@ public class BTree extends Paged {
         /**
          * Sets values and pointers.
          * Internal (to the BTreeNode) method, not synchronized.
+         * @param ptrs  pointers
+         * @param values their values
          */
         private void set(Value[] values, long[] ptrs) {
             this.values = values;
@@ -548,6 +578,7 @@ public class BTree extends Paged {
 
         /**
          * Reads node only if it is not loaded yet
+         * @throws java.io.IOException if an io error occurs
          */
         public synchronized void read() throws IOException {
             if (!this.loaded) {
@@ -579,14 +610,14 @@ public class BTree extends Paged {
             DataOutputStream os = new DataOutputStream(bos);
 
             // Write out the Values
-            for (int i = 0; i < values.length; i++) {
-                os.writeShort(values[i].getLength());
-                values[i].streamTo(os);
+            for (Value value : values) {
+                os.writeShort(value.getLength());
+                value.streamTo(os);
             }
 
             // Write out the pointers
-            for (int i = 0; i < ptrs.length; i++) {
-                os.writeLong(ptrs[i]);
+            for (long ptr : ptrs) {
+                os.writeLong(ptr);
             }
 
             writeValue(page, new Value(bos.toByteArray()));
@@ -595,6 +626,8 @@ public class BTree extends Paged {
         /**
          * Internal (to the BTreeNode) method.
          * Because this method is called only by BTreeNode itself, no synchronization done inside of this method.
+         * @param idx  the index
+         * @return the BTree node
          */
         private BTreeNode getChildNode(int idx) {
             if (ph.getStatus() == BRANCH && idx >= 0 && idx < ptrs.length) {
@@ -711,8 +744,10 @@ public class BTree extends Paged {
 
         /**
          * Do we need to split this node after adding one more value?
+         * @param value the value to split
+         * @return true if successful
          */
-        private final boolean needSplit(Value value) {
+        private boolean needSplit(Value value) {
             // Do NOT split if just 4 key/values are in the node.
             return this.values.length > 4 && // CurrLength + one Long pointer + value length + one short
                     this.ph.getDataLen() + 8 + value.getLength() + 2 > BTree.this.fileHeader.getWorkSize();
@@ -720,6 +755,8 @@ public class BTree extends Paged {
 
         /**
          * Internal to the BTreeNode method
+         * @throws java.io.IOException if an io error occurs
+         * @throws BTreeException if a DB exception occurs
          */
         private void split() throws IOException, BTreeException {
             Value[] leftVals;
@@ -779,8 +816,7 @@ public class BTree extends Paged {
                 ph.setStatus(BRANCH);
                 set(new Value[] {
                     separator
-                }, new long[] {
-                    lNode.page.getPageNum().longValue(), rNode.page.getPageNum().longValue() });
+                }, new long[] {lNode.page.getPageNum(), rNode.page.getPageNum()});
 
                 write();
                 rNode.write();
@@ -794,7 +830,7 @@ public class BTree extends Paged {
 
                 write();
                 rNode.write();
-                parent.promoteValue(separator, rNode.page.getPageNum().longValue());
+                parent.promoteValue(separator, rNode.page.getPageNum());
             }
         }
 
@@ -1079,13 +1115,19 @@ public class BTree extends Paged {
             raf.writeLong(rootPage);
         }
 
-        /** The root page of the storage tree */
+        /**
+         *  The root page of the storage tree
+         * @param rootPage the new root page
+         */
         public synchronized final void setRootPage(long rootPage) {
             this.rootPage = rootPage;
             setDirty();
         }
 
-        /** The root page of the storage tree */
+        /**
+         * The root page of the storage tree
+         * @return the root page
+         */
         public synchronized final long getRootPage() {
             return rootPage;
         }
@@ -1121,18 +1163,26 @@ public class BTree extends Paged {
             dos.writeShort(valueCount);
         }
 
-        /** The number of values stored by this page */
+        /** The number of values stored by this page
+         * @param valueCount the value count
+         */
         public synchronized final void setValueCount(short valueCount) {
             this.valueCount = valueCount;
             setDirty();
         }
 
-        /** The number of values stored by this page */
+        /**
+         * The number of values stored by this page
+         * @return the value count
+         */
         public synchronized final short getValueCount() {
             return valueCount;
         }
 
-        /** The number of pointers stored by this page */
+        /**
+         * The number of pointers stored by this page
+         * @return the pointer count
+         */
         public synchronized final short getPointerCount() {
             if (getStatus() == BRANCH) {
                 return (short) (valueCount + 1);

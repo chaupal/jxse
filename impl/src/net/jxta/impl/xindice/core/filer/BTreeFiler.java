@@ -56,16 +56,13 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
-
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
 import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Record;
 import net.jxta.impl.xindice.core.data.RecordSet;
 import net.jxta.impl.xindice.core.data.Value;
-import net.jxta.impl.xindice.core.indexer.NameIndexer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -77,11 +74,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
  * BTreeFiler is a Filer implementation based on the BTree class.
  */
-
 public final class BTreeFiler extends BTree implements Filer {
 
     protected static final byte RECORD = 20;
@@ -153,7 +148,7 @@ public final class BTreeFiler extends BTree implements Filer {
             Value v = readValue(startPage);
             BTreeFilerPageHeader sph = (BTreeFilerPageHeader) startPage.getPageHeader();
 
-            HashMap meta = new HashMap(4);
+            HashMap<String, Long> meta = new HashMap<String, Long>(4);
 
             meta.put(Record.CREATED, sph.getCreated());
             meta.put(Record.MODIFIED, sph.getModified());
@@ -182,8 +177,7 @@ public final class BTreeFiler extends BTree implements Filer {
         checkOpened();
         try {
             Page p;
-            long pos = 0;
-
+            long pos;
             try {
                 pos = findValue(key);
                 p = getPage(pos);
@@ -268,8 +262,8 @@ public final class BTreeFiler extends BTree implements Filer {
      */
 
     private class BTreeFilerRecordSet implements RecordSet, BTreeCallback {
-        private List keys = new ArrayList();
-        private Iterator it;
+        private List<Key> keys = new ArrayList<Key>();
+        private Iterator<Key> it;
 
         public BTreeFilerRecordSet() throws DBException {
             try {
@@ -286,11 +280,11 @@ public final class BTreeFiler extends BTree implements Filer {
         }
 
         public synchronized Key getNextKey() {
-            return (Key) it.next();
+            return it.next();
         }
 
         public synchronized Record getNextRecord() throws DBException {
-            return readRecord((Key) it.next());
+            return readRecord(it.next());
         }
 
         public synchronized Value getNextValue() throws DBException {
@@ -362,13 +356,19 @@ public final class BTreeFiler extends BTree implements Filer {
             raf.writeLong(totalBytes);
         }
 
-        /** The total number of bytes in use by the file */
+        /**
+         * The total number of bytes in use by the file
+         * @param totalBytes the new total number of bytes
+         */
         public synchronized void setTotalBytes(long totalBytes) {
             this.totalBytes = totalBytes;
             setDirty();
         }
 
-        /** The total number of bytes in use by the file */
+        /**
+         * The total number of bytes in use by the file
+         * @return the total number of bytes
+         */
         public synchronized long getTotalBytes() {
             return totalBytes;
         }
@@ -420,46 +420,70 @@ public final class BTreeFiler extends BTree implements Filer {
             super.setRecordLen(recordLen);
         }
 
-        /** UNIX-time when this record was created */
+        /**
+         * UNIX-time when this record was created
+         * @param created creation time
+         */
         public synchronized void setCreated(long created) {
             this.created = created;
             setDirty();
         }
 
-        /** UNIX-time when this record was created */
+        /**
+         * UNIX-time when this record was created
+         * @return creation time
+         */
         public synchronized long getCreated() {
             return created;
         }
 
-        /** UNIX-time when this record was last modified */
+        /**
+         * UNIX-time when this record was last modified
+         * @param modified modified time
+         */
         public synchronized void setModified(long modified) {
             this.modified = modified;
             setDirty();
         }
 
-        /** UNIX-time when this record was last modified */
+        /**
+         *  UNIX-time when this record was last modified
+         * @return modified time
+         */
         public synchronized long getModified() {
             return modified;
         }
 
-        /** JXTA-lifetime this record's lifetime */
+        /**
+         *  JXTA-lifetime this record's lifetime
+         * @param lifetime the new record lifetime
+         */
         public synchronized void setLifetime(long lifetime) {
             this.lifetime = lifetime;
             setDirty();
         }
 
-        /** JXTA-lifetime this record's lifetime */
+        /**
+         * JXTA-lifetime this record's lifetime
+         * @return the record lifetime
+         */
         public synchronized long getLifetime() {
             return lifetime;
         }
 
-        /** JXTA-expiration this record's expiration */
+        /**
+         * JXTA-expiration this record's expiration
+         * @param expiration the record expiration time
+         */
         public synchronized void setExpiration(long expiration) {
             this.expiration = expiration;
             setDirty();
         }
 
-        /** JXTA-expiration this record's expiration */
+        /**
+         * JXTA-expiration this record's expiration
+         * @return the record expiration time
+         */
         public synchronized long getExpiration() {
             return expiration;
         }

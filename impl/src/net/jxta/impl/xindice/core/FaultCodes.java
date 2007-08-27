@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,17 +53,16 @@ package net.jxta.impl.xindice.core;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core;
 
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * FaultCodes defines the Xindice specific fault codes and associated error
  * messages.
  */
-
 public abstract class FaultCodes {
 
     // the constants below have been pasted from
@@ -392,7 +388,7 @@ public abstract class FaultCodes {
     //
     public static final int JAVA_RUNTIME_ERROR = (int) (2070l);
 
-    private static final Map FaultMsg = new HashMap();
+    private static final Map<Integer, String> FaultMsg = new HashMap<Integer, String>();
 
     private FaultCodes() {}
 
@@ -473,7 +469,7 @@ public abstract class FaultCodes {
     }
 
     private static void putCodeMessage(int code, String message) {
-        FaultMsg.put(new Integer(code), message);
+        FaultMsg.put(code, message);
     }
 
     /**
@@ -483,7 +479,7 @@ public abstract class FaultCodes {
      * @return It's textual form
      */
     public static String getMessage(int code) {
-        String msg = (String) FaultMsg.get(new Integer(code));
+        String msg = FaultMsg.get(code);
 
         return msg != null ? msg : "";
     }
@@ -555,6 +551,5 @@ public abstract class FaultCodes {
     public static String getFaultMessage(Exception e) {
         return getMessage(getFaultCode(e));
     }
-
 }
 

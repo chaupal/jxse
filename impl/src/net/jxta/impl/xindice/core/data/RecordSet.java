@@ -56,17 +56,14 @@ package net.jxta.impl.xindice.core.data;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
 
 import net.jxta.impl.xindice.core.DBException;
-
 
 /**
  * RecordSet is an interface for iterating over a set of Records.
  * It is almost always returned by Filers.
  */
-
 public interface RecordSet {
 
     /**
@@ -74,6 +71,7 @@ public interface RecordSet {
      * left in the set.
      *
      * @return Whether there are any more Records
+     * @throws net.jxta.impl.xindice.core.filer.BTreeException if a DB exception occurs
      */
     boolean hasMoreRecords() throws DBException;
    
@@ -81,6 +79,7 @@ public interface RecordSet {
      * getNextRecord returns the next Record in the set.
      *
      * @return The next Record
+     * @throws net.jxta.impl.xindice.core.filer.BTreeException if a DB exception occurs
      */
     Record getNextRecord() throws DBException;
    
@@ -89,6 +88,7 @@ public interface RecordSet {
      * RecordSet ahead to the next Record.
      *
      * @return The next Key
+     * @throws net.jxta.impl.xindice.core.filer.BTreeException if a DB exception occurs
      */
     Key getNextKey() throws DBException;
 
@@ -97,6 +97,7 @@ public interface RecordSet {
      * RecordSet ahead to the next Record.
      *
      * @return The next Value
+     * @throws net.jxta.impl.xindice.core.filer.BTreeException if a DB exception occurs
      */
     Value getNextValue() throws DBException;
 }

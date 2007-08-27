@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.data;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,15 +53,14 @@ package net.jxta.impl.xindice.core.data;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+package net.jxta.impl.xindice.core.data;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-
 
 /**
  * Value is the primary base class for all data storing objects.
@@ -142,6 +138,7 @@ public class Value implements Comparable {
      * streamTo streams the content of the Value to an OutputStream.
      *
      * @param out the OutputStream
+     * @throws java.io.IOException if an io error occurs
      */
     public final void streamTo(OutputStream out) throws IOException {
         out.write(data, pos, len);
@@ -197,7 +194,7 @@ public class Value implements Comparable {
             byte b2 = ddata[dpos + i];
 
             if (b1 == b2) {
-                continue;
+                // do nothing
             } else {
                 short s1 = (short) (b1 >>> 0);
                 short s2 = (short) (b2 >>> 0);
@@ -261,7 +258,7 @@ public class Value implements Comparable {
         if (len < value.len) {
             return false;
         }
-        boolean match = false;
+        boolean match;
         byte[] ddata = value.data;
         int dpos = value.pos;
 
@@ -270,7 +267,6 @@ public class Value implements Comparable {
             for (int i = 0; i < value.len; i++) {
                 if (data[i + pos + offset] != ddata[i + dpos]) {
                     match = false;
-                    continue;
                 }
             }
             if (match) {
