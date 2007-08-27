@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.util;
 
 import net.jxta.document.AdvertisementFactory;
@@ -67,6 +66,7 @@ import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.endpoint.tcp.TcpMessenger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
@@ -77,19 +77,21 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class implements server pipes. A server pipe waits for requests to come
- * in over the network from a JxtaBiDiPipe. It performs some operation based on that request,
- * and then possibly returns a result to the requester.
+ * The server side of a JxtaBiDiPipe. The intent of this object is accept connection requests.
+ * JxtaServerPipe follows the same pattern as java.net.ServerSocket, without it no connection can be
+ * established.
+ *
  */
 public class JxtaServerPipe implements PipeMsgListener {
 
@@ -100,20 +102,22 @@ public class JxtaServerPipe implements PipeMsgListener {
     protected static final String remPeerTag = "remPeer";
     protected static final String remPipeTag = "remPipe";
     protected static final String closeTag = "close";
-    protected final static String closeReqValue = "close";
-    protected final static String closeAckValue = "closeACK";
     protected static final String reliableTag = "reliable";
     protected static final String directSupportedTag = "direct";
     private PeerGroup group;
     private InputPipe serverPipe;
     private PipeAdvertisement pipeadv;
     private int backlog = 50;
-    private long timeout = 60 * 1000L;
-    private final String closeLock = new String("closeLock");
-    protected BlockingQueue<Message> queue = null;
+    private long timeout = 30 * 1000L;
+    private final Object closeLock = new Object();
+    protected BlockingQueue<JxtaBiDiPipe> connectionQueue = null;
     private boolean bound = false;
     private boolean closed = false;
     protected StructuredDocument myCredentialDoc = null;
+    /**
+     * The exceutor service.
+     */
+    private final ExecutorService executor;
 
     /**
      * Default constructor for the JxtaServerPipe
@@ -159,11 +163,11 @@ public class JxtaServerPipe implements PipeMsgListener {
      */
     public JxtaServerPipe(PeerGroup group, PipeAdvertisement pipeadv, int backlog) throws IOException {
         this.group = group;
+        this.executor = Executors.newFixedThreadPool(3);
         this.pipeadv = pipeadv;
         this.backlog = backlog;
-        queue = new ArrayBlockingQueue<Message>(backlog);
+        connectionQueue = new ArrayBlockingQueue<JxtaBiDiPipe>(backlog);
         PipeService pipeSvc = group.getPipeService();
-
         serverPipe = pipeSvc.createInputPipe(pipeadv, this);
         setBound();
     }
@@ -189,11 +193,10 @@ public class JxtaServerPipe implements PipeMsgListener {
      */
     public void bind(PeerGroup group, PipeAdvertisement pipeadv, int backlog) throws IOException {
         this.backlog = backlog;
-        this.queue = new ArrayBlockingQueue<Message>(backlog);
+        connectionQueue = new ArrayBlockingQueue<JxtaBiDiPipe>(backlog);
         this.group = group;
         this.pipeadv = pipeadv;
         PipeService pipeSvc = group.getPipeService();
-
         serverPipe = pipeSvc.createInputPipe(pipeadv, this);
         setBound();
     }
@@ -202,7 +205,7 @@ public class JxtaServerPipe implements PipeMsgListener {
      * Listens for a connection to be made to this socket and accepts
      * it. The method blocks until a connection is made.
      *
-     * @return JxtaBiDiPipe
+     * @return the connection accepted, null otherwise
      * @throws IOException if an I/O error occurs
      */
     public JxtaBiDiPipe accept() throws IOException {
@@ -213,18 +216,11 @@ public class JxtaServerPipe implements PipeMsgListener {
             throw new SocketException("JxtaServerPipe is not bound yet");
         }
         try {
-            while (true) {
-                Message msg = queue.poll(timeout, TimeUnit.MILLISECONDS);
-                if (msg == null) {
-                    throw new SocketTimeoutException("Timeout reached");
-                }
-
-                JxtaBiDiPipe bidi = processMessage(msg);
-                // make sure we have a socket returning
-                if (bidi != null) {
-                    return bidi;
-                }
+            JxtaBiDiPipe bidi = connectionQueue.poll(timeout, TimeUnit.MILLISECONDS);
+            if (bidi == null) {
+                throw new SocketTimeoutException("Timeout reached");
             }
+            return bidi;
         } catch (InterruptedException ie) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Interrupted", ie);
@@ -264,7 +260,8 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (bound) {
                 // close all the pipe
                 serverPipe.close();
-                queue.clear();
+                connectionQueue.clear();
+                executor.shutdownNow();
                 bound = false;
             }
             closed = true;
@@ -297,9 +294,7 @@ public class JxtaServerPipe implements PipeMsgListener {
     }
 
     /**
-     * Sets the Timeout attribute of the JxtaServerPipe
-     * a timeout of 0 blocks forever, by default this JxtaServerPipe's
-     * timeout is set to 60 seconds
+     * Sets the Timeout attribute of the JxtaServerPipe a timeout of 0 blocks forever.
      *
      * @param timeout The new soTimeout value
      * @throws SocketException if an I/O error occurs
@@ -344,26 +339,12 @@ public class JxtaServerPipe implements PipeMsgListener {
      * {@inheritDoc}
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
-
-        // deal with messages as they come in
         Message message = event.getMessage();
         if (message == null) {
             return;
         }
-
-        boolean pushed;
-        try {
-            pushed = queue.offer(message, timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "backlog queue full, connect request dropped", e);
-            }
-            return;
-        }
-
-        if (!pushed && Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("backlog queue full, connect request dropped");
-        }
+        ConnectionProcessor processor = new ConnectionProcessor(message);
+        executor.execute(processor);
     }
 
     /**
@@ -377,13 +358,11 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @param msg The client connection request (assumed not null)
      * @return JxtaBiDiPipe Which may be null if an error occurs.
      */
-
     private JxtaBiDiPipe processMessage(Message msg) {
 
         PipeAdvertisement outputPipeAdv = null;
         PeerAdvertisement peerAdv = null;
         StructuredDocument credDoc = null;
-
         try {
             MessageElement el = msg.getMessageElement(nameSpace, credTag);
 
@@ -405,16 +384,15 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             el = msg.getMessageElement(nameSpace, reliableTag);
             boolean isReliable = false;
-
             if (el != null) {
                 isReliable = Boolean.valueOf((el.toString()));
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Connection request [isReliable] :" + isReliable);
                 }
             }
+
             el = msg.getMessageElement(nameSpace, directSupportedTag);
             boolean directSupported = false;
-
             if (el != null) {
                 directSupported = Boolean.valueOf((el.toString()));
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -424,9 +402,8 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             Messenger msgr;
             boolean direct = false;
-
             if (directSupported) {
-                msgr = JxtaBiDiPipe.lightweightDirectOutputPipe(group, outputPipeAdv, peerAdv);
+                msgr = JxtaBiDiPipe.getDirectMessenger(group, outputPipeAdv, peerAdv);
                 if (msgr == null) {
                     msgr = JxtaBiDiPipe.lightweightOutputPipe(group, outputPipeAdv, peerAdv);
                 } else {
@@ -440,13 +417,12 @@ public class JxtaServerPipe implements PipeMsgListener {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Reliability set to :" + isReliable);
                 }
-
                 PipeAdvertisement newpipe = newInputPipe(group, outputPipeAdv);
                 JxtaBiDiPipe pipe = new JxtaBiDiPipe(group, msgr, newpipe, credDoc, isReliable, direct);
 
                 pipe.setRemotePeerAdvertisement(peerAdv);
                 pipe.setRemotePipeAdvertisement(outputPipeAdv);
-                sendResponseMessage(group, msgr, newpipe);
+                sendResponseMessage(group, msgr, newpipe, direct);
                 return pipe;
             }
         } catch (IOException e) {
@@ -454,7 +430,6 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "IOException occured", e);
             }
-
         }
         return null;
     }
@@ -466,8 +441,9 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @param msgr   the remote node messenger
      * @param pipeAd the pipe advertisement
      * @throws IOException for failures sending the response message.
+     * @param direct if true indicates direct mode
      */
-    protected void sendResponseMessage(PeerGroup group, Messenger msgr, PipeAdvertisement pipeAd) throws IOException {
+    protected void sendResponseMessage(PeerGroup group, Messenger msgr, PipeAdvertisement pipeAd, boolean direct) throws IOException {
 
         Message msg = new Message();
         PeerAdvertisement peerAdv = group.getPeerAdvertisement();
@@ -489,7 +465,11 @@ public class JxtaServerPipe implements PipeMsgListener {
 
         msg.addMessageElement(nameSpace,
                 new TextDocumentMessageElement(remPeerTag, (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
-        msgr.sendMessage(msg);
+        if (direct) {
+            ((TcpMessenger) msgr).sendMessageDirect(msg, null, null, true);
+        } else {
+            msgr.sendMessage(msg);
+        }
     }
 
     /**
@@ -505,7 +485,6 @@ public class JxtaServerPipe implements PipeMsgListener {
      */
     protected static PipeAdvertisement newInputPipe(PeerGroup group, PipeAdvertisement pipeadv) {
         PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
-
         adv.setPipeID(IDFactory.newPipeID(group.getPeerGroupID()));
         adv.setName(pipeadv.getName());
         adv.setType(pipeadv.getType());
@@ -538,7 +517,6 @@ public class JxtaServerPipe implements PipeMsgListener {
      */
     @Override
     protected synchronized void finalize() throws Throwable {
-
         if (!closed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("JxtaServerPipe is being finalized without being previously closed. This is likely a user's bug.");
@@ -546,5 +524,27 @@ public class JxtaServerPipe implements PipeMsgListener {
         }
         close();
         super.finalize();
+    }
+    /**
+     * A small class for processing individual messages.
+     */
+    private class ConnectionProcessor implements Runnable {
+
+        private Message message;
+        ConnectionProcessor(Message message) {
+            this.message = message;
+        }
+
+        public void run() {
+            JxtaBiDiPipe bidi = processMessage(message);
+            // make sure we have a socket returning
+            if (bidi != null) {
+                try {
+                    connectionQueue.offer(bidi, timeout, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    Thread.interrupted();
+                }
+            }
+        }
     }
 }
