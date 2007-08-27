@@ -115,7 +115,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     private transient Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
     /**
-     *  Cached value for {@link #getID()}
+     * Cached value for {@link #getID()}
      */
     private transient ID hashID = null;
 
@@ -134,7 +134,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         if (destPid == null) {
             throw new IllegalArgumentException("Missing destination peer id.");
         }
-        
+
         for (AccessPointAdvertisement apa : hops) {
             if (null == apa) {
                 throw new IllegalArgumentException("Bad route. null APA.");
@@ -144,15 +144,15 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
                 throw new IllegalArgumentException("Bad route. Incomplete APA.");
             }
         }
-        
+
         RouteAdvertisement route = (RouteAdvertisement)
                 AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
-        
+
         route.setDestPeerID(destPid);
-        
+
         // set the route hops
         route.setHops(hops);
-        
+
         // check if the given first hop is already in the route if not add it
         // (note: we do not expect it to be there, but it is acceptable).
         if (firsthop != null) {
@@ -165,7 +165,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
                 route.setFirstHop(ap);
             }
         }
-        
+
         return route;
     }
 
@@ -176,20 +176,20 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     public RouteAdvertisement clone() {
         try {
             RouteAdvertisement a = (RouteAdvertisement) super.clone();
-            
+
             a.setDest(getDest());
-            
+
             // deep copy of the hops
             Vector<AccessPointAdvertisement> clonehops = getVectorHops();
-            
+
             ListIterator<AccessPointAdvertisement> eachHop = clonehops.listIterator();
 
             while (eachHop.hasNext()) {
                 eachHop.set(eachHop.next().clone());
             }
-            
+
             a.setHops(clonehops);
-            
+
             return a;
         } catch (CloneNotSupportedException impossible) {
             throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
@@ -229,7 +229,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
     /**
      * Compare if two routes are equals. Equals means same destination with the
-     * same endpoint addresses and thee same number of hops and the same 
+     * same endpoint addresses and thee same number of hops and the same
      * endpoint addresses for each hop.
      *
      * @param target the route to compare against
@@ -249,12 +249,12 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         RouteAdvertisement route = (RouteAdvertisement) target;
 
         // check the destination
-        if(!dest.equals(route.getDest())) {
+        if (!dest.equals(route.getDest())) {
             return false;
         }
 
         // check each of the hops
-        
+
         // routes need to have the same size
         if (hops.size() != route.size()) {
             return false;
@@ -262,7 +262,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
         int index = 0;
 
-        for ( AccessPointAdvertisement hop : route.hops) {
+        for (AccessPointAdvertisement hop : route.hops) {
             if (!hop.equals(hops.get(index++))) {
                 return false;
             }
@@ -306,10 +306,10 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      */
     @Override
     public synchronized ID getID() {
-        if(null == dest.getPeerID()) {
+        if (null == dest.getPeerID()) {
             throw new IllegalStateException("Destination peerID not defined. Incomplete RouteAdvertisement");
         }
-        
+
         if (hashID == null) {
             try {
                 // We have not yet built it. Do it now
@@ -344,9 +344,9 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         }
 
         dest.setPeerID(pid);
-        
+
         // recalculate hash.
-        synchronized(this) {
+        synchronized (this) {
             hashID = null;
         }
     }
@@ -373,17 +373,17 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         PeerID destPid = dest.getPeerID();
 
         this.dest = ap.clone();
-        
+
         if ((null != destPid) && (null != dest.getPeerID()) && (!destPid.equals(dest.getPeerID()))) {
-            throw new IllegalStateException("Changed the peer id of the destination APA." + destPid + " != " + dest.getPeerID() );
+            throw new IllegalStateException("Changed the peer id of the destination APA." + destPid + " != " + dest.getPeerID());
         }
 
-        if(null != destPid) {
+        if (null != destPid) {
             dest.setPeerID(destPid);
         }
-        
+
         // recalculate hash.
-        synchronized(this) {
+        synchronized (this) {
             hashID = null;
         }
     }
@@ -404,43 +404,43 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     }
 
     /**
-     *  Clears all endpoint addresses associated with the destination peer.
+     * Clears all endpoint addresses associated with the destination peer.
      */
     public void clearDestEndpointAddresses() {
         dest.clearEndpointAddresses();
     }
 
     /**
-     *  Add the specified endpoint address to destination peer.
+     * Add the specified endpoint address to destination peer.
      *
-     *  @param addr EndpointAddress to add.
+     * @param addr EndpointAddress to add.
      */
     public void addDestEndpointAddress(EndpointAddress addr) {
         dest.addEndpointAddress(addr);
     }
 
     /**
-     *  Add all of the specified endpoint addresses to destination peer.
+     * Add all of the specified endpoint addresses to destination peer.
      *
-     *  @param addrs EndpointAddresses to add.
+     * @param addrs EndpointAddresses to add.
      */
     public void addDestEndpointAddresses(List<EndpointAddress> addrs) {
         dest.addEndpointAddresses(addrs);
     }
 
     /**
-     *  Remove the specified endpoint address to destination peer.
+     * Remove the specified endpoint address to destination peer.
      *
-     *  @param addr EndpointAddress to add.
+     * @param addr EndpointAddress to add.
      */
     public void removeDestEndpointAddress(EndpointAddress addr) {
         dest.removeEndpointAddress(addr);
     }
 
     /**
-     *  Remove the specified endpoint addresses from destination peer.
+     * Remove the specified endpoint addresses from destination peer.
      *
-     *  @param addrs EndpointAddress to add.
+     * @param addrs EndpointAddress to add.
      */
     public void removeDestEndpointAddresses(Collection<EndpointAddress> addrs) {
         dest.removeEndpointAddresses(addrs);
@@ -460,35 +460,35 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     }
 
     /**
-     *  Returns the endpoint addresses of the destination peer in their 
-     *  preferred order.
+     * Returns the endpoint addresses of the destination peer in their
+     * preferred order.
      *
-     *  @return The {@code EndpointAddress}es of the destination peer.
+     * @return The {@code EndpointAddress}es of the destination peer.
      */
     public List<EndpointAddress> getDestEndpointAddresses() {
         List<EndpointAddress> result = new ArrayList<EndpointAddress>();
-        
+
         Enumeration<String> eachEA = dest.getEndpointAddresses();
-        
-        while(eachEA.hasMoreElements()) {
+
+        while (eachEA.hasMoreElements()) {
             result.add(new EndpointAddress(eachEA.nextElement()));
         }
-        
+
         return result;
     }
-    
+
     /**
      * Set the route destination endpoint addresses
      *
      * @param ea vector of endpoint addresses. Warning: The vector is not copied
-     * and is used directly.
+     *           and is used directly.
      * @deprecated Use {@link #addDestEndpointAddress(EndpointAddress)} instead.
      */
     @Deprecated
     public void setDestEndpointAddresses(Vector<String> ea) {
         dest.setEndpointAddresses(ea);
     }
-    
+
     /**
      * returns the list of hops
      *
@@ -511,7 +511,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * Sets the list of hops associated with this route.
      *
      * @param newHops AccessPointAdvertisements which form the hops. The
-     * Vector is <b>NOT</b> copied.
+     *                Vector is <b>NOT</b> copied.
      */
     public void setHops(Vector<AccessPointAdvertisement> newHops) {
         // It is legal to set it to null but it is automatically converted
@@ -524,7 +524,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
                     throw new IllegalArgumentException("Bad hop");
                 }
             }
-            
+
             hops = newHops;
         }
     }
@@ -555,7 +555,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     public AccessPointAdvertisement getFirstHop() {
         return hops.isEmpty() ? null : hops.firstElement();
     }
-    
+
     /**
      * Sets the AccessPointAdvertisement for the first hop. <b>The
      * AccessPointAdvertisement is <i>not</i> cloned.</b>
@@ -566,10 +566,10 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         if (null == ap.getPeerID()) {
             throw new IllegalArgumentException("Bad hop");
         }
-        
+
         hops.add(0, ap);
     }
-    
+
     /**
      * Returns the access point for the last hop. <b>The
      * AccessPointAdvertisement is <i>not</i> cloned.</b>
@@ -579,7 +579,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     public AccessPointAdvertisement getLastHop() {
         return hops.isEmpty() ? null : hops.lastElement();
     }
-    
+
     /**
      * Sets the AccessPointAdvertisement of the last hop. <b>The
      * AccessPointAdvertisement is <i>not</i> cloned.</b>
@@ -590,10 +590,10 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         if (null == ap.getPeerID()) {
             throw new IllegalArgumentException("Bad hop");
         }
-        
+
         hops.add(ap);
     }
-    
+
     /**
      * check if the route has a loop
      *
@@ -628,7 +628,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     /**
      * Return the hop that follows the specified currentHop. <b>The
      * AccessPointAdvertisement is <i>not</i> cloned.</b>
-     * 
+     *
      * @param currentHop PeerID of the current hop
      * @return ap AccessPointAdvertisement of the next Hop
      */
@@ -665,7 +665,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
                 nextHop = hops.get(index);
             }
         }
-        
+
         return nextHop;
     }
 
@@ -718,7 +718,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -848,7 +848,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
                 }
             }
         }
-        
+
         if (lastHop != null && newHops.size() > 0) {
             newHops.setElementAt(lastHop, newHops.size() - 1);
         }
