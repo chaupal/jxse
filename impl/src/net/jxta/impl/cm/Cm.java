@@ -153,16 +153,6 @@ public final class Cm implements Runnable {
     private volatile int inconvenienceLevel = 0;
 
     /**
-     * @param areaName storage name
-     * @param optimize not used
-     * @deprecated Legacy constructor for bench test MakeAdvertisements.java
-     */
-    @Deprecated
-    public Cm(String areaName, boolean optimize) {
-        this(new File(System.getProperty("JXTA_HOME", ".jxta")).toURI(), areaName);
-    }
-
-    /**
      * Constructor for cm
      *
      * @param areaName  the name of the cm sub-dir to create
@@ -312,16 +302,15 @@ public final class Cm implements Runnable {
      *
      * @param dn          contains the name of the folder
      * @param threshold   the max number of results
-     * @param values      List to contain values
      * @param expirations List to contain expirations
      * @return List Strings containing the name of the
      *         files
      */
-    public List<InputStream> getRecords(String dn, int threshold, List values, List<Long> expirations) {
-        return getRecords(dn, threshold, values, expirations, false);
+    public List<InputStream> getRecords(String dn, int threshold, List<Long> expirations) {
+        return getRecords(dn, threshold, expirations, false);
     }
 
-    public synchronized List<InputStream> getRecords(String dn, int threshold, List values, List<Long> expirations, boolean purge) {
+    public synchronized List<InputStream> getRecords(String dn, int threshold, List<Long> expirations, boolean purge) {
         List<InputStream> res = new ArrayList<InputStream>();
 
         if (dn == null) {
@@ -331,7 +320,6 @@ public final class Cm implements Runnable {
             return res;
         } else {
             IndexQuery iq = new IndexQuery(IndexQuery.SW, new Value(dn));
-
             try {
                 cacheDB.query(iq, new SearchCallback(cacheDB, indexer, res, expirations, threshold, purge));
             } catch (DBException dbe) {
@@ -352,13 +340,12 @@ public final class Cm implements Runnable {
         // expired entries
         Map map = indexer.getIndexers();
         Iterator it = map.keySet().iterator();
-        long t0 = 0;
+        long t0;
 
         while (it != null && it.hasNext()) {
             t0 = System.currentTimeMillis();
             String indexName = (String) it.next();
-
-            getRecords(indexName, Integer.MAX_VALUE, null, null, true);
+            getRecords(indexName, Integer.MAX_VALUE, null, true);
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Cm garbageCollect :" + indexName + " in :" + (System.currentTimeMillis() - t0));
             }
@@ -665,8 +652,6 @@ public final class Cm implements Runnable {
             doc.sendToStream(baos);
             baos.close();
             Value value = new Value(baos.toByteArray());
-
-            baos = null;
             Long oldLife = null;
             Record record = cacheDB.readRecord(key);
 
@@ -849,7 +834,7 @@ public final class Cm implements Runnable {
                 LOG.fine("Found " + val.toString() + " at " + pos);
             }
 
-            Record record = null;
+            Record record;
             try {
                 record = cacheDB.readRecord(pos);
             } catch (DBException ex) {
@@ -911,8 +896,8 @@ public final class Cm implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Found " + val.toString() + " at " + pos);
             }
-            Record record = null;
 
+            Record record;
             try {
                 record = cacheDB.readRecord(pos);
             } catch (DBException ex) {
@@ -958,56 +943,9 @@ public final class Cm implements Runnable {
         }
     }
 
-
-    private static final class removeCallback implements BTreeCallback {
-
-        private BTreeFiler cacheDB = null;
-        private Indexer indexer = null;
-
-        removeCallback(BTreeFiler cacheDB, Indexer indexer) {
-            this.cacheDB = cacheDB;
-            this.indexer = indexer;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean indexInfo(Value val, long pos) {
-            Record record = null;
-
-            try {
-                record = cacheDB.readRecord(pos);
-            } catch (DBException ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while reading record", ex);
-                }
-                return false;
-            }
-            if (record == null) {
-                return true;
-            }
-            try {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Removing Record at position :" + pos);
-                }
-                indexer.purge(pos);
-                cacheDB.deleteRecord(record.getKey());
-            } catch (DBException ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                }
-            } catch (IOException ie) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while reading indexed", ie);
-                }
-            }
-            return true;
-        }
-    }
-
     protected static IndexQuery getIndexQuery(String value) {
 
-        int operator = IndexQuery.ANY;
+        int operator;
 
         if (value == null) {
             return null;
@@ -1044,10 +982,8 @@ public final class Cm implements Runnable {
      * @return Enumeration containing of all the documents names
      */
     public synchronized List<InputStream> search(String dn, String attribute, String value, int threshold, List<Long> expirations) {
-
         List<InputStream> res = new ArrayList<InputStream>();
         IndexQuery iq = getIndexQuery(value);
-
         try {
             indexer.search(iq, dn + attribute, new SearchCallback(cacheDB, indexer, res, expirations, threshold));
         } catch (Exception ex) {
@@ -1067,7 +1003,6 @@ public final class Cm implements Runnable {
      */
     public synchronized List<SrdiMessage.Entry> getEntries(String dn, boolean clearDeltas) {
         List<SrdiMessage.Entry> res = new ArrayList<SrdiMessage.Entry>();
-
         try {
             Map map = indexer.getIndexers();
             BTreeFiler listDB = indexer.getListDB();
@@ -1075,12 +1010,10 @@ public final class Cm implements Runnable {
 
             while (it != null && it.hasNext()) {
                 String indexName = (String) it.next();
-
                 // seperate the index name from attribute
                 if (indexName.startsWith(dn)) {
                     String attr = indexName.substring((dn).length());
                     NameIndexer idxr = (NameIndexer) map.get(indexName);
-
                     idxr.query(null, new Indexer.SearchCallback(listDB, new EntriesCallback(cacheDB, res, attr, Integer.MAX_VALUE)));
                 }
             }
