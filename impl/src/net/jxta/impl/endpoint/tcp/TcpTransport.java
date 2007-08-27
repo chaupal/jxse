@@ -214,15 +214,15 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * The maximum number of write selectors we will maintain in our cache per
      * transport instance.
      */
-    protected final static int MAX_WRITE_SELECTORS = 20;
+    protected final static int MAX_WRITE_SELECTORS = 50;
 
     /**
      * A cache we maintain for selectors writing messages to the socket.
      */
     private final static Stack<Selector> writeSelectorCache = new Stack<Selector>();
-    
+
     /**
-     *  The number of excess write selectors believed to be in the pool. 
+     * The number of excess write selectors believed to be in the pool.
      */
     private int extraWriteSelectors = 0;
 
@@ -386,7 +386,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
@@ -411,10 +411,10 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
         // Get our peer-defined parameters in the configAdv
         param = (XMLElement) configAdv.getServiceParam(assignedID);
-        if(null == param) {
+        if (null == param) {
             throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
         }
-        
+
         Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
@@ -478,9 +478,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         // Start the servers
         if (adv.isServerEnabled()) {
             try {
-            unicastServer = new IncomingUnicastServer(this, usingInterface, serverSocketPort, adv.getStartPort(), adv.getEndPort());
-            } catch( IOException failed ) {
-                throw new PeerGroupException( "Failed to open server socket.", failed);
+                unicastServer = new IncomingUnicastServer(this, usingInterface, serverSocketPort, adv.getStartPort(), adv.getEndPort());
+            } catch (IOException failed) {
+                throw new PeerGroupException("Failed to open server socket.", failed);
             }
 
             InetSocketAddress boundAddress = unicastServer.getLocalSocketAddress();
@@ -491,7 +491,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 adv.setPort(boundAddress.getPort());
             }
             */
-            
+
             // Build the publicAddresses :
             // first in the list is the "public server name". We don't try to
             // resolve this since it might not be resolvable in the context we 
@@ -737,7 +737,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         }
 
         isClosed = true;
-        
+
         if (unicastServer != null) {
             unicastServer.stop();
             unicastServer = null;
@@ -755,9 +755,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 }
             }
         }
-        
+
         // Inform the pool that we don't need as many write selectors.
-        synchronized(writeSelectorCache) {
+        synchronized (writeSelectorCache) {
             extraWriteSelectors += MAX_WRITE_SELECTORS;
         }
 
@@ -826,10 +826,14 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         return true;
     }
 
+    public Messenger getMessenger(EndpointAddress dst, Object hintIgnored) {
+        return getMessenger(dst, hintIgnored, true);
+    }
+
     /**
      * {@inheritDoc}
      */
-    public Messenger getMessenger(EndpointAddress dst, Object hintIgnored) {
+    public Messenger getMessenger(EndpointAddress dst, Object hintIgnored, boolean selfDestruct) {
 
         if (!dst.getProtocolName().equalsIgnoreCase(getProtocolName())) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -849,12 +853,12 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             return new LoopbackMessenger(endpoint, getPublicAddress(), dst,
                     new EndpointAddress("jxta", group.getPeerID().getUniqueValue().toString(), null, null));
         }
-        
+
         try {
             // Right now we do not want to "announce" outgoing messengers because they get pooled and so must
             // not be grabbed by a listener. If "announcing" is to be done, that should be by the endpoint
             // and probably with a subtely different interface.
-            return new TcpMessenger(dst, this);
+            return new TcpMessenger(dst, this, selfDestruct);
         } catch (Exception caught) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
@@ -956,12 +960,11 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      *
      * @return A write selector.
      * @throws InterruptedException If interrupted while waiting for a selector
-     *  to become available.
+     *                              to become available.
      */
     Selector getSelector() throws InterruptedException {
         synchronized (writeSelectorCache) {
             Selector selector = null;
-
             try {
                 if (!writeSelectorCache.isEmpty()) {
                     selector = writeSelectorCache.pop();
@@ -973,7 +976,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             }
 
             int attempts = 0;
-
             while (selector == null && attempts < 2) {
                 writeSelectorCache.wait(connectionTimeOut);
                 try {
@@ -987,6 +989,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 }
                 attempts++;
             }
+
             return selector;
         }
     }
@@ -998,7 +1001,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      */
     void returnSelector(Selector selector) {
         synchronized (writeSelectorCache) {
-            if( extraWriteSelectors > 0 )  {
+            if (extraWriteSelectors > 0) {
                 // Allow the selector to be discarded.
                 extraWriteSelectors--;
             } else {
@@ -1170,7 +1173,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                 Map.Entry<TcpMessenger, SocketChannel> anEntry = eachMsgr.next();
                 TcpMessenger msgr = anEntry.getKey();
                 SocketChannel channel = anEntry.getValue();
-
                 SelectionKey key = channel.keyFor(messengerSelector);
 
                 try {
@@ -1182,8 +1184,8 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                         LOG.finer(MessageFormat.format("Key interestOps on channel {0}, bit set :{1}", channel, key.interestOps()));
                     }
                 } catch (ClosedChannelException e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Failed to register Channel with messenger selector", e);
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.FINE)) {
+                        LOG.log(Level.FINE, "Failed to register Channel with messenger selector", e);
                     }
                     // it's best a new messenger is created when a new messenger is requested
                     msgr.close();
@@ -1219,7 +1221,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             while (eachChannel.hasNext()) {
                 SocketChannel aChannel = eachChannel.next();
                 SelectionKey key = aChannel.keyFor(messengerSelector);
-
                 if (null != key) {
                     try {
                         key.cancel();

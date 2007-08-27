@@ -98,7 +98,7 @@ import java.util.logging.Logger;
 /**
  * Implements a messenger which sends messages via raw TCP sockets.
  */
-class TcpMessenger extends BlockingMessenger implements Runnable {
+public class TcpMessenger extends BlockingMessenger implements Runnable {
 
     /**
      * Logger
@@ -147,6 +147,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
     private final TcpTransport tcpTransport;
 
     private EndpointAddress dstAddress = null;
+    private EndpointAddress origAddress = null;
     private EndpointAddress fullDstAddress = null;
     private InetAddress inetAddress = null;
     private int port = 0;
@@ -207,7 +208,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
      * @throws java.io.IOException if an io error occurs
      */
     TcpMessenger(SocketChannel socketChannel, TcpTransport transport) throws IOException {
-
         super(transport.group.getPeerGroupID(),
                 new EndpointAddress(transport.getProtocolName(),
                         socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null), true);
@@ -245,7 +245,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             fullDstAddress = dstAddress;
 
             startMessenger();
-        } catch (IOException e) {
+        } catch (IOException io) {
             if (TransportMeterBuildSettings.TRANSPORT_METERING) {
                 transportBindingMeter = this.tcpTransport.getUnicastTransportBindingMeter(null, dstAddress);
                 if (transportBindingMeter != null) {
@@ -257,20 +257,30 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (socketChannel != null) {
                 socketChannel.close();
             }
-            throw e;
+            throw io;
         }
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING) {
             transportBindingMeter = this.tcpTransport.getUnicastTransportBindingMeter((PeerID) getDestinationPeerID(), dstAddress);
-
             if (transportBindingMeter != null) {
                 transportBindingMeter.connectionEstablished(initiator, TimeUtils.timeNow() - createdAt);
             }
         }
-
         if (!isConnected()) {
             throw new IOException("Failed to establish connection to " + dstAddress);
         }
+    }
+
+
+    /**
+     * Create a new TcpMessenger for the specified address.
+     *
+     * @param destaddr     the destination of the messenger
+     * @param tcpTransport the tcp MessageSender we are working for.
+     * @throws java.io.IOException if an io error occurs
+     */
+    TcpMessenger(EndpointAddress destaddr, TcpTransport tcpTransport) throws IOException {
+        this(destaddr, tcpTransport, true);
     }
 
     /**
@@ -278,13 +288,14 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
      *
      * @param destaddr     the destination of the messenger
      * @param tcpTransport the tcp MessageSender we are working for.
-     * @throws java.io.IOException if io error occurs
+     * @param selfDestruct indicates whether the messenger created will self destruct when idle
+     * @throws java.io.IOException if an io error occurs
      */
-    TcpMessenger(EndpointAddress destaddr, TcpTransport tcpTransport) throws IOException {
-
-        // We need self destruction: tcp messengers are expenssive to make and they refer to
+    TcpMessenger(EndpointAddress destaddr, TcpTransport tcpTransport, boolean selfDestruct) throws IOException {
+        // We need self destruction: tcp messengers are expensive to make and they refer to
         // a connection that must eventually be closed.
-        super(tcpTransport.group.getPeerGroupID(), destaddr, true);
+        super(tcpTransport.group.getPeerGroupID(), destaddr, selfDestruct);
+        this.origAddress = destaddr;
 
         initiator = true;
         this.tcpTransport = tcpTransport;
@@ -304,7 +315,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         }
 
         String portString = protoAddr.substring(portIndex + 1);
-
         try {
             port = Integer.valueOf(portString);
         } catch (NumberFormatException caught) {
@@ -349,10 +359,8 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             SocketAddress bindAddress = new InetSocketAddress(this.tcpTransport.usingInterface, 0);
 
             socket.bind(bindAddress);
-
             // Set Socket options.
             int useBufferSize = Math.max(TcpTransport.SendBufferSize, socket.getSendBufferSize());
-
             socket.setSendBufferSize(useBufferSize);
 
             useBufferSize = Math.max(TcpTransport.RecvBufferSize, socket.getReceiveBufferSize());
@@ -361,12 +369,10 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             socket.setKeepAlive(true);
             socket.setSoTimeout(TcpTransport.connectionTimeOut);
             socket.setSoLinger(true, TcpTransport.LingerDelay);
-
             // Disable Nagle's algorithm (We do this to reduce latency)
             socket.setTcpNoDelay(true);
 
             SocketAddress connectAddress = new InetSocketAddress(inetAddress, port);
-
             socketChannel.connect(connectAddress);
 
             startMessenger();
@@ -378,9 +384,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                     transportBindingMeter.connectionFailed(initiator, TimeUtils.timeNow() - createdAt);
                 }
             }
-
             // If we failed for any reason, make sure the socket is closed. This is the only place it is known.
-
             if (socketChannel != null) {
                 socketChannel.close();
             }
@@ -443,7 +447,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             tcpTransport.unregister(socketChannel);
             try {
                 socketChannel.close();
-                socketChannel = null;
             } catch (IOException e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Failed to close messenger " + toString(), e);
@@ -485,9 +488,7 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         // find that holdIt.isConnected() is false before one of them
         // first zeroes conn. But it does not matter. super.close() is
         // idempotent (and does pretty much nothing in our case, anyway).
-
         super.close();
-
         return true;
     }
 
@@ -501,7 +502,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
      * timeout for that.
      */
     public boolean isIdleImpl() {
-
         return (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), getLastUsed()) > 15 * TimeUtils.AMINUTE);
     }
 
@@ -516,7 +516,11 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
     /**
      * {@inheritDoc}
      */
-    public void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
+    public void  sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
+        sendMessageDirect(message, service, serviceParam, false);
+    }
+
+    public void sendMessageDirect(Message message, String service, String serviceParam, boolean direct) throws IOException {
         if (isClosed()) {
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -527,9 +531,14 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
 
         // Set the message with the appropriate src and dest address
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, srcAddressElement);
-        EndpointAddress destAddressToUse = getDestAddressToUse(service, serviceParam);
-        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME, destAddressToUse.toString(), null);
+        EndpointAddress destAddressToUse;
+        if (direct) {
+            destAddressToUse = origAddress;
+        } else {
+            destAddressToUse = getDestAddressToUse(service, serviceParam);
+        }
 
+        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME, destAddressToUse.toString(), null);
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
 
         // send it
@@ -537,7 +546,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Sending " + message + " to " + destAddressToUse + " on connection " + getDestinationAddress());
             }
-
             xmitMessage(message);
         } catch (IOException caught) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -556,13 +564,11 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                                                       tcpTransport.getPublicAddress(),
                                                       tcpTransport.group.getPeerID(), false);
         long written = write(new ByteBuffer[]{myWelcome.getByteBuffer()});
-
         tcpTransport.incrementBytesSent(written);
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("welcome message sent");
         }
-
         while (state.get() == readState.WELCOME) {
             if (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), this.createdAt) > (TcpTransport.connectionTimeOut)) {
                 throw new SocketTimeoutException("Failed to receive remote welcome message before timeout.");
@@ -635,6 +641,10 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
             tcpTransport.incrementBytesSent(written);
             tcpTransport.incrementMessagesSent();
             setLastUsed(TimeUtils.timeNow());
+        } catch (SocketTimeoutException failed) {
+            SocketTimeoutException failure = new SocketTimeoutException("Failed sending " + msg + " to : " + inetAddress.getHostAddress() + ":" + port);
+            failure.initCause(failed);
+            throw failure;
         } catch (IOException failed) {
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                 transportBindingMeter.sendFailure(initiator, msg, TimeUtils.timeNow() - sendBeginTime, size);
@@ -662,7 +672,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
 
         // Determine how many bytes there are to be written in the buffers.
         long bytesToWrite = 0;
-
         for (ByteBuffer byteBuffer : byteBuffers) {
             bytesToWrite += byteBuffer.remaining();
         }
@@ -675,11 +684,9 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         Selector writeSelector = null;
         SelectionKey wKey = null;
         int attempts = 1;
-
         try {
             do {
                 long wroteBytes;
-
                 // Write from the buffers until we write nothing.
                 do {
                     wroteBytes = socketChannel.write(byteBuffers);
@@ -708,7 +715,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                         writeSelector = tcpTransport.getSelector();
                     } catch (InterruptedException woken) {
                         InterruptedIOException incompleteIO = new InterruptedIOException("Interrupted while acquiring write selector.");
-
                         incompleteIO.initCause(woken);
                         incompleteIO.bytesTransferred = (int) Math.min(bytesWritten, Integer.MAX_VALUE);
                         throw incompleteIO;
@@ -998,10 +1004,9 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                         buffer.put(src);
                         buffer.flip();
                     }
-
                     state.set(readState.BODY);
-
                     /* FALLSTHROUGH */
+
                 case BODY:
                     // process the message body
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1010,7 +1015,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
                     }
                     if (buffer.remaining() >= (int) header.getContentLengthHeader()) {
                         Message msg;
-
                         try {
                             msg = processMessage(buffer, header);
                         } catch (IOException io) {
@@ -1042,7 +1046,6 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
         
         // prepare the buffer for more data
         buffer.compact();
-        
         return msgs;
     }
     
@@ -1052,11 +1055,9 @@ class TcpMessenger extends BlockingMessenger implements Runnable {
     private class MessageProcessor implements Runnable {
 
         private Message msg;
-
         MessageProcessor(Message msg) {
             this.msg = msg;
         }
-
         public void run() {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("{0} calling EndpointService.demux({1})",

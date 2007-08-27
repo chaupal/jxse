@@ -56,7 +56,6 @@
 
 package net.jxta.impl.resolver;
 
-
 import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
 import net.jxta.document.MimeMediaType;
@@ -78,15 +77,12 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.router.EndpointRouter;
 import net.jxta.impl.endpoint.router.RouteControl;
+import net.jxta.impl.endpoint.tcp.TcpMessenger;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.ResolverResponse;
 import net.jxta.impl.protocol.ResolverSrdiMsgImpl;
-import net.jxta.impl.resolver.resolverMeter.QueryHandlerMeter;
-import net.jxta.impl.resolver.resolverMeter.ResolverMeter;
-import net.jxta.impl.resolver.resolverMeter.ResolverMeterBuildSettings;
-import net.jxta.impl.resolver.resolverMeter.ResolverServiceMonitor;
-import net.jxta.impl.resolver.resolverMeter.SrdiHandlerMeter;
+import net.jxta.impl.resolver.resolverMeter.*;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.meter.MonitorResources;
@@ -99,6 +95,7 @@ import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
+import net.jxta.rendezvous.RendezVousStatus;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
@@ -119,7 +116,6 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-
 /**
  * Implements the {@link net.jxta.resolver.ResolverService} using the standard
  * JXTA Endpoint Resolver Protocol (ERP).
@@ -130,7 +126,7 @@ import java.util.zip.GZIPOutputStream;
 public class ResolverServiceImpl implements ResolverService {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(ResolverServiceImpl.class.getName());
 
@@ -215,7 +211,8 @@ public class ResolverServiceImpl implements ResolverService {
         /**
          * Standard Constructor
          */
-        CredentialListener() {}
+        CredentialListener() {
+        }
 
         /**
          * {@inheritDoc}
@@ -228,7 +225,7 @@ public class ResolverServiceImpl implements ResolverService {
 
                 synchronized (ResolverServiceImpl.this) {
                     Credential cred = (Credential) evt.getNewValue();
-                    XMLDocument credentialDoc = null;
+                    XMLDocument credentialDoc;
 
                     if (null != cred) {
                         try {
@@ -277,8 +274,7 @@ public class ResolverServiceImpl implements ResolverService {
         srdiQueName = uniqueStr + srdiQueNameShort;
 
         if (ResolverMeterBuildSettings.RESOLVER_METERING) { // Fix-Me: This needs to be moved to startApp() when the load order issue is resolved
-            resolverServiceMonitor = (ResolverServiceMonitor) MonitorManager.getServiceMonitor(group
-                    ,
+            resolverServiceMonitor = (ResolverServiceMonitor) MonitorManager.getServiceMonitor(group,
                     MonitorResources.resolverServiceMonitorClassID);
             if (resolverServiceMonitor != null) {
                 resolverMeter = resolverServiceMonitor.getResolverMeter();
@@ -320,7 +316,6 @@ public class ResolverServiceImpl implements ResolverService {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Stalled until there is an endpoint service");
             }
-
             return Module.START_AGAIN_STALLED;
         }
 
@@ -330,7 +325,6 @@ public class ResolverServiceImpl implements ResolverService {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Stalled until there is a membership service");
             }
-
             return Module.START_AGAIN_STALLED;
         }
 
@@ -363,22 +357,17 @@ public class ResolverServiceImpl implements ResolverService {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "failed to add listeners", e);
             }
-
             return -1;
         }
-
-        routeControl = getRouteControl();
 
         synchronized (this) {
             // register our credential listener.
             membership.addPropertyChangeListener(MembershipService.DEFAULT_CREDENTIAL_PROPERTY, membershipCredListener);
-
             try {
                 // set the initial version of the default credential.
                 currentCredential = null;
                 Credential credential = membership.getDefaultCredential();
-                XMLDocument credentialDoc = null;
-
+                XMLDocument credentialDoc;
                 if (null != credential) {
                     credentialDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
                     currentCredential = new CurrentCredential(credential, credentialDoc);
@@ -389,7 +378,6 @@ public class ResolverServiceImpl implements ResolverService {
                 }
             }
         }
-
         return Module.START_OK;
     }
 
@@ -423,7 +411,6 @@ public class ResolverServiceImpl implements ResolverService {
         if (resolverInterface == null) {
             resolverInterface = new ResolverServiceInterface(this);
         }
-
         return resolverInterface;
     }
 
@@ -441,7 +428,6 @@ public class ResolverServiceImpl implements ResolverService {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.registerQueryHandlerMeter(name);
         }
-
         return handlers.put(name, handler);
     }
 
@@ -452,12 +438,12 @@ public class ResolverServiceImpl implements ResolverService {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.unregisterQueryHandlerMeter(name);
         }
-
         return handlers.remove(name);
     }
 
     /**
      * given a name returns the query handler associated with it
+     *
      * @param name the handler to lookup
      * @return returns the query handler
      */
@@ -472,7 +458,6 @@ public class ResolverServiceImpl implements ResolverService {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.registerSrdiHandlerMeter(name);
         }
-
         return srdiHandlers.put(name, handler);
     }
 
@@ -483,12 +468,12 @@ public class ResolverServiceImpl implements ResolverService {
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             resolverServiceMonitor.unregisterSrdiHandlerMeter(name);
         }
-
         return srdiHandlers.remove(name);
     }
 
     /**
      * given a name returns the srdi handler associated with it
+     *
      * @param name the handler to lookup
      * @return returns the SRDI handler
      */
@@ -547,18 +532,16 @@ public class ResolverServiceImpl implements ResolverService {
         if (destPeer == null) {
             try {
                 Message queryMsg = new Message();
-
                 XMLDocument asDoc = (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8);
                 MessageElement docElem = new TextDocumentMessageElement(outQueName, asDoc, null);
-
                 queryMsg.addMessageElement("jxta", docElem);
-                
                 RendezVousService rendezvous = group.getRendezVousService();
 
                 if (null != rendezvous) {
-                    // Walk the message
-                    rendezvous.walk(queryMsg.clone(), handlerName, outQueName, RendezVousService.DEFAULT_TTL);
-
+                    if (rendezvous.getRendezVousStatus() != RendezVousStatus.ADHOC) {
+                        // Walk the message
+                        rendezvous.walk(queryMsg.clone(), handlerName, outQueName, RendezVousService.DEFAULT_TTL);
+                    }
                     // propagate to local net as well
                     rendezvous.propagateToNeighbors(queryMsg, handlerName, outQueName, 2);
                 } else {
@@ -572,7 +555,6 @@ public class ResolverServiceImpl implements ResolverService {
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     queryHandlerMeter.queryPropagateError();
                 }
-
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Failure during propagate", e);
                 }
@@ -580,8 +562,7 @@ public class ResolverServiceImpl implements ResolverService {
         } else {
             // unicast instead
             try {
-                boolean success = sendMessage(destPeer, handlerName, outQueName, outQueName
-                        ,
+                boolean success = sendMessage(destPeer, null, handlerName, outQueName, outQueName,
                         (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8), false);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
@@ -611,37 +592,15 @@ public class ResolverServiceImpl implements ResolverService {
         if (destPeer == null) {
             propagateResponse(response);
         } else {
-            String queryHandlerName = response.getHandlerName();
             QueryHandlerMeter queryHandlerMeter = null;
-
             try {
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
-                    queryHandlerMeter = resolverServiceMonitor.getQueryHandlerMeter(queryHandlerName);
+                    queryHandlerMeter = resolverServiceMonitor.getQueryHandlerMeter(response.getHandlerName());
                 }
 
-                // Check if an optional route information is
-                // available to send the response
+                // Check if an optional route information is available to send the response
                 RouteAdvertisement route = response.getSrcPeerRoute();
-
-                if (route == null) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("No route info available to send a response");
-                    }
-                } else {
-                    // ok we have a route let's pass it to the router
-                    if ((null == getRouteControl()) || (routeControl.addRoute(route) == RouteControl.FAILED)) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Failed to add route for " + route.getDestPeerID());
-                        }
-                    } else {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Added route for " + route.getDestPeerID());
-                        }
-                    }
-                }
-
-                boolean success = sendMessage(destPeer, handlerName, inQueName, inQueName
-                        ,
+                boolean success = sendMessage(destPeer, route, handlerName, inQueName, inQueName,
                         (XMLDocument) response.getDocument(MimeMediaType.XMLUTF8), false);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
@@ -676,7 +635,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         if (destPeer == null) {
             RendezVousService rendezvous = group.getRendezVousService();
-            
+
             if (rendezvous == null) {
                 // no rendezvous service, dump it.
                 return;
@@ -696,7 +655,9 @@ public class ResolverServiceImpl implements ResolverService {
 
                 propagateMsg.addMessageElement("jxta", zipElem);
 
-                rendezvous.walk(propagateMsg, handlerName, srdiQueName, RendezVousService.DEFAULT_TTL);
+                if (rendezvous.getRendezVousStatus() != RendezVousStatus.ADHOC) {
+                    rendezvous.walk(propagateMsg, handlerName, srdiQueName, RendezVousService.DEFAULT_TTL);
+                }
 
                 // propagate to local net as well
                 rendezvous.propagateToNeighbors(propagateMsg, handlerName, srdiQueName, 2);
@@ -715,9 +676,9 @@ public class ResolverServiceImpl implements ResolverService {
             }
         } else {
             try {
-                boolean success = sendMessage(destPeer, handlerName, srdiQueName, srdiQueName
-                        ,
-                        (XMLDocument) srdi.getDocument(MimeMediaType.XMLUTF8), // compression
+                boolean success = sendMessage(destPeer, null, handlerName, srdiQueName, srdiQueName,
+                        (XMLDocument) srdi.getDocument(MimeMediaType.XMLUTF8),
+                        // compression
                         true);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
@@ -770,7 +731,9 @@ public class ResolverServiceImpl implements ResolverService {
 
         try {
             if (null != rendezvous) {
-                rendezvous.walk(msg, handlerName, outQueName, RendezVousService.DEFAULT_TTL);
+                if (rendezvous.getRendezVousStatus() != RendezVousStatus.ADHOC) {
+                    rendezvous.walk(msg, handlerName, outQueName, RendezVousService.DEFAULT_TTL);
+                }
                 // propagate to local net as well
                 rendezvous.propagateToNeighbors(msg, handlerName, outQueName, 2);
             } else {
@@ -801,7 +764,6 @@ public class ResolverServiceImpl implements ResolverService {
      */
     private int processQuery(ResolverQueryMsg query, EndpointAddress srcAddr) {
         String queryHandlerName = query.getHandlerName();
-
         QueryHandler theHandler = getHandler(queryHandlerName);
 
         if (query.getHopCount() > 2) {
@@ -812,7 +774,6 @@ public class ResolverServiceImpl implements ResolverService {
             // query has been forwarded too many times stop
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
                 QueryHandlerMeter queryHandlerMeter = resolverServiceMonitor.getQueryHandlerMeter(queryHandlerName);
-
                 if (queryHandlerMeter != null) {
                     queryHandlerMeter.queryHopCountDropped();
                 } else {
@@ -826,13 +787,11 @@ public class ResolverServiceImpl implements ResolverService {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Discarding query #" + query.getQueryId() + ", no handler for :" + queryHandlerName);
             }
-            // If this peer is a rendezvous peer, it needs to
-            // repropagate the query to other rendezvous peer that
+            // If this peer is a rendezvous peer, it needs to repropagate the query to other rendezvous peer that
             // may have a handler.
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.unknownHandlerForQuery(query);
             }
-
             return ResolverService.Repropagate;
         }
 
@@ -842,7 +801,6 @@ public class ResolverServiceImpl implements ResolverService {
 
         QueryHandlerMeter queryHandlerMeter = null;
         long startTime = 0;
-
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
             startTime = System.currentTimeMillis();
             queryHandlerMeter = resolverServiceMonitor.getQueryHandlerMeter(queryHandlerName);
@@ -850,7 +808,6 @@ public class ResolverServiceImpl implements ResolverService {
 
         try {
             int result;
-
             if (theHandler instanceof InternalQueryHandler) {
                 result = ((InternalQueryHandler) theHandler).processQuery(query, srcAddr);
             } else {
@@ -895,12 +852,10 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         QueryHandler theHandler = getHandler(handlerName);
-
         if (theHandler == null) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("No handler for :" + handlerName);
             }
-
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.unknownHandlerForResponse(srcAddr, resp);
             }
@@ -959,9 +914,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             XMLDocument responseDoc = (XMLDocument) response.getDocument(MimeMediaType.XMLUTF8);
             MessageElement elemDoc = new TextDocumentMessageElement(inQueName, responseDoc, null);
-
             propagateMsg.addMessageElement("jxta", elemDoc);
-            
             RendezVousService rendezvous = group.getRendezVousService();
 
             if (null != rendezvous) {
@@ -980,7 +933,6 @@ public class ResolverServiceImpl implements ResolverService {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "failure during propagateResponse", e);
             }
-
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.responsePropagateError();
             }
@@ -1013,20 +965,17 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         SrdiHandler theHandler = getSrdiHandler(handlerName);
-
         if (theHandler != null) {
             SrdiHandlerMeter srdiHandlerMeter = null;
 
             try {
                 long startTime = 0;
-
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
                     startTime = System.currentTimeMillis();
                     srdiHandlerMeter = resolverServiceMonitor.getSrdiHandlerMeter(handlerName);
                 }
 
                 theHandler.processSrdi(srdimsg);
-
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.messageProcessed(srdimsg, System.currentTimeMillis() - startTime, srcAddr);
                 }
@@ -1055,6 +1004,7 @@ public class ResolverServiceImpl implements ResolverService {
      * Send a resolver message to a peer
      *
      * @param destPeer destination peer
+     * @param route    destination route advertisement
      * @param pName    service name on the destination
      * @param pParam   service param on the destination
      * @param tagName  tag name of the message element
@@ -1063,16 +1013,14 @@ public class ResolverServiceImpl implements ResolverService {
      * @return true if sucessful
      * @throws IOException if an io error occurs
      */
-    private boolean sendMessage(String destPeer, String pName, String pParam, String tagName, XMLDocument body, boolean gzip) throws IOException {
-
+    private boolean sendMessage(String destPeer, RouteAdvertisement route, String pName, String pParam, String tagName, XMLDocument body, boolean gzip) throws IOException {
         // Get the messenger ready
+        boolean direct = true;
         ID dest;
-
         try {
             dest = IDFactory.fromURI(new URI(destPeer));
         } catch (URISyntaxException badpeer) {
             IOException failure = new IOException("bad destination peerid");
-
             failure.initCause(badpeer);
             throw failure;
         }
@@ -1080,13 +1028,33 @@ public class ResolverServiceImpl implements ResolverService {
         EndpointAddress destAddress = mkAddress(dest, pName, pParam);
 
         // FIXME add route to responses as well
-        Messenger messenger = endpoint.getMessengerImmediate(destAddress, null);
-
+        Messenger messenger = null;
+        if (route != null) {
+            messenger = endpoint.getDirectMessenger(destAddress, route, false);
+        }
+        if (messenger == null) {
+            if (route == null) {
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("No route info available to send a response");
+                }
+            } else {
+                // ok we have a route let's pass it to the router
+                if ((null == getRouteControl()) || (routeControl.addRoute(route) == RouteControl.FAILED)) {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.warning("Failed to add route for " + route.getDestPeerID());
+                    }
+                } else {
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Added route for " + route.getDestPeerID());
+                    }
+                }
+            }
+            messenger = endpoint.getMessengerImmediate(destAddress, route);
+             direct = false;
+        }
         Message msg = new Message();
-
         try {
             MessageElement msgEl;
-
             if (gzip) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 GZIPOutputStream gos = new GZIPOutputStream(baos);
@@ -1115,8 +1083,13 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         if (null != messenger) {
-            // XXX 20040924 bondolo Convert this to ListenerAdaptor
-            messenger.sendMessage(msg, null, null, new FailureListener(dest));
+            if (direct) {
+                // this fails with an io exception, no listener adaptor needed here
+                ((TcpMessenger) messenger).sendMessageDirect(msg, null, null, true);
+            } else {
+                // XXX 20040924 bondolo Convert this to ListenerAdaptor
+                messenger.sendMessage(msg, null, null, new FailureListener(dest));
+            }
             return true;
         } else {
             return false;
@@ -1124,16 +1097,10 @@ public class ResolverServiceImpl implements ResolverService {
     }
 
     private RouteControl getRouteControl() {
-        // FIXME tra 20031102 Until the new subscription service is implemented,
-        // we use the Router Control IOCTL
-        //
-        // Obtain the route control object to manipulate route information when
-        // sending and receiving resolver queries.
-
-        if (routeControl == null) { // insignificant race condition here
+        // Obtain the route control object to manipulate route information when sending and receiving resolver queries.
+        if (routeControl == null) {
             // insignificant race condition here
             MessageTransport endpointRouter = endpoint.getMessageTransport("jxta");
-
             if (endpointRouter != null) {
                 routeControl = (RouteControl) endpointRouter.transportControl(EndpointRouter.GET_ROUTE_CONTROL, null);
             } else {
@@ -1160,7 +1127,6 @@ public class ResolverServiceImpl implements ResolverService {
             }
 
             MessageElement element = message.getMessageElement("jxta", outQueName);
-
             if (element == null) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("Message does not contain a query. Discarding message");
@@ -1173,26 +1139,21 @@ public class ResolverServiceImpl implements ResolverService {
             }
 
             ResolverQueryMsg query;
-
             try {
                 StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
-
                 query = new ResolverQuery(asDoc);
             } catch (IOException e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Ill formatted resolver query, ignoring.", e);
                 }
-
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
                 }
-
                 return;
             } catch (IllegalArgumentException e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Ill formatted resolver query, ignoring.", e);
                 }
-
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
                 }
@@ -1200,7 +1161,6 @@ public class ResolverServiceImpl implements ResolverService {
             }
 
             int res = processQuery(query, srcAddr);
-
             if (ResolverService.Repropagate == res) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Repropagating query " + message + " from " + srcAddr);
@@ -1209,7 +1169,6 @@ public class ResolverServiceImpl implements ResolverService {
             }
         }
     }
-
 
     /**
      * Inner class to handle incoming responses
@@ -1226,7 +1185,6 @@ public class ResolverServiceImpl implements ResolverService {
             }
 
             MessageElement element = message.getMessageElement("jxta", inQueName);
-
             if (null == element) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Message does not contain a response. Discarding message");
@@ -1238,12 +1196,10 @@ public class ResolverServiceImpl implements ResolverService {
                 return;
             }
 
-            ResolverResponse resp;
-
+            ResolverResponse resolverResponse;
             try {
                 StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
-
-                resp = new ResolverResponse(asDoc);
+                resolverResponse = new ResolverResponse(asDoc);
             } catch (IOException e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Ill formatted resolver response, ignoring.", e);
@@ -1256,17 +1212,14 @@ public class ResolverServiceImpl implements ResolverService {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Ill formatted resolver response, ignoring.", e);
                 }
-
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
                 }
                 return;
             }
-
-            processResponse(resp, srcAddr);
+            processResponse(resolverResponse, srcAddr);
         }
     }
-
 
     /**
      * Inner class to handle SRDI messages
@@ -1283,29 +1236,24 @@ public class ResolverServiceImpl implements ResolverService {
             }
 
             MessageElement element = message.getMessageElement("jxta", srdiQueName);
-
             if (element == null) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("Message does not contain a SRDI element. Discarding message");
                 }
-
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidSrdiMessageDiscarded(srcAddr);
                 }
                 return;
             }
 
-            ResolverSrdiMsgImpl srdimsg = null;
-
+            ResolverSrdiMsgImpl srdimsg;
             try {
                 if (element.getMimeType().getBaseMimeMediaType().equals(GZIP_MEDIA_TYPE)) {
                     InputStream gzipStream = new GZIPInputStream(element.getStream());
                     StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, gzipStream);
-
                     srdimsg = new ResolverSrdiMsgImpl(asDoc, membership);
                 } else {
                     StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
-
                     srdimsg = new ResolverSrdiMsgImpl(asDoc, membership);
                 }
             } catch (IOException e) {
@@ -1320,7 +1268,6 @@ public class ResolverServiceImpl implements ResolverService {
             processSrdi(srdimsg, srcAddr);
         }
     }
-
 
     /**
      * Listener to find bad destinations and clean srdi tables for them.
@@ -1346,7 +1293,6 @@ public class ResolverServiceImpl implements ResolverService {
 
             for (Object o : Arrays.asList(srdiHandlers.values().toArray())) {
                 SrdiHandler theHandler = (SrdiHandler) o;
-
                 try {
                     theHandler.messageSendFailed((PeerID) dest, event);
                 } catch (Throwable all) {

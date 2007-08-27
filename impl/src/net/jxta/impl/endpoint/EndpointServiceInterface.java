@@ -68,6 +68,7 @@ import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerEventListener;
 import net.jxta.id.ID;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
@@ -76,6 +77,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+
 import net.jxta.platform.Module;
 
 /**
@@ -86,13 +88,13 @@ import net.jxta.platform.Module;
 class EndpointServiceInterface implements EndpointService {
 
     /**
-     *  The service interface that we will be fronting.
+     * The service interface that we will be fronting.
      */
     private final EndpointServiceImpl theRealThing;
-    
+
     /**
-     *  The number of active instances of this class. We use this for deciding
-     *  when to instantiate and shutdown the listener adaptor.
+     * The number of active instances of this class. We use this for deciding
+     * when to instantiate and shutdown the listener adaptor.
      */
     private static int activeInstanceCount = 0;
 
@@ -112,7 +114,7 @@ class EndpointServiceInterface implements EndpointService {
      * (owner of interface object - typically one module). This is required to
      * properly support the common (and convenient) pattern:
      * <p/>
-     * <code>m = endpIntf.getMessenger(); m.sendMessage(); m = null;</code>
+     * <code>m = endpointServiceInterface.getMessenger(); messenger.sendMessage(); m = null;</code>
      * <p/>
      * If that was not kept in check, it would be possible to inadvertently
      * create an infinite number of channels with pending messages, thus an
@@ -127,26 +129,25 @@ class EndpointServiceInterface implements EndpointService {
      */
     public EndpointServiceInterface(EndpointServiceImpl endpointService) {
         theRealThing = endpointService;
-        synchronized(this.getClass()) {
+        synchronized (this.getClass()) {
             activeInstanceCount++;
-            
-            if(1 == activeInstanceCount) {
-                listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup());
+            if (1 == activeInstanceCount) {
+                listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) endpointService.getGroup()).getExecutor());
             }
         }
     }
 
     /**
-     *  {@inheritDoc}
-     *  <p/>
-     *  This is rather heavy-weight if instances are frequently created and 
-     *  discarded since finalization significantly delays GC.
+     * {@inheritDoc}
+     * <p/>
+     * This is rather heavy-weight if instances are frequently created and
+     * discarded since finalization significantly delays GC.
      */
     @Override
     protected void finalize() throws Throwable {
-        synchronized(this.getClass()) {
+        synchronized (this.getClass()) {
             activeInstanceCount--;
-            if(0 == activeInstanceCount) {
+            if (0 == activeInstanceCount) {
                 listenerAdaptor.shutdown();
                 listenerAdaptor = null;
             }
@@ -159,11 +160,12 @@ class EndpointServiceInterface implements EndpointService {
      * <p/>
      * it is there only to satisfy the requirements of the interface that we
      * implement. Ultimately, the API should define two levels of interfaces :
-     * one for the real service implementation and one for the interface object. 
-     * Right now it feels a bit heavy to so that since the only different 
+     * one for the real service implementation and one for the interface object.
+     * Right now it feels a bit heavy to so that since the only different
      * between the two would be init() and may-be getName().
      */
-    public void init(PeerGroup pg, ID id, Advertisement ia) {}
+    public void init(PeerGroup peerGroup, ID id, Advertisement implAdv) {
+    }
 
     /**
      * {@inheritDoc}
@@ -185,7 +187,8 @@ class EndpointServiceInterface implements EndpointService {
      * <p/>
      * This request is currently ignored.
      */
-    public void stopApp() {}
+    public void stopApp() {
+    }
 
     /**
      * {@inheritDoc}
@@ -226,7 +229,6 @@ class EndpointServiceInterface implements EndpointService {
      * {@inheritDoc}
      */
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint) {
-
         // Note: for now, the hint is not used for canonicalization (hint != QOS).
         synchronized (channelCache) {
             Reference<Messenger> existing = channelCache.get(addr);
@@ -238,7 +240,7 @@ class EndpointServiceInterface implements EndpointService {
                 }
             }
         }
-
+        
         // We do not have a good one at hand. Make a new one.
 
         // Use the stripped address to get a canonical msngr; not doing so
@@ -315,7 +317,7 @@ class EndpointServiceInterface implements EndpointService {
         if ((state & Messenger.TERMINAL) != 0) {
             return null;
         }
-        if ((state & Messenger.RESOLVED) == 0) { 
+        if ((state & Messenger.RESOLVED) == 0) {
             // Not failed yet. But too late for us.
             return null;
         }
@@ -476,5 +478,17 @@ class EndpointServiceInterface implements EndpointService {
         // Make sure that resolution is being attempted if not already in progress.
         messenger.resolve();
         return true;
+    }
+
+    /**
+     * Returns a Direct Messenger that may be used to send messages via  this endpoint to the specified destination.
+     *
+     * @param addr the destination address.
+     * @param hint the messenger hint, if any, otherwise null.
+     * @param exclusive if true avoids caching the messenger
+     * @return The messenger or {@code null} is returned if the destination address is not reachable.
+     */
+    public Messenger getDirectMessenger(EndpointAddress addr, Object hint, boolean exclusive) {
+        return theRealThing.getDirectMessenger(addr, hint, exclusive);
     }
 }

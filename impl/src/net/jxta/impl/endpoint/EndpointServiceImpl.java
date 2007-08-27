@@ -90,6 +90,7 @@ import net.jxta.impl.endpoint.endpointMeter.OutboundMeter;
 import net.jxta.impl.endpoint.endpointMeter.PropagationMeter;
 import net.jxta.impl.endpoint.relay.RelayClient;
 import net.jxta.impl.endpoint.router.EndpointRouter;
+import net.jxta.impl.endpoint.tcp.TcpTransport;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.util.SequenceIterator;
 import net.jxta.logging.Logging;
@@ -105,6 +106,7 @@ import net.jxta.protocol.RouteAdvertisement;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -254,6 +256,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * The set of shared transport messengers currently ready for use.
      */
     private final Map<EndpointAddress, Reference<Messenger>> messengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
+    /**
+     * The set of shared transport messengers currently ready for use.
+     */
+    private final Map<EndpointAddress, Reference<Messenger>> directMessengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
 
     /**
      * The filter listeners.
@@ -615,6 +621,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         // Clear up any messengers.
         messengerMap.clear();
+        directMessengerMap.clear();
 
         // Clear up the listeners
         incomingMessageListeners.clear();
@@ -738,7 +745,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             throw new IllegalArgumentException("serviceName may not be null");
         }
 
-        Metrics metrics = new Metrics();
+        Metrics metrics = null;
+
+        if (EndpointMeterBuildSettings.ENDPOINT_METERING) {
+            metrics = new Metrics();
+        }
 
         // Keep the orig unchanged for metering reference and caller's benefit, but
         // we are forced to clone it here, because we add a header.
@@ -1870,5 +1881,73 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
         throw new UnsupportedOperationException("Convenience method not implemented. Use an interface object.");
+    }
+
+    /**
+     * Returns a Direct Messenger that may be used to send messages via  this endpoint
+     * to the specified destination.
+     *
+     * @param address the destination address.
+     * @param hint the messenger hint, if any, otherwise null.
+     * @param exclusive if true avoids caching the messenger
+     * @return The messenger or {@code null} is returned if the destination address is not reachable.
+     * @throws IllegalArgumentException if hint is not of RouteAdvertisement, or PeerAdvertisement type.
+     */
+    public Messenger getDirectMessenger(EndpointAddress address, Object hint, boolean exclusive) {
+        if (!exclusive && directMessengerMap.containsKey(address)) {
+            return directMessengerMap.get(address).get();
+        }
+        if (hint != null) {
+            RouteAdvertisement route;
+            EndpointAddress direct;
+            Messenger messenger;
+            if (hint instanceof RouteAdvertisement) {
+                route = (RouteAdvertisement) hint;
+            } else if (hint instanceof PeerAdvertisement) {
+                route = EndpointUtils.extractRouteAdv(((PeerAdvertisement) hint));
+            } else {
+                throw new IllegalArgumentException("Unknown route hint object type" + hint);
+            }
+
+            Iterator<String> addresses = route.getDest().getVectorEndpointAddresses().listIterator();
+            while (addresses.hasNext()) {
+                EndpointAddress transportAddr = new EndpointAddress(addresses.next());
+                if (transportAddr.getProtocolName().equals("tcp")) {
+                    TcpTransport tcpTransport = (TcpTransport) getMessageTransport("tcp");
+                    direct = createDirectAddress(transportAddr, address);
+                    // direct messengers are non self destructive
+                    messenger = tcpTransport.getMessenger(direct, route, false);
+                    if (messenger != null) {
+                        if (!exclusive) {
+                            directMessengerMap.put(address, new WeakReference<Messenger>(messenger));
+                        }
+                        return messenger;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Given a tranport address and service address, create a mangled endpoint address
+     *
+     * @param transportAddr   the transport messenger address
+     * @param serviceEndpoint the service endpoint
+     * @return an composite endpoint address
+     */
+    private EndpointAddress createDirectAddress(EndpointAddress transportAddr, EndpointAddress serviceEndpoint) {
+        //physical transport address
+        StringBuilder destStr = new StringBuilder(transportAddr.toString()).append("/");
+        // EndpointService
+        destStr.append(ENDPOINTSERVICE_NAME);
+        //Dest peergroup
+        destStr.append(":").append(group.getPeerGroupID().getUniqueValue().toString()).append("/");
+        //Service endpoint
+        destStr.append(serviceEndpoint.getServiceName()).append("/").append(serviceEndpoint.getServiceParameter());
+
+        //return new EndpointAddress(transportAddr, serviceEndpoint.getServiceName(), serviceEndpoint.getServiceParameter());
+        return new EndpointAddress(destStr.toString());
+
     }
 }

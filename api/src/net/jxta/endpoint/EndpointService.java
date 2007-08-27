@@ -536,4 +536,17 @@ public interface EndpointService extends Service, EndpointListener {
      */
     @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint);
+
+    /**
+     * Returns a Direct Messenger that may be used to send messages via  this endpoint to the specified destination.
+     * </p>
+     * Direct messengers are non self destructive, they must be explicilty closed.
+     *
+     * @param addr the destination address.
+     * @param hint the messenger hint, if any, otherwise null.
+     * @param exclusive if true avoids caching the messenger
+     * @return The messenger or {@code null} is returned if the destination address is not reachable.
+     * @throws IllegalArgumentException if hint is not of RouteAdvertisement, or PeerAdvertisement type.
+     */
+    public Messenger getDirectMessenger(EndpointAddress addr, Object hint, boolean exclusive);
 }
