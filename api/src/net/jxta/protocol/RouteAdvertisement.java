@@ -262,10 +262,8 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
         int index = 0;
 
-        for (Enumeration<AccessPointAdvertisement> e = route.getHops(); e.hasMoreElements();) {
-            AccessPointAdvertisement hop = e.nextElement();
-
-            if (!hop.equals(hops.elementAt(index++))) {
+        for ( AccessPointAdvertisement hop : route.hops) {
+            if (!hop.equals(hops.get(index++))) {
                 return false;
             }
         }
@@ -380,7 +378,9 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
             throw new IllegalStateException("Changed the peer id of the destination APA." + destPid + " != " + dest.getPeerID() );
         }
 
-        dest.setPeerID(destPid);
+        if(null != destPid)
+            dest.setPeerID(destPid);
+        }
         
         // recalculate hash.
         synchronized(this) {
@@ -536,13 +536,8 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * @return boolean true or false if the hop is found in the route
      */
     public boolean containsHop(PeerID pid) {
-        for (Enumeration<AccessPointAdvertisement> e = hops.elements(); e.hasMoreElements();) {
-            AccessPointAdvertisement hop = e.nextElement();
+        for (AccessPointAdvertisement hop : hops) {
             PeerID hid = hop.getPeerID();
-
-            if (hid == null) {
-                continue; // may be null
-            }
 
             if (pid.equals(hid)) {
                 return true;
@@ -596,7 +591,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
             throw new IllegalArgumentException("Bad hop");
         }
         
-        hops.addElement(ap);
+        hops.add(ap);
     }
     
     /**
@@ -612,12 +607,8 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         for (AccessPointAdvertisement anAPA : hops) {
             PeerID pid = anAPA.getPeerID();
 
-            if (null == pid) {
-                return true; // bad route
-            }
-
             if (seenPeers.contains(pid)) {
-                return true; // This is a loop.
+                return true; // There is a loop.
             }
 
             seenPeers.add(pid);
@@ -635,13 +626,13 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     }
 
     /**
-     * Return the hop that follows the specified pid. <b>The
+     * Return the hop that follows the specified currentHop. <b>The
      * AccessPointAdvertisement is <i>not</i> cloned.</b>
-     *
-     * @param pid PeerID of the current hop
+     * 
+     * @param currentHop PeerID of the current hop
      * @return ap AccessPointAdvertisement of the next Hop
      */
-    public AccessPointAdvertisement nextHop(PeerID pid) {
+    public AccessPointAdvertisement nextHop(PeerID currentHop) {
 
         // check if we have a real route
         if (hops.isEmpty()) {
@@ -654,7 +645,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         boolean found = false;
 
         for (AccessPointAdvertisement ap : hops) {
-            if (pid.equals(ap.getPeerID())) {
+            if (currentHop.equals(ap.getPeerID())) {
                 found = true;
                 break;
             }
@@ -799,7 +790,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         // prepend the rest of the route
         hops.addAll(0, firstLeg.getVectorHops());
 
-        // remove any llop from the root
+        // remove any loop from the root
         cleanupLoop(newRoute, localPeer);
         return true;
     }
@@ -824,7 +815,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
         // Replace all by PID-only entries, but keep the last hop on the side.
         if (!hops.isEmpty()) {
-            lastHop = hops.elementAt(hops.size() - 1);
+            lastHop = hops.get(hops.size() - 1);
         }
         hops = (route.cloneOnlyPIDs()).getVectorHops();
 
@@ -839,7 +830,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
                     newHops.remove(j);
                 }
             } else { // did not find it so we add it
-                newHops.add(hops.elementAt(i));
+                newHops.add(hops.get(i));
             }
         }
 
