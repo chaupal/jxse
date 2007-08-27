@@ -536,11 +536,11 @@ public final class Indexer {
     }
 
     public static Set<Long> readRecord(Record record) {
-        if (record == null) {
-            return Collections.<Long>emptySet();
-        }
-
         Set<Long> result = new TreeSet<Long>();
+
+        if (record == null) {
+            return result;
+        }
 
         InputStream is = record.getValue().getInputStream();
 
