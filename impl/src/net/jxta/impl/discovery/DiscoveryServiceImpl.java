@@ -1243,7 +1243,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 LOG.fine("Getting " + threshold + " entries of type : " + dirname[type]);
             }
             // Returning any entry that exists
-            results = cm.getRecords(dirname[type], threshold, null, expirations);
+            results = cm.getRecords(dirname[type], threshold, expirations);
         }
 
         if (results.isEmpty() || bytes) {
