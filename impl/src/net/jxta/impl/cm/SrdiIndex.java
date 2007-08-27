@@ -207,7 +207,7 @@ public class SrdiIndex implements Runnable {
      * @param indexName index name
      * @param interval interval in milliseconds
      */
-    protected synchronized void startGC(PeerGroup group, String indexName, long interval) {
+    protected void startGC(PeerGroup group, String indexName, long interval) {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
         }
@@ -486,7 +486,7 @@ public class SrdiIndex implements Runnable {
             }
             long t0 = TimeUtils.timeNow();
             SrdiIndexRecord rec = readRecord(record);
-            ArrayList<Entry> res = rec.list;
+            List<Entry> res = rec.list;
             
             // if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
             // LOG.finer("Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
@@ -529,15 +529,16 @@ public class SrdiIndex implements Runnable {
                     return true;
                 }
                 SrdiIndexRecord rec = readRecord(record);
-                ArrayList<Entry> res = rec.list;
+                List<Entry> res = rec.list;
                 boolean changed = false;
                 
-                for (int i = 0; i < res.size(); i++) {
-                    Entry entry = res.get(i);
+                Iterator<Entry> eachEntry = res.iterator();
+                while(eachEntry.hasNext()) {
+                    Entry entry = eachEntry.next();
                     
-                    if (isExpired(entry.expiration) || table.contains(entry.peerid)) {
-                        res.remove(i);
+                    if (entry.isExpired() || table.contains(entry.peerid)) {
                         changed = true;
+                        eachEntry.remove();
                     }
                 }
                 if (changed) {
@@ -549,8 +550,7 @@ public class SrdiIndex implements Runnable {
                             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                                 LOG.log(Level.WARNING, "Exception while deleting empty record", e);
                             }
-                        }
-                        
+                        }                        
                     } else {
                         // write it back
                         byte[] data = getData(rec.key, res);
@@ -571,16 +571,16 @@ public class SrdiIndex implements Runnable {
     }
     
     /**
-     * copies the content of ArrayList into a list expired entries are not
+     * copies the content of List into a list expired entries are not
      * copied
      *
      * @param to   list to copy into
-     * @param from ArrayList to copy from
+     * @param from list to copy from
      * @param table table of PeerID's
      */
-    private static void copyIntoList(List<PeerID> to, ArrayList<Entry> from, Set<PeerID> table) {
+    private static void copyIntoList(List<PeerID> to, List<Entry> from, Set<PeerID> table) {
         for (Entry entry : from) {
-            boolean expired = isExpired(entry.expiration);
+            boolean expired = entry.isExpired();
             
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                 LOG.finer("Entry peerid : " + entry.peerid + (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
@@ -609,7 +609,7 @@ public class SrdiIndex implements Runnable {
      * Converts a List of {@link Entry} into a byte[]
      *
      * @param key  record key
-     * @param list ArrayList to convert
+     * @param list List to convert
      * @return byte []
      */
     private static byte[] getData(Key key, List<Entry> list) {
@@ -637,10 +637,10 @@ public class SrdiIndex implements Runnable {
      * Reads the content of a record into ArrayList
      *
      * @param record Btree Record
-     * @return ArrayList of entries
+     * @return List of entries
      */
     public static SrdiIndexRecord readRecord(Record record) {
-        ArrayList<Entry> result = new ArrayList<Entry>();
+        List<Entry> result = new ArrayList<Entry>();
         Key key = null;
         
         if (record == null) {
@@ -725,7 +725,7 @@ public class SrdiIndex implements Runnable {
     }
     
     /**
-     * Remove expired entries from an ArrayList
+     * Remove expired entries from a List
      *
      * @param list A list of entries.
      * @return The same list with the expired entries removed.
@@ -914,6 +914,14 @@ public class SrdiIndex implements Runnable {
         public int hashCode() {
             return peerid.hashCode();
         }
+        
+        public long getExpiration() {
+            return expiration;
+        }
+        
+        public boolean isExpired() {
+            return (expiration < TimeUtils.timeNow());
+        }
     }
     
     
@@ -923,7 +931,7 @@ public class SrdiIndex implements Runnable {
     public final static class SrdiIndexRecord {
         
         public final Key key;
-        public final ArrayList<Entry> list;
+        public final List<Entry> list;
         
         /**
          * SrdiIndex record
@@ -931,7 +939,7 @@ public class SrdiIndex implements Runnable {
          * @param key  record key
          * @param list record entries
          */
-        public SrdiIndexRecord(Key key, ArrayList<Entry> list) {
+        public SrdiIndexRecord(Key key,List<Entry> list) {
             this.key = key;
             this.list = list;
         }
