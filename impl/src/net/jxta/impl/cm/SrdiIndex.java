@@ -1,57 +1,57 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
- *  Redistribution and use in source and binary forms, with or without 
+ *
+ *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
- *  2. Redistributions in binary form must reproduce the above copyright notice, 
- *     this list of conditions and the following disclaimer in the documentation 
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
- *  
- *  3. The end-user documentation included with the redistribution, if any, must 
- *     include the following acknowledgment: "This product includes software 
- *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
- *     Alternately, this acknowledgment may appear in the software itself, if 
+ *
+ *  3. The end-user documentation included with the redistribution, if any, must
+ *     include the following acknowledgment: "This product includes software
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology."
+ *     Alternately, this acknowledgment may appear in the software itself, if
  *     and wherever such third-party acknowledgments normally appear.
- *  
- *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
- *     not be used to endorse or promote products derived from this software 
- *     without prior written permission. For written permission, please contact 
+ *
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must
+ *     not be used to endorse or promote products derived from this software
+ *     without prior written permission. For written permission, please contact
  *     Project JXTA at http://www.jxta.org.
- *  
- *  5. Products derived from this software may not be called "JXTA", nor may 
+ *
+ *  5. Products derived from this software may not be called "JXTA", nor may
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
- *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
+ *
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
- *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
- *  This software consists of voluntary contributions made by many individuals 
- *  on behalf of Project JXTA. For more information on Project JXTA, please see 
+ *
+ *  This software consists of voluntary contributions made by many individuals
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see
  *  http://www.jxta.org.
- *  
- *  This license is based on the BSD license adopted by the Apache Foundation. 
+ *
+ *  This license is based on the BSD license adopted by the Apache Foundation.
  */
 package net.jxta.impl.cm;
 
@@ -94,21 +94,21 @@ import java.util.logging.Logger;
  * SrdiIndex
  */
 public class SrdiIndex implements Runnable {
-
+    
     /**
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(SrdiIndex.class.getName());
-
+    
     private long interval = 1000 * 60 * 10;
     private volatile boolean stop = false;
     private Indexer srdiIndexer = null;
     private BTreeFiler cacheDB = null;
     private Thread gcThread = null;
-    private Set<PeerID> gcPeerTBL = new HashSet<PeerID>();
-
+    private final Set<PeerID> gcPeerTBL = new HashSet<PeerID>();
+    
     private final String indexName;
-
+    
     /**
      * Constructor for the SrdiIndex
      *
@@ -117,11 +117,11 @@ public class SrdiIndex implements Runnable {
      */
     public SrdiIndex(PeerGroup group, String indexName) {
         this.indexName = indexName;
-
+        
         try {
             String pgdir = null;
             File storeHome;
-
+            
             if (group == null) {
                 pgdir = "srdi-index";
                 storeHome = new File(".jxta");
@@ -129,9 +129,9 @@ public class SrdiIndex implements Runnable {
                 pgdir = group.getPeerGroupID().getUniqueValue().toString();
                 storeHome = new File(group.getStoreHome());
             }
-
+            
             File rootDir = new File(new File(storeHome, "cm"), pgdir);
-
+            
             rootDir = new File(rootDir, "srdi");
             if (!rootDir.exists()) {
                 // We need to create the directory
@@ -145,13 +145,13 @@ public class SrdiIndex implements Runnable {
             // lazy checkpoint
             cacheDB.setSync(false);
             cacheDB.setLocation(rootDir.getCanonicalPath(), indexName);
-
+            
             if (!cacheDB.open()) {
                 cacheDB.create();
                 // now open it
                 cacheDB.open();
             }
-
+            
             // index
             srdiIndexer = new Indexer(false);
             srdiIndexer.setLocation(rootDir.getCanonicalPath(), indexName);
@@ -160,7 +160,7 @@ public class SrdiIndex implements Runnable {
                 // now open it
                 srdiIndexer.open();
             }
-
+            
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Initialized " + indexName);
             }
@@ -168,13 +168,13 @@ public class SrdiIndex implements Runnable {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Unable to Initialize databases", de);
             }
-
+            
             throw new UndeclaredThrowableException(de, "Unable to Initialize databases");
         } catch (Throwable e) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Unable to create Cm", e);
             }
-
+            
             if (e instanceof Error) {
                 throw (Error) e;
             } else if (e instanceof RuntimeException) {
@@ -184,7 +184,7 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * Construct a SrdiIndex and starts a GC thread which runs every "interval"
      * milliseconds
@@ -193,13 +193,13 @@ public class SrdiIndex implements Runnable {
      * @param group     group context
      * @param indexName SrdiIndex name
      */
-
+    
     public SrdiIndex(PeerGroup group, String indexName, long interval) {
         this(group, indexName);
         this.interval = interval;
         startGC(group, indexName, interval);
     }
-
+    
     /**
      * Start the GC thread
      *
@@ -211,12 +211,12 @@ public class SrdiIndex implements Runnable {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
         }
-
+        
         gcThread = new Thread(group.getHomeThreadGroup(), this, "SrdiIndex GC :" + indexName + " every " + interval + "ms");
         gcThread.setDaemon(true);
         gcThread.start();
     }
-
+    
     /**
      * Returns the name of this srdi index.
      *
@@ -225,7 +225,7 @@ public class SrdiIndex implements Runnable {
     public String getIndexName() {
         return indexName;
     }
-
+    
     /**
      * add an index entry
      *
@@ -237,32 +237,32 @@ public class SrdiIndex implements Runnable {
      * @param pid        peerid reference
      */
     public synchronized void add(String primaryKey, String attribute, String value, PeerID pid, long expiration) {
-
+        
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("[" + indexName + "] Adding " + primaryKey + "/" + attribute + " = \'" + value + "\' for " + pid);
         }
-
+        
         try {
             Key key = new Key(primaryKey + attribute + value);
             long expiresin = TimeUtils.toAbsoluteTimeMillis(expiration);
-
+            
             // update the record if it exists
             synchronized (cacheDB) {
                 // FIXME hamada 10/14/04 it is possible a peer re-appears with
                 // a different set of indexes since it's been marked for garbage
                 // collection.  will address this issue in a subsequent patch
                 gcPeerTBL.remove(pid);
-
+                
                 Record record = cacheDB.readRecord(key);
-                ArrayList<Entry> old;
-
+                List<Entry> old;
+                
                 if (record != null) {
                     old = readRecord(record).list;
                 } else {
                     old = new ArrayList<Entry>();
                 }
                 Entry entry = new Entry(pid, expiresin);
-
+                
                 if (!old.contains(entry)) {
                     old.add(entry);
                 } else {
@@ -272,11 +272,11 @@ public class SrdiIndex implements Runnable {
                 }
                 // no sense in keeping expired entries.
                 old = removeExpired(old);
-                long t0 = System.currentTimeMillis();
+                    long t0 = TimeUtils.timeNow();
                 byte[] data = getData(key, old);
-
+                
                 // if (LOG.isLoggable(Level.FINE)) {
-                // LOG.fine("Serialized result in : " + (System.currentTimeMillis() - t0) + "ms.");
+                // LOG.fine("Serialized result in : " + (TimeUtils.timeNow() - t0) + "ms.");
                 // }
                 if (data == null) {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -287,7 +287,7 @@ public class SrdiIndex implements Runnable {
                 Value recordValue = new Value(data);
                 long pos = cacheDB.writeRecord(key, recordValue);
                 Map<String, String> indexables = getIndexMap(primaryKey + attribute, value);
-
+                
                 srdiIndexer.addToIndex(indexables, pos);
             }
         } catch (IOException de) {
@@ -300,7 +300,7 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * retrieves a record
      *
@@ -311,10 +311,10 @@ public class SrdiIndex implements Runnable {
      */
     public List<Entry> getRecord(String pkey, String skey, String value) {
         Record record = null;
-
+        
         try {
             Key key = new Key(pkey + skey + value);
-
+            
             synchronized (cacheDB) {
                 record = cacheDB.readRecord(key);
             }
@@ -325,9 +325,9 @@ public class SrdiIndex implements Runnable {
         }
         // if record is null, readRecord returns an empty list
         return readRecord(record).list;
-
+        
     }
-
+    
     /**
      * inserts a pkey into a map with a value of value
      *
@@ -335,7 +335,7 @@ public class SrdiIndex implements Runnable {
      * @param value      value
      * @return The Map
      */
-
+    
     private Map<String, String> getIndexMap(String primaryKey, String value) {
         if (primaryKey == null) {
             return null;
@@ -344,11 +344,11 @@ public class SrdiIndex implements Runnable {
             value = "";
         }
         Map<String, String> map = new HashMap<String, String>(1);
-
+        
         map.put(primaryKey, value);
         return map;
     }
-
+    
     /**
      * remove entries pointing to peer id from cache
      *
@@ -360,7 +360,7 @@ public class SrdiIndex implements Runnable {
         }
         gcPeerTBL.add(pid);
     }
-
+    
     /**
      * Query SrdiIndex
      *
@@ -371,26 +371,26 @@ public class SrdiIndex implements Runnable {
      * @param threshold max number of results
      */
     public synchronized List<PeerID> query(String primaryKey, String attribute, String value, int threshold) {
-
+        
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("[" + indexName + "] Querying for " + threshold + " " + primaryKey + "/" + attribute + " = \'" + value + "\'");
         }
-
+        
         // return nothing
         if (primaryKey == null) {
             return Collections.emptyList();
         }
-
+        
         List<PeerID> res;
-
+        
         // a blind query
         if (attribute == null) {
             res = query(primaryKey);
         } else {
             res = new ArrayList<PeerID>();
-
+            
             IndexQuery iq = Cm.getIndexQuery(value);
-
+            
             try {
                 srdiIndexer.search(iq, primaryKey + attribute, new SearchCallback(cacheDB, res, threshold, gcPeerTBL));
             } catch (Exception ex) {
@@ -399,15 +399,15 @@ public class SrdiIndex implements Runnable {
                 }
             }
         }
-
+        
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine( "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'"
                     + value + "\'");
         }
-
+        
         return res;
     }
-
+    
     /**
      * Query SrdiIndex
      *
@@ -418,12 +418,12 @@ public class SrdiIndex implements Runnable {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("[" + indexName + "] Querying for " + primaryKey);
         }
-
+        
         List<PeerID> res = new ArrayList<PeerID>();
-
+        
         try {
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
-
+            
             for (String indexName : map.keySet()) {
                 // seperate the index name from attribute
                 if (indexName.startsWith(primaryKey)) {
@@ -436,32 +436,32 @@ public class SrdiIndex implements Runnable {
                 LOG.log(Level.WARNING, "Exception while searching in index", ex);
             }
         }
-
+        
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("[" + indexName + "] Returning " + res.size() + " results for " + primaryKey);
         }
-
+        
         return res;
     }
-
+    
     private static final class SearchCallback implements BTreeCallback {
         private final BTreeFiler cacheDB;
         private int threshold;
         private final List<PeerID> results;
         private final Set<PeerID> table;
-
+        
         SearchCallback(BTreeFiler cacheDB, List<PeerID> results, int threshold, Set<PeerID> table) {
             this.cacheDB = cacheDB;
             this.threshold = threshold;
             this.results = results;
             this.table = table;
         }
-
+        
         /**
          * @inheritDoc
          */
         public boolean indexInfo(Value val, long pos) {
-
+            
             if (results.size() >= threshold) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("SearchCallback.indexInfo reached Threshold :" + threshold);
@@ -472,7 +472,7 @@ public class SrdiIndex implements Runnable {
                 LOG.fine("Found " + val.toString());
             }
             Record record = null;
-
+            
             try {
                 record = cacheDB.readRecord(pos);
             } catch (DBException ex) {
@@ -484,37 +484,37 @@ public class SrdiIndex implements Runnable {
             if (record == null) {
                 return true;
             }
-            long t0 = System.currentTimeMillis();
+            long t0 = TimeUtils.timeNow();
             SrdiIndexRecord rec = readRecord(record);
             ArrayList<Entry> res = rec.list;
-
+            
             // if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            // LOG.finer("Got result back in : " + (System.currentTimeMillis() - t0) + "ms.");
+            // LOG.finer("Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
             // }
             copyIntoList(results, res, table);
             return true;
         }
     }
-
-
+    
+    
     private static final class GcCallback implements BTreeCallback {
         private final BTreeFiler cacheDB;
         private final Indexer idxr;
         private final List<Long> list;
         private final Set<PeerID> table;
-
+        
         GcCallback(BTreeFiler cacheDB, Indexer idxr, List<Long> list, Set<PeerID> table) {
             this.cacheDB = cacheDB;
             this.idxr = idxr;
             this.list = list;
             this.table = table;
         }
-
+        
         /**
          * @inheritDoc
          */
         public boolean indexInfo(Value val, long pos) {
-
+            
             Record record = null;
             synchronized (cacheDB) {
                 try {
@@ -531,10 +531,10 @@ public class SrdiIndex implements Runnable {
                 SrdiIndexRecord rec = readRecord(record);
                 ArrayList<Entry> res = rec.list;
                 boolean changed = false;
-
+                
                 for (int i = 0; i < res.size(); i++) {
                     Entry entry = res.get(i);
-
+                    
                     if (isExpired(entry.expiration) || table.contains(entry.peerid)) {
                         res.remove(i);
                         changed = true;
@@ -550,12 +550,12 @@ public class SrdiIndex implements Runnable {
                                 LOG.log(Level.WARNING, "Exception while deleting empty record", e);
                             }
                         }
-
+                        
                     } else {
                         // write it back
                         byte[] data = getData(rec.key, res);
                         Value recordValue = new Value(data);
-
+                        
                         try {
                             cacheDB.writeRecord(pos, recordValue);
                         } catch (DBException ex) {
@@ -569,7 +569,7 @@ public class SrdiIndex implements Runnable {
             return true;
         }
     }
-
+    
     /**
      * copies the content of ArrayList into a list expired entries are not
      * copied
@@ -581,7 +581,7 @@ public class SrdiIndex implements Runnable {
     private static void copyIntoList(List<PeerID> to, ArrayList<Entry> from, Set<PeerID> table) {
         for (Entry entry : from) {
             boolean expired = isExpired(entry.expiration);
-
+            
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                 LOG.finer("Entry peerid : " + entry.peerid + (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
             }
@@ -604,7 +604,7 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * Converts a List of {@link Entry} into a byte[]
      *
@@ -616,7 +616,7 @@ public class SrdiIndex implements Runnable {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(bos);
-
+            
             dos.writeUTF(key.toString());
             dos.writeInt(list.size());
             for (Entry anEntry : list) {
@@ -632,7 +632,7 @@ public class SrdiIndex implements Runnable {
         }
         return null;
     }
-
+    
     /**
      * Reads the content of a record into ArrayList
      *
@@ -642,7 +642,7 @@ public class SrdiIndex implements Runnable {
     public static SrdiIndexRecord readRecord(Record record) {
         ArrayList<Entry> result = new ArrayList<Entry>();
         Key key = null;
-
+        
         if (record == null) {
             return new SrdiIndexRecord(null, result);
         }
@@ -650,20 +650,20 @@ public class SrdiIndex implements Runnable {
             return new SrdiIndexRecord(null, result);
         }
         InputStream is = record.getValue().getInputStream();
-
+        
         try {
             DataInputStream ois = new DataInputStream(is);
-
+            
             key = new Key(ois.readUTF());
             int size = ois.readInt();
-
+            
             for (int i = 0; i < size; i++) {
                 try {
                     String idstr = ois.readUTF();
                     PeerID pid = (PeerID) IDFactory.fromURI(new URI(idstr));
                     long exp = ois.readLong();
                     Entry entry = new Entry(pid, exp);
-
+                    
                     result.add(entry);
                 } catch (URISyntaxException badID) {// ignored
                 }
@@ -680,7 +680,7 @@ public class SrdiIndex implements Runnable {
         }
         return new SrdiIndexRecord(key, result);
     }
-
+    
     /**
      * Empties the index completely.
      * The entries are abandoned to the GC.
@@ -700,22 +700,21 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * Garbage Collect expired entries
      */
-    public synchronized void garbageCollect() {
+    public void garbageCollect() {
         try {
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
-            Iterator<String> it = map.keySet().iterator();
-            List<Long> list = new ArrayList<Long>();
-
-            while (it.hasNext()) {
-                String indexName = it.next();
-                NameIndexer idxr = map.get(indexName);
-
-                idxr.query(null, new GcCallback(cacheDB, srdiIndexer, list, gcPeerTBL));
-                srdiIndexer.purge(list);
+            
+            for(NameIndexer idxr : map.values()) {
+                List<Long> list = new ArrayList<Long>();
+                    
+                synchronized(this) {
+                    idxr.query(null, new GcCallback(cacheDB, srdiIndexer, list, gcPeerTBL));
+                    srdiIndexer.purge(list);
+                }
             }
             gcPeerTBL.clear();
         } catch (Exception ex) {
@@ -724,21 +723,22 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * Remove expired entries from an ArrayList
      *
-     * @param list The ArrayLsit
-     * @return ArrayList without any expired entries
+     * @param list A list of entries.
+     * @return The same list with the expired entries removed.
      */
-    private static ArrayList<Entry> removeExpired(ArrayList<Entry> list) {
-        for (int i = 0; i < list.size(); i++) {
-            Entry entry = list.get(i);
+    private static List<Entry> removeExpired(List<Entry> list) {
+        Iterator<Entry> eachEntry = list.iterator();
+        
+        while(eachEntry.hasNext()) {
+            Entry entry = eachEntry.next();
             boolean expired = isExpired(entry.expiration);
-
+            
             if (expired) {
-                list.remove(i);
-                i--;
+                eachEntry.remove();
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Entry peerid :" + entry.peerid + " Expires at :" + entry.expiration);
                     LOG.fine("Entry expired " + expired);
@@ -747,11 +747,11 @@ public class SrdiIndex implements Runnable {
         }
         return list;
     }
-
+    
     private static boolean isExpired(long expiration) {
-        return (expiration < System.currentTimeMillis());
+        return (expiration < TimeUtils.timeNow());
     }
-
+    
     /**
      * stop the current running thread
      */
@@ -767,9 +767,9 @@ public class SrdiIndex implements Runnable {
             }
         } catch (Exception ignored) {// ignored
         }
-
+        
         // Stop the database
-
+        
         try {
             srdiIndexer.close();
             cacheDB.close();
@@ -780,7 +780,7 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * {@inheritDoc}
      * <p/>
@@ -801,17 +801,17 @@ public class SrdiIndex implements Runnable {
                     Thread.interrupted();
                     continue;
                 }
-
+                
                 if (stop) {
                     break;
                 }
-
+                
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Garbage collection started");
                 }
-
+                
                 garbageCollect();
-
+                
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Garbage collection completed");
                 }
@@ -826,7 +826,7 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * Flushes the Srdi directory for a specified group
      * this method should only be called before initialization of a given group
@@ -835,36 +835,36 @@ public class SrdiIndex implements Runnable {
      * @param group group context
      */
     public static void clearSrdi(PeerGroup group) {
-
+        
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("Clearing SRDI for " + group.getPeerGroupName());
         }
-
+        
         try {
             String pgdir = null;
-
+            
             if (group == null) {
                 pgdir = "srdi-index";
             } else {
                 pgdir = group.getPeerGroupID().getUniqueValue().toString();
             }
             File rootDir = null;
-
+            
             if (group != null) {
                 rootDir = new File(new File(new File(group.getStoreHome()), "cm"), pgdir);
             }
-
+            
             rootDir = new File(rootDir, "srdi");
             if (rootDir.exists()) {
                 // remove it along with it's content
                 String[] list = rootDir.list();
-
+                
                 for (String aList : list) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Removing : " + aList);
                     }
                     File file = new File(rootDir, aList);
-
+                    
                     if (!file.delete()) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                             LOG.warning("Unable to delete the file");
@@ -879,15 +879,15 @@ public class SrdiIndex implements Runnable {
             }
         }
     }
-
+    
     /**
      * An entry in the index tables.
      */
     public final static class Entry {
-
+        
         public final PeerID peerid;
         public final long expiration;
-
+        
         /**
          * Peer Pointer reference
          *
@@ -898,7 +898,7 @@ public class SrdiIndex implements Runnable {
             this.peerid = peerid;
             this.expiration = expiration;
         }
-
+        
         /**
          * {@inheritDoc}
          */
@@ -906,7 +906,7 @@ public class SrdiIndex implements Runnable {
         public boolean equals(Object obj) {
             return obj instanceof Entry && (peerid.equals(((Entry) obj).peerid));
         }
-
+        
         /**
          * {@inheritDoc}
          */
@@ -915,16 +915,16 @@ public class SrdiIndex implements Runnable {
             return peerid.hashCode();
         }
     }
-
-
+    
+    
     /**
      * an SrdiIndexRecord wrapper
      */
     public final static class SrdiIndexRecord {
-
+        
         public final Key key;
         public final ArrayList<Entry> list;
-
+        
         /**
          * SrdiIndex record
          *
@@ -935,7 +935,7 @@ public class SrdiIndex implements Runnable {
             this.key = key;
             this.list = list;
         }
-
+        
         /**
          * {@inheritDoc}
          */
@@ -943,7 +943,7 @@ public class SrdiIndex implements Runnable {
         public boolean equals(Object obj) {
             return obj instanceof SrdiIndexRecord && (key.equals(((SrdiIndexRecord) obj).key));
         }
-
+        
         /**
          * {@inheritDoc}
          */
