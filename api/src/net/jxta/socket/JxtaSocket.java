@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.socket;
-
 
 import net.jxta.credential.Credential;
 import net.jxta.document.*;
@@ -89,28 +87,16 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
- * JxtaSocket is a bi-directional Pipe that behaves very much like a
- * Socket, it creates an InputPipe and listens for pipe connection request.
- * JxtaSocket defines its own protocol. requests arrive as a JXTA Message
- * with the following elements :
- * <p/>
- * <p/>
- * &lt;Cred> Credentials which can be used to determine trust &lt;/Cred>
- * <p/>
- * &lt;reqPipe> requestor's pipe advertisement &lt;/reqPipe>
- * <p/>
- * &lt;remPipe> Remote pipe advertisement &lt;/remPipe>
- * <p/>
- * &lt;reqPeer> Remote peer advertisement &lt;/remPeer>
- * <p/>
- * &lt;stream> determine whether the connection is reliable, or not &lt;/stream>
- * <p/>
- * &lt;close> close request &lt;/close>
- * <p/>
- * &lt;data> Data &lt;/data>
- * <p/>
+ * JxtaSocket is a sub-class of java.net.socket, and should be used like a java.net.Socket.
+ * Key differences to keep in mind are the following :
+ * </p>
+ * - JxtaSocket does not implement Nagle's algorithm, therefore at end of a data frame a flush must invoked to enure all
+ * buffered data is packaged and transmitted.
+ * - JxtaSocket does not implement keep-alive, therefore it is possible the underlaying messengers to be closed due to
+ * lack of inactivity, which manifests in a short latency, while the messenger are recreated. This limitation should cease
+ * to exist as soon the inactivity logic is removed.
+ *
  */
 public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeListener {
 
@@ -119,7 +105,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     private final static Logger LOG = Logger.getLogger(JxtaSocket.class.getName());
     private final static int MAXRETRYTIMEOUT = 120 * 1000;
-    private final static int DEFAULT_TIMEOUT = 60 * 1000;
+    private final static int DEFAULT_TIMEOUT = 15 * 1000;
 
     /**
      * Default size for output buffers. Only used when we do not know the MTU
@@ -204,17 +190,17 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * Lock for output pipe resolution.
      */
-    protected final Object pipeResolveLock = new String("pipeResolveLock");
+    protected final Object pipeResolveLock = new Object();
 
     /**
      * Lock for ephemeral pipe connect states.
      */
-    protected final Object socketConnectLock = new String("socketConnectLock");
+    protected final Object socketConnectLock = new Object();
 
     /**
      * Lock for closing states.
      */
-    protected final Object closeLock = new String("closeLock");
+    protected final Object closeLock = new Object();
 
     /*
      *used to determine whether to wait for an ack
@@ -222,8 +208,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     private boolean closeAckReceived = false;
 
     /**
-     * If {@code true} then this socket has been closed and can no longer be
-     * used.
+     * If {@code true} then this socket has been closed and can no longer be used.
      */
     protected volatile boolean closed = false;
 
@@ -356,8 +341,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     }
 
     /**
-     * Create a JxtaSocket connected to the give JxtaSocketAddress with
-     * the default connect timeout (60 seconds).
+     * Create a JxtaSocket connected to the give JxtaSocketAddress.
      *
      * @param address JxtaSocketAddress to connect to
      * @throws IOException if an io error occurs
@@ -367,7 +351,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     }
 
     /**
-     * Create a JxtaSocket to any peer listening on pipeAdv
+     * Create a JxtaSocket to any node listening on pipeAdv
      *
      * @param group   group context
      * @param pipeAdv PipeAdvertisement
@@ -416,10 +400,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * Create a JxtaSocket to any peer listening on pipeAdv
      * this attempts establish a connection to specified
-     * pipe within a context of group and within timeout specified in milliseconds
+     * pipe within a context of <code>group</code> and within the timeout specified in milliseconds
      *
      * @param group   group context
-     * @param peerid  peer to connect to
+     * @param peerid  node to connect to
      * @param pipeAdv PipeAdvertisement
      * @param timeout The number of milliseconds within which the socket must
      *                be successfully created. An exception will be thrown if the socket
@@ -461,10 +445,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * Create a JxtaSocket to any peer listening on pipeAdv
      * this attempts establish a connection to specified
-     * pipe within a context of group and within timeout specified in milliseconds
+     * pipe within a context of <code>group</code> and within the timeout specified in milliseconds
      *
      * @param group    group context
-     * @param peerid   peer to connect to
+     * @param peerid   node to connect to
      * @param pipeAdv  PipeAdvertisement
      * @param timeout  The number of milliseconds within which the socket must
      *                 be successfully created. An exception will be thrown if the socket
@@ -499,10 +483,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * Creates either a stream or a datagram socket.
      *
-     * @param reliable {@code true} for reliable stream connection or
-     *                 {@code false} for unreliable stream connection.
-     * @throws IOException if an I/O error occurs while creating the
-     *                     socket.
+     * @param reliable {@code true} for reliable stream connection or {@code false} for unreliable stream connection.
+     * @throws IOException if an I/O error occurs while creating the socket.
      * @deprecated Unreliable mode is being removed. Use JxtaBiDiPipe instead.
      */
     @Deprecated
@@ -528,8 +510,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * {@inheritDoc}
      * <p/>
-     * The default connect timeout of 60 seconds is used
-     * If SocketAddress is not an instance of JxtaSocketAddress, an
+     * The default connect timeout of 60 seconds is used If SocketAddress is not an instance of JxtaSocketAddress, an
      * IOException will be thrown.
      */
     @Override
@@ -540,8 +521,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * {@inheritDoc}
      * <p/>
-     * If SocketAddress is not an instance of JxtaSocketAddress, an
-     * IOException will be thrown.
+     * If SocketAddress is not an instance of JxtaSocketAddress, an IOException will be thrown.
      */
     @Override
     public void connect(SocketAddress address, int timeout) throws IOException {
@@ -552,8 +532,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         PeerGroup pg = PeerGroup.globalRegistry.lookupInstance(socketAddress.getPeerGroupId());
 
         if (pg == null) {
-            throw new IOException(
-                    "Can't connect socket in PeerGroup with id " + socketAddress.getPeerGroupId()
+            throw new IOException("Can't connect socket in PeerGroup with id " + socketAddress.getPeerGroupId()
                     + ". No running instance of the group is registered.");
         }
         connect(pg.getWeakInterface(), socketAddress.getPeerId(), socketAddress.getPipeAdv(), timeout);
@@ -652,7 +631,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                     }
                     Thread.interrupted();
                     SocketException exp = new SocketException("Connect Interrupted");
-
                     exp.initCause(ie);
                     throw exp;
                 }
@@ -676,12 +654,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 while (!isConnected()) {
                     try {
                         long waitFor = connectTimeoutAt - System.currentTimeMillis();
-
                         if (waitFor <= 0) {
                             // too late
                             break;
                         }
-
                         socketConnectLock.wait(waitFor);
                     } catch (InterruptedException ie) {
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -689,7 +665,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         }
                         Thread.interrupted();
                         SocketException exp = new SocketException("Connect Interrupted");
-
                         exp.initCause(ie);
                         throw exp;
                     }
@@ -718,7 +693,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     protected static Credential getDefaultCredential(PeerGroup group) {
         try {
             MembershipService membership = group.getMembershipService();
-
             return membership.getDefaultCredential();
         } catch (Exception e) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -757,7 +731,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         } else {
             try {
                 MembershipService membership = group.getMembershipService();
-
                 this.localCredential = membership.getDefaultCredential();
             } catch (Exception failed) {
                 this.localCredential = null;
@@ -793,31 +766,24 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             try {
                 XMLDocument credDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
 
-                msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
-                        ,
+                msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                         new TextDocumentMessageElement(JxtaServerSocket.credTag, credDoc, null));
             } catch (Exception failed) {
                 IOException failure = new IOException("Could not generate credential element.");
-
                 failure.initCause(failed);
                 throw failure;
             }
         }
 
-        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
-                ,
-                new TextDocumentMessageElement(initiator ? JxtaServerSocket.reqPipeTag : JxtaServerSocket.remPipeTag
-                ,
+        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
+                new TextDocumentMessageElement(initiator ? JxtaServerSocket.reqPipeTag : JxtaServerSocket.remPipeTag,
                 (XMLDocument) pipeAdv.getDocument(MimeMediaType.XMLUTF8), null));
 
-        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
-                ,
-                new TextDocumentMessageElement(JxtaServerSocket.remPeerTag
-                ,
+        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
+                new TextDocumentMessageElement(JxtaServerSocket.remPeerTag,
                 (XMLDocument) group.getPeerAdvertisement().getDocument(MimeMediaType.XMLUTF8), null));
 
-        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
-                ,
+        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new StringMessageElement(JxtaServerSocket.streamTag, Boolean.toString(isReliable), null));
 
         return msg;
@@ -833,7 +799,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     protected static PipeAdvertisement newEphemeralPipeAdv(PipeAdvertisement pipeAdv) {
         PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
         PeerGroupID gid = (PeerGroupID) ((PipeID) pipeAdv.getPipeID()).getPeerGroupID();
-
         adv.setPipeID(IDFactory.newPipeID(gid));
         adv.setName(pipeAdv.getName() + ".remote");
         adv.setType(pipeAdv.getType());
@@ -849,9 +814,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     }
 
     /**
-     * Sets whether this socket is currently bound or not. A socket is
-     * considered bound if the local resources required in order to interact
-     * with a remote peer are allocated and open.
+     * Sets whether this socket is currently bound or not. A socket is considered bound if the local resources required
+     * in order to interact with a remote peer are allocated and open.
      *
      * @param boundState The new bound state.
      */
@@ -991,11 +955,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     @Override
     public OutputStream getOutputStream() throws IOException {
         checkState();
-
         if (isOutputShutdown()) {
             throw new SocketException("Output already shutdown.");
         }
-
         return isReliable ? ros : nonReliableOutputStream;
     }
 
@@ -1111,7 +1073,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @throws IOException if an I/O error occurs
      */
     protected void closeFromRemote() throws IOException {
-
         synchronized (closeLock) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.INFO)) {
                 LOG.info("Received a remote close request." + this);
@@ -1182,13 +1143,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * {@inheritDoc}
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
-
         if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
             LOG.log(Level.FINER, "Pipe Message Event for " + this + "\n\t" + event.getMessage() + " for " + event.getPipeID());
         }
 
         Message message = event.getMessage();
-
         if (message == null) {
             return;
         }
@@ -1200,7 +1159,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Handling a close message " + this + " : " + element.toString());
             }
-
             if (JxtaServerSocket.closeReqValue.equals(element.toString())) {
                 try {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1250,7 +1208,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             if (element != null) {
                 try {
                     XMLDocument peerAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
-
                     incomingRemotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(peerAdvDoc);
                 } catch (IOException badPeerAdv) {// ignored
                 }
@@ -1262,7 +1219,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             if (element != null) {
                 try {
                     StructuredDocument incomingCredentialDoc = StructuredDocumentFactory.newStructuredDocument(element);
-
                     incomingCredential = group.getMembershipService().makeCredential(incomingCredentialDoc);
                 } catch (Exception failed) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -1325,7 +1281,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         // Often we are called to handle data before the socket is connected.
         synchronized (socketConnectLock) {
             long timeoutAt = System.currentTimeMillis() + timeout;
-
             if (timeoutAt < timeout) {
                 timeoutAt = Long.MAX_VALUE;
             }
@@ -1351,13 +1306,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         if (!isReliable) {
             // is there data ?
-            Iterator<MessageElement> dataElements = message.getMessageElements(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
-                    ,
+            Iterator<MessageElement> dataElements = message.getMessageElements(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                     JxtaServerSocket.dataTag);
 
             while (dataElements.hasNext()) {
                 MessageElement anElement = dataElements.next();
-
                 nonReliableInputStream.enqueue(anElement);
             }
         } else {
@@ -1420,11 +1373,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         EndpointService endpoint = group.getEndpointService();
         ID opId = pipeAdv.getPipeID();
         String destPeer = peerAdv.getPeerID().getUniqueValue().toString();
+
         // Get an endpoint messenger to that address
         EndpointAddress addr;
-
         RouteAdvertisement routeHint = net.jxta.impl.endpoint.EndpointUtils.extractRouteAdv(peerAdv);
-
         if (pipeAdv.getType().equals(PipeService.UnicastType)) {
             addr = new EndpointAddress("jxta", destPeer, "PipeService", opId.toString());
         } else if (pipeAdv.getType().equals(PipeService.UnicastSecureType)) {
@@ -1462,11 +1414,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     private void sendCloseACK() throws IOException {
         Message msg = new Message();
-
-        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
-                ,
+        msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new StringMessageElement(JxtaServerSocket.closeTag, JxtaServerSocket.closeAckValue, null));
-
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Sending a close ACK " + this + " : " + msg);
         }
@@ -1535,8 +1484,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     @Deprecated
     public void setMaxRetryTimeout(int maxRetryTimeout) {
         if (maxRetryTimeout <= 0 || maxRetryTimeout > MAXRETRYTIMEOUT) {
-            throw new IllegalArgumentException(
-                    "Invalid Maximum retry timeout :" + maxRetryTimeout + " Exceed Global maximum retry timeout :"
+            throw new IllegalArgumentException("Invalid Maximum retry timeout :" + maxRetryTimeout + " Exceed Global maximum retry timeout :"
                     + MAXRETRYTIMEOUT);
         }
         this.maxRetryTimeout = maxRetryTimeout;
@@ -1616,12 +1564,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             ros.write(buf, offset, length);
         } else {
             byte[] bufCopy = new byte[length];
-
             System.arraycopy(buf, offset, bufCopy, 0, length);
-            Message msg = new Message();
 
-            msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
-                    ,
+            Message msg = new Message();
+            msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                     new ByteArrayMessageElement(JxtaServerSocket.dataTag, MimeMediaType.AOS, bufCopy, 0, length, null));
             remoteEphemeralPipeMsgr.sendMessageB(msg, null, null);
         }
