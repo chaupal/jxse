@@ -120,7 +120,11 @@ public abstract class RouteQueryMsg {
      * @param route RouteAdvertisement of the source
      */
     public void setSrcRoute(RouteAdvertisement route) {
-        srcRoute = route;
+        if(null == route.getDestPeerID()) {
+            throw new IllegalArgumentException("route lacks destination!");
+        }
+        
+        srcRoute = route.clone();
     }
 
     /**
@@ -129,7 +133,11 @@ public abstract class RouteQueryMsg {
      * @return route RouteAdvertisement of the source peer
      */
     public RouteAdvertisement getSrcRoute() {
-        return srcRoute;
+        if(null == srcRoute) {
+            return null;
+        } else {
+            return srcRoute.clone();
+        }
     }
 
     /**
@@ -138,7 +146,6 @@ public abstract class RouteQueryMsg {
      * @param badHop The known bad hop for the route.
      */
     public void addBadHop(PeerID badHop) {
-
         badHops.add(badHop);
     }
 
@@ -148,7 +155,6 @@ public abstract class RouteQueryMsg {
      * @param hops RouteAdvertisement of the source
      */
     public void setBadHops(Collection<PeerID> hops) {
-
         badHops.clear();
         if (null != hops) {
             badHops.addAll(hops);
@@ -161,12 +167,11 @@ public abstract class RouteQueryMsg {
      * @return The known bad hops for the route
      */
     public Set<PeerID> getBadHops() {
-
         return new HashSet<PeerID>(badHops);
     }
 
     /**
-     * Write advertisement into a document. asMimeType is a mime media-type
+     * Write message into a document. asMimeType is a mime media-type
      * specification and provides the form of the document which is being
      * requested. Two standard document forms are defined. "text/text" encodes
      * the document in a form nice for printing out, and "text/xml" which
