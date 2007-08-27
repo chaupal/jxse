@@ -278,7 +278,6 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-
         // sanity check!
         if (null == getHandlerName()) {
             throw new IllegalStateException("Query message does not contain a handler name.");
@@ -351,7 +350,6 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
      */
     @Override
     public ResolverQuery clone() {
-
         ResolverQuery tmp;
 
         try {
@@ -366,6 +364,8 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         tmp.setQuery(getQuery());
         tmp.setQueryId(getQueryId());
         tmp.setHopCount(getHopCount());
+        tmp.setSrcPeerRoute(getSrcPeerRoute());
+        
         return tmp;
     }
 
@@ -376,7 +376,6 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
      */
     @Override
     public ResolverResponseMsg makeResponse() {
-
         // construct a new response
         ResolverResponse res = new ResolverResponse();
 
