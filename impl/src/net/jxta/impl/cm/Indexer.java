@@ -432,7 +432,6 @@ public final class Indexer {
      * @throws BTreeException if an DB error occurs
      */
     public void purge(List<Long> list) throws IOException, BTreeException {
-
         IndexQuery iq = new IndexQuery(IndexQuery.ANY, "");
         Collection<String> keys = new ArrayList<String>(indices.keySet());
 
@@ -453,16 +452,7 @@ public final class Indexer {
      * @throws BTreeException if an BTree error occurs
      */
     public void purge(long pos) throws IOException, BTreeException {
-
-        IndexQuery iq = new IndexQuery(IndexQuery.ANY, "");
-        Collection<String> keys = new ArrayList<String>(indices.keySet());
-
-        for (String objKey : keys) {
-            NameIndexer index = indices.get(objKey);
-            PurgeCallback pc = new PurgeCallback(listDB, index, objKey, Collections.singletonList(pos));
-
-            index.query(iq, pc);
-        }
+        purge(Collections.<Long>singletonList(pos));
     }
 
     private static final class PurgeCallback implements BTreeCallback {
@@ -485,13 +475,11 @@ public final class Indexer {
         public boolean indexInfo(Value val, long pos) {
             // Read record to determine whether there's a refrence to pos
             try {
-                boolean changed;
-
                 synchronized (listDB) {
                     Record record = listDB.readRecord(pos);
                     Set<Long> offsets = readRecord(record);
 
-                    changed = offsets.removeAll(list);
+                    boolean changed = offsets.removeAll(list);
                     if (changed) {
                         if (!offsets.isEmpty()) {
                             Value recordValue = new Value(toByteArray(offsets));
@@ -501,9 +489,6 @@ public final class Indexer {
                             listDB.deleteRecord(new Key(indexKey + val));
                             indexer.remove(new Key(val));
                         }
-                    } else {
-                        // not a match continue callback
-                        return true;
                     }
                 }
             } catch (DBException ignore) {
