@@ -73,6 +73,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -334,9 +336,7 @@ public final class Indexer {
             return;
         }
         // FIXME add indexer name to NameIndexer, to optimize this loop
-        for (Object o : indexables.keySet()) {
-            String name = (String) o;
-
+        for (String name : indexables.keySet()) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("looking up NameIndexer : " + name);
             }
@@ -371,18 +371,17 @@ public final class Indexer {
 
     public void removeFromIndex(Map<String, String> indexables, long pos) throws DBException {
 
-        Iterator<String> ni;
+        Collection<String> names;
 
         if (indexables == null) {
-            ni = indices.keySet().iterator();
+            names = indices.keySet();
         } else {
-            ni = indexables.keySet().iterator();
+            names = indexables.keySet();
         }
 
         Long lpos = pos;
 
-        while (ni.hasNext()) {
-            String name = ni.next();
+        for (String name : names) {
             NameIndexer indexer = indices.get(name);
 
             if (indexer != null) {
@@ -417,6 +416,7 @@ public final class Indexer {
                     } else {
                         // empty record purge it
                         listDB.deleteRecord(dbKey);
+                        indexer.remove(indexKey);
                     }
                 }
             }
@@ -431,15 +431,14 @@ public final class Indexer {
      * @throws IOException if an io error occurs
      * @throws BTreeException if an DB error occurs
      */
-    public void purge(List list) throws IOException, BTreeException {
+    public void purge(List<Long> list) throws IOException, BTreeException {
 
         IndexQuery iq = new IndexQuery(IndexQuery.ANY, "");
-        Set<String> keys = indices.keySet();
-        Object[] objKeys = keys.toArray();
+        Collection<String> keys = new ArrayList<String>(indices.keySet());
 
-        for (Object objKey : objKeys) {
+        for (String objKey : keys) {
             NameIndexer index = indices.get(objKey);
-            PurgeCallback pc = new PurgeCallback(listDB, index, (String) objKey, list);
+            PurgeCallback pc = new PurgeCallback(listDB, index, objKey, list);
 
             index.query(iq, pc);
         }
@@ -456,12 +455,11 @@ public final class Indexer {
     public void purge(long pos) throws IOException, BTreeException {
 
         IndexQuery iq = new IndexQuery(IndexQuery.ANY, "");
-        Set<String> keys = indices.keySet();
-        Object[] objKeys = keys.toArray();
+        Collection<String> keys = new ArrayList<String>(indices.keySet());
 
-        for (Object objKey : objKeys) {
+        for (String objKey : keys) {
             NameIndexer index = indices.get(objKey);
-            PurgeCallback pc = new PurgeCallback(listDB, index, (String) objKey, Collections.singletonList(pos));
+            PurgeCallback pc = new PurgeCallback(listDB, index, objKey, Collections.singletonList(pos));
 
             index.query(iq, pc);
         }
@@ -469,12 +467,12 @@ public final class Indexer {
 
     private static final class PurgeCallback implements BTreeCallback {
 
-        private NameIndexer indexer = null;
-        private List list;
-        private BTreeFiler listDB = null;
-        private String indexKey = null;
+        private final NameIndexer indexer;
+        private final List<Long> list;
+        private final BTreeFiler listDB;
+        private final String indexKey;
 
-        PurgeCallback(BTreeFiler listDB, NameIndexer indexer, String indexKey, List list) {
+        PurgeCallback(BTreeFiler listDB, NameIndexer indexer, String indexKey, List<Long> list) {
             this.listDB = listDB;
             this.indexer = indexer;
             this.indexKey = indexKey;
@@ -524,9 +522,7 @@ public final class Indexer {
             DataOutputStream dos = new DataOutputStream(bos);
 
             dos.writeInt(size);
-            for (Object offset : offsets) {
-                Long lpos = (Long) offset;
-
+            for (Long lpos : offsets) {
                 dos.writeLong(lpos.longValue());
             }
             dos.close();
@@ -540,11 +536,12 @@ public final class Indexer {
     }
 
     public static Set<Long> readRecord(Record record) {
+        if (record == null) {
+            return Collections.<Long>emptySet();
+        }
+
         Set<Long> result = new TreeSet<Long>();
 
-        if (record == null) {
-            return result;
-        }
         InputStream is = record.getValue().getInputStream();
 
         try {
@@ -617,9 +614,7 @@ public final class Indexer {
                     }
                 }
 
-                for (Object offset : offsets) {
-                    Long lpos = (Long) offset;
-
+                for (Long lpos : offsets) {
                     result &= callback.indexInfo(val, lpos);
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                         LOG.finer("Callback result : " + result);
