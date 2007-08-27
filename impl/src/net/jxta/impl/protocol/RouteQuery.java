@@ -66,7 +66,6 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
@@ -78,6 +77,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Enumeration;
+import net.jxta.document.XMLDocument;
 
 /**
  * RouteQuery message used by the Endpoint Routing protocol to
@@ -97,12 +97,14 @@ public class RouteQuery extends RouteQueryMsg {
     /**
      * Constructs a RouteQuery
      *
+     * @deprecated Use default constructor and accessors.
+     *
      * @param dest     dest PeerID
      * @param srcRoute source source
      * @param badhops  lis of AccessPointAdvertisements
      */
+    @Deprecated
     public RouteQuery(PeerID dest, RouteAdvertisement srcRoute, Collection<PeerID> badhops) {
-
         setDestPeerID(dest);
         setSrcRoute(srcRoute);
         setBadHops(badhops);
@@ -114,7 +116,6 @@ public class RouteQuery extends RouteQueryMsg {
      * @param root the element
      */
     public RouteQuery(Element root) {
-
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
         }
@@ -135,14 +136,10 @@ public class RouteQuery extends RouteQueryMsg {
                     "Can not construct : " + getClass().getName() + " from doc containing a " + doc.getName());
         }
 
-        readIt(doc);
-    }
-
-    private void readIt(XMLElement doc) {
-        Enumeration elements = doc.getChildren();
+        Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement elem = elements.nextElement();
 
             if (elem.getName().equals(destPIDTag)) {
                 try {
@@ -159,8 +156,8 @@ public class RouteQuery extends RouteQueryMsg {
             }
 
             if (elem.getName().equals(srcRouteTag)) {
-                for (Enumeration eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
-                    XMLElement aXpt = (XMLElement) eachXpt.nextElement();
+                for (Enumeration<XMLElement> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+                    XMLElement aXpt = eachXpt.nextElement();
 
                     RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(aXpt);
 
@@ -182,41 +179,47 @@ public class RouteQuery extends RouteQueryMsg {
                 }
             }
         }
+        
+        if(null == getDestPeerID()) {
+            throw new IllegalArgumentException("Destination peer not initialized");
+        }        
     }
 
     /**
-     * return a Document represetation of this object
+     * {@inheritDoc}
      */
     @Override
-    public Document getDocument(MimeMediaType asMimeType) {
-
+    public StructuredDocument getDocument(MimeMediaType asMimeType) {
+        if(null == getDestPeerID()) {
+            throw new IllegalStateException("Destination peer not initialized");
+        }
+        
         StructuredDocument adv = StructuredDocumentFactory.newStructuredDocument(asMimeType, getAdvertisementType());
 
         if (adv instanceof XMLElement) {
             ((Attributable) adv).addAttribute("xmlns:jxta", "http://jxta.org");
+            ((Attributable) adv).addAttribute("xml:space", "preserve");
         }
 
         Element e;
 
         PeerID dest = getDestPeerID();
 
-        if (dest != null) {
-            e = adv.createElement(destPIDTag, dest.toString());
-            adv.appendChild(e);
-        }
-
+        e = adv.createElement(destPIDTag, dest.toString());
+        adv.appendChild(e);
+        
         RouteAdvertisement route = getSrcRoute();
 
         if (route != null) {
             e = adv.createElement(srcRouteTag);
             adv.appendChild(e);
-            StructuredTextDocument xptDoc = (StructuredTextDocument) route.getDocument(asMimeType);
+            StructuredDocument xptDoc = (StructuredDocument) route.getDocument(asMimeType);
 
             StructuredDocumentUtils.copyElements(adv, e, xptDoc);
         }
 
-        for (PeerID o : getBadHops()) {
-            e = adv.createElement(badHopTag, o.toString());
+        for (PeerID eachPeer : getBadHops()) {
+            e = adv.createElement(badHopTag, eachPeer.toString());
             adv.appendChild(e);
         }
 
@@ -228,19 +231,10 @@ public class RouteQuery extends RouteQueryMsg {
      */
     @Override
     public String toString() {
+        XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
 
-        try {
-            StructuredTextDocument doc = (StructuredTextDocument) getDocument(MimeMediaType.XMLUTF8);
+        doc.addAttribute("xml:space", "default");
 
-            return doc.toString();
-        } catch (Throwable e) {
-            if (e instanceof Error) {
-                throw (Error) e;
-            } else if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new UndeclaredThrowableException(e);
-            }
-        }
+        return doc.toString();
     }
 }
