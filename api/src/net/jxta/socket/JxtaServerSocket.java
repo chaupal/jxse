@@ -53,20 +53,16 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.socket;
-
 
 import net.jxta.credential.Credential;
 import net.jxta.credential.CredentialValidator;
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.logging.Logging;
-import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.PipeMsgEvent;
@@ -76,20 +72,22 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * JxtaServerSocket is a bi-directional Pipe that behaves very much like
  * ServerSocket.  It creates an inputpipe and listens for pipe connection
  * requests. JxtaServerSocket also defines it own protocol. Requests arrive as
  * a JXTA Message with the following elements:
- * <p/>
  * <p/>
  * &lt;Cred> Credentials which can be used to determine trust &lt;/Cred>
  * <p/>
@@ -109,9 +107,9 @@ import java.util.logging.Logger;
  * resolves the requestor's pipe, and sends a &lt;remPipe> private pipe created &lt;/remotePipe>
  * advertisement back, where the remote side is resolved.
  * <p/>
- * <p/>The {@code accept()} backlog defaults to 50 requests.
+ * The {@code accept()} backlog defaults to 50 requests.
  * <p/>
- * <p/>The timeout default to 60 seconds, i.e. blocking.
+ * The timeout default to 60 seconds, i.e. blocking.
  */
 public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
@@ -282,7 +280,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         super.finalize();
         if (!closed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("JxtaServerSocket is being finalized without being previously closed. This is likely a users bug.");
+                LOG.warning("JxtaServerSocket is being finalized without being previously closed. This is likely an application level bug.");
             }
         }
         close();
@@ -547,7 +545,6 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         }
 
         boolean pushed = false;
-
         try {
             pushed = queue.offer(message, timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException woken) {
@@ -582,17 +579,14 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
         try {
             MessageElement el = msg.getMessageElement(MSG_ELEMENT_NAMESPACE, reqPipeTag);
-
             if (el != null) {
                 XMLDocument pipeAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
-
                 remoteEphemeralPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(pipeAdvDoc);
             }
 
             el = msg.getMessageElement(MSG_ELEMENT_NAMESPACE, remPeerTag);
             if (el != null) {
                 XMLDocument peerAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
-
                 remotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(peerAdvDoc);
             }
 
@@ -600,7 +594,6 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
             if (el != null) {
                 try {
                     XMLDocument credDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
-
                     credential = group.getMembershipService().makeCredential(credDoc);
                     if (!checkCred(credential)) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -608,7 +601,8 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                         }
                         return null;
                     }
-                } catch (Exception ignored) {// ignored
+                } catch (Exception ignored) {
+                    // ignored
                 }
             }
 
@@ -620,9 +614,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
             }
 
             if ((null != remoteEphemeralPipeAdv) && (null != remotePeerAdv)) {
-                return createEphemeralSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential
-                        ,
-                        isReliable);
+                return createEphemeralSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable);
             } else {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("Connection message did not contain valid connection information.");
