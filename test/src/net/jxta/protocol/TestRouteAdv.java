@@ -57,6 +57,8 @@
 package net.jxta.protocol;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import junit.framework.*;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -467,19 +469,22 @@ public class TestRouteAdv extends TestCase {
         
         PeerID pid = IDFactory.newPeerID(IDFactory.newPeerGroupID());
         Set badHops = new HashSet();
-        RouteQuery query = new RouteQuery(pid, route, badHops);
+        RouteQuery query = new RouteQuery();
+        query.setDestPeerID(pid);
+        query.setSrcRoute(route);
+        query.setBadHops(badHops);
         
         // write to a file
         try {
-            FileOutputStream fp = new FileOutputStream("routequery.msg");
+            ByteArrayOutputStream fp = new ByteArrayOutputStream();
 
             fp.write(query.toString().getBytes());
             fp.close();
             
-            Reader is = new InputStreamReader(new FileInputStream("routequery.msg"));
+            Reader is = new InputStreamReader(new ByteArrayInputStream(fp.toByteArray()));
             RouteQuery query1 = null;
             
-            StructuredTextDocument doc = (StructuredTextDocument)
+            XMLDocument doc = (XMLDocument)
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
             
             query1 = new RouteQuery(doc);
@@ -514,8 +519,7 @@ public class TestRouteAdv extends TestCase {
         }
     }
     
-    public void testRouteResponse() {
-        
+    public void testRouteResponse() {        
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
