@@ -145,9 +145,11 @@ public final class Cm implements Runnable {
 
     private Thread gcThread = null;
     private long gcTime = 0;
-    private long gcMinInterval = 1000L * 60L;
+    private final long gcMinInterval = 1000L * 60L;
     private long gcMaxInterval = DEFAULT_GC_MAX_INTERVAL;
-    private int maxInconvenienceLevel = 1000;
+    
+    
+    private final int maxInconvenienceLevel = 1000;
     private volatile int inconvenienceLevel = 0;
 
     /**
@@ -177,7 +179,7 @@ public final class Cm implements Runnable {
      * Constructor for cm
      *
      * @param threadGroup     the thread group
-     * @param storeRoot   persistance location
+     * @param storeRoot   persistence location
      * @param gcinterval  garbage collect max interval
      * @param trackDeltas when true deltas are tracked
      * @param areaName    storage area name
