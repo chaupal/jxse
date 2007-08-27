@@ -542,7 +542,7 @@ public class SrdiIndex implements Runnable {
                     }
                 }
                 if (changed) {
-                    if (!res.isEmpty()) {
+                    if (res.isEmpty()) {
                         try {
                             cacheDB.deleteRecord(rec.key);
                             list.add(pos);
