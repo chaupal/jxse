@@ -1191,7 +1191,10 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
      * @param message SRDI resolver message
      */
     public boolean processSrdi(ResolverSrdiMsg message) {
-
+        if(!group.isRendezvous()) {
+            return true;
+        }
+        
         String value;
         SrdiMessage srdiMsg;
 
@@ -1219,9 +1222,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             return false;
         }
 
-        for (Object o : srdiMsg.getEntries()) {
-            SrdiMessage.Entry entry = (SrdiMessage.Entry) o;
-
+        for (SrdiMessage.Entry entry : srdiMsg.getEntries()) {
             // drop any information  about ourself
             if (entry.key.equals(localPeerId.toString())) {
                 continue;
