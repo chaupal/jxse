@@ -102,8 +102,8 @@ public class SrdiIndex implements Runnable {
     
     private long interval = 1000 * 60 * 10;
     private volatile boolean stop = false;
-    private Indexer srdiIndexer = null;
-    private BTreeFiler cacheDB = null;
+    private final Indexer srdiIndexer;
+    private final BTreeFiler cacheDB;
     private Thread gcThread = null;
     private final Set<PeerID> gcPeerTBL = new HashSet<PeerID>();
     
@@ -424,10 +424,11 @@ public class SrdiIndex implements Runnable {
         try {
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
             
-            for (String indexName : map.keySet()) {
+            for (Map.Entry<String, NameIndexer> index : map.entrySet()) {
+                String indexName = index.getKey();
                 // seperate the index name from attribute
                 if (indexName.startsWith(primaryKey)) {
-                    NameIndexer idxr = map.get(indexName);
+                    NameIndexer idxr = index.getValue();
                     idxr.query(null, new SearchCallback(cacheDB, res, Integer.MAX_VALUE, gcPeerTBL));
                 }
             }
@@ -446,15 +447,15 @@ public class SrdiIndex implements Runnable {
     
     private static final class SearchCallback implements BTreeCallback {
         private final BTreeFiler cacheDB;
-        private int threshold;
+        private final int threshold;
         private final List<PeerID> results;
-        private final Set<PeerID> table;
+        private final Set<PeerID> excludeTable;
         
-        SearchCallback(BTreeFiler cacheDB, List<PeerID> results, int threshold, Set<PeerID> table) {
+        SearchCallback(BTreeFiler cacheDB, List<PeerID> results, int threshold, Set<PeerID> excludeTable) {
             this.cacheDB = cacheDB;
             this.threshold = threshold;
             this.results = results;
-            this.table = table;
+            this.excludeTable = excludeTable;
         }
         
         /**
@@ -469,7 +470,7 @@ public class SrdiIndex implements Runnable {
                 return false;
             }
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Found " + val.toString());
+                LOG.fine("Found " + val);
             }
             Record record = null;
             
@@ -481,18 +482,19 @@ public class SrdiIndex implements Runnable {
                 }
                 return false;
             }
-            if (record == null) {
-                return true;
-            }
-            long t0 = TimeUtils.timeNow();
-            SrdiIndexRecord rec = readRecord(record);
-            List<Entry> res = rec.list;
             
-            // if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            // LOG.finer("Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
-            // }
-            copyIntoList(results, res, table);
-            return true;
+            if (record != null) {
+                long t0 = TimeUtils.timeNow();
+                SrdiIndexRecord rec = readRecord(record);
+
+                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                    LOG.finest("Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
+                }
+
+                copyIntoList(results, rec.list, excludeTable);
+            }
+            
+            return results.size() < threshold;
         }
     }
     
@@ -571,7 +573,7 @@ public class SrdiIndex implements Runnable {
     }
     
     /**
-     * copies the content of List into a list expired entries are not
+     * copies the content of List into a list. Expired entries are not
      * copied
      *
      * @param to   list to copy into
@@ -634,7 +636,7 @@ public class SrdiIndex implements Runnable {
     }
     
     /**
-     * Reads the content of a record into ArrayList
+     * Reads the content of a record into List
      *
      * @param record Btree Record
      * @return List of entries
@@ -665,7 +667,8 @@ public class SrdiIndex implements Runnable {
                     Entry entry = new Entry(pid, exp);
                     
                     result.add(entry);
-                } catch (URISyntaxException badID) {// ignored
+                } catch (URISyntaxException badID) {
+                    // ignored
                 }
             }
             ois.close();
@@ -710,7 +713,11 @@ public class SrdiIndex implements Runnable {
             
             for(NameIndexer idxr : map.values()) {
                 List<Long> list = new ArrayList<Long>();
-                    
+                
+                if(stop) {
+                    break;
+                }
+                
                 synchronized(this) {
                     idxr.query(null, new GcCallback(cacheDB, srdiIndexer, list, gcPeerTBL));
                     srdiIndexer.purge(list);
@@ -735,13 +742,11 @@ public class SrdiIndex implements Runnable {
         
         while(eachEntry.hasNext()) {
             Entry entry = eachEntry.next();
-            boolean expired = isExpired(entry.expiration);
             
-            if (expired) {
+            if (entry.isExpired()) {
                 eachEntry.remove();
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Entry peerid :" + entry.peerid + " Expires at :" + entry.expiration);
-                    LOG.fine("Entry expired " + expired);
+                    LOG.fine("Removing expired Entry peerid :" + entry.peerid + " Expires at :" + entry.expiration);
                 }
             }
         }
@@ -749,14 +754,19 @@ public class SrdiIndex implements Runnable {
     }
     
     private static boolean isExpired(long expiration) {
-        return (expiration < TimeUtils.timeNow());
+        return (TimeUtils.timeNow() > expiration);
     }
     
     /**
      * stop the current running thread
      */
     public synchronized void stop() {
+        if(stop) {
+            return;
+        }
+        
         stop = true;
+        
         // wakeup and die
         try {
             Thread temp = gcThread;
@@ -765,7 +775,8 @@ public class SrdiIndex implements Runnable {
                     temp.notify();
                 }
             }
-        } catch (Exception ignored) {// ignored
+        } catch (Exception ignored) {
+            // ignored
         }
         
         // Stop the database
@@ -915,12 +926,24 @@ public class SrdiIndex implements Runnable {
             return peerid.hashCode();
         }
         
+        /**
+         *  Return the absolute time in milliseconds at which this entry will
+         *  expire.
+         *
+         *  @return The absolute time in milliseconds at which this entry will
+         *  expire.
+         */
         public long getExpiration() {
             return expiration;
         }
         
+        /**
+         *  Return {@code true} if this entry is expired.
+         *
+         *  @return {@code true} if this entry is expired otherwise {@code false}.
+         */
         public boolean isExpired() {
-            return (expiration < TimeUtils.timeNow());
+            return TimeUtils.timeNow() > expiration;
         }
     }
     
