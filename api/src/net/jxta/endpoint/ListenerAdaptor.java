@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
-
 
 import net.jxta.logging.Logging;
 import net.jxta.util.SimpleSelectable;
@@ -67,25 +65,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * The legacy getMessenger asynchronous API never returns any object to the invoker until a messenger could actually be made,
  * allowing the application to supply a listener to be invoked when the operation completes. The legacy Messenger API also
- * provides a method to send messages that calls a listener to report the outcome of the operation.
+ * provides a method to send messages that calls a listener to report the outcome of the operation.  <p/>
  * <p/>
  * The model has changed, so that an asynchronous messenger is made unresolved and returned immediately to the invoker, which can
  * then request opening or even just send a message to force the opening. Subsequently, the messenger can be used as a control
- * block to monitor progress with {@link Messenger#register} and {@link Messenger#waitState}.
+ * block to monitor progress with {@link Messenger#register} and {@link Messenger#waitState}.<p/>
  * <p/>
  * Likewise, the outcome of sending a message is a property of that message. Messages can be selected to monitor property changes
  * with {@link Message#register} and {@link net.jxta.endpoint.Message#getMessageProperty(Object)} (the outcome property key is
  * <code>Messenger.class</code>).
  * <p/>
  * This class here provides the legacy listener model on top of the new model for applications that prefer listeners. This class
- * is used internally to emulate the legacy listener behaviour, so that applications do not need to be adapted.
+ * is used internally to emulate the legacy listener behaviour, so that applications do not need to be adapted.<p/>
  * <p/>
  * Note: one instance of this class gets instantiated by each EndpointService interface. However, it does not start using any
  * resources until it first gets used.<p/>
@@ -121,6 +119,11 @@ public class ListenerAdaptor implements Runnable {
     private volatile boolean shutdown = false;
 
     /**
+     * The exceutor service.
+     */
+    private final Executor executor;
+
+    /**
      * The ThreadGroup in which this adaptor will run.
      */
     private final ThreadGroup threadGroup;
@@ -131,6 +134,16 @@ public class ListenerAdaptor implements Runnable {
      * @param threadGroup The ThreadGroup in which this adaptor will run.
      */
     public ListenerAdaptor(ThreadGroup threadGroup) {
+        this(threadGroup, null);
+    }
+    /**
+     * Creates a ListenerAdaptor with a threadpool for notification callback.
+     *
+     * @param threadGroup The ThreadGroup in which this adaptor will run.
+     * @param executor the excutor to use for notification callback
+     */
+    public ListenerAdaptor(ThreadGroup threadGroup, Executor executor) {
+        this.executor = executor;
         this.threadGroup = threadGroup;
     }
 
@@ -205,7 +218,7 @@ public class ListenerAdaptor implements Runnable {
             allListeners.add(listener);
         }
 
-        // When we do that, the selector get notified. Therefore we will always check the initial state automatically. If the
+        // When we do that, the selector gets notified. Therefore always check the initial state automatically. If the
         // selectable is already done with, the listener will be called by the selector's handler.
         message.register(selector);
 
@@ -397,10 +410,8 @@ public class ListenerAdaptor implements Runnable {
             while (!shutdown) {
                 try {
                     Collection<SimpleSelectable> changed = selector.select();
-
                     for (SimpleSelectable simpleSelectable : changed) {
                         ListenerContainer listeners;
-
                         synchronized (this) {
                             listeners = inprogress.get(simpleSelectable.getIdentityReference());
                         }
@@ -408,7 +419,11 @@ public class ListenerAdaptor implements Runnable {
                             simpleSelectable.unregister(selector);
                             continue;
                         }
-                        listeners.process(simpleSelectable);
+                        if (executor == null) {
+                            listeners.process(simpleSelectable);
+                        } else {
+                            executor.execute(new ListenerProcessor(listeners, simpleSelectable));
+                        }
                     }
                 } catch (InterruptedException ie) {
                     Thread.interrupted();
@@ -428,11 +443,9 @@ public class ListenerAdaptor implements Runnable {
             try {
                 // It's only us now. Stopped is true.
                 IOException failed = new IOException("Endpoint interface terminated");
-
                 for (Map.Entry<IdentityReference, ListenerContainer> entry : inprogress.entrySet()) {
                     SimpleSelectable simpleSelectable = entry.getKey().getObject();
                     ListenerContainer listeners = entry.getValue();
-
                     simpleSelectable.unregister(selector);
 
                     if (listeners != null) {
@@ -445,8 +458,24 @@ public class ListenerAdaptor implements Runnable {
                     LOG.log(Level.SEVERE, "Uncaught Throwable while shutting down background thread", anyOther);
                 }
             }
-
             bgThread = null;
+        }
+    }
+
+    /**
+     * A small class for processing individual messages.
+     */
+    private class ListenerProcessor implements Runnable {
+
+        private SimpleSelectable simpleSelectable;
+        private ListenerContainer listeners;
+        ListenerProcessor(ListenerContainer listeners, SimpleSelectable simpleSelectable) {
+            this.listeners = listeners;
+            this.simpleSelectable = simpleSelectable;
+        }
+
+        public void run() {
+            listeners.process(simpleSelectable);
         }
     }
 }
