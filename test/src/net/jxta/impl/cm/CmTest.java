@@ -53,13 +53,12 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.cm;
-
 
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.id.IDFactory;
 import net.jxta.id.ID;
+
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Arrays;
@@ -67,11 +66,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Collections;
+import java.io.File;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
-import net.jxta.pipe.PipeID;
+import java.io.InputStream;
+
 import net.jxta.pipe.PipeService;
-import net.jxta.peer.PeerID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import junit.framework.TestSuite;
@@ -85,15 +85,14 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.Element;
 import net.jxta.document.AdvertisementFactory;
 
-
 /**
- *  A CmTest unit test
+ * A CmTest unit test
  */
 public class CmTest extends TestCase {
 
     private static final int ITERATIONS = 1000;
 
-    private static final String[] dirname = { "Peers", "Groups", "Adv", "Raw"};
+    private static final String[] dirname = {"Peers", "Groups", "Adv", "Raw"};
     private static final PeerGroupID pgID = IDFactory.newPeerGroupID();
 
     private static Cm cm = null;
@@ -101,35 +100,34 @@ public class CmTest extends TestCase {
 
     private static Random random = new Random();
 
-    private List queue = Collections.synchronizedList(new ArrayList());
+    private List<PeerAdvertisement> queue = Collections.synchronizedList(new ArrayList<PeerAdvertisement>());
 
     /**
      * Constructor for the CmTest object
      *
-     * @param  testName  test name
+     * @param testName test name
      */
     public CmTest(String testName) {
         super(testName);
         synchronized (CmTest.class) {
             if (null == cm) {
-                cm = new Cm("CmTest", true);
+                cm = new Cm(new File(new File(".cache"), "CmTest").toURI(), "CmTest");
             }
         }
     }
 
     /**
-     *  A unit test suite for JUnit
+     * A unit test suite for JUnit
      *
-     * @return    The test suite
+     * @return The test suite
      */
     public static Test suite() {
-        TestSuite suite = new TestSuite(CmTest.class);
 
-        return suite;
+        return new TestSuite(CmTest.class);
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     public static void fail(String message) {
         failed = true;
@@ -137,10 +135,12 @@ public class CmTest extends TestCase {
     }
 
     /**
-     *  The main program to test Cm
+     * The main program to test Cm
      *
+     * @param argv command line arguments
+     * @throws IOException if an io error occurs
      */
-    public static void main(String[] argv) throws Exception {
+    public static void main(String[] argv) throws IOException {
         try {
             TestRunner.run(suite());
         } finally {
@@ -183,8 +183,8 @@ public class CmTest extends TestCase {
     }
 
     private void createPeer(boolean expired) {
-        ID advID = null;
-        String advName = null;
+        ID advID;
+        String advName;
 
         long t0 = System.currentTimeMillis();
 
@@ -205,8 +205,7 @@ public class CmTest extends TestCase {
                 fail("Failed to create Peer Adv: " + e.getMessage());
             }
         }
-        System.out.println(
-                "Completed Creation of " + ITERATIONS + " PeerAdvertisements in: " + (System.currentTimeMillis() - t0) / 1000
+        System.out.println("Completed Creation of " + ITERATIONS + " PeerAdvertisements in: " + (System.currentTimeMillis() - t0) / 1000
                 + " seconds");
     }
 
@@ -215,7 +214,7 @@ public class CmTest extends TestCase {
         long t0 = System.currentTimeMillis();
 
         for (int i = 0; i < ITERATIONS; i++) {
-            byte[] testdata = new byte[ 1 << (i % 16) ];
+            byte[] testdata = new byte[1 << (i % 16)];
 
             Arrays.fill(testdata, (byte) (i % 16));
 
@@ -235,7 +234,7 @@ public class CmTest extends TestCase {
         long t0 = System.currentTimeMillis();
 
         for (int i = 0; i < ITERATIONS; i++) {
-            byte[] testdata = new byte[ 1 << (i % 16) ];
+            byte[] testdata = new byte[1 << (i % 16)];
 
             Arrays.fill(testdata, (byte) (i % 16));
 
@@ -253,8 +252,8 @@ public class CmTest extends TestCase {
     }
 
     private void createPipe(boolean expired) {
-        ID advID = null;
-        String advName = null;
+        ID advID;
+        String advName;
         StructuredTextDocument doc = null;
 
         long t0 = System.currentTimeMillis();
@@ -282,7 +281,7 @@ public class CmTest extends TestCase {
 
         System.out.println(
                 "Completed Creation of " + ITERATIONS + " PipeAdvertisements in: " + (System.currentTimeMillis() - t0) / 1000
-                + " seconds");
+                        + " seconds");
     }
 
     private void searchPeer() {
@@ -301,18 +300,18 @@ public class CmTest extends TestCase {
         }
 
         t0 = System.currentTimeMillis();
-        List searchResults = cm.search(dirname[0], null, null, 10000, null);
+        List<InputStream> searchResults = cm.search(dirname[0], null, null, 10000, null);
 
         System.out.println("non-existent test should find 0, found: " + searchResults.size());
         System.out.println("retrieved " + searchResults.size() + " records in: " + (System.currentTimeMillis() - t0) + " ms");
 
         int threshold = 10;
-        List expirations = new Vector();
-        List results = cm.getRecords(dirname[0], threshold, null, expirations);
+        List<Long> expirations = new Vector<Long>();
+        List<InputStream> results = cm.getRecords(dirname[0], threshold, expirations);
 
         assertTrue("cm.getRecords failed", threshold == results.size());
         System.out.println("Testing Query for non-existent records");
-        results = cm.getRecords(dirname[1], threshold, null, expirations);
+        results = cm.getRecords(dirname[1], threshold, expirations);
         assertTrue("cm.getRecords(dirname[1]) should not return results", results.size() == 0);
         System.out.println("End Testing Query for non-existent records");
     }
@@ -321,7 +320,7 @@ public class CmTest extends TestCase {
         long t0 = System.currentTimeMillis();
 
         try {
-            List searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + i, 1, null);
+            List<InputStream> searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + i, 1, null);
 
             assertNotNull("Null search result", searchResults);
             Enumeration result = Collections.enumeration(searchResults);
@@ -358,7 +357,7 @@ public class CmTest extends TestCase {
         }
 
         long t0 = System.currentTimeMillis();
-        List searchResults = null;
+        List<InputStream> searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "*" + queryString, 10, null);
@@ -383,8 +382,8 @@ public class CmTest extends TestCase {
             e.printStackTrace();
             fail("findPeerEndsWith failed: " + e.getMessage());
         }
-        System.out.println(
-                "EndsWith: retrieved " + searchResults.size() + " entries in: " + (System.currentTimeMillis() - t0) + " ms");
+        assert searchResults != null;
+        System.out.println("EndsWith: retrieved " + searchResults.size() + " entries in: " + (System.currentTimeMillis() - t0) + " ms");
     }
 
     private void findPeerAdvStartswith(int i) {
@@ -399,7 +398,7 @@ public class CmTest extends TestCase {
         }
 
         long t0 = System.currentTimeMillis();
-        List searchResults = null;
+        List<InputStream> searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + queryString + "*", 10, null);
@@ -426,8 +425,8 @@ public class CmTest extends TestCase {
             e.printStackTrace();
             fail("findPeerAdvStartsWith failed: " + e.getMessage());
         }
-        System.out.println(
-                "StartsWith: retrieved " + searchResults.size() + " entries in: " + (System.currentTimeMillis() - t0) + " ms");
+        assert searchResults != null;
+        System.out.println("StartsWith: retrieved " + searchResults.size() + " entries in: " + (System.currentTimeMillis() - t0) + " ms");
     }
 
     private void findPeerAdvContains(int i) {
@@ -442,7 +441,7 @@ public class CmTest extends TestCase {
         }
 
         long t0 = System.currentTimeMillis();
-        List searchResults = null;
+        List<InputStream> searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "*" + queryString + "*", 10, null);
@@ -467,18 +466,17 @@ public class CmTest extends TestCase {
             e.printStackTrace();
             fail("findPeerAdvContains failed: " + e.getMessage());
         }
-        System.out.println(
-                "Contains: retrieved " + searchResults.size() + " entries in: " + (System.currentTimeMillis() - t0) + " ms");
+        assert searchResults != null;
+        System.out.println("Contains: retrieved " + searchResults.size() + " entries in: " + (System.currentTimeMillis() - t0) + " ms");
     }
 
     private void deletePeer() {
-        ArrayList advNameList = new ArrayList(ITERATIONS);
+        ArrayList<String> advNameList = new ArrayList<String>(ITERATIONS);
         long t0 = System.currentTimeMillis();
 
         for (int i = 0; i < ITERATIONS; i++) {
             PeerAdvertisement adv = generatePeerAdv(i);
             String advName = adv.getID().getUniqueValue().toString();
-
             try {
                 cm.save(dirname[0], advName, adv);
             } catch (Exception e) {
@@ -493,14 +491,14 @@ public class CmTest extends TestCase {
 
         for (int i = 0; i < ITERATIONS; i++) {
             try {
-                cm.remove(dirname[0], (String) advNameList.get(i));
+                cm.remove(dirname[0], advNameList.get(i));
             } catch (Exception e) {
                 e.printStackTrace();
                 fail("Failed to delete Peer Adv: " + e.getMessage());
             }
         }
 
-        List searchResults = null;
+        List<InputStream> searchResults = null;
 
         try {
             searchResults = cm.search(dirname[0], "Name", "*", ITERATIONS, null);
@@ -514,7 +512,7 @@ public class CmTest extends TestCase {
 
         System.out.println(
                 "Completed Creation+Deletion of " + ITERATIONS + " PeerAdvertisements in: "
-                + (System.currentTimeMillis() - t0) / 1000 + " seconds");
+                        + (System.currentTimeMillis() - t0) / 1000 + " seconds");
     }
 
     private PeerAdvertisement generatePeerAdv(int number) {
@@ -575,7 +573,8 @@ public class CmTest extends TestCase {
             try {
                 adders[i].join();
                 removers[i].join();
-            } catch (InterruptedException ignore) {}
+            } catch (InterruptedException ignore) {
+            }
         }
 
         if (failed) {
@@ -587,6 +586,7 @@ public class CmTest extends TestCase {
 
     private class PeerRemover implements Runnable {
         private int id = 0;
+
         public PeerRemover(int id) {
             this.id = id;
         }
@@ -596,10 +596,11 @@ public class CmTest extends TestCase {
                 while (queue.size() < 1) {
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException ignore) {}
+                    } catch (InterruptedException ignore) {
+                    }
                 }
 
-                PeerAdvertisement adv = (PeerAdvertisement) queue.remove(0);
+                PeerAdvertisement adv = queue.remove(0);
                 String advName = adv.getID().getUniqueValue().toString();
 
                 try {
@@ -619,6 +620,7 @@ public class CmTest extends TestCase {
 
     private class PeerAdder implements Runnable {
         private int id = 0;
+
         public PeerAdder(int id) {
             this.id = id;
         }
@@ -643,6 +645,7 @@ public class CmTest extends TestCase {
 
     private class PeerSearcher implements Runnable {
         private int id = 0;
+
         public PeerSearcher(int id) {
             this.id = id;
         }
@@ -654,7 +657,7 @@ public class CmTest extends TestCase {
             for (int i = 0; i < (ITERATIONS / 10) && !failed; i++) {
                 try {
                     synchronized (cm) {
-                        List searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + "*", 10, null);
+                        List<InputStream> searchResults = cm.search(dirname[0], "Name", "CmTestPeer" + "*", 10, null);
                         Enumeration result = Collections.enumeration(searchResults);
 
                         while (result.hasMoreElements() && !failed) {

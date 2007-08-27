@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.cm;
-
 
 import java.math.BigInteger;
 
@@ -64,9 +62,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.jxta.impl.util.JxtaHash;
 
-
 /**
- *  A SrdiGetReplica unit test
+ * A SrdiGetReplica unit test
  */
 public class SrdiReplicaTest extends TestCase {
 
@@ -77,44 +74,43 @@ public class SrdiReplicaTest extends TestCase {
     private static final String TSTSTR = "This is only a Test, nothing else";
 
     /**
-     *Constructor for the SrdiIndexTest object
+     * Constructor for the SrdiIndexTest object
      *
-     * @param  testName  test name
+     * @param testName test name
      */
     public SrdiReplicaTest(String testName) {
         super(testName);
     }
 
     /**
-     *  A unit test suite for JUnit
+     * A unit test suite for JUnit
      *
-     * @return    The test suite
+     * @return The test suite
      */
     public static Test suite() {
-        TestSuite suite = new TestSuite(SrdiReplicaTest.class);
-
-        return suite;
+        return new TestSuite(SrdiReplicaTest.class);
     }
 
     /**
-     *  The JUnit setup method
+     * The JUnit setup method
      */
     @Override
-    protected void setUp() {}
-    
+    protected void setUp() {
+    }
+
     @Override
     public void tearDown() {
         System.gc();
     }
 
     /**
-     *  The main program to test CmCache
+     * The main program to test CmCache
      *
-     *@param  argv           The command line arguments
-     *@exception  Exception  Description of Exception
+     * @param argv The command line arguments
+     * @throws Exception Description of Exception
      */
     public static void main(String[] argv) throws Exception {
-        
+
         junit.textui.TestRunner.run(suite());
         System.err.flush();
         System.out.flush();
@@ -125,11 +121,11 @@ public class SrdiReplicaTest extends TestCase {
             offBy(i);
         }
     }
-    
+
     private void offBy(int size) {
         System.out.println("Test Off By : " + size);
         System.out.println("---------------");
-        
+
         for (int i = 0; i < ITERATIONS; i++) {
             int rp1 = getReplica1(TSTSTR + i, SIZE);
             int rp2 = getReplica2(TSTSTR + i, SIZE);
@@ -141,7 +137,7 @@ public class SrdiReplicaTest extends TestCase {
                     " ----   Get replica 2 actual pos: " + rp2 + " Off by " + size + " : " + rp21 + " skew :" + (rp2 - rp21));
         }
     }
-    
+
     /* 2.0 Replica Function */
     private int getReplica1(String expression, int size) {
         jxtaHash.update(expression);
