@@ -211,7 +211,6 @@ public class JxtaBidiPipeExample {
             } catch (IOException e) {
                 System.out.println(Thread.currentThread().getName()+" failed to bind the JxtaBiDiPipe due to the following exception");
                 e.printStackTrace();
-                System.exit(-1);
             }
         }
     }
