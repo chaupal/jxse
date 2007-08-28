@@ -62,19 +62,10 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
-import net.jxta.endpoint.ByteArrayMessageElement;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointListener;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.MessageTransport;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.OutgoingMessageEvent;
-import net.jxta.endpoint.OutgoingMessageEventListener;
-import net.jxta.endpoint.TextDocumentMessageElement;
+import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.endpoint.router.EndpointRouter;
 import net.jxta.impl.endpoint.router.RouteControl;
 import net.jxta.impl.endpoint.tcp.TcpMessenger;
@@ -82,7 +73,11 @@ import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.ResolverResponse;
 import net.jxta.impl.protocol.ResolverSrdiMsgImpl;
-import net.jxta.impl.resolver.resolverMeter.*;
+import net.jxta.impl.resolver.resolverMeter.QueryHandlerMeter;
+import net.jxta.impl.resolver.resolverMeter.ResolverMeter;
+import net.jxta.impl.resolver.resolverMeter.ResolverMeterBuildSettings;
+import net.jxta.impl.resolver.resolverMeter.ResolverServiceMonitor;
+import net.jxta.impl.resolver.resolverMeter.SrdiHandlerMeter;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.meter.MonitorResources;
@@ -1083,7 +1078,7 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         if (null != messenger) {
-            if (direct) {
+            if (messenger instanceof  TcpMessenger) {
                 // this fails with an io exception, no listener adaptor needed here
                 ((TcpMessenger) messenger).sendMessageDirect(msg, null, null, true);
             } else {
