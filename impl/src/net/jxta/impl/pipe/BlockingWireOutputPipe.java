@@ -58,17 +58,19 @@ package net.jxta.impl.pipe;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.TextDocumentMessageElement;
-import net.jxta.endpoint.EndpointService;
 import net.jxta.id.ID;
+import net.jxta.impl.endpoint.tcp.TcpMessenger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.protocol.RouteAdvertisement;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -103,6 +105,7 @@ class BlockingWireOutputPipe implements OutputPipe {
     private Messenger destMessenger = null;
     private EndpointAddress destination;
     private EndpointService endpoint = null;
+    private RouteAdvertisement route = null;
 
     /**
      * Create a new blocking output pipe
@@ -120,7 +123,31 @@ class BlockingWireOutputPipe implements OutputPipe {
         destMessenger = endpoint.getMessenger(destination);
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Constructing for " + getPipeID());
+            LOG.info("Created output pipe for " + getPipeID());
+        }
+    }
+    /**
+     * Create a new blocking output pipe
+     *
+     * @param group  The peergroup context.
+     * @param pAdv   advertisement for the pipe we are supporting.
+     * @param peerID the destination <code>PeerID</code>.
+     * @param route the destination route.
+     */
+    public BlockingWireOutputPipe(PeerGroup group, PipeAdvertisement pAdv, PeerID peerID, RouteAdvertisement route) {
+        this.route = route;
+        this.pAdv = pAdv;
+        this.group = group;
+        this.endpoint = group.getEndpointService();
+        destination = new EndpointAddress("jxta", peerID.getUniqueValue().toString(), "PipeService", pAdv.getID().toString());
+        if (route != null) {
+            destMessenger = endpoint.getDirectMessenger(destination, route, true);
+        }
+        if (destMessenger == null) {
+            destMessenger = endpoint.getMessenger(destination);
+        }
+        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+            LOG.info("Created output pipe for " + getPipeID());
         }
     }
 
@@ -175,12 +202,18 @@ class BlockingWireOutputPipe implements OutputPipe {
     }
 
     private void checkMessenger() throws IOException {
-        if (destMessenger != null && (destMessenger.getState() & Messenger.USABLE) != 0) {
+        if (!(destMessenger instanceof TcpMessenger) && destMessenger != null && (destMessenger.getState() & Messenger.USABLE) != 0) {
             return;
         }
+        if (destMessenger != null && !destMessenger.isClosed()) {
+                return;
+        }
         synchronized (this) {
+            if (route != null) {
+                destMessenger = endpoint.getDirectMessenger(destination, route, true);
+            }
             destMessenger = endpoint.getMessenger(destination);
-            if (destMessenger == null || (destMessenger.getState() & Messenger.TERMINAL) != 0) {
+            if (!(destMessenger instanceof TcpMessenger) && destMessenger == null || (destMessenger.getState() & Messenger.TERMINAL) != 0) {
                 if (destMessenger != null) {
                     destMessenger.close();
                     destMessenger = null;
@@ -211,6 +244,9 @@ class BlockingWireOutputPipe implements OutputPipe {
         msg.replaceMessageElement(WirePipeImpl.WIRE_HEADER_ELEMENT_NAMESPACE, elem);
         checkMessenger();
         try {
+            if (destMessenger instanceof TcpMessenger) {
+                ((TcpMessenger) destMessenger).sendMessageDirect(msg, null, null, true);
+            }
             if (!destMessenger.sendMessage(msg, null, null)) {
                 throw new IOException("Pipe closed");
             }
