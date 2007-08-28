@@ -1078,9 +1078,12 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         if (null != messenger) {
-            if (messenger instanceof  TcpMessenger) {
+            if (messenger instanceof TcpMessenger) {
                 // this fails with an io exception, no listener adaptor needed here
                 ((TcpMessenger) messenger).sendMessageDirect(msg, null, null, true);
+            } else if (messenger instanceof LoopbackMessenger) {
+                //loopback messengers do not support listener call back
+                messenger.sendMessage(msg, null, null);
             } else {
                 // XXX 20040924 bondolo Convert this to ListenerAdaptor
                 messenger.sendMessage(msg, null, null, new FailureListener(dest));
