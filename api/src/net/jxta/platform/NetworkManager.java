@@ -104,8 +104,8 @@ public class NetworkManager implements RendezvousListener {
      */
     private final static transient Logger LOG = Logger.getLogger(NetworkManager.class.getName());
 
-    private final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3");
-    private final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3");
+    protected final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3");
+    protected final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3");
 
     /**
      * Define node standard node operating modes
