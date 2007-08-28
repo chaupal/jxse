@@ -63,6 +63,7 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
+import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.id.ID;
 import net.jxta.impl.cm.Srdi;
@@ -89,10 +90,10 @@ import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.protocol.SrdiMessage;
 import net.jxta.protocol.SrdiMessage.Entry;
-import net.jxta.resolver.ResolverService;
-import net.jxta.resolver.SrdiHandler;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezVousStatus;
+import net.jxta.resolver.ResolverService;
+import net.jxta.resolver.SrdiHandler;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -143,6 +144,10 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
      * Group we are working for
      */
     private PeerGroup myGroup = null;
+    /**
+     * Group we are working for
+     */
+    private EndpointService endpoint = null;
 
     /**
      * Resolver Service we will register with
@@ -353,6 +358,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
         resolver = myGroup.getResolverService();
         membership = myGroup.getMembershipService();
         rendezvous = myGroup.getRendezVousService();
+        endpoint = myGroup.getEndpointService();
 
         // Register to the Generic ResolverServiceImpl
         resolver.registerHandler(PipeResolverName, this);
@@ -827,7 +833,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
             }
 
             // Register this input pipe
-            boolean registered = myGroup.getEndpointService().addIncomingMessageListener((EndpointListener) ip, "PipeService", pipeID.toString());
+            boolean registered = endpoint.addIncomingMessageListener((EndpointListener) ip, "PipeService", pipeID.toString());
             if (!registered) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                     LOG.severe("Existing registered Endpoint Listener for " + pipeID);
@@ -899,7 +905,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
 
         if (null != ip) {
             // remove the queue for the general demux
-            EndpointListener removed = myGroup.getEndpointService().removeIncomingMessageListener("PipeService", pipeID.toString());
+            EndpointListener removed = endpoint.removeIncomingMessageListener("PipeService", pipeID.toString());
 
             if ((null == removed) || (pipe != removed)) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
