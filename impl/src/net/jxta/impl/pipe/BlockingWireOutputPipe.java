@@ -84,7 +84,7 @@ import java.util.logging.Logger;
  * <p/>
  * #send is remains asynchronous.
  */
-class BlockingWireOutputPipe implements OutputPipe {
+public class BlockingWireOutputPipe implements OutputPipe {
 
     /**
      * Logger
@@ -246,8 +246,7 @@ class BlockingWireOutputPipe implements OutputPipe {
         try {
             if (destMessenger instanceof TcpMessenger) {
                 ((TcpMessenger) destMessenger).sendMessageDirect(msg, null, null, true);
-            }
-            if (!destMessenger.sendMessage(msg, null, null)) {
+            } else  if (!destMessenger.sendMessage(msg, null, null)) {
                 throw new IOException("Pipe closed");
             }
         } catch (IOException io) {
