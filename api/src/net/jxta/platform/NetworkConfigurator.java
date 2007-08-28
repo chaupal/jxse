@@ -111,27 +111,27 @@ import java.util.logging.Logger;
  * <p/>
  * By default, it defines an edge configuration with TCP in auto mode w/port
  * range 9701-9799, multicast enabled on group "224.0.1.85", and port 1234,
- * HTTP transport with only out going enabled.
+ * HTTP transport with only outgoing enabled.
  * <p/>
  * By default a new PeerID is always generated. This can be overridden via
  * {@link NetworkConfigurator#setPeerID} method or loading a PlatformConfig via
  * {@link NetworkConfigurator#load}.
  * <p/>
- * A facility is provided to initialize a configuration by loading from a
+ * A facility is provided to initialize a configuration by loading from an
  * existing configuration. This provides limited platform configuration lifecycle
  * management as well as configuration change management.
  * <p/>
  * Also by default, this class sets the default platform configurator to
  * {@link net.jxta.impl.peergroup.NullConfigurator}. <code>NullConfigurator<code>
- * is no operation configurator intended to prevent any other configurators from
+ * is a no operation configurator intended to prevent any other configurators from
  * being invoked, including the AWT ConfigDialog.
  * <p/>
  * NetworkConfigurator makes use of classes from the {@code net.jxta.impl.*}
  * packages. Applications are very strongly encouraged to avoid importing these
  * classes as their interfaces may change without notice in future JXTA releases.
- * The NetworkConfigurator API abstracts the configruation implementation details
+ * The NetworkConfigurator API abstracts the configuration implementation details
  * and will provide continuity and stability i.e. the NetworkConfigurator API
- * won't change and it will automatically accomodate changes to service
+ * won't change and it will automatically accommodate changes to service
  * configuration.
  * <p/>
  * <em> Configuration example :</em>
@@ -185,7 +185,7 @@ public class NetworkConfigurator {
     // begin configuration modes
     
     /**
-     * Relay client Mode
+     * Relay off Mode
      */
     public final static int RELAY_OFF = 1 << 2;
     
@@ -195,7 +195,7 @@ public class NetworkConfigurator {
     public final static int RELAY_CLIENT = 1 << 3;
     
     /**
-     * Relay client Mode
+     * Relay Server Mode
      */
     public final static int RELAY_SERVER = 1 << 4;
     
@@ -205,32 +205,32 @@ public class NetworkConfigurator {
     public final static int PROXY_SERVER = 1 << 5;
     
     /**
-     * TCP transport client state
+     * TCP transport client Mode
      */
     public final static int TCP_CLIENT = 1 << 6;
     
     /**
-     * TCP transport state
+     * TCP transport Server Mode
      */
     public final static int TCP_SERVER = 1 << 7;
     
     /**
-     * HTTP transport client state
+     * HTTP transport client Mode
      */
     public final static int HTTP_CLIENT = 1 << 8;
     
     /**
-     * HTTP transport server state
+     * HTTP transport server Mode
      */
     public final static int HTTP_SERVER = 1 << 9;
     
     /**
-     * IP multicast transport state
+     * IP multicast transport Mode
      */
     public final static int IP_MULTICAST = 1 << 10;
     
     /**
-     * Rendezvous Mode
+     * RendezVousService Mode
      */
     public final static int RDV_SERVER = 1 << 11;
     
@@ -288,7 +288,7 @@ public class NetworkConfigurator {
     protected transient String description = "Platform Config Advertisement created by : " + NetworkConfigurator.class.getName();
     
     /**
-     * the location which will serve as the parent for all stored items used
+     * The location which will serve as the parent for all stored items used
      * by JXTA.
      */
     private transient URI storeHome = null;
@@ -299,7 +299,8 @@ public class NetworkConfigurator {
     protected transient String name = "unknown";
     
     /**
-     * Password value used to generate root centificate
+     * Password value used to generate root Certificate and to protect the
+     * Certificate's PrivateKey.
      */
     protected transient String password = null;
     
@@ -314,9 +315,9 @@ public class NetworkConfigurator {
     protected transient String principal = null;
     
     /**
-     * public certificate
+     * Public Certificate chain
      */
-    protected transient X509Certificate cert = null;
+    protected transient X509Certificate[] cert = null;
     
     /**
      * Subject private key
@@ -334,7 +335,7 @@ public class NetworkConfigurator {
     protected transient XMLElement proxyConfig;
     
     /**
-     * Personal Security Enviroment Config Advertisement
+     * Personal Security Environment Config Advertisement
      *
      * @see net.jxta.impl.membership.pse.PSEConfig
      */
@@ -366,7 +367,7 @@ public class NetworkConfigurator {
     protected transient TCPAdv tcpConfig;
     
     /**
-     * default TCP transport state
+     * Default TCP transport state
      */
     protected transient boolean tcpEnabled = true;
     
@@ -376,7 +377,7 @@ public class NetworkConfigurator {
     protected transient HTTPAdv httpConfig;
     
     /**
-     * default HTTP transport state
+     * Default HTTP transport state
      */
     protected transient boolean httpEnabled = true;
     
@@ -879,25 +880,43 @@ public class NetworkConfigurator {
     public String getPrincipal() {
         return principal;
     }
-    
+
     /**
-     * Sets the public certificate for this configuration.
+     * Sets the public Certificate for this configuration.
      *
      * @param cert the new cert value
      */
     public void setCertificate(X509Certificate cert) {
-        this.cert = cert;
+        this.cert = new X509Certificate[] { cert };
     }
-    
+
     /**
-     * Returns the public certificate for this configuration.
+     * Returns the public Certificate for this configuration.
      *
      * @return X509Certificate
      */
     public X509Certificate getCertificate() {
+        return (cert == null || cert.length == 0 ? null : cert[0]);
+    }
+
+    /**
+     * Sets the public Certificate chain for this configuration.
+     *
+     * @param certificateChain the new Certificate chain value
+     */
+    public void setCertificateChain(X509Certificate[] certificateChain) {
+        this.cert = certificateChain;
+    }
+
+    /**
+     * Gets the public Certificate chain for this configuration.
+     *
+     * @return X509Certificate chain
+     */
+    public X509Certificate[] getCertificateChain() {
         return cert;
     }
-    
+
     /**
      * Sets the Subject private key
      *
@@ -917,7 +936,7 @@ public class NetworkConfigurator {
     }
     
     /**
-     * Set freestanding keystore location
+     * Sets freestanding keystore location
      *
      * @param keyStoreLocation the absolute location of the freestanding keystore
      */
@@ -926,7 +945,7 @@ public class NetworkConfigurator {
     }
     
     /**
-     * Get the freestanding keystore location
+     * Gets the freestanding keystore location
      *
      * @return the location of the freestanding keystore
      */
@@ -959,7 +978,7 @@ public class NetworkConfigurator {
     }
     
     /**
-     * Set the PeerID (by default, a new PeerID is generated).
+     * Sets the PeerID (by default, a new PeerID is generated).
      * <p/>Note: Persist the PeerID generated, or use load()
      * to avoid overridding a node's PeerID between restarts.
      *
@@ -970,7 +989,7 @@ public class NetworkConfigurator {
     }
     
     /**
-     * Get the PeerID
+     * Gets the PeerID
      *
      * @return peerid  the <code>net.jxta.peer.PeerID</code> value
      */
@@ -1102,7 +1121,7 @@ public class NetworkConfigurator {
     }
     
     /**
-     * Return the highest port on which the TCP Transport will listen if
+     * Returns the highest port on which the TCP Transport will listen if
      * configured to do so. Valid values are <code>-1</code>, <code>0</code> and
      * <code>1-65535</code>. The <code>-1</code> value is used to signify that
      * the port range feature should be disabled. The <code>0</code> specifies
@@ -1161,10 +1180,10 @@ public class NetworkConfigurator {
     /**
      * Toggles whether to use IP group multicast (default is true)
      *
-     * @param mutlicastOn the new useMulticast value
+     * @param multicastOn the new useMulticast value
      */
-    public void setUseMulticast(boolean mutlicastOn) {
-        tcpConfig.setMulticastState(mutlicastOn);
+    public void setUseMulticast(boolean multicastOn) {
+        tcpConfig.setMulticastState(multicastOn);
     }
     
     /**
@@ -1353,7 +1372,7 @@ public class NetworkConfigurator {
     }
     
     /**
-     * Load a configuration from a specified uri
+     * Loads a configuration from a specified uri
      * <p/>
      * e.g. file:/export/dist/EdgeConfig.xml, e.g. http://configserver.net/configservice?Edge
      *
@@ -1473,7 +1492,7 @@ public class NetworkConfigurator {
             
             if (adv instanceof PSEConfigAdv) {
                 pseConf = (PSEConfigAdv) adv;
-                cert = pseConf.getCertificate();
+                cert = pseConf.getCertificateChain();
             } else {
                 throw new CertificateException("Error processing the Membership config advertisement. Unexpected membership advertisement "
                         + adv.getAdvertisementType());
@@ -1597,13 +1616,13 @@ public class NetworkConfigurator {
         }
         return pseConf;
     }
-    
+
     /**
      * Creates Personal Security Environment Config Advertisement
      * <p/>The configuration advertisement can include an optional seed certificate
      * chain and encrypted private key. If this seed information is present the PSE
      * Membership Service will require an initial authentication to unlock the
-     * encrypted prviate key before creating the PSE keystore. The newly created
+     * encrypted private key before creating the PSE keystore. The newly created
      * PSE keystore will be "seeded" with the certificate chain and the private key.
      *
      * @param cert X509Certificate
@@ -1614,6 +1633,27 @@ public class NetworkConfigurator {
         pseConf = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(PSEConfigAdv.getAdvertisementType());
         if (subjectPkey != null && password != null) {
             pseConf.setCertificate(cert);
+            pseConf.setPrivateKey(subjectPkey, password.toCharArray());
+        }
+        return pseConf;
+    }
+
+    /**
+     * Creates Personal Security Environment Config Advertisement
+     * <p/>The configuration advertisement can include an optional seed certificate
+     * chain and encrypted private key. If this seed information is present the PSE
+     * Membership Service will require an initial authentication to unlock the
+     * encrypted private key before creating the PSE keystore. The newly created
+     * PSE keystore will be "seeded" with the certificate chain and the private key.
+     *
+     * @param certificateChain X509Certificate[]
+     * @return PSEConfigAdv an PSE config advertisement
+     * @see net.jxta.impl.protocol.PSEConfigAdv
+     */
+    protected PSEConfigAdv createPSEAdv(X509Certificate[] certificateChain) {
+        pseConf = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(PSEConfigAdv.getAdvertisementType());
+        if (subjectPkey != null && password != null) {
+            pseConf.setCertificateChain(certificateChain);
             pseConf.setPrivateKey(subjectPkey, password.toCharArray());
         }
         return pseConf;
