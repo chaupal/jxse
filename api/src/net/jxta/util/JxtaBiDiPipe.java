@@ -956,14 +956,14 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             return (seqn > 0);
         } else {
             try {
-                if (direct) {
+                if (msgr instanceof TcpMessenger) {
                     ((TcpMessenger) msgr).sendMessageDirect(msg, null, null, true);
                     return true;
                 } else {
                     return msgr.sendMessage(msg, null, null);
                 }
             } catch (SocketTimeoutException io) {
-                if (direct) {
+                if (msgr instanceof TcpMessenger) {
                     ((TcpMessenger) msgr).sendMessageDirect(msg, null, null, true);
                     return true;
                 } else {
