@@ -367,14 +367,14 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         <attribute name="Specification-Vendor" value="JXTA Organization" />
         <attribute name="Main-Class" value="net.jxta.impl.peergroup.Boot" />
         <section name="net/jxta/">
-          <attribute name="Implementation-Title" value="JSE API" />
+          <attribute name="Implementation-Title" value="JXSE API" />
           <attribute name="Implementation-Version" value="${net.jxta.build.version}" />
           <attribute name="Implementation-Vendor" value="platform.jxta.org" />
           <attribute name="Implementation-URL" value="http://platform.jxta.org" />
           <attribute name="sealed" value="true" />
         </section>
         <section name="net/jxta/impl/">
-          <attribute name="Implementation-Title" value="JSE Reference Implementation" />
+          <attribute name="Implementation-Title" value="JXSE Reference Implementation" />
           <attribute name="Implementation-Version" value="${net.jxta.build.version}" />
           <attribute name="Implementation-Vendor" value="platform.jxta.org" />
           <attribute name="Implementation-URL" value="http://platform.jxta.org" />
