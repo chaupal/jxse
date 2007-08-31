@@ -173,7 +173,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      * {@inheritDoc}
      */
     @Override
-    protected synchronized void stopApp() {
+    public synchronized void stopApp() {
 
         if (closed) {
             return;

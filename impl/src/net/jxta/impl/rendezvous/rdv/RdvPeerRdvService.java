@@ -301,7 +301,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      * {@inheritDoc}
      */
     @Override
-    protected synchronized void stopApp() {
+    public synchronized void stopApp() {
 
         if (closed) {
             return;

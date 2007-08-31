@@ -157,7 +157,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      * {@inheritDoc}
      */
     @Override
-    protected void stopApp() {
+    public void stopApp() {
         EndpointListener shouldbehandler = rdvService.endpoint.removeIncomingMessageListener(pName, null);
 
         if (handler != shouldbehandler) {
