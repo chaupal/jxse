@@ -437,7 +437,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
          */
 
         //
-        // FIXME - jice@jxta.org 20040413: we trust transports to implement isIdle reasonably, which may be a leap of faith. We
+        // FIXME 20040413 jice : we trust transports to implement isIdle reasonably, which may be a leap of faith. We
         // should probably superimpose a time limit of our own.
         //
         if (selfDestruct) {
@@ -473,7 +473,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      * Sets an owner for this blocking messenger. Owners are normally canonical messengers. The goal of registering the owner is
      * to keep that owner reachable as long as this blocking messenger is.  Canonical messengers are otherwise softly referenced,
      * and so, may be deleted whenever memory is tight.
-     *
+     * <p/>
      * We do not want to use finalizers or the equivalent reference queue mechanism; so we have no idea when a blocking messenger
      * is no-longer referenced by any canonical. In addition it may be expensive to make and so we want to keep it for a while
      * anyway. As a result, instead of keeping a blocking messenger open as long as there is a canonical, we do the opposite: we
@@ -490,15 +490,35 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
     /**
      * Assemble a destination address for a message based upon the messenger
-     * destination address.
+     * default destination address and the optional provided overrides.
      *
-     * @param service      The destination service or null.
-     * @param serviceParam The destination service parameter or null.
+     * @param service The destination service or {@code null} to use default.
+     * @param serviceParam The destination service parameter or {@code null} to 
+     * use default.
      */
     protected EndpointAddress getDestAddressToUse(String service, String serviceParam) {
-        EndpointAddress result = getDestinationAddress();
-
-        return new EndpointAddress(result, service, serviceParam);
+        EndpointAddress defaultAddress = getDestinationAddress();
+        EndpointAddress result;
+        
+        if(null == service) {
+            if(null == serviceParam) {
+                // Use default service name and service params
+                result = defaultAddress;
+            } else {
+                // use default service name, override service params
+                result = new EndpointAddress(defaultAddress, defaultAddress.getServiceName(), serviceParam);
+            }
+        } else {
+            if(null == serviceParam) {
+                // override service name, use default service params (this one is pretty weird and probably not useful)
+                result = new EndpointAddress(defaultAddress, service, defaultAddress.getServiceParameter());
+            } else {
+                // override service name, override service params
+                result = new EndpointAddress(defaultAddress, service, serviceParam);
+            }
+        }
+        
+        return result;
     }
 
     /**
