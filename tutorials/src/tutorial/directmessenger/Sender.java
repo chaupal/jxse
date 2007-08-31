@@ -215,8 +215,7 @@ public class Sender {
                         
                         chat.addMessageElement(new StringMessageElement("Chat", chatMessage, null));
                         
-                        // FIXME directMessenger.sendMessageB(chat, null, null);
-                        directMessenger.sendMessageB(chat, "EndpointService:jxta-NetGroup", "chatService/" + route.getDestPeerID().getUniqueValue().toString());
+                        directMessenger.sendMessageB(chat, null, null);
                         
                         // The message has been sent.
                         
