@@ -341,15 +341,21 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * The definition of walk says that we should forward the message to the
+     * most appropriate peer. Since we don't make any effort keep track of other
+     * peers we don't have anywhere to send the message.
      */
     @Override
     public void walk(Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
-
-        propagate(msg, serviceName, serviceParam, ttl);
+        // Do nothing. Really.
     }
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Unlike the undirected walk we are told where to send the message so we
+     * deliver it as requested.
      */
     @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
