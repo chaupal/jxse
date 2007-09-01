@@ -402,8 +402,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "Propagating " + msg + "(TTL=" + useTTL + ") in group to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
+            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") in group to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
                     + serviceParam);
         }
         
