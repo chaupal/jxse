@@ -696,6 +696,12 @@ href="bcprov-ext.jnlp">
   <target name="all" depends="clean, signjar" description="Clean build of core targets" />
 
   <target name="dist" depends="clean, source-tbz2, source-tgz, source-zip, lib-tbz2, lib-tgz, lib-zip, jnlp, javadoc-tbz2, javadoc-tgz, javadoc-zip" description="Clean build of all dist targets">
-    <ant inheritAll="false" antfile="${basedir}/tutorials/build.xml" target="dist"/>    
+    <ant inheritAll="false" antfile="${basedir}/tutorials/build.xml" target="dist"/>
+    
+    <copy todir="${dist}">
+      <fileset dir="${basedir}/tutorials/dist">
+        <include name="**/*" />
+      </fileset>
+    </copy>
   </target>
 </project>
