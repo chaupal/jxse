@@ -1132,10 +1132,12 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         localEphemeralPipeIn.close();
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Closing messenger");
+            LOG.fine("Closing remote ephemeral pipe messenger");
         }
 
-        outgoing.close();
+        if(null != outgoing) {
+            outgoing.close();
+        }
         remoteEphemeralPipeMsgr.close();
     }
 
