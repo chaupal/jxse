@@ -131,7 +131,18 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
         </jar>
     </target>
 
-    <target name="run" description="Run a tutorial">
+    <target name="run-logging" description="Run a tutorial" if="java.util.logging.config.file">
+        <java classname="${APP}" failonerror="yes" fork="yes">
+            <classpath>
+                <fileset refid="jxta.files"/>
+                <fileset refid="lib.files"/>
+                <pathelement location="${classes}"/>
+            </classpath>
+	    <sysproperty key="java.util.logging.config.file" value="${java.util.logging.config.file}" />
+        </java>
+    </target>
+
+    <target name="run-default-logging" description="Run a tutorial" unless="java.util.logging.config.file">
         <java classname="${APP}" failonerror="yes" fork="yes">
             <classpath>
                 <fileset refid="jxta.files"/>
@@ -140,6 +151,8 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
             </classpath>
         </java>
     </target>
+
+    <target name="run" description="Run a tutorial" depends="run-logging,run-default-logging"/>
 
     <target name="javadoc">
         <mkdir dir="${docs}"/>
