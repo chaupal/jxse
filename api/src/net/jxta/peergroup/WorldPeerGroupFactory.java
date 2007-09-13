@@ -61,8 +61,6 @@ import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
-import net.jxta.impl.protocol.PlatformConfig;
-import net.jxta.impl.protocol.PeerGroupConfigAdv;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
