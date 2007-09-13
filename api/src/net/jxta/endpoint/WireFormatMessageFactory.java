@@ -66,7 +66,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -203,15 +202,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
         if (loadedProperty) {
             return true;
         }
-
-        try {
-            return registerProviders(WireFormatMessage.class.getName());
-        } catch (MissingResourceException notFound) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Could not find net.jxta.impl.config properties file!");
-            }
-            return false;
-        }
+        return registerProviders(WireFormatMessage.class.getName());
     }
 
     /**
