@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
  *  
@@ -105,7 +105,7 @@ import net.jxta.util.ClassFactory;
  *
  *  @see net.jxta.id.ID
  *  @see net.jxta.util.ClassFactory
- *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
+ *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
  */
 public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator> {
     
@@ -443,10 +443,15 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  Standard Constructor. This class is a singleton so the only constructor
      *  is private.
      *
-     *  <p/>Registers the pre-defined set of ID sub-classes so that this factory
-     *  can construct them. Uses the Jar SPI mechanism to load providers'
-     *  ID implementations based on the class name: <code>net.jxta.id.ID</code>
-     *  
+     *  <p/>Uses net.jxta.impl.config.properties file as the
+     *  source for settings.
+     *
+     * <p/>Example entry from  the file net.jxta.impl.config.properties :
+     *
+     * <p/><pre><code>
+     * #Default type of ID to use when creating an ID (this should not be changed in most implementations).
+     * IDNewInstances=uuid
+     * </code></pre>
      */
     private IDFactory() {
         // required format
@@ -490,7 +495,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return Class object of the key type.
      */
     @Override
-    protected Class getClassForKey() {
+    protected Class<String> getClassForKey() {
         return String.class;
     }
     
@@ -501,7 +506,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return Class object of the key type.
      */
     @Override
-    protected Class getClassOfInstantiators() {
+    protected Class<Instantiator> getClassOfInstantiators() {
         return Instantiator.class;
     }
     
@@ -518,7 +523,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         boolean registeredSomething = false;
         
         try {
-            Class idClass;
+            Class<?> idClass;
 
             try {
                 idClass = Class.forName(className);
@@ -605,10 +610,9 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         
         // check the namespace
         if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
-            throw new URISyntaxException(source.toString()
-                    ,
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
-                    + ")");
+            throw new URISyntaxException(source.toString(),
+                    "URN namespace was not as expected. (" +
+                    net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt) + ")");
         }
         
         // skip the namespace portion and the colon
