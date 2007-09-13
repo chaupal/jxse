@@ -444,18 +444,9 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  is private.
      *
      *  <p/>Registers the pre-defined set of ID sub-classes so that this factory
-     *  can construct them. Uses net.jxta.impl.config.properties file as the
-     *  source for settings.
-     *
-     * <p/>Example entry from  the file net.jxta.impl.config.properties :
-     *
-     * <p/><pre><code>
-     * #List of ID types supported.
-     * IDInstanceTypes=net.jxta.id.jxta.IDFormat net.jxta.impl.id.UUID.IDFormat net.jxta.impl.id.binaryID.IDFormat
-     *
-     * #Default type of ID to use when creating an ID (this should not be changed in most implementations).
-     * IDNewInstances=uuid
-     * </code></pre>
+     *  can construct them. Uses the Jar SPI mechanism to load providers'
+     *  ID implementations based on the class name: <code>net.jxta.id.ID</code>
+     *  
      */
     private IDFactory() {
         // required format
@@ -475,11 +466,9 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             idNewInstances = jxtaRsrcs.getString("IDNewInstances").trim();
         } catch (MissingResourceException notFound) {
             // This is an error because we can't start without a concept of ID.
-            LOG.log(Level.SEVERE, "Could not find net.jxta.impl.config properties file! reason:", notFound);
-            IllegalStateException failure = new IllegalStateException("Could not initialize ID defaults");
-
-            failure.initCause(notFound);
-            
+            IllegalStateException failure =
+		new IllegalStateException("Could not initialize ID defaults", notFound);
+            LOG.log(Level.SEVERE, "Cound not initialize IDFactory", failure);
             throw failure;
         }
     }
