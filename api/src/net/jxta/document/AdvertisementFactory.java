@@ -163,22 +163,18 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
     private AdvertisementFactory() {}
     
     /**
-     *  Registers the pre-defined set of StructuredDocument sub-classes so that
+     *  Registers the pre-defined set of Advertisement sub-classes so that
      *  this factory can construct them.
      *
-     *
-     *  @return true if at least one of the StructuredDocument sub-classes could
+     *  @return true if at least one of the Advertisement sub-classes could
      *  be registered otherwise false.
      */
-    private boolean loadProviders() {
-        try {
-            return registerProviders(Advertisement.class.getName());
-        } catch (MissingResourceException notFound) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not find net.jxta.impl.config properties file!", notFound);
-            }
-            return false;
+    private synchronized boolean loadProviders() {
+        if (!factory.loadedProperty) {
+            factory.loadedProperty = registerProviders(Advertisement.class.getName());
         }
+        
+        return factory.loadedProperty;
     }
     
     /**
@@ -257,9 +253,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
      * @throws NoSuchElementException if there is no matching advertisement type.
      */
     public static Advertisement newAdvertisement(String advertisementType) {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         Instantiator instantiator = factory.getInstantiator(advertisementType);
         
@@ -377,9 +371,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
      * matching the type of the root node.
      */
     public static Advertisement newAdvertisement(XMLElement root) {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         Instantiator instantiator = null;
         

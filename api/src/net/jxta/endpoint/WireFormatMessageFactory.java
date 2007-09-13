@@ -192,19 +192,20 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
     private WireFormatMessageFactory() {}
 
     /**
-     * Registers the pre-defined set of StructuredDocument sub-classes so that
-     * this factory can construct them.
+     *  Registers the pre-defined set of WireFormatMessage sub-classes so that
+     *  this factory can construct them.
      *
-     * @return true if at least one of the StructuredDocument sub-classes could
-     *         be registered otherwise false.
+     *  @return true if at least one of the WireFormatMessage sub-classes could
+     *  be registered otherwise false.
      */
     private synchronized boolean loadProviders() {
-        if (loadedProperty) {
-            return true;
+        if (!factory.loadedProperty) {
+            factory.loadedProperty = registerProviders(WireFormatMessage.class.getName());
         }
-        return registerProviders(WireFormatMessage.class.getName());
+        
+        return factory.loadedProperty;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -297,9 +298,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      *         representation of the message in its serialized form.
      */
     public static WireFormatMessage toWire(Message msg, MimeMediaType type, MimeMediaType[] preferedEncodings) {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
 
         Instantiator instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
 
@@ -320,9 +319,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * @throws java.io.IOException if an io error occurs
      */
     public static Message fromWire(InputStream is, MimeMediaType type, MimeMediaType contentEncoding) throws IOException {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
 
         Instantiator instantiator;
 
@@ -349,9 +346,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * @throws java.io.IOException if an io error occurs
      */
     public static Message fromBuffer(ByteBuffer buffer, MimeMediaType type, MimeMediaType contentEncoding) throws IOException {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
 
         Instantiator instantiator;
 

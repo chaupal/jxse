@@ -81,9 +81,6 @@ import net.jxta.endpoint.TextMessageElement;
  * and constructors needed to accomplish the construction. All supported
  * mime-types will need to register their implementation in this factory.
  *
- * <p>The configuration is done via the property
- * <tt>net.jxta.impl.config.StructuredDocumentInstanceTypes</tt>
- *
  * @see         net.jxta.document.Document
  * @see         net.jxta.document.StructuredTextDocument
  * @see         net.jxta.document.StructuredDocument
@@ -319,18 +316,17 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  Registers the pre-defined set of StructuredDocument sub-classes so that
      *  this factory can construct them.
      *
-     *  @return boolean true if at least one of the StructuredDocument sub-classes could
+     *  @return true if at least one of the StructuredDocument sub-classes could
      *  be registered otherwise false.
      */
-    private boolean loadProviders() {
-        try {
-            return registerProviders(StructuredDocument.class.getName());
-        } catch (MissingResourceException notFound) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Could not find net.jxta.impl.config properties file!");
-            }
-            return false;
+    private synchronized boolean loadProviders() {
+        if (factory.loadedProperty) {
+            return true;
         }
+
+        factory.loadedProperty = registerProviders(StructuredDocument.class.getName());
+        
+        return factory.loadedProperty;
     }
     
     /**
@@ -403,9 +399,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  known association.
      */
     public static String getFileExtensionForMimeType(MimeMediaType mimetype) {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         return factory.mimeToExt.get(mimetype.getBaseMimeMediaType());
     }
@@ -418,9 +412,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  @return MimeMediaType associated with this file extension.
      */
     public static MimeMediaType getMimeTypeForFileExtension(String extension) {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         MimeMediaType result = factory.extToMime.get(extension);
         
@@ -452,9 +444,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
                     factory.mimeToExt.put(extensions[eachExt].getMimeMediaType(), extensions[eachExt].getExtension());
                     
                     // And the base version.
-                    factory.mimeToExt.put(extensions[eachExt].getMimeMediaType().getBaseMimeMediaType()
-                            ,
-                            extensions[eachExt].getExtension());
+                    factory.mimeToExt.put(extensions[eachExt].getMimeMediaType().getBaseMimeMediaType(), extensions[eachExt].getExtension());
                 }
             }
         }
@@ -477,9 +467,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws NoSuchElementException invalid mime-media-type
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype) {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
@@ -503,9 +491,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype, String value) {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
@@ -528,9 +514,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, InputStream stream) throws IOException {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
@@ -554,9 +538,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * a text oriented MIME type.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, Reader reader) throws IOException {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
@@ -587,9 +569,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MessageElement element) throws IOException {
-        if (!factory.loadedProperty) {
-            factory.loadedProperty = factory.loadProviders();
-        }
+        factory.loadProviders();
         
         Instantiator instantiator = factory.getInstantiator(element.getMimeType().getBaseMimeMediaType());
         
