@@ -466,8 +466,8 @@ public class IncomingUnicastServer implements Runnable {
                 }
             } catch (IOException io) {
                 // protect against invalid connections
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Messenger creation failure", io);
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Messenger creation failure", io);
                 }
             } catch (Throwable all) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.WARNING)) {
