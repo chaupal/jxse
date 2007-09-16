@@ -259,7 +259,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     /**
-     * Connect to JxtaBiDiPipe with default timeout
+     * Connect to a JxtaServerPipe with default timeout
      *
      * @param group  group context
      * @param pipeAd PipeAdvertisement
@@ -283,7 +283,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     /**
-     * Connects to a remote JxtaBiDiPipe
+     * Connects to a remote JxtaServerPipe
      *
      * @param group       group context
      * @param peerid      peer to connect to
@@ -297,7 +297,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     /**
-     * Connects to a remote JxtaBiDiPipe
+     * Connects to a remote JxtaServerPipe
      *
      * @param group       group context
      * @param peerid      peer to connect to
@@ -680,7 +680,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
         Message message = event.getMessage();
-
         if (message == null) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Empty event");
@@ -690,12 +689,11 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Pipe message arrived");
         }
-        MessageElement element;
 
+        MessageElement element;
         if (!bound) {
             // look for a remote pipe answer
             element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.remPipeTag);
-
             if (element != null) {
                 // connect response
                 try {
@@ -759,7 +757,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Reliability set to :" + isReliable);
                     }
-                    if (isReliable && !this.direct) {
+                    if (isReliable && !direct) {
                         createRLib();
                     }
                     synchronized (finalLock) {
