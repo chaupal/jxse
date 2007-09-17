@@ -1140,8 +1140,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
             allowCoreThreadTimeOut.invoke(threadPool, Boolean.TRUE);            
         } catch(Throwable ohWell) {
             // Our attempt failed.
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Failed to enable 'allowCoreThreadTimeOut'", ohWell);
+            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                LOG.log(Level.FINEST, "Failed to enable 'allowCoreThreadTimeOut'", ohWell);
             }
         }
         
