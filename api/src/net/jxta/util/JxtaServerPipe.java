@@ -422,7 +422,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
                 pipe.setRemotePeerAdvertisement(peerAdv);
                 pipe.setRemotePipeAdvertisement(outputPipeAdv);
-                sendResponseMessage(group, msgr, newpipe, direct);
+                sendResponseMessage(group, msgr, newpipe);
                 return pipe;
             }
         } catch (IOException e) {
@@ -441,9 +441,8 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @param msgr   the remote node messenger
      * @param pipeAd the pipe advertisement
      * @throws IOException for failures sending the response message.
-     * @param direct if true indicates direct mode
      */
-    protected void sendResponseMessage(PeerGroup group, Messenger msgr, PipeAdvertisement pipeAd, boolean direct) throws IOException {
+    protected void sendResponseMessage(PeerGroup group, Messenger msgr, PipeAdvertisement pipeAd) throws IOException {
 
         Message msg = new Message();
         PeerAdvertisement peerAdv = group.getPeerAdvertisement();
