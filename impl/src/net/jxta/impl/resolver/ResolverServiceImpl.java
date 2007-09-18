@@ -793,7 +793,7 @@ public class ResolverServiceImpl implements ResolverService {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Handing query #" + query.getQueryId() + " to : " + queryHandlerName);
         }
-
+        System.out.println("Handing query #" + query.getQueryId() + " to : " + queryHandlerName);
         QueryHandlerMeter queryHandlerMeter = null;
         long startTime = 0;
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
@@ -1010,7 +1010,6 @@ public class ResolverServiceImpl implements ResolverService {
      */
     private boolean sendMessage(String destPeer, RouteAdvertisement route, String pName, String pParam, String tagName, XMLDocument body, boolean gzip) throws IOException {
         // Get the messenger ready
-        boolean direct = true;
         ID dest;
         try {
             dest = IDFactory.fromURI(new URI(destPeer));
@@ -1044,8 +1043,10 @@ public class ResolverServiceImpl implements ResolverService {
                     }
                 }
             }
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Creating a messenger immediate for :"+destAddress.toString());
+            }
             messenger = endpoint.getMessengerImmediate(destAddress, route);
-             direct = false;
         }
         Message msg = new Message();
         try {
