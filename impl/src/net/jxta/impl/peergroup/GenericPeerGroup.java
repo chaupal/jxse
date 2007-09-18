@@ -1135,7 +1135,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         
         // Try to allow core threads to idle out. (Requires a 1.6 method)
         try {
-            Method allowCoreThreadTimeOut = threadPool.getClass().getMethod("allowCoreThreadTimeOut", Boolean.class);
+            Method allowCoreThreadTimeOut = threadPool.getClass().getMethod("allowCoreThreadTimeOut", boolean.class);
             
             allowCoreThreadTimeOut.invoke(threadPool, Boolean.TRUE);            
         } catch(Throwable ohWell) {
