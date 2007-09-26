@@ -269,7 +269,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <echo message="Generate Metering Settings from : ${net.jxta.build.meter.properties}" />
     
     <!-- Generate Metering Settings source files based upon contents of ${net.jxta.build.meter.properties} -->
-    <java classname="net.jxta.build.ConditionalBuild">
+    <java classname="net.jxta.build.ConditionalBuild" fork="yes">
       <arg file="${net.jxta.build.meter.properties}" />
       <arg file="${build_meter_target}" />
       <classpath>
