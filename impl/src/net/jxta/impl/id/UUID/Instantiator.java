@@ -423,7 +423,7 @@ public class Instantiator implements IDFactory.URIInstantiator {
 
         case IDFormat.flagPeerGroupID:
             result = new PeerGroupID(id);
-            result = (PeerGroupID) IDFormat.translateToWellKnown(result);
+            result = IDFormat.translateToWellKnown(result);
             break;
 
         case IDFormat.flagPeerID:
