@@ -27,6 +27,8 @@ ant run -DAPP=tutorial.advertisement.AdvertisementTutorial
 ant run -DAPP=tutorial.bidi.JxtaBidiPipeExample
 ant run -DAPP=tutorial.bidi.JxtaServerPipeExample
 
+ant run -DAPP=tutorial.customgroupservice.CustomGroupService
+
 ant run -DAPP=tutorial.discovery.DiscoveryClient
 ant run -DAPP=tutorial.discovery.DiscoveryServer
 
