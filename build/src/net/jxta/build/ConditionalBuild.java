@@ -57,42 +57,91 @@
 
 package net.jxta.build;
 
-
 import java.util.*;
 import java.io.*;
 
-
 public class ConditionalBuild {
-    private static final int OFF = 0;
-    private static final int ON = 1;
-    private static final int RUNTIME = 2;
-    private static final String types[] = { "off", "on", "runtime"}; // must be sorted !!
 
-    private final File baseDir;
-    private final Map<String, List<StaticField>> sourceFiles = new HashMap<String, List<StaticField>>();
+    /**
+     *  Conditional build states
+     */
+    enum BuildConfig {
+
+        OFF("off"), ON("on"), RUNTIME("runtime");
+        /**
+         * The properties file value which matches this state.
+         */
+        private final String config;
+
+        /**
+         *  Construct a new BuildConfig value.
+         *
+         *  @param config The configuration value as it would appear in a
+         *  properties file.
+         */
+        private BuildConfig(String config) {
+            this.config = config;
+        }
+
+        /**
+         * Convert a properties file String value to an enum value.
+         *
+         * @param key String
+         * @return A ConditionaBuildState object.
+         * @throws IllegalArgumentException For illegal protocol codes.
+         */
+        public static BuildConfig toBuildConfig(String config) {
+            if (OFF.config.equals(config)) {
+                return OFF;
+            } else if (ON.config.equals(config)) {
+                return ON;
+            } else if (RUNTIME.config.equals(config)) {
+                return RUNTIME;
+            } else {
+                throw new IllegalArgumentException("Unknown Build Type: " + config + " found in property file (valid Types: on, off, runtime)");
+            }
+        }
+
+        /**
+         * Return the value that would appear in a properties file for this State.
+         *
+         * @return The
+         */
+        public String toPropertiesKey() {
+            return config;
+        }
+    }
 
     private class StaticField {
+
         final String packageName;
         final String className;
         final String fieldName;
-        final int type;
+        final BuildConfig config;
         final String attr;
 
-        StaticField(String packageName, String className, String fieldName, int type, String attr) {
+        StaticField(String packageName, String className, String fieldName, BuildConfig config, String attr) {
             this.packageName = packageName;
             this.className = className;
             this.fieldName = fieldName;
-            this.type = type;
+            this.config = config;
             this.attr = attr;
         }
     }
-	
+    private final File baseDir;
+    private final Map<String, List<StaticField>> sourceFiles = new HashMap<String, List<StaticField>>();
+
     public ConditionalBuild(String baseDirName) throws IOException {
         baseDir = new File(baseDirName);
-        System.err.println("Creating Conditional Build files in: " + baseDir);
     }
 
-    public void createFiles(Properties properties) throws IOException {
+    public void createFiles(File configProperties) throws IOException {
+        System.err.println("Creating Conditional Build files in " + baseDir);
+
+        Properties properties = new Properties();
+
+        properties.load(new FileInputStream(configProperties));
+
         for (Enumeration e = properties.propertyNames(); e.hasMoreElements();) {
             String propertyName = (String) e.nextElement();
 
@@ -103,104 +152,98 @@ public class ConditionalBuild {
     }
 
     private void generateFiles() throws IOException {
-        for ( String filename : sourceFiles.keySet()) {          
+        for (String filename : sourceFiles.keySet()) {
             List<StaticField> staticFields = sourceFiles.get(filename);
 
-            StaticField staticField = staticFields.get(0);
-
-            StringBuffer srcDirName = new StringBuffer(staticField.packageName);
-
-            for (;;) {
-                int pos = -1;
-
-                for (int i = 0; i < srcDirName.length(); i++) {
-                    if (srcDirName.charAt(i) == '.') {
-                        pos = i;
-                        break;
-                    }
-                }
-						
-                if (pos < 0) {
-                    break;
-                }
-                srcDirName.setCharAt(pos, File.separatorChar);
-            }
-			
-            File srcDir = new File(baseDir, srcDirName.toString());
-
-            srcDir.mkdirs();
-            
-            File file = new File(srcDir, filename + ".java");
-            PrintWriter writer = new PrintWriter(new FileWriter(file));
-
-            System.err.println("\tCreating Conditional Build file : " + file.getPath());
-
-            insertCopyright(writer, staticField.className);
-
-            writer.println("package " + staticField.packageName + ";");
-            writer.println();			
-            writer.println("import net.jxta.impl.meter.*;");
-            writer.println();			
-            writer.print("public interface " + staticField.className);
-
-            if (!staticField.className.equals("MeterBuildSettings")) {
-                writer.print(" extends MeterBuildSettings");
-            }
-
-            writer.println(" {");
-
-            for (Iterator i = staticFields.iterator(); i.hasNext();) {
-                staticField = (StaticField) i.next();
-
-                String value = "false";
-
-                if (staticField.type == ON) {
-                    writer.println("    public static final boolean " + staticField.fieldName + " = true;");
-                } else if (staticField.type == OFF) {
-                    writer.println("    public static final boolean " + staticField.fieldName + " = false;");
-                } else if (staticField.type == RUNTIME) {
-                    String conditionalClassName = "Conditional" + staticField.className;
-
-                    writer.println("    public static final boolean " + staticField.fieldName + " = " + conditionalClassName + ".isRuntimeMetering();");
-                    makeConditionalFile(srcDir, staticField.packageName, conditionalClassName, staticField.attr);
-                }
-            }
-			
-            writer.println("}");
-
-            writer.close();
+            generateFile(filename, staticFields);
         }
     }
 
-    private void makeConditionalFile(File srcDir, String packageName, String className, String propertyName) throws IOException {
+    private void generateFile(String filename, List<StaticField> staticFields) throws IOException {
+        StaticField firstStaticField = staticFields.get(0);
 
-        File file = new File(srcDir, className + ".java");
+        String srcDirName = firstStaticField.packageName.replace('.', File.separatorChar);
+
+        File srcDir = new File(baseDir, srcDirName);
+
+        srcDir.mkdirs();
+
+        File file = new File(srcDir, filename + ".java");
+
+        System.err.println("\tCreate conditional build file : " + srcDirName + File.separatorChar + file.getName());
+
         PrintWriter writer = new PrintWriter(new FileWriter(file));
 
-        System.err.println("\tCreating Runtime Conditional Build file : " + file.getPath());
+        insertCopyright(writer);
 
-        insertCopyright(writer, className);
-
-        writer.println("package " + packageName + ";");
-        writer.println();			
+        writer.println();
+        writer.println("/*  ****  THIS IS A GENERATED FILE. DO NOT EDIT.  ****  */");
+        writer.println();
+        writer.println("package " + firstStaticField.packageName + ";");
+        writer.println();
         writer.println("import net.jxta.impl.meter.*;");
+        writer.println();
+        writer.print("public interface " + firstStaticField.className);
+
+        if (!firstStaticField.className.equals("MeterBuildSettings")) {
+            writer.print(" extends MeterBuildSettings");
+        }
+
+        writer.println(" {");
+
+        for (StaticField staticField : staticFields) {
+            writer.print("\tpublic static final boolean " + staticField.fieldName + " = ");
+
+            switch (staticField.config) {
+                case OFF:
+                case ON:
+                    writer.println(Boolean.toString(BuildConfig.ON == staticField.config));
+                    break;
+                case RUNTIME:
+                    String conditionalClassName = "Conditional" + staticField.className;
+                    File conditionalFile = new File(srcDir, "Conditional" + staticField.className + ".java");
+
+                    writer.println(conditionalClassName + ".isRuntimeMetering();");
+                    makeConditionalFile(conditionalFile, staticField.packageName, conditionalClassName, staticField.attr);
+            }
+        }
+
+        writer.println("}");
+
+        writer.close();
+    }
+
+    private void makeConditionalFile(File conditionalFile, String packageName, String className, String propertyName) throws IOException {
+        PrintWriter writer = new PrintWriter(new FileWriter(conditionalFile));
+
+        System.err.println("\tCreate runtime conditional build file : " + packageName.replace('.', File.separatorChar) + File.separatorChar + conditionalFile.getName());
+
+        insertCopyright(writer);
+
+        writer.println();
+        writer.println("/*  ****  THIS IS A GENERATED FILE. DO NOT EDIT.  ****  */");
+        writer.println();
+        writer.println("package " + packageName + ";");
+        writer.println();
         writer.println("import java.util.ResourceBundle;");
-        writer.println();			
+        writer.println("import net.jxta.impl.meter.*;");
+        writer.println();
         writer.println("public class " + className + " {");
         writer.println("\tpublic static boolean isRuntimeMetering() {");
         writer.println("\t\tboolean runtimeMetering = false; ");
-        writer.println();			
+        writer.println();
         writer.println("\t\ttry { ");
         writer.println("\t\t\tResourceBundle userResourceBundle = ResourceBundle.getBundle( \"net.jxta.user\" ); ");
         writer.println("\t\t\tString meteringProperty = \"" + propertyName + "\"; ");
         writer.println("\t\t\tString meteringValue = userResourceBundle.getString( meteringProperty ); ");
         writer.println("\t\t\truntimeMetering = \"on\".equalsIgnoreCase( meteringValue ); ");
-        writer.println("\t\t} catch (Exception e) { }; ");
+        writer.println("\t\t} catch (Exception ignored) { ");
+        writer.println("\t\t}");
+        writer.println();
         writer.println("\t\treturn runtimeMetering;");
         writer.println("\t}");
         writer.print("}");
         writer.close();
-		
     }
 
     private void parseProperty(String propertyName, String value) {
@@ -214,19 +257,15 @@ public class ConditionalBuild {
 
         StringTokenizer st = new StringTokenizer(value, ", \t");
 
-        String buildType = st.nextToken();
-		
-        int type = Arrays.binarySearch(types, buildType);
+        String buildConfig = st.nextToken();
+
+        BuildConfig config = BuildConfig.toBuildConfig(buildConfig);
+
         String attr = st.nextToken();
-
-        if (type < 0) { 
-            System.out.println("Unknown Build Type: " + buildType + " found in property file (valid Types: on, off, runtime)");
-        }
-
-        StaticField staticField = new StaticField(packageName, className, fieldName, type, attr);
+        StaticField staticField = new StaticField(packageName, className, fieldName, config, attr);
 
         List<StaticField> fields = sourceFiles.get(className);
-		
+
         if (fields == null) {
             fields = new ArrayList<StaticField>();
             sourceFiles.put(className, fields);
@@ -234,25 +273,8 @@ public class ConditionalBuild {
 
         fields.add(staticField);
     }
-	
-    public static void main(String args[]) {
-        try {
-            String propertyFile = (args.length < 1) ? "conditionalBuild.properties" : args[0];
-            String targetDir = (args.length < 2) ? "d:/beam/tmp" : args[1];
-				
-            Properties properties = new Properties();
 
-            properties.load(new FileInputStream(propertyFile));
-            ConditionalBuild conditionalBuild = new ConditionalBuild(targetDir);
-
-            conditionalBuild.createFiles(properties);
-			
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void insertCopyright(PrintWriter writer, String className) {
+    private void insertCopyright(PrintWriter writer) {
         writer.println("/*");
         writer.println(" *  The Sun Project JXTA(TM) Software License");
         writer.println(" *  ");
@@ -277,7 +299,7 @@ public class ConditionalBuild {
         writer.println(" *  4. The names \"Sun\", \"Sun Microsystems, Inc.\", \"JXTA\" and \"Project JXTA\" must ");
         writer.println(" *     not be used to endorse or promote products derived from this software ");
         writer.println(" *     without prior written permission. For written permission, please contact ");
-        writer.println(" *     Project JXTA at http://www.jxta.org.");
+        writer.println(" *     Project JXTA at https://jxta.dev.java.net.");
         writer.println(" *  ");
         writer.println(" *  5. Products derived from this software may not be called \"JXTA\", nor may ");
         writer.println(" *     \"JXTA\" appear in their name, without prior written permission of Sun.");
@@ -297,18 +319,40 @@ public class ConditionalBuild {
         writer.println(" *  States and other countries.");
         writer.println(" *  ");
         writer.println(" *  Please see the license information page at :");
-        writer.println(" *  <http://www.jxta.org/project/www/license.html> for instructions on use of ");
+        writer.println(" *  <https://jxta.dev.java.net/license.html> for instructions on use of ");
         writer.println(" *  the license in source files.");
         writer.println(" *  ");
         writer.println(" *  ====================================================================");
         writer.println("");
         writer.println(" *  This software consists of voluntary contributions made by many individuals ");
         writer.println(" *  on behalf of Project JXTA. For more information on Project JXTA, please see ");
-        writer.println(" *  http://www.jxta.org.");
+        writer.println(" *  https://jxta.dev.java.net/");
         writer.println(" *  ");
         writer.println(" *  This license is based on the BSD license adopted by the Apache Foundation. ");
         writer.println(" *  ");
         writer.println(" */");
         writer.println();
+    }
+
+    public static void main(String[] args) {
+        try {
+            if (args.length != 2) {
+                System.err.println("# ConditionalBuild <buildConfig.properties> <rootDir>");
+                System.err.println("#     <buildConfig.properties>    The configuration properties file.");
+                System.err.println("#     <rootDir>                   The root directory which will contain the generated configuration files.");
+                System.exit(1);
+            }
+
+            final String propertyFile = args[0];
+            final String targetDir = args[1];
+
+            ConditionalBuild conditionalBuild = new ConditionalBuild(targetDir);
+
+            final File configProperties = new File(propertyFile);
+
+            conditionalBuild.createFiles(configProperties);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
     }
 }

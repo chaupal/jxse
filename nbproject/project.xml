@@ -55,6 +55,11 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             <properties/>
             <folders>
                 <source-folder>
+                    <label>Conditional Build</label>
+                    <type>java</type>
+                    <location>build/src</location>
+                </source-folder>
+                <source-folder>
                     <label>API Source</label>
                     <type>java</type>
                     <location>api/src</location>
@@ -232,8 +237,17 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                 <location>tutorials/classes</location>
                 <build-target>signjar</build-target>
             </export>
+            <export>
+                <type>folder</type>
+                <location>build_classes</location>
+                <build-target>signjar</build-target>
+            </export>
             <view>
                 <items>
+                    <source-folder style="packages">
+                        <label>Conditional Build</label>
+                        <location>build/src</location>
+                    </source-folder>
                     <source-folder style="packages">
                         <label>API Source</label>
                         <location>api/src</location>
@@ -292,8 +306,13 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             </compilation-unit>
             <compilation-unit>
                 <package-root>tutorials/src</package-root>
-                <classpath mode="compile">api/src:impl/src:dist/jxta.jar</classpath>
+                <classpath mode="compile">api/src:impl/src</classpath>
                 <built-to>tutorials/classes</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>build/src</package-root>
+                <built-to>build_classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
