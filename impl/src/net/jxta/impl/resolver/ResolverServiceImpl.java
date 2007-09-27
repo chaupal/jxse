@@ -793,7 +793,7 @@ public class ResolverServiceImpl implements ResolverService {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Handing query #" + query.getQueryId() + " to : " + queryHandlerName);
         }
-        System.out.println("Handing query #" + query.getQueryId() + " to : " + queryHandlerName);
+
         QueryHandlerMeter queryHandlerMeter = null;
         long startTime = 0;
         if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
