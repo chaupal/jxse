@@ -57,13 +57,14 @@ public class CustomGroupService {
         try {
             
             NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "customgroupservice", new File(new File(".cache"), "customgroupservice").toURI());
+            manager.setPeerID(IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID));  // create a random peer id.
             System.out.println("Starting JXTA");
             PeerGroup npg = manager.startNetwork();
             System.out.println("JXTA Started : " + npg);
             
             // Register the Gossip Service Configuration Advertisement with the advertisement factory.
             // This would normally be done by defining the GossipServiceConfigAdv in the META-INF/services/net.jxta.document.Advertisement
-            // file of the jar containing the gossip service. 
+            // file of the jar containing the gossip service.
             AdvertisementFactory.registerAdvertisementInstance(GossipServiceConfigAdv.getAdvertisementType(), new GossipServiceConfigAdv.Instantiator());
             
             // Create the Module Impl Advertisement for our custom group.
@@ -83,28 +84,47 @@ public class CustomGroupService {
             // update the customGroupImplAdv by updating its param
             customGroupImplAdv.setParam((XMLElement) customGroupParamAdv.getDocument(MimeMediaType.XMLUTF8));
 
-            // publish it.
+            // publish the ModuleImplAdvertisement for our custom peer group.
             npg.getDiscoveryService().publish(customGroupImplAdv);
 
+            
             // Create the module Impl Advertisement for our custom service.
+            
+            // Create a new ModuleImplAdvertisement instance.
             ModuleImplAdvertisement gossipImplAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
+            
+            // Our implementation implements the given ModuleSpecID.
             gossipImplAdv.setModuleSpecID(GossipService.GOSSIP_SERVICE_MSID);
-            gossipImplAdv.setCompat(customGroupImplAdv.getCompat()); // copy compatibility from group impl.
+            
+            // copy compatibility statement from the peer group impl advertisement.
+            gossipImplAdv.setCompat(customGroupImplAdv.getCompat());
+            
+            // The code for the implementation is the "tutorial.customgroupservice.GossipService" class.
             gossipImplAdv.setCode(GossipService.class.getName());
+            
+            // If the code needed to be downloaded, where should it be downloaded from. This is not normally used.
             gossipImplAdv.setUri("http://jxta-jxse.dev.java.net/download/jxta.jar");
+            
+            // The provider of the implementation.
             gossipImplAdv.setProvider("JXTA Orgainzation.");
+            
+            // A description of the service. (optional)
             gossipImplAdv.setDescription("Tutorial Gossip Service");            
 
-            // publish it.
+            // publish the gossip service module implementation advertisement.
             npg.getDiscoveryService().publish(gossipImplAdv);
+            
             
             // Create the Peer Group Advertisement.
 
-            // Get a PeerGroupAdvertisement instance.
+            // Crete a new PeerGroupAdvertisement instance.
             PeerGroupAdvertisement customGroupAdv = (PeerGroupAdvertisement) AdvertisementFactory.newAdvertisement(PeerGroupAdvertisement.getAdvertisementType());
             
             // Set our chosen peer group ID.
             customGroupAdv.setPeerGroupID(CUSTOM_PEERGROUP_ID);
+            
+            // Set the peer group name.
+            customGroupAdv.setName("Custom Gossip Peer Group");
             
             // The custom group uses our custom Module Specification.
             customGroupAdv.setModuleSpecID(customGroupImplAdv.getModuleSpecID());
@@ -126,11 +146,13 @@ public class CustomGroupService {
                 // Use default gossip text.
                 gossipConfig.setGossip("Custom Peer Group Services are fun!");
             }
+            gossipConfig.setShowOwn(true);
             
+            // Save the gossip config into the peer group advertisement.
             XMLDocument asDoc = (XMLDocument) gossipConfig.getDocument(MimeMediaType.XMLUTF8);
             customGroupAdv.putServiceParam(GossipService.GOSSIP_SERVICE_MCID, asDoc);
 
-            // publish it too.
+            // publish the peer group advertisement.
             npg.getDiscoveryService().publish(customGroupAdv);
 
             // Now we can instantiate the peer group.
@@ -146,9 +168,9 @@ public class CustomGroupService {
                 Thread.interrupted();
             }
 
+            System.out.println("Stopping Custom Peer Group : " + cpg);
             cpg.stopApp();
-            System.out.println("Stopped Custom Peer Group : " + cpg);
-
+            
             System.out.println("Stopping JXTA");
             manager.stopNetwork();
         } catch (Exception e) {

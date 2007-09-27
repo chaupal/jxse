@@ -76,6 +76,7 @@ import net.jxta.document.Attributable;
 /**
  * Defines Gossip Service configuration parameters.
  * <p/>
+ * A typical GossipServiceConfigAdv :
  * <tt><pre>
  *      &lt;jxta:GossipServiceConfigAdv showOwn="true">
  *          &lt;Gossip>
@@ -90,18 +91,29 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
      * Logger
      */
     private static final Logger LOG = Logger.getLogger(GossipServiceConfigAdv.class.getName());
+    
     /**
      *  The advertisement index fields. (currently none).
      */
     private static final String[] INDEX_FIELDS = {};
+    
     /**
      * The DOCTYPE
      */
     private static final String advType = "jxta:GossipServiceConfigAdv";
+    
+    /**
+     *  The name of the attribute which controls whether the gossip service
+     *  should show message from the local peer.
+     */
     private static final String SHOW_OWN_ATTR = "showOwn";
-    private static final String GOSSIP_TEXT_TAG = "jxta:GossipServiceConfigAdv";
+    
+    /**
+     *  The name of the tag which we use to store the gossip text.
+     */
+    private static final String GOSSIP_TEXT_TAG = "gossip";
 
-/**
+    /**
      * Instantiator for GossipServiceConfigAdv
      */
     public static class Instantiator implements AdvertisementFactory.Instantiator {
@@ -131,12 +143,16 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
             return new GossipServiceConfigAdv((XMLElement) root);
         }
     }
+    
     /**
-     * If {@code true} then the gossip service should show it's own gossips.
+     * If {@code true} then the gossip service should show it's own gossips. If 
+     * {@code null} then the gossip service will use it's default. 
      */
     private Boolean showOwn = null;
+    
     /**
-     * The text we will "gossip".
+     * The text we will "gossip". If {@code null} then the gossip service will 
+     * use it's default.
      */
     private String gossip = null;
 
@@ -210,8 +226,8 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
             XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Unhandled Element: " + elem.toString());
                 }
             }
         }
@@ -245,14 +261,13 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
             return true;
         }
 
-
         return false;
     }
 
     /**
-     * Make a safe clone of this GossipServiceConfigAdv.
+     * Make a clone of this GossipServiceConfigAdv.
      *
-     * @return Object A copy of this GossipServiceConfigAdv
+     * @return A copy of this GossipServiceConfigAdv.
      */
     @Override
     public GossipServiceConfigAdv clone() {
@@ -337,7 +352,8 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
     /**
      * Sets the gossip text which should be used by the gossip service.
      *
-     * @param gossip The gossip text which should be used by the gossip service.
+     * @param gossip The gossip text which should be used by the gossip service
+     * or {@code null} to use service default.
      */
     public void setGossip(String gossip) {
         this.gossip = gossip;
