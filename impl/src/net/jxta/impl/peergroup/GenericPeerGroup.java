@@ -715,7 +715,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
             } catch (Exception ex) {
                 try {
                     newMod.stopApp();
-                } catch (Throwable ignored) {// If this does not work, nothing needs to be done.
+                } catch (Throwable ignored) {
+                    // If this does not work, nothing needs to be done.
                 }
                 throw new PeerGroupException("Could not load module for : " + assigned + " (" + implAdv.getDescription() + ")", ex);
             }            
@@ -1707,10 +1708,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         public Thread newThread(Runnable runnable) {
             Thread thread = new Thread(threadgroup, runnable,  name + " - " + threadNumber.getAndIncrement(), 0);
-            if(thread.isDaemon())
+            if(thread.isDaemon()) {
                 thread.setDaemon(false);
-            if (thread.getPriority() != Thread.NORM_PRIORITY)
+            }
+            if (thread.getPriority() != Thread.NORM_PRIORITY) {
                 thread.setPriority(Thread.NORM_PRIORITY);
+            }
             return thread;
         }
     }
