@@ -62,7 +62,7 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
     <property name="doc" value="doc"/>
     <property name="dist" value="dist"/>
     <property name="classes" value="classes"/>
-    <property name="debug" value="off"/>
+    <property name="debug" value="on"/>
 
     <fileset id="lib.files" dir="${lib}">
         <include name="*.jar"/>
