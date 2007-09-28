@@ -64,7 +64,6 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.document.XMLDocument;
 import net.jxta.id.ID;
