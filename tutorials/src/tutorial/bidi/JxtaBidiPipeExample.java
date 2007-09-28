@@ -123,7 +123,7 @@ public class JxtaBidiPipeExample {
      * @param args command line args
      */
     public static void main(String args[]) {
-        System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
+        // System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
 
         String value = System.getProperty("RDVWAIT", "false");
         boolean waitForRendezvous = Boolean.valueOf(value);
