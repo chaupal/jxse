@@ -197,15 +197,17 @@ public class ConditionalBuild {
             switch (staticField.config) {
                 case OFF:
                 case ON:
-                    writer.println(Boolean.toString(BuildConfig.ON == staticField.config));
+                    writer.print(Boolean.toString(BuildConfig.ON == staticField.config));
                     break;
                 case RUNTIME:
                     String conditionalClassName = "Conditional" + staticField.className;
                     File conditionalFile = new File(srcDir, "Conditional" + staticField.className + ".java");
 
-                    writer.println(conditionalClassName + ".isRuntimeMetering();");
+                    writer.print(conditionalClassName + ".isRuntimeMetering()");
                     makeConditionalFile(conditionalFile, staticField.packageName, conditionalClassName, staticField.attr);
             }
+            
+            writer.println(";");
         }
 
         writer.println("}");

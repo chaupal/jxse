@@ -31,14 +31,13 @@ CLASSDIR      = $(TOP)/classes
 DISTDIR	      = $(TOP)/dist
 
 JAVABUILDFILES= $(shell find build  -name CVS -prune -o -name '*.java' -print)
-JAVACONTRIB   = $(shell find contrib -name CVS -prune -o -name '*.java' -print)
 JAVAAPIFILES  = $(shell find api -name CVS -prune -o -name '*.java' -print)
 JAVAREFFILES  = $(shell find impl -name CVS -prune -o -name '*.java' -print)
 
 
 JXTASHELLJAR  = $(TOP)/../jxse-shell/dist/jxtashell.jar
 MKMETERSETFILE=$(TOP)/build/src/net/jxta/build/ConditionalBuild.java
-METERPROPFILE = build/meterOffBuild.properties
+METERPROPFILE = build/meterRuntimeBuild.properties
 METEROUTDIR   = impl/src
 
 ifeq ($(JXTAEXTRALIB),)
@@ -116,7 +115,7 @@ compileSrc: cleanclassdir meterSet
 	@echo building ALL using $(JAVAC)
 	@echo CLASSPATH = $(JXTAEXTPATHx)
 	@if [ '!' -d $(CLASSDIR) ]; then mkdir $(CLASSDIR); fi;
-	@$(JAVAC) $(JAVACOPT) -d $(CLASSDIRx) -classpath $(JXTAEXTPATHx) $(JAVAAPIFILES) $(JAVAREFFILES) $(JAVACONTRIB)
+	@$(JAVAC) $(JAVACOPT) -d $(CLASSDIRx) -classpath $(JXTAEXTPATHx) $(JAVAAPIFILES) $(JAVAREFFILES)
 	@if [ '!' -d $(CLASSDIR)/META-INF/services/ ]; then mkdir -p $(CLASSDIR)/META-INF/services/; fi;
 	@$(CP) $(METAINFPROPERTYFILES) $(CLASSDIR)/META-INF/services/
 	@$(CP) $(CONFIGFILE) $(CLASSDIR)/net/jxta/impl/config.properties
