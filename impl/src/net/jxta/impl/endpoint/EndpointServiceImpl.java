@@ -1894,9 +1894,17 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * @throws IllegalArgumentException if hint is not of RouteAdvertisement, or PeerAdvertisement type.
      */
     public Messenger getDirectMessenger(EndpointAddress address, Object hint, boolean exclusive) {
-        if (!exclusive && directMessengerMap.containsKey(address)) {
-            return directMessengerMap.get(address).get();
+
+        if (!exclusive) {
+            Reference<Messenger> reference = directMessengerMap.get(address);
+            if (reference != null) {
+                Messenger messenger = reference.get();
+                if (messenger != null && !messenger.isClosed()) {
+                    return messenger;
+                }
+            }
         }
+
         if (hint != null) {
             RouteAdvertisement route;
             EndpointAddress direct;
