@@ -114,10 +114,10 @@ public class DiscoveryResponseMsgTest extends TestCase {
             PeerAdvertisement padv = AdvUtil.newPeerAdv("Fakey1", "0.0.0.0", 0, false);
             Vector resp = new Vector();
 
-            resp.addElement(padv);
+            resp.add(padv);
             Vector exp = new Vector();
 
-            exp.addElement(new Long(0));
+            exp.add(new Long(0));
             
             DiscoveryResponseMsg res = new DiscoveryResponse();
 

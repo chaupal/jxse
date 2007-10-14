@@ -77,6 +77,7 @@ import java.util.Vector;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Collections;
 
 
 public class XportConfTest extends TestCase {
@@ -372,8 +373,7 @@ public class XportConfTest extends TestCase {
 
         try {
             for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
-                addrs.addElement(new EndpointAddress((String) 
-                        e.nextElement()));
+                addrs.add(new EndpointAddress((String) e.nextElement()));
             }
         } catch (Exception e) {
             return null;
@@ -383,7 +383,7 @@ public class XportConfTest extends TestCase {
             return null;
         }
 
-        return addrs.elements();
+        return Collections.enumeration(addrs);
     }
 
     public void testPubAddressOnly() throws Exception {

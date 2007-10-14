@@ -67,6 +67,7 @@ import java.io.Reader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Vector;
@@ -115,8 +116,8 @@ public class TestRouteAdv extends TestCase {
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
-        addresses.addElement("TCP:123.123.123.123");
-        addresses.addElement("TCP:134.134.134.134");
+        addresses.add("TCP:123.123.123.123");
+        addresses.add("TCP:134.134.134.134");
         ap.setEndpointAddresses(addresses);
         
         try {
@@ -147,7 +148,7 @@ public class TestRouteAdv extends TestCase {
             assertEquals(ap.getPeerID(), apAdv.getPeerID());
             Enumeration e1 = apAdv.getEndpointAddresses();
 
-            for (Enumeration e = addresses.elements(); e.hasMoreElements();) {
+            for (Enumeration e = Collections.enumeration(addresses); e.hasMoreElements();) {
                 assertEquals(e.nextElement(), e1.nextElement());
             }
         } catch (Exception ex) {
@@ -218,8 +219,8 @@ public class TestRouteAdv extends TestCase {
 
         ap1.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:222.222.222.222");
-        addresses.addElement("TCP:244.244.244.244");
+        addresses.add("TCP:222.222.222.222");
+        addresses.add("TCP:244.244.244.244");
         ap1.setEndpointAddresses(addresses);
         
         AccessPointAdvertisement ap2 = (AccessPointAdvertisement)
@@ -227,8 +228,8 @@ public class TestRouteAdv extends TestCase {
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:666.666.666.666");
-        addresses.addElement("TCP:777.777.777.777");
+        addresses.add("TCP:666.666.666.666");
+        addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
         
         // create Route advertisment with a single destination
@@ -239,8 +240,8 @@ public class TestRouteAdv extends TestCase {
         route1.setDest(ap);
         Vector hops = new Vector();
 
-        hops.addElement(ap1);
-        hops.addElement(ap2);
+        hops.add(ap1);
+        hops.add(ap2);
         route1.setHops(hops);
         try {
             // let's print the advertisement as a plain text document
@@ -309,8 +310,8 @@ public class TestRouteAdv extends TestCase {
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
-        addresses.addElement("TCP:123.123.123.123");
-        addresses.addElement("TCP:134.134.134.134");
+        addresses.add("TCP:123.123.123.123");
+        addresses.add("TCP:134.134.134.134");
         ap.setEndpointAddresses(addresses);
         
         // create the route
@@ -322,14 +323,14 @@ public class TestRouteAdv extends TestCase {
         // add new addresses to the destination
         Vector<String> newaddresses = new Vector<String>();
 
-        newaddresses.addElement("TCP:222.123.123.123");
-        newaddresses.addElement("TCP:222.134.134.134");
+        newaddresses.add("TCP:222.123.123.123");
+        newaddresses.add("TCP:222.134.134.134");
         route.addDestEndpointAddresses(newaddresses);
-        addresses.addElement("TCP:222.123.123.123");
-        addresses.addElement("TCP:222.134.134.134");
+        addresses.add("TCP:222.123.123.123");
+        addresses.add("TCP:222.134.134.134");
         
         // verify advertisement
-        Enumeration e1 = addresses.elements();
+        Enumeration e1 = Collections.enumeration(addresses);
 
         for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
             assertEquals(e.nextElement(), e1.nextElement());
@@ -341,7 +342,7 @@ public class TestRouteAdv extends TestCase {
         addresses.remove("TCP:222.134.134.134");
         
         // verify advertisement
-        e1 = addresses.elements();
+        e1 = Collections.enumeration(addresses);
         for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
             assertEquals(e.nextElement(), e1.nextElement());
         }
@@ -356,8 +357,8 @@ public class TestRouteAdv extends TestCase {
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
-        addresses.addElement("TCP:123.123.123.123");
-        addresses.addElement("TCP:134.134.134.134");
+        addresses.add("TCP:123.123.123.123");
+        addresses.add("TCP:134.134.134.134");
         ap.setEndpointAddresses(addresses);
         
         // create the route
@@ -371,8 +372,8 @@ public class TestRouteAdv extends TestCase {
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:666.666.666.666");
-        addresses.addElement("TCP:777.777.777.777");
+        addresses.add("TCP:666.666.666.666");
+        addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
         
         AccessPointAdvertisement ap4 = (AccessPointAdvertisement)
@@ -380,14 +381,14 @@ public class TestRouteAdv extends TestCase {
 
         ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:888.888.888.888");
-        addresses.addElement("TCP:999.999.999.999");
+        addresses.add("TCP:888.888.888.888");
+        addresses.add("TCP:999.999.999.999");
         ap4.setEndpointAddresses(addresses);
         
         Vector hops = new Vector();
 
-        hops.addElement(ap2);
-        hops.addElement(ap4);
+        hops.add(ap2);
+        hops.add(ap4);
         route.setHops(hops);
         route.setHops(hops);
         System.out.println(route.display());
@@ -417,8 +418,8 @@ public class TestRouteAdv extends TestCase {
         ap4.setPeerID(ap.getPeerID());
         Vector hops = new Vector();
 
-        hops.addElement(ap2);
-        hops.addElement(ap4);
+        hops.add(ap2);
+        hops.add(ap4);
         route.setHops(hops);
         
         assertEquals(true, route.containsHop(ap.getPeerID()));
@@ -433,8 +434,8 @@ public class TestRouteAdv extends TestCase {
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
-        addresses.addElement("TCP:123.123.123.123");
-        addresses.addElement("TCP:134.134.134.134");
+        addresses.add("TCP:123.123.123.123");
+        addresses.add("TCP:134.134.134.134");
         ap.setEndpointAddresses(addresses);
         
         // create the route
@@ -448,8 +449,8 @@ public class TestRouteAdv extends TestCase {
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:666.666.666.666");
-        addresses.addElement("TCP:777.777.777.777");
+        addresses.add("TCP:666.666.666.666");
+        addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
         
         AccessPointAdvertisement ap4 = (AccessPointAdvertisement)
@@ -457,14 +458,14 @@ public class TestRouteAdv extends TestCase {
 
         ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:888.888.888.888");
-        addresses.addElement("TCP:999.999.999.999");
+        addresses.add("TCP:888.888.888.888");
+        addresses.add("TCP:999.999.999.999");
         ap4.setEndpointAddresses(addresses);
         
         Vector hops = new Vector();
 
-        hops.addElement(ap2);
-        hops.addElement(ap4);
+        hops.add(ap2);
+        hops.add(ap4);
         route.setHops(hops);
         
         PeerID pid = IDFactory.newPeerID(IDFactory.newPeerGroupID());
@@ -526,8 +527,8 @@ public class TestRouteAdv extends TestCase {
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
-        addresses.addElement("TCP:123.123.123.123");
-        addresses.addElement("TCP:134.134.134.134");
+        addresses.add("TCP:123.123.123.123");
+        addresses.add("TCP:134.134.134.134");
         ap.setEndpointAddresses(addresses);
         
         // create the route
@@ -541,8 +542,8 @@ public class TestRouteAdv extends TestCase {
 
         ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:666.666.666.666");
-        addresses.addElement("TCP:777.777.777.777");
+        addresses.add("TCP:666.666.666.666");
+        addresses.add("TCP:777.777.777.777");
         ap2.setEndpointAddresses(addresses);
         
         AccessPointAdvertisement ap4 = (AccessPointAdvertisement)
@@ -550,14 +551,14 @@ public class TestRouteAdv extends TestCase {
 
         ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:888.888.888.888");
-        addresses.addElement("TCP:999.999.999.999");
+        addresses.add("TCP:888.888.888.888");
+        addresses.add("TCP:999.999.999.999");
         ap4.setEndpointAddresses(addresses);
         
         Vector hops = new Vector();
 
-        hops.addElement(ap2);
-        hops.addElement(ap4);
+        hops.add(ap2);
+        hops.add(ap4);
         route.setHops(hops);
         
         AccessPointAdvertisement apDst = (AccessPointAdvertisement)
@@ -565,8 +566,8 @@ public class TestRouteAdv extends TestCase {
 
         apDst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:234.234.234.234");
-        addresses.addElement("TCP:256.256.278.256");
+        addresses.add("TCP:234.234.234.234");
+        addresses.add("TCP:256.256.278.256");
         apDst.setEndpointAddresses(addresses);
         
         // create the route
@@ -580,8 +581,8 @@ public class TestRouteAdv extends TestCase {
 
         ap2Dst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:166.166.166.166");
-        addresses.addElement("TCP:277.277.277.277");
+        addresses.add("TCP:166.166.166.166");
+        addresses.add("TCP:277.277.277.277");
         ap2Dst.setEndpointAddresses(addresses);
         
         AccessPointAdvertisement ap4Dst = (AccessPointAdvertisement)
@@ -589,14 +590,14 @@ public class TestRouteAdv extends TestCase {
 
         ap4Dst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
-        addresses.addElement("TCP:188.188.818.818");
-        addresses.addElement("TCP:929.929.929.929");
+        addresses.add("TCP:188.188.818.818");
+        addresses.add("TCP:929.929.929.929");
         ap4Dst.setEndpointAddresses(addresses);
         
         Vector hopsDst = new Vector();
 
-        hopsDst.addElement(ap2Dst);
-        hopsDst.addElement(ap4Dst);
+        hopsDst.add(ap2Dst);
+        hopsDst.add(ap4Dst);
         routeDst.setHops(hopsDst);
         
         RouteResponse response = new RouteResponse();

@@ -64,6 +64,7 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.Collections;
 
 import java.io.IOException;
 
@@ -196,7 +197,7 @@ public class InputStreamMessageElementTest extends TestCase {
             concat.add(new ByteArrayInputStream(source1));
             concat.add(new ByteArrayInputStream(source2));
 
-            InputStream in3 = new SequenceInputStream(concat.elements());
+            InputStream in3 = new SequenceInputStream(Collections.enumeration(concat));
 
             InputStream in4 = new noMarkInputStream(new ByteArrayInputStream(source1));
 

@@ -128,9 +128,10 @@ public class SrdiMessageTest extends TestCase {
         Vector entries = new Vector(5);
 
         for (int i = 0; i < 5; i++) {
-            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i, exp);
+            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i,
+                                                            exp);
 
-            entries.addElement(entry);
+            entries.add(entry);
         }
 
         try {
@@ -151,9 +152,10 @@ public class SrdiMessageTest extends TestCase {
         Vector entries = new Vector(5);
 
         for (int i = 0; i < 5; i++) {
-            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i, exp);
+            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i,
+                                                            exp);
 
-            entries.addElement(entry);
+            entries.add(entry);
         }
 
         try {
@@ -187,9 +189,10 @@ public class SrdiMessageTest extends TestCase {
         Vector entries = new Vector(5);
 
         for (int i = 0; i < 5; i++) {
-            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i, exp);
+            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i,
+                                                            exp);
 
-            entries.addElement(entry);
+            entries.add(entry);
         }
 
         try {
