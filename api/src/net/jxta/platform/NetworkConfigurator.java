@@ -1331,30 +1331,59 @@ public class NetworkConfigurator {
     }
     
     /**
-     * Sets the List of RendezVousService seeds represented as Strings
-     * <p/>A seeding URI (when read) is expected to provide a list of
-     * physical endpoint address to relay peers
+     * Sets the List of RendezVousService seeding URIs represented as Strings.
+     * A seeding URI (when read) is expected to provide a list of
+     * physical endpoint address to rendezvous peers.
      *
+     * @deprecated The name of this method is inconsistent with it's function! 
+     * It sets the <strong>seeding</strong> URIs and not the seed URIs. Use
+     * {@link #setRendezvousSeedingURIs()} instead.
+     *  
      * @param seedURIs the List rendezvousSeeds represented as Strings
      */
-    public void setRendezvousSeedURIs(List<String> seedURIs) {
-        rdvConfig.clearSeedingURIs();
-        for (String seedStr : seedURIs) {
-            rdvConfig.addSeedingURI(URI.create(seedStr));
-        }
+    @Deprecated
+    public void setRendezvousSeedURIs(List<String> seedingURIs) {
+        setRendezvousSeedingURIs(seedingURIs);
     }
     
     /**
-     * Clears the List of RendezVousService seeds
+     * Sets the List of RendezVousService seeding URIs represented as Strings.
+     * A seeding URI (when read) is expected to provide a list of
+     * physical endpoint address to rendezvous peers.
+     *
+     * @param seedURIs the List rendezvousSeeds represented as Strings.
+     */
+    public void setRendezvousSeedingURIs(List<String> seedingURIs) {
+        rdvConfig.clearSeedingURIs();
+        for (String seedStr : seedingURIs) {
+            rdvConfig.addSeedingURI(URI.create(seedStr));
+        }
+    }
+
+    /**
+     * Clears the list of RendezVousService seeds
      */
     public void clearRendezvousSeeds() {
         rdvConfig.clearSeedRendezvous();
     }
     
     /**
-     * Clears the List of RendezVousService seeds
+     * Clears the list of RendezVousService seeding URIs
+     *
+     * @deprecated The name of this method is inconsistent with it's function! 
+     * It clears the <strong>seeding</strong> URIs and not the seed URIs. Use
+     * {@link #clearRendezvousSeedingURIs()} instead.
+     *  
      */
+    @Deprecated
     public void clearRendezvousSeedURIs() {
+        rdvConfig.clearSeedingURIs();
+    }
+    
+    /**
+     * Clears the list of RendezVousService seeding URIs
+     */
+    public void clearRendezvousSeedingURIs() {
         rdvConfig.clearSeedingURIs();
     }
     
