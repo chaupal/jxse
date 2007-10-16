@@ -171,9 +171,6 @@ public final class RelayTransport implements EndpointListener, Module {
                 XMLDocument configDoc = (XMLDocument) confAdv.getServiceParam(assignedID);
 
                 if (null != configDoc) {
-                    // XXX bondolo 20041025 For backwards compatibility
-                    configDoc.addAttribute("type", RelayConfigAdv.getAdvertisementType());
-
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
                 }
             } catch (NoSuchElementException failed) {
