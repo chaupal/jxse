@@ -30,15 +30,15 @@ METERSETDIR   = $(TOP)/build/class
 CLASSDIR      = $(TOP)/classes
 DISTDIR	      = $(TOP)/dist
 
-JAVABUILDFILES= $(shell find build  -name CVS -prune -o -name '*.java' -print)
-JAVAAPIFILES  = $(shell find api -name CVS -prune -o -name '*.java' -print)
-JAVAREFFILES  = $(shell find impl -name CVS -prune -o -name '*.java' -print)
+JAVABUILDFILES= $(shell find build -name '*.java' -print)
+JAVAAPIFILES  = $(shell find api -name '*.java' -print)
+JAVAREFFILES  = $(shell find impl -name '*.java' -print)
 
 
 JXTASHELLJAR  = $(TOP)/../jxse-shell/dist/jxtashell.jar
 MKMETERSETFILE=$(TOP)/build/src/net/jxta/build/ConditionalBuild.java
 METERPROPFILE = build/meterRuntimeBuild.properties
-METEROUTDIR   = impl/src
+METEROUTDIR   = build_generated
 
 ifeq ($(JXTAEXTRALIB),)
  JXTAEXTRALIB = ""
@@ -62,19 +62,18 @@ else
  JXTAMETERSETPATH      = $(METERSETDIR)
 endif
 
-# The classpath for things that require the EXTLIB files
-JXTAEXTPATH   = "$(JXTACLASSPATH):$(EXTLIB)"
-
 ifeq (true,$(OPTIMIZE))
  JAVACOPT=-O -g:none -source 1.5 -target 1.5
 else
  JAVACOPT=-g -source 1.5 -target 1.5
 endif
 
-ifeq (true,$(METER))
-METERPROPFILE = build/meterOnBuild.properties
-else
-METERPROPFILE = build/meterOffBuild.properties
+ifneq ($(METER),)
+  ifeq (true,$(METER))
+    METERPROPFILE = build/meterOnBuild.properties
+  else
+    METERPROPFILE = build/meterOffBuild.properties
+  endif
 endif
 
 CONFIGFILE=impl/src/net/jxta/impl/config.properties
@@ -86,9 +85,7 @@ USERFILE=api/src/net/jxta/user.properties
 METAINFPROPERTYFILES=impl/src/META-INF/services/net.jxta.*           
 
 JXTACLASSPATHx := "$(JXTACLASSPATH)"
-JXTAEXTPATHx := "$(JXTAEXTPATH)"
 CLASSDIRx := "$(CLASSDIR)"
-CLASSEXTDIRx := "$(CLASSEXTDIR)"
 JXTATOOLSPATHx := "$(JXTATOOLSPATH)"
 TOOLSDIRx := "$(TOOLSDIR)"
 METERSETDIRx := "$(METERSETDIR)"
@@ -108,14 +105,14 @@ compile: jar
 meterSet:
 	@if [ '!' -d $(METERSETDIRx) ]; then mkdir $(METERSETDIRx); fi;
 	@$(JAVAC) -d $(METERSETDIRx)  $(MKMETERSETFILEx)
-	@echo Metering :$(METERPROPFILEx)
+	@echo Metering : $(METERPROPFILEx)
 	@$(JAVA) -cp $(JXTAMETERSETPATHx) net.jxta.build.ConditionalBuild $(METERPROPFILEx) $(METEROUTDIRx)
 
 compileSrc: cleanclassdir meterSet
 	@echo building ALL using $(JAVAC)
-	@echo CLASSPATH = $(JXTAEXTPATHx)
+	@echo CLASSPATH = $(JXTACLASSPATHx)
 	@if [ '!' -d $(CLASSDIR) ]; then mkdir $(CLASSDIR); fi;
-	@$(JAVAC) $(JAVACOPT) -d $(CLASSDIRx) -classpath $(JXTAEXTPATHx) $(JAVAAPIFILES) $(JAVAREFFILES)
+	@$(JAVAC) $(JAVACOPT) -d $(CLASSDIRx) -classpath $(JXTACLASSPATHx) $(JAVAAPIFILES) $(JAVAREFFILES) $(shell find $(METEROUTDIRx) -name '*.java' -print)
 	@if [ '!' -d $(CLASSDIR)/META-INF/services/ ]; then mkdir -p $(CLASSDIR)/META-INF/services/; fi;
 	@$(CP) $(METAINFPROPERTYFILES) $(CLASSDIR)/META-INF/services/
 	@$(CP) $(CONFIGFILE) $(CLASSDIR)/net/jxta/impl/config.properties
@@ -150,15 +147,22 @@ jar:  compileSrc
 	@echo Creating $(DISTDIR)/jxta.jar
 	@cd $(CLASSDIR); $(JAR) -cf $(DISTDIR)/jxta.jar net sun META-INF; unzip -l $(DISTDIR)/jxta.jar |grep files
 
+cleanmetering:
+	@echo cleaning $(METEROUTDIRx)
+	@rm -rf $(METEROUTDIRx)
+        # XXX Temporary hack to delete old generated metering files.
+	@echo cleaning old meter settings.
+	@find impl/src -type f -name '*MeterBuildSettings.java' -exec rm {} \;
+
 cleanclassdir:
 	@echo cleaning $(CLASSDIRx)
 	@rm -rf $(CLASSDIR)
 
 cleandist:
-	@echo cleaning dist
+	@echo cleaning $(DISTDIR)
 	@rm -rf $(DISTDIR)
 
-clean: cleanclassdir 
+clean: cleanclassdir cleanmetering
 	@rm -f TAGS tags
 
 clobber: clean cleandist
