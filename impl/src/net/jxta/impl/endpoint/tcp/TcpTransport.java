@@ -168,7 +168,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     static final int MaxAcceptCnxBacklog = 50;
 
     private String serverName = null;
-    private List<EndpointAddress> publicAddresses = new ArrayList<EndpointAddress>();
+    private final List<EndpointAddress> publicAddresses = new ArrayList<EndpointAddress>();
     private EndpointAddress publicAddress = null;
 
     private String interfaceAddressStr;
@@ -850,7 +850,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("return LoopbackMessenger for addr : " + dst);
             }
-            return new LoopbackMessenger(endpoint, getPublicAddress(), dst,
+            return new LoopbackMessenger(group, endpoint, getPublicAddress(), dst,
                     new EndpointAddress("jxta", group.getPeerID().getUniqueValue().toString(), null, null));
         }
 

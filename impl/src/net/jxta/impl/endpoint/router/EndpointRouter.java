@@ -2260,7 +2260,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("return LoopbackMessenger");
             }
-            return new LoopbackMessenger(endpoint, localPeerAddr, addr, addr);
+            return new LoopbackMessenger(group, endpoint, localPeerAddr, addr, addr);
         }
 
         try {

@@ -183,7 +183,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      */
     class TlsLoopbackMessenger extends LoopbackMessenger {
         TlsLoopbackMessenger(EndpointService ep, EndpointAddress src, EndpointAddress dest, EndpointAddress logicalDest) {
-            super(ep, src, dest, logicalDest);
+            super(group, ep, src, dest, logicalDest);
         }
         
         /**
