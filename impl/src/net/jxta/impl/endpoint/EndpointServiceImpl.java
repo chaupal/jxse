@@ -1922,6 +1922,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 EndpointAddress transportAddr = new EndpointAddress(addresses.next());
                 if (transportAddr.getProtocolName().equals("tcp")) {
                     TcpTransport tcpTransport = (TcpTransport) getMessageTransport("tcp");
+                    if (tcpTransport == null) {
+                        //direct messengers are not possible
+                        return null;
+                    }
                     direct = createDirectAddress(transportAddr, address);
                     // direct messengers are non self destructive
                     messenger = tcpTransport.getMessenger(direct, route, false);
