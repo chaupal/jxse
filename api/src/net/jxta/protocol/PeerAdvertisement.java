@@ -79,180 +79,180 @@ import net.jxta.peergroup.PeerGroupID;
 
 
 /**
- * Generated when instantiating a group on a peer and contains all the 
+ * Generated when instantiating a group on a peer and contains all the
  * parameters that services need to publish. It is then published within the
  * group.
  */
 public abstract class PeerAdvertisement extends ExtendableAdvertisement implements Cloneable {
 
     /**
-     *  Logger
-     **/
+     * Logger
+     */
     private static final Logger LOG = Logger.getLogger(PeerAdvertisement.class.getName());
-    
+
     /**
      * The id of this peer.
-     **/
+     */
     private PeerID pid = null;
-    
+
     /**
      * The group in which this peer is located.
-     **/
+     */
     private PeerGroupID gid = null;
-    
+
     /**
      * The name of this peer. Not guaranteed to be unique in any way. May be empty or
      * null.
-     **/
+     */
     private String name = null;
-    
+
     /**
      * Descriptive meta-data about this peer.
      */
     private Element description = null;
-    
+
     /**
      * A table of structured documents to be interpreted by each service.
-     **/
+     */
     private final Map<ID, StructuredDocument> serviceParams = new HashMap<ID, StructuredDocument>();
-    
+
     /**
-     * Counts the changes made to this object. We rely on implementations to 
-     * increment modCount every time something is changed without going through 
+     * Counts the changes made to this object. We rely on implementations to
+     * increment modCount every time something is changed without going through
      * the API.
-     **/
+     */
     private final transient AtomicInteger modCount = new AtomicInteger(0);
-    
+
     /**
      * Returns the number of times this object has been modified since
-     * it was created. This permits to detection of local changes that require 
+     * it was created. This permits to detection of local changes that require
      * refreshing of other data which depends upon the peer advertisement.
      *
      * @return int the current modification count.
      */
-    
+
     public int getModCount() {
         return modCount.get();
     }
-    
+
     /**
-     *  Increments the modification count for this peer advertisement.
+     * Increments the modification count for this peer advertisement.
      */
     protected int incModCount() {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             Throwable trace = new Throwable("Stack Trace");
             StackTraceElement elements[] = trace.getStackTrace();
-            
-            LOG.finer(
-                    "Modification #" + (getModCount() + 1) + " to PeerAdv@" + Integer.toHexString(System.identityHashCode(this))
+
+            LOG.finer("Modification #" + (getModCount() + 1) + " to PeerAdv@" + Integer.toHexString(System.identityHashCode(this))
                     + " caused by : " + "\n\t" + elements[1] + "\n\t" + elements[2]);
         }
-        
+
         return modCount.incrementAndGet();
     }
-    
+
     /**
-     *  Returns the identifying type of this Advertisement.
+     * Returns the identifying type of this Advertisement.
      *
      * @return String the type of advertisement
-     **/
+     */
     public static String getAdvertisementType() {
         return "jxta:PA";
     }
-    
+
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public final String getBaseAdvType() {
         return getAdvertisementType();
     }
-    
+
     /**
      * {@inheritDoc}
-     **/
+     */
     @Override
     public PeerAdvertisement clone() {
-              
+
         try {
             PeerAdvertisement clone = (PeerAdvertisement) super.clone();
-            
+
             clone.setPeerID(getPeerID());
             clone.setPeerGroupID(getPeerGroupID());
             clone.setName(getName());
             clone.setDesc(getDesc());
             clone.setServiceParams(getServiceParams());
-            
+
             return clone;
         } catch (CloneNotSupportedException impossible) {
             throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
         }
     }
-    
+
     /**
      * returns the name of the peer.
      *
      * @return String name of the peer.
      */
-    
+
     public String getName() {
         return name;
     }
-    
+
     /**
      * sets the name of the peer.
      *
      * @param name name of the peer.
      */
-    
+
     public void setName(String name) {
         this.name = name;
         incModCount();
     }
-    
+
     /**
      * Returns the id of the peer.
      *
      * @return PeerID the peer id
      */
-    
+
     public PeerID getPeerID() {
         return pid;
     }
-    
-    /** Sets the id of the peer.
+
+    /**
+     * Sets the id of the peer.
      *
      * @param pid the id of this peer.
      */
-    
+
     public void setPeerID(PeerID pid) {
         this.pid = pid;
         incModCount();
     }
-    
+
     /**
      * Returns the id of the peergroup this peer advertisement is for.
      *
      * @return PeerGroupID the peergroup id
      */
-    
+
     public PeerGroupID getPeerGroupID() {
         return gid;
     }
-    
+
     /**
      * Returns the id of the peergroup this peer advertisement is for.
      *
      * @param gid The id of the peer.
      */
-    
+
     public void setPeerGroupID(PeerGroupID gid) {
         this.gid = gid;
         incModCount();
     }
-    
+
     /**
-     * Returns a unique ID for that peer X group intersection. This is for 
+     * Returns a unique ID for that peer X group intersection. This is for
      * indexing purposes only.
      *
      * @return ID the unique ID
@@ -267,13 +267,13 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
         try {
             String hashValue = getAdvertisementType() + gid.getUniqueValue().toString() + pid.getUniqueValue().toString();
             byte[] seed = hashValue.getBytes("UTF-8");
-        
+
             return IDFactory.newCodatID(gid, seed, new ByteArrayInputStream(seed));
         } catch (Exception failed) {
             return null;
         }
     }
-    
+
     /**
      * returns the description
      *
@@ -286,72 +286,69 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
             return null;
         }
     }
-    
+
     /**
      * sets the description
      *
-     * @since JXTA 1.0
-     *
      * @param description the description
+     * @since JXTA 1.0
      */
     public void setDescription(String description) {
-        
+
         if (null != description) {
             StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
-            
+
             setDesc(newdoc);
         } else {
             this.description = null;
         }
-        
+
         incModCount();
     }
-    
+
     /**
      * returns the description
      *
      * @return the description
-     *
      */
     public StructuredDocument getDesc() {
         if (null != description) {
             StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(description);
-            
+
             return newDoc;
         } else {
             return null;
         }
     }
-    
+
     /**
      * sets the description
      *
      * @param desc the description
-     *
      */
     public void setDesc(Element desc) {
-        
+
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);
         } else {
             this.description = null;
         }
-        
+
         incModCount();
     }
-    
+
     /**
-     *  sets the sets of parameters for all services. This method first makes a
-     *  deep copy, in order to protect the active information from uncontrolled
-     *  sharing. This quite an expensive operation. If only a few of the
-     *  parameters need to be added, it is wise to use putServiceParam()
-     *  instead.
+     * sets the sets of parameters for all services. This method first makes a
+     * deep copy, in order to protect the active information from uncontrolled
+     * sharing. This quite an expensive operation. If only a few of the
+     * parameters need to be added, it is wise to use putServiceParam()
+     * instead.
      *
-     *@param  params  The whole set of parameters.
+     * @param params The whole set of parameters.
      */
     public void setServiceParams(Hashtable<ID, ? extends Element> params) {
         serviceParams.clear();
-        
+
         if (params == null) {
             return;
         }
@@ -365,16 +362,16 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
 
         incModCount();
     }
-    
+
     /**
-     *  Returns the sets of parameters for all services. 
+     * Returns the sets of parameters for all services.
      *
-     *  <p/>This method returns a deep copy, in order to protect the real
-     *  information from uncontrolled sharing while keeping it shared as long as
-     *  it is safe. This quite an expensive operation. If only a few parameters
-     *  need to be accessed, it is wise to use getServiceParam() instead.
+     * <p/>This method returns a deep copy, in order to protect the real
+     * information from uncontrolled sharing while keeping it shared as long as
+     * it is safe. This quite an expensive operation. If only a few parameters
+     * need to be accessed, it is wise to use getServiceParam() instead.
      *
-     *@return    all of the parameters.
+     * @return all of the parameters.
      */
     public Hashtable<ID, StructuredDocument> getServiceParams() {
         Hashtable<ID, StructuredDocument> copy = new Hashtable<ID, StructuredDocument>();
@@ -388,16 +385,16 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
 
         return copy;
     }
-    
+
     /**
-     *  Puts a service parameter in the service parameters table under the given
-     *  key. The key is of a subclass of ID; usually a ModuleClassID. This
-     *  method makes a deep copy of the given element into an independent
-     *  document.
+     * Puts a service parameter in the service parameters table under the given
+     * key. The key is of a subclass of ID; usually a ModuleClassID. This
+     * method makes a deep copy of the given element into an independent
+     * document.
      *
-     *@param  key    The key.
-     *@param  param  The parameter, as an element. What is stored is a copy as a
-     *      standalone StructuredDocument which type is the element's name.
+     * @param key   The key.
+     * @param param The parameter, as an element. What is stored is a copy as a
+     *              standalone StructuredDocument which type is the element's name.
      */
     public void putServiceParam(ID key, Element param) {
         if (param == null) {
@@ -405,22 +402,22 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
             incModCount();
             return;
         }
-        
+
         StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
 
         serviceParams.put(key, newDoc);
-        
+
         incModCount();
     }
-    
+
     /**
-     *  Returns the parameter element that matches the given key from the
-     *  service parameters table. The key is of a subclass of ID; usually a
-     *  ModuleClassID.
+     * Returns the parameter element that matches the given key from the
+     * service parameters table. The key is of a subclass of ID; usually a
+     * ModuleClassID.
      *
-     *@param  key  The key.
-     *@return      StructuredDocument The matching parameter document or null if
-     *      none matched. The document type id "Param".
+     * @param key The key.
+     * @return StructuredDocument The matching parameter document or null if
+     *         none matched. The document type id "Param".
      */
     public StructuredDocument getServiceParam(ID key) {
         StructuredDocument param = serviceParams.get(key);
@@ -428,18 +425,18 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
         if (param == null) {
             return null;
         }
-        
-        return  StructuredDocumentUtils.copyAsDocument(param);
+
+        return StructuredDocumentUtils.copyAsDocument(param);
     }
-    
+
     /**
-     *  Removes and returns the parameter element that matches the given key
-     *  from the service parameters table. The key is of a subclass of ID;
-     *  usually a ModuleClassID.
+     * Removes and returns the parameter element that matches the given key
+     * from the service parameters table. The key is of a subclass of ID;
+     * usually a ModuleClassID.
      *
-     *@param  key  The key.
-     *@return      Element the removed parameter element or null if not found.
-     *      This is actually a StructureDocument of type "Param".
+     * @param key The key.
+     * @return Element the removed parameter element or null if not found.
+     *         This is actually a StructureDocument of type "Param".
      */
     public StructuredDocument removeServiceParam(ID key) {
         Element param = serviceParams.remove(key);
@@ -447,13 +444,13 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
         if (param == null) {
             return null;
         }
-        
+
         incModCount();
-               
+
         // It sound silly to clone it, but remember that we could be sharing
         // this element with a clone of ours, so we have the duty to still
         // protect it.
-        
+
         return StructuredDocumentUtils.copyAsDocument(param);
     }
 }
