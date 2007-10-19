@@ -1905,27 +1905,23 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             }
         }
 
-        if (hint != null) {
+        // We must have access to a TCP transport to create a direct messenger.
+        TcpTransport tcpTransport = (TcpTransport) getMessageTransport("tcp");
+
+        if ((tcpTransport != null) && (hint != null)) {
             RouteAdvertisement route;
             EndpointAddress direct;
             Messenger messenger;
             if (hint instanceof RouteAdvertisement) {
                 route = (RouteAdvertisement) hint;
             } else if (hint instanceof PeerAdvertisement) {
-                route = EndpointUtils.extractRouteAdv(((PeerAdvertisement) hint));
+                route = EndpointUtils.extractRouteAdv((PeerAdvertisement) hint);
             } else {
                 throw new IllegalArgumentException("Unknown route hint object type" + hint);
             }
-
-            Iterator<String> addresses = route.getDest().getVectorEndpointAddresses().listIterator();
-            while (addresses.hasNext()) {
-                EndpointAddress transportAddr = new EndpointAddress(addresses.next());
-                if (transportAddr.getProtocolName().equals("tcp")) {
-                    TcpTransport tcpTransport = (TcpTransport) getMessageTransport("tcp");
-                    if (tcpTransport == null) {
-                        //direct messengers are not possible
-                        return null;
-                    }
+            
+            for (EndpointAddress transportAddr : route.getDestEndpointAddresses()) {
+                if (transportAddr.getProtocolName().equals("tcp")) {                    
                     direct = createDirectAddress(transportAddr, address);
                     // direct messengers are non self destructive
                     messenger = tcpTransport.getMessenger(direct, route, false);
@@ -1938,11 +1934,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 }
             }
         }
+        
         return null;
     }
 
     /**
-     * Given a tranport address and service address, create a mangled endpoint address
+     * Given a transport address and service address, create a mangled endpoint address
      *
      * @param transportAddr   the transport messenger address
      * @param serviceEndpoint the service endpoint
@@ -1960,6 +1957,5 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         //return new EndpointAddress(transportAddr, serviceEndpoint.getServiceName(), serviceEndpoint.getServiceParameter());
         return new EndpointAddress(destStr.toString());
-
     }
 }
