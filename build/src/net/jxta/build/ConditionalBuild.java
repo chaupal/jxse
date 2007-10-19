@@ -60,6 +60,16 @@ package net.jxta.build;
 import java.util.*;
 import java.io.*;
 
+/**
+ *  Builds the conditional compilation files which control the metering and
+ *  monitoring functionality. The provided properties file will direct the
+ *  generation of java source files into the provided directory.
+ *  <p/><pre>
+ *      # ConditionalBuild &lt;buildConfig.properties> &lt;rootDir>
+ *      #     &lt;buildConfig.properties>    The configuration properties file.
+ *      #     &lt;rootDir>                   The root directory which will contain the generated configuration files.
+ *   </pre>
+ */
 public class ConditionalBuild {
 
     /**
@@ -67,7 +77,22 @@ public class ConditionalBuild {
      */
     enum BuildConfig {
 
-        OFF("off"), ON("on"), RUNTIME("runtime");
+        /* Metering and monitoring will be unconditionally disabled in generated
+         * source files.
+         */
+        OFF("off"), 
+        
+        /* Metering and monitoring will be unconditionally enabled in generated
+         * source files.
+         */
+        ON("on"), 
+                
+        /* Metering and monitoring will be conditionally disabled in generated
+         * source files. System environment variables will allow metering and
+         * monitoring to be enabled.
+         */
+        RUNTIME("runtime");
+        
         /**
          * The properties file value which matches this state.
          */
@@ -105,7 +130,7 @@ public class ConditionalBuild {
         /**
          * Return the value that would appear in a properties file for this State.
          *
-         * @return The
+         * @return The value that would appear in a properties file for this State.
          */
         public String toPropertiesKey() {
             return config;
