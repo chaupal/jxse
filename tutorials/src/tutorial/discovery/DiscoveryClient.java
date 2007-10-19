@@ -79,7 +79,7 @@ public class DiscoveryClient implements DiscoveryListener {
      */
     public DiscoveryClient() {
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "DiscoveryClient",
+            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "DiscoveryClient",
                     new File(new File(".cache"), "DiscoveryClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {
