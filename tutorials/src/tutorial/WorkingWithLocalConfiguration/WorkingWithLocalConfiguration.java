@@ -35,7 +35,12 @@ public class WorkingWithLocalConfiguration {
         // Persisting it to make sure the Peer ID is not re-created each
         // time the Network Manager is instantiated
         TheNetworkManager.setConfigPersistent(true);
+        
         System.out.println("PeerID: " + TheNetworkManager.getPeerID().toString());
+        
+        // Since we won't be setting our own relay or rendezvous seed peers we
+        // will use the default (public network) relay and rendezvous seeding.
+        TheNetworkManager.setUseDefaultSeeds(true);
 
         // Retrieving the Network Configurator
         System.out.println("Retrieving the Network Configurator");
@@ -118,7 +123,7 @@ public class WorkingWithLocalConfiguration {
             System.exit(-1);
         }
 
-        System.out.println("Waiting for a rendezvous connection for 25 seconds Ò + Ò(maximum)");
+        System.out.println("Waiting for a rendezvous connection for 25 seconds ï¿½ + ï¿½(maximum)");
         boolean connected = TheNetworkManager.waitForRendezvousConnection(25000);
         System.out.println(MessageFormat.format("Connected :{0}", connected));
         System.out.println("Stopping JXTA");
