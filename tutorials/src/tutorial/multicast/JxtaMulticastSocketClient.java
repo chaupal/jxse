@@ -78,7 +78,7 @@ public class JxtaMulticastSocketClient {
         NetworkManager manager = null;
 
         try {
-            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.EDGE, "JxtaMulticastSocketClient",
+            manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "JxtaMulticastSocketClient",
                     new File(new File(".cache"), "JxtaMulticastSocketClient").toURI());
             manager.startNetwork();
         } catch (Exception e) {
