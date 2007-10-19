@@ -73,7 +73,7 @@ public class HelloWorld {
         NetworkManager manager = null;
 
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.EDGE, "HelloWorld", new File(new File(".cache"), "HelloWorld").toURI());
+            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "HelloWorld", new File(new File(".cache"), "HelloWorld").toURI());
             System.out.println("Starting JXTA");
             manager.startNetwork();
             System.out.println("JXTA Started");
