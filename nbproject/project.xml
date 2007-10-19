@@ -55,11 +55,6 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             <properties/>
             <folders>
                 <source-folder>
-                    <label>Conditional Build</label>
-                    <type>java</type>
-                    <location>build/src</location>
-                </source-folder>
-                <source-folder>
                     <label>API Source</label>
                     <type>java</type>
                     <location>api/src</location>
@@ -78,6 +73,16 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     <label>Tutorials Source</label>
                     <type>java</type>
                     <location>tutorials/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>Conditional Build</label>
+                    <type>java</type>
+                    <location>build/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>Build Generated Source</label>
+                    <type>java</type>
+                    <location>build_generated</location>
                 </source-folder>
             </folders>
             <ide-actions>
@@ -99,6 +104,19 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                 <action name="rebuild">
                     <target>clean</target>
                     <target>signjar</target>
+                </action>
+                <action name="compile.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>compile-selected-files-in-core-src</target>
+                    <context>
+                        <property>files</property>
+                        <folder>build_generated</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
                 </action>
                 <action name="compile.single">
                     <script>nbproject/ide-file-targets.xml</script>
@@ -245,10 +263,6 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             <view>
                 <items>
                     <source-folder style="packages">
-                        <label>Conditional Build</label>
-                        <location>build/src</location>
-                    </source-folder>
-                    <source-folder style="packages">
                         <label>API Source</label>
                         <location>api/src</location>
                     </source-folder>
@@ -263,6 +277,14 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                     <source-folder style="packages">
                         <label>Tutorials Source</label>
                         <location>tutorials/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>Conditional Build</label>
+                        <location>build/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>Build Generated Source</label>
+                        <location>build_generated</location>
                     </source-folder>
                     <source-file>
                         <location>build.xml</location>
@@ -313,6 +335,10 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             <compilation-unit>
                 <package-root>build/src</package-root>
                 <built-to>build_classes</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>build_generated</package-root>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>

@@ -55,15 +55,16 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
 
       <mkdir dir="${build}" />
 
-      <!-- Compile the API and Implementation -->
+      <!-- Compile the metering, API and Implementation -->
       <mkdir dir="${build}" />
       <javac compiler="${net.jxta.build.compiler}" destdir="${build}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
         <compilerarg compiler="modern" value="-Xlint:all,-deprecation,-serial,-unchecked"/>
         <classpath>
           <path refid="compile.classpath" />
         </classpath>
-        <src path="${basedir}/api/src" />
-        <src path="${basedir}/impl/src" />
+        <src path="${api}" />
+        <src path="${impl}" />
+        <src path="${build_meter_target}" />
         <include name="${files}"/>
       </javac>
     </target>
