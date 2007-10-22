@@ -2,55 +2,62 @@
 <html>
  <head>
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
-  <title>JXTA Coding Conventions</title>
+  <title>JXSE Coding Conventions</title>
  </head>
  <body link="#6666cc" vlink="#666666" bgcolor="#ffffff">
  
  <h3><FONT COLOR="#800000">Base Standards</font></h3>
  
-<p/>All Java code submitted to the JXTA J2SE project must follow the commonly 
-accepted Java J2SE coding conventions:
+<p/>All Java code submitted to the JXSE project must follow the commonly 
+accepted Java 5.0 SE/EE coding conventions:
 <ul>
 <li>JavaSoft <a href="http://java.sun.com/docs/codeconv/">Code Conventions for the Java<sup><font size="-2">TM</font></sup> Programming Language</a></li>
 <li><a href="http://java.sun.com/j2se/javadoc/writingdoccomments/index.html">How to Write JavaDoc Comments</a> Guidelines</li>
 <li><a href="http://java.sun.com/j2se/javadoc/writingapispecs/index.html">Requirements for Writing Java API Specifications</a></li>
 </ul>
 
-<h3><FONT COLOR="#800000">JXTA Coding Convention Extensions</font></h3>
+<h3><FONT COLOR="#800000">JXSE Coding Convention Extensions</font></h3>
 
-The JXTA J2SE Project has also adopted the following additional conventions to 
+The JXSE Project has also adopted the following additional conventions to 
 make development of the platform simpler:
 
 <ol>
-<li><strong>Use Log4J logging levels appropriately</strong>
+<li><strong>Use logging levels appropriately</strong>
 
 <p/>Include any exceptions in logging as appropriate and choose the level 
 based on:
 
 <p/><table>					
   <tr>
-   <td><strong><tt>trace</tt></strong></td>
-   <td>"printf" of variables and work-in-progress calculations.</td>
+   <td><strong><tt>FINEST</tt></strong></td>
+   <td>"printf" of variables and work-in-progress calculations. These messages
+   will likely only be of interest while debugging the individual component.</td>
   </tr>
   <tr>
-   <td><strong><tt>debug</tt></strong></td>
+   <td><strong><tt>FINER</tt></strong></td>
+   <td>Detailed progam logic, changes to state information, etc.</td>
+  </tr>
+  <tr>
+   <td><strong><tt>FINE</tt></strong></td>
    <td>Running diagnostics, state information, following program logic.</td>
   </tr>
   <tr>
-   <td><strong><tt>info</tt></strong></td>
-   <td>Configuration information and module state changes, ie. "module now disabled".</td>
+   <td><strong><tt>CONFIG</tt></strong></td>
+   <td>Configuration information.</td>
   </tr>
   <tr>
-   <td><strong><tt>warning</tt></strong></td>
-   <td>Temporary errors, resource exhaustion, non-fatal errors.</td>
+   <td><strong><tt>INFO</tt></strong></td>
+   <td>Major program state changes, ie. "module now disabled".</td>
   </tr>
   <tr>
-   <td><strong><tt>error</tt></strong></td>
-   <td>Failed operations without global effects.</td>
+   <td><strong><tt>WARNING</tt></strong></td>
+   <td>Temporary errors or recoverable errors, resource exhaustion, non-fatal 
+   errors.</td>
   </tr>
   <tr>
-   <td><strong><tt>fatal</tt></strong></td>
-   <td>Damaged configuration, unable to proceed, errors with global or permanent impacts.</td>
+   <td><strong><tt>SEVERE</tt></strong></td>
+   <td>Failed operations. Including damaged configration, inconsistent state, 
+   errors with global or permanent impacts.</td>
   </tr>
 </table>
 
@@ -59,25 +66,32 @@ based on:
 try {
   // some code
 } catch ( IOException failure ) {
-  if (LOG.isEnabledFor(Priority.WARN)) {
-    LOG.warn( "Connection failed", failure );
+  if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+    LOG.log(Level.WARNING, "Connection failed", failure );
   }
 }
 </tt><pre></li>
 
 </li>
-<li><strong>Wrap all diagnostic Log4J output in a conditional</strong>
+<li><strong>Wrap all diagnostic logging output in a conditional</strong>
 
-<p/>Log4J leaks memory in its write statements and evaluation of expressions 
-in debug statements can be expensive. (Conditional wrapping may be ommited for 
-<tt><b>error</b></tt> and <tt><b>fatal</b></tt> level logging since the program 
-is likely dead anyway).
+<p/>Constructing the logging output can be expensive even when the log statement
+is not output. Additionally, the logging wrapping allows logging code to be
+conditionally compiled out of the program.
 
 <p/><pre><tt>
-if (LOG.isEnabledFor(Priority.WARN)) {
-  LOG.warn( "This is your final warning." );
+if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+  LOG.warning( "This is your final warning." );
 }
 </tt><pre></li>
+
+<li><strong>Log Exceptional Events</strong>
+
+<p/>Nearly every exception <tt>catch</tt> should include a logging statement. 
+If you rethrow the same exception then its probably OK to not log. Silently 
+"eating" exceptions,i.e. <tt>catch( SomeException ex ) {;}</tt> is strongly
+discouraged.
+</li>
 
 <li><strong>Name Every </tt>Thread</tt> and <tt>Timer</tt> you create.</strong>
 
@@ -98,8 +112,8 @@ public run() {
   try {
     // your code
   } catch ( Throwable all ) {
-    if (LOG.isEnabledFor(Priority.ERROR)) {
-      LOG.error( "Uncaught Throwable in :" + Thread.currentThread().getName(), all );
+    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+      LOG.log(Level.WARNING, "Uncaught Throwable in :" + Thread.currentThread().getName(), all );
     }
   }
 
@@ -118,8 +132,8 @@ thread to die due an uncaught failure.
 try {
   listener.receiveMessage( mfs.msg );
 } catch (Throwable ignored) {
-  if ( LOG.isEnabledFor(Priority.ERROR) ) {
-    LOG.error( "Uncaught Throwable in listener : " + listener.getName() +
+  if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+    LOG.warning(Level.WARNING, "Uncaught Throwable in listener : " + listener.getName() +
       "(" + listener.getClass().getName() + ")" , ignored );
   }
 }
@@ -146,20 +160,12 @@ try {
 }
 </tt><pre></li>
 
-<li><strong>Log Exceptional Events</strong>
-
-<p/>Nearly every exception <tt>catch</tt> should include a logging statement. 
-If you rethrow the same exception then its probably OK to not log. Silently 
-"eating" exceptions,i.e. <tt>catch( SomeException ex ) {;}</tt> is strongly
-discouraged.
-</li>
-
 <li><strong>Addition to "10.5.4 Special Comments"</strong>
 
 <p/>The <a href="http://java.sun.com/docs/codeconv/">Code Conventions for the Java<sup><font size="-2">TM</font></sup> Programming Language</a>
 define special tags XXX, HACK or FIXME for comments. All use of these should
 include both the date in a recognizable form (07/08/02 is bad because its 
-ambiguous, 20020807 is good) and your JXTA user id. Please use your JXTA user id 
+ambiguous, 20020807 is good) and your user id. Please use your user id 
 because its also your CVS name which helps a lot figuring out who did things.
 
 <p/><pre><tt>
