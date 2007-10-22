@@ -470,7 +470,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                     // try to find a least 10 entries, will pick up one
                     // randomly. This will protect against retry. It is
                     // likely that a number of RDV will know about a route
-                    results = srdiIndex.query("route", "DstPID", EndpointRouter.addr2pid(peer).toString(), 10);
+                    results = srdiIndex.query("route", RouteAdvertisement.DEST_PID_TAG, EndpointRouter.addr2pid(peer).toString(), 10);
 
                     if (results != null && !results.isEmpty()) {
                         // use SRDI to send the query
@@ -993,7 +993,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
 
                 // check local SRDI cache to see if we have the entry
                 // we look for 10 entries, will pickup one randomly
-                List<PeerID> results = srdiIndex.query("route", "DstPID", pId.toString(), 10);
+                List<PeerID> results = srdiIndex.query("route", RouteAdvertisement.DEST_PID_TAG, pId.toString(), 10);
 
                 if (results.size() > 0) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1237,9 +1237,9 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             // All routes are added under the secondary key 'DstPID', it would be more correct to
             // Specify it in the message, but since versioning is not yet supported the following is
             // acceptable, since it is localized
-            srdiIndex.add(srdiMsg.getPrimaryKey(), "DstPID", entry.key, pid, entry.expiration);
+            srdiIndex.add(srdiMsg.getPrimaryKey(), RouteAdvertisement.DEST_PID_TAG, entry.key, pid, entry.expiration);
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Primary Key [" + srdiMsg.getPrimaryKey() + "] key [DstPID]" + " value [" + entry.key + "] exp [" + entry.expiration + "]");
+                LOG.fine("Primary Key [" + srdiMsg.getPrimaryKey() + "] key [RouteAdvertisement.DEST_PID_TAG]" + " value [" + entry.key + "] exp [" + entry.expiration + "]");
             }
         }
 

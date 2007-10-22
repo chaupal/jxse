@@ -257,7 +257,7 @@ class RouteCM implements Module {
         Enumeration<Advertisement> advs = null;
         
         try {
-            advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, "DstPID", peerIDStr);
+            advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, peerIDStr);
         } catch (IOException failed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Failed discovering routes for " + peerIDStr, failed);
@@ -353,7 +353,7 @@ class RouteCM implements Module {
             String realPeerID = pId.toString();
             
             // check first if we have a route advertisement
-            Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, "DstPID", realPeerID);
+            Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
             
             if (!advs.hasMoreElements()) {
                 // No route, sorry
@@ -384,7 +384,7 @@ class RouteCM implements Module {
                 realPeerID = ap.getPeerID().toString();
                 
                 // check first if we have a route advertisement
-                advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, "DstPID", realPeerID);
+                advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
                 if (!advs.hasMoreElements()) {
                     // No route, sorry
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -393,7 +393,7 @@ class RouteCM implements Module {
                     return;
                 }
                 adv = advs.nextElement();
-                // Can't always assume only RouteAdvertisement define DstPID
+                // ensure it is a RouteAdvertisement
                 if (adv instanceof RouteAdvertisement) {
                     newHops.add(((RouteAdvertisement) adv).getDest());
                 }
@@ -484,7 +484,7 @@ class RouteCM implements Module {
         
         // Flush the local route advertisements for the peer.
         try {
-            advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, "DstPID", peerIDStr);
+            advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, peerIDStr);
         } catch (IOException failed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Failure recovering route advertisements.", failed);
@@ -561,7 +561,7 @@ class RouteCM implements Module {
             String realPeerID = route.getDestPeerID().toString();
             
             // check first if we have a route advertisement
-            Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, "DstPID", realPeerID);
+            Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG,  realPeerID);
             
             if (advs.hasMoreElements()) {
                 Advertisement adv = advs.nextElement();
