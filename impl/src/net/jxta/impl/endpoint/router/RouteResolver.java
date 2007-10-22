@@ -510,6 +510,8 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
 
                             srdi.forwardQuery(destPeer, query);
                             return;
+                        } else {
+                            LOG.fine("processQuery srdiIndex DHT forward resulted in no op");
                         }
                     }
                 }
