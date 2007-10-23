@@ -77,7 +77,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is the Server side of the example. This example awaits bidirectioncal
+ * This is the Server side of the example. This example awaits bidirectional
  * pipe connections, then spawn a new thread to deal with The connection
  */
 public class JxtaServerPipeExample {

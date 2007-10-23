@@ -74,7 +74,7 @@ import java.util.logging.Logger;
  * bidirectional connection, and also illustrates use of asynchronous messaging
  * interface.
  * The example will attempt to establish a connection to it's counterpart
- * (JxtaServerPipeExample), then wait until all the messages are receieved
+ * (JxtaServerPipeExample), then wait until all the messages are received
  * asynchronously
  */
 public class JxtaBidiPipeExample {
