@@ -160,9 +160,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
     /**
      * Connection  timeout
-     * use the same system property defined by URLconnection, otherwise default to 20 seconds.
+     * use the same system property defined by URLconnection, otherwise default to 10 seconds.
      */
-    static int connectionTimeOut = 20 * (int) TimeUtils.ASECOND;
+    static int connectionTimeOut = 10 * (int) TimeUtils.ASECOND;
 
     // Java's default is 50
     static final int MaxAcceptCnxBacklog = 50;
