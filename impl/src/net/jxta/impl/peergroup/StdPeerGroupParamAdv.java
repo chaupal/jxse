@@ -180,13 +180,21 @@ public class StdPeerGroupParamAdv {
      * @param module The module being added.
      */
     public void addService(ModuleClassID mcid, Object module) {
+        if(null == mcid) {
+            throw new IllegalArgumentException("Illegal ModuleClassID");
+        }
+        
+        if(null == module) {
+            throw new IllegalArgumentException("Illegal module");
+        }
+        
         services.put(mcid, module);
     }
 
     /**
      * Return the services entries described in this Advertisement.
      * <p/>
-     * The result (very unwisely) is the internal hashmap of this
+     * The result (very unwisely) is the internal map of this
      * Advertisement. Modifying it results in changes to this Advertisement.
      * For safety the Map should be copied before being modified.
      *
@@ -204,14 +212,22 @@ public class StdPeerGroupParamAdv {
      * @param module The module being added.
      */
     public void addProto(ModuleClassID mcid, Object module) {
+        if(null == mcid) {
+            throw new IllegalArgumentException("Illegal ModuleClassID");
+        }
+        
+        if(null == module) {
+            throw new IllegalArgumentException("Illegal module");
+        }
+        
         transports.put(mcid, module);
     }
 
     /**
      * Return the protocols (message transports) entries described in this Advertisement.
      * <p/>
-     * The result (very unwisely) is the internal hashmap of this
-     * Advertisement. Modifying it results in changes to this Advertisement.
+     * The result (very unwisely) is the internal map of this Advertisement.
+     * Modifying it results in changes to this Advertisement.
      * For safety the Map should be copied before being modified.
      *
      * @return the protocols (message transports) entries described in this Advertisement.
@@ -228,14 +244,22 @@ public class StdPeerGroupParamAdv {
      * @param module The module being added.
      */
     public void addApp(ModuleClassID mcid, Object module) {
+        if(null == mcid) {
+            throw new IllegalArgumentException("Illegal ModuleClassID");
+        }
+        
+        if(null == module) {
+            throw new IllegalArgumentException("Illegal module");
+        }
+        
         apps.put(mcid, module);
     }
 
     /**
      * Return the application entries described in this Advertisement.
      * <p/>
-     * The result (very unwisely) is the internal hashmap of this
-     * Advertisement. Modifying it results in changes to this Advertisement.
+     * The result (very unwisely) is the internal map of this Advertisement. 
+     * Modifying it results in changes to this Advertisement.
      * For safety the Map should be copied before being modified.
      *
      * @return the application entries described in this Advertisement.
@@ -251,6 +275,14 @@ public class StdPeerGroupParamAdv {
      * @param servicesTable the services table
      */
     public void setServices(Map<ModuleClassID, Object> servicesTable) {
+        if(servicesTable.containsKey(null)) {
+            throw new IllegalArgumentException("null key in servicesTable");
+        }
+        
+        if(servicesTable.containsValue(null)) {
+            throw new IllegalArgumentException("null value in servicesTable");
+        }        
+        
         if (servicesTable == this.services) {
             return;
         }
@@ -266,9 +298,17 @@ public class StdPeerGroupParamAdv {
      * Replaces the table of protocols described by this Advertisement. All
      * existing entries are lost.
      *
-     * @param protosTable the protocol table
+     * @param protosTable The message transport descriptors for the group.
      */
     public void setProtos(Map<ModuleClassID, Object> protosTable) {
+        if(protosTable.containsKey(null)) {
+            throw new IllegalArgumentException("null key in protosTable");
+        }
+        
+        if(protosTable.containsValue(null)) {
+            throw new IllegalArgumentException("null value in protosTable");
+        }        
+        
         if (protosTable == this.transports) {
             return;
         }
@@ -284,9 +324,17 @@ public class StdPeerGroupParamAdv {
      * Replaces the table of applications described by this Advertisement. All
      * existing entries are lost.
      *
-     * @param appsTable the application table
+     * @param appsTable The application descriptors for the group.
      */
     public void setApps(Map<ModuleClassID, Object> appsTable) {
+        if(appsTable.containsKey(null)) {
+            throw new IllegalArgumentException("null key in appsTable");
+        }
+        
+        if(appsTable.containsValue(null)) {
+            throw new IllegalArgumentException("null value in appsTable");
+        }        
+        
         if (appsTable == this.apps) {
             return;
         }
@@ -299,7 +347,6 @@ public class StdPeerGroupParamAdv {
     }
 
     private void initialize(XMLElement doc) {
-
         if (!doc.getName().equals(PARAM_TAG)) {
             throw new IllegalArgumentException("Can not construct " + getClass().getName() + "from doc containing a " + doc.getName());
         }
@@ -419,6 +466,10 @@ public class StdPeerGroupParamAdv {
             Object val = entry.getValue();
             Element m;
 
+            if(null == mcid) {
+                throw new IllegalStateException("null ModuleClassID in " + mainTag );
+            }
+            
             // For applications, we ignore the role ID. It is not meaningfull,
             // and a new one is assigned on the fly when loading this adv.
 
@@ -456,10 +507,10 @@ public class StdPeerGroupParamAdv {
                     m.appendChild(i);
                 }
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("unsupported class in modules table");
+                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    LOG.severe("unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
                 }
-                throw new IllegalStateException("unsupported class in modules table : " + val);
+                throw new IllegalStateException("unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
             }
         }
     }
