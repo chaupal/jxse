@@ -248,7 +248,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param pipeAd      PipeAdvertisement
      * @param timeout     The number of milliseconds within which the JxtaBiDiPipe must
      *                    be successfully created. An exception will be thrown if the pipe
-     *                    cannot be created in the alotted time. A timeout value of {@code 0}
+     *                    cannot be created in the allotted time. A timeout value of {@code 0}
      *                    (zero) specifies an infinite timeout.
      * @param msgListener application PipeMsgListener
      * @param reliable    if true, the reliability is assumed
@@ -978,7 +978,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     private void dequeue() {
-        if (!dequeued) {
+        if (!dequeued && (null != msgListener)) {
             while (queue != null && !queue.isEmpty()) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("dequeing messages onto message listener");
