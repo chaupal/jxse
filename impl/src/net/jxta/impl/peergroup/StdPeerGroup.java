@@ -61,7 +61,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import net.jxta.discovery.DiscoveryService;
@@ -98,6 +97,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.document.TextElement;
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -127,17 +127,11 @@ public class StdPeerGroup extends GenericPeerGroup {
     protected static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
     
     static {
+        // Initialize the JXTA class loader with the standard modules.
         try {
-            Enumeration<URL> providerLists = GenericPeerGroup.class.getClassLoader().getResources("META-INF/services/net.jxta.platform.Module");
-            while (providerLists.hasMoreElements()) {
-                try {
-                    URI providerList = providerLists.nextElement().toURI();
-                    registerFromFile(providerList);
-                } catch (URISyntaxException badURI) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Failed to convert service URI", badURI);
-                    }
-                }
+            Enumeration<URL> allProviderLists = GenericPeerGroup.class.getClassLoader().getResources("META-INF/services/net.jxta.platform.Module");
+            for (URL providers : Collections.list(allProviderLists)) {
+                registerFromFile(providers);
             }
         } catch (IOException ex) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -150,24 +144,22 @@ public class StdPeerGroup extends GenericPeerGroup {
     }
     
     /**
-     * Register instance classes given a URI to a file containing modules
-     * which must be found on the current class path. Comments are marked with
-     * a '#', the pound sign. Any following text on any line in the file are
-     * ignored.
-     * <p/>
-     * Each line of the file contains a module spec ID, the class name and the
-     * Module description. The fields are separated by whitespace.
+     * Register instance classes given a URL to a file containing modules which
+     * must be found on the current class path. Each line of the file contains a 
+     * module spec ID, the class name and the Module description. The fields are 
+     * separated by whitespace. Comments are marked with a '#', the pound sign. 
+     * Any text following # on any line in the file is ignored.
      *
-     * @param providerList the URI to a file containing a list of modules
+     * @param providerList the URL to a file containing a list of modules
      * @return {@code true} if at least one of the instance classes could be
-     *         registered otherwise {@code false}.
+     * registered otherwise {@code false}.
      */
-    private static boolean registerFromFile(URI providerList) {
+    private static boolean registerFromFile(URL providers) {
         boolean registeredSomething = false;
         InputStream urlStream = null;
         
         try {
-            urlStream = providerList.toURL().openStream();
+            urlStream = providers.openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
             
             String provider;
@@ -180,50 +172,51 @@ public class StdPeerGroup extends GenericPeerGroup {
                 
                 provider = provider.trim();
                 
-                if (provider.length() > 0) {
-                    try {
-                        String[] parts = provider.split("\\s", 3);
+                if (0 == provider.length()) {
+                    continue;
+                }
+                
+                try {
+                    String[] parts = provider.split("\\s", 3);
+                    
+                    if (3 == parts.length) {
+                        ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
+                        String code = parts[1];
+                        String description = parts[2];
                         
-                        if (3 == parts.length) {
-                            ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
-                            String code = parts[1];
-                            String description = parts[2];
+                        ModuleImplAdvertisement moduleImplAdv;
+                        
+                        try {
+                            Class<Module> moduleClass = (Class<Module>) Class.forName(code);
                             
-                            ModuleImplAdvertisement moduleImplAdv;
+                            Method getImplAdvMethod = moduleClass.getMethod("getDefaultModuleImplAdvertisement");
                             
-                            try {
-                                Class<?> moduleClass = Class.forName(code);
-                            
-                                Method getImplAdvMethod = moduleClass.getMethod("getDefaultModuleImplAdvertisement");
-                                
-                                moduleImplAdv = (ModuleImplAdvertisement) getImplAdvMethod.invoke(null);
-                            } catch(Exception failed) {
-                                // Use default ModuleImplAdvertisement.
-                                moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, code, description);
-                            }
-                            
-                            getJxtaLoader().defineClass(moduleImplAdv);
-                            
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("Registered Module " + msid + " : " + parts[1]);
-                            }
-                        } else {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'");
-                            }
+                            moduleImplAdv = (ModuleImplAdvertisement) getImplAdvMethod.invoke(null);
+                        } catch(Exception failed) {
+                            // Use default ModuleImplAdvertisement.
+                            moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, code, description);
                         }
-                    } catch (Exception allElse) {
+                        
+                        getJxtaLoader().defineClass(moduleImplAdv);
+                        
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                            LOG.fine("Registered Module " + msid + " : " + parts[1]);
+                        }
+                    } else {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'", allElse);
+                            LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'");
                         }
+                    }
+                } catch (Exception allElse) {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'", allElse);
                     }
                 }
             }
         } catch (IOException ex) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to read provider list " + providerList, ex);
+                LOG.log(Level.WARNING, "Failed to read provider list " + providers, ex);
             }
-            return false;
         } finally {
             if (null != urlStream) {
                 try {
@@ -319,7 +312,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     private static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
         ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(), "General Purpose Peer Group Implementation");
-
+        
         // Create the service list for the group.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
         ModuleImplAdvertisement moduleAdv;
@@ -328,7 +321,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // core services
         JxtaLoader loader = getJxtaLoader();
-
+        
         moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
         paramAdv.addService(PeerGroup.endpointClassID, moduleAdv);
         
@@ -388,15 +381,20 @@ public class StdPeerGroup extends GenericPeerGroup {
      * Evaluates if the given compatibility statement makes the module that
      * bears it is loadable by this group.
      *
-     * @param compat compat element
-     * @return boolean True if the given statement is compatible.
+     * @param compat The compatibility statement being tested.
+     * @return {@code true} if we are compatible with the provided statement
+     * otherwise {@code false}.
      */
     static boolean isCompatible(Element compat) {
         boolean formatOk = false;
         boolean bindingOk = false;
         
+        if(!(compat instanceof TextElement)) {
+            return false;
+        }
+        
         try {
-            Enumeration hisChildren = compat.getChildren();
+            Enumeration<TextElement> hisChildren = ((TextElement)compat).getChildren();
             int i = 0;
             while (hisChildren.hasMoreElements()) {
                 // Stop after 2 elements; there shall not be more.
@@ -404,9 +402,9 @@ public class StdPeerGroup extends GenericPeerGroup {
                     return false;
                 }
                 
-                Element e = (Element) hisChildren.nextElement();
-                String key = (String) e.getKey();
-                String val = (String) e.getValue();
+                TextElement e = hisChildren.nextElement();
+                String key = e.getKey();
+                String val = e.getValue();
                 
                 if (STD_COMPAT_FORMAT.equals(key)) {
                     Package javaLangPackage = Package.getPackage("java.lang");
@@ -591,12 +589,12 @@ public class StdPeerGroup extends GenericPeerGroup {
      * need to have a safeguard: we will not iterate through the list more than
      * N^2 + 1 times without at least one module completing;  N being the number
      * of modules still in the list. This should cover the worst case scenario
-     * and still allow the process to eventually fail if it has no chance of 
+     * and still allow the process to eventually fail if it has no chance of
      * success.
-     * 
+     *
      * @param services The services to start.
-     */    
-    private int startModules(Map<ModuleClassID,Module> services) {        
+     */
+    private int startModules(Map<ModuleClassID,Module> services) {
         int iterations = 0;
         int maxIterations = services.size() * services.size() + iterations + 1;
         
@@ -683,7 +681,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         // Uh-oh. Services co-dependency prevented them from starting.
         if (!services.isEmpty()) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                StringBuilder failed = new StringBuilder( "No progress is being made in starting services after " 
+                StringBuilder failed = new StringBuilder( "No progress is being made in starting services after "
                         + iterations + " iterations. Giving up.");
                 
                 failed.append("\nThe following services could not be started : ");
@@ -793,16 +791,16 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         if(null != conf) {
             Iterator<ModuleClassID> eachModule = initServices.keySet().iterator();
-
+            
             while(eachModule.hasNext()) {
                 ModuleClassID aModule = eachModule.next();
-
+                
                 if(!conf.isSvcEnabled(aModule)) {
                     // remove disabled module
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Module disabled in configuration : " + aModule);
                     }
-
+                    
                     eachModule.remove();
                 }
             }
@@ -813,21 +811,21 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         if(null != conf) {
             Iterator<ModuleClassID> eachModule = applications.keySet().iterator();
-
+            
             while(eachModule.hasNext()) {
                 ModuleClassID aModule = eachModule.next();
-
+                
                 if(!conf.isSvcEnabled(aModule)) {
                     // remove disabled module
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Application disabled in configuration : " + aModule);
                     }
-
+                    
                     eachModule.remove();
                 }
             }
         }
-                
+        
         loadAllModules(initServices, true);
         
         int res = startModules((Map) initServices);
@@ -955,7 +953,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         return implAdv;
     }
     
-
+    
     /**
      * Returns the cache manager associated with this group.
      *
