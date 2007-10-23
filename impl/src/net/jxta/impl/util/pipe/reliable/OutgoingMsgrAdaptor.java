@@ -173,7 +173,7 @@ public class OutgoingMsgrAdaptor implements Outgoing {
      *  Sends a message
      *
      *@param  msg              message to send
-     *@return                  true if message send is successfull
+     *@return                  true if message send is successful
      *@exception  IOException  if an io error occurs
      */
     public boolean send(Message msg) throws IOException {
