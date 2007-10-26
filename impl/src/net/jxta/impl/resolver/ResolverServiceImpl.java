@@ -1023,31 +1023,28 @@ public class ResolverServiceImpl implements ResolverService {
 
         // FIXME add route to responses as well
         Messenger messenger = null;
-        if (route != null) {
-            messenger = endpoint.getDirectMessenger(destAddress, route, false);
-        }
-        if (messenger == null) {
-            if (route == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("No route info available to send a response");
+        if (route == null) {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("No route info available to send a response");
+            }
+        } else {
+            // ok we have a route let's pass it to the router
+            if ((null == getRouteControl()) || (routeControl.addRoute(route) == RouteControl.FAILED)) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Failed to add route for " + route.getDestPeerID());
                 }
             } else {
-                // ok we have a route let's pass it to the router
-                if ((null == getRouteControl()) || (routeControl.addRoute(route) == RouteControl.FAILED)) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Failed to add route for " + route.getDestPeerID());
-                    }
-                } else {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Added route for " + route.getDestPeerID());
-                    }
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Added route for " + route.getDestPeerID());
                 }
             }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Creating a messenger immediate for :"+destAddress.toString());
-            }
-            messenger = endpoint.getMessengerImmediate(destAddress, route);
         }
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Creating a messenger immediate for :" + destAddress.toString());
+        }
+
+        messenger = endpoint.getMessengerImmediate(destAddress, route);
+
         Message msg = new Message();
         try {
             MessageElement msgEl;
