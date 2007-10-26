@@ -275,12 +275,6 @@ public class IncomingUnicastServer implements Runnable {
 
                             try {
                                 transport.executor.execute(builder);
-                                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                                    if (inputSocket.isConnected()) {
-                                        LOG.info(MessageFormat.format("Server accepted connection from {0}:{1}",
-                                                inputSocket.socket().getInetAddress().getHostAddress(), inputSocket.socket().getPort()));
-                                    }
-                                }
                                 transport.incrementConnectionsAccepted();
                             } catch (RejectedExecutionException re) {
                                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
