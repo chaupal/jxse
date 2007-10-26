@@ -276,8 +276,10 @@ public class IncomingUnicastServer implements Runnable {
                             try {
                                 transport.executor.execute(builder);
                                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                                    LOG.info(MessageFormat.format("Server accepted connection from {0}:{1}",
-                                            inputSocket.socket().getInetAddress().getHostAddress(), inputSocket.socket().getPort()));
+                                    if (inputSocket.isConnected()) {
+                                        LOG.info(MessageFormat.format("Server accepted connection from {0}:{1}",
+                                                inputSocket.socket().getInetAddress().getHostAddress(), inputSocket.socket().getPort()));
+                                    }
                                 }
                                 transport.incrementConnectionsAccepted();
                             } catch (RejectedExecutionException re) {
@@ -303,24 +305,15 @@ public class IncomingUnicastServer implements Runnable {
                         break;
                     }
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING
-                                ,
-                                "[1] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":"
-                                + serverSocket.getLocalPort()
-                                ,
-                                e1);
+                        LOG.log(Level.WARNING,
+                                "[1] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":"+ serverSocket.getLocalPort(), e1);
                     }
                 } catch (SecurityException e2) {
                     if (closed) {
                         break;
                     }
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING
-                                ,
-                                "[2] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":"
-                                + serverSocket.getLocalPort()
-                                ,
-                                e2);
+                        LOG.log(Level.WARNING, "[2] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e2);
                     }
                 }
             }
@@ -407,8 +400,10 @@ public class IncomingUnicastServer implements Runnable {
                                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                                     LOG.info("ServerSocketChannel bound to " + bindAddress + ":" + tryPort);
                                 }
-                            } catch (SocketException failed) {// this one is busy. try another.
-                            } catch (Error err) {// this can occur on some platforms where 2 instances are listenting on the same port
+                            } catch (SocketException failed) {
+                                // this one is busy. try another.
+                            } catch (Error err) {
+                                // this can occur on some platforms where 2 instances are listenting on the same port
                             }
                         }
                     }
