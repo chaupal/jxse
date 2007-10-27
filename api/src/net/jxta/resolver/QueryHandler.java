@@ -74,7 +74,7 @@ public interface QueryHandler {
     
     /**
      * Process the resolver query, and generate response
-     * it is the responsibilty of the handler to send the response
+     * it is the responsibility of the handler to send the response
      *
      * <p/><pre>
      * result = processIncomingQuery(query);
@@ -96,7 +96,7 @@ public interface QueryHandler {
      * Called when messages are received by the ResolverService
      * it calls back this method to deal with received responses
      *
-     * @param response ResolverQueryMsg reponse
+     * @param response ResolverQueryMsg response
      **/
     public void processResponse(ResolverResponseMsg response);    
 }
