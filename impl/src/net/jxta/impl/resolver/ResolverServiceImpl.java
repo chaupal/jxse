@@ -65,10 +65,8 @@ import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.endpoint.router.EndpointRouter;
 import net.jxta.impl.endpoint.router.RouteControl;
-import net.jxta.impl.endpoint.tcp.TcpMessenger;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.ResolverResponse;
@@ -1044,6 +1042,9 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         messenger = endpoint.getMessengerImmediate(destAddress, route);
+        if (null == messenger) {
+            return false;
+        }
 
         Message msg = new Message();
         try {
@@ -1075,21 +1076,10 @@ public class ResolverServiceImpl implements ResolverService {
             LOG.fine("Sending " + msg + " to " + destAddress + " " + tagName);
         }
 
-        if (null != messenger) {
-            if (messenger instanceof TcpMessenger) {
-                // this fails with an io exception, no listener adaptor needed here
-                ((TcpMessenger) messenger).sendMessageDirect(msg, null, null, true);
-            } else if (messenger instanceof LoopbackMessenger) {
-                //loopback messengers do not support listener call back
-                messenger.sendMessage(msg, null, null);
-            } else {
-                // XXX 20040924 bondolo Convert this to ListenerAdaptor
-                messenger.sendMessage(msg, null, null, new FailureListener(dest));
-            }
-            return true;
-        } else {
-            return false;
-        }
+        // XXX 20040924 bondolo Convert this to ListenerAdaptor
+        messenger.sendMessage(msg, null, null, new FailureListener(dest));
+        
+        return true;
     }
 
     private RouteControl getRouteControl() {
