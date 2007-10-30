@@ -64,17 +64,21 @@ import net.jxta.endpoint.EndpointAddress;
 
 
 /**
- * Services that wish to act as a resolver handler must implement this interface
+ * Services that wish to act as a resolver handler must implement this interface.
+ * <p/>
+ * This interface extends the normal resolver query handler interface to add the
+ * source of the query. Typically this the query's last hop which may or may not
+ * be the same as the query's originator. Knowing the source of the query can be
+ * useful for sending NAK messages.
  *
  * @see net.jxta.resolver.ResolverService
  * @see net.jxta.protocol.ResolverQueryMsg
- *
  */
 public interface InternalQueryHandler extends QueryHandler {
 
     /**
      * Process the resolver query, and generate response
-     * it is the responsibilty of the handler to send the response
+     * it is the responsibility of the handler to send the response
      *
      * <p/><pre>
      * result = processIncommingQuery(query);
@@ -97,7 +101,7 @@ public interface InternalQueryHandler extends QueryHandler {
      * Called when messages are received by the ResolverService
      * it calls back this method to deal with received responses
      *
-     * @param response ResolverQueryMsg reponse
+     * @param response ResolverQueryMsg response
      * @param srcAddr source address
      */
     public void processResponse(ResolverResponseMsg response, EndpointAddress srcAddr);
