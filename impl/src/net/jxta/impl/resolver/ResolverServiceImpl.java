@@ -554,24 +554,14 @@ public class ResolverServiceImpl implements ResolverService {
             }
         } else {
             // unicast instead
-            try {
-                boolean success = sendMessage(destPeer, null, handlerName, outQueName, outQueName,
-                        (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8), false);
+            boolean success = sendMessage(destPeer, null, handlerName, outQueName, outQueName,
+                    (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8), false);
 
-                if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
-                    if (success) {
-                        queryHandlerMeter.querySentViaUnicast(destPeer, query);
-                    } else {
-                        queryHandlerMeter.querySendError();
-                    }
-                }
-            } catch (IOException e) {
-                if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
+            if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
+                if (success) {
+                    queryHandlerMeter.querySentViaUnicast(destPeer, query);
+                } else {
                     queryHandlerMeter.querySendError();
-                }
-
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure while unicasting query", e);
                 }
             }
         }
@@ -1003,18 +993,19 @@ public class ResolverServiceImpl implements ResolverService {
      * @param tagName  tag name of the message element
      * @param body     the body of the message element
      * @param gzip     If <code>true</code> then encode the message body using gzip.
-     * @return true if sucessful
-     * @throws IOException if an io error occurs
+     * @return {@code true} if successful
      */
-    private boolean sendMessage(String destPeer, RouteAdvertisement route, String pName, String pParam, String tagName, XMLDocument body, boolean gzip) throws IOException {
+    private boolean sendMessage(String destPeer, RouteAdvertisement route, String pName, String pParam, String tagName, XMLDocument body, boolean gzip) {
         // Get the messenger ready
         ID dest;
         try {
             dest = IDFactory.fromURI(new URI(destPeer));
         } catch (URISyntaxException badpeer) {
-            IOException failure = new IOException("bad destination peerid");
-            failure.initCause(badpeer);
-            throw failure;
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "bad destination peerid : " + destPeer, badpeer);
+            }
+            
+            return false;
         }
 
         EndpointAddress destAddress = mkAddress(dest, pName, pParam);
@@ -1022,8 +1013,8 @@ public class ResolverServiceImpl implements ResolverService {
         // FIXME add route to responses as well
         Messenger messenger = null;
         if (route == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("No route info available to send a response");
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.finer("No route info available for " + destPeer);
             }
         } else {
             // ok we have a route let's pass it to the router
@@ -1032,17 +1023,21 @@ public class ResolverServiceImpl implements ResolverService {
                     LOG.warning("Failed to add route for " + route.getDestPeerID());
                 }
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Added route for " + route.getDestPeerID());
+                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                    LOG.finer("Added route for " + route.getDestPeerID());
                 }
             }
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Creating a messenger immediate for :" + destAddress.toString());
+        
+        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            LOG.finer("Creating a messenger immediate for :" + destAddress);
         }
 
         messenger = endpoint.getMessengerImmediate(destAddress, route);
-        if (null == messenger) {
+        if (null == messenger) {        
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Failed creating messenger for " + destAddress);
+            }
             return false;
         }
 
@@ -1065,8 +1060,8 @@ public class ResolverServiceImpl implements ResolverService {
             msg.addMessageElement("jxta", msgEl);
         } catch (Exception ez1) {
             // Not much we can do
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed building message", ez1);
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed building message", ez1);
             }
             return false;
         }
