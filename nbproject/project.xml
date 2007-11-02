@@ -309,12 +309,13 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>
                 <package-root>api/src</package-root>
+                <classpath mode="compile">impl/src</classpath>
                 <javadoc-built-to>doc/api</javadoc-built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
                 <package-root>impl/src</package-root>
-                <classpath mode="compile">lib/bcprov-jdk14.jar:lib/javax.servlet.jar:lib/org.mortbay.jetty.jar:api/src</classpath>
+                <classpath mode="compile">lib/bcprov-jdk14.jar:lib/javax.servlet.jar:lib/org.mortbay.jetty.jar:api/src:build_generated</classpath>
                 <built-to>dist/jxta.jar</built-to>
                 <javadoc-built-to>doc/impl</javadoc-built-to>
                 <source-level>1.5</source-level>
@@ -328,7 +329,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             </compilation-unit>
             <compilation-unit>
                 <package-root>tutorials/src</package-root>
-                <classpath mode="compile">api/src:impl/src</classpath>
+                <classpath mode="compile">api/src:impl/src:lib/bcprov-jdk14.jar</classpath>
                 <built-to>tutorials/classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
