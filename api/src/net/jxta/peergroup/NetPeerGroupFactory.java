@@ -145,8 +145,10 @@ public final class NetPeerGroupFactory {
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                             LOG.fine("Loaded defaults from " + rsrcs);
                         }
-                    } catch (MissingResourceException ignored) {// ingnored
-                    } catch (IOException ignored) {// ingnored
+                    } catch (MissingResourceException ignored) {
+                        // ingnored
+                    } catch (IOException ignored) {
+                        // ingnored
                     }
                 }
             } else {
@@ -432,8 +434,6 @@ public final class NetPeerGroupFactory {
      * @param implAdv The Module Impl Advertisement for the new Net Peer Group
      * instance or {@code null} to use the advertisement returned by
      * {@ link PeerGroup.getAllPurposePeerGroupImplAdvertisement()}.
-     * @throws PeerGroupException Thrown for problems constructing the Net Peer
-     * Group.
      * @return the PeerGroup
      * @throws PeerGroupException Thrown for errors instantiating the new Net
      * Peer Group instance.
