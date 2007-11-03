@@ -553,30 +553,20 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
         }
 
         // convert the response into a RouteResponse
-        Reader ip = null;
         RouteResponse doc = null;
 
         try {
-            ip = new StringReader(response.getResponse());
+            Reader ip = new StringReader(response.getResponse());
 
             XMLDocument asDoc = (XMLDocument)
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, ip);
 
             doc = new RouteResponse(asDoc);
-        } catch (Throwable e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "malformed response - discard", e);
+        } catch (Exception e) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "malformed response - discard", e);
             }
             return;
-        } finally {
-            try {
-                if (null != ip) {
-                    ip.close();
-                    ip = null;
-                }
-            } catch (Throwable ignored) {
-                //ignored
-            }
         }
 
         RouteAdvertisement dstRoute = doc.getDestRoute();
@@ -588,7 +578,6 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
 
         // check if we have a negative route response
         if (queryId == NACKROUTE_QUERYID) {
-
             AccessPointAdvertisement badHop = dstRoute.nextHop(EndpointRouter.addr2pid(routingPeer));
 
             PeerID badPeer;
