@@ -195,8 +195,10 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
             
             //System.out.println( "[" + Thread.currentThread().getName() + "] Sending response to " + msgElement.toString()+" Count:"+ received_count.get() );
             
-            Message response = msg.clone();            
-            pipe.sendMessage(response);
+            Message response = msg.clone();
+                       
+            // XXX bondolo We can't use 'pipe' because we may receive messages before the constructor returns!
+            ((JxtaBiDiPipe)event.getSource()).sendMessage(response);
             
             // If JxtaServerPipeExample.ITERATIONS # of messages received, it is
             // no longer necessary to wait. notify main to exit gracefully
