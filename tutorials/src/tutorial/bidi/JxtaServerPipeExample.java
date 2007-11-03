@@ -228,9 +228,9 @@ public class JxtaServerPipeExample {
             int transactions = received_count.get();
             long finish = System.currentTimeMillis();
             long delta = finish - start;
-            long tpms = (0 != delta) ? transactions / delta : transactions;
+            double tps = (0 != delta) ? transactions * 1000.0 / delta : transactions * 1000.0;
             
-            System.out.println("[" + Thread.currentThread().getName() + "] Completed " + transactions + " in " + delta + "ms. (" + (tpms / 1000.0) + "/TPS).");
+            System.out.println("[" + Thread.currentThread().getName() + "] Completed " + transactions + " in " + delta + "ms. (" + tps + "/TPS).");
         }
         
         /**
