@@ -71,6 +71,7 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.endpoint.StringMessageElement;
 import net.jxta.protocol.PipeAdvertisement;
 
 /**
@@ -90,43 +91,33 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
     /**
      *  Logger
      */
+
     private final static Logger LOG = Logger.getLogger(JxtaBidiPipeExample.class.getName());
-    
     /**
      *  The location of the JXTA cache directory. 
      */
     private final static File home = new File(new File(".cache"), "client");
-    
     /**
      *  The number of pipe connections we will establish with the server.
      */
-    private final static int PIPE_CONNECTIONS = 1;
-    
+    private final static int PIPE_CONNECTIONS = 10;
     /**
      *  The connection threads we have created.
      */
     private final static Collection<Thread> connections = new ArrayList<Thread>();
-    
     /**
      *  The peer group context in which we are working.
      */
     private final PeerGroup peergroup;
-    
     /**
      *  The per connection bi-directional pipe instance.
      */
     private JxtaBiDiPipe pipe = null;
-
-    /**
-     *  Per connection lock which we use for synchronization of completion.
-     */
-    private final Object completeLock = new String("completeLock");
-    
     /**
      *  Per connection count of messages we have received.
      */
     private final AtomicInteger received_count = new AtomicInteger(0);
-    
+
     /**
      *  Standard constructor.
      *
@@ -137,22 +128,42 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
     }
 
     /**
-     *  Wait until the expected number of messages have been received.
+     *  Send responses 
      */
-    private void waitUntilCompleted() {
-        try {
-            synchronized (completeLock) {
-                while(received_count.get() < JxtaServerPipeExample.ITERATIONS) {
-                    System.out.println("[" + Thread.currentThread().getName() + "] Waiting for " + (JxtaServerPipeExample.ITERATIONS - received_count.get()) + " more messages.");
-                    completeLock.wait(1000);
+    private void sendResponses() {
+        int responses_sent = 0;
+
+        while (responses_sent < JxtaServerPipeExample.ITERATIONS && pipe.isBound()) {
+            synchronized (received_count) {
+                while (responses_sent >= received_count.get()) {
+                    try {
+                        System.out.println("[" + Thread.currentThread().getName() + "] Waiting for " + (JxtaServerPipeExample.ITERATIONS - received_count.get()) + " more messages.");
+                        received_count.wait();
+                    } catch (InterruptedException e) {
+                        Thread.interrupted();
+                    }
                 }
+
             }
-        } catch (InterruptedException e) {
-            Thread.interrupted();
+
+            // Build the response and send it.
+            Message response = new Message();
+            MessageElement respElement = new StringMessageElement(JxtaServerPipeExample.RESPONSE_ELEMENT_NAME, Integer.toString(responses_sent), null);
+            response.addMessageElement(JxtaServerPipeExample.MESSAGE_NAMESPACE_NAME, respElement);
+
+            try {
+                pipe.sendMessage(response);
+                responses_sent++;
+            } catch (IOException failure) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "[" + Thread.currentThread().getName() + "] Failed sending a response message", failure);
+                }
+                return;
+            }
         }
     }
-    
-    /**
+
+        /**
      * Called when a message is received for our pipe. Be aware that this may
      * be called concurrently on several threads simultaneously. Since we are
      * sending a response, which may block, it is important that we do not
@@ -168,17 +179,17 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
             }
             return;
         }
-        
+
         try {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                 LOG.finer("[" + Thread.currentThread().getName() + "] Received a message");
             }
-            
+
             // Get the message element.
             MessageElement msgElement = msg.getMessageElement(JxtaServerPipeExample.MESSAGE_NAMESPACE_NAME, JxtaServerPipeExample.MESSAGE_ELEMENT_NAME);
-            
-                
-            if(null == msgElement) {
+
+
+            if (null == msgElement) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Missing message element");
                 }
@@ -192,21 +203,11 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
                 }
                 return;
             }
-            
-            //System.out.println( "[" + Thread.currentThread().getName() + "] Sending response to " + msgElement.toString()+" Count:"+ received_count.get() );
-            
-            Message response = msg.clone();
-                       
-            // XXX bondolo We can't use 'pipe' because we may receive messages before the constructor returns!
-            ((JxtaBiDiPipe)event.getSource()).sendMessage(response);
-            
-            // If JxtaServerPipeExample.ITERATIONS # of messages received, it is
-            // no longer necessary to wait. notify main to exit gracefully
-            if (received_count.incrementAndGet() >= JxtaServerPipeExample.ITERATIONS) {
-                System.out.println("[" + Thread.currentThread().getName() + "] Received all messages");
-                synchronized (completeLock) {
-                    completeLock.notify();
-                }
+
+            // Note that we received a message
+            synchronized (received_count) {
+                received_count.incrementAndGet();
+                received_count.notify();
             }
         } catch (Exception failure) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -214,7 +215,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
             }
         }
     }
-    
+
     /**
      * Set up this pipe connection and wait until the expected messages have
      * been received.
@@ -222,29 +223,29 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
     public void run() {
         try {
             PipeAdvertisement connect_pipe = JxtaServerPipeExample.getPipeAdvertisement();
-            
+
             System.out.println("[" + Thread.currentThread().getName() + "] Attempting to establish a connection to : " + connect_pipe.getPipeID());
-            pipe = new JxtaBiDiPipe(peergroup, connect_pipe, 20000, this, true );
+            pipe = new JxtaBiDiPipe(peergroup, connect_pipe, 20000, this, true);
             System.out.println("[" + Thread.currentThread().getName() + "] JxtaBiDiPipe pipe created");
-            
+
             // We registered ourself as the msg listener for the pipe. We now
             // just need to wait until the transmission is finished.
-            waitUntilCompleted();
-            pipe.close();            
-            
+            sendResponses();
+            pipe.close();
+
             System.out.println("[" + Thread.currentThread().getName() + "] Done!");
         } catch (IOException failure) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "[" + Thread.currentThread().getName() + "] Failure opening pipe", failure);
             }
         } finally {
-            synchronized(connections) {
+            synchronized (connections) {
                 connections.remove(this);
                 connections.notify();
             }
         }
     }
-    
+
     /**
      * main
      *
@@ -253,36 +254,36 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
     public static void main(String args[]) {
         try {
             // System.setProperty(Logging.JXTA_LOGGING_PROPERTY, Level.OFF.toString());
-                        
+
             NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "JxtaBidiPipeExample", home.toURI());
-            
+
             // Start JXTA
             manager.startNetwork();
             // manager.login("principal", "password");
-            
+
             boolean waitForRendezvous = Boolean.valueOf(System.getProperty("RDVWAIT", "false"));
             if (waitForRendezvous) {
                 // wait until a connection to a rendezvous is established
                 manager.waitForRendezvousConnection(0);
             }
-            
+
             PeerGroup netPeerGroup = manager.getNetPeerGroup();
             System.out.println("JXTA Started : " + netPeerGroup);
-            
+
             // Create PIPE_CONNECTIONS threads to connect to the server pipe.
-            for (int i=1; i <= PIPE_CONNECTIONS; i++) {
+            for (int i = 1; i <= PIPE_CONNECTIONS; i++) {
                 Thread thread = new Thread(new JxtaBidiPipeExample(netPeerGroup), "Connection " + i);
                 connections.add(thread);
                 thread.start();
             }
-            
+
             // Wait until all of the threads are done.
-            synchronized(connections) {
-                while(!connections.isEmpty()) {
+            synchronized (connections) {
+                while (!connections.isEmpty()) {
                     connections.wait();
                 }
             }
-            
+
             // Stop JXTA
             manager.stopNetwork();
             System.out.println("JXTA Shutdown");

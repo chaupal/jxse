@@ -110,6 +110,7 @@ public class JxtaServerPipeExample {
     
     final static String MESSAGE_NAMESPACE_NAME = "bidi_tutorial";
     final static String MESSAGE_ELEMENT_NAME = "sequence";
+    final static String RESPONSE_ELEMENT_NAME = "response";
     
     private final static PipeID BIDI_TUTORIAL_PIPEID = PipeID.create(URI.create("urn:jxta:uuid-59616261646162614E504720503250338944BCED387C4A2BBD8E9411B78C284104"));
     
@@ -165,7 +166,7 @@ public class JxtaServerPipeExample {
                 }
                 
                 // get the message element named SenderMessage
-                MessageElement msgElement = msg.getMessageElement(MESSAGE_NAMESPACE_NAME, MESSAGE_ELEMENT_NAME);
+                MessageElement msgElement = msg.getMessageElement(MESSAGE_NAMESPACE_NAME, RESPONSE_ELEMENT_NAME);
                 
                 if(null == msgElement) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
