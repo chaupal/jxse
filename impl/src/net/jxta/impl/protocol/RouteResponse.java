@@ -114,27 +114,19 @@ public class RouteResponse extends RouteResponseMsg {
 
         String doctype = doc.getName();
 
-        String typedoctype = "";
-        Attribute itsType = doc.getAttribute("type");
-
-        if (null != itsType) {
-            typedoctype = itsType.getValue();
-        }
-
-        if (!doctype.equals(getAdvertisementType()) && !doctype.equals(super.getAdvertisementType())
-                || !getAdvertisementType().equals(typedoctype)) {
+        if (!doctype.equals(getAdvertisementType())) {
             throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
+                    "Could not construct : " + getClass().getName() + " from doc containing a " + doctype);
         }
 
-        Enumeration elements = doc.getChildren();
+        Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            XMLElement elem = (XMLElement) elements.nextElement();
+            XMLElement elem = elements.nextElement();
 
             if (elem.getName().equals(destRouteTag)) {
-                for (Enumeration eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
-                    XMLElement aXpt = (XMLElement) eachXpt.nextElement();
+                for (Enumeration<XMLElement> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+                    XMLElement aXpt = eachXpt.nextElement();
 
                     RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(aXpt);
 
@@ -144,8 +136,8 @@ public class RouteResponse extends RouteResponseMsg {
             }
 
             if (elem.getName().equals(srcRouteTag)) {
-                for (Enumeration eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
-                    XMLElement aXpt = (XMLElement) eachXpt.nextElement();
+                for (Enumeration<XMLElement> eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+                    XMLElement aXpt = eachXpt.nextElement();
 
                     RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(aXpt);
 

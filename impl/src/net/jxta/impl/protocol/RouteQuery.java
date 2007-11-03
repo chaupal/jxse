@@ -111,29 +111,16 @@ public class RouteQuery extends RouteQueryMsg {
     }
 
     /**
-     * Construct from a StructuredDocument
+     * Construct from an XML document fragment.
      *
-     * @param root the element
+     * @param doc the element
      */
-    public RouteQuery(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XMLElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
-
-        String typedoctype = "";
-        Attribute itsType = doc.getAttribute("type");
-
-        if (null != itsType) {
-            typedoctype = itsType.getValue();
-        }
-
+    public RouteQuery(XMLElement doc) {
         String doctype = doc.getName();
         
-        if (!doctype.equals(getAdvertisementType()) && !getAdvertisementType().equals(typedoctype)) {
+        if (!doctype.equals(getAdvertisementType())) {
             throw new IllegalArgumentException(
-                    "Can not construct : " + getClass().getName() + " from doc containing a " + doc.getName());
+                    "Can not construct : " + getClass().getName() + " from doc containing a " + doctype);
         }
 
         Enumeration<XMLElement> elements = doc.getChildren();
