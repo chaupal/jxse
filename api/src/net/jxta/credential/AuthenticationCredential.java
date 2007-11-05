@@ -56,20 +56,21 @@
 
 package net.jxta.credential;
 
-
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
+
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-
 
 /**
  * Authenication credentials are used by JXTA Membership Services as the
@@ -81,7 +82,7 @@ import java.util.Enumeration;
  * method.</li>
  * <ul>
  * <p/>
- * <p/>Not all authentication methods use the identity nformation.
+ * Not all authentication methods use the identity nformation.
  *
  * @see net.jxta.credential.Credential
  * @see net.jxta.membership.MembershipService
@@ -90,7 +91,7 @@ import java.util.Enumeration;
 public final class AuthenticationCredential implements Credential {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(AuthenticationCredential.class.getName());
 
@@ -101,8 +102,7 @@ public final class AuthenticationCredential implements Credential {
     private String authenticationMethod = null;
 
     /**
-     * Any optional information which is required by the requested authentication
-     * method.
+     * Any optional information which is required by the requested authentication method.
      */
     private Element identityInfo = null;
 
@@ -157,7 +157,7 @@ public final class AuthenticationCredential implements Credential {
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>AuthenticationCredentials are created in the context of a PeerGroup
+     * AuthenticationCredentials are created in the context of a PeerGroup
      * though they are generally independant of peergroups. The intent is that
      * the AuthenticationCredential will be passed to the MembershipService
      * service of the same peergroup as the AuthenticationCredenitals.
@@ -185,7 +185,7 @@ public final class AuthenticationCredential implements Credential {
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>AuthenticationCredential are never expired. The Authenticator will
+     * AuthenticationCredential are never expired. The Authenticator will
      * determine the true validity from the included identity info.
      */
     public boolean isExpired() {
@@ -195,7 +195,7 @@ public final class AuthenticationCredential implements Credential {
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>AuthenticationCredential are always valid, the Authenticator will
+     * AuthenticationCredential are always valid, the Authenticator will
      * determine the true validity from the included identity info.
      */
     public boolean isValid() {
@@ -205,7 +205,7 @@ public final class AuthenticationCredential implements Credential {
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>There is no straightforward mechansim for identifying the subject
+     * There is no straightforward mechansim for identifying the subject
      * unfortunately.
      */
     public Object getSubject() {
