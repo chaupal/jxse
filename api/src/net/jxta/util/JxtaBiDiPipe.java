@@ -109,6 +109,10 @@ import java.util.logging.Logger;
  * It highly recommended that an application message listener is specified, not doing so, may
  * lead to message loss in the event the internal queue is overflowed.
  * <p/>
+ * Sending messages vis {@link #sendMessage(Message)} from within a 
+ * {@code PipeMsgListener} may result in a deadlock due to contention
+ * between the sending and receiving portions of BiDi pipes. 
+ * <p/>
  * JxtaBiDiPipe, whenever possible, will attempt to utilize direct tcp messengers,
  * which leads to improved performance.
  */
@@ -1167,7 +1171,11 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * There is a window where a message could arrive prior to listener being
      * registered therefore a message queue is created to queue messages, once
      * a listener is registered these messages will be dequeued by calling the
-     * listener until the queue is empty
+     * listener until the queue is empty.
+     * <p/>
+     * Sending messages vis {@link #sendMessage(Message)} from within a 
+     * {@code PipeMsgListener} may result in a deadlock due to contention
+     * between the sending and receiving portions of BiDi pipes. 
      *
      * @param msgListener New value of property listener.
      */
