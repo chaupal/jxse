@@ -59,9 +59,7 @@ package net.jxta.impl.endpoint.tls;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.ByteArrayInputStream;
 import java.net.URI;
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -80,7 +78,6 @@ import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
-import net.jxta.credential.AuthenticationCredential;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -101,9 +98,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.impl.membership.pse.PSEUtils;
-import net.jxta.impl.membership.pse.StringAuthenticator;
-import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
+import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 
 
@@ -574,7 +569,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      * processReceivedMessage is invoked by the TLS Manager when a message has been
      * completely received and is ready to be delivered to the service/application
      */
-    void processReceivedMessage(Message msg) {
+    void processReceivedMessage(final Message msg) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("processReceivedMessage starts");
         }
@@ -584,7 +579,17 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         
         // let the message continue to its final destination.
         try {
-            endpoint.demux(msg);
+            ((GenericPeerGroup)group).getExecutor().execute( new Runnable() {
+                public void run() {
+                    try {
+                        endpoint.demux(msg);
+                    } catch(Throwable uncaught) {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.log(Level.WARNING, "Failure demuxing an incoming message", uncaught);
+                        }
+                    }
+                }
+            });            
         } catch (Throwable e) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Failure demuxing an incoming message", e);
