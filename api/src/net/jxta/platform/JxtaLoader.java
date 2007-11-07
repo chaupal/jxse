@@ -137,7 +137,7 @@ public abstract class JxtaLoader extends URLClassLoader {
      *  @return The matching {@code ModuleImplAdvertisement} otherwise
      *  {@code null} if there is no known association.
      */
-    public abstract ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz);
+    public abstract ModuleImplAdvertisement findModuleImplAdvertisement(Class<? extends Module> clazz);
 
     /**
      *  Finds the ModuleImplAdvertisement for the associated class in the 

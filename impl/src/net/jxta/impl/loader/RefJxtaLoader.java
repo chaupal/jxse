@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.loader;
-
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -72,6 +70,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 import net.jxta.platform.Module;
 
 
@@ -79,6 +80,11 @@ import net.jxta.platform.Module;
  * This class is the reference implementation of the JxtaLoader.
  */
 public class RefJxtaLoader extends JxtaLoader {
+
+    /**
+     * Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(RefJxtaLoader.class.getName());
 
     /**
      * The equator we will use to determine if compatibility statements are
@@ -139,7 +145,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return the class
      * @throws ClassNotFoundException if class not found
      */
-    protected Class<?> loadClass(String name, URL url, boolean resolve) throws ClassNotFoundException {
+    protected Class<? extends Module> loadClass(String name, URL url, boolean resolve) throws ClassNotFoundException {
         try {
             return loadClass(name, resolve);
         } catch (ClassNotFoundException e) {
@@ -156,45 +162,42 @@ public class RefJxtaLoader extends JxtaLoader {
      * {@inheritDoc}
      */
     @Override
-    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    public Class<? extends Module> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 
-        Class<?> newClass = findLoadedClass(name);
+        Class<? extends Module> newClass = (Class<? extends Module>) findLoadedClass(name);
 
         if (newClass == null) { // I'd rather say parent.loadClass() but it is private
             try {
-                newClass = super.loadClass(name, false);
+                newClass = (Class<? extends Module>) super.loadClass(name, false);
             } catch (ClassNotFoundException ignored) {
-                // that's ok
-                ;
+            // that's ok
             }
         }
 
         if (newClass == null) {
             try {
-                newClass = findSystemClass(name);
+                newClass = (Class<? extends Module>) findSystemClass(name);
                 if (newClass != null) {
                     return newClass;
                 }
             } catch (ClassNotFoundException ignored) {
-                // that's ok
-                ;
+            // that's ok
             }
 
             // We need to also check if the Context ClassLoader associated to the
             // the current thread can load the class.
             if (newClass == null) {
                 try {
-                    newClass = Thread.currentThread().getContextClassLoader().loadClass(name);
+                    newClass = (Class<? extends Module>) Thread.currentThread().getContextClassLoader().loadClass(name);
                     if (newClass != null) {
                         return newClass;
                     }
                 } catch (ClassNotFoundException ignored) {
-                    // that's ok
-                    ;
+                // that's ok
                 }
             }
 
-            // try {
+        // try {
             // byte[] buf = bytesForClass(name);
             // newClass = defineClass(name, buf, 0, buf.length);
             // } catch (IOException e) {
@@ -250,7 +253,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
             if (equator.compatible(asDoc)) {
                 return anEntry.getValue();
-            }
+            } 
         }
 
         throw new ClassNotFoundException(spec.toString());
@@ -277,7 +280,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return the Class
      * @throws ClassNotFoundException if class not found
      */
-    public Class loadClass(String name, URL url) throws ClassNotFoundException {
+    public Class<? extends Module> loadClass(String name, URL url) throws ClassNotFoundException {
         return loadClass(name, url, true);
     }
 
@@ -288,6 +291,8 @@ public class RefJxtaLoader extends JxtaLoader {
     public synchronized Class<? extends Module> defineClass(ModuleImplAdvertisement impl) throws ClassFormatError {
         String asString = impl.getCompat().toString();
 
+        // See if we have any classes defined for this ModuleSpecID.
+        // Note that there may be multiple definitions with different compatibility statements.
         Map<String, Class<? extends Module>> compats = classes.get(impl.getModuleSpecID());
 
         if (null == compats) {
@@ -295,7 +300,8 @@ public class RefJxtaLoader extends JxtaLoader {
             classes.put(impl.getModuleSpecID(), compats);
         }
 
-        Class loaded = compats.get(asString);
+        // See if there is a class defined which matches the compatibility statement of the implAdv.
+        Class<? extends Module> loaded = compats.get(asString);
 
         if (null == loaded) {
             try {
@@ -306,10 +312,11 @@ public class RefJxtaLoader extends JxtaLoader {
                 throw new ClassFormatError("Cannot load class '" + impl.getCode() + "' from : " + impl.getUri());
             }
 
+            // Remember the class along with the matching compatibility statement.
             compats.put(asString, loaded);
         }
 
-        // Force update of impl advertisement. 
+        // Force update of impl advertisement. This is done because the class will frequently redefine itself.
         implAdvs.put(loaded, impl);
 
         return loaded;
@@ -322,7 +329,10 @@ public class RefJxtaLoader extends JxtaLoader {
     public ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz) {
         ModuleImplAdvertisement result = implAdvs.get(clazz);
 
-        if(null == result) {
+        if (null == result) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "No module imp adv for " + clazz);
+            }
             return null;
         } else {
             return result.clone();
@@ -335,17 +345,42 @@ public class RefJxtaLoader extends JxtaLoader {
     @Override
     public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
         Class<? extends Module> moduleClass;
-        
+
         try {
             moduleClass = findClass(msid);
-        } catch(ClassNotFoundException failed) {
+        } catch (ClassNotFoundException failed) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to find class for " + msid, failed);
+            }
             return null;
         }
-        
-        if( null == moduleClass) {
+
+        if (null == moduleClass) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "No class for " + msid);
+            }
             return null;
         } else {
             return findModuleImplAdvertisement(moduleClass);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+
+        result.append("Classes : ");
+        for (Map.Entry<ModuleSpecID, Map<String, Class<? extends Module>>> eachMCID : classes.entrySet()) {
+            ModuleSpecID mcid = eachMCID.getKey();
+            result.append("\n\t" + mcid + " :");
+            for (Map.Entry<String, Class<? extends Module>> eachClass : eachMCID.getValue().entrySet()) {
+                result.append("\n\t\t" + eachClass.getValue().toString());
+            }
+        }
+
+        return result.toString();
     }
 }
