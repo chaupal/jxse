@@ -79,7 +79,7 @@ import net.jxta.peergroup.PeerGroupID;
  * @author Daniel Brookshier <a HREF="mailto:turbogeek@cluck.com">turbogeek@cluck.com</a>
  */
 
-public final class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
+public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
 
     /**
      * LOG object for this class.
@@ -103,44 +103,6 @@ public final class Instantiator implements net.jxta.id.IDFactory.URIInstantiator
         return BinaryIDEncoded;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public net.jxta.id.ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
-
-        // check the protocol
-        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getProtocol())) {
-            throw new UnknownServiceException("URI protocol type was not as expected.");
-        }
-
-        String encoded = source.getFile();
-
-        int colonAt = encoded.indexOf(':');
-
-        // There's a colon right?
-        if (-1 == colonAt) {
-            throw new UnknownServiceException("URN namespace was missing.");
-        }
-
-        // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(encoded.substring(0, colonAt))) {
-            throw new UnknownServiceException("URN namespace was not as expected.");
-        }
-
-        // skip the namespace portion and the colon
-        encoded = encoded.substring(colonAt + 1);
-
-        try {
-            return fromURNNamespaceSpecificPart(encoded);
-        } catch (URISyntaxException failed) {
-            MalformedURLException failure = new MalformedURLException("Failure parsing URL");
-
-            failure.initCause(failed);
-            
-            throw failure;
-        }
-    }
-        
     /**
      * {@inheritDoc}
      */

@@ -61,11 +61,9 @@ import java.io.ObjectStreamException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.URI;
-import java.net.URL;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 
@@ -80,10 +78,15 @@ import java.net.URISyntaxException;
  *  @see net.jxta.pipe.PipeID
  *  @see net.jxta.platform.ModuleClassID
  *  @see net.jxta.platform.ModuleSpecID
- *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
+ *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
  */
 public abstract class ID implements java.io.Serializable {
-    
+ 
+    /**
+     * Magic value for this format of serialization version.
+     */
+    protected static final long serialVersionUID = 1L;
+   
     /**
      * Collection of interned IDs. All IDs visible within in the VM are
      * contained within this table.
@@ -135,11 +138,9 @@ public abstract class ID implements java.io.Serializable {
      * @param  fromURI   The URI to be parsed into an ID
      * @return The new ID
      *
-     * @throws  NullPointerException
-     *          If <tt>fromURI</tt> is <tt>null</tt>
+     * @throws  NullPointerException If <tt>fromURI</tt> is <tt>null</tt>
      *
-     * @throws  IllegalArgumentException
-     *          If the given URI is not a valid ID.
+     * @throws  IllegalArgumentException If the given URI is not a valid ID.
      */
     public static ID create(URI fromURI) {
         try {
@@ -201,29 +202,6 @@ public abstract class ID implements java.io.Serializable {
      *  @return	Object which can provide canonical representations of the ID.
      */
     public abstract Object getUniqueValue();
-    
-    /**
-     *  Returns a URL representation of the ID. The
-     *  {@link net.jxta.id.IDFactory JXTA ID Factory} can be used to construct
-     *  ID Objects from URLs containing JXTA IDs.
-     *
-     *  @deprecated URIs are now the preferred way of manipulating IDs
-     *
-     *  @see net.jxta.id.IDFactory#fromURL( java.net.URL )
-     *
-     *  @return	URL Object containing the URI
-     */
-    @Deprecated
-    public URL getURL() {
-        try {
-            return IDFactory.jxtaURL(URIEncodingName, "", URNNamespace + ":" + getUniqueValue());
-        } catch (MalformedURLException caught) {
-            IllegalStateException failure = new IllegalStateException("Environment incorrectly intialized.");
-
-            failure.initCause(caught);
-            throw failure;
-        }
-    }
     
     /**
      * Returns a canonical representation for the ID object.

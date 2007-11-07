@@ -76,8 +76,8 @@ import net.jxta.id.IDFactory;
  *  to make it a valid version 4 IETF variant UUID.
  *
  *  @see net.jxta.id.ID
- *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
- *  @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
+ *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
+ *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
  */
 public class IDFormat {
     

@@ -82,8 +82,8 @@ import net.jxta.id.IDFactory;
  *
  * @see net.jxta.id.ID
  * @see net.jxta.id.IDFactory
- @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
- @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#ids-jinf" target='_blank'>JXTA Protocols Specification : ?jxta? ID Format</a>
+ @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
+ @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids-jinf" target='_blank'>JXTA Protocols Specification : ?jxta? ID Format</a>
  *
  **/
 public final class IDFormat {
@@ -98,7 +98,7 @@ public final class IDFormat {
      *
      * @since JXTA 1.0
      **/    
-    public static final IDFactory.URIInstantiator INSTANTIATOR = new Instantiator();
+    public static final IDFactory.Instantiator INSTANTIATOR = new Instantiator();
     
     /**
      *  Private Constructor. This class cannot be instantiated.

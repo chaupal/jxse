@@ -70,7 +70,7 @@ import java.util.logging.Logger;
  * mechanism for generating canonical values for the ids it provides.
  *
  * @see net.jxta.id.ID
- * @see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
  */
 public class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
 
@@ -106,7 +106,7 @@ public class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
     /**
      * The instantiator for this ID Format which is used by the IDFactory.
      */
-    public static final IDFactory.URIInstantiator INSTANTIATOR = new Instantiator();
+    public static final IDFactory.Instantiator INSTANTIATOR = new Instantiator();
 
     /**
      * This class cannot be instantiated.

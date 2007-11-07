@@ -67,11 +67,8 @@ import net.jxta.platform.ModuleSpecID;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownServiceException;
 import java.security.ProviderException;
 
 
@@ -82,23 +79,16 @@ import java.security.ProviderException;
  * @see net.jxta.id.IDFactory
  * @see net.jxta.id.jxta.IDFormat
  */
-final class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
+final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
 
     /**
      * This table maps the textual values of the well known ids to the
      * singleton classes which match those textual names.
      */
     final static Object[][] wellKnownIDs = {
-        { net.jxta.id.ID.nullID.getUniqueValue(), net.jxta.id.ID.nullID}
-                ,
-
-        { net.jxta.peergroup.PeerGroupID.worldPeerGroupID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.worldPeerGroupID}
-                ,
-
-        {
-            net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID.getUniqueValue()
-                    ,
-            net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID}
+        { net.jxta.id.ID.nullID.getUniqueValue(), net.jxta.id.ID.nullID},
+        { net.jxta.peergroup.PeerGroupID.worldPeerGroupID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.worldPeerGroupID},
+        { net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID}
     };
 
     /**
@@ -106,54 +96,6 @@ final class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
      */
     public String getSupportedIDFormat() {
         return IDFormat.JXTAFormat;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
-
-        // check the protocol
-        if (!ID.URIEncodingName.equalsIgnoreCase(source.getProtocol())) {
-            throw new UnknownServiceException("URI protocol type was not as expected.");
-        }
-
-        String encoded = source.getFile();
-
-        int colonAt = encoded.indexOf(':');
-
-        // There's a colon right?
-        if (-1 == colonAt) {
-            throw new UnknownServiceException("URN namespace was missing.");
-        }
-
-        // check the namespace
-        if (!ID.URNNamespace.equalsIgnoreCase(encoded.substring(0, colonAt))) {
-            throw new UnknownServiceException("URN namespace was not as expected.");
-        }
-
-        // skip the namespace portion and the colon
-        encoded = encoded.substring(colonAt + 1);
-
-        int dashAt = encoded.indexOf('-');
-
-        // there's a dash, right?
-        if (-1 == dashAt) {
-            throw new UnknownServiceException("JXTA ID Format was missing.");
-        }
-
-        if (!encoded.substring(0, dashAt).equals(getSupportedIDFormat())) {
-            throw new UnknownServiceException("JXTA ID Format was not as expected.");
-        }
-
-        for (Object[] wellKnownID : wellKnownIDs) {
-            if (encoded.equalsIgnoreCase(wellKnownID[0].toString())) {
-                return (ID) wellKnownID[1];
-            }
-        }
-
-        throw new MalformedURLException("unrecognized id");
     }
 
     /**

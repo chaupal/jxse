@@ -60,15 +60,12 @@ package net.jxta.id;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.UnknownServiceException;
 import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
 
@@ -143,21 +140,6 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return String containing the ID format value for this format.
          */
         public String getSupportedIDFormat();
-        
-        /**
-         *  Construct a new ID instance from a JXTA ID contained in a URL.
-         *
-         *  @deprecated Convert to {@code fromURI}.
-         *
-         *  @param source  URL which will be decoded to create a new ID instance.
-         *  @return  ID containing the new ID instance initialized from the URL.
-         *  @throws UnknownServiceException Is thrown if the URL provided is of
-         *  a format unrecognized by this JXTA implementation.
-         *  @throws MalformedURLException Is thrown if the URL provided is not
-         *  a valid, recognized JXTA URL.
-         */
-        @Deprecated
-        public ID fromURL(URL source) throws MalformedURLException, UnknownServiceException;
         
         /**
          *  Construct a new ID instance from a JXTA ID contained in a URI.
@@ -429,22 +411,9 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         public ModuleSpecID newModuleSpecID(ModuleClassID baseClass);
     }
     
-
-    /**
-     * @deprecated This interface formerly contained optional URI based
-     * construction methods. These have now been moved to the primary
-     * instantiator interface in preparation for the removal of the URL
-     * based interfaces. This interface will be removed in a future release.
-     */
-    @Deprecated
-    public interface URIInstantiator extends Instantiator {}
-    
     /**
      *  Standard Constructor. This class is a singleton so the only constructor
      *  is private.
-     *
-     *  <p/>Uses net.jxta.impl.config.properties file as the
-     *  source for settings.
      *
      * <p/>Example entry from  the file net.jxta.impl.config.properties :
      *
@@ -637,74 +606,6 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         }
         
         result = instantiator.fromURNNamespaceSpecificPart(decoded);
-        
-        return result.intern();
-    }
-    
-    /**
-     *  Construct a new ID instance from a JXTA ID contained in a URI.
-     *
-     *  @deprecated Use of URLs for representing JXTA IDs and this method are
-     *  deprecated. Convert to using {@link #fromURI( URI )} instead.
-     *
-     *  @param source  URI which will be decoded to create a new ID instance.
-     *  @return  ID containing the new ID instance initialized from the URI.
-     *  @throws UnknownServiceException Is thrown if the URI provided is of a
-     *  format unrecognized by this JXTA implementation.
-     *  @throws MalformedURLException Is thrown if the URI provided is not
-     *  a valid, recognized JXTA URI.
-     */
-    @Deprecated
-    public static ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
-        
-        ID result = null;
-        
-        // check the protocol
-        if (!ID.URIEncodingName.equalsIgnoreCase(source.getProtocol())) {
-            throw new UnknownServiceException("URI protocol type was not as expected.");
-        }
-        
-        String encoded = source.getFile();
-        
-        // Decode the URN to convert any % encodings and convert it from UTF8.
-        String decoded = sun.net.www.protocol.urn.Handler.decodeURN(encoded);
-        
-        int colonAt = decoded.indexOf(':');
-        
-        // There's a colon right?
-        if (-1 == colonAt) {
-            throw new MalformedURLException("URN namespace was missing.");
-        }
-        
-        // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
-            throw new MalformedURLException(
-                    "URN namespace was not as expected. (" + net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt)
-                    + ")");
-        }
-        
-        // skip the namespace portion and the colon
-        decoded = decoded.substring(colonAt + 1);
-        
-        int dashAt = decoded.indexOf('-');
-        
-        // there's a dash, right?
-        if (-1 == dashAt) {
-            throw new UnknownServiceException("URN Encodingtype was missing.");
-        }
-        
-        // get the encoding used for this id
-        decoded = decoded.substring(0, dashAt);
-        
-        Instantiator instantiator;
-
-        try {
-            instantiator = factory.getInstantiator(decoded);
-        } catch (NoSuchElementException itsUnknown) {
-            instantiator = factory.getInstantiator("unknown");
-        }
-        
-        result = instantiator.fromURL(source);
         
         return result.intern();
     }
@@ -1152,59 +1053,5 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newModuleSpecID(baseClass).intern();
-    }
-    
-    /**
-     *  This method should be used instead of using
-     *  {@code new java.net.URL( )} to create URLs for use with IDFactory.
-     *  URL construction can cause classes to be loaded using the system
-     *  classLoader (JXTA IDs require the class
-     *  {@code sun.net.www.protocol.urn.Handler} for Sun JVMs).
-     *  This class loading will fail in many environments such as web-servers,
-     *  servlet containers, application servers, or java web start where a user
-     *  class loader is used to load all JXTA resources.
-     *
-     *  @deprecated You should convert code which creates JXTA IDs to instead
-     *  use {@code IDFactory.fromURI( new URI(...) )}. This method was only
-     *  provided to overcome problems with registration of URL handlers in
-     *  foreign class loader environments (Servlets, Applets, JNLP, etc.).
-     *
-     *  @param protocol   The protocol for this URL
-     *  @param host       The host for this URL
-     *  @param file       The file for this URL
-     *  @return a newly created URL for the resource specified.
-     *  @throws  MalformedURLException  if an unknown protocol is specified.
-     */
-    @Deprecated
-    public static URL jxtaURL(String protocol, String host, String file) throws MalformedURLException {
-        return new URL(protocol, host, -1, file, sun.net.www.protocol.urn.Handler.handler);
-    }
-    
-    /**
-     *  This method should be used instead of using
-     *  {@code new java.net.URL( )} to create URLs for use with IDFactory.
-     *  URL construction can cause classes to be loaded using the system
-     *  classLoader (JXTA IDs require the class
-     *  {@code sun.net.www.protocol.urn.Handler} for Sun JVMs).
-     *  This class loading will fail in many environments such as web-servers,
-     *  servlet containers, application servers, or java web start where a user
-     *  class loader is used to load all JXTA resources.
-     *
-     *  @deprecated You should convert code which creates JXTA IDs from strings
-     *  to instead use {IDFactory.fromURI( new URI(String) )}. This
-     *  method was only provided to overcome problems with registration of URL
-     *  handlers in foreign class loader environments (Servlets, Applets, JNLP,
-     *  etc.).
-     *
-     *  @param uri The {@code String} to parse as a URL.
-     *  @return a newly created URL for the resource specified.
-     *  @throws  MalformedURLException  if an unknown protocol is specified.
-     */
-    @Deprecated
-    public static URL jxtaURL(String uri) throws MalformedURLException {
-        final String file = net.jxta.id.ID.URNNamespace + ":";
-        URL urlCnxt = jxtaURL(net.jxta.id.ID.URIEncodingName, "", file);
-        
-        return new URL(urlCnxt, uri);
     }
 }

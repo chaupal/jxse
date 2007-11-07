@@ -84,7 +84,7 @@ import net.jxta.logging.Logging;
 public final class ID extends net.jxta.id.ID {
     
     /**
-     *  Log4J Logger
+     *  Logger
      **/
     private static final transient Logger LOG = Logger.getLogger(ID.class.getName());
     
@@ -139,35 +139,6 @@ public final class ID extends net.jxta.id.ID {
         return unqiueValue;
     }
     
-    /**
-     *  {@inheritDoc}
-     **/
-    @Override
-    public URL getURL() {
-        return getURL((String) getUniqueValue());
-    }
-    
-    /**
-     *  Public member which returns a URI (URL in Java nomenclature) of the ID.
-     *
-     *  @param	uniqueValue the unique portion of the ID
-     *  @return	URL Object containing the URI
-     **/
-    static URL getURL(String uniqueValue) {
-        URL result = null;
-        
-        // Encode the unique value so that the resulting URN is valid.
-        String encoded = sun.net.www.protocol.urn.Handler.encodeURN(uniqueValue);
-        
-        try {
-            result = IDFactory.jxtaURL(ID.URIEncodingName, "", ID.URNNamespace + ":" + encoded);
-        } catch (MalformedURLException failed) {
-            LOG.log(Level.SEVERE, "Failed to construct URL", failed);
-        }
-        
-        return result;
-    }
-
     /**
      *  {@inheritDoc}
      **/

@@ -61,11 +61,10 @@ import net.jxta.impl.id.UUID.IDBytes;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownServiceException;
+
 
 
 /**
@@ -73,7 +72,7 @@ import java.net.UnknownServiceException;
  * <p/>
  * <p/>For "seed" variant constructors, the "seed" must be a certificate.
  */
-public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
+public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
 
     /**
      * Our ID Format
@@ -85,118 +84,6 @@ public class Instantiator implements net.jxta.id.IDFactory.URIInstantiator {
      */
     public String getSupportedIDFormat() {
         return CBIDEncoded;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public net.jxta.id.ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
-
-        // check the protocol
-        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getProtocol())) {
-            throw new UnknownServiceException("URI protocol type was not as expected.");
-        }
-
-        String encoded = source.getFile();
-
-        int colonAt = encoded.indexOf(':');
-
-        // There's a colon right?
-        if (-1 == colonAt) {
-            throw new UnknownServiceException("URN namespace was missing.");
-        }
-
-        // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(encoded.substring(0, colonAt))) {
-            throw new UnknownServiceException("URN namespace was not as expected.");
-        }
-
-        // skip the namespace portion and the colon
-        encoded = encoded.substring(colonAt + 1);
-
-        int dashAt = encoded.indexOf('-');
-
-        // there's a dash, right?
-        if (-1 == dashAt) {
-            throw new UnknownServiceException("URN Encodingtype was missing.");
-        }
-
-        if (!encoded.substring(0, dashAt).equals(getSupportedIDFormat())) {
-            throw new UnknownServiceException("JXTA ID Format was not as expected.");
-        }
-
-        // skip the dash
-        encoded = encoded.substring(dashAt + 1);
-
-        // check that the length is even
-        if (0 != (encoded.length() % 2)) {
-            throw new MalformedURLException("URN contains an odd number of chars");
-        }
-
-        // check that the length is long enough
-        if (encoded.length() < 2) {
-            throw new MalformedURLException("URN does not contain enough chars");
-        }
-
-        // check that id is short enough
-        if (IDFormat.IdByteArraySize < (encoded.length() % 2)) {
-            throw new MalformedURLException("URN contains too many chars");
-        }
-
-        net.jxta.id.ID result = null;
-        IDBytes id = new IDBytes();
-
-        try {
-            // do the primary portion.
-            for (int eachByte = 0; eachByte < ((encoded.length() / 2) - IDFormat.flagsSize); eachByte++) {
-                int index = eachByte * 2;
-                String twoChars = encoded.substring(index, index + 2);
-
-                id.bytes[eachByte] = (byte) Integer.parseInt(twoChars, 16);
-            }
-
-            // do the flags
-            for (int eachByte = IDFormat.flagsOffset; eachByte < IDFormat.IdByteArraySize; eachByte++) {
-                int index = encoded.length() - (IDFormat.IdByteArraySize - eachByte) * 2;
-                String twoChars = encoded.substring(index, index + 2);
-
-                id.bytes[eachByte] = (byte) Integer.parseInt(twoChars, 16);
-            }
-        } catch (NumberFormatException caught) {
-            throw new MalformedURLException("Invalid Character in JXTA URI");
-        }
-
-        switch (id.bytes[IDFormat.flagsOffset + IDFormat.flagsIdTypeOffset]) {
-        case IDFormat.flagCodatID:
-            result = new CodatID(id);
-            break;
-
-        case IDFormat.flagPeerGroupID:
-            result = new PeerGroupID(id);
-            result = (PeerGroupID) IDFormat.translateToWellKnown(result);
-            break;
-
-        case IDFormat.flagPeerID:
-            result = new PeerID(id);
-            break;
-
-        case IDFormat.flagPipeID:
-            result = new PipeID(id);
-            break;
-
-        case IDFormat.flagModuleClassID:
-            result = new ModuleClassID(id);
-            break;
-
-        case IDFormat.flagModuleSpecID:
-            result = new ModuleSpecID(id);
-            break;
-
-        default:
-            throw new MalformedURLException("JXTA ID Type not recognized");
-        }
-
-        return result;
     }
 
     /**

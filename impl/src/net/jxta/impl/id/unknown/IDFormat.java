@@ -62,7 +62,7 @@ import net.jxta.id.IDFactory;
 
 /**
  *  The 'unknown' format is not a regular JXTA ID format. It is a special ID
- *  format used by the J2SE implementation to manage ids of formats which are
+ *  format used by JXSE to manage ids of formats which are
  *  not recognized. No ids of format 'unknown' are ever emitted nor can any new
  *  ids be created.
  **/
@@ -72,7 +72,7 @@ public final class IDFormat {
      * The instantiator for this ID Format which is used by the IDFactory.
      *
      **/    
-    public static final IDFactory.URIInstantiator INSTANTIATOR = new Instantiator();
+    public static final IDFactory.Instantiator INSTANTIATOR = new Instantiator();
     
     /**
      *  Private Constructor. This class cannot be instantiated.

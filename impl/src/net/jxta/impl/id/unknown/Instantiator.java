@@ -70,7 +70,7 @@ import java.security.ProviderException;
 import net.jxta.id.IDFactory;
 
 
-final class Instantiator implements IDFactory.URIInstantiator {
+final class Instantiator implements IDFactory.Instantiator {
     
     /**
      *  Our ID Format
@@ -83,44 +83,6 @@ final class Instantiator implements IDFactory.URIInstantiator {
     public String getSupportedIDFormat() {
         return unknownFormat;
     }
-    
-    /**
-     * {@inheritDoc}
-     **/
-    public net.jxta.id.ID fromURL(URL source) throws MalformedURLException, UnknownServiceException {
-        
-        net.jxta.id.ID result = null;
-        
-        // check the protocol
-        if (!net.jxta.id.ID.URIEncodingName.equalsIgnoreCase(source.getProtocol())) {
-            throw new UnknownServiceException("URI protocol type was not as expected.");
-        }
-        
-        String  encoded = source.getFile();
-        
-        // Decode the URN to convert any % encodings and convert it from UTF8.
-        String decoded = sun.net.www.protocol.urn.Handler.decodeURN(encoded);
-        
-        int colonAt = decoded.indexOf(':');
-        
-        // There's a colon right?
-        if (-1 == colonAt) {
-            throw new UnknownServiceException("URN namespace was missing.");
-        }
-        
-        // check the namespace
-        if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
-            throw new UnknownServiceException("URN namespace was not as expected.");
-        }
-        
-        // skip the namespace portion and the colon
-        decoded = decoded.substring(colonAt + 1);
-        
-        result = new ID(decoded);
-        
-        return result;
-    }
-    ;
     
     /**
      * {@inheritDoc}
