@@ -404,7 +404,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 
                 TextElement e = hisChildren.nextElement();
                 String key = e.getKey();
-                String val = e.getValue();
+                String val = e.getValue().trim();
                 
                 if (STD_COMPAT_FORMAT.equals(key)) {
                     Package javaLangPackage = Package.getPackage("java.lang");
@@ -422,15 +422,21 @@ public class StdPeerGroup extends GenericPeerGroup {
                         specMatches = false;
                         version = null;
                     }
-                    
+
                     formatOk = specMatches && javaLangPackage.isCompatibleWith(version);
                 } else if (STD_COMPAT_BINDING.equals(key) && STD_COMPAT_BINDING_VALUE.equals(val)) {
                     bindingOk = true;
                 } else {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.warning("Bad element in compatibility statement : " + key);
+                    }
                     return false; // Might as well stop right now.
                 }
             }
         } catch (Exception any) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failure handling compatibility statement", any);
+            }
             return false;
         }
         
