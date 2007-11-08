@@ -117,12 +117,10 @@ public class StdPeerGroup extends GenericPeerGroup {
     
     protected static final String STD_COMPAT_FORMAT = "Efmt";
     
-    // FIXME 20061206 bondolo Update this to "JRE1.5" after 2.5 release. 2.4.1 and earlier don't do version comparison correctly.
-    
     /**
      * The Specification title and Specification version we require.
      */
-    protected static final String STD_COMPAT_FORMAT_VALUE = "JDK1.4.1";
+    protected static final String STD_COMPAT_FORMAT_VALUE = "JRE1.5";
     protected static final String STD_COMPAT_BINDING = "Bind";
     protected static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
     
@@ -315,44 +313,35 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // Create the service list for the group.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
-        ModuleImplAdvertisement moduleAdv;
         
         // set the services
         
         // core services
         JxtaLoader loader = getJxtaLoader();
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refEndpointSpecID);
-        paramAdv.addService(PeerGroup.endpointClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.resolverClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refMembershipSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refAccessSpecID);
-        paramAdv.addService(PeerGroup.accessClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
         
         // standard services
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refDiscoverySpecID);
-        paramAdv.addService(PeerGroup.discoveryClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refRendezvousSpecID);
-        paramAdv.addService(PeerGroup.rendezvousClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPipeSpecID);
-        paramAdv.addService(PeerGroup.pipeClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refPeerinfoSpecID);
-        paramAdv.addService(PeerGroup.peerinfoClassID, moduleAdv);
+        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
         
         // Applications
         
-        moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
         if (null != moduleAdv) {
-            paramAdv.addApp(PeerGroup.applicationClassID, moduleAdv);
+            paramAdv.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
         }
         
         // Insert the newParamAdv in implAdv
