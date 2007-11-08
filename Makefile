@@ -145,7 +145,7 @@ cmchk:
 jar:  compileSrc
 	@if [ '!' -d $(DISTDIR) ]; then mkdir $(DISTDIR); fi;
 	@echo Creating $(DISTDIR)/jxta.jar
-	@cd $(CLASSDIR); $(JAR) -cf $(DISTDIR)/jxta.jar net sun META-INF; unzip -l $(DISTDIR)/jxta.jar |grep files
+	@cd $(CLASSDIR); $(JAR) -cf $(DISTDIR)/jxta.jar net META-INF; unzip -l $(DISTDIR)/jxta.jar |grep files
 
 cleanmetering:
 	@echo cleaning $(METEROUTDIRx)
