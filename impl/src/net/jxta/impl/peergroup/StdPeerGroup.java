@@ -328,7 +328,6 @@ public class StdPeerGroup extends GenericPeerGroup {
         paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
         
         // standard services
-        
         paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
         
         paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
@@ -338,7 +337,6 @@ public class StdPeerGroup extends GenericPeerGroup {
         paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
         
         // Applications
-        
         ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
         if (null != moduleAdv) {
             paramAdv.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
@@ -929,14 +927,6 @@ public class StdPeerGroup extends GenericPeerGroup {
     
     /**
      * {@inheritDoc}
-     * <p/>
-     * FIXME 20070801 bondolo To improve compatibility with existing
-     * applications the returned {@code ModuleImplAdvertisement} will contain
-     * embedded {@code ModuleImplAdvertisement}s for the referenced services as
-     * opposed to {@code ModuleSpecID}s. This is because JXSE 2.4.1 and earlier
-     * do not handle load failures of modules loaded by spec id correctly.
-     * After JXSE 2.5 is released this should be changed to use the better
-     * {@code ModuleSpecID} based peer group module specification.
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
