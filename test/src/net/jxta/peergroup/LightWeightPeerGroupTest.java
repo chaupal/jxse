@@ -55,23 +55,12 @@
  */
 package net.jxta.peergroup;
 
-
-import java.util.Map;
-import java.util.Iterator;
-
-import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 
 import junit.framework.*;
-
-import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
-
 
 public class LightWeightPeerGroupTest extends TestCase {
     
@@ -93,8 +82,8 @@ public class LightWeightPeerGroupTest extends TestCase {
 
             inits++;
             if (npg == null) {
-
-                npg = PeerGroupFactory.newNetPeerGroup();
+                NetPeerGroupFactory npgf = new NetPeerGroupFactory();
+                npg = npgf.getInterface();
 
                 // Create a LightWeightPeerGroup
                 pg = new LightWeightPeerGroup(createPeerGroupAdv());
