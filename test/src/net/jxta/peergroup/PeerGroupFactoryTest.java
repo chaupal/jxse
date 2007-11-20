@@ -56,7 +56,6 @@
 
 package net.jxta.peergroup;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
@@ -67,19 +66,20 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-import net.jxta.document.AdvertisementFactory;
 import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.peergroup.PeerGroupFactory;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.protocol.PeerGroupAdvertisement;
 
 import net.jxta.impl.util.TimeUtils;
 
-
+/**
+ * Test the PeerGroupFactory.
+ * 
+ * @deprecated PeerGroupFactory is deprecated but still needs to be tested....
+ */
+@Deprecated
 public class PeerGroupFactoryTest extends TestCase {
     
     public static void main(java.lang.String[] args) {
