@@ -410,7 +410,7 @@ public final class NetPeerGroupFactory {
      * @see PeerGroup#unref()
      */
     public PeerGroup getInterface() {
-        return (PeerGroup) net.getInterface();
+        return net.getInterface();
     }
 
     /**

@@ -85,22 +85,26 @@ import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * PeerGroupInterface provides a pure interface object that permits interaction
- * with the actual PeerGroup implementation without giving access to the real
- * object.
+ * Provides a pure interface object that permits interaction with the actual
+ * PeerGroup implementation without giving access to the real object.
  * <p/>
- * This class defines immutable objects. It has no control over the wrapped
- * peer group object's life cycle. It serves to make weak PeerGroup interface
- * object.
+ * This class defines immutable objects. It has no control over the wrapped peer
+ * group object's life cycle. It serves to make weak PeerGroup interface object.
  */
 class PeerGroupInterface implements PeerGroup {
 
     /**
      * Logger
      */
-    private static final Logger LOG = Logger.getLogger(PeerGroupInterface.class.getName());
+    private final static Logger LOG = Logger.getLogger(PeerGroupInterface.class.getName());
+
+    /**
+     * If {@true} then {@link #unref()} has been called.
+     */
+    protected final AtomicBoolean unrefed = new AtomicBoolean(false);
 
     /**
      * The peer group instance which backs this interface object.
@@ -132,8 +136,8 @@ class PeerGroupInterface implements PeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
-     * An implementation suitable for debugging. <b>Don't try to parse
-     * this string!</b> All of the information is available from other sources.
+     * An implementation suitable for debugging. <b>Don't try to parse this
+     * string!</b> All of the information is available from other sources.
      */
     @Override
     public String toString() {
@@ -153,18 +157,7 @@ class PeerGroupInterface implements PeerGroup {
      * definition, the interface object protects the real object's start/stop
      * methods from being called.
      */
-
-    public void init(PeerGroup pg, ID assignedID, Advertisement impl) {}
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This is here for class hierarchy reasons. It is normaly ignored. By
-     * definition, the interface object protects the real object's start/stop
-     * methods from being called.
-     */
-    public int startApp(String[] arg) {
-        return 0;
+    public void init(PeerGroup pg, ID assignedID, Advertisement impl) {
     }
 
     /**
@@ -174,104 +167,204 @@ class PeerGroupInterface implements PeerGroup {
      * definition, the interface object protects the real object's start/stop
      * methods from being called.
      */
-    public void stopApp() {}
+    public int startApp(String[] args) {
+        return Module.START_OK;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * Applications assume that they have exclusive access to the peer group
+     * object. They call stopApp() to signify that they are finished with the
+     * peer group. Since peer groups are shared, we use stopApp() to unref().
+     * <p/>
+     * We could also just do nothing and let this interface be GCed but calling
+     * unref() makes the group go away immediately if it is not shared, which is
+     * what applications calling stopApp() expect.
+     */
+    public void stopApp() {
+        unref();
+    }
 
     /**
      * {@inheritDoc}
      */
-    public Service getInterface() {
+    public PeerGroup getInterface() {
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
         return this;
     }
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * This is already a weak reference (non-counted) to the peer group so we
+     * can just return ourself.
      */
     public PeerGroup getWeakInterface() {
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
         return this;
     }
 
     /**
      * {@inheritDoc}
-     * <p/>
-     * Does nothing.
      */
-    public void unref() {}
+    public void unref() {
+        if (unrefed.compareAndSet(false, true)) {
+            groupImpl = null;
+        }
+    }
 
     /**
      * {@inheritDoc}
      */
     public Advertisement getImplAdvertisement() {
-        return groupImpl.getImplAdvertisement();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getImplAdvertisement();
     }
 
     /**
      * {@inheritDoc}
      */
     public ThreadGroup getHomeThreadGroup() {
-        return groupImpl.getHomeThreadGroup();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getHomeThreadGroup();
     }
 
     /**
      * {@inheritDoc}
      */
     public URI getStoreHome() {
-        return groupImpl.getStoreHome();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getStoreHome();
     }
 
     /**
      * {@inheritDoc}
      */
     public JxtaLoader getLoader() {
-        return groupImpl.getLoader();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getLoader();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isRendezvous() {
-        return groupImpl.isRendezvous();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.isRendezvous();
     }
 
     /**
      * {@inheritDoc}
      */
     public PeerGroupAdvertisement getPeerGroupAdvertisement() {
-        return groupImpl.getPeerGroupAdvertisement();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPeerGroupAdvertisement();
     }
 
     /**
      * {@inheritDoc}
      */
     public PeerAdvertisement getPeerAdvertisement() {
-        return groupImpl.getPeerAdvertisement();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPeerAdvertisement();
     }
 
     /**
      * {@inheritDoc}
      */
     public Service lookupService(ID name) throws ServiceNotFoundException {
-        return groupImpl.lookupService(name);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.lookupService(name);
     }
 
     /**
      * {@inheritDoc}
      */
     public Service lookupService(ID name, int roleIndex) throws ServiceNotFoundException {
-        return groupImpl.lookupService(name, roleIndex);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.lookupService(name, roleIndex);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Iterator getRoleMap(ID name) {
-        return groupImpl.getRoleMap(name);
+    public Iterator<ID> getRoleMap(ID name) {
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getRoleMap(name);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean compatible(Element compat) {
-        return groupImpl.compatible(compat);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.compatible(compat);
     }
 
     /**
@@ -287,21 +380,39 @@ class PeerGroupInterface implements PeerGroup {
      * decided without more careful consideration.
      */
     public Module loadModule(ID assignedID, Advertisement impl) throws ProtocolNotSupportedException, PeerGroupException {
-        return groupImpl.loadModule(assignedID, impl);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.loadModule(assignedID, impl);
     }
 
     /**
      * {@inheritDoc}
      */
     public Module loadModule(ID assignedID, ModuleSpecID specID, int where) {
-        return groupImpl.loadModule(assignedID, specID, where);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.loadModule(assignedID, specID, where);
     }
 
     /**
      * {@inheritDoc}
      */
     public void publishGroup(String name, String description) throws IOException {
-        groupImpl.publishGroup(name, description);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        temp.publishGroup(name, description);
     }
 
     /*
@@ -312,21 +423,39 @@ class PeerGroupInterface implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup newGroup(Advertisement pgAdv) throws PeerGroupException {
-        return groupImpl.newGroup(pgAdv);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.newGroup(pgAdv);
     }
 
     /**
      * {@inheritDoc}
      */
     public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException {
-        return groupImpl.newGroup(gid, impl, name, description);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.newGroup(gid, impl, name, description);
     }
 
     /**
      * {@inheritDoc}
      */
     public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException {
-        return groupImpl.newGroup(gid);
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.newGroup(gid);
     }
 
     /*
@@ -337,56 +466,104 @@ class PeerGroupInterface implements PeerGroup {
      * {@inheritDoc}
      */
     public RendezVousService getRendezVousService() {
-        return groupImpl.getRendezVousService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getRendezVousService();
     }
 
     /**
      * {@inheritDoc}
      */
     public EndpointService getEndpointService() {
-        return groupImpl.getEndpointService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getEndpointService();
     }
 
     /**
      * {@inheritDoc}
      */
     public ResolverService getResolverService() {
-        return groupImpl.getResolverService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getResolverService();
     }
 
     /**
      * {@inheritDoc}
      */
     public DiscoveryService getDiscoveryService() {
-        return groupImpl.getDiscoveryService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getDiscoveryService();
     }
 
     /**
      * {@inheritDoc}
      */
     public PeerInfoService getPeerInfoService() {
-        return groupImpl.getPeerInfoService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPeerInfoService();
     }
 
     /**
      * {@inheritDoc}
      */
     public MembershipService getMembershipService() {
-        return groupImpl.getMembershipService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getMembershipService();
     }
 
     /**
      * {@inheritDoc}
      */
     public PipeService getPipeService() {
-        return groupImpl.getPipeService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPipeService();
     }
 
     /**
      * {@inheritDoc}
      */
     public AccessService getAccessService() {
-        return groupImpl.getAccessService();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getAccessService();
     }
 
     /*
@@ -398,35 +575,65 @@ class PeerGroupInterface implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroupID getPeerGroupID() {
-        return groupImpl.getPeerGroupID();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPeerGroupID();
     }
 
     /**
      * {@inheritDoc}
      */
     public PeerID getPeerID() {
-        return groupImpl.getPeerID();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPeerID();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getPeerGroupName() {
-        return groupImpl.getPeerGroupName();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPeerGroupName();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getPeerName() {
-        return groupImpl.getPeerName();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getPeerName();
     }
 
     /**
      * {@inheritDoc}
      */
     public ConfigParams getConfigAdvertisement() {
-        ConfigParams configAdvertisement = groupImpl.getConfigAdvertisement();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        ConfigParams configAdvertisement = temp.getConfigAdvertisement();
 
         if (configAdvertisement == null) {
             return null;
@@ -438,10 +645,25 @@ class PeerGroupInterface implements PeerGroup {
      * {@inheritDoc}
      */
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
-        return groupImpl.getAllPurposePeerGroupImplAdvertisement();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getAllPurposePeerGroupImplAdvertisement();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public PeerGroup getParentGroup() {
-        return groupImpl.getParentGroup();
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
+        return temp.getParentGroup();
     }
 }

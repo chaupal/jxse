@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.peergroup;
-
 
 import net.jxta.access.AccessService;
 import net.jxta.discovery.DiscoveryService;
@@ -139,12 +137,14 @@ public interface PeerGroup extends Service {
      * (a year)
      */
     // without casting to long we lose precision
+
     public final static long DEFAULT_LIFETIME = (long) 1000 * (long) 3600 * (long) 24 * 365L;
 
     /**
      * Default expiration time for discovered group advertisements. (2 weeks)
      */
     // without casting to long we lose precision
+
     public final static long DEFAULT_EXPIRATION = (long) 1000 * (long) 3600 * (long) 24 * 14L;
 
     /**
@@ -179,7 +179,7 @@ public interface PeerGroup extends Service {
 
         /**
          * Unregisters a group instance (normally because the group is being
-         * stopped.
+         * stopped).
          *
          * @param gid the ID of the group of which an instance is unregistered.
          * @param pg  the group instance itself (serves as a credential).
@@ -242,7 +242,7 @@ public interface PeerGroup extends Service {
             // unregister when being torn down. Unregistration will also be
             // automatic if the grp object is GC'ed (the references are weak
             // references).
-            return (PeerGroup) pg.getInterface();
+            return pg.getInterface();
         }
 
         /**
@@ -320,49 +320,49 @@ public interface PeerGroup extends Service {
     /**
      * Well known module class identifier: peer group
      */
-    public final static ModuleClassID peerGroupClassID = 
+    public final static ModuleClassID peerGroupClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000105"));
 
     /**
      * Well known module class identifier: resolver service
      */
-    public final static ModuleClassID resolverClassID = 
+    public final static ModuleClassID resolverClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000205"));
 
     /**
      * Well known module class identifier: discovery service
      */
-    public final static ModuleClassID discoveryClassID = 
+    public final static ModuleClassID discoveryClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000305"));
 
     /**
      * Well known module class identifier: pipe service
      */
-    public final static ModuleClassID pipeClassID = 
+    public final static ModuleClassID pipeClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000405"));
 
     /**
      * Well known module class identifier: membership service
      */
-    public final static ModuleClassID membershipClassID = 
+    public final static ModuleClassID membershipClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000505"));
 
     /**
      * Well known module class identifier: rendezvous service
      */
-    public final static ModuleClassID rendezvousClassID = 
+    public final static ModuleClassID rendezvousClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000605"));
 
     /**
      * Well known module class identifier: peerinfo service
      */
-    public final static ModuleClassID peerinfoClassID = 
+    public final static ModuleClassID peerinfoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000705"));
 
     /**
      * Well known module class identifier: endpoint service
      */
-    public final static ModuleClassID endpointClassID = 
+    public final static ModuleClassID endpointClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000805"));
 
     // FIXME: EndpointProtocols should probably all be of the same class
@@ -371,97 +371,97 @@ public interface PeerGroup extends Service {
     /**
      * Well known module class identifier: tcp protocol
      */
-    public final static ModuleClassID tcpProtoClassID = 
+    public final static ModuleClassID tcpProtoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000905"));
 
     /**
      * Well known module class identifier: http protocol
      */
-    public final static ModuleClassID httpProtoClassID = 
+    public final static ModuleClassID httpProtoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000A05"));
 
     /**
      * Well known module class identifier: router protocol
      */
-    public final static ModuleClassID routerProtoClassID = 
+    public final static ModuleClassID routerProtoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000B05"));
 
     /**
      * Well known module class identifier: application
      */
-    public final static ModuleClassID applicationClassID = 
+    public final static ModuleClassID applicationClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000C05"));
 
     /**
      * Well known module class identifier: tlsProtocol
      */
-    public final static ModuleClassID tlsProtoClassID = 
+    public final static ModuleClassID tlsProtoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000D05"));
 
     /**
      * Well known module class identifier: ProxyService
      */
-    public final static ModuleClassID proxyClassID = 
+    public final static ModuleClassID proxyClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000E05"));
 
     /**
      * Well known module class identifier: RelayProtocol
      */
-    public final static ModuleClassID relayProtoClassID = 
+    public final static ModuleClassID relayProtoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000F05"));
 
     /**
      * Well known module class identifier: AccessService
      */
-    public final static ModuleClassID accessClassID = 
+    public final static ModuleClassID accessClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000001005"));
 
     /**
      * Well known group specification identifier: the platform
      */
-    public final static ModuleSpecID refPlatformSpecID = 
+    public final static ModuleSpecID refPlatformSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000010106"));
 
     /**
      * Well known group specification identifier: the Network Peer Group
      */
-    public final static ModuleSpecID refNetPeerGroupSpecID = 
+    public final static ModuleSpecID refNetPeerGroupSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000010206"));
 
     /**
      * Well known service specification identifier: the standard resolver
      */
-    public final static ModuleSpecID refResolverSpecID = 
+    public final static ModuleSpecID refResolverSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000020106"));
 
     /**
      * Well known service specification identifier: the standard discovery
      */
-    public final static ModuleSpecID refDiscoverySpecID = 
+    public final static ModuleSpecID refDiscoverySpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000030106"));
 
     /**
      * Well known service specification identifier: the standard pipe service
      */
-    public final static ModuleSpecID refPipeSpecID = 
+    public final static ModuleSpecID refPipeSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000040106"));
 
     /**
      * Well known service specification identifier: the standard membership
      */
-    public final static ModuleSpecID refMembershipSpecID = 
+    public final static ModuleSpecID refMembershipSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000050106"));
 
     /**
      * Well known service specification identifier: the standard rendezvous
      */
-    public final static ModuleSpecID refRendezvousSpecID = 
+    public final static ModuleSpecID refRendezvousSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000060106"));
 
     /**
      * Well known service specification identifier: the standard peerinfo
      */
-    public final static ModuleSpecID refPeerinfoSpecID = 
+    public final static ModuleSpecID refPeerinfoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000070106"));
 
     /**
@@ -474,28 +474,28 @@ public interface PeerGroup extends Service {
      * Well known endpoint protocol specification identifier: the standard
      * tcp endpoint protocol
      */
-    public final static ModuleSpecID refTcpProtoSpecID = 
+    public final static ModuleSpecID refTcpProtoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000090106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * http endpoint protocol
      */
-    public final static ModuleSpecID refHttpProtoSpecID = 
+    public final static ModuleSpecID refHttpProtoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000A0106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * router
      */
-    public final static ModuleSpecID refRouterProtoSpecID = 
+    public final static ModuleSpecID refRouterProtoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000B0106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * tls endpoint protocol
      */
-    public final static ModuleSpecID refTlsProtoSpecID = 
+    public final static ModuleSpecID refTlsProtoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000D0106"));
 
     /**
@@ -504,33 +504,33 @@ public interface PeerGroup extends Service {
      * the StdPeerGroup class and all the standard platform services and no
      * endpoint protocols.
      */
-    public final static ModuleSpecID allPurposePeerGroupSpecID = 
+    public final static ModuleSpecID allPurposePeerGroupSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000010306"));
 
     /**
      * Well known application: the shell
      */
-    public final static ModuleSpecID refShellSpecID = 
+    public final static ModuleSpecID refShellSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000C0206"));
 
     /**
      * Well known application: the Proxy
      */
-    public final static ModuleSpecID refProxySpecID = 
+    public final static ModuleSpecID refProxySpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000E0106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
      * relay endpoint protocol
      */
-    public final static ModuleSpecID refRelayProtoSpecID = 
+    public final static ModuleSpecID refRelayProtoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000F0106"));
 
     /**
      * Well known access specification identifier: the standard
      * access service
      */
-    public final static ModuleSpecID refAccessSpecID = 
+    public final static ModuleSpecID refAccessSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000100106"));
 
     /**
@@ -629,30 +629,32 @@ public interface PeerGroup extends Service {
      * ModuleClassID by this PeerGroup object. The IDs are returned in the order
      * of their index in the map. So the first ID returned will be identical to
      * what would be returned by the lookup method for the given ID and index 0.
-     * If there is no explicit such map, this method will return a singleton
-     * containing the given ID as this is the default mapping.  There is no
-     * guarantee that any of the returned IDs correspond to an actually
-     * registered service. This method only maps IDs.
      *
-     * @param name The ModuleClassID for which the map is desired.
-     * @return Iterator An iterator on a collection of the IDs to which the given ID maps.
+     * @param name The ModuleClassID for which the role map is desired.
+     * @return The ModuleClassIDs for all of the services which match the 
+     * specified base ModuleClassID or {@code null} if there are no services
+     * which match the specified ID. If there is no explicit such map, this 
+     * method will return a list containing only the given ID as this is the 
+     * default mapping. There is no guarantee that any of the returned IDs 
+     * correspond to an actually registered service.
      * @since JXTA 2.3.1
      */
-    public Iterator getRoleMap(ID name);
+    public Iterator<ID> getRoleMap(ID name);
 
     /**
-     * Return true if the provided compatibility statement is compatible with this group.
+     * Return {@code true} if the provided compatibility statement is compatible 
+     * with this peer group.
      *
-     * @param compat compatibility element
-     * @return boolean True if the statement is compatible.
+     * @param compat A compatibility statement.
+     * @return {@code true} if the compatibility statement is compatible.
      */
     public boolean compatible(Element compat);
 
     /**
      * Load a Module from a ModuleImplAdv.
      * <p/>
-     * Compatibility is checked and load is attempted. If compatible and
-     * loaded successfully, the resulting Module is initialized and returned.
+     * Compatibility is checked and load is attempted. If compatible and loaded
+     * successfully, the resulting Module is initialized and returned.
      * In most cases the other loadModule() method should be preferred, since
      * unlike this one, it will seek many compatible implementation
      * advertisements and try them all until one works. The home group of the new
@@ -866,8 +868,8 @@ public interface PeerGroup extends Service {
     public PipeService getPipeService();
 
     /**
-     * Return the Access Service for this Peer Group. This service is
-     * present in every Peer Group.
+     * Return the Access Service for this Peer Group. This service is present in
+     * every Peer Group.
      *
      * @return AccessService The Access Service for this Peer Group.
      * @since JXTA 2.1
@@ -938,11 +940,16 @@ public interface PeerGroup extends Service {
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception;
 
     /**
-     * Explicitly notifies a group interface that it will no-longer be
-     * used (similar to dispose). Does nothing to a real group object,
-     * only has an effect on a group interface.
+     * Explicitly notifies a group interface that it will no-longer be used
+     * (similar to dispose). Does nothing to a real group object, only has an
+     * effect on a group interface.
      */
     public void unref();
+
+    /**
+    *   {@inheritDoc}
+    */
+    public PeerGroup getInterface();
 
     /**
      * Returns a weak interface object that represents this
@@ -968,8 +975,8 @@ public interface PeerGroup extends Service {
      * the original weak interface object since such objects
      * are immutable.
      * <p/>
-     * Whatever code obtains a weak interface object from a group object
-     * or regular interface object, remains entirely liable for invoking unref
+     * Whatever code obtains a weak interface object from a group object or
+     * regular interface object, remains entirely liable for invoking unref
      * on the initial object before discarding it. Giving away a weak interface
      * object is not equivalent to transferring ownership of the original.
      *
@@ -980,11 +987,11 @@ public interface PeerGroup extends Service {
     public PeerGroup getWeakInterface();
 
     /**
-     * Returns the parent group of this group. Not all groups have parents and
-     * some implementations may not reveal their parents.
+     * Returns the parent group of this peer group. Not all peer groups have a
+     * parent and some implementations may not reveal their parents.
      *
-     * @return PeerGroup the parent group or <code>null</code> if a parent group
-     *         if not available.
+     * @return PeerGroup the parent group or {@code null} if no parent group is
+     * available.
      * @since JXTA 2.3
      */
     public PeerGroup getParentGroup();
@@ -999,5 +1006,5 @@ public interface PeerGroup extends Service {
      *         this peer group.
      * @since JXTA 2.3.7
      */
-    public URI getStoreHome();    
+    public URI getStoreHome();
 }

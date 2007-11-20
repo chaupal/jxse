@@ -207,7 +207,7 @@ public final class WorldPeerGroupFactory {
      * @see PeerGroup#unref()
      */
     public PeerGroup getInterface() {
-        return (PeerGroup) world.getInterface();
+        return world.getInterface();
     }
     
     /**

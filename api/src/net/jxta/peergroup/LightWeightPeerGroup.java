@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.peergroup;
-
 
 import net.jxta.access.AccessService;
 import net.jxta.discovery.DiscoveryService;
@@ -100,23 +98,22 @@ import java.util.Iterator;
  * <p/>
  * This class is intended to be extended/implemented.
  * <p/>
- * Note: unlike implementations of peer groups that existed until JXTA 2.2,
- * LightweightPeergroup permits to implement groups that borrow all or
- * part of their services to a parent group. One needs to remember
- * that peers in various such subgroups of a given parent groups may
+ * Note: LightweightPeergroup permits the implementation of peer groups that 
+ * borrow all or part of their services from their parent group. One needs to 
+ * remember that peers in various such subgroups of a given parent groups may
  * implicitly all share the same services if that is what the PeerGroup
  * implementing LightWeightPeerGroup is doing. Please refer to the documentation
- * of PeerGroups extending LightWeigthPeerGroup do understand which
- * services are shared, and which are not.
+ * of the Peer Group inmplmentations extending LightWeigthPeerGroup to 
+ * understand which services are shared, and which are not.
+ * 
+ * @since JXTA JSE 2.2
  */
-
-public class LightWeightPeerGroup implements PeerGroup {
+public abstract class LightWeightPeerGroup implements PeerGroup {
 
     /**
-     * Log4J Logger
+     *  Logger
      */
     private static final Logger LOG = Logger.getLogger(LightWeightPeerGroup.class.getName());
-
     private PeerGroup group = null;
     private ID assignedID = null;
     private ModuleImplAdvertisement implAdv = null;
@@ -125,8 +122,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * Constructor
      * <p/>
-     * All classes that extend this class must invoke this
-     * constructor.
+     * All classes that extend this class must invoke this constructor.
      *
      * @param adv PeerGroupAdvertisement of this LightWeightPeerGroup.
      *            Note that only the PeerGroupID is used.
@@ -135,10 +131,6 @@ public class LightWeightPeerGroup implements PeerGroup {
         this.adv = adv;
     }
 
-    /***********************************************************
-     ** Module API
-     ***********************************************************/
-    
     /**
      * {@inheritDoc}
      */
@@ -159,18 +151,19 @@ public class LightWeightPeerGroup implements PeerGroup {
             return -1;
         }
 
-        return START_OK;
+        return Module.START_OK;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void stopApp() {}
+    public void stopApp() {
+    }
 
     /**
      * {@inheritDoc}
      */
-    public Service getInterface() {
+    public PeerGroup getInterface() {
         return this;
     }
 
@@ -180,10 +173,6 @@ public class LightWeightPeerGroup implements PeerGroup {
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdv;
     }
-
-    /***********************************************************
-     ** PeerGroup API
-     ***********************************************************/
 
     /**
      * {@inheritDoc}
@@ -195,10 +184,6 @@ public class LightWeightPeerGroup implements PeerGroup {
             return null;
         }
     }
-
-    /***********************************************************
-     ** PeerGroup API
-     ***********************************************************/
 
     /**
      * {@inheritDoc}
@@ -226,7 +211,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup getParentGroup() {
-
         try {
             return group;
         } catch (Exception ex) {
@@ -241,7 +225,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public boolean isRendezvous() {
-
         return group != null && group.isRendezvous();
     }
 
@@ -249,7 +232,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroupAdvertisement getPeerGroupAdvertisement() {
-
         if (adv != null) {
             return adv;
         } else if (group != null) {
@@ -263,7 +245,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerAdvertisement getPeerAdvertisement() {
-
         if (group != null) {
             return group.getPeerAdvertisement();
         } else {
@@ -275,7 +256,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public Service lookupService(ID name) throws ServiceNotFoundException {
-
         if (group != null) {
             return group.lookupService(name);
         } else {
@@ -287,7 +267,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public Service lookupService(ID name, int ignoredForNow) throws ServiceNotFoundException {
-
         if (group != null) {
             return group.lookupService(name);
         } else {
@@ -299,7 +278,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public Iterator getRoleMap(ID name) {
-
         if (group != null) {
             return group.getRoleMap(name);
         } else {
@@ -312,7 +290,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public boolean compatible(Element compat) {
-
         return group != null && group.compatible(compat);
     }
 
@@ -320,7 +297,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public Module loadModule(ID assignedID, Advertisement impl) throws ProtocolNotSupportedException, PeerGroupException {
-
         if (group != null) {
             return group.loadModule(assignedID, impl);
         } else {
@@ -332,7 +308,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public Module loadModule(ID assignedID, ModuleSpecID specID, int where) {
-
         if (group != null) {
             return group.loadModule(assignedID, specID, where);
         } else {
@@ -344,7 +319,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public void publishGroup(String name, String description) throws IOException {
-
         if (group != null) {
             group.publishGroup(name, description);
         } else {
@@ -356,7 +330,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup newGroup(Advertisement pgAdv) throws PeerGroupException {
-
         if (group != null) {
             return group.newGroup(pgAdv);
         } else {
@@ -368,7 +341,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException {
-
         if (group != null) {
             return group.newGroup(gid, impl, name, description);
         } else {
@@ -380,7 +352,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException {
-
         if (group != null) {
             return group.newGroup(gid);
         } else {
@@ -396,7 +367,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public RendezVousService getRendezVousService() {
-
         if (group != null) {
             return group.getRendezVousService();
         } else {
@@ -491,7 +461,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroupID getPeerGroupID() {
-
         if (adv != null) {
             return (PeerGroupID) adv.getID();
         } else if (group != null) {
@@ -505,7 +474,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerID getPeerID() {
-
         if (group != null) {
             return group.getPeerID();
         } else {
@@ -517,7 +485,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public String getPeerGroupName() {
-
         if (adv != null) {
             return adv.getName();
         } else if (group != null) {
@@ -531,7 +498,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public String getPeerName() {
-
         if (group != null) {
             return group.getPeerName();
         } else {
@@ -543,7 +509,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public ConfigParams getConfigAdvertisement() {
-
         if (group != null) {
             return group.getConfigAdvertisement();
         } else {
@@ -555,7 +520,6 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
-
         if (group != null) {
             return group.getAllPurposePeerGroupImplAdvertisement();
         } else {
@@ -566,19 +530,16 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public void unref() {}
+    public void unref() {
+    }
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * A LightWeightPeerGroup is already a weak reference that is not shareable,
+     * therefore, return self as a weak reference.
      */
     public PeerGroup getWeakInterface() {
-
-        /**
-         * A LightWeightPeerGroup is already a weak reference
-         * that is not shareable, therefore, return self as
-         * a weak reference.
-         **/
-
         return this;
     }
 }

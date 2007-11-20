@@ -63,19 +63,30 @@ import net.jxta.service.Service;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 
 /**
- * RefCountPeerGroupInterface is a PeerGroupInterface object that
- * also serves as a peergroup very-strong reference. When the last
- * such goes away, the peergroup terminates itself despite the existence
- * of aeternal strong references from the various service's threads
- * that would prevent it from ever being finalized.
- * The alternative: to give only weak references to threads seems impractical.
+ * A PeerGroupInterface object that also serves as a very-strong reference to 
+ * the peergroup. When the last such goes away, the peergroup terminates itself
+ * despite the existence of aeternal strong references from the various 
+ * service's threads that would prevent it from ever being finalized. The 
+ * alternative, to give only weak references to threads, seems impractical.
  */
 class RefCountPeerGroupInterface extends PeerGroupInterface {
 
-    private Map roleMap;
+    /**
+     * Logger
+     */
+    private final static Logger LOG = Logger.getLogger(RefCountPeerGroupInterface.class.getName());
+
+    /**
+     *  Map for resolving multiple instances of a single MCID by role #.
+     */
+    private final Map<ID, ID[]> roleMap;
 
     /**
      * Constructs an interface object that front-ends a given
@@ -85,118 +96,119 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
      */
     RefCountPeerGroupInterface(GenericPeerGroup theRealThing) {
         super(theRealThing);
+        roleMap = null;
     }
 
-    RefCountPeerGroupInterface(GenericPeerGroup theRealThing, Map roleMap) {
+    /**
+     * 
+     * @param theRealThing the peer group
+     * @param roleMap Map of MCIDs for groups with multiple role ids of a single
+     *  service.
+     */
+    RefCountPeerGroupInterface(GenericPeerGroup theRealThing, Map<ID, ID[]> roleMap) {
         super(theRealThing);
         this.roleMap = roleMap;
     }
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            if (!unrefed.get()) {
+                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    LOG.severe("[" + getPeerGroupID() + "] Referenced Group has been GCed. This is an application error. Please call stopApp() before releasing Peer Group references.");
+                }
+            }
+
+            unref();
+        } finally {
+            super.finalize();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      * <p/>
-     * Normally it is ignored. By definition, the interface object
-     * protects the real object's start/stop methods from being called.
-     * <p/>
-     * However we have to make an exception for groups: even the creator
-     * of a group does not have access to the real object. So the interface
-     * has to forward startApp to the group, which is responsible for
-     * ensuring that it is executed only once (if needed).
+     * Normally it is ignored. By definition, the interface object protects the 
+     * real object's start/stop methods from being called. Unlike the weak
+     * peer group interface objects, we do call the real startApp() method as 
+     * even the creator of a group does not have access to the real object. So 
+     * the interface has to forward startApp() to the peer group, which is 
+     * responsible for ensuring that it is executed only once (if needed).
      *
      * @param arg A table of strings arguments.
      * @return int status indication.
      */
     @Override
-    public int startApp(String[] arg) {
-        // Unlike our superclass's method, we do call the real
-        // startApp method.
+    public int startApp(String[] args) {
         PeerGroup temp = groupImpl;
 
-        if (null == temp) {
+        if (unrefed.get() || (null == temp)) {
             throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
         }
 
-        return temp.startApp(arg);
+        return temp.startApp(args);
     }
 
     /**
      * {@inheritDoc}
      * <p/>
-     * This is here for temporary class hierarchy reasons.
-     * it is normally ignored. By definition, the interface object
-     * protects the real object's start/stop methods from being called
-     * <p/>
-     * In that case we have to make an exception. Most applications
-     * currently assume that they do not share the group object and that they do
-     * refer to the real object directly. They call stopApp to signify their
-     * intention of no-longer using the group. Now that groups are shared,
-     * we convert stopApp() to unref() for compatibility.
-     * We could also just do nothing and let the interface be GC'd but
-     * calling unref() makes the group go away immediately if not shared,
-     * which is what applications that call stopApp expect.
+     * Since THIS is already an interface object it could return itself.
+     * However, the group wants to know about the number of interfaces objects
+     * floating around so we have the group make a new one. This way, 
+     * applications which want to use unref() on interfaces can avoid sharing
+     * interface objects by using getInterface() as a sort of clone with the 
+     * additional ref-counting semantics.
      */
     @Override
-    public void stopApp() {
-        unref();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * Since THIS is already such an object, it could return itself.
-     * However, we want the group to know about the number of interfaces
-     * objects floating around, so, we'll have the group make a new one.
-     * That way, applications which want to use unref() on interfaces can
-     * avoid sharing interface objects by using getInterface() as a sort of
-     * clone with the additional ref-counting semantics.
-     *
-     * @return Service An interface object that implements
-     *         this service and nothing more.
-     */
-    @Override
-    public Service getInterface() {
+    public PeerGroup getInterface() {
         PeerGroup temp = groupImpl;
-        if (null == temp) {
+
+        if (unrefed.get() || (null == temp)) {
             throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
         }
+
         return temp.getInterface();
     }
 
     /**
      * {@inheritDoc}
      * <p/>
-     * Returns a weak interface object that refers to this interface
-     * object rather than to the group directly. The reason for that
-     * is that we want the owner of this interface object to be able
-     * to invalidate all weak interface objects made out of this interface
-     * object, without them keeping a reference to the group object, and
-     * without necessarily having to terminate the group.
-     *
-     * @return PeerGroup A weak interface object that implements
-     *         this group and nothing more.
+     * Returns a weak interface object that refers to this interface object
+     * rather than to the group directly. The reason for that is that we want
+     * the owner of this interface object to be able to invalidate all weak 
+     * interface objects made out of this interface object, without them keeping 
+     * a reference to the group object, and without necessarily having to 
+     * terminate the group.
      */
-
     @Override
     public PeerGroup getWeakInterface() {
+        PeerGroup temp = groupImpl;
+
+        if (unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
+
         return new PeerGroupInterface(this);
     }
 
     /**
-     * Can only be called once. After that the reference is no-longer usuable.
+     * {@inheritDoc}
+     * <p/>
+     * We can't call super() because we have to ensure that the unreferencing
+     * happens only once.
      */
     @Override
     public void unref() {
-        GenericPeerGroup theGrp;
-
-        synchronized (this) {
-            if (groupImpl == null) {
-                return;
+        if (unrefed.compareAndSet(false, true)) {
+            try {
+                ((GenericPeerGroup) groupImpl).decRefCount();
+            } finally {
+                groupImpl = null;
             }
-
-            theGrp = (GenericPeerGroup) groupImpl;
-            groupImpl = null;
         }
-        theGrp.decRefCount();
     }
 
     /**
@@ -208,7 +220,6 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
      */
     @Override
     public Service lookupService(ID name) throws ServiceNotFoundException {
-
         return lookupService(name, 0);
     }
 
@@ -217,9 +228,14 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
      */
     @Override
     public Service lookupService(ID name, int roleIndex) throws ServiceNotFoundException {
+        PeerGroup temp = groupImpl;
+
+        if (unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used.");
+        }
 
         if (roleMap != null) {
-            ID[] map = (ID[]) roleMap.get(name);
+            ID[] map = roleMap.get(name);
 
             // If there is a map, remap; else, identity is the default for
             // role 0 only; the default mapping has only index 0.
@@ -230,38 +246,39 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
                 }
 
                 // We have a translation; look it up directly
-                return groupImpl.lookupService(map[roleIndex]);
+                return temp.lookupService(map[roleIndex]);
             }
         }
 
         // No translation; use the name as-is, provided roleIndex is 0.
-        // Do not call groupImpl.lookupService(name, id); group impls
-        // should not have to implement it at all.
+        // Do not call groupImpl.lookupService(name, id); group impls should not
+        // have to implement it at all.
 
         if (roleIndex != 0) {
             throw new ServiceNotFoundException(name + "[" + roleIndex + "]");
         }
-        return groupImpl.lookupService(name);
+
+        return temp.lookupService(name);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Iterator getRoleMap(ID name) {
+    public Iterator<ID> getRoleMap(ID name) {
+        List<ID> roles = Collections.singletonList(name);
 
         if (roleMap != null) {
-            ID[] map = (ID[]) roleMap.get(name);
+            ID[] map = roleMap.get(name);
 
             // If there is a map, remap; else, identity is the default for
             // role 0 only; the default mapping has only index 0.
 
             if (map != null) {
-                // return an iterator on it.
-                return Collections.unmodifiableList(Arrays.asList(map)).iterator();
+                roles = Arrays.asList(map);
             }
         }
-        // No translation; use the given name in a singleton.
-        return Collections.singletonList(name).iterator();
+
+        return Collections.unmodifiableList(roles).iterator();
     }
 }
