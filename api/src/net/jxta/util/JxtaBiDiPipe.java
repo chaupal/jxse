@@ -95,7 +95,9 @@ import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -103,7 +105,7 @@ import java.util.logging.Logger;
 /**
  * JxtaBiDiPipe is a pair of UnicastPipe channels that implements a bidirectional pipe.
  * By default, JxtaBiDiPipe operates in reliable mode, unless otherwise specified,
- * in addition, messages must not exceed the Endpoint MTU size of 64K, exceed the
+ * in addition, messages must not exceed the Endpoint MTU size of 64K, exceeding the
  * MTU will lead to unexpected behavior.
  * <p/>
  * It highly recommended that an application message listener is specified, not doing so, may
@@ -122,7 +124,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(JxtaBiDiPipe.class.getName());
-
     private final static int MAXRETRYTIMEOUT = 120 * 1000;
     private PipeAdvertisement remotePipeAdv;
     private PeerAdvertisement remotePeerAdv;
@@ -130,8 +131,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected int retryTimeout = 60 * 1000;
     protected int maxRetryTimeout = MAXRETRYTIMEOUT;
     protected int windowSize = 50;
-
-    private ArrayBlockingQueue<PipeMsgEvent> queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
+    private BlockingQueue<PipeMsgEvent> queue = null;
     protected PeerGroup group;
     protected PipeAdvertisement pipeAdv;
     protected PipeAdvertisement myPipeAdv;
@@ -145,7 +145,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected final Object finalLock = new Object();
     protected boolean closed = false;
     protected boolean bound = false;
-    protected boolean dequeued = false;
     protected PipeMsgListener msgListener;
     protected PipeEventListener eventListener;
     protected PipeStateListener stateListener;
@@ -157,7 +156,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * layer to ensure that messages are received by the remote peer.
      */
     protected boolean isReliable = false;
-
     protected ReliableInputStream ris = null;
     protected ReliableOutputStream ros = null;
 
@@ -235,7 +233,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param group       group context
      * @param timeout     The number of milliseconds within which the JxtaBiDiPipe must
      *                    be successfully created. An exception will be thrown if the pipe
-     *                    cannot be created in the alotted time. A timeout value of {@code 0}
+     *                    cannot be created in the allotted time. A timeout value of {@code 0}
      *                    (zero) specifies an infinite timeout.
      * @param pipeAd      PipeAdvertisement
      * @param msgListener application PipeMsgListener
@@ -322,8 +320,8 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         this.pipeAdv = pipeAd;
         this.group = group;
         this.msgListener = msgListener;
-        if (msgListener != null) {
-            dequeued = true;
+        if (msgListener == null) {
+            queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
         }
         this.isReliable = reliable;
         pipeSvc = group.getPipeService();
@@ -490,7 +488,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             }
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.reqPipeTag,
-                            (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
+                    (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new StringMessageElement(JxtaServerPipe.reliableTag, Boolean.toString(isReliable), null));
@@ -500,7 +498,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.remPeerTag,
-                            (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
+                    (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
             return msg;
         } catch (Throwable t) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -856,9 +854,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     public synchronized void setMaxRetryTimeout(int maxRetryTimeout) {
         if (maxRetryTimeout <= 0 || maxRetryTimeout > MAXRETRYTIMEOUT) {
-            throw new IllegalArgumentException(
-                    "Invalid Maximum retry timeout :" + maxRetryTimeout + " Exceed Global maximum retry timeout :"
-                            + MAXRETRYTIMEOUT);
+            throw new IllegalArgumentException("Invalid Maximum retry timeout :" + maxRetryTimeout + " Exceed Global maximum retry timeout :" + MAXRETRYTIMEOUT);
         }
         this.maxRetryTimeout = maxRetryTimeout;
     }
@@ -914,7 +910,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     /**
-     * This method is invoked by the Reliablity library for each incoming data message
+     * This method is invoked by the Reliability library for each incoming data message
      *
      * @param message Incoming message
      */
@@ -926,19 +922,22 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     private void push(PipeMsgEvent event) {
-        if (msgListener == null) {
+        boolean queued = false;
+        BlockingQueue<PipeMsgEvent> msg_queue = queue;
+
+        if (null != msg_queue) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("push message onto queue");
             }
-            queue.offer(event);
-        } else {
-            dequeue();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("calling message listener");
-            }
-            msgListener.pipeMsgEvent(event);
+
+            queued = msg_queue.offer(event);
         }
 
+        PipeMsgListener msg_event_listener = msgListener;
+
+        if (!queued && (null != msg_event_listener)) {
+            msg_event_listener.pipeMsgEvent(event);
+        }
     }
 
     /**
@@ -978,22 +977,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 throw exp;
 
             }
-        }
-    }
-
-    private void dequeue() {
-        if (!dequeued && (null != msgListener)) {
-            while (queue != null && !queue.isEmpty()) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("dequeing messages onto message listener");
-                }
-                try {
-                    msgListener.pipeMsgEvent(queue.take());
-                } catch (InterruptedException e) {
-                    //ignored
-                }
-            }
-            dequeued = false;
         }
     }
 
@@ -1053,9 +1036,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         if (pipeAdv.getType().equals(PipeService.UnicastType)) {
             EndpointService endpoint = group.getEndpointService();
             EndpointAddress pipeEndpoint = new EndpointAddress("jxta",
-                                                       (peer.getPeerID().getUniqueValue()).toString(),
-                                                       "PipeService",
-                                                       pipeAdv.getPipeID().toString());
+                    (peer.getPeerID().getUniqueValue()).toString(),
+                    "PipeService",
+                    pipeAdv.getPipeID().toString());
             return endpoint.getDirectMessenger(pipeEndpoint, peer, true);
         }
         return null;
@@ -1180,9 +1163,27 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param msgListener New value of property listener.
      */
     public void setMessageListener(PipeMsgListener msgListener) {
-        this.msgListener = msgListener;
-        // if there are messages enqueued then dequeue them onto the msgListener
-        dequeue();
+        BlockingQueue<PipeMsgEvent> drainQueue = null;
+        synchronized (this) {
+            this.msgListener = msgListener;
+
+            if (null != msgListener) {
+                drainQueue = queue;
+                queue = null;
+            } else {
+                queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
+            }
+        }
+
+        if (null != drainQueue) {
+            while (!drainQueue.isEmpty()) {
+                PipeMsgEvent event = drainQueue.poll();
+
+                if (null != event) {
+                    push(event);
+                }
+            }
+        }
     }
 
     /**
@@ -1197,7 +1198,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     /**
-     * Sets a Pipe event listener, set listener to null to unset the listener
+     * Sets a Pipe event listener, set listener to null to unset the listener.
      *
      * @param eventListener New value of property listener.
      */
@@ -1245,10 +1246,14 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      *                              the timeout interval is completed.
      */
     public Message getMessage(int timeout) throws InterruptedException {
-        if (queue == null || msgListener != null) {
+        BlockingQueue<PipeMsgEvent> msg_queue = queue;
+        if (msg_queue == null) {
             return null;
         } else {
-            PipeMsgEvent ev = queue.poll(timeout, TimeUnit.MILLISECONDS);
+            if (0 == timeout) {
+                timeout = Integer.MAX_VALUE;
+            }
+            PipeMsgEvent ev = msg_queue.poll(timeout, TimeUnit.MILLISECONDS);
             if (ev != null) {
                 return ev.getMessage();
             } else {
@@ -1272,13 +1277,16 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Closes the JxtaBiDiPipe.
      */
     @Override
-    protected synchronized void finalize() throws Throwable {
-        if (!closed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("JxtaBiDiPipe is being finalized without being previously closed. This is likely a users bug.");
+    protected void finalize() throws Throwable {
+        try {
+            if (!closed) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("JxtaBiDiPipe is being finalized without being previously closed. This is likely a users bug.");
+                }
+                close();
             }
-            close();
+        } finally {
+            super.finalize();
         }
-        super.finalize();
     }
 }
