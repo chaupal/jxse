@@ -115,7 +115,7 @@ public class JxtaServerPipe implements PipeMsgListener {
     private boolean closed = false;
     protected StructuredDocument myCredentialDoc = null;
     /**
-     * The exceutor service.
+     * The executor service.
      */
     private final ExecutorService executor;
 
@@ -281,7 +281,6 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @return The soTimeout value
      * @throws IOException if an I/O error occurs
      */
-
     public synchronized int getPipeTimeout() throws IOException {
         if (isClosed()) {
             throw new SocketException("Server Pipe is closed");
@@ -515,21 +514,26 @@ public class JxtaServerPipe implements PipeMsgListener {
      * Closes the JxtaServerPipe.
      */
     @Override
-    protected synchronized void finalize() throws Throwable {
-        if (!closed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("JxtaServerPipe is being finalized without being previously closed. This is likely a user's bug.");
+    protected void finalize() throws Throwable {
+        try {
+            if (!closed) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("JxtaServerPipe is being finalized without being previously closed. This is likely a user's bug.");
+                }
             }
+            close();
+        } finally {
+            super.finalize();
         }
-        close();
-        super.finalize();
     }
+    
     /**
      * A small class for processing individual messages.
      */
     private class ConnectionProcessor implements Runnable {
 
-        private Message message;
+        private final Message message;
+
         ConnectionProcessor(Message message) {
             this.message = message;
         }
