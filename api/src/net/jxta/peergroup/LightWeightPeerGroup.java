@@ -108,7 +108,7 @@ import java.util.Iterator;
  * 
  * @since JXTA JSE 2.2
  */
-public abstract class LightWeightPeerGroup implements PeerGroup {
+public class LightWeightPeerGroup implements PeerGroup {
 
     /**
      *  Logger
