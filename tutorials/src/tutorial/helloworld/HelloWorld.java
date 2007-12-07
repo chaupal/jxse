@@ -60,32 +60,47 @@ import java.text.MessageFormat;
 import java.io.File;
 
 /**
- * A example of strating and stopping JXTA
+ * A simple example which demonstrates the most basic JXTA operations. This
+ * program configures the peer, starts JXTA, waits until the peer joins the
+ * network and then concludes by stopping JXTA. 
  */
 public class HelloWorld {
 
     /**
      * Main method
      *
-     * @param args none defined
+     * @param args Command line arguments. none defined
      */
     public static void main(String args[]) {
-        NetworkManager manager = null;
-
+        
         try {
-            manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "HelloWorld", new File(new File(".cache"), "HelloWorld").toURI());
+            // Set the main thread name for debugging.
+            Thread.currentThread().setName(HelloWorld.class.getSimpleName());
+
+            // Configure this peer as an ad-hoc peer named "HelloWorld" and
+            // store configuration into ".cache/HelloWorld" directory.
+            System.out.println("Configuring JXTA");
+            NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "HelloWorld", new File(new File(".cache"), "HelloWorld").toURI());
+            
+            // Start the JXTA 
             System.out.println("Starting JXTA");
             manager.startNetwork();
             System.out.println("JXTA Started");
-        } catch (Exception e) {
-            e.printStackTrace();
+            
+            // Wait up to 20 seconds for a connection to the JXTA Network.
+            System.out.println("Waiting for a rendezvous connection");
+            boolean connected = manager.waitForRendezvousConnection(20 * 1000);
+            System.out.println(MessageFormat.format("Connected :{0}", connected));
+            
+            // Stop JXTA
+            System.out.println("Stopping JXTA");
+            manager.stopNetwork();
+            System.out.println("JXTA stopped");            
+        } catch (Throwable e) {
+            // Some type of error occurred. Print stack trace and quit.
+            System.err.println("Fatal error -- Quitting");
+            e.printStackTrace(System.err);
             System.exit(-1);
         }
-        System.out.println("Waiting for a rendezvous connection");
-        boolean connected = manager.waitForRendezvousConnection(12000);
-
-        System.out.println(MessageFormat.format("Connected :{0}", connected));
-        System.out.println("Stopping JXTA");
-        manager.stopNetwork();
     }
 }
