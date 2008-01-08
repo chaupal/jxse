@@ -776,12 +776,9 @@ public class ConfigDialog extends Frame {
             ips.add("Any/All Local Addresses");
 
             try {
-                Iterator<InetAddress> allIntf = IPUtils.getAllLocalAddresses();
                 boolean sawValid = false;
 
-                while (allIntf.hasNext()) {
-                    InetAddress anAddr = allIntf.next();
-
+                for (InetAddress anAddr : IPUtils.getAllLocalAddresses()) {
                     if (IPUtils.LOOPBACK.equals(anAddr)) {
                         continue;
                     }
@@ -804,11 +801,7 @@ public class ConfigDialog extends Frame {
 
                         // However, if this address is in the automatic list,
                         // switch back to automatic and select it.
-                        allIntf = IPUtils.getAllLocalAddresses();
-
-                        while (allIntf.hasNext()) {
-                            InetAddress anAddr = allIntf.next();
-
+                        for (InetAddress anAddr : IPUtils.getAllLocalAddresses()) {
                             if (defaultIntf.equals(anAddr)) {
                                 modeManual = false;
                                 ips.select(defaultInterfaceAddr);

@@ -191,7 +191,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
     private String protocolName = "tcp";
     private TransportMeter unicastTransportMeter;
-    private TransportMeter multicastTransportMeter;
 
     private boolean publicAddressOnly = false;
 
@@ -485,12 +484,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
             InetSocketAddress boundAddress = unicastServer.getLocalSocketAddress();
 
-            // TODO bondolo 20040628 Save the port back as a preference to TCPAdv
-            /*
             if(-1 != adv.getStartPort()) {
                 adv.setPort(boundAddress.getPort());
             }
-            */
 
             // Build the publicAddresses :
             // first in the list is the "public server name". We don't try to
@@ -508,11 +504,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
             if (usingInterface.equals(IPUtils.ANYADDRESS)) {
                 // its wildcarded
-                Iterator eachLocal = IPUtils.getAllLocalAddresses();
                 List<EndpointAddress> wildAddrs = new ArrayList<EndpointAddress>();
 
-                while (eachLocal.hasNext()) {
-                    InetAddress anAddress = (InetAddress) eachLocal.next();
+                for (InetAddress anAddress: IPUtils.getAllLocalAddresses()) {
                     String hostAddress = IPUtils.getHostAddress(anAddress);
                     EndpointAddress newAddr = new EndpointAddress(protocolName,
                             hostAddress + ":" + Integer.toString(boundAddress.getPort()), null, null);
@@ -591,11 +585,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             // work properly.
             if (usingInterface.equals(IPUtils.ANYADDRESS)) {
                 boolean localOnly = true;
-                Iterator eachLocal = IPUtils.getAllLocalAddresses();
-
-                while (eachLocal.hasNext()) {
-                    InetAddress anAddress = (InetAddress) eachLocal.next();
-
+                for (InetAddress anAddress : IPUtils.getAllLocalAddresses()) {
                     if (!anAddress.isLoopbackAddress()) {
                         localOnly = false;
                         break;

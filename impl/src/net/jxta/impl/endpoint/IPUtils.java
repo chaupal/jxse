@@ -53,9 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint;
-
 
 import java.io.IOException;
 import java.net.BindException;
@@ -65,45 +63,39 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import javax.net.ServerSocketFactory;
 
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
-
 /**
  * Utility methods for use by IP based transports.
  */
 public final class IPUtils {
-    
+
     /**
      * Logger
      */
     private final static Logger LOG = Logger.getLogger(IPUtils.class.getName());
-    
-    final static Random random = new Random();
-    
+
     final static String IPV4ANYADDRESS = "0.0.0.0";
     final static String IPV6ANYADDRESS = "::";
-    
     final static String IPV4LOOPBACK = "127.0.0.1";
     final static String IPV6LOOPBACK = "::1";
-    
     /**
      * Constant which works as the IP "Any Address" value
      */
     public final static InetAddress ANYADDRESS;
     public final static InetAddress ANYADDRESSV4;
     public final static InetAddress ANYADDRESSV6;
-    
     /**
      * Constant which works as the IP "Local Loopback" value;
      */
@@ -119,7 +111,6 @@ public final class IPUtils {
      * <p/>Plugin in a different implementation via setSocketFactory().
      */
     private static SocketFactory socketFactory;
-    
     /**
      * Socket factory to allow changing the way Sockets are created
      * and connected.  A null value is ok and results in the regular
@@ -128,10 +119,10 @@ public final class IPUtils {
      * <p/>Plugin in a different implementation via setSocketFactory().
      */
     private static ServerSocketFactory serverSocketFactory;
-    
+
     static {
         InetAddress GET_ADDRESS = null;
-        
+
         try {
             GET_ADDRESS = InetAddress.getByName(IPV4ANYADDRESS);
         } catch (Exception ignored) {
@@ -139,10 +130,8 @@ public final class IPUtils {
                 LOG.warning("failed to intialize ANYADDRESSV4. Not fatal");
             }
         }
-        
-        ANYADDRESSV4 = GET_ADDRESS;
 
-        InetAddress GET_ANYADDRESSV6 = null;
+        ANYADDRESSV4 = GET_ADDRESS;
 
         GET_ADDRESS = null;
         try {
@@ -152,11 +141,11 @@ public final class IPUtils {
                 LOG.warning("failed to intialize IPV6ANYADDRESS. Not fatal");
             }
         }
-        
+
         ANYADDRESSV6 = GET_ADDRESS;
-        
+
         ANYADDRESS = (ANYADDRESSV4 == null) ? ANYADDRESSV6 : ANYADDRESSV4;
-        
+
         GET_ADDRESS = null;
         try {
             GET_ADDRESS = InetAddress.getByName(IPV4LOOPBACK);
@@ -165,9 +154,9 @@ public final class IPUtils {
                 LOG.warning("failed to intialize IPV4LOOPBACK. Not fatal");
             }
         }
-        
+
         LOOPBACKV4 = GET_ADDRESS;
-        
+
         GET_ADDRESS = null;
         try {
             GET_ADDRESS = InetAddress.getByName(IPV6LOOPBACK);
@@ -176,95 +165,99 @@ public final class IPUtils {
                 LOG.warning("failed to intialize ANYADDRESSV4. Not fatal");
             }
         }
-        
+
         LOOPBACKV6 = GET_ADDRESS;
-        
+
         LOOPBACK = (LOOPBACKV4 == null) ? LOOPBACKV6 : LOOPBACKV4;
-        
+
         if (LOOPBACK == null || ANYADDRESS == null) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.severe("failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
             }
-            
+
             throw new IllegalStateException("failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
         }
     }
-    
+
     /**
      * This is a static utility class, you don't make instances.
      */
-    private IPUtils() {}
-    
+    private IPUtils() {
+    }
+
     /**
-     * Provide an iterator which returns all of the local InetAddresses for this
-     * host.
-     *
-     * @return iterator of InetAddress which is all of the InetAddress for all
-     *         local interfaces.
+     * Returns all of the local InetAddresses for all of the local IP Network
+     * Interfaces.
+     * <p/>
+     * The system property "{@code net.jxta.impl.IPUtils.localOnly}" will force 
+     * the local loopback addresses into the list of interface addresses 
+     * returned.
+     * 
+     * @return All of the InetAddress for all local interfaces.
      */
-    public static Iterator<InetAddress> getAllLocalAddresses() {
-        List<InetAddress> allAddr = new ArrayList<InetAddress>();
-        
+    public static Collection<InetAddress> getAllLocalAddresses() {
+        Collection<InetAddress> allAddr = new ArrayList<InetAddress>();
+
         Enumeration<NetworkInterface> allInterfaces = null;
 
         try {
             allInterfaces = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException caught) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not get local interfaces list", caught);
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Could not get local interfaces list", caught);
             }
         }
-        
+
         if (null == allInterfaces) {
             allInterfaces = Collections.enumeration(Collections.<NetworkInterface>emptyList());
         }
-        
+
         while (allInterfaces.hasMoreElements()) {
             NetworkInterface anInterface = allInterfaces.nextElement();
-            
+
             try {
                 Enumeration<InetAddress> allIntfAddr = anInterface.getInetAddresses();
-                
+
                 while (allIntfAddr.hasMoreElements()) {
                     InetAddress anAddr = allIntfAddr.nextElement();
-                    
+
                     if (anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress()) {
                         continue;
                     }
-                    
+
                     if (!allAddr.contains(anAddr)) {
                         allAddr.add(anAddr);
                     }
                 }
             } catch (Throwable caught) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Could not get addresses for " + anInterface, caught);
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Could not get addresses for " + anInterface, caught);
                 }
             }
         }
-        
+
         // if nothing suitable was found then return loopback address.
         if (allAddr.isEmpty() || Boolean.getBoolean("net.jxta.impl.IPUtils.localOnly")) {
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.finer("Adding loopback interfaces");
+            }
+
             if (null != LOOPBACKV4) {
                 allAddr.add(LOOPBACKV4);
             }
-            
+
             if (null != LOOPBACKV6) {
                 allAddr.add(LOOPBACKV6);
             }
-            
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Adding loopback interfaces");
-            }
         }
-        
+
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Returning " + allAddr.size() + " addresses.");
         }
-        
-        return allAddr.iterator();
+
+        return allAddr;
     }
-    
+
     /**
      * Normalized version of {@link java.net.InetAddress#getHostAddress()} that
      * handles IPv6 addresss formatting using the style of IETF RFC 2732 and
@@ -276,11 +269,11 @@ public final class IPUtils {
      */
     public static String getHostAddress(InetAddress anAddress) {
         String hostAddress;
-        
+
         if (anAddress instanceof Inet6Address) {
             hostAddress = anAddress.getHostAddress();
             int percentAt = hostAddress.indexOf('%');
-            
+
             if (-1 == percentAt) {
                 // no scoping identifier. Just add the brackets.
                 hostAddress = "[" + hostAddress + "]";
@@ -291,10 +284,10 @@ public final class IPUtils {
         } else {
             hostAddress = anAddress.getHostAddress();
         }
-        
+
         return hostAddress;
     }
-    
+
     /**
      *  Parses a String containing a SokectAddress formatted as either:
      *  <p/>
@@ -310,41 +303,41 @@ public final class IPUtils {
     public static InetSocketAddress parseSocketAddress(String anAddress) {
         String hostAddress;
         String port;
-        
+
         if (anAddress.startsWith("[")) {
             int endBracketAt = anAddress.indexOf(']');
             int portSeparatorAt = anAddress.lastIndexOf(':');
-            
+
             if (-1 == endBracketAt) {
                 throw new IllegalArgumentException("missing final ]");
             }
-            
+
             if (-1 == portSeparatorAt) {
                 throw new IllegalArgumentException("missing port separator");
             }
-            
+
             if (portSeparatorAt < endBracketAt) {
                 throw new IllegalArgumentException("missing port");
             }
-            
+
             hostAddress = anAddress.substring(1, endBracketAt);
             port = anAddress.substring(portSeparatorAt);
         } else {
             int portSeparatorAt = anAddress.lastIndexOf(':');
-            
+
             if (-1 == portSeparatorAt) {
                 throw new IllegalArgumentException("missing port separator");
             }
-            
+
             hostAddress = anAddress.substring(0, portSeparatorAt);
             port = anAddress.substring(portSeparatorAt + 1);
         }
-        
+
         int portNum = Integer.parseInt(port);
-        
+
         return InetSocketAddress.createUnresolved(hostAddress, portNum);
     }
-    
+
     /**
      * Create a client socket using the configured socketFactory or
      * connectToFromNoFactory if none is available.
@@ -364,7 +357,7 @@ public final class IPUtils {
             return connectToFromNoFactory(inetAddress, port, usingInterface, localPort, timeout);
         }
     }
-    
+
     /**
      * Create a client socket with the JDK1.4 method connect().
      *
@@ -377,17 +370,17 @@ public final class IPUtils {
      * @throws IOException if an io error occurs
      */
     public static Socket connectToFromNoFactory(InetAddress inetAddress, int port, InetAddress usingInterface, int localPort, int timeout) throws IOException {
-        
+
         Socket socket = new Socket();
         InetSocketAddress src = new InetSocketAddress(usingInterface, localPort);
         InetSocketAddress dst = new InetSocketAddress(inetAddress, port);
 
         socket.bind(src);
         socket.connect(dst, timeout);
-        
+
         return socket;
     }
-    
+
     /**
      * makes connectToFrom create sockets with this factory.
      *
@@ -397,7 +390,7 @@ public final class IPUtils {
     public static void setSocketFactory(SocketFactory sf) {
         socketFactory = sf;
     }
-    
+
     /**
      * returns the socketFactory used by connectToFrom() to create sockets, or
      * null if connectToFromNoFactory() is being used.
@@ -408,7 +401,7 @@ public final class IPUtils {
     public static SocketFactory getSocketFactory() {
         return socketFactory;
     }
-    
+
     /**
      * makes connectToFrom create sockets with this factory.
      *
@@ -418,7 +411,7 @@ public final class IPUtils {
     public static void setServerSocketFactory(ServerSocketFactory sf) {
         serverSocketFactory = sf;
     }
-    
+
     /**
      * returns the ServerSocketFactory to create server sockets, or
      * null if new SeverSocket() is being used.
@@ -429,19 +422,17 @@ public final class IPUtils {
     public static ServerSocketFactory getServerSocketFactory() {
         return serverSocketFactory;
     }
-    
     /**
      * Size of port groups we will probe.
      */
     final static int rangesize = 200;
-    
+
     /**
      * Open a ServerSocket in the specified range.
-     *
      * <p/>
-     * The method used is done so that the entire range is examined if
-     * needed while ensuring that the process eventually terminates if no port
-     * is available.
+     * The method used ensures that the entire range is examined if needed
+     * while ensuring that the process eventually terminates if no port is 
+     * available.
      *
      * @param start       The lowest numbered port to try.
      * @param end         The highest numbered port to try.
@@ -450,59 +441,90 @@ public final class IPUtils {
      * @return a ServerSocket in the specified range.
      * @throws IOException when the socket cannot be opened. (Lame, but that's what ServerSocket says).
      */
-    public static ServerSocket openServerSocketInRange(int start, int end, int backlog, InetAddress bindAddress) throws IOException {
+    public static ServerSocket openServerSocketInRange(int start, int end, final int backlog, final InetAddress bindAddress) throws IOException {
         ServerSocketFactory factory = getServerSocketFactory();
-        
-        if ((start < 1) || (start > 65535)) {
+
+        ServerSocket result;
+
+        if (null == factory) {
+            result = new ServerSocket();
+        } else {
+            result = factory.createServerSocket();
+        }
+
+        return bindServerSocketInRange(result, start, end, backlog, bindAddress);
+    }
+
+    /**
+     * Bind a ServerSocket to a port in the specified range.
+     * <p/>
+     * The method used ensures that the entire range is examined if needed
+     * while ensuring that the process eventually terminates if no port is 
+     * available.
+     *
+     * @param socket The server socket to be bound to a port.
+     * @param start The lowest numbered port to try or 0 for system dynamic port.
+     * @param end The highest numbered port to try or 0 for system dynamic port.
+     * @param backlog The allowed backlog of unaccepted connections.
+     * @param bindAddress The InetAddress of the local interface to which to bind.
+     * @return The ServerSocket bound to an address in the requested range.
+     * @throws IOException when the socket cannot be opened. (Lame, but that's what ServerSocket says).
+     */
+    public static ServerSocket bindServerSocketInRange(ServerSocket socket, final int start, int end, final int backlog, final InetAddress bindAddress) throws IOException {        
+        if ((start < 0) || (start > 65535)) {
             throw new IllegalArgumentException("Invalid start port");
         }
-        
-        if ((end < 1) || (end > 65535) || (end < start)) {
+
+        if ((end < 0) || (end > 65535) || (end < start)) {
             throw new IllegalArgumentException("Invalid end port");
         }
         
+        if(0 == start) {
+            // System specified dynamic port.
+            SocketAddress bindSocketAddress = new InetSocketAddress(bindAddress, 0);            
+            socket.bind(bindSocketAddress, backlog);
+            return socket;
+        }
+
         // fill the inRange array.
         List<Integer> inRange = new ArrayList<Integer>(rangesize);
 
         for (int eachInRange = 0; eachInRange < rangesize; eachInRange++) {
             inRange.add(eachInRange, eachInRange);
         }
-        
+
         // fill the ranges array.
         List<Integer> ranges = new ArrayList<Integer>();
         int starts = start;
-        
+
         while (starts <= end) {
             ranges.add(starts);
             starts += rangesize;
         }
-        
+
         // shuffle the ranges
         Collections.shuffle(ranges);
         while (!ranges.isEmpty()) {
             int range = ranges.remove(0);
-            
+
             // reshuffle the inRange
             Collections.shuffle(inRange);
-            
+
             for (int eachInRange = 0; eachInRange < rangesize; eachInRange++) {
                 int tryPort = range + inRange.get(eachInRange);
-                
+
                 if (tryPort > end) {
                     continue;
                 }
-                
-                try {
-                    ServerSocket result;
 
-                    if (null == factory) {
-                        result = new ServerSocket(tryPort, backlog, bindAddress);
-                    } else {
-                        result = factory.createServerSocket(tryPort, backlog, bindAddress);
-                    }
-                    
-                    return result;
-                } catch (BindException failed) {// this one is busy. try another.
+                SocketAddress bindSocketAddress = new InetSocketAddress(bindAddress, tryPort);
+
+                try {
+                    socket.bind(bindSocketAddress, backlog);
+
+                    return socket;
+                } catch (SocketException failed) {
+                // this one is busy. try another.
                 }
             }
         }

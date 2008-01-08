@@ -410,12 +410,9 @@ public final class ServletHttpTransport implements Module {
         // then add the rest of the local interfaces as appropriate
         if (usingInterface.equals(IPUtils.ANYADDRESS)) {
             // its wildcarded
-            Iterator<InetAddress> eachLocal = IPUtils.getAllLocalAddresses();
             List<EndpointAddress> wildAddrs = new ArrayList<EndpointAddress>();
 
-            while (eachLocal.hasNext()) {
-                InetAddress anAddress = eachLocal.next();
-
+            for (InetAddress anAddress : IPUtils.getAllLocalAddresses()) {
                 String hostAddress = IPUtils.getHostAddress(anAddress);
 
                 EndpointAddress newAddr = new EndpointAddress(HTTP_PROTOCOL_NAME,

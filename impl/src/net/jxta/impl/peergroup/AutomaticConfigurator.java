@@ -494,7 +494,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             return false;
         }
 
-        for (Iterator la = IPUtils.getAllLocalAddresses(); la.hasNext() && !found;) {
+        for (Iterator la = IPUtils.getAllLocalAddresses().iterator(); la.hasNext() && !found;) {
             for (InetAddress ia1 : ias) {
                 found |= ia1.equals(la.next());
             }

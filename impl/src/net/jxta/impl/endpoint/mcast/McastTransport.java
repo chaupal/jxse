@@ -357,9 +357,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         // properly.
         if (usingInterface.equals(IPUtils.ANYADDRESS)) {
             boolean localOnly = true;
-            Iterator<InetAddress> eachLocal = IPUtils.getAllLocalAddresses();
-            while (eachLocal.hasNext()) {
-                InetAddress anAddress = eachLocal.next();
+            for (InetAddress anAddress : IPUtils.getAllLocalAddresses()) {
                 if (!anAddress.isLoopbackAddress()) {
                     localOnly = false;
                     break;

@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.tcp;
 
 import net.jxta.logging.Logging;
@@ -64,13 +63,13 @@ import java.net.*;
 import java.nio.channels.*;
 import java.nio.channels.spi.SelectorProvider;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.impl.endpoint.IPUtils;
+import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 
 /**
  * This server handles incoming unicast TCP connections
@@ -81,116 +80,100 @@ public class IncomingUnicastServer implements Runnable {
      * Logger
      */
     private static final Logger LOG = Logger.getLogger(IncomingUnicastServer.class.getName());
-
     /**
      * The transport which owns this server.
      */
     private final TcpTransport transport;
-
     /**
      * The interface address the serverSocket will try to bind to.
      */
     private final InetAddress serverBindLocalInterface;
-
     /**
      * The beginning of the port range the serverSocket will try to bind to.
      */
     private final int serverBindStartLocalPort;
-
     /**
      * The port the serverSocket will try to bind to.
      */
-    private int serverBindPreferedLocalPort;
-
+    private int serverBindPreferredLocalPort;
     /**
      * The end of the port range the serverSocket will try to bind to.
      */
     private final int serverBindEndLocalPort;
-
-    /**
-     * The socket we listen for connections on.
-     */
-    private ServerSocket serverSocket;
-
-    /**
-     * If true then the we are closed or closing.
-     */
-    private volatile boolean closed = false;
-
     /**
      * The thread on which connection accepts will take place.
      */
     private Thread acceptThread = null;
-
     /**
      * Channel Selector
      */
-    private Selector acceptSelector = null;
-
+    private final Selector acceptSelector;
     /**
-     * ServerSocket Channel
+     *  The Server Socket Channel we have opened to receive connections.
      */
     private ServerSocketChannel serverSocChannel = null;
+    /**
+     *  The server socket associated with the channel.
+     */
+    private ServerSocket serverSocket = null;
 
     /**
      * Constructor for the TCP server
      *
-     * @param owner           the TCP transport we are working for
-     * @param serverInterface the network interface to use.
-     * @param preferedPort    the port we will be listening on.
-     * @param startPort       starting port
-     * @param endPort         the endport in port range
-     * @throws IOException       if an io severe occurs
-     * @throws SecurityException if a security exception occurs
+     * @param owner The message transport we are working for.
+     * @param serverInterface The network interface to use.
+     * @param preferredPort The port we will be listening on, 0 or -1 if we have no current preference.
+     * @param startPort The lowest port # in the range we will try or -1 if range is disabled.
+     * @param endPort The highest port # in the range we will try or -1 if range is disabled.
+     * @throws IOException Thrown if the server socket cannot be opened.
+     * @throws SecurityException Thrown if the server socket cannot be oppened due to a security restriction.
      */
-    public IncomingUnicastServer(TcpTransport owner, InetAddress serverInterface, int preferedPort, int startPort, int endPort) throws IOException, SecurityException {
+    public IncomingUnicastServer(TcpTransport owner, InetAddress serverInterface, int preferredPort, int startPort, int endPort) throws IOException, SecurityException {
         this.transport = owner;
         serverBindLocalInterface = serverInterface;
-        serverBindPreferedLocalPort = preferedPort;
+        serverBindPreferredLocalPort = preferredPort;
         serverBindStartLocalPort = startPort;
         serverBindEndLocalPort = endPort;
 
-        openServerSocket();
+        acceptSelector = SelectorProvider.provider().openSelector();
+        serverSocChannel = openServerSocket(acceptSelector);
+        serverSocket = serverSocChannel.socket();
+        serverBindPreferredLocalPort = serverSocket.getLocalPort();
     }
 
     /**
      * Start this server.
      *
-     * @return true if successfully started
+     * @return {@code true} if successfully started otherwise {@code false} if 
+     * this server cannot be started.
      */
     public synchronized boolean start() {
+        if (!acceptSelector.isOpen()) {
+            return false;
+        }
 
         if (acceptThread != null) {
             return false;
         }
 
         // Start daemon thread
-        acceptThread = new Thread(transport.group.getHomeThreadGroup(), this, "TCP Transport ServerSocket accept for " + transport.getPublicAddress());
+        acceptThread = new Thread(transport.group.getHomeThreadGroup(), this, "ServerSocketChannel acceptor for " + getLocalSocketAddress());
         acceptThread.setDaemon(true);
         acceptThread.start();
+
         return true;
     }
 
     /**
-     * Stop this server.
+     * Stop this server. The server cannot be restarted after it has been
+     * stopped.
      */
     public synchronized void stop() {
-        closed = true;
-
         Thread temp = acceptThread;
 
         if (null != temp) {
             // interrupt does not seem to have an effect on threads blocked in accept.
             temp.interrupt();
-        }
-
-        // Closing the socket works though.
-        try {
-            serverSocket.close();
-        } catch (IOException ignored) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "IO error occured while closing server socket", ignored);
-            }
         }
 
         try {
@@ -207,7 +190,7 @@ public class IncomingUnicastServer implements Runnable {
      *
      * @return the local socket address
      */
-    synchronized InetSocketAddress getLocalSocketAddress() {
+    InetSocketAddress getLocalSocketAddress() {
         ServerSocket localSocket = serverSocket;
 
         if (null != localSocket) {
@@ -239,22 +222,32 @@ public class IncomingUnicastServer implements Runnable {
      * Daemon where we wait for incoming connections.
      */
     public void run() {
+
         try {
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Server is ready to accept connections");
+                LOG.info("Server is ready to accept connections. " + transport.getPublicAddress());
             }
 
-            while (!closed) {
+            while (acceptSelector.isOpen()) {
                 try {
+                    // Open the channel if not already open.
                     if ((null == serverSocChannel) || !serverSocChannel.isOpen()) {
-                        openServerSocket();
-                        if (null == serverSocChannel) {
+                        serverSocChannel = null;
+                        serverSocket = null;
+
+                        if (null == (serverSocChannel = openServerSocket(acceptSelector))) {
                             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                                 LOG.warning("Failed to open Server Channel");
                             }
                             break;
                         }
+                        serverSocket = serverSocChannel.socket();
+                        serverBindPreferredLocalPort = serverSocket.getLocalPort();
+                        
+                        // FIXME 20080109 bondolo 
                     }
+
+                    // select() waiting for connections.
                     acceptSelector.select();
                     Iterator<SelectionKey> it = acceptSelector.selectedKeys().iterator();
 
@@ -267,11 +260,11 @@ public class IncomingUnicastServer implements Runnable {
                             ServerSocketChannel nextReady = (ServerSocketChannel) key.channel();
                             SocketChannel inputSocket = nextReady.accept();
 
-                            if ((inputSocket == null) || (inputSocket.socket() == null)) {
+                            if (inputSocket == null) {
                                 continue;
                             }
 
-                            MessengerBuilder builder = new MessengerBuilder(inputSocket, transport);
+                            MessengerBuilder builder = new MessengerBuilder(transport, inputSocket);
 
                             try {
                                 transport.executor.execute(builder);
@@ -284,31 +277,22 @@ public class IncomingUnicastServer implements Runnable {
                         }
                     }
                 } catch (ClosedSelectorException cse) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Accept Selector closed");
-                    }
-                    if (closed) {
-                        break;
-                    }
+                    break;
                 } catch (InterruptedIOException woken) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Accept Thread woken");
-                    }
+                    Thread.interrupted();
                 } catch (IOException e1) {
-                    if (closed) {
+                    if (!acceptSelector.isOpen()) {
                         break;
                     }
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING,
-                                "[1] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":"+ serverSocket.getLocalPort(), e1);
+                        LOG.log(Level.WARNING, "[1] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e1);
                     }
                 } catch (SecurityException e2) {
-                    if (closed) {
-                        break;
-                    }
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "[2] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e2);
                     }
+
+                    break;
                 }
             }
         } catch (Throwable all) {
@@ -317,10 +301,9 @@ public class IncomingUnicastServer implements Runnable {
             }
         } finally {
             synchronized (this) {
-                closed = true;
-                ServerSocket temp = serverSocket;
+                ServerSocketChannel temp = serverSocChannel;
+                serverSocChannel = null;
 
-                serverSocket = null;
                 if (null != temp) {
                     try {
                         temp.close();
@@ -332,101 +315,69 @@ public class IncomingUnicastServer implements Runnable {
                 }
                 acceptThread = null;
             }
+
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Server has been shut down.");
+                LOG.info("Server has been shut down. " + transport.getPublicAddress());
             }
         }
     }
 
-    public List<Integer> rangeCheckShuffle(int start, int end) {
-        if ((start < 1) || (start > 65535)) {
-            throw new IllegalArgumentException("Invalid start port");
-        }
+    private synchronized ServerSocketChannel openServerSocket(Selector registerSelector) throws IOException, SecurityException {
+        ServerSocketChannel newChannel = ServerSocketChannel.open();
 
-        if ((end < 1) || (end > 65535) || (end < start)) {
-            throw new IllegalArgumentException("Invalid end port");
-        }
-
-        // fill the inRange array.
-        List<Integer> inRange = new ArrayList<Integer>();
-
-        for (int eachInRange = start; eachInRange < end; eachInRange++) {
-            inRange.add(eachInRange);
-        }
-        Collections.shuffle(inRange);
-        return inRange;
-    }
-
-    private synchronized void openServerSocket() throws IOException, SecurityException {
-        serverSocket = null;
         while (true) {
-            try {
-                synchronized (this) {
-                    acceptSelector = SelectorProvider.provider().openSelector();
-                    serverSocChannel = ServerSocketChannel.open();
-                    InetSocketAddress bindAddress;
+            InetSocketAddress bindAddress;
 
-                    if (-1 != serverBindPreferedLocalPort) {
-                        bindAddress = new InetSocketAddress(serverBindLocalInterface, serverBindPreferedLocalPort);
-                        serverSocket = serverSocChannel.socket();
-                        int useBufferSize = Math.max(TcpTransport.RecvBufferSize, serverSocket.getReceiveBufferSize());
-
-                        serverSocket.setReceiveBufferSize(useBufferSize);
-                        serverSocket.bind(bindAddress, TcpTransport.MaxAcceptCnxBacklog);
-                    } else {
-                        List<Integer> rangeList = rangeCheckShuffle(serverBindStartLocalPort, serverBindEndLocalPort);
-
-                        while (!rangeList.isEmpty()) {
-                            int tryPort = rangeList.remove(0);
-
-                            if (tryPort > serverBindEndLocalPort) {
-                                continue;
-                            }
-
-                            try {
-                                bindAddress = new InetSocketAddress(serverBindLocalInterface, tryPort);
-                                serverSocket = serverSocChannel.socket();
-                                int useBufferSize = Math.max(TcpTransport.RecvBufferSize, serverSocket.getReceiveBufferSize());
-
-                                serverSocket.setReceiveBufferSize(useBufferSize);
-                                serverSocket.bind(bindAddress, TcpTransport.MaxAcceptCnxBacklog);
-
-                                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                                    LOG.info("ServerSocketChannel bound to " + bindAddress + ":" + tryPort);
-                                }
-                            } catch (SocketException failed) {
-                                // this one is busy. try another.
-                            } catch (Error err) {
-                                // this can occur on some platforms where 2 instances are listenting on the same port
-                            }
-                        }
-                    }
-                }
+            if ((-1 != serverBindPreferredLocalPort) && (0 != serverBindPreferredLocalPort)) {
+                // Try to bind to our preferred port if we have one.
                 try {
-                    // set the new channel non-blocking
-                    serverSocChannel.configureBlocking(false);
-                    serverSocChannel.register(acceptSelector, SelectionKey.OP_ACCEPT);
-                } catch (ClosedChannelException cce) {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.log(Level.FINER, "Channel closed.", cce);
+                    bindAddress = new InetSocketAddress(serverBindLocalInterface, serverBindPreferredLocalPort);
+                    ServerSocket newSocket = newChannel.socket();
+                    int useBufferSize = Math.max(TcpTransport.RecvBufferSize, newSocket.getReceiveBufferSize());
+
+                    newSocket.setReceiveBufferSize(useBufferSize);
+                    newSocket.bind(bindAddress, TcpTransport.MaxAcceptCnxBacklog);
+
+                    break;
+                } catch (SocketException failed) {
+                    if (-1 != serverBindStartLocalPort) {
+                        // If there is a port range then forget our preferred port and rest
+                        serverBindPreferredLocalPort = (0 == serverBindStartLocalPort) ? 0 : -1;
+                        continue;
                     }
+
+                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                        LOG.log(Level.SEVERE, "Cannot bind ServerSocket on " + serverBindLocalInterface + ":" + serverBindPreferredLocalPort, failed);
+                    }
+
+                    return null;
                 }
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Server will accept connections at " + serverSocket.getLocalSocketAddress());
-                }
-                return;
-            } catch (BindException e0) {
-                if (-1 != serverBindStartLocalPort) {
-                    serverBindPreferedLocalPort = (0 == serverBindStartLocalPort) ? 0 : -1;
-                    continue;
-                }
-                closed = true;
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Cannot bind ServerSocket on " + serverBindLocalInterface + ":" + serverBindPreferedLocalPort, e0);
-                }
-                return;
+            } else {
+                // No preference or we already tried and failed to bind the preferred port.
+                ServerSocket newSocket = newChannel.socket();
+                int useBufferSize = Math.max(TcpTransport.RecvBufferSize, newSocket.getReceiveBufferSize());
+
+                newSocket.setReceiveBufferSize(useBufferSize);
+
+                newSocket = IPUtils.bindServerSocketInRange(newSocket, serverBindStartLocalPort, serverBindEndLocalPort, TcpTransport.MaxAcceptCnxBacklog, serverBindLocalInterface);
             }
+
+            try {
+                newChannel.configureBlocking(false);
+                newChannel.register(registerSelector, SelectionKey.OP_ACCEPT);
+            } catch (ClosedChannelException cce) {
+                // Odd.... try again.
+                continue;
+            }
+            
+            break;
         }
+
+        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+            LOG.info("Server will accept connections at " + newChannel.socket().getLocalSocketAddress());
+        }
+
+        return newChannel;
     }
 
     /**
@@ -435,13 +386,12 @@ public class IncomingUnicastServer implements Runnable {
      */
     private static class MessengerBuilder implements Runnable {
 
-        private SocketChannel inputSocket;
-        private TcpTransport transport;
+        private final SocketChannel socketChannel;
+        private final TcpTransport transport;
         TcpMessenger newMessenger;
 
-        MessengerBuilder(SocketChannel inputSocket, TcpTransport transport) {
-            assert inputSocket.socket() != null;
-            this.inputSocket = inputSocket;
+        MessengerBuilder(TcpTransport transport, SocketChannel socketChannel) {
+            this.socketChannel = socketChannel;
             this.transport = transport;
         }
 
@@ -450,8 +400,19 @@ public class IncomingUnicastServer implements Runnable {
          */
         public void run() {
             try {
-                if (inputSocket != null && inputSocket.isConnected()) {
-                    newMessenger = new TcpMessenger(inputSocket, transport);
+                if (socketChannel.isConnected() && (null != socketChannel.socket())) {
+                    newMessenger = new TcpMessenger(socketChannel, transport);
+                    if (TransportMeterBuildSettings.TRANSPORT_METERING) {
+                        TransportBindingMeter transportBindingMeter = transport.getUnicastTransportBindingMeter(null, newMessenger.getDestinationAddress());
+
+                        if (transportBindingMeter != null) {
+                            transportBindingMeter.connectionEstablished(false, 0);
+                        }
+                    }
+                } else {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.log(Level.WARNING, socketChannel + " not connected.");
+                    }
                 }
             } catch (IOException io) {
                 // protect against invalid connections
