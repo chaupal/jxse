@@ -65,7 +65,6 @@ import java.util.logging.Logger;
 import net.jxta.document.Advertisement;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
@@ -77,9 +76,7 @@ import net.jxta.platform.JxtaLoader;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-import net.jxta.impl.endpoint.cbjx.CbJxDefs;
 import net.jxta.impl.endpoint.mcast.McastTransport;
-import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.service.Service;
 
 /**
@@ -139,7 +136,7 @@ public class Platform extends StdPeerGroup {
 
         // Insert the paramAdv in the World PeerGroup Impl Advertisement.
         implAdv.setParam((XMLDocument) paramAdv.getDocument(MimeMediaType.XMLUTF8));
-
+        
         return implAdv;
     }
 
