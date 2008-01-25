@@ -67,7 +67,6 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -111,6 +110,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.impl.util.TimeUtils;
 
 /**
  * This class implements the IP Multicast Message Transport.
@@ -247,6 +247,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean equals(Object target) {
         if (this == target) {
             return true;
@@ -262,6 +263,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int hashCode() {
         return getPublicAddress().hashCode();
     }
@@ -588,7 +590,9 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                     // return. As a result we may lose datagram packets because
                     // we are not calling
                     // {@link MulticastSocket#receive(DatagramPacket)} often
-                    // enough.
+                    // enough. Forcing the IP stack to do the dropping produces
+                    // a better overall result than receiving the packets and
+                    // dropping them ourselves.
                     multicastProcessor.put(packet);
                 } catch (InterruptedException woken) {
                     Thread.interrupted();
@@ -618,12 +622,9 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
     /**
      * {@inheritDoc}
-     * <p/>
-     * Synchronized to not allow concurrent IP multicast: this naturally bounds
-     * the usage of ip-multicast boolean be linear and not exponential.
      */
-    public synchronized boolean propagate(Message message, String pName, String pParams, int initalTTL) {
-        long sendStartTime = System.currentTimeMillis();
+    public boolean propagate(Message message, final String pName, final String pParams, int initalTTL) {
+        long sendStartTime = TimeUtils.timeNow();
         int numBytesInPacket = 0;
 
         try {
@@ -659,22 +660,26 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             DatagramPacket packet = new DatagramPacket(buffer.toByteArray(), numBytesInPacket, multicastInetAddress, multicastPort);
 
-            multicastSocket.send(packet);
+            synchronized(multicastSocket) {
+                // Set the TTL for each packet since send() doesn't let us specify.
+                multicastSocket.setTimeToLive(Math.max(initalTTL, 255));
+                multicastSocket.send(packet);
+            }
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Sent Multicast message to :" + pName + "/" + pParams);
             }
 
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.messageSent(true, message, System.currentTimeMillis() - sendStartTime, numBytesInPacket);
+                multicastTransportBindingMeter.messageSent(true, message, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
             }
             return true;
         } catch (IOException e) {
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.sendFailure(true, message, System.currentTimeMillis() - sendStartTime, numBytesInPacket);
+                multicastTransportBindingMeter.sendFailure(true, message, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
             }
 
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) && !multicastSocket.isClosed()) {
                 LOG.log(Level.WARNING, "Multicast socket send failed", e);
             }
             return false;
@@ -690,7 +695,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         int size = packet.getLength();
         byte[] buffer = packet.getData();
 
-        long messageReceiveBeginTime = System.currentTimeMillis();
+        long messageReceiveBeginTime = TimeUtils.timeNow();
 
         try {
             if (size < 4) {
@@ -750,11 +755,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             endpoint.processIncomingMessage(msg, srcAddr, dstAddr);
 
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.messageReceived(false, msg, messageReceiveBeginTime - System.currentTimeMillis(), size);
+                multicastTransportBindingMeter.messageReceived(false, msg, messageReceiveBeginTime - TimeUtils.timeNow(), size);
             }
         } catch (Exception e) {
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - System.currentTimeMillis(), size);
+                multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - TimeUtils.timeNow(), size);
             }
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
