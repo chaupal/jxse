@@ -325,7 +325,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         }
         this.isReliable = reliable;
         pipeSvc = group.getPipeService();
-        this.timeout = timeout;
+        this.timeout = (timeout == 0) ? Integer.MAX_VALUE : timeout;
         myPipeAdv = JxtaServerPipe.newInputPipe(group, pipeAd);
         this.inputPipe = pipeSvc.createInputPipe(myPipeAdv, this);
         this.credentialDoc = credentialDoc != null ? credentialDoc : getCredDoc(group);
