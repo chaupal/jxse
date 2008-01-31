@@ -243,8 +243,6 @@ public class IncomingUnicastServer implements Runnable {
                         }
                         serverSocket = serverSocChannel.socket();
                         serverBindPreferredLocalPort = serverSocket.getLocalPort();
-                        
-                        // FIXME 20080109 bondolo 
                     }
 
                     // select() waiting for connections.
@@ -337,8 +335,6 @@ public class IncomingUnicastServer implements Runnable {
 
                     newSocket.setReceiveBufferSize(useBufferSize);
                     newSocket.bind(bindAddress, TcpTransport.MaxAcceptCnxBacklog);
-
-                    break;
                 } catch (SocketException failed) {
                     if (-1 != serverBindStartLocalPort) {
                         // If there is a port range then forget our preferred port and rest
