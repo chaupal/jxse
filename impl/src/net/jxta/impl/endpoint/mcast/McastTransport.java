@@ -659,12 +659,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             }
 
             DatagramPacket packet = new DatagramPacket(buffer.toByteArray(), numBytesInPacket, multicastInetAddress, multicastPort);
-
-            synchronized(multicastSocket) {
-                // Set the TTL for each packet since send() doesn't let us specify.
-                multicastSocket.setTimeToLive(Math.max(initalTTL, 255));
-                multicastSocket.send(packet);
-            }
+            multicastSocket.send(packet);
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Sent Multicast message to :" + pName + "/" + pParams);
