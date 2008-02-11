@@ -78,7 +78,7 @@ import java.util.logging.Logger;
 
 /**
  * Contains parameters for configuration of the Reference Implemenation
- * Rendezvous Service.
+ * Discovery Service.
  *
  * <p/><pre><code>
  *
@@ -110,12 +110,16 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
          * {@inheritDoc}
          */
         public Advertisement newInstance(Element root) {
-            return new DiscoveryConfigAdv(root);
+        if (!XMLElement.class.isInstance(root)) {
+            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+        }
+
+            return new DiscoveryConfigAdv((XMLElement) root);
         }
     }
 
     /**
-     *  Log4J Logger
+     *  Logger
      */
     private static final Logger LOG = Logger.getLogger(DiscoveryConfigAdv.class.getName());
 
@@ -172,19 +176,14 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
     /**
      *  Use the Instantiator through the factory
      */
-    DiscoveryConfigAdv() {}
+    private DiscoveryConfigAdv() {}
 
     /**
      *  Use the Instantiator through the factory
-     * @param root the element
+     * 
+     * @param doc the element
      */
-    DiscoveryConfigAdv(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
-            throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
-
-        XMLElement doc = (XMLElement) root;
-
+    private DiscoveryConfigAdv(XMLElement doc) {
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -195,14 +194,13 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
         }
 
         if (!doctype.equals(getAdvertisementType()) && !getAdvertisementType().equals(typedoctype)) {
-            throw new IllegalArgumentException(
-                    "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
+            throw new IllegalArgumentException("Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-        Enumeration eachAttr = doc.getAttributes();
+        Enumeration<Attribute> eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
-            Attribute aDiscoAttr = (Attribute) eachAttr.nextElement();
+            Attribute aDiscoAttr = eachAttr.nextElement();
             String name = aDiscoAttr.getName();
             boolean flag = Boolean.valueOf(aDiscoAttr.getValue().trim());
 
@@ -221,14 +219,23 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
     }
 
     /**
-     * Make a safe clone of this DiscoveryConfigAdv.
-     *
-     * @return Object A copy of this DiscoveryConfigAdv
+     * {@inheritDoc}
      */
     @Override
     public DiscoveryConfigAdv clone() throws CloneNotSupportedException {
+        DiscoveryConfigAdv result;
+        
+        try {
+            result = (DiscoveryConfigAdv) super.clone();
+        } catch (CloneNotSupportedException impossible) {
+            throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
+        }  
 
-        throw new CloneNotSupportedException("Not implemented");
+        result.setForwardAlwaysReplica(getForwardAlwaysReplica());
+        result.setForwardBelowTreshold(getForwardBelowTreshold());
+        result.setLocalOnly(getLocalOnly());
+        
+        return result;
     }
 
     /**
