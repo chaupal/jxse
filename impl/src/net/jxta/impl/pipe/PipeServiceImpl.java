@@ -516,9 +516,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
                     listener.outputPipeEvent(newevent);
                 } catch (Throwable ignored) {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE,
-                                "Uncaught Throwable in listener for " + pipeId + " (" + listener.getClass().getName() + ")",
-                                ignored);
+                        LOG.log(Level.SEVERE, "Uncaught Throwable in listener for " + pipeId + " (" + listener.getClass().getName() + ")", ignored);
                     }
                 }
             }
@@ -538,8 +536,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
                         pipeResolver.callListener(queryid, pipeId, local.getType(), group.getPeerID(), false);
                     } else {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning(MessageFormat.format("rejecting local pipe ({0}) because type is not ({1})", local.getType(),
-                                    pipeAdv.getType()));
+                            LOG.warning(MessageFormat.format("rejecting local pipe ({0}) because type is not ({1})", local.getType(), pipeAdv.getType()));
                         }
                     }
                 }
@@ -719,9 +716,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
                 pipeHolder.listener.outputPipeEvent(newevent);
             } catch (Throwable ignored) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE
-                            ,
-                            "Uncaught Throwable in listener for " + pipeID + "(" + pipeHolder.getClass().getName() + ")", ignored);
+                    LOG.log(Level.SEVERE, "Uncaught Throwable in listener for " + pipeID + "(" + pipeHolder.getClass().getName() + ")", ignored);
                 }
             }
             removeOutputPipeListener(pipeID.toString(), queryID);
