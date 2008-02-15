@@ -330,8 +330,8 @@ public class RefJxtaLoader extends JxtaLoader {
         ModuleImplAdvertisement result = implAdvs.get(clazz);
 
         if (null == result) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "No module imp adv for " + clazz);
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.log(Level.FINER, "No module imp adv for " + clazz);
             }
             return null;
         } else {
@@ -349,15 +349,15 @@ public class RefJxtaLoader extends JxtaLoader {
         try {
             moduleClass = findClass(msid);
         } catch (ClassNotFoundException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to find class for " + msid, failed);
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.log(Level.FINER, "Failed to find class for " + msid, failed);
             }
             return null;
         }
 
         if (null == moduleClass) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "No class for " + msid);
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.log(Level.FINER, "No class for " + msid);
             }
             return null;
         } else {
