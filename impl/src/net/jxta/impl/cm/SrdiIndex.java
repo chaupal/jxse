@@ -100,7 +100,7 @@ public class SrdiIndex implements Runnable {
      */
     private final static transient Logger LOG = Logger.getLogger(SrdiIndex.class.getName());
     
-    private long interval = 1000 * 60 * 10;
+    private long interval = 10 * TimeUtils.AMINUTE;
     private volatile boolean stop = false;
     private final Indexer srdiIndexer;
     private final BTreeFiler cacheDB;
@@ -395,14 +395,13 @@ public class SrdiIndex implements Runnable {
                 srdiIndexer.search(iq, primaryKey + attribute, new SearchCallback(cacheDB, res, threshold, gcPeerTBL));
             } catch (Exception ex) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while searching in index", ex);
+                    LOG.log(Level.WARNING, "Failure while searching in index", ex);
                 }
             }
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine( "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'"
-                    + value + "\'");
+            LOG.fine( "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'" + value + "\'");
         }
         
         return res;
