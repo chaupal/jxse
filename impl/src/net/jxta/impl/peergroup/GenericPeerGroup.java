@@ -731,7 +731,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
             if (discovery != null) {
                 discovery.publish(implAdv, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
             }
-        } catch (Exception ignored) {// ignored
+        } catch (Exception ignored) {
+            // ignored
         }
 
         // If we reached this point we're done.
