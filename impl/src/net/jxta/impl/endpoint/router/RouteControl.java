@@ -451,9 +451,9 @@ public class RouteControl {
     /**
      * Get the low level messenger for a destination.
      *
-     * @param source  the source endpoint address
+     * @param source      the source endpoint address
      * @param destination the destination endpoint address
-     * @param messenger the messenger to add
+     * @param messenger   the messenger to add
      * @return true if successful
      */
     public boolean addMessengerFor(Object source, EndpointAddress destination, Messenger messenger) {
@@ -465,15 +465,16 @@ public class RouteControl {
      *
      * @param destination the destination endpoint address
      * @param hint        route hint
-     * @return  the messenger for the destination
+     * @return the messenger for the destination
      */
     public Messenger getMessengerFor(EndpointAddress destination, Object hint) {
-        if (!(hint instanceof RouteAdvertisement)) {
+        if ((hint != null) && !(hint instanceof RouteAdvertisement)) {
             hint = null;
         }
 
         return router.ensureLocalRoute(destination, (RouteAdvertisement) hint);
     }
+
     /**
      * Determines whether a connection to a specific node exists, or if one can be created.
      * This method can block to ensure a usable connection exists, it does so by sending an empty
@@ -483,7 +484,22 @@ public class RouteControl {
      * @return true, if a connection already exists, or a new was sucessfully created
      */
     public boolean isConnected(PeerID pid) {
-        Messenger messenger = getMessengerFor(new EndpointAddress("jxta", pid.getUniqueValue().toString(), null, null), null);
+        return isConnected(pid, null);
+
+    }
+
+    /**
+     * Determines whether a connection to a specific node exists, or if one can be created.
+     * This method can block to ensure a usable connection exists, it does so by sending an empty
+     * message.
+     *
+     * @param pid Node ID
+     * @param route Destination route advertisement
+     * @return true, if a connection already exists, or a new was sucessfully created
+     */
+    public boolean isConnected(PeerID pid, RouteAdvertisement route) {
+
+        Messenger messenger = getMessengerFor(new EndpointAddress("jxta", pid.getUniqueValue().toString(), null, null), route);
         if (messenger == null) {
             return false;
         }
