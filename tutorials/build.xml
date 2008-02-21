@@ -73,7 +73,7 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
     </fileset>
 
     <!-- build the ant tasks that we need and install them into the correct directory -->
-    <target name="prepare">
+    <target name="-prepare">
         <tstamp/>
         <mkdir dir="${classes}"/>
         <mkdir dir="${dist}"/>
@@ -86,7 +86,7 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
         </condition>
     </target>
 
-    <target name="compile" depends="prepare">
+    <target name="compile" depends="-prepare">
         <javac destdir="${classes}" srcdir="${src}" debug="${debug}" includeAntRuntime="false" source="1.5" target="1.5">
             <classpath>
                 <fileset refid="jxta.files"/>
@@ -95,7 +95,7 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
         </javac>
     </target>
 
-  <target name="source-zip" depends="clean,prepare" description="Creates source zip file">
+  <target name="source-zip" depends="clean,-prepare" description="Creates source zip file">
     <zip destfile="${dist}/jxse-tutorials-src-${net.jxta.build.version}.zip">
       <zipfileset dir="${basedir}" prefix="jxse-tutorials-${net.jxta.build.version}">
         <exclude name="**/.*" />
@@ -109,7 +109,7 @@ $Id: build.xml,v 1.4 2007/03/26 02:03:37 bondolo Exp $
     </zip>
   </target>
 
-  <target name="source-tgz" depends="clean,prepare" description="Creates source tar.gz file">
+  <target name="source-tgz" depends="clean,-prepare" description="Creates source tar.gz file">
     <delete file="${dist}/jxse-tutorials-src-${net.jxta.build.version}.tar.gz" />
 
     <tar destfile="${dist}/jxse-tutorials-src-${net.jxta.build.version}.tar.gz" compression="gzip" longfile="gnu">
