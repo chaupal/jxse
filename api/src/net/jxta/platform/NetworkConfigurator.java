@@ -1337,9 +1337,9 @@ public class NetworkConfigurator {
      *
      * @deprecated The name of this method is inconsistent with it's function! 
      * It sets the <strong>seeding</strong> URIs and not the seed URIs. Use
-     * {@link #setRendezvousSeedingURIs()} instead.
+     * {@link #setRendezvousSeedingURIs} instead.
      *  
-     * @param seedURIs the List rendezvousSeeds represented as Strings
+     * @param seedingURIs the List rendezvousSeeds represented as Strings
      */
     @Deprecated
     public void setRendezvousSeedURIs(List<String> seedingURIs) {
@@ -1351,7 +1351,7 @@ public class NetworkConfigurator {
      * A seeding URI (when read) is expected to provide a list of
      * physical endpoint address to rendezvous peers.
      *
-     * @param seedURIs the List rendezvousSeeds represented as Strings.
+     * @param seedingURIs the List rendezvousSeeds represented as Strings.
      */
     public void setRendezvousSeedingURIs(List<String> seedingURIs) {
         rdvConfig.clearSeedingURIs();
