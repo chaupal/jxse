@@ -92,9 +92,9 @@ import java.util.Arrays;
  * A Wire Format Message which encodes the message into MIME Type
  * "application/x-jxta-msg".
  * <p/>
- * <p/>This implementation does nothing with encodings.
+ * This implementation does nothing with encodings.
  * <p/>
- * <p/>This implementation does not use any MIME parameters attached to the
+ * This implementation does not use any MIME parameters attached to the
  * requesting mime type.
  *
  * @see net.jxta.endpoint.WireFormatMessageFactory
@@ -262,17 +262,13 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                     anElement = readMessageElement(buffer);
 
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(
-                                MessageFormat.format("Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString()
-                                ,
+                        LOG.finer(MessageFormat.format("Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString(),
                                 buffer.toString()));
                     }
                 } catch (IOException failed) {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE
-                                ,
-                                "Failure reading element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg
-                                ,
+                        LOG.log(Level.SEVERE,
+                                "Failure reading element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg,
                                 failed);
                     }
                     throw failed;
@@ -295,8 +291,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 eachElement++;
 
                 if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer(
-                            "Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement
+                    LOG.finer("Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement
                             + " of #" + elementCnt + " elements from " + buffer.toString());
                 }
             } while (((0 == elementCnt) || (eachElement < elementCnt)));
@@ -571,16 +566,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                 submsg = WireFormatMessageFactory.fromWire(subis, type, null);
             } else {
-                if (dataLen > Integer.MAX_VALUE) {
-                    // FIXME hamada dataLen is an int, the above expression can never be true
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("WireFormatMessageBinary does not support elements longer than 2GB");
-                    }
-                    throw new IllegalStateException("WireFormatMessageBinary does not support elements longer than 2GB");
-                }
-
                 value = new byte[dataLen];
-
                 String mayFail = null;
 
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -694,13 +680,6 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 submsg = WireFormatMessageFactory.fromWire(subis, type, null);
                 // buffer.position(buffer.position() + dataLen);
             } else {
-                if (dataLen > Integer.MAX_VALUE) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("WireFormatMessageBinary does not support elements longer than 2GB");
-                    }
-                    throw new IllegalStateException("WireFormatMessageBinary does not support elements longer than 2GB");
-                }
-
                 value = new byte[dataLen];
 
                 if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
@@ -1126,8 +1105,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
      *
      * @param msg                      the message being serialized
      * @param type                     the mime mediatype being requested.
-     * @param preferedContentEncodings The ranked content encodings preferred by
-     *                                 the recipient.
+     * @param preferedContentEncodings The ranked content encodings preferred by the recipient.
      * @throws java.io.IOException if an io error occurs
      */
     WireFormatMessageBinary(Message msg, MimeMediaType type, MimeMediaType[] preferedContentEncodings) throws IOException {

@@ -97,6 +97,8 @@ public interface SocketFactory {
      * @param timeout the time in milliseconds to be used with the
      * socket.connect() call. A value of zero means infinite timeout.
      *
+     * @return the connection socket
+     * @throws java.io.IOException if an io error occurs
      */
     public Socket createConnection(InetAddress inetAddress, int port, InetAddress usingInterface, int localPort, int timeout) throws IOException;
 
