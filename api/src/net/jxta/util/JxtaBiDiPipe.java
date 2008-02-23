@@ -95,7 +95,6 @@ import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -791,7 +790,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         if (element != null) {
             try {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Recevied a pipe close request, closing pipes");
+                    LOG.fine("Received a pipe close request, closing pipes");
                 }
                 if (ros != null) {
                     ros.hardClose();
