@@ -235,7 +235,6 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             socket.setKeepAlive(true);
             socket.setSoTimeout(TcpTransport.connectionTimeOut);
-            socket.setSoLinger(true, TcpTransport.LingerDelay);
 
             // Disable Nagle's algorithm (We do this to reduce latency)
             socket.setTcpNoDelay(true);
@@ -368,7 +367,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             socket.setKeepAlive(true);
             socket.setSoTimeout(TcpTransport.connectionTimeOut);
-            socket.setSoLinger(true, TcpTransport.LingerDelay);
+
             // Disable Nagle's algorithm (We do this to reduce latency)
             socket.setTcpNoDelay(true);
 

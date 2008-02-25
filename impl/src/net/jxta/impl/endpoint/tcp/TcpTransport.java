@@ -151,14 +151,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     static final int RecvBufferSize = 64 * 1024; // 64 KBytes
 
     /**
-     * The amount of time the socket "lingers" after we close it locally.
-     * Linger enables the remote socket to finish receiving any pending data
-     * at its own rate.
-     * Note: LingerDelay time unit is seconds
-     */
-    static final int LingerDelay = 2 * 60;
-
-    /**
      * Connection  timeout
      * use the same system property defined by URLconnection, otherwise default to 10 seconds.
      */
