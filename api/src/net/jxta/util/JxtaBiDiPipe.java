@@ -915,7 +915,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     public void processIncomingMessage(Message message) {
         if (!hasClose(message)) {
-            PipeMsgEvent event = new PipeMsgEvent(this, message, (PipeID) inputPipe.getPipeID());
+            PipeMsgEvent event = new PipeMsgEvent(this, message, (PipeID) this.pipeAdv.getID());
             push(event);
         }
     }
