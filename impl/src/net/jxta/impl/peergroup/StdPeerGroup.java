@@ -98,6 +98,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.document.TextElement;
+import net.jxta.impl.membership.pse.PSEMembershipService;
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -148,7 +149,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * separated by whitespace. Comments are marked with a '#', the pound sign. 
      * Any text following # on any line in the file is ignored.
      *
-     * @param providerList the URL to a file containing a list of modules
+     * @param providers The URL to a file containing a list of providers.
      * @return {@code true} if at least one of the instance classes could be
      * registered otherwise {@code false}.
      */
@@ -198,7 +199,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                         getJxtaLoader().defineClass(moduleImplAdv);
                         
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Registered Module " + msid + " : " + parts[1]);
+                            LOG.fine("Registered Module " + msid + " : " + parts[1] + "(" + parts[2] + ")");
                         }
                     } else {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -224,6 +225,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
             }
         }
+        
         return registeredSomething;
     }
     
@@ -323,7 +325,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
         
-        paramAdv.addService(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
         
         paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
         
@@ -447,7 +449,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             Map.Entry<ModuleClassID, Object> anEntry = eachModule.next();
             ModuleClassID classID = anEntry.getKey();
             Object value = anEntry.getValue();
-            
+
             // Already loaded.
             if (value instanceof Module) {
                 continue;
@@ -774,7 +776,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // Load the list of peer group services from the impl advertisement params.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdvertisement.getParam());
-        
+
         Map<ModuleClassID, Object> initServices = new HashMap<ModuleClassID, Object>(paramAdv.getServices());
         
         initServices.putAll(paramAdv.getProtos());
@@ -848,7 +850,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 // since at that time there was no local discovery to
                 // publish to.
                 discoveryService.publish(discoveryService.getImplAdvertisement(), DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
-                
+
                 // Try to publish our impl adv within this group. (it was published
                 // in the parent automatically when loaded.
                 discoveryService.publish(implAdvertisement, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
