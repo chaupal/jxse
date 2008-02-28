@@ -187,7 +187,7 @@ public class RendezvousLoad extends TestCase {
     }
 
     private InetAddress getMyInetAddress() {
-        Iterator en = IPUtils.getAllLocalAddresses();
+        Iterator<InetAddress> en = IPUtils.getAllLocalAddresses().iterator();
 
         while (en.hasNext()) {
             return (InetAddress) en.next();
