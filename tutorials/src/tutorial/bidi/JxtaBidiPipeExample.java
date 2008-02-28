@@ -240,7 +240,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
             }
         } finally {
             synchronized (connections) {
-                connections.remove(this);
+                connections.remove(Thread.currentThread());
                 connections.notify();
             }
         }
