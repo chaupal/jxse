@@ -53,26 +53,8 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package tutorial.psesample;
 
-
-import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.*;
-import net.jxta.id.ID;
-import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.impl.membership.pse.PSEUtils;
-import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
-import net.jxta.impl.protocol.PSEConfigAdv;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.protocol.PeerGroupAdvertisement;
-
-import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -82,7 +64,28 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Map;
+import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
+import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.id.ID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.NetPeerGroupFactory;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.ModuleSpecID;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PeerGroupAdvertisement;
+
+import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.impl.membership.pse.PSEUtils;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
+import net.jxta.impl.protocol.PSEConfigAdv;
 
 /**
  * A sample program which demonstrates usage of the JXTA PSE Membership Service.
@@ -155,7 +158,6 @@ public class Main {
      * JXTA Shell to be started. This is useful for debugging.
      */
     private final static boolean START_NETGROUP = true;
-
     /**
      * The PeerGroup ID used by this example. We use a constant ID so that
      * every peer running this test program runs within in the same group.
@@ -167,7 +169,6 @@ public class Main {
      */
     private final static PeerGroupID PSE_SAMPLE_PGID = (PeerGroupID) ID.create(
             URI.create("urn:jxta:uuid-6E0C1C2781794A2F983EA4D2ACB758E602"));
-
     /**
      * The ModuleSpec ID used for this example's peer group. We use a
      * constant ID so that every peer which creates peer groups uses the
@@ -178,7 +179,6 @@ public class Main {
      */
     private final static ModuleSpecID PSE_SAMPLE_MSID = (ModuleSpecID) ID.create(
             URI.create("urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000133BF5414AC624CC8AD3AF6AEC2C8264306"));
-
     /**
      * This Certificate is the root certificate for the sample PSE peer group. All important
      * certificate chains in the group have this certificate as their root. Since
@@ -204,17 +204,17 @@ public class Main {
      * <p/>When stored in the PSE keystore this certificate will be stored
      * using the Peer Group ID as it's ID.
      */
-    private final static String PSE_SAMPLE_GROUP_ROOT_CERT_BASE64 = "MIICGTCCAYKgAwIBAgIBATANBgkqhkiG9w0BAQUFADBTMRUwEwYDVQQKEwx3d3cuanh0YS5vcmcx"
-            + "GzAZBgNVBAMTElBTRV9TYW1wbGVfUm9vdC1DQTEdMBsGA1UECxMURERFMkNGQ0MyMjVBNDM0OUQx"
-            + "QTAwHhcNMDUwNjE5MDIyODM4WhcNMTUwNjE5MDIyODM4WjBTMRUwEwYDVQQKEwx3d3cuanh0YS5v"
-            + "cmcxGzAZBgNVBAMTElBTRV9TYW1wbGVfUm9vdC1DQTEdMBsGA1UECxMURERFMkNGQ0MyMjVBNDM0"
-            + "OUQxQTAwgZ4wDQYJKoZIhvcNAQEBBQADgYwAMIGIAoGAdVgeJotJWEEfh/NtusfI8cAIMAq7WxXA"
-            + "ZsPIOYnybHPXFNmCTozs/KW0dx01zI6kfHwO1qYXmR/djJAFhr3VhFdUp8y1wDCf6DT63vFOi47t"
-            + "6TC1yywjZe59VIAxhDt0B8XJnkEbsEl+uO95ec6/U6dYI1vrtWU4ORdSYz615XMCAwEAATANBgkq"
-            + "hkiG9w0BAQUFAAOBgQBRJXLRyIGHvw3GJC3lYwQUDwRSm6vaPKPlCA5Axfwy+jPuStldhuPYOvxz"
-            + "a3NxQ/iBlzTGwoVzgxzArM6oLRvtAAvvkQl8z6Lu+NF2ugMs6XfuzRKqrBvSjNaSYM83E51niga2"
-            + "3UGc4Brbn3RCTPRADykVhWxgiCADNGVBIBUAMw==";
-
+    private final static String PSE_SAMPLE_GROUP_ROOT_CERT_BASE64 = 
+            "MIICGTCCAYKgAwIBAgIBATANBgkqhkiG9w0BAQUFADBTMRUwEwYDVQQKEwx3d3cuanh0YS5vcmcx" + 
+            "GzAZBgNVBAMTElBTRV9TYW1wbGVfUm9vdC1DQTEdMBsGA1UECxMURERFMkNGQ0MyMjVBNDM0OUQx" + 
+            "QTAwHhcNMDUwNjE5MDIyODM4WhcNMTUwNjE5MDIyODM4WjBTMRUwEwYDVQQKEwx3d3cuanh0YS5v" + 
+            "cmcxGzAZBgNVBAMTElBTRV9TYW1wbGVfUm9vdC1DQTEdMBsGA1UECxMURERFMkNGQ0MyMjVBNDM0" +
+            "OUQxQTAwgZ4wDQYJKoZIhvcNAQEBBQADgYwAMIGIAoGAdVgeJotJWEEfh/NtusfI8cAIMAq7WxXA" + 
+            "ZsPIOYnybHPXFNmCTozs/KW0dx01zI6kfHwO1qYXmR/djJAFhr3VhFdUp8y1wDCf6DT63vFOi47t" + 
+            "6TC1yywjZe59VIAxhDt0B8XJnkEbsEl+uO95ec6/U6dYI1vrtWU4ORdSYz615XMCAwEAATANBgkq" + 
+            "hkiG9w0BAQUFAAOBgQBRJXLRyIGHvw3GJC3lYwQUDwRSm6vaPKPlCA5Axfwy+jPuStldhuPYOvxz" + 
+            "a3NxQ/iBlzTGwoVzgxzArM6oLRvtAAvvkQl8z6Lu+NF2ugMs6XfuzRKqrBvSjNaSYM83E51niga2" + 
+            "3UGc4Brbn3RCTPRADykVhWxgiCADNGVBIBUAMw==";
     /**
      * Private key for the root certificate of the sample PSE peer group. <b>In
      * most applications the private key would not be included as part of the
@@ -242,24 +242,23 @@ public class Main {
      * <p/>When stored in the PSE keystore this key will be stored using the
      * Peer Group ID as it's ID.
      */
-    private final static String PSE_SAMPLE_GROUP_ROOT_ENCRYPTED_KEY_BASE64 = "MIICoTAbBgkqhkiG9w0BBQMwDgQIPPpnqsvvaS0CAicQBIICgJAYTLxQfaUMFL08DnrO/tAZioTu"
-            + "TlUnt32h3n9nE/L0UM8u7Q9elq2YwBNN72LD6ODzZKPmS/PnUl0NnE1AOnLVuMUgl1OBXgmUtC4P"
-            + "jfgA+En7S0YEmgZN42ceqMpcKGDiBNdr0ebGD9SVy4/XkTLrNcEcHqrhyC6JkSOAo2EKL9OkS6gR"
-            + "bVp59JSEiAruDvAZnz3XTjlXJYchZGcMVNfCDJVEMCgCsaKkr1Pf5JAfj1kKBJbazwlvqVrU0eI7"
-            + "nPXTdTNVUaZLA7ucbUialef2/osefm5oB00DVkgIkUQSjesVM+THKu3UxIFe+3yTbUsI3zDja+DK"
-            + "36l+UBmCLwFSOzJ1HAzP2qj1yvE/crEsvZMr9QrfNp7acfZQCgJZWFBG0wkdkvpTC0SBbzD6TqdW"
-            + "hbGq8rca4KDkI4HeVoB3yBnMDm52NOtvh2uTKHul7Zz+3GTjXTIT7B4WcdiKmYo5hzdAidHzrWHV"
-            + "eTmBnda34kM4o0uX1rQjWe3pfpp7rKG/zRDMUsqaZhK0k3t8IiNZroMnH39wz/kiRWgh+LBZOmi6"
-            + "vG4LeaNDom6+o1tH4lHFXh0uCOSjOOKvX91BaptgXXLuFpny1ZMPnSkWzZA20nCJgNB1+S5RLQGg"
-            + "jObczNUFtI8c/nSlbn339fN9G9/EpGaQuoMqxoSWwVnMnfmBnYlq2LehZ3UC3DgSaxRI9XN/F2Ul"
-            + "ako4dwiccGcMsGHB/eKHQU/Csk9E19GGghwC2L7Tb2zIx01Ctd2yecpK3clhvN35xR5cvtnKKLtA"
-            + "KSi8v6rCLDJ0cPa88QfIHRk+M5ZTDP5QN4A0uFKnsWtMI/xjA9tK4VsMEMtxqjBFem8=";
-
+    private final static String PSE_SAMPLE_GROUP_ROOT_ENCRYPTED_KEY_BASE64 = 
+            "MIICoTAbBgkqhkiG9w0BBQMwDgQIPPpnqsvvaS0CAicQBIICgJAYTLxQfaUMFL08DnrO/tAZioTu" + 
+            "TlUnt32h3n9nE/L0UM8u7Q9elq2YwBNN72LD6ODzZKPmS/PnUl0NnE1AOnLVuMUgl1OBXgmUtC4P" + 
+            "jfgA+En7S0YEmgZN42ceqMpcKGDiBNdr0ebGD9SVy4/XkTLrNcEcHqrhyC6JkSOAo2EKL9OkS6gR" + 
+            "bVp59JSEiAruDvAZnz3XTjlXJYchZGcMVNfCDJVEMCgCsaKkr1Pf5JAfj1kKBJbazwlvqVrU0eI7" + 
+            "nPXTdTNVUaZLA7ucbUialef2/osefm5oB00DVkgIkUQSjesVM+THKu3UxIFe+3yTbUsI3zDja+DK" + 
+            "36l+UBmCLwFSOzJ1HAzP2qj1yvE/crEsvZMr9QrfNp7acfZQCgJZWFBG0wkdkvpTC0SBbzD6TqdW" + 
+            "hbGq8rca4KDkI4HeVoB3yBnMDm52NOtvh2uTKHul7Zz+3GTjXTIT7B4WcdiKmYo5hzdAidHzrWHV" +
+            "eTmBnda34kM4o0uX1rQjWe3pfpp7rKG/zRDMUsqaZhK0k3t8IiNZroMnH39wz/kiRWgh+LBZOmi6" + 
+            "vG4LeaNDom6+o1tH4lHFXh0uCOSjOOKvX91BaptgXXLuFpny1ZMPnSkWzZA20nCJgNB1+S5RLQGg" + 
+            "jObczNUFtI8c/nSlbn339fN9G9/EpGaQuoMqxoSWwVnMnfmBnYlq2LehZ3UC3DgSaxRI9XN/F2Ul" + 
+            "ako4dwiccGcMsGHB/eKHQU/Csk9E19GGghwC2L7Tb2zIx01Ctd2yecpK3clhvN35xR5cvtnKKLtA" + 
+            "KSi8v6rCLDJ0cPa88QfIHRk+M5ZTDP5QN4A0uFKnsWtMI/xjA9tK4VsMEMtxqjBFem8=";
     /**
      * Root certificate of the sample PSE peer group.
      */
     final static X509Certificate PSE_SAMPLE_GROUP_ROOT_CERT;
-
     /**
      * Private key for the root certificate of the sample PSE peer group.
      */
@@ -299,7 +298,8 @@ public class Main {
     public Main() throws Exception {
 
         // Start JXTA, instantiate the net peer group.
-        final PeerGroup npg = PeerGroupFactory.newNetPeerGroup();
+        NetPeerGroupFactory npgf = new NetPeerGroupFactory();
+        final PeerGroup npg = npgf.getInterface();
 
         // This will cause the JXTA Shell to start if enabled.
         if (START_NETGROUP) {
@@ -343,12 +343,9 @@ public class Main {
              *  "Use Invitation" - Use a peer group advertisement provided by
              *  another peer in the group in order to join the peergroup.
              */
-            int optionPicked = JOptionPane.showOptionDialog(null
-                    ,
-                    "To start the PSE Sample Peer Group you must choose a source for the Peer Group Advertisement."
-                    ,
-                    "Start PSE Sample Peer Group", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options
-                    ,
+            int optionPicked = JOptionPane.showOptionDialog(null,
+                    "To start the PSE Sample Peer Group you must choose a source for the Peer Group Advertisement.",
+                    "Start PSE Sample Peer Group", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
                     options[1]);
 
             if (JOptionPane.CLOSED_OPTION == optionPicked) {
@@ -357,33 +354,32 @@ public class Main {
             }
 
             switch (optionPicked) {
-            case 0:
-                // Create Self-Invitation.                  
-                X509Certificate[] invitationCertChain = { PSE_SAMPLE_GROUP_ROOT_CERT};
+                case 0:
+                    // Create Self-Invitation.                  
+                    X509Certificate[] invitationCertChain = {PSE_SAMPLE_GROUP_ROOT_CERT};
 
-                pse_pga = build_psegroup_adv(pseImpl, invitationCertChain, PSE_SAMPLE_GROUP_ROOT_ENCRYPTED_KEY);
-                break;
+                    pse_pga = build_psegroup_adv(pseImpl, invitationCertChain, PSE_SAMPLE_GROUP_ROOT_ENCRYPTED_KEY);
+                    break;
 
-            case 1:
-            default:
-                // Use an invitation from a file.
-                final JFileChooser fc = new JFileChooser();
+                case 1:
+                default:
+                    // Use an invitation from a file.
+                    final JFileChooser fc = new JFileChooser();
 
-                // In response to a button click:
-                int returnVal = fc.showOpenDialog(null);
+                    // In response to a button click:
+                    int returnVal = fc.showOpenDialog(null);
 
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    FileReader invitation = new FileReader(fc.getSelectedFile());
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        FileReader invitation = new FileReader(fc.getSelectedFile());
 
-                    XMLDocument advDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
-                            ,
-                            invitation);
+                        XMLDocument advDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8,
+                                invitation);
 
-                    pse_pga = (PeerGroupAdvertisement) AdvertisementFactory.newAdvertisement(advDoc);
+                        pse_pga = (PeerGroupAdvertisement) AdvertisementFactory.newAdvertisement(advDoc);
 
-                    invitation.close();
-                }
-                break;
+                        invitation.close();
+                    }
+                    break;
             }
         }
 
@@ -400,6 +396,7 @@ public class Main {
 
             // `Invoke the Swing based user interface.
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
                 public void run() {
                     new tutorial.psesample.SwingUI(npg, ui_pga).setVisible(true);
                 }
