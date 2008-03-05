@@ -74,7 +74,7 @@ public class PipeMsgEvent extends EventObject {
     /**
      *  Pipe ID of the pipe on which the message was received.
      */
-    private final PipeID pipeID;
+    private PipeID pipeID;
 
     /**
      *  Creates a new event
@@ -85,9 +85,7 @@ public class PipeMsgEvent extends EventObject {
      */
     public PipeMsgEvent(Object source, Message message, PipeID pipeID) {
         super(source);
-
         this.message = message;
-
         this.pipeID = pipeID;
     }
 
@@ -107,5 +105,13 @@ public class PipeMsgEvent extends EventObject {
      */
     public PipeID getPipeID() {
         return pipeID;
+    }
+
+    /**
+     * Sets the source PipeID
+     * @param pipeID the source pipe identifier
+     */
+    public void setPipeID(PipeID pipeID) {
+        this.pipeID = pipeID;
     }
 }
