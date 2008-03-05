@@ -922,6 +922,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
     private void push(PipeMsgEvent event) {
         boolean queued = false;
+        event.setPipeID((PipeID) this.pipeAdv.getID());
         BlockingQueue<PipeMsgEvent> msg_queue = queue;
 
         if (null != msg_queue) {
