@@ -235,7 +235,6 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             socket.setKeepAlive(true);
             socket.setSoTimeout(TcpTransport.connectionTimeOut);
-            socket.setSoLinger(true, TcpTransport.LingerDelay);
 
             // Disable Nagle's algorithm (We do this to reduce latency)
             socket.setTcpNoDelay(true);
@@ -368,7 +367,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             socket.setKeepAlive(true);
             socket.setSoTimeout(TcpTransport.connectionTimeOut);
-            socket.setSoLinger(true, TcpTransport.LingerDelay);
+
             // Disable Nagle's algorithm (We do this to reduce latency)
             socket.setTcpNoDelay(true);
 
@@ -516,7 +515,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     /**
      * {@inheritDoc}
      */
-    public void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
+    public void  sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         sendMessageDirect(message, service, serviceParam, false);
     }
 
@@ -561,8 +560,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         // Send the welcome message
         WelcomeMessage myWelcome = new WelcomeMessage(fullDstAddress,
-                tcpTransport.getPublicAddress(),
-                tcpTransport.group.getPeerID(), false);
+                                                      tcpTransport.getPublicAddress(),
+                                                      tcpTransport.group.getPeerID(), false);
         long written = write(new ByteBuffer[]{myWelcome.getByteBuffer()});
         tcpTransport.incrementBytesSent(written);
 
@@ -613,7 +612,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             header.setContentLengthHeader(size);
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Sending " + msg + " (" + size + ") to " + dstAddress + " via " + inetAddress.getHostAddress() + ":" + port);
+                LOG.fine("Sending " + msg + " (" + size + ") to " + dstAddress + " via " + inetAddress.getHostAddress() + ":"+ port);
             }
 
             List<ByteBuffer> partBuffers = new ArrayList<ByteBuffer>();
@@ -783,7 +782,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             }
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Registering Messenger from " + socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort());
+                LOG.fine("Registering Messenger from " + socketChannel.socket().getInetAddress().getHostAddress() + ":"+ socketChannel.socket().getPort());
             }
 
             try {
@@ -844,7 +843,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         }
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine(MessageFormat.format("{0} setting current state to body, Buffer stats :{1}, remaining elements {2}:",
-                    Thread.currentThread(), buffer.toString(), buffer.remaining()));
+                            Thread.currentThread(), buffer.toString(), buffer.remaining()));
         }
         return true;
     }
@@ -899,7 +898,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         try {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("{0} State before read(): {1}, buffer stats : {2}, remaining :{3}",
-                        Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
+                                Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
             }
 
             int read = socketChannel.read(buffer);
@@ -921,7 +920,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("{0} SocketChannel.read() == {1} bytes. Buffer stats:{2}, remaining {3}",
-                        Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
+                                Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
             }
             return true;
         } catch (ClosedChannelException e) {
@@ -934,7 +933,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             // Framing is maintained within this object, therefore a read maybe interrupted then resumed
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning(MessageFormat.format("tcp receive - interrupted : read() {0} {1}:{2}", woken.bytesTransferred,
-                        inetAddress.getHostAddress(), port));
+                                inetAddress.getHostAddress(), port));
             }
         } catch (IOException ioe) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -956,19 +955,18 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
     /**
      * processes the input byte buffer
-     *
      * @return the list of messages present in the buffer
      */
     @SuppressWarnings("fallthrough")
     public List<Message> processBuffer() {
-
+        
         List<Message> msgs = new ArrayList<Message>();
         boolean done = false;
 
         while (!done) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("{0} processBuffer({1}). Buffer stats:{2}, elements remaining {3}",
-                        Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
+                                Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
             }
 
             switch (state.get()) {
@@ -999,7 +997,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         // create an array backed buffer
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                             LOG.fine(MessageFormat.format("{0} Reallocating a new buffer of size {1} to replace :{2}",
-                                    Thread.currentThread(), header.getContentLengthHeader(), buffer.toString()));
+                                            Thread.currentThread(), header.getContentLengthHeader(), buffer.toString()));
                         }
 
                         // This implementation limits the message size to the MTU which is always < 2GB
@@ -1014,7 +1012,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                     // process the message body
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine(MessageFormat.format(" {0} Proccessing Message Body. expecting {1}, {2} elements remaining {3}",
-                                Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining()));
+                                        Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining()));
                     }
                     if (buffer.remaining() >= (int) header.getContentLengthHeader()) {
                         Message msg;
@@ -1038,7 +1036,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         setLastUsed(TimeUtils.timeNow());
                         state.set(readState.HEADER);
                         header = null;
-
+                        
                         msgs.add(msg);
                     } else {
                         done = true;
@@ -1046,23 +1044,21 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                     }
             }
         } // while loop
-
+        
         // prepare the buffer for more data
         buffer.compact();
         return msgs;
     }
-
+    
     /**
-     * A small class for processing individual messages.
-     */
+     * A small class for processing individual messages. 
+     */ 
     private class MessageProcessor implements Runnable {
 
         private Message msg;
-
         MessageProcessor(Message msg) {
             this.msg = msg;
         }
-
         public void run() {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("{0} calling EndpointService.demux({1})",
