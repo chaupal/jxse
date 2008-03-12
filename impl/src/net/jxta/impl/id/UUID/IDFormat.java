@@ -55,11 +55,6 @@
  */
 package net.jxta.impl.id.UUID;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 
@@ -78,11 +73,6 @@ import net.jxta.id.IDFactory;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
  */
 public class IDFormat {
-
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(IDFormat.class.getName());
 
     /**
      * number of bytes in the byte array
