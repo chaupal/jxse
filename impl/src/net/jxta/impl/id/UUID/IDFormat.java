@@ -53,166 +53,164 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.id.UUID;
-
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
 
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 
-
 /**
- *  A general purpose JXTA ID Format implementing all of the six standard ID
- *  Types. It was originally created for the Java 2 SE reference implementation.
- *  The 'uuid' format uses (IETF version 4) randomly generated UUIDs as the  
- *  mechanism for generating canonical values for the ids it provides.
+ * A general purpose JXTA ID Format implementing all of the six standard ID
+ * Types. It was originally created for the Java 2 SE reference implementation.
+ * The 'uuid' format uses (IETF version 4) randomly generated UUIDs as the
+ * mechanism for generating canonical values for the ids it provides.
  *
- *  <p/>For IDs constructed using "seed" variant constructors, the first 16
- *  bytes of the seed are used literally as the UUID value. The value is masked
- *  to make it a valid version 4 IETF variant UUID.
+ * <p/>For IDs constructed using "seed" variant constructors, the first 16
+ * bytes of the seed are used literally as the UUID value. The value is masked
+ * to make it a valid version 4 IETF variant UUID.
  *
- *  @see net.jxta.id.ID
- *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
- *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
+ * @see net.jxta.id.ID
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
  */
 public class IDFormat {
-    
+
     /**
-     *  Log4J Logger
+     * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(IDFormat.class.getName());
-    
+
     /**
-     *  number of bytes in the byte array
+     * number of bytes in the byte array
      */
     public final static int IdByteArraySize = 64;
-    
+
     /**
-     *  The size of a UUID in bytes
+     * The size of a UUID in bytes
      */
     public final static int uuidSize = 16;
-    
+
     /**
-     *  The size of the flags field
+     * The size of the flags field
      */
     public final static int flagsSize = 1;
-    
+
     /**
-     *  Location of the type field within the flags field
+     * Location of the type field within the flags field
      */
     public final static int flagsIdTypeOffset = IDFormat.flagsSize - 1;
-    
+
     /**
-     *  Type value for Codat
+     * Type value for Codat
      */
     public final static byte flagCodatID = 0x01;
-    
+
     /**
-     *  Type value for PeerGroup
+     * Type value for PeerGroup
      */
     public final static byte flagPeerGroupID = 0x02;
-    
+
     /**
-     *  Type value for Peer
+     * Type value for Peer
      */
     public final static byte flagPeerID = 0x03;
-    
+
     /**
-     *  Type value for Pipe
+     * Type value for Pipe
      */
     public final static byte flagPipeID = 0x04;
-    
+
     /**
-     *  Type value for ModuleClass
+     * Type value for ModuleClass
      */
     public final static byte flagModuleClassID = 0x05;
-    
+
     /**
-     *  Type value for ModuleSpec
+     * Type value for ModuleSpec
      */
     public final static byte flagModuleSpecID = 0x06;
-    
+
     /**
-     *  Type value for CodatID
+     * Type value for CodatID
      */
     public final static byte flagCodatID7 = 0x07;
-    
+
     /**
-     *  Location of ID flags within byte array.
+     * Location of ID flags within byte array.
      */
     public final static int flagsOffset = IDFormat.IdByteArraySize - IDFormat.flagsSize;
-    
+
     /**
-     *  Our local version of the world Peer Group ID. We need this for cases
-     *  where we have to make ids which are in the world peer group. We only
-     *  use this ID for those cases and never return this ID.
+     * Our local version of the world Peer Group ID. We need this for cases
+     * where we have to make ids which are in the world peer group. We only
+     * use this ID for those cases and never return this ID.
      */
     public static final PeerGroupID worldPeerGroupID = new PeerGroupID(new UUID(0x5961626164616261L, 0x4A78746150325033L)); // YabadabaJXTAP2P!
-    
+
     /**
-     *  Our local version of the net Peer Group ID. We need this for cases
-     *  where we have to make ids which are in the net peer group. We only
-     *  use this ID for those cases and never return this ID.
+     * Our local version of the net Peer Group ID. We need this for cases
+     * where we have to make ids which are in the net peer group. We only
+     * use this ID for those cases and never return this ID.
      */
     public static final PeerGroupID defaultNetPeerGroupID = new PeerGroupID(new UUID(0x5961626164616261L, 0x4E50472050325033L)); // YabadabaNPG P2P!
-    
+
     /**
-     *  This table maps our local private versions of the well known ids to the
-     *  globally known version.
+     * This table maps our local private versions of the well known ids to the
+     * globally known version.
      */
     private final static Object[][] wellKnownIDs = {
-        { net.jxta.peergroup.PeerGroupID.worldPeerGroupID, worldPeerGroupID }
-                ,
-        { net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID, defaultNetPeerGroupID }
+            {net.jxta.peergroup.PeerGroupID.worldPeerGroupID, worldPeerGroupID},
+            {net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID, defaultNetPeerGroupID}
     };
-    
+
     /**
      * The instantiator for this ID Format which is used by the IDFactory.
      */
     public static final IDFactory.Instantiator INSTANTIATOR = new Instantiator();
-    
+
     /**
-     *  This class cannot be instantiated.
+     * This class cannot be instantiated.
      */
-    protected IDFormat() {}
-    
+    protected IDFormat() {
+    }
+
     /**
-     *  Translate from well known ID to our locally encoded versions.
+     * Translate from well known ID to our locally encoded versions.
      *
-     *  @param input    the id to be translated.
-     *  @return the translated ID or the input ID if no translation was needed.
+     * @param input the id to be translated.
+     * @return the translated ID or the input ID if no translation was needed.
      */
     static ID translateFromWellKnown(ID input) {
-        for (int eachWellKnown = 0; eachWellKnown < wellKnownIDs.length; eachWellKnown++) {
-            ID aWellKnown = (ID) wellKnownIDs[eachWellKnown][0];
-            
+        for (Object[] wellKnownID : wellKnownIDs) {
+            ID aWellKnown = (ID) wellKnownID[0];
+
             if (aWellKnown.equals(input)) {
-                return (ID) wellKnownIDs[eachWellKnown][1];
+                return (ID) wellKnownID[1];
             }
         }
-        
+
         return input;
     }
-    
+
     /**
-     *  Translate from locally encoded versions to the well known versions.
+     * Translate from locally encoded versions to the well known versions.
      *
-     *  @param input    the id to be translated.
-     *  @return the translated ID or the input ID if no translation was needed.
+     * @param input the id to be translated.
+     * @return the translated ID or the input ID if no translation was needed.
      */
     static ID translateToWellKnown(ID input) {
-        for (int eachWellKnown = 0; eachWellKnown < wellKnownIDs.length; eachWellKnown++) {
-            ID aLocalEncoding = (ID) wellKnownIDs[eachWellKnown][1];
-            
+        for (Object[] wellKnownID : wellKnownIDs) {
+            ID aLocalEncoding = (ID) wellKnownID[1];
+
             if (aLocalEncoding.equals(input)) {
-                return (ID) wellKnownIDs[eachWellKnown][0];
+                return (ID) wellKnownID[0];
             }
         }
-        
+
         return input;
     }
 }
