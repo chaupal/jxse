@@ -56,38 +56,37 @@
 
 package net.jxta.impl.endpoint.tls;
 
-import java.io.BufferedOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.cert.X509Certificate;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.Provider;
-import java.security.Security;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
-import net.jxta.util.IgnoreFlushFilterOutputStream;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.util.TimeUtils;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
+import net.jxta.util.IgnoreFlushFilterOutputStream;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.Provider;
+import java.security.Security;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -103,112 +102,100 @@ import java.util.logging.Logger;
 class TlsConn {
 
     /**
-     *  Logger
-     **/
+     * Logger
+     */
     private static final transient Logger LOG = Logger.getLogger(TlsConn.class.getName());
     static final int BOSIZE = 16000;
     /**
-     *  TLS transport this connection is working for.
-     **/
+     * TLS transport this connection is working for.
+     */
     final TlsTransport transport;
     /**
-     *  The address of the peer to which we will be forwarding ciphertext
-     *  messages.
-     **/
+     * The address of the peer to which we will be forwarding ciphertext
+     * messages.
+     */
     final EndpointAddress destAddr;
     /**
-     *  Are we client or server?
-     **/
+     * Are we client or server?
+     */
     private boolean client;
     /**
-     *  State of the connection
-     **/
+     * State of the connection
+     */
     private volatile HandshakeState currentState;
     /**
-     *  Are we currently closing? To prevent recursion in {@link close()}
-     **/
+     * Are we currently closing? To prevent recursion in {@link #close(HandshakeState)}
+     */
     private boolean closing = false;
     /**
-     *  Time that something "good" last happened on the connection
-     **/
+     * Time that something "good" last happened on the connection
+     */
     long lastAccessed;
     final String lastAccessedLock = new String("lastAccessedLock");
     final String closeLock = new String("closeLock");
     /**
-     *  Number of retransmissions we have received.
-     **/
+     * Number of retransmissions we have received.
+     */
     int retrans;
     /**
-     *  Our synthetic socket which sends and receives the ciphertext.
-     **/
+     * Our synthetic socket which sends and receives the ciphertext.
+     */
     final TlsSocket tlsSocket;
     private final SSLContext context;
     /**
      * For interfacing with TLS
-     **/
+     */
     private SSLSocket ssls;
     /**
      * We write our plaintext to this stream
-     **/
+     */
     private OutputStream plaintext_out = null;
     /**
-     *  Reads plaintext from the
-     **/
+     * Reads plaintext from the
+     */
     private PlaintextMessageReader readerThread = null;
     /**
-     *  A string which we can lock on while acquiring new messengers. We don't
-     *  want to lock the whole connection object.
-     **/
-    private String acquireMessengerLock = new String("Messenger Acquire Lock");
+     * A string which we can lock on while acquiring new messengers. We don't
+     * want to lock the whole connection object.
+     */
+    private final String acquireMessengerLock = new String("Messenger Acquire Lock");
     /**
-     *  Cached messenger for sending to {@link destAddr}
-     **/
+     * Cached messenger for sending to {@link #destAddr}
+     */
     private Messenger outBoundMessenger = null;
 
-/**
-     *  Tracks the state of our TLS connection with a remote peer.
-     **/
+    /**
+     * Tracks the state of our TLS connection with a remote peer.
+     */
     enum HandshakeState {
 
         /**
-         *  Handshake is ready to begin. We will be the client side.
+         * Handshake is ready to begin. We will be the client side.
          */
-        CLIENTSTART
-
-        , /**
-         *  Handshake is ready to begin. We will be the server side.
-         */
-        SERVERSTART
-
-        , /**
-         *  Handshake is in progress.
-         */
-        HANDSHAKESTARTED
-
-        , /**
-         *  Handshake failed to complete.
-         */
-        HANDSHAKEFAILED
-
-        , /**
-         *  Handshake completed successfully.
-         */
-        HANDSHAKEFINISHED
-
-        , /**
-         *  Connection is closing.
-         */
-        CONNECTIONCLOSING
-
-        , /**
-         *  Connection has died.
-         */
-        CONNECTIONDEAD
+        CLIENTSTART, /**
+     * Handshake is ready to begin. We will be the server side.
+     */
+    SERVERSTART, /**
+     * Handshake is in progress.
+     */
+    HANDSHAKESTARTED, /**
+     * Handshake failed to complete.
+     */
+    HANDSHAKEFAILED, /**
+     * Handshake completed successfully.
+     */
+    HANDSHAKEFINISHED, /**
+     * Connection is closing.
+     */
+    CONNECTIONCLOSING, /**
+     * Connection has died.
+     */
+    CONNECTIONDEAD
     }
 
     /**
-     *  Create a new connection
-     **/
+     * Create a new connection
+     */
     TlsConn(TlsTransport tp, EndpointAddress destAddr, boolean client) throws Exception {
         this.transport = tp;
         this.destAddr = destAddr;
@@ -224,19 +211,17 @@ class TlsConn {
         javax.net.ssl.TrustManagerFactory tmf = null;
         String overrideTMF = System.getProperty("net.jxta.impl.endpoint.tls.TMFAlgorithm");
 
-        if ((!choseTMF) && (null != overrideTMF)) {
+        if (null != overrideTMF) {
             tmf = javax.net.ssl.TrustManagerFactory.getInstance(overrideTMF);
             choseTMF = true;
         }
 
-        Collection providers = Arrays.asList(Security.getProviders());
+        Collection<Provider> providers = Arrays.asList(Security.getProviders());
 
-        Set providerNames = new HashSet();
+        Set<String> providerNames = new HashSet<String>();
 
-        Iterator eachProvider = providers.iterator();
-
-        while (eachProvider.hasNext()) {
-            providerNames.add(((Provider) eachProvider.next()).getName());
+        for (Provider provider : providers) {
+            providerNames.add((provider).getName());
         }
 
         if ((!choseTMF) && providerNames.contains("SunJSSE")) {
@@ -285,32 +270,30 @@ class TlsConn {
     }
 
     /**
-     *  @inheritDoc
-     *
-     *  <p/>An implementation which is useful for debugging.
-     **/
+     * @inheritDoc <p/>An implementation which is useful for debugging.
+     */
     @Override
     public String toString() {
         return super.toString() + "/" + getHandshakeState() + ":" + (client ? "Client" : "Server") + " for " + destAddr;
     }
 
     /**
-     *  Returns the current state of the connection
+     * Returns the current state of the connection
      *
-     *  @return the current state of the connection.
-     **/
+     * @return the current state of the connection.
+     */
     HandshakeState getHandshakeState() {
         return currentState;
     }
 
     /**
-     *  Changes the state of the connection. Calls
-     *  {@link java.lang.Object#notifyAll()} to wake any threads waiting on
-     *  connection state changes.
+     * Changes the state of the connection. Calls
+     * {@link java.lang.Object#notifyAll()} to wake any threads waiting on
+     * connection state changes.
      *
-     *  @param newstate the new connection state.
-     *  @return the previous state of the connection.
-     **/
+     * @param newstate the new connection state.
+     * @return the previous state of the connection.
+     */
     synchronized HandshakeState setHandshakeState(HandshakeState newstate) {
 
         HandshakeState oldstate = currentState;
@@ -322,7 +305,8 @@ class TlsConn {
 
     /**
      * Open the connection with the remote peer.
-     **/
+     * @throws java.io.IOException if handshake fails
+     */
     void finishHandshake() throws IOException {
 
         long startTime = 0;
@@ -359,10 +343,11 @@ class TlsConn {
     }
 
     /**
-     *  Close this connection.
+     * Close this connection.
      *
-     *  @param finalstate state that the connection will be in after close.
-     **/
+     * @param finalstate state that the connection will be in after close.
+     * @throws java.io.IOException if an error occurs
+     */
     void close(HandshakeState finalstate) throws IOException {
         synchronized (lastAccessedLock) {
             lastAccessed = Long.MIN_VALUE;
@@ -406,6 +391,7 @@ class TlsConn {
                 IOException failure = new IOException("Throwable during close()");
 
                 failure.initCause(failed);
+                throw failure;
             } finally {
                 closeLock.notifyAll();
                 closing = false;
@@ -418,10 +404,10 @@ class TlsConn {
      * Used by the TlsManager and the TlsConn in order to send a message,
      * either a TLS connection establishment, or TLS fragments to the remote TLS.
      *
-     *  @param msg message to send to the remote TLS peer.
-     *  @return if true then message was sent, otherwise false.
-     *  @throws IOException if there was a problem sending the message.
-     **/
+     * @param msg message to send to the remote TLS peer.
+     * @return if true then message was sent, otherwise false.
+     * @throws IOException if there was a problem sending the message.
+     */
     boolean sendToRemoteTls(Message msg) throws IOException {
 
         synchronized (acquireMessengerLock) {
@@ -461,13 +447,13 @@ class TlsConn {
      * JTlsOutputStream.write(byte[], int, int); with the resulting TLS
      * Record(s).
      *
-     *  @param msg The plaintext message to be sent via this connection.
-     *  @throws IOException for errors in sending the message.
-     **/
+     * @param msg The plaintext message to be sent via this connection.
+     * @throws IOException for errors in sending the message.
+     */
     void sendMessage(Message msg) throws IOException {
 
         try {
-            WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, JTlsDefs.MTYPE, (MimeMediaType[]) null);
+            WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, JTlsDefs.MTYPE, null);
 
             serialed.sendToStream(new IgnoreFlushFilterOutputStream(plaintext_out));
 
@@ -482,10 +468,10 @@ class TlsConn {
         }
     }
 
-/**
+    /**
      * This is our message reader thread. This reads from the plaintext input
      * stream and dispatches messages received to the endpoint.
-     **/
+     */
     private class PlaintextMessageReader implements Runnable {
 
         InputStream ptin = null;
@@ -505,8 +491,8 @@ class TlsConn {
         }
 
         /**
-         *  @inheritDoc
-         **/
+         * @inheritDoc
+         */
         public void run() {
             try {
                 while (true) {
@@ -549,14 +535,14 @@ class TlsConn {
         }
     }
 
-/**
-     *  A private key manager which selects based on the key and cert chain found
-     *  in a PSE Credential.
+    /**
+     * A private key manager which selects based on the key and cert chain found
+     * in a PSE Credential.
      *
-     *  <p/>TODO Promote this class to a full featured interface for all of the
-     *  active PSECredentials. Currently the alias "theone" is used to refer to
-     *  the
-     **/
+     * <p/>TODO Promote this class to a full featured interface for all of the
+     * active PSECredentials. Currently the alias "theone" is used to refer to
+     * the
+     */
     private static class PSECredentialKeyManager implements javax.net.ssl.X509KeyManager {
 
         PSECredential cred;
@@ -568,8 +554,8 @@ class TlsConn {
         }
 
         /**
-         *  {@inheritDoc}
-         **/
+         * {@inheritDoc}
+         */
         public String chooseClientAlias(String[] keyType, java.security.Principal[] issuers, java.net.Socket socket) {
             for (String aKeyType : Arrays.asList(keyType)) {
                 String result = checkTheOne(aKeyType, Arrays.asList(issuers));
@@ -586,11 +572,11 @@ class TlsConn {
          * Checks to see if a peer that trusts the given issuers would trust the
          * special alias THE_ONE, returning it if so, and null otherwise.
          *
-         * @param keyType the type of key a Certificate must use to be considered
-         * @param issuers the issuers trusted by the other peer
+         * @param keyType    the type of key a Certificate must use to be considered
+         * @param allIssuers the issuers trusted by the other peer
          * @return "theone" if one of the Certificates in this peer's PSECredential's
-         *          Certificate chain matches the given keyType and one of the issuers,
-         *          or <code>null</code>
+         *         Certificate chain matches the given keyType and one of the issuers,
+         *         or <code>null</code>
          */
         private String checkTheOne(String keyType, Collection<java.security.Principal> allIssuers) {
             List<X509Certificate> certificates = Arrays.asList(cred.getCertificateChain());
@@ -612,8 +598,8 @@ class TlsConn {
         }
 
         /**
-         *  {@inheritDoc}
-         **/
+         * {@inheritDoc}
+         */
         public String chooseServerAlias(String keyType, java.security.Principal[] issuers, java.net.Socket socket) {
             String[] available = getServerAliases(keyType, issuers);
 
@@ -625,8 +611,8 @@ class TlsConn {
         }
 
         /**
-         *  {@inheritDoc}
-         **/
+         * {@inheritDoc}
+         */
         public X509Certificate[] getCertificateChain(String alias) {
             if (alias.equals("theone")) {
                 return cred.getCertificateChain();
@@ -640,22 +626,22 @@ class TlsConn {
         }
 
         /**
-         *  {@inheritDoc}
-         **/
+         * {@inheritDoc}
+         */
         public String[] getClientAliases(String keyType, java.security.Principal[] issuers) {
-            List clientAliases = new ArrayList();
+            List<String> clientAliases = new ArrayList<String>();
 
             try {
-                Enumeration eachAlias = trusted.aliases();
+                Enumeration<String> eachAlias = trusted.aliases();
 
-                Collection allIssuers = null;
+                Collection<Principal> allIssuers = null;
 
                 if (null != issuers) {
                     allIssuers = Arrays.asList(issuers);
                 }
 
                 while (eachAlias.hasMoreElements()) {
-                    String anAlias = (String) eachAlias.nextElement();
+                    String anAlias = eachAlias.nextElement();
 
                     if (trusted.isCertificateEntry(anAlias)) {
                         try {
@@ -686,12 +672,12 @@ class TlsConn {
                 ;
             }
 
-            return (String[]) clientAliases.toArray(new String[clientAliases.size()]);
+            return clientAliases.toArray(new String[clientAliases.size()]);
         }
 
         /**
-         *  {@inheritDoc}
-         **/
+         * {@inheritDoc}
+         */
         public java.security.PrivateKey getPrivateKey(String alias) {
             if (alias.equals("theone")) {
                 return cred.getPrivateKey();
@@ -701,14 +687,14 @@ class TlsConn {
         }
 
         /**
-         *  {@inheritDoc}
-         **/
+         * {@inheritDoc}
+         */
         public String[] getServerAliases(String keyType, java.security.Principal[] issuers) {
             if (keyType.equals(cred.getCertificate().getPublicKey().getAlgorithm())) {
                 if (null == issuers) {
                     return new String[]{"theone"};
                 } else {
-                    Collection allIssuers = Arrays.asList(issuers);
+                    Collection<Principal> allIssuers = Arrays.asList(issuers);
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Looking for : " + cred.getCertificate().getIssuerX500Principal());
@@ -716,14 +702,11 @@ class TlsConn {
                         java.security.Principal prin = cred.getCertificate().getIssuerX500Principal();
 
                         LOG.fine("  Principal Type :" + prin.getClass().getName());
-                        Iterator it = allIssuers.iterator();
 
-                        while (it.hasNext()) {
-                            java.security.Principal tmp = (java.security.Principal) it.next();
-
-                            LOG.fine("Issuer Type : " + tmp.getClass().getName());
-                            LOG.fine("Issuer value : " + tmp);
-                            LOG.fine("tmp.equals(prin) : " + tmp.equals(prin));
+                        for (Principal issuer : allIssuers) {
+                            LOG.fine("Issuer Type : " + issuer.getClass().getName());
+                            LOG.fine("Issuer value : " + issuer);
+                            LOG.fine("tmp.equals(prin) : " + issuer.equals(prin));
                         }
                     }
 
