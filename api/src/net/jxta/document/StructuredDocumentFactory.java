@@ -57,22 +57,18 @@
 package net.jxta.document;
 
 
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.TextMessageElement;
+import net.jxta.logging.Logging;
+import net.jxta.util.ClassFactory;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
-
-import java.io.IOException;
-import java.util.MissingResourceException;
-
-import java.util.logging.Logger;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
-import net.jxta.util.ClassFactory;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.TextMessageElement;
+import java.util.logging.Logger;
 
 
 /**
@@ -101,7 +97,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         /**
          *  For mapping between extensions and MIME types.
          */
-        class ExtensionMapping extends Object {
+        class ExtensionMapping {
 
             /**
              * The extension
@@ -115,6 +111,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
             
             /**
              *  default constructor
+             *
+             * @param extension The extension
+             * @param mimetype  MIME type it maps to
              */
             public ExtensionMapping(String extension, MimeMediaType mimetype) {
                 this.extension = extension;
@@ -375,10 +374,10 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
             Instantiator instantiator = (Instantiator) docClass.getField("INSTANTIATOR").get(null);
             
             MimeMediaType[] mimeTypes = instantiator.getSupportedMimeTypes();
-            
-            for (int eachType = 0; eachType < mimeTypes.length; eachType++) {
-                LOG.finer("   Registering Type : " + mimeTypes[eachType].getMimeMediaType());
-                registeredSomething |= registerInstantiator(mimeTypes[eachType], instantiator);
+
+            for (MimeMediaType mimeType : mimeTypes) {
+                LOG.finer("   Registering Type : " + mimeType.getMimeMediaType());
+                registeredSomething |= registerInstantiator(mimeType, instantiator);
             }
         } catch (Exception all) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -436,13 +435,13 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         
         if (registered) {
             Instantiator.ExtensionMapping[] extensions = instantiator.getSupportedFileExtensions();
-            
+
             for (int eachExt = 0; eachExt < extensions.length; eachExt++) {
                 if (null != extensions[eachExt].getMimeMediaType()) {
                     factory.extToMime.put(extensions[eachExt].getExtension(), extensions[eachExt].getMimeMediaType().intern());
-                    
+
                     factory.mimeToExt.put(extensions[eachExt].getMimeMediaType(), extensions[eachExt].getExtension());
-                    
+
                     // And the base version.
                     factory.mimeToExt.put(extensions[eachExt].getMimeMediaType().getBaseMimeMediaType(), extensions[eachExt].getExtension());
                 }
@@ -464,7 +463,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  to be created.
      * @return StructuredDocument The instance of {@link StructuredDocument}
      *  or null if it could not be created.
-     * @throws NoSuchElementException invalid mime-media-type
+     * @throws java.util.NoSuchElementException invalid mime-media-type
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype) {
         factory.loadProviders();
@@ -488,7 +487,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @param value Specifies a value for the root element.
      * @return StructuredDocument The instance of {@link StructuredDocument}
      *  or null if it could not be created.
-     * @throws NoSuchElementException if the mime-type has not been registered.
+     * @throws java.util.NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype, String value) {
         factory.loadProviders();
@@ -511,7 +510,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @return StructuredDocument The instance of {@link StructuredDocument}
      *  or null if it could not be created.
      * @throws IOException If there is a problem reading from the stream.
-     * @throws NoSuchElementException if the mime-type has not been registered.
+     * @throws java.util.NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, InputStream stream) throws IOException {
         factory.loadProviders();
@@ -533,7 +532,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @return StructuredDocument The instance of {@link StructuredDocument}
      * or {@code null} if it could not be created.
      * @throws IOException If there is a problem reading from the stream.
-     * @throws NoSuchElementException if the mime-type has not been registered.
+     * @throws java.util.NoSuchElementException if the mime-type has not been registered.
      * @throws UnsupportedOperationException if the mime-type provided is not
      * a text oriented MIME type.
      */
@@ -566,7 +565,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @return StructuredDocument The instance of {@link StructuredDocument}
      *  or null if it could not be created.
      * @throws IOException If there is a problem reading from the stream.
-     * @throws NoSuchElementException if the mime-type has not been registered.
+     * @throws java.util.NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MessageElement element) throws IOException {
         factory.loadProviders();
