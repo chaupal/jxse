@@ -15,14 +15,11 @@
  */
 package net.jxta.impl.util;
 
-import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * This class implements a Generic LRU Cache. The cache is not thread-safe.
+ * This class implements a Generic LRU Cache.
  *
  * @author Ignacio J. Ortega
  * @author Mohamed Abdelaziz
@@ -50,7 +47,7 @@ public class LRUCache<K, V> {
     /**
      * clear the cache
      */
-    public void clear() {
+    public synchronized void clear() {
         first = null;
         last = null;
         nodes.clear();
@@ -62,7 +59,7 @@ public class LRUCache<K, V> {
      *
      * @return the number of elements in cache
      */
-    public int size() {
+    public synchronized int size() {
         return currentSize;
     }
 
@@ -72,7 +69,7 @@ public class LRUCache<K, V> {
      * @param key key
      * @return object
      */
-    public V get(K key) {
+    public synchronized V get(K key) {
         CacheNode<K, V> node = nodes.get(key);
 
         if (node != null) {
@@ -82,20 +79,8 @@ public class LRUCache<K, V> {
         return null;
     }
 
-    public boolean contains(K key) {
+    public synchronized boolean contains(K key) {
         return nodes.keySet().contains(key);
-    }
-
-    protected Iterator<V> iterator(int size) {
-        List<V> list = new ArrayList<V>();
-
-        for (CacheNode<K, V> node : nodes.values()) {
-            list.add(node.value);
-            if (list.size() >= size) {
-                break;
-            }
-        }
-        return list.iterator();
     }
 
     private void moveToHead(CacheNode<K, V> node) {
@@ -128,7 +113,7 @@ public class LRUCache<K, V> {
      * @param key   key to store value by
      * @param value object to insert
      */
-    public void put(K key, V value) {
+    public synchronized void put(K key, V value) {
         CacheNode<K, V> node = nodes.get(key);
 
         if (node == null) {
@@ -153,7 +138,7 @@ public class LRUCache<K, V> {
      * @param key key
      * @return Object removed
      */
-    public V remove(K key) {
+    public synchronized V remove(K key) {
         CacheNode<K, V> node = nodes.get(key);
 
         if (node != null) {
