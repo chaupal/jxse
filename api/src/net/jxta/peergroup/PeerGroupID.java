@@ -56,10 +56,9 @@
 package net.jxta.peergroup;
 
 
-import java.net.URI;
-
 import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
+
+import java.net.URI;
 
 
 /**

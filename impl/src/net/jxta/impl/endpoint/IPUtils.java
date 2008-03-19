@@ -55,6 +55,9 @@
  */
 package net.jxta.impl.endpoint;
 
+import net.jxta.logging.Logging;
+
+import javax.net.ServerSocketFactory;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.Inet6Address;
@@ -70,10 +73,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import javax.net.ServerSocketFactory;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 /**

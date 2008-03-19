@@ -57,7 +57,13 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import java.io.ByteArrayInputStream;
+import net.jxta.endpoint.ByteArrayMessageElement;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.WireFormatMessageFactory;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -65,18 +71,9 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import net.jxta.endpoint.ByteArrayMessageElement;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.WireFormatMessageFactory;
-import net.jxta.impl.util.TimeUtils;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 

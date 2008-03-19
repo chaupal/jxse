@@ -57,20 +57,17 @@
 package net.jxta.document;
 
 
+import net.jxta.logging.Logging;
+import net.jxta.util.ClassFactory;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-
-import java.io.IOException;
 import java.util.NoSuchElementException;
-import java.util.MissingResourceException;
-
-import java.util.logging.Logger;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
-import net.jxta.util.ClassFactory;
+import java.util.logging.Logger;
 
 
 /**

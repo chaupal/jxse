@@ -57,7 +57,7 @@
 package net.jxta.util;
 
 
-import java.awt.Frame;
+import java.awt.*;
 
 
 public class AwtUtils {

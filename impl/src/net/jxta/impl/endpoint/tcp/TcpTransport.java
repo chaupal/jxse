@@ -55,6 +55,38 @@
  */
 package net.jxta.impl.endpoint.tcp;
 
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Attribute;
+import net.jxta.document.XMLElement;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.MessageReceiver;
+import net.jxta.endpoint.MessageSender;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.MessengerEvent;
+import net.jxta.endpoint.MessengerEventListener;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.id.ID;
+import net.jxta.impl.endpoint.IPUtils;
+import net.jxta.impl.endpoint.LoopbackMessenger;
+import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
+import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
+import net.jxta.impl.meter.MonitorManager;
+import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
+import net.jxta.meter.MonitorResources;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.TransportAdvertisement;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetAddress;
@@ -69,56 +101,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EmptyStackException;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Attribute;
-import net.jxta.document.XMLElement;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.MessageReceiver;
-import net.jxta.endpoint.MessageSender;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.MessengerEvent;
-import net.jxta.endpoint.MessengerEventListener;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.id.ID;
-import net.jxta.logging.Logging;
-import net.jxta.meter.MonitorResources;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.protocol.TransportAdvertisement;
-
-import net.jxta.impl.endpoint.IPUtils;
-import net.jxta.impl.endpoint.LoopbackMessenger;
-import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
-import net.jxta.impl.endpoint.transportMeter.TransportMeter;
-import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
-import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
-import net.jxta.impl.meter.MonitorManager;
-import net.jxta.impl.peergroup.StdPeerGroup;
-import net.jxta.impl.protocol.TCPAdv;
-import net.jxta.impl.util.TimeUtils;
 
 
 /**

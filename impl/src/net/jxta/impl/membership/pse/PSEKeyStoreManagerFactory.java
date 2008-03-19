@@ -57,25 +57,12 @@
 package net.jxta.impl.membership.pse;
 
 
-import java.util.NoSuchElementException;
-import java.net.URI;
-import java.io.File;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.protocol.PSEConfigAdv;
 
+import java.net.URI;
 import java.security.KeyStoreException;
 import java.security.NoSuchProviderException;
-
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.document.Advertisement;
-import net.jxta.id.ID;
-import net.jxta.document.Element;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.XMLElement;
-
-import net.jxta.impl.cm.Cm;
-import net.jxta.impl.peergroup.StdPeerGroup;
-import net.jxta.impl.protocol.PSEConfigAdv;
 
 
 /**

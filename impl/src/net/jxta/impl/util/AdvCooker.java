@@ -59,21 +59,16 @@
 package net.jxta.impl.util;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.TextElement;
 import net.jxta.document.XMLDocument;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleClassID;
@@ -81,11 +76,13 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleClassAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
-import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
-import net.jxta.impl.peergroup.StdPeerGroup;
-import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**

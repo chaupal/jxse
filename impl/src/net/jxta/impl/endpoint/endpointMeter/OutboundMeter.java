@@ -57,7 +57,8 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 
-import net.jxta.endpoint.*;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.Message;
 
 
 /**

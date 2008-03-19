@@ -55,47 +55,40 @@
  */
 package net.jxta.impl.endpoint.servlethttp;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-
-import java.net.UnknownHostException;
-import java.util.concurrent.Executor;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
-import net.jxta.id.ID;
-import net.jxta.meter.MonitorResources;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.protocol.TransportAdvertisement;
-import net.jxta.platform.Module;
-
 import net.jxta.exception.PeerGroupException;
-
+import net.jxta.id.ID;
+import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
-import net.jxta.impl.endpoint.IPUtils;
-import net.jxta.impl.protocol.HTTPAdv;
-
-import net.jxta.impl.meter.*;
+import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.protocol.HTTPAdv;
+import net.jxta.logging.Logging;
+import net.jxta.meter.MonitorResources;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.TransportAdvertisement;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A JXTA Message Transport

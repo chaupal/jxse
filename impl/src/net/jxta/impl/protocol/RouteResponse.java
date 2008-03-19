@@ -61,7 +61,6 @@ import net.jxta.document.*;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.protocol.RouteResponseMsg;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Enumeration;
 
 

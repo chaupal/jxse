@@ -59,8 +59,6 @@ package net.jxta.resolver;
 
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
-import net.jxta.exception.*;
-import java.io.*;
 
 
 /**

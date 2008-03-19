@@ -57,12 +57,7 @@
 package net.jxta.impl.resolver.resolverMeter;
 
 
-import net.jxta.peer.*;
-import net.jxta.endpoint.*;
-import net.jxta.util.documentSerializable.*;
-import net.jxta.document.*;
-import net.jxta.util.*;
-import java.util.*;
+import net.jxta.peer.PeerID;
 
 
 public class QueryDestinationMeter {

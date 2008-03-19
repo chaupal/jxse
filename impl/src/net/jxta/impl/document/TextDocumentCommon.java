@@ -58,9 +58,7 @@ package net.jxta.impl.document;
 
 
 import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredTextDocument;
 
 
 /**

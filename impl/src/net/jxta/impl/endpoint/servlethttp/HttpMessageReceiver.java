@@ -55,22 +55,14 @@
  */
 package net.jxta.impl.endpoint.servlethttp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
-import java.io.IOException;
-import java.io.FileNotFoundException;
-
-import java.util.logging.Level;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.MessageReceiver;
+import net.jxta.endpoint.MessengerEvent;
+import net.jxta.endpoint.MessengerEventListener;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
@@ -80,15 +72,18 @@ import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.Log;
 import org.mortbay.util.LoggerLogSink;
 
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.MessageReceiver;
-import net.jxta.endpoint.MessengerEvent;
-import net.jxta.endpoint.MessengerEventListener;
-
-import net.jxta.exception.PeerGroupException;
-
-import net.jxta.impl.util.TimeUtils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Simple Message Receiver for server side.

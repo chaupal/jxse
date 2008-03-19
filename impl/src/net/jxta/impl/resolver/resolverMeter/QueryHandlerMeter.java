@@ -57,20 +57,16 @@
 package net.jxta.impl.resolver.resolverMeter;
 
 
-import net.jxta.peer.*;
-import net.jxta.peergroup.*;
-import net.jxta.resolver.*;
-import net.jxta.impl.resolver.*;
-import net.jxta.impl.meter.*;
-import net.jxta.protocol.*;
-import net.jxta.meter.*;
-import net.jxta.util.*;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.impl.meter.MetricUtilities;
+import net.jxta.peer.PeerID;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverResponseMsg;
 
-import net.jxta.endpoint.*;
-import net.jxta.exception.*;
-
-import java.net.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 
 public class QueryHandlerMeter {

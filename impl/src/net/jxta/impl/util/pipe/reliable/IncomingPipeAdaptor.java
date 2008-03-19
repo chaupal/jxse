@@ -57,12 +57,12 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
-import net.jxta.pipe.InputPipe;
 import net.jxta.endpoint.Message;
+import net.jxta.logging.Logging;
+import net.jxta.pipe.InputPipe;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class IncomingPipeAdaptor implements Runnable {

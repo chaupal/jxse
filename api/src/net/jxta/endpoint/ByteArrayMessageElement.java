@@ -58,12 +58,16 @@ package net.jxta.endpoint;
 
 
 import net.jxta.document.MimeMediaType;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 

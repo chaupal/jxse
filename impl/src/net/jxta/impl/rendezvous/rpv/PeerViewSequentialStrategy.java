@@ -55,8 +55,8 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-import java.util.SortedSet;
 import java.util.Iterator;
+import java.util.SortedSet;
 
 /**
  * Sequential

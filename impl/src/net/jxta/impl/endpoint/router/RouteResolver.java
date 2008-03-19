@@ -56,7 +56,12 @@
 package net.jxta.impl.endpoint.router;
 
 import net.jxta.credential.Credential;
-import net.jxta.document.*;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.exception.PeerGroupException;
@@ -64,27 +69,45 @@ import net.jxta.id.ID;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.cm.Srdi.SrdiInterface;
 import net.jxta.impl.cm.SrdiIndex;
-import net.jxta.impl.protocol.*;
+import net.jxta.impl.protocol.ResolverQuery;
+import net.jxta.impl.protocol.ResolverResponse;
+import net.jxta.impl.protocol.RouteQuery;
+import net.jxta.impl.protocol.RouteResponse;
+import net.jxta.impl.protocol.SrdiMessageImpl;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
-import net.jxta.protocol.*;
+import net.jxta.protocol.AccessPointAdvertisement;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverResponseMsg;
+import net.jxta.protocol.ResolverSrdiMsg;
+import net.jxta.protocol.RouteAdvertisement;
+import net.jxta.protocol.SrdiMessage;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Handles dynamic route resolution.

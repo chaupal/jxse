@@ -55,24 +55,21 @@
  */
 package net.jxta.impl.endpoint.servlethttp;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import java.io.IOException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
-import net.jxta.peergroup.PeerGroupID;
-
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroupID;
+
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Simple messenger that waits for a message to give back to the requesting client

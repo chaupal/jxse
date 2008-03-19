@@ -57,12 +57,6 @@
 package net.jxta.document;
 
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.io.IOException;
-
-
 /**
  * A simple typed container for data. A {@code Document} is presented as a
  * byte stream with an associated type. The data type is specified using a

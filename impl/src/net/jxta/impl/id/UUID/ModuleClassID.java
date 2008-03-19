@@ -57,11 +57,6 @@
 package net.jxta.impl.id.UUID;
 
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
-
 /**
  *  An implementation of the {@link net.jxta.platform.ModuleClassID} ID Type.
  */

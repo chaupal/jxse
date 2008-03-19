@@ -56,14 +56,14 @@
 package net.jxta.impl.id.binaryID;
 
 
-import net.jxta.peergroup.PeerGroupID;
-import java.util.logging.Level;
+import net.jxta.id.ID;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
+import net.jxta.peergroup.PeerGroupID;
 
 import java.io.InputStream;
 import java.net.URI;
-import net.jxta.id.ID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

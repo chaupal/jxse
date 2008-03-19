@@ -57,10 +57,10 @@
 package net.jxta.impl.resolver;
 
 
-import net.jxta.resolver.QueryHandler;
-import net.jxta.protocol.ResolverResponseMsg;
-import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.endpoint.EndpointAddress;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverResponseMsg;
+import net.jxta.resolver.QueryHandler;
 
 
 /**

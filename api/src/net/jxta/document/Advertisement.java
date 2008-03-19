@@ -57,11 +57,11 @@
 package net.jxta.document;
 
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.lang.reflect.Method;
-
 import net.jxta.id.ID;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 
 
 /**

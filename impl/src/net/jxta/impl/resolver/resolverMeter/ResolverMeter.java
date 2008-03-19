@@ -57,15 +57,9 @@
 package net.jxta.impl.resolver.resolverMeter;
 
 
-import net.jxta.peer.*;
-import net.jxta.peergroup.*;
-import net.jxta.resolver.*;
-import net.jxta.impl.resolver.*;
-import net.jxta.protocol.*;
-import net.jxta.endpoint.*;
-
-import java.net.*;
-import java.util.*;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverResponseMsg;
 
 
 public class ResolverMeter {

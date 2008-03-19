@@ -57,8 +57,9 @@
 package net.jxta.impl.endpoint.transportMeter;
 
 
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.Message;
 import net.jxta.peer.PeerID;
-import net.jxta.endpoint.*;
 
 
 public class TransportBindingMeter {

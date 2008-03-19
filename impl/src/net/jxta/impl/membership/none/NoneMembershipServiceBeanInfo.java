@@ -59,11 +59,10 @@ package net.jxta.impl.membership.none;
 
 import java.beans.BeanDescriptor;
 import java.beans.EventSetDescriptor;
+import java.beans.IntrospectionException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
-
-import java.beans.IntrospectionException;
 import java.lang.reflect.UndeclaredThrowableException;
 
 

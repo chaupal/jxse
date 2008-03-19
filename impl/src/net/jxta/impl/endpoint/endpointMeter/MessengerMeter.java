@@ -57,7 +57,7 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 
-import net.jxta.endpoint.*;
+import net.jxta.endpoint.Message;
 
 
 public interface MessengerMeter {

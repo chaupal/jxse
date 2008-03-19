@@ -57,27 +57,13 @@
 package net.jxta.impl.document;
 
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocumentFactory.Instantiator.ExtensionMapping;
 import net.jxta.document.XMLDocument;
-import net.jxta.impl.document.LiteXMLElement.charRange;
-import net.jxta.impl.document.LiteXMLElement.tagRange;
+
+import java.io.*;
+import java.lang.reflect.UndeclaredThrowableException;
 
 
 /**

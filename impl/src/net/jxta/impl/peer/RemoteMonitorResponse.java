@@ -57,10 +57,17 @@
 package net.jxta.impl.peer;
 
 
-import net.jxta.document.*;
-import net.jxta.util.documentSerializable.*;
-import net.jxta.meter.*;
-import java.util.*;
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
+import net.jxta.meter.MonitorFilter;
+import net.jxta.meter.MonitorReport;
+import net.jxta.meter.PeerMonitorInfo;
+import net.jxta.util.documentSerializable.DocumentSerializable;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
+
+import java.util.Enumeration;
+import java.util.LinkedList;
 
 
 public class RemoteMonitorResponse implements DocumentSerializable {

@@ -55,21 +55,29 @@
  */
 package net.jxta.impl.endpoint.tcp;
 
+import net.jxta.impl.endpoint.IPUtils;
+import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.*;
-import java.nio.channels.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.SocketException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ClosedSelectorException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.impl.endpoint.IPUtils;
-import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
-import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 
 /**
  * This server handles incoming unicast TCP connections

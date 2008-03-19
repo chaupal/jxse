@@ -58,14 +58,17 @@ package net.jxta.impl.pipe;
 import net.jxta.document.Advertisement;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.pipe.*;
+import net.jxta.pipe.InputPipe;
+import net.jxta.pipe.OutputPipe;
+import net.jxta.pipe.OutputPipeListener;
+import net.jxta.pipe.PipeMsgListener;
+import net.jxta.pipe.PipeService;
+import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.peer.PeerID;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
-import net.jxta.protocol.ModuleImplAdvertisement;
 
 /**
  * This class implements the Pipe interface.

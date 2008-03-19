@@ -57,26 +57,17 @@
 package net.jxta.impl.membership.pse;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
+import net.jxta.impl.protocol.PSEConfigAdv;
+import net.jxta.logging.Logging;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
-import net.jxta.document.Advertisement;
-import net.jxta.id.ID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.impl.protocol.PSEConfigAdv;
-
-import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 
 
 /**

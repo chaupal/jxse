@@ -57,25 +57,22 @@
 package net.jxta.impl.membership.pse;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.security.KeyStore;
-
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchProviderException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.id.ID;
-import net.jxta.peergroup.PeerGroup;
-
 import net.jxta.impl.cm.Cm;
 import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

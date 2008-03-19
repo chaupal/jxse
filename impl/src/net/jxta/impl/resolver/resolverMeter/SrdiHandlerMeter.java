@@ -57,13 +57,13 @@
 package net.jxta.impl.resolver.resolverMeter;
 
 
-import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.endpoint.EndpointAddress;
-import net.jxta.peer.*;
-import net.jxta.util.*;
-import net.jxta.impl.meter.*;
-import net.jxta.exception.*;
-import java.util.*;
+import net.jxta.impl.meter.MetricUtilities;
+import net.jxta.peer.PeerID;
+import net.jxta.protocol.ResolverSrdiMsg;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 
 public class SrdiHandlerMeter {

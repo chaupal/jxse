@@ -57,8 +57,9 @@
 package net.jxta.codat;
 
 
-import java.net.URI;
 import net.jxta.id.ID;
+
+import java.net.URI;
 
 
 /**

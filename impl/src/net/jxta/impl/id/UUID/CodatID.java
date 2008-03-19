@@ -57,12 +57,11 @@
 package net.jxta.impl.id.UUID;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
-
-import java.io.IOException;
-import java.security.ProviderException;
 import java.security.NoSuchAlgorithmException;
+import java.security.ProviderException;
 
 
 /**

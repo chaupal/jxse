@@ -57,12 +57,6 @@
 package net.jxta.document;
 
 
-import java.io.Writer;
-import java.io.Reader;
-
-import java.io.IOException;
-
-
 /**
  * Provides {@code Reader}/{@code Writer} based interfaces for manipulating
  * {@code TextDocument}s.

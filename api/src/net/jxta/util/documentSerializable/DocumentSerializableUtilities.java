@@ -57,12 +57,21 @@
 package net.jxta.util.documentSerializable;
 
 
-import net.jxta.document.*;
-import net.jxta.exception.*;
-import net.jxta.util.*;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.XMLDocument;
+import net.jxta.exception.JxtaException;
 
-import java.util.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Enumeration;
 
 
 /**

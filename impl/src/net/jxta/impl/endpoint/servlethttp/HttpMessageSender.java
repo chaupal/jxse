@@ -55,24 +55,20 @@
  */
 package net.jxta.impl.endpoint.servlethttp;
 
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.MessageSender;
+import net.jxta.endpoint.Messenger;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.logging.Logging;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import java.net.SocketTimeoutException;
-import java.net.ConnectException;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageSender;
-import net.jxta.endpoint.Messenger;
-
-import net.jxta.exception.PeerGroupException;
 
 /**
  * Simple Client MessageSender

@@ -57,13 +57,12 @@
 package net.jxta.impl.endpoint.transportMeter;
 
 
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
 import net.jxta.endpoint.EndpointAddress;
-
 import net.jxta.util.documentSerializable.DocumentSerializable;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
-import net.jxta.document.Element;
-import net.jxta.document.TextElement;
 
 import java.util.Enumeration;
 import java.util.HashMap;

@@ -57,26 +57,22 @@
 package net.jxta.impl.endpoint.tls;
 
 
-import java.io.DataInputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import java.io.IOException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
-
-import net.jxta.impl.util.TimeUtils;
-
 import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -102,7 +98,7 @@ class TlsManager implements EndpointListener {
      *  <li>values are {@link TlsConn}<li>
      *  </ul>
      **/
-    private Map connections = new HashMap();
+    private final Map<String, TlsConn> connections = new HashMap<String, TlsConn>();
     
     /**
      *  The last time at which we printed a warning about discarding messages
@@ -128,10 +124,10 @@ class TlsManager implements EndpointListener {
         }
         
         synchronized (connections) {
-            Iterator eachConnection = connections.values().iterator();
+            Iterator<TlsConn> eachConnection = connections.values().iterator();
             
             while (eachConnection.hasNext()) {
-                TlsConn aConnection = (TlsConn) eachConnection.next();
+                TlsConn aConnection = eachConnection.next();
                 
                 try {
                     aConnection.close(HandshakeState.CONNECTIONDEAD);
@@ -172,7 +168,7 @@ class TlsManager implements EndpointListener {
         TlsConn conn = null;
         
         synchronized (connections) {
-            conn = (TlsConn) connections.get(paddr);
+            conn = connections.get(paddr);
             
             // remove it if it is dead
             if (null != conn) {
@@ -259,7 +255,6 @@ class TlsManager implements EndpointListener {
                     } catch (InterruptedException woken) {
                         Thread.interrupted();
                     }
-                    continue;
                 } else if (HandshakeState.HANDSHAKESTARTED == currentState) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Handshake in progress for " + paddr);
@@ -271,7 +266,6 @@ class TlsManager implements EndpointListener {
                     } catch (InterruptedException woken) {
                         Thread.interrupted();
                     }
-                    continue;
                 } else if (HandshakeState.HANDSHAKEFINISHED == currentState) {
                     
                     if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -363,7 +357,7 @@ class TlsManager implements EndpointListener {
         synchronized (connections) {
             // Will be in our hash table unless this is for a first time
             // incoming connection request
-            conn = (TlsConn) connections.get(paddr);
+            conn = connections.get(paddr);
             
             if (null != conn) {
                 // check if the connection has idled out and remote is asking for a restart.
@@ -526,10 +520,10 @@ class TlsManager implements EndpointListener {
             if ((HandshakeState.HANDSHAKESTARTED == currentState) || (HandshakeState.HANDSHAKEFINISHED == currentState)
                     || (HandshakeState.CONNECTIONCLOSING == currentState)) {
                 // process any ACK messages.
-                Iterator eachACK = msg.getMessageElements(JTlsDefs.TLSNameSpace, JTlsDefs.ACKS);
+                Iterator<MessageElement> eachACK = msg.getMessageElements(JTlsDefs.TLSNameSpace, JTlsDefs.ACKS);
                 
                 while (eachACK.hasNext()) {
-                    MessageElement elt = (MessageElement) eachACK.next();
+                    MessageElement elt = eachACK.next();
                     
                     eachACK.remove();
                     
@@ -587,10 +581,10 @@ class TlsManager implements EndpointListener {
         
         int seqN = 0;
         
-        Iterator eachElement = msg.getMessageElements(JTlsDefs.TLSNameSpace, JTlsDefs.BLOCKS);
+        Iterator<MessageElement> eachElement = msg.getMessageElements(JTlsDefs.TLSNameSpace, JTlsDefs.BLOCKS);
         
         while (eachElement.hasNext()) {
-            MessageElement elt = (MessageElement) eachElement.next();
+            MessageElement elt = eachElement.next();
             
             try {
                 seqN = Integer.parseInt(elt.getElementName());

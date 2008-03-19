@@ -59,7 +59,9 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.impl.peergroup.CompatibilityEquater;
+import net.jxta.logging.Logging;
 import net.jxta.platform.JxtaLoader;
+import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
@@ -72,8 +74,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
-import net.jxta.platform.Module;
 
 
 /**

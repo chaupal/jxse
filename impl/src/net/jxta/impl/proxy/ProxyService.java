@@ -59,7 +59,6 @@ import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.EndpointService;
@@ -73,6 +72,7 @@ import net.jxta.impl.util.Cache;
 import net.jxta.impl.util.CacheEntry;
 import net.jxta.impl.util.CacheEntryListener;
 import net.jxta.impl.util.LRUCache;
+import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -83,18 +83,15 @@ import net.jxta.pipe.OutputPipeListener;
 import net.jxta.pipe.PipeMsgEvent;
 import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
+import net.jxta.platform.Module;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.service.Service;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -103,8 +100,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
-
-import net.jxta.platform.Module;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 // FIXME: jice@jxta.org - 20020515

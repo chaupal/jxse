@@ -57,18 +57,26 @@
 package net.jxta.impl.protocol;
 
 
-import java.io.IOException;
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.*;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
+import net.jxta.logging.Logging;
 import net.jxta.protocol.DiscoveryQueryMsg;
 import net.jxta.protocol.PeerAdvertisement;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

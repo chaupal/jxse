@@ -57,11 +57,9 @@
 package net.jxta.impl.id.binaryID;
 
 
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import java.security.MessageDigest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

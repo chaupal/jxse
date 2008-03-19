@@ -57,8 +57,11 @@
 package net.jxta.impl.meter;
 
 
-import net.jxta.meter.*;
-import java.util.*;
+import net.jxta.meter.ServiceMonitor;
+import net.jxta.meter.ServiceMonitorFilter;
+
+import java.util.Iterator;
+import java.util.LinkedList;
 
 
 public class ServiceMonitorPulseInfo {

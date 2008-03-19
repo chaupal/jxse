@@ -57,11 +57,11 @@
 package net.jxta.pipe;
 
 
-import java.io.IOException;
-
 import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
 import net.jxta.protocol.PipeAdvertisement;
+
+import java.io.IOException;
 
 
 /**

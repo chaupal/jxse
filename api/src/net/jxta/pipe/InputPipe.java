@@ -57,8 +57,8 @@
 package net.jxta.pipe;
 
 
-import net.jxta.id.ID;
 import net.jxta.endpoint.Message;
+import net.jxta.id.ID;
 import net.jxta.protocol.PipeAdvertisement;
 
 

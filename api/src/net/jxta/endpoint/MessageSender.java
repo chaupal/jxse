@@ -57,9 +57,6 @@
 package net.jxta.endpoint;
 
 
-import java.io.IOException;
-
-
 /**
  *  A MessageSender is a MessageTransport that is able to send messages to
  *  remote peers using some protocol. MessageSenders provide facilities for 

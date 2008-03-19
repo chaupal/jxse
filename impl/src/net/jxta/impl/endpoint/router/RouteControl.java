@@ -62,21 +62,21 @@ package net.jxta.impl.endpoint.router;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerEvent;
-import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.io.IOException;
 
 /**
  * Provides an "IOCTL" style interface to the JXTA router transport

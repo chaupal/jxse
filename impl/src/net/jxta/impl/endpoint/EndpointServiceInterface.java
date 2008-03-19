@@ -56,20 +56,12 @@
 package net.jxta.impl.endpoint;
 
 import net.jxta.document.Advertisement;
-import net.jxta.endpoint.ChannelMessenger;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointListener;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.ListenerAdaptor;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageFilterListener;
-import net.jxta.endpoint.MessageTransport;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.MessengerEventListener;
+import net.jxta.endpoint.*;
 import net.jxta.id.ID;
-import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.util.TimeUtils;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 import java.lang.ref.Reference;
@@ -77,8 +69,6 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import net.jxta.platform.Module;
 
 /**
  * Provides an interface object appropriate for applications using the endpoint

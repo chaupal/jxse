@@ -59,8 +59,6 @@
 
 package net.jxta.impl;
 
-import java.lang.Package;
-
 /**
  * Provides easy access to Java Package information for the JXSE Implementation.
  */

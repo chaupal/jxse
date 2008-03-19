@@ -57,8 +57,7 @@
 package net.jxta.impl.rendezvous.rendezvousMeter;
 
 
-import net.jxta.peer.*;
-import net.jxta.endpoint.*;
+import net.jxta.peer.PeerID;
 
 
 /**

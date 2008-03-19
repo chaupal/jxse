@@ -57,6 +57,13 @@
 package net.jxta.endpoint;
 
 
+import net.jxta.document.Document;
+import net.jxta.document.MimeMediaType;
+import net.jxta.impl.id.UUID.UUIDFactory;
+import net.jxta.logging.Logging;
+import net.jxta.util.CountingOutputStream;
+import net.jxta.util.DevNullOutputStream;
+
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -64,24 +71,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
-
-import java.io.UnsupportedEncodingException;
 import java.util.UUID;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
-import net.jxta.document.Document;
-import net.jxta.document.MimeMediaType;
-import net.jxta.util.CountingOutputStream;
-import net.jxta.util.DevNullOutputStream;
-
-// imported for implementation of {@link #getSequentialName()}
-import net.jxta.impl.id.UUID.UUIDFactory;
 
 
 /**

@@ -58,13 +58,9 @@ package net.jxta.impl.peergroup;
 
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
-import net.jxta.platform.NetworkConfigurator;
-
-import java.util.logging.Logger;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Collections;
 
 
 /**

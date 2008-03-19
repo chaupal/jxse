@@ -63,6 +63,7 @@ import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
 import net.jxta.impl.xindice.core.data.Value;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
+import net.jxta.logging.Logging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -74,9 +75,7 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.WeakHashMap;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 

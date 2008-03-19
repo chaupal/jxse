@@ -58,16 +58,20 @@ package net.jxta.impl.proxy;
 
 
 import net.jxta.document.Advertisement;
-import net.jxta.endpoint.*;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Requestor {

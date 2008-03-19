@@ -80,12 +80,12 @@ import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.resolver.ResolverService;
 import net.jxta.service.Service;
-import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 /**
  * Provides a pure interface object that permits interaction with the actual

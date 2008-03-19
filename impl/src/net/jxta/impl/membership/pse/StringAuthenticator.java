@@ -57,24 +57,23 @@
 package net.jxta.impl.membership.pse;
 
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.security.cert.X509Certificate;
-import javax.crypto.EncryptedPrivateKeyInfo;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyStoreException;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.peer.PeerID;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
+import net.jxta.peer.PeerID;
+
+import javax.crypto.EncryptedPrivateKeyInfo;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**

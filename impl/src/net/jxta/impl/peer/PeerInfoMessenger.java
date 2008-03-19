@@ -57,8 +57,8 @@
 package net.jxta.impl.peer;
 
 
-import net.jxta.peer.*;
-import net.jxta.util.documentSerializable.*;
+import net.jxta.peer.PeerID;
+import net.jxta.util.documentSerializable.DocumentSerializable;
 
 
 interface PeerInfoMessenger {

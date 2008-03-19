@@ -57,34 +57,22 @@
 package net.jxta.impl.membership.none;
 
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-
-import java.net.URISyntaxException;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.credential.CredentialPCLSupport;
-import net.jxta.document.Attribute;
-import net.jxta.document.Attributable;
 import net.jxta.document.Advertisement;
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.TextElement;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -92,8 +80,17 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 
-import net.jxta.exception.ProtocolNotSupportedException;
-import net.jxta.exception.PeerGroupException;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

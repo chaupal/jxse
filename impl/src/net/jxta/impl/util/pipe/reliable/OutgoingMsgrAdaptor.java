@@ -56,14 +56,13 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import java.io.IOException;
-
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
-
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
+
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 

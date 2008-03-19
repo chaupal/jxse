@@ -57,10 +57,9 @@
 package net.jxta.document;
 
 
-import java.io.Writer;
-import java.io.Reader;
-
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 
 
 /**

@@ -57,14 +57,6 @@
 package net.jxta.impl.rendezvous.rendezvousMeter;
 
 
-import net.jxta.peer.*;
-import net.jxta.peergroup.*;
-import net.jxta.rendezvous.*;
-import net.jxta.impl.rendezvous.*;
-import java.net.*;
-import java.util.*;
-
-
 /**
  The Meter corresponding to the state and aggregate information of a Rendezvous Service
  **/

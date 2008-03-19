@@ -57,15 +57,18 @@
 package net.jxta.impl.rendezvous.rendezvousMeter;
 
 
-import net.jxta.meter.*;
-import net.jxta.platform.*;
-import net.jxta.document.*;
-import net.jxta.util.documentSerializable.*;
-import java.util.*;
-import net.jxta.util.*;
-import net.jxta.exception.*;
-import java.net.*;
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
 import net.jxta.id.IDFactory;
+import net.jxta.meter.MonitorResources;
+import net.jxta.meter.ServiceMonitorFilter;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
 
 
 public class RendezvousServiceMonitorFilter implements ServiceMonitorFilter {

@@ -57,8 +57,8 @@
 package net.jxta.service;
 
 
-import net.jxta.platform.Module;
 import net.jxta.document.Advertisement;
+import net.jxta.platform.Module;
 
 
 /**

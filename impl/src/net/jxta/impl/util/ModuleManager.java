@@ -57,13 +57,6 @@
 package net.jxta.impl.util;
 
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.io.IOException;
-
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -73,12 +66,19 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.TextElement;
+import net.jxta.id.IDFactory;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.Module;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleClassAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.id.IDFactory;
+
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 
 /**

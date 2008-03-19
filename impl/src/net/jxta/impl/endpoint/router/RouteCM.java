@@ -66,8 +66,10 @@ import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.util.LRUCache;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
@@ -77,10 +79,6 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,8 +86,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
-import net.jxta.impl.endpoint.EndpointUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class RouteCM implements Module {
     

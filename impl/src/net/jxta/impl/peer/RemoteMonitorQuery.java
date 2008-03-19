@@ -57,11 +57,14 @@
 package net.jxta.impl.peer;
 
 
-import net.jxta.document.*;
-import net.jxta.util.documentSerializable.*;
-import net.jxta.meter.*;
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
+import net.jxta.meter.MonitorFilter;
+import net.jxta.util.documentSerializable.DocumentSerializable;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
 
-import java.util.*;
+import java.util.Enumeration;
 
 
 public class RemoteMonitorQuery implements DocumentSerializable {

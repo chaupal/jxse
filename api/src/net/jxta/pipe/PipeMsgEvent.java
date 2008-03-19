@@ -57,8 +57,9 @@
 package net.jxta.pipe;
 
 
-import java.util.EventObject;
 import net.jxta.endpoint.Message;
+
+import java.util.EventObject;
 
 
 /**

@@ -57,7 +57,14 @@
 package net.jxta.impl.protocol;
 
 
-import net.jxta.document.*;
+import net.jxta.document.Attributable;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.TextElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;

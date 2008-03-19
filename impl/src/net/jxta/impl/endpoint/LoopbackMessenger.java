@@ -60,15 +60,15 @@ package net.jxta.impl.endpoint;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
-import java.util.logging.Level;
+import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
+import net.jxta.peergroup.PeerGroup;
 
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import net.jxta.impl.peergroup.GenericPeerGroup;
-import net.jxta.peergroup.PeerGroup;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

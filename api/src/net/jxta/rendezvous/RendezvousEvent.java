@@ -56,9 +56,9 @@
 package net.jxta.rendezvous;
 
 
-import java.util.EventObject;
-
 import net.jxta.id.ID;
+
+import java.util.EventObject;
 
 
 /**

@@ -55,17 +55,13 @@
  */
 package net.jxta.impl.rendezvous.rdv;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
 import net.jxta.id.ID;
+import net.jxta.impl.rendezvous.PeerConnection;
+import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 
-import net.jxta.impl.rendezvous.PeerConnection;
-import net.jxta.impl.rendezvous.RendezVousServiceImpl;
+import java.util.logging.Logger;
 
 /**
  * Manages a connection with a client peer.

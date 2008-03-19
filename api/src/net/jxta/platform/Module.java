@@ -57,10 +57,10 @@
 package net.jxta.platform;
 
 
-import net.jxta.peergroup.PeerGroup;
 import net.jxta.document.Advertisement;
-import net.jxta.id.ID;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.id.ID;
+import net.jxta.peergroup.PeerGroup;
 
 
 /**

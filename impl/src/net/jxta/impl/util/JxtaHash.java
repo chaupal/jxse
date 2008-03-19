@@ -56,18 +56,13 @@
 package net.jxta.impl.util;
 
 
-import java.util.*;
-import java.io.File;
+import net.jxta.logging.Logging;
+
 import java.math.BigInteger;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import java.util.logging.Logger;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
+import java.util.logging.Logger;
 
 
 /**

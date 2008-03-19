@@ -57,17 +57,13 @@
 package net.jxta.impl.id.unknown;
 
 
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
+import net.jxta.id.IDFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.UnknownServiceException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.ProviderException;
-
-import net.jxta.id.IDFactory;
 
 
 final class Instantiator implements IDFactory.Instantiator {

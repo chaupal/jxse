@@ -60,11 +60,10 @@ import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
-import net.jxta.peergroup.PeerGroup;
-
 import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvWalk;
 import net.jxta.impl.rendezvous.rpv.PeerView;
+import net.jxta.peergroup.PeerGroup;
 
 /**
  * This class is the Limited Walk Policy.

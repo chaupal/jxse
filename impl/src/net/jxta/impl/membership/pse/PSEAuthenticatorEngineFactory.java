@@ -57,9 +57,6 @@
 package net.jxta.impl.membership.pse;
 
 
-import net.jxta.document.Advertisement;
-import net.jxta.id.ID;
-import net.jxta.peergroup.PeerGroup;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.protocol.PSEConfigAdv;
 

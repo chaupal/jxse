@@ -57,15 +57,8 @@
 package net.jxta.impl.id.unknown;
 
 
-import net.jxta.id.IDFactory;
 import java.net.URI;
-import java.net.URL;
-
-import java.net.MalformedURLException;
-
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
 
 
 /**

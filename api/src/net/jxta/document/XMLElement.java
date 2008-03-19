@@ -57,9 +57,6 @@
 package net.jxta.document;
 
 
-import java.util.Enumeration;
-
-
 /**
  * Common definition of XML Elements. Appropriate for advertisements and
  * messages.

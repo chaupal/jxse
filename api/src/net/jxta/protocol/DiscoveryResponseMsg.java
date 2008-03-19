@@ -57,23 +57,26 @@
 package net.jxta.protocol;
 
 
+import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Document;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.logging.Logging;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
-
-import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.Document;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLDocument;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 

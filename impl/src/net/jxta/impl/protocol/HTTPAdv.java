@@ -57,14 +57,22 @@
 package net.jxta.impl.protocol;
 
 
-import net.jxta.document.*;
-import net.jxta.protocol.TransportAdvertisement;
-import java.util.logging.Level;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
+import net.jxta.protocol.TransportAdvertisement;
 
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

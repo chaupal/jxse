@@ -57,16 +57,15 @@
 package net.jxta.membership;
 
 
-import java.beans.PropertyChangeListener;
-import java.util.Enumeration;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.document.Element;
-import net.jxta.service.Service;
-
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
+import net.jxta.service.Service;
+
+import java.beans.PropertyChangeListener;
+import java.util.Enumeration;
 
 
 /**

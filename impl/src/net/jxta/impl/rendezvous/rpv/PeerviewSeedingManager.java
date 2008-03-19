@@ -55,18 +55,6 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -77,16 +65,24 @@ import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
-
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.RouteAdvertisement;
-
-import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.impl.util.ACLSeedingManager;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.protocol.RdvAdvertisement;
+import net.jxta.protocol.RouteAdvertisement;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A Seeding Manager which uses the peerview advertisement pipes in order to

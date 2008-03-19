@@ -57,27 +57,6 @@
 package net.jxta.impl.endpoint.tls;
 
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.net.URI;
-import java.security.cert.X509Certificate;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.ResourceBundle;
-import javax.security.auth.x500.X500Principal;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
-import java.security.SignatureException;
-import java.util.MissingResourceException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -85,21 +64,38 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.Messenger;
+import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.endpoint.LoopbackMessenger;
+import net.jxta.impl.membership.pse.PSECredential;
+import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.impl.peergroup.GenericPeerGroup;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-import net.jxta.exception.PeerGroupException;
-
-import net.jxta.impl.endpoint.LoopbackMessenger;
-import net.jxta.impl.membership.pse.PSECredential;
-import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.impl.peergroup.GenericPeerGroup;
-import net.jxta.impl.util.TimeUtils;
+import javax.security.auth.x500.X500Principal;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.SignatureException;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -324,25 +320,25 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
             if (null != implAdvertisement) {
                 configInfo.append("\n\tImplementation:");
-                configInfo.append("\n\t\tModule Spec ID: " + implAdvertisement.getModuleSpecID());
-                configInfo.append("\n\t\tImpl Description : " + implAdvertisement.getDescription());
-                configInfo.append("\n\t\tImpl URI : " + implAdvertisement.getUri());
-                configInfo.append("\n\t\tImpl Code : " + implAdvertisement.getCode());
+                configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
+                configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
+                configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
+                configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             }
             configInfo.append("\n\tGroup Params:");
-            configInfo.append("\n\t\tGroup: " + group.getPeerGroupName());
-            configInfo.append("\n\t\tGroup ID: " + group.getPeerGroupID());
-            configInfo.append("\n\t\tPeer ID: " + group.getPeerID());
+            configInfo.append("\n\t\tGroup: ").append(group.getPeerGroupName());
+            configInfo.append("\n\t\tGroup ID: ").append(group.getPeerGroupID());
+            configInfo.append("\n\t\tPeer ID: ").append(group.getPeerID());
             configInfo.append("\n\tConfiguration :");
-            configInfo.append("\n\t\tProtocol: " + JTlsDefs.tlsPName);
-            configInfo.append("\n\t\tOutgoing Connections Enabled: " + Boolean.TRUE);
+            configInfo.append("\n\t\tProtocol: ").append(JTlsDefs.tlsPName);
+            configInfo.append("\n\t\tOutgoing Connections Enabled: ").append(Boolean.TRUE);
             configInfo.append("\n\t\tIncoming Connections Enabled: " + ACT_AS_SERVER);
-            configInfo.append("\n\t\tMinimum idle for reconnect : " + MIN_IDLE_RECONNECT + "ms");
-            configInfo.append("\n\t\tConnection idle timeout : " + CONNECTION_IDLE_TIMEOUT + "ms");
-            configInfo.append("\n\t\tRetry queue maximum age : " + RETRMAXAGE + "ms");
-            configInfo.append("\n\t\tPeerID : " + localPeerId);
-            configInfo.append("\n\t\tRoute through : " + localPeerAddr);
-            configInfo.append("\n\t\tPublic Address : " + localTlsPeerAddr);
+            configInfo.append("\n\t\tMinimum idle for reconnect : ").append(MIN_IDLE_RECONNECT).append("ms");
+            configInfo.append("\n\t\tConnection idle timeout : ").append(CONNECTION_IDLE_TIMEOUT).append("ms");
+            configInfo.append("\n\t\tRetry queue maximum age : ").append(RETRMAXAGE).append("ms");
+            configInfo.append("\n\t\tPeerID : ").append(localPeerId);
+            configInfo.append("\n\t\tRoute through : ").append(localPeerAddr);
+            configInfo.append("\n\t\tPublic Address : ").append(localTlsPeerAddr);
             
             LOG.config(configInfo.toString());
         }
@@ -496,7 +492,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    public Iterator getPublicAddresses() {
+    public Iterator<EndpointAddress> getPublicAddresses() {
         return Collections.singletonList(getPublicAddress()).iterator();
     }
     
@@ -603,9 +599,9 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      *  @param destPeer peer id
      *  @param serv the service name (if any)
      *  @param parm the service param (if any)
-     *  @param endpointAddress for this peer id.
+     *  @return endpointAddress for this peer id.
      */
-    private final static EndpointAddress mkAddress(String destPeer, String serv, String parm) {
+    private static EndpointAddress mkAddress(String destPeer, String serv, String parm) {
         
         ID asID = null;
         
@@ -624,7 +620,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      *  @param destPeer peer id
      *  @param serv the service name (if any)
      *  @param parm the service param (if any)
-     *  @param endpointAddress for this peer id.
+     *  @return endpointAddress for this peer id.
      */
     private final static EndpointAddress mkAddress(ID destPeer, String serv, String parm) {
         
@@ -763,8 +759,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                         LOG.log(Level.SEVERE, "Failure building service credential", failure);
                     }
-                    
-                    return;
+
                 }
             }
         }

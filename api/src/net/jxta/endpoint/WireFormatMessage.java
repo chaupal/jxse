@@ -56,7 +56,6 @@
 package net.jxta.endpoint;
 
 
-import java.nio.ByteBuffer;
 import net.jxta.document.Document;
 import net.jxta.document.DocumentByteBufferIO;
 import net.jxta.document.MimeMediaType;

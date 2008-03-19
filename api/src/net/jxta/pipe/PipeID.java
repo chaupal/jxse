@@ -57,8 +57,9 @@
 package net.jxta.pipe;
 
 
-import java.net.URI;
 import net.jxta.id.ID;
+
+import java.net.URI;
 
 
 /**

@@ -55,9 +55,9 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
+import java.util.Iterator;
 import java.util.Random;
 import java.util.SortedSet;
-import java.util.Iterator;
 
 /**
  * Random with replacement

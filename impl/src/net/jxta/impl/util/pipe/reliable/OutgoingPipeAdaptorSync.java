@@ -57,12 +57,11 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import java.io.IOException;
-import java.lang.IllegalStateException;
-
-import net.jxta.pipe.OutputPipe;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.pipe.OutputPipe;
+
+import java.io.IOException;
 
 
 /**

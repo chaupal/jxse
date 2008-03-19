@@ -57,13 +57,13 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 
-import java.util.Hashtable;
-import java.util.Map;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.meter.GenericServiceMonitor;
 import net.jxta.meter.ServiceMetric;
 import net.jxta.meter.ServiceMonitorFilter;
+
+import java.util.Hashtable;
+import java.util.Map;
 
 
 /**

@@ -57,12 +57,12 @@
 package net.jxta.discovery;
 
 
-import java.io.IOException;
-import java.util.Enumeration;
-
 import net.jxta.document.Advertisement;
 import net.jxta.id.ID;
 import net.jxta.service.Service;
+
+import java.io.IOException;
+import java.util.Enumeration;
 
 
 /**

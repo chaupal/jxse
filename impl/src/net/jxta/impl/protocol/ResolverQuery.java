@@ -55,31 +55,18 @@
  */
 package net.jxta.impl.protocol;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Enumeration;
-
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
-import java.util.logging.Logger;
-
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Document;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
+import net.jxta.document.*;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.RouteAdvertisement;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implements the Resolver Query Message according to the

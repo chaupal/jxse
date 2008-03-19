@@ -57,9 +57,8 @@
 package net.jxta.impl.endpoint.msgframing;
 
 
-import java.util.logging.Level;
+import net.jxta.document.MimeMediaType;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -70,13 +69,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.text.MessageFormat;
 import java.util.ListIterator;
-
-import net.jxta.document.MimeMediaType;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

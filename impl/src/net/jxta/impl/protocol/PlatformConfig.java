@@ -60,7 +60,6 @@ package net.jxta.impl.protocol;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
-import net.jxta.document.Document;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -71,7 +70,6 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-import net.jxta.protocol.ConfigParams;
 
 import java.net.URI;
 import java.net.URISyntaxException;

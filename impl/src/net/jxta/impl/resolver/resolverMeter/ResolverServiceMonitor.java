@@ -57,9 +57,12 @@
 package net.jxta.impl.resolver.resolverMeter;
 
 
-import net.jxta.meter.*;
-import net.jxta.impl.meter.*;
-import java.util.*;
+import net.jxta.impl.meter.GenericServiceMonitor;
+import net.jxta.meter.ServiceMetric;
+import net.jxta.meter.ServiceMonitorFilter;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 
 /**

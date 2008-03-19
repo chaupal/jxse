@@ -60,12 +60,12 @@ package net.jxta.impl.endpoint.router;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.BlockingMessenger;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
+import net.jxta.protocol.RouteAdvertisement;
 
 import java.io.IOException;
-import net.jxta.protocol.RouteAdvertisement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

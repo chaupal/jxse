@@ -57,48 +57,54 @@
 package net.jxta.impl.peer;
 
 
-import java.util.Hashtable;
-import java.util.Random;
-import java.io.StringReader;
-import java.net.URI;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
-import net.jxta.service.Service;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.resolver.ResolverService;
-import net.jxta.resolver.QueryHandler;
+import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.Element;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.exception.JxtaException;
+import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.protocol.ResolverQueryMsg;
-import net.jxta.protocol.ResolverResponseMsg;
+import net.jxta.impl.meter.MeterBuildSettings;
+import net.jxta.impl.meter.MonitorManager;
+import net.jxta.impl.protocol.PeerInfoQueryMsg;
+import net.jxta.impl.protocol.PeerInfoResponseMsg;
+import net.jxta.impl.protocol.ResolverQuery;
+import net.jxta.impl.protocol.ResolverResponse;
+import net.jxta.logging.Logging;
+import net.jxta.membership.MembershipService;
+import net.jxta.meter.MonitorException;
+import net.jxta.meter.MonitorFilter;
+import net.jxta.meter.MonitorListener;
+import net.jxta.meter.MonitorReport;
+import net.jxta.meter.PeerMonitorInfo;
+import net.jxta.meter.PeerMonitorInfoListener;
+import net.jxta.peer.PeerID;
+import net.jxta.peer.PeerInfoService;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
+import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerInfoQueryMessage;
 import net.jxta.protocol.PeerInfoResponseMessage;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.peer.PeerInfoService;
-import net.jxta.credential.Credential;
-import net.jxta.membership.MembershipService;
-import net.jxta.impl.protocol.ResolverQuery;
-import net.jxta.impl.protocol.ResolverResponse;
-import net.jxta.impl.protocol.PeerInfoQueryMsg;
-import net.jxta.impl.protocol.PeerInfoResponseMsg;
-import net.jxta.exception.JxtaException;
-import net.jxta.exception.PeerGroupException;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverResponseMsg;
+import net.jxta.resolver.QueryHandler;
+import net.jxta.resolver.ResolverService;
+import net.jxta.service.Service;
+import net.jxta.util.documentSerializable.DocumentSerializable;
 
-import net.jxta.meter.*;
-import net.jxta.impl.meter.*;
-import net.jxta.peer.*;
-import net.jxta.platform.*;
-import net.jxta.util.documentSerializable.*;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -126,7 +132,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     private Credential credential = null;
     private StructuredDocument credentialDoc = null;
     private MonitorManager monitorManager;
-    private Hashtable peerInfoHandlers = new Hashtable();
+    private final Map peerInfoHandlers = new Hashtable();
     private PipQueryHandler pipQueryHandler = new PipQueryHandler();
     private RemoteMonitorPeerInfoHandler remoteMonitorPeerInfoHandler;
     private PeerInfoMessenger resolverServicePeerInfoMessenger = new ResolverServicePeerInfoMessenger();

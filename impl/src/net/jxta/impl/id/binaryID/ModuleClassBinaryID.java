@@ -58,8 +58,8 @@ package net.jxta.impl.id.binaryID;
 
 
 import net.jxta.peergroup.PeerGroupID;
+
 import java.util.logging.Logger;
-import net.jxta.id.ID;
 
 
 /**

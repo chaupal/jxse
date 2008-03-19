@@ -56,10 +56,10 @@
 
 package net.jxta.impl.util;
 
-import java.net.URI;
-
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
+import java.net.URI;
 
 /**
  * Manages the location of seed peers.

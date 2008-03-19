@@ -55,39 +55,28 @@
  */
 package net.jxta.impl.peer;
 
+import net.jxta.document.Element;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.util.TimerThreadNamer;
+import net.jxta.logging.Logging;
+import net.jxta.meter.*;
+import net.jxta.peer.PeerID;
+import net.jxta.peer.PeerInfoService;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.protocol.PeerInfoQueryMessage;
+import net.jxta.protocol.PeerInfoResponseMessage;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
+
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
-import net.jxta.document.Element;
-import net.jxta.protocol.PeerInfoQueryMessage;
-import net.jxta.protocol.PeerInfoResponseMessage;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.peer.PeerInfoService;
-import net.jxta.peergroup.PeerGroupID;
-
-import net.jxta.meter.MonitorEvent;
-import net.jxta.meter.MonitorException;
-import net.jxta.meter.MonitorFilter;
-import net.jxta.meter.MonitorFilterException;
-import net.jxta.meter.MonitorListener;
-import net.jxta.meter.MonitorReport;
-import net.jxta.meter.MonitorResources;
-import net.jxta.meter.PeerMonitorInfo;
-import net.jxta.meter.PeerMonitorInfoEvent;
-import net.jxta.meter.PeerMonitorInfoListener;
-import net.jxta.meter.ServiceMonitorFilter;
-import net.jxta.peer.PeerID;
-import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
-import net.jxta.util.documentSerializable.DocumentSerializationException;
-import net.jxta.impl.util.TimerThreadNamer;
+import java.util.logging.Logger;
 
 class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     public static final String MONITOR_HANDLER_NAME = "Monitor";

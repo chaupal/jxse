@@ -59,8 +59,9 @@ package net.jxta.impl.xindice.core.indexer;
 
  */
 
-import net.jxta.impl.xindice.core.data.*;
-import java.util.*;
+import net.jxta.impl.xindice.core.data.Value;
+
+import java.util.Arrays;
 
 
 /**

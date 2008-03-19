@@ -57,7 +57,6 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import java.io.ByteArrayOutputStream;
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
@@ -67,6 +66,7 @@ import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;

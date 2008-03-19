@@ -56,9 +56,9 @@
 package net.jxta.protocol;
 
 
+import net.jxta.credential.Credential;
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
-import net.jxta.credential.Credential;
 
 
 /**

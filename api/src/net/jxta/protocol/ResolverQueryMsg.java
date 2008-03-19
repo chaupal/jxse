@@ -55,12 +55,12 @@
  */
 package net.jxta.protocol;
 
-import java.net.URI;
-
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.id.ID;
+
+import java.net.URI;
 
 /**
  * Generic Resolver Service message "Query".

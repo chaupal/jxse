@@ -63,12 +63,11 @@ import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.peergroup.GenericPeerGroup;
+import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
-import net.jxta.impl.protocol.PeerGroupConfigAdv;
-import net.jxta.impl.peergroup.GenericPeerGroup;
 
 import java.io.File;
 import java.io.FileInputStream;

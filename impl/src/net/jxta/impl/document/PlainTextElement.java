@@ -57,25 +57,21 @@
 package net.jxta.impl.document;
 
 
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.TextElement;
+
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Vector;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
-import java.io.IOException;
-
-import net.jxta.document.Element;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
-
-import net.jxta.document.Attributable;
-import net.jxta.document.Attribute;
+import java.util.Vector;
 
 
 /**

@@ -133,8 +133,6 @@ public final class BTreeFiler extends BTree implements Filer {
             record.setKey(key);
             return record;
         } catch (BTreeNotFoundException b) {// do nothing
-        } catch (BTreeException b) {
-            throw b;
         } catch (IOException e) {
             throw new FilerException(DBE_CANNOT_READ, "Can't read record '" + key + "': " + e.getMessage(), e);
         }

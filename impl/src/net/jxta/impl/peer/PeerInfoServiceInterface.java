@@ -56,21 +56,19 @@
 package net.jxta.impl.peer;
 
 
-import java.io.IOException;
-import java.util.Enumeration;
 import net.jxta.document.Advertisement;
-import net.jxta.service.Service;
 import net.jxta.id.ID;
+import net.jxta.meter.MonitorException;
+import net.jxta.meter.MonitorFilter;
+import net.jxta.meter.MonitorListener;
+import net.jxta.meter.MonitorReport;
+import net.jxta.meter.PeerMonitorInfo;
+import net.jxta.meter.PeerMonitorInfoListener;
+import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
-import net.jxta.peer.PeerInfoListener;
-import net.jxta.peer.PeerInfoEvent;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.protocol.PeerInfoResponseMessage;
-import net.jxta.impl.peer.PeerInfoServiceImpl;
-import net.jxta.peer.*;
-import net.jxta.meter.*;
-import net.jxta.platform.*;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.service.Service;
 
 
 /**

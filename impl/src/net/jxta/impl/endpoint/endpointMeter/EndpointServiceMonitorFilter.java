@@ -59,16 +59,18 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 
-import java.net.*;
-import java.util.*;
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
+import net.jxta.id.IDFactory;
+import net.jxta.meter.MonitorResources;
+import net.jxta.meter.ServiceMonitorFilter;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
 
-import net.jxta.meter.*;
-import net.jxta.platform.*;
-import net.jxta.document.*;
-import net.jxta.id.*;
-import net.jxta.util.documentSerializable.*;
-import net.jxta.platform.*;
-import net.jxta.util.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
 
 
 public class EndpointServiceMonitorFilter implements ServiceMonitorFilter {

@@ -57,8 +57,8 @@
 package net.jxta.meter;
 
 
-import net.jxta.util.documentSerializable.*;
-import net.jxta.platform.*;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.util.documentSerializable.DocumentSerializable;
 
 
 /**

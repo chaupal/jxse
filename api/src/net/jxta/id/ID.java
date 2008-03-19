@@ -61,10 +61,9 @@ import java.io.ObjectStreamException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import java.net.URISyntaxException;
 
 
 /**

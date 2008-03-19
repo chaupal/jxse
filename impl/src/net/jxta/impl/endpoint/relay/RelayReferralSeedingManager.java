@@ -55,8 +55,10 @@
  */
 package net.jxta.impl.endpoint.relay;
 
+import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.MessageTransport;
+import net.jxta.impl.util.URISeedingManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
@@ -69,8 +71,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.impl.util.URISeedingManager;
 
 /**
  *  Extends the URI Seeding Manager by supplementing the list of active seeds

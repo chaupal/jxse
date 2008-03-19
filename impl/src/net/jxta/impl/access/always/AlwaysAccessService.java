@@ -57,15 +57,6 @@
 package net.jxta.impl.access.always;
 
 
-import java.net.URI;
-import java.util.Enumeration;
-
-import java.net.URISyntaxException;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
 import net.jxta.access.AccessService;
 import net.jxta.credential.Credential;
 import net.jxta.credential.PrivilegedOperation;
@@ -81,9 +72,16 @@ import net.jxta.document.TextElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

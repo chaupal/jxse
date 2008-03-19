@@ -59,9 +59,9 @@ package net.jxta.impl.xindice.core.filer;
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
 import net.jxta.impl.xindice.core.data.Key;
-import net.jxta.impl.xindice.core.data.Value;
 import net.jxta.impl.xindice.core.data.Record;
 import net.jxta.impl.xindice.core.data.RecordSet;
+import net.jxta.impl.xindice.core.data.Value;
 
 import java.io.File;
 import java.util.Collections;

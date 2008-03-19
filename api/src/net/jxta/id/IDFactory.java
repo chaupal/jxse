@@ -57,22 +57,6 @@
 package net.jxta.id;
 
 
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.MissingResourceException;
-import java.util.NoSuchElementException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.codat.CodatID;
 import net.jxta.id.jxta.IDFormat;
 import net.jxta.peer.PeerID;
@@ -81,6 +65,19 @@ import net.jxta.pipe.PipeID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.util.ClassFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

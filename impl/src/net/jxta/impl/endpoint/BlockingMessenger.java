@@ -55,18 +55,6 @@
  */
 package net.jxta.impl.endpoint;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import java.io.IOException;
-import java.io.InterruptedIOException;
-
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
-import java.util.logging.Logger;
-
 import net.jxta.endpoint.AbstractMessenger;
 import net.jxta.endpoint.ChannelMessenger;
 import net.jxta.endpoint.EndpointAddress;
@@ -74,10 +62,17 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerState;
 import net.jxta.endpoint.OutgoingMessageEvent;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.util.SimpleSelectable;
 
-import net.jxta.impl.util.TimeUtils;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class is a near-drop-in replacement for the previous BlockingMessenger class.

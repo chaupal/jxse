@@ -59,7 +59,6 @@ package net.jxta.impl.document;
 
 import net.jxta.document.Attribute;
 import net.jxta.document.XMLElement;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

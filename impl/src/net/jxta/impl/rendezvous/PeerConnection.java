@@ -55,8 +55,6 @@
  */
 package net.jxta.impl.rendezvous;
 
-import java.util.Enumeration;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -65,18 +63,16 @@ import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.endpoint.OutgoingMessageEventListener;
 import net.jxta.id.ID;
+import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
+import java.util.Enumeration;
 import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
 import java.util.logging.Logger;
-
-import net.jxta.impl.endpoint.EndpointUtils;
 
 /**
  * Manages a connection with a remote client or a rendezvous peer.

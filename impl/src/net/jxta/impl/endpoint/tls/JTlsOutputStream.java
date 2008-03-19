@@ -57,25 +57,22 @@
 package net.jxta.impl.endpoint.tls;
 
 
-import java.io.OutputStream;
-import java.io.IOException;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
-
 import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

@@ -56,9 +56,9 @@
 package net.jxta.resolver;
 
 
-import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.peer.PeerID;
+import net.jxta.protocol.ResolverSrdiMsg;
 
 
 /**

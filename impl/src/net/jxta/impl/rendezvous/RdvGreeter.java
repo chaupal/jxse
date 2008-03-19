@@ -55,9 +55,9 @@
  */
 package net.jxta.impl.rendezvous;
 
-import java.io.IOException;
-
 import net.jxta.endpoint.Message;
+
+import java.io.IOException;
 
 /**
  * A Greeter is reponsible for receiving messages from walkers, and push them to

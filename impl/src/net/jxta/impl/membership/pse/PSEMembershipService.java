@@ -57,35 +57,6 @@
 package net.jxta.impl.membership.pse;
 
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.net.URI;
-import java.security.PrivateKey;
-import java.security.cert.CertPath;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchProviderException;
-import java.security.cert.CertificateException;
-import java.security.InvalidKeyException;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.NoSuchElementException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
@@ -96,6 +67,13 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.exception.ProtocolNotSupportedException;
+import net.jxta.id.ID;
+import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
+import net.jxta.impl.protocol.Certificate;
+import net.jxta.impl.protocol.PSEConfigAdv;
+import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
@@ -105,14 +83,28 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.service.Service;
 
-import net.jxta.id.ID;
-
-import net.jxta.exception.PeerGroupException;
-import net.jxta.exception.ProtocolNotSupportedException;
-
-import net.jxta.impl.protocol.Certificate;
-import net.jxta.impl.protocol.PSEConfigAdv;
-import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.PrivateKey;
+import java.security.SignatureException;
+import java.security.cert.CertPath;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

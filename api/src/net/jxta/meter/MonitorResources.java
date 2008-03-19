@@ -57,11 +57,6 @@
 package net.jxta.meter;
 
 
-import java.net.URI;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Map;
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
@@ -76,6 +71,11 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.util.AdvertisementUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+
+import java.net.URI;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Map;
 
 
 /**

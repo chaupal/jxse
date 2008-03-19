@@ -57,8 +57,9 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import java.io.IOException;
 import net.jxta.endpoint.Message;
+
+import java.io.IOException;
 
 
 /**

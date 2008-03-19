@@ -57,10 +57,11 @@
 package net.jxta.discovery;
 
 
-import java.util.Enumeration;
-import java.util.EventObject;
 import net.jxta.document.Advertisement;
 import net.jxta.protocol.DiscoveryResponseMsg;
+
+import java.util.Enumeration;
+import java.util.EventObject;
 
 
 /**

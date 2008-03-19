@@ -56,9 +56,9 @@
 package net.jxta.peer;
 
 
-import java.util.EventObject;
-
 import net.jxta.protocol.PeerInfoResponseMessage;
+
+import java.util.EventObject;
 
 
 /**

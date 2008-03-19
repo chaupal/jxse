@@ -56,15 +56,15 @@
 package net.jxta.impl.discovery;
 
 
-import java.util.Enumeration;
-import java.io.IOException;
-
 import net.jxta.discovery.DiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
+
+import java.io.IOException;
+import java.util.Enumeration;
 
 
 /**

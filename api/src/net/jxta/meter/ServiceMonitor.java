@@ -57,8 +57,8 @@
 package net.jxta.meter;
 
 
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.*;
+import net.jxta.platform.Module;
+import net.jxta.platform.ModuleClassID;
 
 
 /**

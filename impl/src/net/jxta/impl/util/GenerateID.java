@@ -56,12 +56,14 @@
 package net.jxta.impl.util;
 
 
-import net.jxta.id.*;
-import net.jxta.platform.*;
-import net.jxta.peergroup.*;
-import net.jxta.peer.*;
-import net.jxta.pipe.*;
-import net.jxta.codat.*;
+import net.jxta.codat.CodatID;
+import net.jxta.id.IDFactory;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.pipe.PipeID;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.platform.ModuleSpecID;
 
 
 /**

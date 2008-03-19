@@ -57,12 +57,29 @@
 package net.jxta.impl.util;
 
 
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Attribute;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.protocol.AccessPointAdvertisement;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,26 +88,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.text.MessageFormat;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-import net.jxta.document.Attribute;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.impl.endpoint.EndpointUtils;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.AccessPointAdvertisement;
-import net.jxta.protocol.PeerAdvertisement;
-import net.jxta.protocol.RouteAdvertisement;
 
 
 /**

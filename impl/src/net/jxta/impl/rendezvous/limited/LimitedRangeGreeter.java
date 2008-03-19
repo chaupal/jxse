@@ -55,22 +55,18 @@
  */
 package net.jxta.impl.rendezvous.limited;
 
-import java.io.IOException;
-
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
-import java.util.logging.Logger;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
-
 import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvGreeter;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
+import net.jxta.logging.Logging;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The limited range rendezvous peer greeter.

@@ -55,10 +55,10 @@
  */
 package net.jxta.impl.rendezvous;
 
-import java.io.IOException;
-
 import net.jxta.endpoint.Message;
 import net.jxta.peer.PeerID;
+
+import java.io.IOException;
 
 /**
  * A walker is responsible for implementing the strategy of sending messages for

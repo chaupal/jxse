@@ -57,25 +57,24 @@
 package net.jxta.impl.endpoint.msgframing;
 
 
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
+
 import java.io.EOFException;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.text.MessageFormat;
-
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 

@@ -55,29 +55,27 @@
  */
 package net.jxta.impl.rendezvous;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Vector;
-
-import java.io.IOException;
-import java.util.Collection;
-
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
-import net.jxta.protocol.RdvAdvertisement;
+import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezVousStatus;
 import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.service.Service;
 
-import net.jxta.impl.rendezvous.rpv.PeerView;
-import net.jxta.platform.Module;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * This class implements the RendezVousService interface.

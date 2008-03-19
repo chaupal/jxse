@@ -57,14 +57,6 @@
 package net.jxta.impl.protocol;
 
 
-import java.net.URI;
-import java.util.Enumeration;
-import java.net.URISyntaxException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -76,8 +68,15 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

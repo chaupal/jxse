@@ -57,20 +57,19 @@
 package net.jxta.impl.membership.pse;
 
 
+import net.jxta.logging.Logging;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.security.KeyStore;
-
-import java.io.IOException;
 import java.security.KeyStoreException;
-import java.security.NoSuchProviderException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 

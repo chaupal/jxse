@@ -57,25 +57,13 @@
 package net.jxta.impl.document;
 
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import java.io.IOException;
-import java.security.ProviderException;
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
-import net.jxta.document.TextDocument;
+
+import java.io.*;
+import java.security.ProviderException;
 
 
 /**

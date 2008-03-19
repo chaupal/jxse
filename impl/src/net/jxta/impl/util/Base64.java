@@ -57,9 +57,9 @@
 package net.jxta.impl.util;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
 

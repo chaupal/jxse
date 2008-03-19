@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -58,13 +55,13 @@ package net.jxta.impl.xindice;
  *
 
  */
+package net.jxta.impl.xindice;
 
-import net.jxta.impl.xindice.util.*;
-import java.io.*;
+import net.jxta.impl.xindice.util.Named;
 
-import java.util.logging.Logger;
+import java.io.PrintStream;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
+import java.util.logging.Logger;
 
 
 /**

@@ -56,15 +56,20 @@
 package net.jxta.impl.protocol;
 
 
-import java.util.Enumeration;
-
 import net.jxta.credential.Credential;
-import net.jxta.document.*;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.XMLElement;
+import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.protocol.ResolverSrdiMsg;
 
+import java.util.Enumeration;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 

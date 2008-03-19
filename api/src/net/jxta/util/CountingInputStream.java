@@ -57,7 +57,9 @@
 package net.jxta.util;
 
 
-import java.io.*;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 /**

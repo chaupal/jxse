@@ -57,15 +57,14 @@
 package net.jxta.util;
 
 
+import net.jxta.logging.Logging;
+
 import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
-import java.io.InputStream;
-
 import java.io.IOException;
-
-import java.util.logging.Logger;
+import java.io.InputStream;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
+import java.util.logging.Logger;
 
 
 /**

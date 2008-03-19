@@ -56,21 +56,25 @@
 
 package net.jxta.credential;
 
-import net.jxta.document.*;
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.TextElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
-
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
-import java.util.logging.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Authenication credentials are used by JXTA Membership Services as the

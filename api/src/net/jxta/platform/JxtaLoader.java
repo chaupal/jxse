@@ -57,10 +57,10 @@
 package net.jxta.platform;
 
 
+import net.jxta.protocol.ModuleImplAdvertisement;
+
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import net.jxta.protocol.ModuleImplAdvertisement;
 
 
 /**

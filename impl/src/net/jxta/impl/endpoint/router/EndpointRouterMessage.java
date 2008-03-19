@@ -65,9 +65,9 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
+import net.jxta.logging.Logging;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.logging.Logging;
 
 import java.util.Enumeration;
 import java.util.Vector;

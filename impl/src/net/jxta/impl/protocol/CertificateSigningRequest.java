@@ -57,16 +57,6 @@
 package net.jxta.impl.protocol;
 
 
-import java.io.StringReader;
-
-import java.io.IOException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
-import org.bouncycastle.jce.PKCS10CertificationRequest;
-
 import net.jxta.document.Document;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
@@ -74,8 +64,12 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
-
 import net.jxta.impl.membership.pse.PSEUtils;
+import org.bouncycastle.jce.PKCS10CertificationRequest;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.logging.Logger;
 
 
 /**

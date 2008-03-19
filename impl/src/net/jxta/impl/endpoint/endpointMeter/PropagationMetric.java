@@ -57,12 +57,13 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 
-import net.jxta.endpoint.*;
-import net.jxta.impl.endpoint.*;
-import net.jxta.util.documentSerializable.*;
-import net.jxta.document.*;
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
+import net.jxta.util.documentSerializable.DocumentSerializable;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
 
-import java.util.*;
+import java.util.Enumeration;
 
 
 /**

@@ -58,14 +58,11 @@ package net.jxta.impl.id.UUID;
 
 
 import java.security.SecureRandom;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Random;
-import java.util.Calendar;
 import java.util.TimeZone;
-
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
 
 
 /**

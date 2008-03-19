@@ -57,34 +57,17 @@
 package net.jxta.impl.protocol;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Vector;
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Attributable;
-import net.jxta.document.Attribute;
-import net.jxta.document.Document;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
+import net.jxta.document.*;
+import net.jxta.logging.Logging;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.PeerAdvertisement;
+
+import java.io.StringReader;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Enumeration;
+import java.util.Vector;
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
 
 

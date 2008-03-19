@@ -56,19 +56,12 @@
 package net.jxta.impl.membership.pse;
 
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.security.PublicKey;
-import java.security.InvalidKeyException;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.KeyPair;
-
-import javax.security.auth.x500.X500Principal;
-
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.SignatureException;
 
 
 /**

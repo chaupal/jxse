@@ -57,13 +57,10 @@
 package net.jxta.impl.util;
 
 
-import java.util.LinkedList;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
 
-import net.jxta.impl.util.ResourceAccount;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

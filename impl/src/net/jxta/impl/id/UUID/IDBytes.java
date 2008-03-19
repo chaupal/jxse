@@ -59,8 +59,8 @@ package net.jxta.impl.id.UUID;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.zip.Checksum;
 import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 
 /**

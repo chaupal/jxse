@@ -57,14 +57,15 @@
 package net.jxta.impl.resolver.resolverMeter;
 
 
-import net.jxta.peer.*;
-import net.jxta.endpoint.*;
-import net.jxta.util.documentSerializable.*;
-import net.jxta.document.*;
-import net.jxta.util.*;
-import net.jxta.impl.meter.*;
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
+import net.jxta.impl.meter.MetricUtilities;
+import net.jxta.peer.PeerID;
+import net.jxta.util.documentSerializable.DocumentSerializable;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
 
-import java.util.*;
+import java.util.Enumeration;
 
 
 /**

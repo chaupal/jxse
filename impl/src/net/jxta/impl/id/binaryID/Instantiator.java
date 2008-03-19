@@ -57,20 +57,16 @@
 package net.jxta.impl.id.binaryID;
 
 
+import net.jxta.peergroup.PeerGroupID;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.UnknownServiceException;
-
-import net.jxta.peergroup.PeerGroupID;
 
 
 /**

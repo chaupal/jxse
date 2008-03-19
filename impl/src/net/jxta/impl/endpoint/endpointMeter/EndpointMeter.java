@@ -57,15 +57,6 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 
-import net.jxta.peer.*;
-import net.jxta.peergroup.*;
-import net.jxta.endpoint.*;
-import net.jxta.impl.endpoint.*;
-
-import java.net.*;
-import java.util.*;
-
-
 /**
  *    Aggregate Meter for Endpoint Monitoring
  **/

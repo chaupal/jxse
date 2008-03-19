@@ -57,21 +57,19 @@
 package net.jxta.impl.util;
 
 
+import net.jxta.impl.access.AccessList;
+import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.logging.Logging;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.RouteAdvertisement;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-
-import java.io.IOException;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-import net.jxta.protocol.PeerAdvertisement;
-import net.jxta.protocol.RouteAdvertisement;
-
-import net.jxta.impl.access.AccessList;
-import net.jxta.impl.endpoint.EndpointUtils;
 
 
 /**

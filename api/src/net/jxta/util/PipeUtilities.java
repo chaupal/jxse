@@ -57,14 +57,17 @@
 package net.jxta.util;
 
 
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
+import net.jxta.exception.JxtaException;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.pipe.PipeID;
+import net.jxta.protocol.PipeAdvertisement;
+
 import java.net.URI;
-import net.jxta.pipe.*;
-import net.jxta.id.*;
-import net.jxta.peergroup.*;
-import net.jxta.endpoint.*;
-import net.jxta.document.*;
-import net.jxta.protocol.*;
-import net.jxta.exception.*;
 
 
 public final class PipeUtilities {

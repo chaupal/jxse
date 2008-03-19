@@ -59,8 +59,9 @@ package net.jxta.impl.xindice.core.indexer;
 
  */
 
-import net.jxta.impl.xindice.core.*;
-import net.jxta.impl.xindice.core.data.*;
+import net.jxta.impl.xindice.core.DBException;
+import net.jxta.impl.xindice.core.DBObject;
+import net.jxta.impl.xindice.core.data.Key;
 
 
 /**

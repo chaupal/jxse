@@ -57,6 +57,7 @@ package net.jxta.impl.peergroup;
 
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
 
@@ -67,7 +68,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  * A PeerGroupInterface object that also serves as a very-strong reference to 

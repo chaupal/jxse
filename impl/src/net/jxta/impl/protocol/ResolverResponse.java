@@ -57,11 +57,11 @@
 package net.jxta.impl.protocol;
 
 
-import java.util.Enumeration;
-
 import net.jxta.document.*;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.RouteAdvertisement;
+
+import java.util.Enumeration;
 
 
 /**

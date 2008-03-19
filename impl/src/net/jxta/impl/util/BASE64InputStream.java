@@ -57,10 +57,9 @@
 package net.jxta.impl.util;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-
-import java.io.IOException;
 
 /**
  *  An <code>InputStream</code> implementation which decodes BASE64 encoded

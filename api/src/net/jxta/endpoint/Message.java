@@ -55,6 +55,14 @@
  */
 package net.jxta.endpoint;
 
+import net.jxta.document.MimeMediaType;
+import net.jxta.impl.id.UUID.UUID;
+import net.jxta.impl.id.UUID.UUIDFactory;
+import net.jxta.logging.Logging;
+import net.jxta.util.AbstractSimpleSelectable;
+import net.jxta.util.SimpleSelectable;
+
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
@@ -62,27 +70,16 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-
-import java.io.IOException;
-import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import java.util.logging.Level;
-import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
-import net.jxta.document.MimeMediaType;
-import net.jxta.util.AbstractSimpleSelectable;
-import net.jxta.util.SimpleSelectable;
-
-import net.jxta.impl.id.UUID.UUID;
-import net.jxta.impl.id.UUID.UUIDFactory;
 
 /**
  * Messages are abstract containers for protocol messages within JXTA. Services

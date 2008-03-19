@@ -60,7 +60,9 @@ package net.jxta.peergroup;
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logging;
+import net.jxta.platform.JxtaLoader;
 import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.ModuleImplAdvertisement;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -68,8 +70,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.platform.JxtaLoader;
-import net.jxta.protocol.ModuleImplAdvertisement;
 
 
 /**

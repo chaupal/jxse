@@ -64,13 +64,11 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLElement;
 import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,6 +82,8 @@ import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

@@ -62,15 +62,21 @@ import net.jxta.id.ID;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.util.BASE64InputStream;
 import net.jxta.impl.util.BASE64OutputStream;
-import net.jxta.protocol.SignedAdvertisement;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
+import net.jxta.protocol.SignedAdvertisement;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.Signature;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

@@ -55,15 +55,14 @@
  */
 package net.jxta.util;
 
+import net.jxta.logging.Logging;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.jxta.logging.Logging;
-import net.jxta.util.SimpleSelectable.IdentityReference;
 
 /**
  * This a tool to implement selectable objects. It may be composed or extended.

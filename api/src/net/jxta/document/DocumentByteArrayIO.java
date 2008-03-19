@@ -57,9 +57,6 @@
 package net.jxta.document;
 
 
-import java.nio.ByteBuffer;
-
-
 /**
  * Provides {@code byte} array based interfaces for manipulating 
  * {@code Document} contents.

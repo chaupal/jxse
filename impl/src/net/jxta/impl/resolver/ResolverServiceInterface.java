@@ -68,7 +68,6 @@ import net.jxta.protocol.ResolverSrdiMsg;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
-import net.jxta.service.Service;
 
 
 /**

@@ -62,10 +62,6 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
 import java.util.logging.Logger;
 
 /**

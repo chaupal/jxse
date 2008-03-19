@@ -55,6 +55,43 @@
  */
 package net.jxta.impl.endpoint.mcast;
 
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Attribute;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.XMLElement;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.MessagePropagater;
+import net.jxta.endpoint.MessengerEventListener;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.endpoint.WireFormatMessage;
+import net.jxta.endpoint.WireFormatMessageFactory;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.id.ID;
+import net.jxta.impl.endpoint.EndpointServiceImpl;
+import net.jxta.impl.endpoint.IPUtils;
+import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
+import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeter;
+import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
+import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
+import net.jxta.impl.meter.MonitorManager;
+import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logging;
+import net.jxta.meter.MonitorResources;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.platform.ModuleSpecID;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.TransportAdvertisement;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -73,44 +110,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Attribute;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.XMLElement;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.MessagePropagater;
-import net.jxta.endpoint.MessengerEventListener;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.WireFormatMessage;
-import net.jxta.endpoint.WireFormatMessageFactory;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.id.ID;
-import net.jxta.logging.Logging;
-import net.jxta.meter.MonitorResources;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleClassID;
-import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.protocol.TransportAdvertisement;
-
-import net.jxta.impl.endpoint.EndpointServiceImpl;
-import net.jxta.impl.endpoint.IPUtils;
-import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
-import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
-import net.jxta.impl.endpoint.transportMeter.TransportMeter;
-import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
-import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
-import net.jxta.impl.meter.MonitorManager;
-import net.jxta.impl.peergroup.StdPeerGroup;
-import net.jxta.impl.protocol.TCPAdv;
-import net.jxta.impl.util.TimeUtils;
 
 /**
  * This class implements the IP Multicast Message Transport.

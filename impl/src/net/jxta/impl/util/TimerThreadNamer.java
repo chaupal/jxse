@@ -57,11 +57,11 @@
 package net.jxta.impl.util;
 
 
-import java.util.TimerTask;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
+
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

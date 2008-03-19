@@ -57,17 +57,22 @@
 package net.jxta.meter;
 
 
+import net.jxta.document.Element;
+import net.jxta.document.TextElement;
+import net.jxta.id.IDFactory;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.util.documentSerializable.DocumentSerializable;
+import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
+import net.jxta.util.documentSerializable.DocumentSerializationException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import net.jxta.util.documentSerializable.*;
-import net.jxta.document.*;
-import net.jxta.id.*;
-import net.jxta.peer.*;
-import net.jxta.platform.*;
-import net.jxta.util.*;
-import net.jxta.exception.*;
-
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 
 /**

@@ -57,25 +57,6 @@
 package net.jxta.impl.access.pse;
 
 
-import java.net.URI;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidator;
-import java.security.cert.TrustAnchor;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import java.net.URISyntaxException;
-
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-
 import net.jxta.access.AccessService;
 import net.jxta.credential.Credential;
 import net.jxta.credential.PrivilegedOperation;
@@ -86,22 +67,27 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.TextElement;
 import net.jxta.exception.PeerGroupException;
-import net.jxta.exception.JxtaError;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.membership.MembershipService;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.ModuleSpecID;
-import net.jxta.platform.Module;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.protocol.PeerGroupAdvertisement;
-import net.jxta.service.Service;
-
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.logging.Logging;
+import net.jxta.membership.MembershipService;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.Module;
+import net.jxta.platform.ModuleSpecID;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.service.Service;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

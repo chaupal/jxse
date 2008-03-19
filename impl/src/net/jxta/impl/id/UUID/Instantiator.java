@@ -57,16 +57,12 @@
 package net.jxta.impl.id.UUID;
 
 
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
+import net.jxta.id.IDFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.UnknownServiceException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
-
-import net.jxta.id.IDFactory;
 
 
 /**

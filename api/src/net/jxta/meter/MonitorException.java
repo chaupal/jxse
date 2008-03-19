@@ -57,7 +57,7 @@
 package net.jxta.meter;
 
 
-import net.jxta.exception.*;
+import net.jxta.exception.JxtaException;
 
 @SuppressWarnings("serial")
 public class MonitorException extends JxtaException {

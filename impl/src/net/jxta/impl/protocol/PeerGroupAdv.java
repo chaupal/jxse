@@ -57,16 +57,7 @@
 package net.jxta.impl.protocol;
 
 
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Attribute;
-import net.jxta.document.Document;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.TextElement;
-import net.jxta.document.XMLElement;
+import net.jxta.document.*;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;

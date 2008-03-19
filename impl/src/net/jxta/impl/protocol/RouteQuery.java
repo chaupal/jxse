@@ -59,25 +59,22 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attributable;
-import net.jxta.document.Attribute;
-import net.jxta.document.Document;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.protocol.RouteQueryMsg;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Enumeration;
-import net.jxta.document.XMLDocument;
 
 /**
  * RouteQuery message used by the Endpoint Routing protocol to

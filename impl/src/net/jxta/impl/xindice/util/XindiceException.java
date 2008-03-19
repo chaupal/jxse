@@ -59,9 +59,6 @@ package net.jxta.impl.xindice.util;
 
  */
 
-import java.io.*;
-
-
 /**
  * A XindiceException is the base class for all Xindice related
  * Exceptions.

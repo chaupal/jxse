@@ -57,8 +57,9 @@
 package net.jxta.platform;
 
 
-import java.net.URI;
 import net.jxta.id.ID;
+
+import java.net.URI;
 
 
 /**

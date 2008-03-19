@@ -56,15 +56,13 @@
 package net.jxta.impl.membership.pse;
 
 
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
+import net.jxta.peergroup.PeerGroup;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.PublicKey;
 import java.security.SignatureException;
-import java.security.NoSuchAlgorithmException;
-
-import net.jxta.peergroup.PeerGroup;
+import java.security.cert.X509Certificate;
 
 
 /**

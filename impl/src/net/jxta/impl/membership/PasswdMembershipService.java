@@ -57,25 +57,14 @@
 package net.jxta.impl.membership;
 
 
-import java.net.MalformedURLException;
-import java.net.UnknownServiceException;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.document.AdvertisementFactory;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.platform.JxtaLoader;
+import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.membership.Authenticator;
+import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
-import net.jxta.exception.JxtaError;
-
-import net.jxta.impl.loader.RefJxtaLoader;
-import net.jxta.impl.peergroup.StdPeerGroup;
+import java.util.logging.Logger;
 
 
 /**

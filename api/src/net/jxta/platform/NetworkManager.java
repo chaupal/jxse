@@ -57,18 +57,12 @@
 package net.jxta.platform;
 
 
-import javax.security.cert.CertificateException;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
@@ -80,7 +74,12 @@ import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 
-import net.jxta.impl.membership.pse.StringAuthenticator;
+import javax.security.cert.CertificateException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

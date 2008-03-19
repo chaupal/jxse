@@ -57,7 +57,7 @@
 package net.jxta.util.documentSerializable;
 
 
-import net.jxta.document.*;
+import net.jxta.document.Element;
 
 
 /**

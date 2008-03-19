@@ -57,33 +57,30 @@
 package net.jxta.impl.peergroup;
 
 
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.Enumeration;
-import java.util.Iterator;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.TransportAdvertisement;
-
 import net.jxta.exception.ConfiguratorException;
-
 import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.protocol.HTTPAdv;
-import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.protocol.PSEConfigAdv;
+import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.protocol.RdvConfigAdv;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.protocol.TransportAdvertisement;
+
+import java.net.InetAddress;
+import java.net.URI;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
