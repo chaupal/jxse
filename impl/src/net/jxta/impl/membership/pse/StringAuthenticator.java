@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
+ * Copyright (c) 2001-2008 Sun Microsystems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
  *  
@@ -213,11 +213,7 @@ public class StringAuthenticator implements Authenticator {
      *  Set KeyStore password
      **/
     public void setAuth1_KeyStorePassword(String store_password) {
-        if (null == store_password) {
-            setAuth1_KeyStorePassword((char[]) null);
-        } else {
-            setAuth1_KeyStorePassword(store_password.toCharArray());
-        }
+        setAuth1_KeyStorePassword((null != store_password) ? store_password.toCharArray() : (char[]) null);
     }
     
     /**
@@ -307,14 +303,7 @@ public class StringAuthenticator implements Authenticator {
      *  Set Identity
      **/
     public void setAuth2Identity(String id) {
-        try {
-            URI idURI = new URI(id);
-            ID identity = IDFactory.fromURI(idURI);
-
-            setAuth2Identity(identity);
-        } catch (URISyntaxException badID) {
-            throw new IllegalArgumentException("Bad ID");
-        } 
+        setAuth2Identity(ID.create(URI.create(id)));
     }
     
     /**
@@ -334,8 +323,8 @@ public class StringAuthenticator implements Authenticator {
     /**
      *  Set identity password
      **/
-    public void setAuth3_IdentityPassword(String key_password) {
-        setAuth3_IdentityPassword(key_password.toCharArray());
+    public void setAuth3_IdentityPassword(String key_password) {        
+        setAuth3_IdentityPassword((null != key_password) ? key_password.toCharArray() : (char[]) null);
     }
     
     /**
