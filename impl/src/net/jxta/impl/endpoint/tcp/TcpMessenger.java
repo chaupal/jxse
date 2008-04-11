@@ -418,6 +418,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * for the reason explained above.
      */
     protected void finalize() throws Throwable {
+        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Messenger being finalized. closing messenger");
+        }
+
         closeImpl();
         super.finalize();
     }
@@ -798,8 +802,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 throw failure;
             }
         } catch (IOException e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Error while parsing the welcome message", e);
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Error while parsing the welcome message", e);
             }
             closeImpl();
             return false;
@@ -830,13 +834,13 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 return false;
             }
         } catch (IOException e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.FINE, "Error while parsing the message header", e);
             }
             if (!socketChannel.isConnected()) {
                 // defunct connection close the messenger
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("SocketChannel closed. Closing the messenger");
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("SocketChannel closed. Closing the messenger");
                 }
                 closeImpl();
             }
@@ -891,6 +895,9 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             return false;
         }
         if (!socketChannel.isConnected()) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("SocketChannel is not connected. closing connection");
+            }
             closeImpl();
             return false;
         }
@@ -906,6 +913,9 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 if (!socketChannel.isConnected() || read < 0) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine(MessageFormat.format("{0} Closing due to EOF", Thread.currentThread()));
+                    }
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.warning("SocketChannel is not connected. closing connection");
                     }
                     closeImpl();
                 }
@@ -924,8 +934,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             }
             return true;
         } catch (ClosedChannelException e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Channel closed while reading data", e);
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Channel closed while reading data", e);
             }
             closeImpl();
             return false;
@@ -936,8 +946,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                                 inetAddress.getHostAddress(), port));
             }
         } catch (IOException ioe) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "IOException occured while reading data", ioe);
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "IOException occured while reading data", ioe);
             }
             closeImpl();
             return false;
@@ -1019,8 +1029,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         try {
                             msg = processMessage(buffer, header);
                         } catch (IOException io) {
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.log(Level.FINE, "Failed to parse a message from buffer. closing connection", io);
+                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                                LOG.log(Level.WARNING, "Failed to parse a message from buffer. closing connection", io);
                             }
                             closeImpl();
                             done = true;
