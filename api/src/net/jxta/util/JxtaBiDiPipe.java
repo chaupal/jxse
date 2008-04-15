@@ -356,7 +356,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             throw exp;
         }
         if (connectOutpipe == null) {
-            throw new IOException("connection timeout");
+            throw new SocketTimeoutException("Connection timeout");
         }
         // send connect message
         waiting = true;
@@ -374,7 +374,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                     finalLock.wait(timeout);
                     // Need to check for creation
                     if (msgr == null) {
-                        throw new IOException("connection timeout");
+                        throw new SocketTimeoutException("Connection timeout");
                     }
                 }
             }
@@ -617,7 +617,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                     if (left < 0) {
                         // Too late
                         sendClose();
-                        throw new IOException("Close timeout");
+                        throw new SocketTimeoutException("Close timeout");
                     }
                 }
 
