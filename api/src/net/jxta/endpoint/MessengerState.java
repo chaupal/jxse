@@ -95,13 +95,13 @@ public abstract class MessengerState {
         }
     };
     private final static Action Closein = new Action() {
-        public void doIt(MessengerState s) {
-            s.closeInputAction();
+        public void doIt(MessengerState messengerState) {
+            messengerState.closeInputAction();
         }
     };
     private final static Action Start = new Action() {
-        public void doIt(MessengerState s) {
-            s.startAction();
+        public void doIt(MessengerState messengerState) {
+            messengerState.startAction();
         }
     };
     private final static Action Closeout = new Action() {
@@ -115,9 +115,9 @@ public abstract class MessengerState {
         }
     };
     private final static Action Closeio = new Action() {
-        public void doIt(MessengerState s) {
-            s.closeInputAction();
-            s.closeOutputAction();
+        public void doIt(MessengerState messengerState) {
+            messengerState.closeInputAction();
+            messengerState.closeOutputAction();
         }
     };
     private final static Action Closefail = new Action() {
@@ -319,80 +319,80 @@ public abstract class MessengerState {
      * Event input.
      */
     public void resolveEvent() {
-        Action a = state.acResolve;
+        Action action = state.acResolve;
 
         state = state.stResolve;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
      * Message event
      */
     public void msgsEvent() {
-        Action a = state.acMsgs;
+        Action action = state.acMsgs;
 
         state = state.stMsgs;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
      * Saturated Event
      */
     public void saturatedEvent() {
-        Action a = state.acSaturated;
+        Action action = state.acSaturated;
 
         state = state.stSaturated;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
      * Close Event
      */
     public void closeEvent() {
-        Action a = state.acClose;
+        Action action = state.acClose;
 
         state = state.stClose;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
      * Shutdown Event
      */
     public void shutdownEvent() {
-        Action a = state.acShutdown;
+        Action action = state.acShutdown;
 
         state = state.stShutdown;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
      * Up Event
      */
     public void upEvent() {
-        Action a = state.acUp;
+        Action action = state.acUp;
 
         state = state.stUp;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
      * Down Event
      */
     public void downEvent() {
-        Action a = state.acDown;
+        Action action = state.acDown;
 
         state = state.stDown;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
      * Idle Event
      */
     public void idleEvent() {
-        Action a = state.acIdle;
+        Action action = state.acIdle;
 
         state = state.stIdle;
-        a.doIt(this);
+        action.doIt(this);
     }
 
     /**
