@@ -161,6 +161,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     private long lastUsed = TimeUtils.timeNow();
 
     private SocketChannel socketChannel = null;
+    private boolean selfDestruct = true;
 
     private TransportBindingMeter transportBindingMeter;
 
@@ -294,6 +295,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         // We need self destruction: tcp messengers are expensive to make and they refer to
         // a connection that must eventually be closed.
         super(tcpTransport.group.getPeerGroupID(), destaddr, selfDestruct);
+        this.selfDestruct = selfDestruct;
         this.origAddress = destaddr;
 
         initiator = true;
@@ -1094,7 +1096,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * @return absolute time in milliseconds.
      */
     private long getLastUsed() {
-        return lastUsed;
+        return !selfDestruct ? System.currentTimeMillis() : lastUsed;
     }
 
     /**
