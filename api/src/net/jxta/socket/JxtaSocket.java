@@ -347,7 +347,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         this.isReliable = isReliable;
 
         pipeSvc = group.getPipeService();
-        bind();
+        this.localEphemeralPipeIn = pipeSvc.createInputPipe(localEphemeralPipeAdv, this);
         connect();
 
         Message connectResponse = createConnectMessage(group, localEphemeralPipeAdv, localCredential, isReliable, initiator);
@@ -602,11 +602,13 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         this.group = group;
         this.remotePeerID = peerid;
         this.pipeAdv = pipeAdv;
-        this.localEphemeralPipeAdv = newEphemeralPipeAdv(pipeAdv);
+        if (this.localEphemeralPipeAdv == null) {
+            this.localEphemeralPipeAdv = newEphemeralPipeAdv(pipeAdv);
+            pipeSvc = group.getPipeService();
+            this.localEphemeralPipeIn = pipeSvc.createInputPipe(localEphemeralPipeAdv, this);
+        }
         this.timeout = (timeout == 0) ? Long.MAX_VALUE : timeout;
 
-        pipeSvc = group.getPipeService();
-        bind();
         Message openMsg = createConnectMessage(group, localEphemeralPipeAdv, localCredential, isReliable, initiator);
         long connectTimeoutAt = System.currentTimeMillis() + timeout;
 
@@ -700,6 +702,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("New socket connection : " + this);
         }
+        // The socket is bound now.
+        setBound(true);
+
     }
 
     /**
@@ -862,17 +867,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     }
 
     /**
-     * Opens our ephemeral input pipe enabling us to receive messages.
-     *
-     * @throws IOException Thrown for errors in creating the input pipe.
-     */
-    private void bind() throws IOException {
-        this.localEphemeralPipeIn = pipeSvc.createInputPipe(localEphemeralPipeAdv, this);
-        // The socket is bound now.
-        setBound(true);
-    }
-
-    /**
      *  Create an appropriate Outgoing Adaptor. This method exists primarily
      *  so that sub-classes can substitute a different Outgoing sub-class.
      *
@@ -924,6 +918,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         // the socket is now connected!
         setConnected(true);
+        // The socket is bound now.
+        setBound(true);
     }
 
     /**
