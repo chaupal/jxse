@@ -507,7 +507,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * timeout for that.
      */
     public boolean isIdleImpl() {
-        return (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), getLastUsed()) > 15 * TimeUtils.AMINUTE);
+        // With NIO, other than the FD, there's no overhead in keeping the channel open,
+        return false;
     }
 
     /**
