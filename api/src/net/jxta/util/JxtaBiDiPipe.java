@@ -556,9 +556,11 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new StringMessageElement(JxtaServerPipe.directSupportedTag, Boolean.toString(true), null));
             
-            if(this.getConnectionPropertiesString() != null) {
+            String connectionPropertiesString 
+                = this.getConnectionPropertiesString();
+            if(connectionPropertiesString != null) {
                 msg.addMessageElement(JxtaServerPipe.nameSpace,
-                    new StringMessageElement(JxtaServerPipe.connectionPropertiesTag, this.getConnectionPropertiesString(), null));
+                    new StringMessageElement(JxtaServerPipe.connectionPropertiesTag, connectionPropertiesString, null));
             }
             
             msg.addMessageElement(JxtaServerPipe.nameSpace,
