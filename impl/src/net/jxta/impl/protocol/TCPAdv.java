@@ -1,61 +1,68 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
- *  Redistribution and use in source and binary forms, with or without 
+ *
+ *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
- *  2. Redistributions in binary form must reproduce the above copyright notice, 
- *     this list of conditions and the following disclaimer in the documentation 
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
- *  
- *  3. The end-user documentation included with the redistribution, if any, must 
- *     include the following acknowledgment: "This product includes software 
- *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
- *     Alternately, this acknowledgment may appear in the software itself, if 
+ *
+ *  3. The end-user documentation included with the redistribution, if any, must
+ *     include the following acknowledgment: "This product includes software
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology."
+ *     Alternately, this acknowledgment may appear in the software itself, if
  *     and wherever such third-party acknowledgments normally appear.
- *  
- *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
- *     not be used to endorse or promote products derived from this software 
- *     without prior written permission. For written permission, please contact 
+ *
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must
+ *     not be used to endorse or promote products derived from this software
+ *     without prior written permission. For written permission, please contact
  *     Project JXTA at http://www.jxta.org.
- *  
- *  5. Products derived from this software may not be called "JXTA", nor may 
+ *
+ *  5. Products derived from this software may not be called "JXTA", nor may
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
- *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
+ *
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
- *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
- *  This software consists of voluntary contributions made by many individuals 
- *  on behalf of Project JXTA. For more information on Project JXTA, please see 
+ *
+ *  This software consists of voluntary contributions made by many individuals
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see
  *  http://www.jxta.org.
- *  
- *  This license is based on the BSD license adopted by the Apache Foundation. 
+ *
+ *  This license is based on the BSD license adopted by the Apache Foundation.
  */
 
 package net.jxta.impl.protocol;
 
+
+import java.util.Arrays;
+import java.util.Enumeration;
+
+import java.util.logging.Level;
+import net.jxta.logging.Logging;
+import java.util.logging.Logger;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -66,13 +73,7 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
-import net.jxta.logging.Logging;
 import net.jxta.protocol.TransportAdvertisement;
-
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -81,11 +82,11 @@ import java.util.logging.Logger;
 public class TCPAdv extends TransportAdvertisement {
 
     /**
-     *  Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(TCPAdv.class.getName());
 
-    private static final String CONFIGMODES[] = { "auto", "manual" };
+    private static final String CONFIGMODES[] = {"auto", "manual"};
     private static final String INDEXFIELDS[] = {/* none */};
 
     private static final String PORT_ELEMENT = "Port";
@@ -110,7 +111,7 @@ public class TCPAdv extends TransportAdvertisement {
     private boolean publicAddressOnly = false;
 
     /**
-     *  Our instantiator
+     * Our instantiator
      */
     public static class Instantiator implements AdvertisementFactory.Instantiator {
 
@@ -141,19 +142,19 @@ public class TCPAdv extends TransportAdvertisement {
     }
 
     /**
-     *  Returns the identifying type of this Advertisement.
+     * Returns the identifying type of this Advertisement.
      *
-     *  <p/><b>Note:</b> This is a static method. It cannot be used to determine
-     *  the runtime type of an advertisement. ie.
-     *  </p><code><pre>
+     * <p/><b>Note:</b> This is a static method. It cannot be used to determine
+     * the runtime type of an advertisement. ie.
+     * </p><code><pre>
      *      Advertisement adv = module.getSomeAdv();
      *      String advType = adv.getAdvertisementType();
      *  </pre></code>
      *
-     *  <p/><b>This is wrong and does not work the way you might expect.</b>
-     *  This call is not polymorphic and calls
-     *  Advertisement.getAdvertisementType() no matter what the real type of the
-     *  advertisement.
+     * <p/><b>This is wrong and does not work the way you might expect.</b>
+     * This call is not polymorphic and calls
+     * Advertisement.getAdvertisementType() no matter what the real type of the
+     * advertisement.
      *
      * @return String the type of advertisement
      */
@@ -167,7 +168,7 @@ public class TCPAdv extends TransportAdvertisement {
 
     private TCPAdv(XMLElement doc) {
         this();
-        
+
         String doctype = doc.getName();
 
         String typedoctype = "";
@@ -438,6 +439,7 @@ public class TCPAdv extends TransportAdvertisement {
 
     /**
      * set the multicastport
+     *
      * @param multicastport set multicastport
      */
     public void setMulticastPort(int multicastport) {
@@ -490,40 +492,40 @@ public class TCPAdv extends TransportAdvertisement {
     }
 
     /**
-     *  Returns the configuration for outbound connections.
+     * Returns the configuration for outbound connections.
      *
-     *  @return <code>true</code> if outbound connections are allowed otherwise
-     *  <code>false</code>
+     * @return <code>true</code> if outbound connections are allowed otherwise
+     *         <code>false</code>
      */
     public boolean isClientEnabled() {
         return clientEnabled;
     }
 
     /**
-     *  Sets the configuration for outbound connections.
+     * Sets the configuration for outbound connections.
      *
-     *  @param enabled <code>true</code> if outbound connections are allowed otherwise
-     *  <code>false</code>
+     * @param enabled <code>true</code> if outbound connections are allowed otherwise
+     *                <code>false</code>
      */
     public void setClientEnabled(boolean enabled) {
         clientEnabled = enabled;
     }
 
     /**
-     *  Returns the configuration for inbound connections.
+     * Returns the configuration for inbound connections.
      *
-     *  @return <code>true</code> if inbound connections are allowed otherwise
-     *  <code>false</code>
+     * @return <code>true</code> if inbound connections are allowed otherwise
+     *         <code>false</code>
      */
     public boolean isServerEnabled() {
         return serverEnabled;
     }
 
     /**
-     *  Sets the configuration for inbound connections.
+     * Sets the configuration for inbound connections.
      *
-     *  @param enabled <code>true</code> if inbound connections are allowed otherwise
-     *  <code>false</code>
+     * @param enabled <code>true</code> if inbound connections are allowed otherwise
+     *                <code>false</code>
      */
     public void setServerEnabled(boolean enabled) {
         serverEnabled = enabled;
@@ -547,7 +549,7 @@ public class TCPAdv extends TransportAdvertisement {
      * transport strips it when it initializes.
      *
      * @param mode Can be "auto", "manual" other settings will act as the default
-     * which is "auto".
+     *             which is "auto".
      */
     public void setConfigMode(String mode) {
         if (!Arrays.asList(CONFIGMODES).contains(mode)) {
@@ -559,6 +561,7 @@ public class TCPAdv extends TransportAdvertisement {
 
     /**
      * Returns the state of whether to only use public address
+     *
      * @return boolean true if set to use "Public Address Only"
      */
     public boolean getPublicAddressOnly() {
@@ -567,6 +570,7 @@ public class TCPAdv extends TransportAdvertisement {
 
     /**
      * Sets the state of whether to only use public address
+     *
      * @param only true to use "Public Address Only"
      */
     public void setPublicAddressOnly(boolean only) {
@@ -574,7 +578,7 @@ public class TCPAdv extends TransportAdvertisement {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     protected boolean handleElement(Element raw) {
@@ -673,7 +677,7 @@ public class TCPAdv extends TransportAdvertisement {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
@@ -817,10 +821,20 @@ public class TCPAdv extends TransportAdvertisement {
     }
 
     /**
-     *  {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public String[] getIndexFields() {
         return INDEXFIELDS;
+    }
+
+    /**
+     * Gets the configuration for inbound connections.
+     *
+     * @return true if inbound connections are allowed, returns false otherwise
+     * @see #setServerEnabled
+     */
+    public boolean getServerEnabled() {
+        return serverEnabled;
     }
 }
