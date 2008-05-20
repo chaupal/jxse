@@ -91,10 +91,12 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -166,6 +168,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected volatile boolean direct = false;
     protected OutgoingMsgrAdaptor outgoing = null;
     protected StructuredDocument credentialDoc = null;
+    protected Properties connectionProperties = null;
 
     /**
      * Pipe close Event
@@ -200,6 +203,23 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         }
         setBound();
     }
+    
+    /**
+     * Creates a bidirectional pipe
+     *
+     * @param group      group context
+     * @param msgr       lightweight output pipe
+     * @param pipe       PipeAdvertisement
+     * @param isReliable Whether the connection is reliable or not
+     * @param credDoc    Credential StructuredDocument
+     * @param direct     indicates a direct messenger pipe
+     * @param connectionProperties Properties associated with this connection
+     * @throws IOException if an io error occurs
+     */
+    protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct, Properties connectionProperties) throws IOException {
+        this(group, msgr, pipe, credDoc, isReliable, direct);
+        this.connectionProperties = connectionProperties; 
+    }    
 
     /**
      * Creates a new object with a default timeout of #timeout, and no reliability.
@@ -207,6 +227,14 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     public JxtaBiDiPipe() {
     }
+    
+    /**
+     * Creates a new object with a default timeout of #timeout, and no reliability.
+     *
+     */
+    public JxtaBiDiPipe(Properties properties) {
+        connectionProperties = properties;
+    }    
 
     /**
      * Creates a bidirectional pipe.
@@ -453,6 +481,37 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     public StructuredDocument getCredentialDoc() {
         return credentialDoc;
     }
+    
+    /**
+     * get the connection properties
+     *
+     * @return Properties connection property
+     */    
+    public Properties getConnectionProperties() {
+        if(connectionProperties == null) {
+            return null;
+        }
+        return (Properties)connectionProperties.clone();
+    }    
+    
+    /**
+     * get the connection property
+     *
+     * @return String stringified connection property
+     */    
+    private String getConnectionPropertiesString() {
+        return propertiesToString(connectionProperties);
+    }
+    
+    private String propertiesToString(Properties properties) {        
+        // Write properties file.
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            properties.store(bos, null);            
+        } catch (IOException e) {
+        }
+        return bos.toString();
+    }    
 
     /**
      * Sets the connection credential doc.
@@ -462,7 +521,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     public void setCredentialDoc(StructuredDocument doc) {
         this.credentialDoc = doc;
-    }
+    }    
 
     /**
      * Creates a connection request message
@@ -496,7 +555,12 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new StringMessageElement(JxtaServerPipe.directSupportedTag, Boolean.toString(true), null));
-
+            
+            if(this.getConnectionPropertiesString() != null) {
+                msg.addMessageElement(JxtaServerPipe.nameSpace,
+                    new StringMessageElement(JxtaServerPipe.connectionPropertiesTag, this.getConnectionPropertiesString(), null));
+            }
+            
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.remPeerTag,
                     (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));

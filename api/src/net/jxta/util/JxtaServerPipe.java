@@ -76,6 +76,7 @@ import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -86,6 +87,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Properties;
 
 /**
  * The server side of a JxtaBiDiPipe. The intent of this object is accept connection requests.
@@ -104,6 +106,7 @@ public class JxtaServerPipe implements PipeMsgListener {
     protected static final String closeTag = "close";
     protected static final String reliableTag = "reliable";
     protected static final String directSupportedTag = "direct";
+    protected static final String connectionPropertiesTag = "connectionproperties";
     private PeerGroup group;
     private InputPipe serverPipe;
     private PipeAdvertisement pipeadv;
@@ -362,6 +365,7 @@ public class JxtaServerPipe implements PipeMsgListener {
         PipeAdvertisement outputPipeAdv = null;
         PeerAdvertisement peerAdv = null;
         StructuredDocument credDoc = null;
+        Properties connectionProperties = null;
         try {
             MessageElement el = msg.getMessageElement(nameSpace, credTag);
 
@@ -398,6 +402,19 @@ public class JxtaServerPipe implements PipeMsgListener {
                     LOG.fine("Connection request [directSupported] :" + directSupported);
                 }
             }
+            
+            el = msg.getMessageElement(nameSpace, connectionPropertiesTag);
+            String connectionPropertiesString = null;
+            if (el != null) {
+                connectionPropertiesString = el.toString();
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Connection request [connectionPropertiesString] :" + connectionPropertiesString);
+                }
+                if(connectionPropertiesString != null) {
+                    connectionProperties
+                        = stringToProperties(connectionPropertiesString);
+                }
+            }            
 
             Messenger msgr;
             boolean direct = false;
@@ -417,7 +434,12 @@ public class JxtaServerPipe implements PipeMsgListener {
                     LOG.fine("Reliability set to :" + isReliable);
                 }
                 PipeAdvertisement newpipe = newInputPipe(group, outputPipeAdv);
-                JxtaBiDiPipe pipe = new JxtaBiDiPipe(group, msgr, newpipe, credDoc, isReliable, direct);
+                JxtaBiDiPipe pipe = null;
+                if(connectionProperties != null) {
+                    pipe = new JxtaBiDiPipe(group, msgr, newpipe, credDoc, isReliable, direct, connectionProperties);
+                } else {
+                    pipe = new JxtaBiDiPipe(group, msgr, newpipe, credDoc, isReliable, direct);
+                }
 
                 pipe.setRemotePeerAdvertisement(peerAdv);
                 pipe.setRemotePipeAdvertisement(outputPipeAdv);
@@ -432,6 +454,16 @@ public class JxtaServerPipe implements PipeMsgListener {
         }
         return null;
     }
+    
+    private Properties stringToProperties(String propsString) {
+        Properties properties = new Properties();
+        ByteArrayInputStream bis = new ByteArrayInputStream(propsString.getBytes());
+        try {
+            properties.load(bis);            
+        } catch (IOException e) {
+        }
+        return (Properties)properties;
+    }    
 
     /**
      * Method sendResponseMessage get the createResponseMessage and sends it.
