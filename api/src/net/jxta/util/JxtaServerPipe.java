@@ -93,7 +93,6 @@ import java.util.Properties;
  * The server side of a JxtaBiDiPipe. The intent of this object is accept connection requests.
  * JxtaServerPipe follows the same pattern as java.net.ServerSocket, without it no connection can be
  * established.
- *
  */
 public class JxtaServerPipe implements PipeMsgListener {
 
@@ -402,7 +401,7 @@ public class JxtaServerPipe implements PipeMsgListener {
                     LOG.fine("Connection request [directSupported] :" + directSupported);
                 }
             }
-            
+
             el = msg.getMessageElement(nameSpace, connectionPropertiesTag);
             String connectionPropertiesString = null;
             if (el != null) {
@@ -410,11 +409,11 @@ public class JxtaServerPipe implements PipeMsgListener {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Connection request [connectionPropertiesString] :" + connectionPropertiesString);
                 }
-                if(connectionPropertiesString != null) {
+                if (connectionPropertiesString != null) {
                     connectionProperties
-                        = stringToProperties(connectionPropertiesString);
+                            = stringToProperties(connectionPropertiesString);
                 }
-            }            
+            }
 
             Messenger msgr;
             boolean direct = false;
@@ -435,7 +434,7 @@ public class JxtaServerPipe implements PipeMsgListener {
                 }
                 PipeAdvertisement newpipe = newInputPipe(group, outputPipeAdv);
                 JxtaBiDiPipe pipe = null;
-                if(connectionProperties != null) {
+                if (connectionProperties != null) {
                     pipe = new JxtaBiDiPipe(group, msgr, newpipe, credDoc, isReliable, direct, connectionProperties);
                 } else {
                     pipe = new JxtaBiDiPipe(group, msgr, newpipe, credDoc, isReliable, direct);
@@ -454,16 +453,16 @@ public class JxtaServerPipe implements PipeMsgListener {
         }
         return null;
     }
-    
+
     private Properties stringToProperties(String propsString) {
         Properties properties = new Properties();
         ByteArrayInputStream bis = new ByteArrayInputStream(propsString.getBytes());
         try {
-            properties.load(bis);            
+            properties.load(bis);
         } catch (IOException e) {
         }
-        return (Properties)properties;
-    }    
+        return (Properties) properties;
+    }
 
     /**
      * Method sendResponseMessage get the createResponseMessage and sends it.
@@ -558,7 +557,7 @@ public class JxtaServerPipe implements PipeMsgListener {
             super.finalize();
         }
     }
-    
+
     /**
      * A small class for processing individual messages.
      */

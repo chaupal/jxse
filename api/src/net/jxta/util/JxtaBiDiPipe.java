@@ -112,9 +112,9 @@ import java.util.logging.Logger;
  * It highly recommended that an application message listener is specified, not doing so, may
  * lead to message loss in the event the internal queue is overflowed.
  * <p/>
- * Sending messages vis {@link #sendMessage(Message)} from within a 
+ * Sending messages vis {@link #sendMessage(Message)} from within a
  * {@code PipeMsgListener} may result in a deadlock due to contention
- * between the sending and receiving portions of BiDi pipes. 
+ * between the sending and receiving portions of BiDi pipes.
  * <p/>
  * JxtaBiDiPipe, whenever possible, will attempt to utilize direct tcp messengers,
  * which leads to improved performance.
@@ -203,38 +203,36 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         }
         setBound();
     }
-    
+
     /**
      * Creates a bidirectional pipe
      *
-     * @param group      group context
-     * @param msgr       lightweight output pipe
-     * @param pipe       PipeAdvertisement
-     * @param isReliable Whether the connection is reliable or not
-     * @param credDoc    Credential StructuredDocument
-     * @param direct     indicates a direct messenger pipe
+     * @param group                group context
+     * @param msgr                 lightweight output pipe
+     * @param pipe                 PipeAdvertisement
+     * @param isReliable           Whether the connection is reliable or not
+     * @param credDoc              Credential StructuredDocument
+     * @param direct               indicates a direct messenger pipe
      * @param connectionProperties Properties associated with this connection
      * @throws IOException if an io error occurs
      */
     protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct, Properties connectionProperties) throws IOException {
         this(group, msgr, pipe, credDoc, isReliable, direct);
-        this.connectionProperties = connectionProperties; 
-    }    
+        this.connectionProperties = connectionProperties;
+    }
 
     /**
      * Creates a new object with a default timeout of #timeout, and no reliability.
-     *
      */
     public JxtaBiDiPipe() {
     }
-    
+
     /**
      * Creates a new object with a default timeout of #timeout, and no reliability.
-     *
      */
     public JxtaBiDiPipe(Properties properties) {
         connectionProperties = properties;
-    }    
+    }
 
     /**
      * Creates a bidirectional pipe.
@@ -481,37 +479,37 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     public StructuredDocument getCredentialDoc() {
         return credentialDoc;
     }
-    
+
     /**
      * get the connection properties
      *
      * @return Properties connection property
-     */    
+     */
     public Properties getConnectionProperties() {
-        if(connectionProperties == null) {
+        if (connectionProperties == null) {
             return null;
         }
-        return (Properties)connectionProperties.clone();
-    }    
-    
+        return (Properties) connectionProperties.clone();
+    }
+
     /**
      * get the connection property
      *
      * @return String stringified connection property
-     */    
+     */
     private String getConnectionPropertiesString() {
         return propertiesToString(connectionProperties);
     }
-    
-    private String propertiesToString(Properties properties) {        
+
+    private String propertiesToString(Properties properties) {
         // Write properties file.
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            properties.store(bos, null);            
+            properties.store(bos, null);
         } catch (IOException e) {
         }
         return bos.toString();
-    }    
+    }
 
     /**
      * Sets the connection credential doc.
@@ -521,7 +519,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     public void setCredentialDoc(StructuredDocument doc) {
         this.credentialDoc = doc;
-    }    
+    }
 
     /**
      * Creates a connection request message
@@ -548,24 +546,24 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             }
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.reqPipeTag,
-                    (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
+                            (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new StringMessageElement(JxtaServerPipe.reliableTag, Boolean.toString(isReliable), null));
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new StringMessageElement(JxtaServerPipe.directSupportedTag, Boolean.toString(true), null));
-            
-            String connectionPropertiesString 
-                = this.getConnectionPropertiesString();
-            if(connectionPropertiesString != null) {
+
+            String connectionPropertiesString
+                    = this.getConnectionPropertiesString();
+            if (connectionPropertiesString != null) {
                 msg.addMessageElement(JxtaServerPipe.nameSpace,
-                    new StringMessageElement(JxtaServerPipe.connectionPropertiesTag, connectionPropertiesString, null));
+                        new StringMessageElement(JxtaServerPipe.connectionPropertiesTag, connectionPropertiesString, null));
             }
-            
+
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.remPeerTag,
-                    (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
+                            (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
             return msg;
         } catch (Throwable t) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1223,9 +1221,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * a listener is registered these messages will be dequeued by calling the
      * listener until the queue is empty.
      * <p/>
-     * Sending messages vis {@link #sendMessage(Message)} from within a 
+     * Sending messages vis {@link #sendMessage(Message)} from within a
      * {@code PipeMsgListener} may result in a deadlock due to contention
-     * between the sending and receiving portions of BiDi pipes. 
+     * between the sending and receiving portions of BiDi pipes.
      *
      * @param msgListener New value of property listener.
      */
