@@ -502,6 +502,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     private String propertiesToString(Properties properties) {
+        if(properties == null) {
+            return null;
+        }
         // Write properties file.
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
