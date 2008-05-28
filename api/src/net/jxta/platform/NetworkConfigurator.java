@@ -835,7 +835,7 @@ public class NetworkConfigurator {
      * @return the multicast network interface, null if none specified
      */
     public String getMulticastInterface() {
-        tcpConfig.getMulticastInterface();
+        return tcpConfig.getMulticastInterface();
     }
 
     /**
