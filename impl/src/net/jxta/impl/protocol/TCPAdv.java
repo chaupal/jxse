@@ -442,7 +442,7 @@ public class TCPAdv extends TransportAdvertisement {
 
     /**
      * Returns the multicast interface
-     * @return the multicast interface, null if non specified, in which case it default to the tcp interface address
+     * @return the multicast interface, null if none specified, in which case it default to the tcp interface address
      *
      */
     public String getMulticastInterface() {
