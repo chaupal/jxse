@@ -115,7 +115,7 @@ import java.util.logging.Logger;
  * This class implements the IP Multicast Message Transport.
  * <p/>
  * <b>Important Note:</b> This implementation was formerly a portion of the TCP
- * Message Transport and currently uses the TCP Transport's configuration 
+ * Message Transport and currently uses the TCP Transport's configuration
  * advertisement.
  *
  * @see net.jxta.endpoint.MessageTransport
@@ -326,7 +326,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         TCPAdv adv = (TCPAdv) paramsAdv;
-        
+
         // Check if we are disabled. If so, don't bother with the rest of config.
         if (!adv.getMulticastState()) {
             disabled = true;
@@ -335,10 +335,9 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         // Determine the local interface to use. If the user specifies one, use
         // that. Otherwise, use the all the available interfaces.
-        interfaceAddressStr = adv.getInterfaceAddress();
-        if (interfaceAddressStr != null) {
+        if (adv.getMulticastInterface() != null) {
             try {
-                usingInterface = InetAddress.getByName(interfaceAddressStr);
+                usingInterface = InetAddress.getByName(adv.getMulticastInterface());
             } catch (UnknownHostException failed) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.warning("Invalid address for local interface address, using default");
@@ -346,7 +345,19 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 usingInterface = IPUtils.ANYADDRESS;
             }
         } else {
-            usingInterface = IPUtils.ANYADDRESS;
+            interfaceAddressStr = adv.getInterfaceAddress();
+            if (interfaceAddressStr != null) {
+                try {
+                    usingInterface = InetAddress.getByName(interfaceAddressStr);
+                } catch (UnknownHostException failed) {
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.warning("Invalid address for local interface address, using default");
+                    }
+                    usingInterface = IPUtils.ANYADDRESS;
+                }
+            } else {
+                usingInterface = IPUtils.ANYADDRESS;
+            }
         }
 
         // Start the servers
@@ -806,6 +817,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         /**
          * Default constructor
+         *
          * @param executor the threadpool
          */
         DatagramProcessor(Executor executor) {
