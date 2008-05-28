@@ -830,6 +830,24 @@ public class NetworkConfigurator {
     }
 
     /**
+     * Gets the multicast network interface
+     *
+     * @return the multicast network interface, null if none specified
+     */
+    public String getMulticastInterface() {
+        tcpConfig.getMulticastInterface();
+    }
+
+    /**
+     * Sets the multicast network interface
+     *
+     * @param interfaceAddress multicast network interface
+     */
+    public void setMulticastInterface(String interfaceAddress) {
+        tcpConfig.setMulticastInterface(interfaceAddress);
+    }
+
+    /**
      * Sets the IP group multicast port (default 1234)
      *
      * @param port the new IP group multicast port
