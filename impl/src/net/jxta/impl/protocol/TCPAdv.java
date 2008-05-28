@@ -53,16 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
-
 package net.jxta.impl.protocol;
-
-
-import java.util.Arrays;
-import java.util.Enumeration;
-
-import java.util.logging.Level;
-import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -73,8 +64,13 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
+import net.jxta.logging.Logging;
 import net.jxta.protocol.TransportAdvertisement;
 
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides configuration parameters for the JXTA TCP Message Transport.
@@ -93,11 +89,14 @@ public class TCPAdv extends TransportAdvertisement {
     private static final String ClientOffTag = "ClientOff";
     private static final String ServerOffTag = "ServerOff";
     private static final String MULTICAST_OFF_TAG = "MulticastOff";
+    private static final String MULTICAST_INTERFACE_TAG = "MulticastInterface";
+    private static final String MULTICAST_ADDRESS_TAG = "MulticastAddr";
     private static final String FlagsTag = "Flags";
     private static final String PublicAddressOnlyAttr = "PublicAddressOnly";
 
     private String configMode = CONFIGMODES[0];
     private String interfaceAddress = null;
+    private String mcastInterface = null;
     private int startPort = -1;
     private int listenPort = -1;
     private int endPort = -1;
@@ -187,7 +186,6 @@ public class TCPAdv extends TransportAdvertisement {
 
         if (attr != null) {
             String options = attr.getValue();
-
             publicAddressOnly = (options.indexOf(PublicAddressOnlyAttr) != -1);
         }
 
@@ -278,18 +276,17 @@ public class TCPAdv extends TransportAdvertisement {
     /**
      * Sets the interface which the TCP transport will use.
      *
-     * @param ia The interface to use. May be a DNS name or an IP Address.
+     * @param interfaceAddress The interface to use. May be a DNS name or an IP Address.
      */
-    public void setInterfaceAddress(String ia) {
-        if (null != ia) {
-            ia = ia.trim();
+    public void setInterfaceAddress(String interfaceAddress) {
+        if (null != interfaceAddress) {
+            interfaceAddress = interfaceAddress.trim();
 
-            if (0 == ia.length()) {
-                ia = null;
+            if (0 == interfaceAddress.length()) {
+                interfaceAddress = null;
             }
         }
-
-        this.interfaceAddress = ia;
+        this.interfaceAddress = interfaceAddress;
     }
 
     /**
@@ -348,10 +345,10 @@ public class TCPAdv extends TransportAdvertisement {
      * <code>1-65535</code> the value must be equal to or less than the value
      * used for end port.
      *
-     * @param start the lowest port on which to listen.
+     * @param startPort the lowest port on which to listen.
      */
-    public void setStartPort(int start) {
-        startPort = start;
+    public void setStartPort(int startPort) {
+        this.startPort = startPort;
     }
 
     /**
@@ -378,10 +375,10 @@ public class TCPAdv extends TransportAdvertisement {
      * <code>1-65535</code> the value must be equal to or greater than the value
      * used for start port.
      *
-     * @param end the highest port on which to listen.
+     * @param endPort the highest port on which to listen.
      */
-    public void setEndPort(int end) {
-        endPort = end;
+    public void setEndPort(int endPort) {
+        this.endPort = endPort;
     }
 
     /**
@@ -396,10 +393,10 @@ public class TCPAdv extends TransportAdvertisement {
     /**
      * Enable or disable multicast.
      *
-     * @param newState the desired state.
+     * @param multicastState the desired state.
      */
-    public void setMulticastState(boolean newState) {
-        multicastEnabled = newState;
+    public void setMulticastState(boolean multicastState) {
+        multicastEnabled = multicastState;
     }
 
     /**
@@ -424,8 +421,32 @@ public class TCPAdv extends TransportAdvertisement {
                 multicastaddr = null;
             }
         }
-
         this.multicastaddr = multicastaddr;
+    }
+
+    /**
+     * set the multicast interface
+     *
+     * @param multicastaddr set multicastaddr
+     */
+    public void setMulticastInterface(String multicastInterface) {
+        if (null != multicastInterface) {
+            multicastInterface = multicastInterface.trim();
+
+            if (0 == multicastInterface.length()) {
+                this.mcastInterface = null;
+            }
+        }
+        this.mcastInterface = multicastInterface;
+    }
+
+    /**
+     * Returns the multicast interface
+     * @return the multicast interface, null if non specified, in which case it default to the tcp interface address
+     *
+     */
+    public String getMulticastInterface() {
+        return mcastInterface;
     }
 
     /**
@@ -555,7 +576,6 @@ public class TCPAdv extends TransportAdvertisement {
         if (!Arrays.asList(CONFIGMODES).contains(mode)) {
             throw new IllegalArgumentException("Unsupported configuration mode.");
         }
-
         configMode = mode;
     }
 
@@ -605,7 +625,6 @@ public class TCPAdv extends TransportAdvertisement {
         }
 
         String value = elem.getTextValue();
-
         if ((null == value) || (0 == value.trim().length())) {
             return false;
         }
@@ -633,8 +652,13 @@ public class TCPAdv extends TransportAdvertisement {
             return true;
         }
 
-        if (elem.getName().equals("MulticastAddr")) {
+        if (elem.getName().equals(MULTICAST_ADDRESS_TAG)) {
             setMulticastAddr(value);
+            return true;
+        }
+
+        if (elem.getName().equals(MULTICAST_INTERFACE_TAG)) {
+           this.setMulticastInterface(value);
             return true;
         }
 
@@ -743,42 +767,37 @@ public class TCPAdv extends TransportAdvertisement {
             }
         }
 
-        Element e11 = adv.createElement("Protocol", getProtocol());
+        Element proto = adv.createElement("Protocol", getProtocol());
 
-        adv.appendChild(e11);
+        adv.appendChild(proto);
 
         if (!isClientEnabled()) {
-            Element e19 = adv.createElement(ClientOffTag);
-
-            adv.appendChild(e19);
+            Element clientEnabled = adv.createElement(ClientOffTag);
+            adv.appendChild(clientEnabled);
         }
 
         if (!isServerEnabled()) {
-            Element e20 = adv.createElement(ServerOffTag);
-
-            adv.appendChild(e20);
+            Element serverOff = adv.createElement(ServerOffTag);
+            adv.appendChild(serverOff);
         }
 
         if (getConfigMode() != null) {
-            Element e18 = adv.createElement("ConfigMode", getConfigMode());
-
-            adv.appendChild(e18);
+            Element configMode = adv.createElement("ConfigMode", getConfigMode());
+            adv.appendChild(configMode);
         }
 
         String interfaceAddr = getInterfaceAddress();
 
         if (null != interfaceAddr) {
-            Element e17 = adv.createElement("InterfaceAddress", interfaceAddr);
-
-            adv.appendChild(e17);
+            Element interfaceAddrr = adv.createElement("InterfaceAddress", interfaceAddr);
+            adv.appendChild(interfaceAddrr);
         }
 
-        Element e12 = adv.createElement(PORT_ELEMENT, Integer.toString(listenPort));
+        Element portEl = adv.createElement(PORT_ELEMENT, Integer.toString(listenPort));
 
-        adv.appendChild(e12);
+        adv.appendChild(portEl);
         if (adv instanceof Attributable) {
-            Attributable attrElem = (Attributable) e12;
-
+            Attributable attrElem = (Attributable) portEl;
             if ((-1 != startPort) && (-1 != endPort)) {
                 attrElem.addAttribute("start", Integer.toString(startPort));
                 attrElem.addAttribute("end", Integer.toString(endPort));
@@ -788,33 +807,33 @@ public class TCPAdv extends TransportAdvertisement {
         String serverAddr = getServer();
 
         if (null != serverAddr) {
-            Element e16 = adv.createElement("Server", serverAddr);
-
-            adv.appendChild(e16);
+            Element server = adv.createElement("Server", serverAddr);
+            adv.appendChild(server);
         }
 
         if (!getMulticastState()) {
-            Element e19 = adv.createElement(MULTICAST_OFF_TAG);
-
-            adv.appendChild(e19);
+            Element mOff = adv.createElement(MULTICAST_OFF_TAG);
+            adv.appendChild(mOff);
         }
 
         if (null != getMulticastAddr()) {
-            Element e13 = adv.createElement("MulticastAddr", getMulticastAddr());
+            Element mAddrr = adv.createElement(MULTICAST_ADDRESS_TAG, getMulticastAddr());
+            adv.appendChild(mAddrr);
+        }
 
-            adv.appendChild(e13);
+        if (null != this.getMulticastInterface()) {
+            Element mInterace = adv.createElement(MULTICAST_INTERFACE_TAG, getMulticastInterface());
+            adv.appendChild(mInterace);
         }
 
         if (-1 != getMulticastPort()) {
-            Element e14 = adv.createElement("MulticastPort", Integer.toString(getMulticastPort()));
-
-            adv.appendChild(e14);
+            Element mPort = adv.createElement("MulticastPort", Integer.toString(getMulticastPort()));
+            adv.appendChild(mPort);
         }
 
         if (-1 != getMulticastSize()) {
-            Element e15 = adv.createElement("MulticastSize", Integer.toString(getMulticastSize()));
-
-            adv.appendChild(e15);
+            Element mSize = adv.createElement("MulticastSize", Integer.toString(getMulticastSize()));
+            adv.appendChild(mSize);
         }
 
         return adv;
