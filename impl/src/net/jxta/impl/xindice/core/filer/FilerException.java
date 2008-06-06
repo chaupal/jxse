@@ -57,6 +57,7 @@
 package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.DBException;
+import net.jxta.impl.xindice.core.FaultCodes;
 
 /**
  * A FilerException is thrown by a Filer if an exception occurs
@@ -73,5 +74,21 @@ public class FilerException extends DBException {
 
     public FilerException(int faultCode, String message, Throwable cause) {
         super(faultCode, message, cause);
+    }
+    
+    public FilerException(FaultCodes fault) {
+        super(fault, null, null);
+    }
+    
+    public FilerException(FaultCodes fault, String message) {
+        super(fault, message, null);
+    }
+    
+    public FilerException(FaultCodes fault, Throwable cause) {
+        super(fault, null, cause);
+    }
+    
+    public FilerException(FaultCodes fault, String message, Throwable cause) {
+        super(fault, message, cause);
     }
 }

@@ -63,413 +63,302 @@ import java.util.Map;
  * FaultCodes defines the Xindice specific fault codes and associated error
  * messages.
  */
-public abstract class FaultCodes {
+public enum FaultCodes {
 
     // the constants below have been pasted from
     // org.apache.xindice.client.corba.db.FaultCodes
-
-    //
-    // Constant value
-    //
-    public static final int GEN = (int) (0l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ = (int) (100l);
-
-    //
-    // Constant value
-    //
-    public static final int COL = (int) (200l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX = (int) (300l);
-
-    //
-    // Constant value
-    //
-    public static final int TRX = (int) (400l);
-
-    //
-    // Constant value
-    //
-    public static final int DBE = (int) (500l);
-
-    //
-    // Constant value
-    //
-    public static final int QRY = (int) (600l);
-
-    //
-    // Constant value
-    //
-    public static final int SEC = (int) (700l);
-
-    //
-    // Constant value
-    //
-    public static final int URI = (int) (800l);
-
-    //
-    // Constant value
-    //
-    public static final int JAVA = (int) (2000l);
-
-    //
-    // Constant value
-    //
-    public static final int GEN_UNKNOWN = (int) (0l);
-
-    //
-    // Constant value
-    //
-    public static final int GEN_GENERAL_ERROR = (int) (40l);
-
-    //
-    // Constant value
-    //
-    public static final int GEN_CRITICAL_ERROR = (int) (70l);
-
-    //
-    // Constant value
-    //
-    public static final int GEN_FATAL_ERROR = (int) (90l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_OBJECT_NOT_FOUND = (int) (100l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_METHOD_NOT_FOUND = (int) (101l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_NULL_RESULT = (int) (140l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_INVALID_RESULT = (int) (141l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_DUPLICATE_OBJECT = (int) (142l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_RUNTIME_EXCEPTION = (int) (170l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_CLASS_FORMAT_ERROR = (int) (171l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_INVALID_CONTEXT = (int) (172l);
-
-    //
-    // Constant value
-    //
-    public static final int OBJ_CANNOT_CREATE = (int) (173l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_COLLECTION_NOT_FOUND = (int) (200l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_DOCUMENT_NOT_FOUND = (int) (201l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_DUPLICATE_COLLECTION = (int) (240l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_NULL_RESULT = (int) (241l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_NO_FILER = (int) (242l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_NO_INDEXMANAGER = (int) (242l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_DOCUMENT_MALFORMED = (int) (243l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_CANNOT_STORE = (int) (244l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_CANNOT_RETRIEVE = (int) (245l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_COLLECTION_READ_ONLY = (int) (246l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_COLLECTION_CLOSED = (int) (247l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_CANNOT_CREATE = (int) (270l);
-
-    //
-    // Constant value
-    //
-    public static final int COL_CANNOT_DROP = (int) (271l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_VALUE_NOT_FOUND = (int) (300l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_INDEX_NOT_FOUND = (int) (301l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_MATCHES_NOT_FOUND = (int) (340l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_DUPLICATE_INDEX = (int) (341l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_NOT_SUPPORTED = (int) (370l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_STYLE_NOT_FOUND = (int) (371l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_CORRUPTED = (int) (372l);
-
-    //
-    // Constant value
-    //
-    public static final int IDX_CANNOT_CREATE = (int) (373l);
-
-    //
-    // Constant value
-    //
-    public static final int TRX_DOC_LOCKED = (int) (400l);
-
-    //
-    // Constant value
-    //
-    public static final int TRX_NO_CONTEXT = (int) (440l);
-
-    //
-    // Constant value
-    //
-    public static final int TRX_NOT_ACTIVE = (int) (441l);
-
-    //
-    // Constant value
-    //
-    public static final int TRX_NOT_SUPPORTED = (int) (470l);
-
-    //
-    // Constant value
-    //
-    public static final int DBE_NO_PARENT = (int) (500l);
-
-    //
-    // Constant value
-    //
-    public static final int DBE_CANNOT_DROP = (int) (570l);
-
-    //
-    // Constant value
-    //
-    public static final int DBE_CANNOT_CREATE = (int) (571l);
-
-    //
-    // Constant value
-    //
-    public static final int QRY_NULL_RESULT = (int) (600l);
-
-    //
-    // Constant value
-    //
-    public static final int QRY_COMPILATION_ERROR = (int) (640l);
-
-    //
-    // Constant value
-    //
-    public static final int QRY_PROCESSING_ERROR = (int) (641l);
-
-    //
-    // Constant value
-    //
-    public static final int QRY_NOT_SUPPORTED = (int) (670l);
-
-    //
-    // Constant value
-    //
-    public static final int QRY_STYLE_NOT_FOUND = (int) (671l);
-
-    //
-    // Constant value
-    //
-    public static final int SEC_INVALID_USER = (int) (770l);
-
-    //
-    // Constant value
-    //
-    public static final int SEC_INVALID_GROUP = (int) (771l);
-
-    //
-    // Constant value
-    //
-    public static final int SEC_INVALID_ACCESS = (int) (772l);
-
-    //
-    // Constant value
-    //
-    public static final int SEC_INVALID_CREDENTIALS = (int) (773l);
-
-    //
-    // Constant value
-    //
-    public static final int URI_EMPTY = (int) (800l);
-
-    //
-    // Constant value
-    //
-    public static final int URI_NULL = (int) (801l);
-
-    //
-    // Constant value
-    //
-    public static final int URI_PARSE_ERROR = (int) (820l);
-
-    //
-    // Constant value
-    //
-    public static final int JAVA_RUNTIME_ERROR = (int) (2070l);
-
-    private static final Map<Integer, String> FaultMsg = new HashMap<Integer, String>();
-
-    private FaultCodes() {}
-
-    static {
-        // General errors 0 series
-        putCodeMessage(GEN_UNKNOWN, "Unknown");
-        putCodeMessage(GEN_GENERAL_ERROR, "General Error");
-        putCodeMessage(GEN_CRITICAL_ERROR, "Critical Error");
-        putCodeMessage(GEN_FATAL_ERROR, "Fatal Error");
-
-        // XMLObject invocation errors 100 series
-        putCodeMessage(OBJ_OBJECT_NOT_FOUND, "XMLObject Not Found");
-        putCodeMessage(OBJ_METHOD_NOT_FOUND, "XMLObject Method Not Found");
-        putCodeMessage(OBJ_NULL_RESULT, "XMLObject Null Result");
-        putCodeMessage(OBJ_INVALID_RESULT, "XMLObject Invalid Result");
-        putCodeMessage(OBJ_DUPLICATE_OBJECT, "XMLObject Duplicate Object");
-        putCodeMessage(OBJ_RUNTIME_EXCEPTION, "XMLObject Runtime Exception");
-        putCodeMessage(OBJ_CLASS_FORMAT_ERROR, "XMLObject Class Format Error");
-        putCodeMessage(OBJ_INVALID_CONTEXT, "XMLObject Invalid Context");
-        putCodeMessage(OBJ_CANNOT_CREATE, "XMLObject Cannot Create");
-      
-        // Collection-related errors 200 series
-        putCodeMessage(COL_COLLECTION_NOT_FOUND, "Collection Not Found");
-        putCodeMessage(COL_DOCUMENT_NOT_FOUND, "Collection Document Not Found");
-        putCodeMessage(COL_DUPLICATE_COLLECTION, "Collection Duplicated");
-        putCodeMessage(COL_NULL_RESULT, "Collection Null Result");
-        putCodeMessage(COL_NO_FILER, "Collection No Filer");
-        putCodeMessage(COL_NO_INDEXMANAGER, "Collection No IndexManager");
-        putCodeMessage(COL_DOCUMENT_MALFORMED, "Collection Document Malformed");
-        putCodeMessage(COL_CANNOT_STORE, "Collection Cannot Store");
-        putCodeMessage(COL_CANNOT_RETRIEVE, "Collection Cannot Retrieve");
-        putCodeMessage(COL_COLLECTION_READ_ONLY, "Collection Read-only");
-        putCodeMessage(COL_COLLECTION_CLOSED, "Collection Closed");
-        putCodeMessage(COL_CANNOT_CREATE, "Collection Cannot Create");
-        putCodeMessage(COL_CANNOT_DROP, "Collection Cannot Drop");
-
-        // Index-related errors 300 series
-        putCodeMessage(IDX_VALUE_NOT_FOUND, "Index Value Not Found");
-        putCodeMessage(IDX_INDEX_NOT_FOUND, "Index Not Found");
-        putCodeMessage(IDX_MATCHES_NOT_FOUND, "Index Matches Not Found");
-        putCodeMessage(IDX_DUPLICATE_INDEX, "Index Duplicate Index");
-        putCodeMessage(IDX_NOT_SUPPORTED, "Index Not Supported");
-        putCodeMessage(IDX_STYLE_NOT_FOUND, "Index Style Not Found");
-        putCodeMessage(IDX_CORRUPTED, "Index Corrupted");
-        putCodeMessage(IDX_CANNOT_CREATE, "Index Cannot Create");
-
-        // Transaction-related errors 400 series
-        putCodeMessage(TRX_DOC_LOCKED, "Transaction Document Locked");
-        putCodeMessage(TRX_NO_CONTEXT, "Transaction No Context");
-        putCodeMessage(TRX_NOT_ACTIVE, "Transaction Not Active");
-        putCodeMessage(TRX_NOT_SUPPORTED, "Transaction Not Supported");
-
-        // Database-related errors 500 series
-        putCodeMessage(DBE_NO_PARENT, "Database No Parent");
-        putCodeMessage(DBE_CANNOT_DROP, "Database Cannot Drop");
-        putCodeMessage(DBE_CANNOT_CREATE, "Database Cannot Create");
-
-        // Query-related errors 600 series
-        putCodeMessage(QRY_NULL_RESULT, "Query Null Result");
-        putCodeMessage(QRY_COMPILATION_ERROR, "Query Compilation Error");
-        putCodeMessage(QRY_PROCESSING_ERROR, "Query Processing Error");
-        putCodeMessage(QRY_NOT_SUPPORTED, "Query Not Supported");
-        putCodeMessage(QRY_STYLE_NOT_FOUND, "Query Style Not Found");
-
-        // Security-related errors 700 series
-        putCodeMessage(SEC_INVALID_USER, "Security Invalid User");
-        putCodeMessage(SEC_INVALID_GROUP, "Security Invalid Group");
-        putCodeMessage(SEC_INVALID_ACCESS, "Security Invalid Access");
-        putCodeMessage(SEC_INVALID_CREDENTIALS, "Security Invalid Credentials");
-      
-        // URI-related errors 800 series
-        putCodeMessage(URI_EMPTY, "URI Empty");
-        putCodeMessage(URI_NULL, "URI Null");
-        putCodeMessage(URI_PARSE_ERROR, "URI Parse Error");
-      
-        // Java-related errors 2000 series
-        putCodeMessage(JAVA_RUNTIME_ERROR, "Java Runtime Error");
+    GEN(0, "General Error"),
+    OBJ(100, "XMLObject invocation error"),
+    COL(200, "Collection-related error"),
+    IDX(300, "Index-related error"),
+    TRX(400, "Transaction-related error"),
+    DBE(500, "Database-related error"),
+    QRY(600, "Query-related error"),
+    SEC(700, "Security-related error"),
+    URI(800, "URI-related error"),
+    JAVA(2000, "JVM Runtime error"),
+    GEN_UNKNOWN(0, "Unknown Error"),
+    GEN_GENERAL_ERROR(40, "General Error"),
+    GEN_CRITICAL_ERROR(70, "Critical Error"),
+    GEN_FATAL_ERROR(90, "Fatal Error"),
+    // XMLObject invocation errors 100 series
+    OBJ_OBJECT_NOT_FOUND(100, "XMLObject Not Found"),
+    OBJ_METHOD_NOT_FOUND(101, "XMLObject Method Not Found"),
+    OBJ_NULL_RESULT(140, "XMLObject Null Result"),
+    OBJ_INVALID_RESULT(141, "XMLObject Invalid Result"),
+    OBJ_DUPLICATE_OBJECT(142, "XMLObject Duplicate Object"),
+    OBJ_RUNTIME_EXCEPTION(170, "XMLObject Runtime Exception"),
+    OBJ_CLASS_FORMAT_ERROR(171, "XMLObject Class Format Error"),
+    OBJ_INVALID_CONTEXT(172, "XMLObject Invalid Context"),
+    OBJ_CANNOT_CREATE(173, "XMLObject Cannot Create"),
+    // Collection-related errors 200 series
+    COL_COLLECTION_NOT_FOUND(200, "Collection Not Found"),
+    COL_DOCUMENT_NOT_FOUND(201, "Collection Document Not Found"),
+    COL_DUPLICATE_COLLECTION(240, "Collection Duplicated"),
+    COL_NULL_RESULT(241, "Collection Null Result"),
+    COL_NO_FILER(242, "Collection No Filer"),
+    COL_NO_INDEXMANAGER(243, "Collection No IndexManager"),
+    COL_DOCUMENT_MALFORMED(244, "Collection Document Malformed"),
+    COL_CANNOT_STORE(245, "Collection Cannot Store"),
+    COL_CANNOT_RETRIEVE(246, "Collection Cannot Retrieve"),
+    COL_COLLECTION_READ_ONLY(247, "Collection Read-only"),
+    COL_COLLECTION_CLOSED(248, "Collection Closed"),
+    COL_CANNOT_CREATE(270, "Collection Cannot Create"),
+    COL_CANNOT_DROP(271, "Collection Cannot Drop"),
+    // Index-related errors 300 series
+    IDX_VALUE_NOT_FOUND(300, "Index Value Not Found"),
+    IDX_INDEX_NOT_FOUND(301, "Index Not Found"),
+    IDX_MATCHES_NOT_FOUND(340, "Index Matches Not Found"),
+    IDX_DUPLICATE_INDEX(341, "Index Duplicate Index"),
+    IDX_NOT_SUPPORTED(370, "Index Not Supported"),
+    IDX_STYLE_NOT_FOUND(371, "Index Style Not Found"),
+    IDX_CORRUPTED(372, "Index Corrupted"),
+    IDX_CANNOT_CREATE(373, "Index Cannot Create"),
+    // Transaction-related errors 400 series
+    TRX_DOC_LOCKED(400, "Transaction Document Locked"),
+    TRX_NO_CONTEXT(440, "Transaction No Context"),
+    TRX_NOT_ACTIVE(441, "Transaction Not Active"),
+    TRX_NOT_SUPPORTED(470, "Transaction Not Supported"),
+    // Database-related errors 500 series
+    DBE_NO_PARENT(500, "Database No Parent"),
+    DBE_CANNOT_DROP(570, "Database Cannot Drop"),
+    DBE_CANNOT_CREATE(571, "Database Cannot Create"),
+    // Query-related errors 600 series
+    QRY_NULL_RESULT(600, "Query Null Result"),
+    QRY_COMPILATION_ERROR(640, "Query Compilation Error"),
+    QRY_PROCESSING_ERROR(641, "Query Processing Error"),
+    QRY_NOT_SUPPORTED(670, "Query Not Supported"),
+    QRY_STYLE_NOT_FOUND(671, "Query Style Not Found"),
+    // Security-related errors 700 series
+    SEC_INVALID_USER(770, "Security Invalid User"),
+    SEC_INVALID_GROUP(771, "Security Invalid Group"),
+    SEC_INVALID_ACCESS(772, "Security Invalid Access"),
+    SEC_INVALID_CREDENTIALS(773, "Security Invalid Credentials"),
+    URI_EMPTY(800, "URI Empty"),
+    URI_NULL(801, "URI Null"),
+    URI_PARSE_ERROR(820, "URI Parse Error"),
+    JAVA_RUNTIME_ERROR(2070, "Java Runtime Error");
+    /**
+     * All known faults.
+     */
+    private static final Map<Integer, FaultCodes> knownFaults = new HashMap<Integer, FaultCodes>();
+    /**
+     *  Numeric code for this fault.
+     */
+    private final int code;
+    /**
+     * Message for this fault.
+     */
+    private final String message;
+
+    private FaultCodes(int code, String message) {
+        this.code = code;
+        this.message = message;
     }
 
-    private static void putCodeMessage(int code, String message) {
-        FaultMsg.put(code, message);
+    /**
+     * 
+     * @param code The numeric fault code.
+     * @return The cooresponding fault or {@code FaultCodes.GEN_UNKNOWN} if the
+     * code does not match a known fault.
+     */
+    public static FaultCodes toFaultCodes(int code) {
+        FaultCodes result;
+        
+        switch (code) {
+            case 100:
+                result = OBJ_OBJECT_NOT_FOUND;
+                break;
+            case 101:
+                result = OBJ_METHOD_NOT_FOUND;
+                break;
+            case 140:
+                result = OBJ_NULL_RESULT;
+                break;
+
+            case 141:
+                result = OBJ_INVALID_RESULT;
+                break;
+            case 142:
+                result = OBJ_DUPLICATE_OBJECT;
+                break;
+
+            case 170:
+                result = OBJ_RUNTIME_EXCEPTION;
+                break;
+            case 171:
+                result = OBJ_CLASS_FORMAT_ERROR;
+                break;
+            case 172:
+                result = OBJ_INVALID_CONTEXT;
+                break;
+            case 173:
+                result = OBJ_CANNOT_CREATE;
+                break;
+
+            // Collection-related errors 200 series
+            case 200:
+                result = COL_COLLECTION_NOT_FOUND;
+                break;
+            case 201:
+                result = COL_DOCUMENT_NOT_FOUND;
+                break;
+
+            case 240:
+                result = COL_DUPLICATE_COLLECTION;
+                break;
+            case 241:
+                result = COL_NULL_RESULT;
+                break;
+            case 242:
+                result = COL_NO_FILER;
+                break;
+            case 243:
+                result = COL_NO_INDEXMANAGER;
+                break;
+            case 244:
+                result = COL_DOCUMENT_MALFORMED;
+                break;
+            case 245:
+                result = COL_CANNOT_STORE;
+                break;
+            case 246:
+                result = COL_CANNOT_RETRIEVE;
+                break;
+            case 247:
+                result = COL_COLLECTION_READ_ONLY;
+                break;
+            case 248:
+                result = COL_COLLECTION_CLOSED;
+                break;
+
+            case 270:
+                result = COL_CANNOT_CREATE;
+                break;
+            case 271:
+                result = COL_CANNOT_DROP;
+                break;
+
+            // Index-related errors 300 series
+            case 300:
+                result = IDX_VALUE_NOT_FOUND;
+                break;
+            case 301:
+                result = IDX_INDEX_NOT_FOUND;
+                break;
+
+            case 340:
+                result = IDX_MATCHES_NOT_FOUND;
+                break;
+            case 341:
+                result = IDX_DUPLICATE_INDEX;
+                break;
+
+            case 370:
+                result = IDX_NOT_SUPPORTED;
+                break;
+            case 371:
+                result = IDX_STYLE_NOT_FOUND;
+                break;
+            case 372:
+                result = IDX_CORRUPTED;
+                break;
+            case 373:
+                result = IDX_CANNOT_CREATE;
+                break;
+
+            // Transaction-related errors 400 series
+            case 400:
+                result = TRX_DOC_LOCKED;
+                break;
+
+            case 440:
+                result = TRX_NO_CONTEXT;
+                break;
+            case 441:
+                result = TRX_NOT_ACTIVE;
+                break;
+
+            case 470:
+                result = TRX_NOT_SUPPORTED;
+                break;
+
+            // Database-related errors 500 series
+            case 500:
+                result = DBE_NO_PARENT;
+                break;
+
+            case 570:
+                result = DBE_CANNOT_DROP;
+                break;
+            case 571:
+                result = DBE_CANNOT_CREATE;
+                break;
+
+            // Query-related errors 600 series
+            case 600:
+                result = QRY_NULL_RESULT;
+                break;
+
+            case 640:
+                result = QRY_COMPILATION_ERROR;
+                break;
+            case 641:
+                result = QRY_PROCESSING_ERROR;
+                break;
+
+            case 670:
+                result = QRY_NOT_SUPPORTED;
+                break;
+            case 671:
+                result = QRY_STYLE_NOT_FOUND;
+                break;
+
+            // Security-related errors 700 series
+            case 770:
+                result = SEC_INVALID_USER;
+                break;
+            case 771:
+                result = SEC_INVALID_GROUP;
+                break;
+            case 772:
+                result = SEC_INVALID_ACCESS;
+                break;
+            case 773:
+                result = SEC_INVALID_CREDENTIALS;
+                break;
+
+            case 800:
+                result = URI_EMPTY;
+                break;
+            case 801:
+                result = URI_NULL;
+                break;
+
+            case 820:
+                result = URI_PARSE_ERROR;
+                break;
+
+            case 2070:
+                result = JAVA_RUNTIME_ERROR;
+                break;
+                
+            default:
+                result = FaultCodes.GEN_UNKNOWN;
+                break;
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns the fault code in numeric form.
+     *
+     * @param code The Fault Code
+     * @return It's corresponding numeric code
+     */
+    public int getCode() {
+        return code;
     }
 
     /**
@@ -478,78 +367,8 @@ public abstract class FaultCodes {
      * @param code The Fault Code
      * @return It's textual form
      */
-    public static String getMessage(int code) {
-        String msg = FaultMsg.get(code);
-
-        return msg != null ? msg : "";
-    }
-
-    /**
-     * getFaultCodeType examines the provided exception to determine
-     * the general fault code that is associated with it.  General
-     * fault codes are reduced from actual fault codes to be one of
-     * the GEN_ prefixed fault code values.
-     *
-     * @param e The Exception to examine
-     * @return The General Fault Code
-     */
-    public static int getFaultCodeType(Exception e) {
-        int code = 0;
-
-        if (e instanceof DBException) {
-            code = ((DBException) e).faultCode;
-        }
-        // Strip it to the General series
-        code = code % 100;
-        // Narrow to a General value
-        code = code - (code % 10);
-        return code;
-    }
-
-    /**
-     * getFaultCodeSeries examines the provided exception to
-     * determine the fault code series that is associated with it.
-     * Series are reduced from actual fault codes to be one of
-     * the fault code prefixes (ex: COL, DB, SEC).
-     *
-     * @param e The Exception to examine
-     * @return The Fault Code Series
-     */
-    public static int getFaultCodeSeries(Exception e) {
-        int code = 0;
-
-        if (e instanceof DBException) {
-            code = ((DBException) e).faultCode;
-        }
-        // Strip it to the series
-        code = code - (code % 100);
-        return code;
-    }
-
-    /**
-     * getFaultCode examines the provided exception to determine
-     * the fault code that is associated with it.
-     *
-     * @param e The Exception to examine
-     * @return The Fault Code
-     */
-    public static int getFaultCode(Exception e) {
-        if (e instanceof DBException) {
-            return ((DBException) e).faultCode;
-        } else {
-            return 0;
-        }
-    }
-
-    /**
-     * getFaultMessage examines the provided exception to determine
-     * the fault message that is associated with it.
-     *
-     * @param e The Exception to examine
-     * @return The Fault Message
-     */
-    public static String getFaultMessage(Exception e) {
-        return getMessage(getFaultCode(e));
+    public String getMessage() {
+        return message;
     }
 }
 

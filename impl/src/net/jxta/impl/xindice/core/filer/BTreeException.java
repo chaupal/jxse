@@ -56,6 +56,8 @@
  */
 package net.jxta.impl.xindice.core.filer;
 
+import net.jxta.impl.xindice.core.FaultCodes;
+
 /**
  * A BTreeException is thrown by the BTree if an exception occurs
  * in the managing of the BTree.
@@ -71,5 +73,21 @@ public class BTreeException extends FilerException {
 
     public BTreeException(int faultCode, String message, Throwable cause) {
         super(faultCode, message, cause);
+    }
+    
+    public BTreeException(FaultCodes fault) {
+        super(fault, null, null);
+    }
+    
+    public BTreeException(FaultCodes fault, String message) {
+        super(fault, message, null);
+    }
+    
+    public BTreeException(FaultCodes fault, Throwable cause) {
+        super(fault, null, cause);
+    }
+    
+    public BTreeException(FaultCodes fault, String message, Throwable cause) {
+        super(fault, message, cause);
     }
 }

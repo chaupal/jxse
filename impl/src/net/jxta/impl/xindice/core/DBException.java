@@ -64,14 +64,14 @@ import net.jxta.impl.xindice.util.XindiceException;
  * Indexes, and XMLObjects.
  */
 public class DBException extends XindiceException {
-    public int faultCode;
+    public FaultCodes fault;
 
     public DBException() {
-        this(FaultCodes.GEN_UNKNOWN, "", null);
+        this(FaultCodes.GEN_UNKNOWN, null, null);
     }
 
     public DBException(int faultCode) {
-        this(faultCode, "", null);
+        this(faultCode, null, null);
     }
 
     public DBException(int faultCode, String message) {
@@ -79,8 +79,38 @@ public class DBException extends XindiceException {
     }
 
     public DBException(int faultCode, String message, Throwable cause) {
-        super(message, cause);
-        this.faultCode = faultCode;
+        this(FaultCodes.toFaultCodes(faultCode), message, cause);
     }
-
+    
+    public DBException(FaultCodes fault, String message) {
+        this(fault, message, null);
+    }
+    
+    public DBException(FaultCodes fault, Throwable cause) {
+        this(fault, null, cause);
+    }
+    
+    public DBException(FaultCodes fault, String message, Throwable cause) {
+        super(message, cause);
+        
+        this.fault = fault;
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public String getMessage() {
+        String faultMessage = fault.getMessage();
+        String message = super.getMessage();
+        if(null != message) {
+            StringBuilder composedMessage = new StringBuilder(faultMessage.length() + 3 + message.length());
+            composedMessage.append(faultMessage).append(" : ").append(message);
+        
+            return composedMessage.toString();
+        } else {
+            return faultMessage;
+        }
+    }
 }

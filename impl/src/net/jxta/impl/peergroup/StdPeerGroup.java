@@ -760,14 +760,12 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // initialize cm before starting services.
         try {
-            cm = new Cm(getHomeThreadGroup(),
-                    getStoreHome(), assignedID.getUniqueValue().toString(),
-                    Cm.DEFAULT_GC_MAX_INTERVAL, false);
+            cm = new Cm(getExecutor(), getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
         } catch (Exception e) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Error during creation of local store", e);
+                LOG.log(Level.SEVERE, "Failure instantiating local store", e);
             }
-            throw new PeerGroupException("Error during creation of local store", e);
+            throw new PeerGroupException("Failure instantiating local store", e);
         }
         
         // flush srdi for this group
