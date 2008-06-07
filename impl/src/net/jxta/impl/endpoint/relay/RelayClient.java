@@ -129,17 +129,12 @@ public class RelayClient implements MessageReceiver, Runnable {
     private volatile boolean closed = false;
     
     /**
-     *  <ul>
-     *      <li>Values are {@link net.jxta.peergroup.PeerGroup}.</li>
-     *  </ul>
+     * The peergroups which want notification when we connect to a relay.
      */
-    private final List activeRelayListeners = new ArrayList();
+    private final List<PeerGroup> activeRelayListeners = new ArrayList<PeerGroup>();
     
     /**
-     *  <ul>
-     *      <li>Keys are {@link net.jxta.endpoint.EndpointAddress}.</li>
-     *      <li>Values are {@link net.jxta.protocol.RouteAdvertisement}.</li>
-     *  </ul>
+     *  The currently connected relays.
      */
     private final Map<EndpointAddress, RouteAdvertisement> activeRelays = new Hashtable<EndpointAddress, RouteAdvertisement>();
     
@@ -326,10 +321,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                     try {
                         Thread.sleep(untilNextConnectAttempt);
                     } catch (InterruptedException e) {
-                        // ignore interrupted exception
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.log(Level.FINE, "Thread Interrupted ", e);
-                        }
+                        Thread.interrupted();
                         
                         continue;
                     }
@@ -1070,13 +1062,13 @@ public class RelayClient implements MessageReceiver, Runnable {
      * so the Route Advertisement of the PeerAdvertisement is
      * updated
      */
-    public synchronized boolean addActiveRelayListener(Object service) {
+    public synchronized boolean addActiveRelayListener(PeerGroup service) {
         
         boolean added = false;
         
         if (!activeRelayListeners.contains(service)) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Register group to relay connection " + ((PeerGroup) service).getPeerGroupName());
+                LOG.fine("Register group to relay connection " + service.getPeerGroupName());
             }
             
             activeRelayListeners.add(service);
@@ -1092,7 +1084,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      * so the Route Advertisement of the PeerAdvertisement is
      * updated
      */
-    public synchronized boolean removeActiveRelayListener(Object service) {
+    public synchronized boolean removeActiveRelayListener(PeerGroup service) {
         activeRelayListeners.remove(service);
         
         return true;
@@ -1110,8 +1102,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         
         // need to notify all our listeners
 
-        for (Object activeRelayListener : activeRelayListeners) {
-            PeerGroup pg = (PeerGroup) activeRelayListener;
+        for (PeerGroup pg : activeRelayListeners) {
             addRelay(pg, relayRoute);
         }
 
@@ -1128,8 +1119,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         
         // need to notify all our listeners
 
-        for (Object activeRelayListener : activeRelayListeners) {
-            PeerGroup pg = (PeerGroup) activeRelayListener;
+        for (PeerGroup pg : activeRelayListeners) {
             removeRelay(pg, relayRoute);
         }
 
@@ -1337,15 +1327,15 @@ public class RelayClient implements MessageReceiver, Runnable {
 
         return hops;        
     }
-    
+        
     // convert an endpointRouterAddress into a PeerID
     private static PeerID addr2pid(EndpointAddress addr) {
         try {
             URI asURI = new URI(ID.URIEncodingName, ID.URNNamespace + ":" + addr.getProtocolAddress(), null);
-            
+
             return (PeerID) IDFactory.fromURI(asURI);
         } catch (Exception ex) {
             return null;
+            }
+            }
         }
-    }
-}
