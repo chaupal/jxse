@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Collections;
+import java.util.concurrent.Executors;
 import java.io.File;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
@@ -107,11 +108,13 @@ public class CmTest extends TestCase {
      *
      * @param testName test name
      */
-    public CmTest(String testName) {
+    public CmTest(String testName) throws IOException {
         super(testName);
         synchronized (CmTest.class) {
             if (null == cm) {
-                cm = new Cm(new File(new File(".cache"), "CmTest").toURI(), "CmTest");
+                cm = new Cm(Executors.newCachedThreadPool(),
+                        new File(new File(".cache"), "CmTest").toURI(),
+                        "CmTest", 0, true);
             }
         }
     }
