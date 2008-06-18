@@ -56,11 +56,10 @@
 package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
-import net.jxta.impl.id.UUID.UUID;
-import net.jxta.impl.id.UUID.UUIDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.util.AbstractSimpleSelectable;
 import net.jxta.util.SimpleSelectable;
+import net.jxta.util.UUIDUtilities;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -77,6 +76,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -134,7 +134,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * the {@code toString()} representation.
      * <p/>
      * The element is currently named "Tracking UUID" and is stored in the
-     * "jxta" namespace. The element contains an IETF version 1 UUID in string
+     * "jxta" namespace. The element contains an IETF type 4 UUID in string
      * form.
      * <p/>
      * To enable addition of a tracking element to every message, set the
@@ -611,7 +611,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         }
         
         if (!clone && GLOBAL_TRACKING_ELEMENT) {
-            UUID tracking = UUIDFactory.newSeqUUID();
+            UUID tracking = UUIDUtilities.newSeqUUID();
 
             MessageElement trackingElement = new StringMessageElement("Tracking UUID", tracking.toString(), null);
 

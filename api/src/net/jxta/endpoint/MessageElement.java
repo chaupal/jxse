@@ -79,6 +79,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.util.UUIDUtilities;
 
 /**
  * JXTA Message Elements are used to add data to a JXTA Message. Message 
@@ -192,7 +193,7 @@ public abstract class MessageElement implements Document {
      *         which results were returned from this function.
      */
     public static String getSequentialName() {
-        return UUIDFactory.newSeqUUID().toString();
+        return UUIDUtilities.newSeqUUID().toString();
     }
 
     /**

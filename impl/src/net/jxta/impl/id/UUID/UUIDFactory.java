@@ -45,7 +45,6 @@
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
  *  
- *  ====================================================================
  *  
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
@@ -58,60 +57,19 @@ package net.jxta.impl.id.UUID;
 
 
 import java.security.SecureRandom;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Random;
-import java.util.TimeZone;
-import java.util.logging.Logger;
+import net.jxta.util.UUIDUtilities;
 
 
 /**
- * A Factory for generating random UUIDs.
+ * A Factory for generating random UUIDs.  Much of this class' functionality
+ * has migrated into net.jxta.util.UUIDUtilities which deals with
+ * java.util.UUIDs instead of the JXTA-specific implementation of UUID.
  *
  * @see         net.jxta.impl.id.UUID.UUID
  */
 public final class UUIDFactory {
-    
-    /**
-     *  Log4J Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(UUIDFactory.class.getName());
-    
-    /**
-     * The point at which the Gregorian calendar rules are used, measured in
-     * milliseconds from the standard epoch.  Default is October 15, 1582
-     * (Gregorian) 00:00:00 UTC or -12219292800000L.
-     */
-    static final long GREGORIAN_MILLIS_OFFSET = 12219292800000L;
-    
-    /**
-     *  offset of this computer relative to utc
-     */
-    private long utc_offset = 0L;
-    
-    /**
-     *  Time at which we last generated a version 1 UUID in relative
-     *  milliseconds from 00:00:00.00, 15 October 1582 UTC.
-     */
-    private long lastTimeSequence = 0L;
-    
-    /**
-     *   Count of how many version 1 UUIDs we have generated at this time
-     *  sequence value.
-     */
-    private long inSequenceCounter = 0L;
-    
-    /**
-     *  pseudo random value to prevent clock collisions on the same computer.
-     */
-    private long clock_seq = 0L;
-    
-    /**
-     *  pseudo random value. If available, this should be seeded with the MAC
-     *  address of a local network interface.
-     */
-    private long node = 0L;
-    
+
     /**
      *  Random number generator for UUID generation.
      */
@@ -136,40 +94,7 @@ public final class UUIDFactory {
         
         return newUUID(factory.randNum.nextLong(), factory.randNum.nextLong());
     }
-    
-    /**
-     *  Returns a formatted time sequence field containing the elapsed time in
-     *  100 nano units since 00:00:00.00, 15 October 1582. Since the normal
-     *  clock resolution is coarser than 100 nano than this value, the lower
-     *  bits are generated in sequence for each call within the same milli.
-     *
-     *  @return time sequence value
-     */
-    private synchronized long getTimeSequence() {
-        long now = (System.currentTimeMillis() - GREGORIAN_MILLIS_OFFSET + utc_offset) * 10000L; // convert to 100 nano units;
-        
-        if (now > lastTimeSequence) {
-            lastTimeSequence = now;
-            // XXX bondolo@jxta.org It might be better to set this to a random
-            // value and just watch for rollover. The reason is that there may
-            // be more than one instance running on the same computer which is
-            // generating UUIDs, but is not excluded by our synchronization.
-            // A random value would reduce collisions.
-            inSequenceCounter = 0;
-        } else {
-            inSequenceCounter++;
-            if (inSequenceCounter >= 10000L) {
-                // we allow the clock to skew forward rather than wait. It's
-                // really unlikely that anyone will be continuously generating
-                // more than 10k UUIDs per milli for very long.
-                lastTimeSequence += 10000L;
-                inSequenceCounter = 0;
-            }
-        }
-        
-        return (lastTimeSequence + inSequenceCounter);
-    }
-    
+     
     /**
      *  Generate a new UUID value. The UUID returned is a version 1 IETF
      *  variant UUID.
@@ -181,21 +106,9 @@ public final class UUIDFactory {
      *  @return UUID returns a version 1 IETF variant UUID.
      */
     public static UUID newSeqUUID() {
-        long mostSig = 0L, leastSig = 0L;
-        
-        long timeSeq = factory.getTimeSequence();
-        
-        mostSig |= (timeSeq & 0x0FFFFFFFFL) << 32;
-        mostSig |= ((timeSeq >> 32) & 0x0FFFFL) << 16;
-        mostSig |= (0x01L) << 12; // version 1;
-        mostSig |= ((timeSeq >> 48) & 0x00FFFL);
-        
-        leastSig |= (0x02L) << 62; // ietf variant
-        leastSig |= ((factory.clock_seq >> 8) & 0x03FL) << 56;
-        leastSig |= (factory.clock_seq & 0x0FFL) << 48;
-        leastSig |= factory.node & 0x0FFFFFFFFFFFFL;
-        
-        return new UUID(mostSig, leastSig);
+        java.util.UUID utilID = UUIDUtilities.newSeqUUID();
+        return new UUID(utilID.getMostSignificantBits(),
+                utilID.getLeastSignificantBits());
     }
     
     /**
@@ -268,22 +181,6 @@ public final class UUIDFactory {
      *  Singleton class
      */
     private UUIDFactory() {
-        
         randNum = new SecureRandom();
-        
-        String[] tz_ids = TimeZone.getAvailableIDs(0);
-        Calendar gregorianCalendar = new GregorianCalendar();
-        
-        // FIXME 20031024 bondolo@jxta.org In theory we should be doing this
-        // EVERY time we generate a UUID. In practice because of we use a random
-        // clock_seq we don't have to.
-        utc_offset = gregorianCalendar.get(Calendar.ZONE_OFFSET) + gregorianCalendar.get(Calendar.DST_OFFSET);
-        
-        // Generate a random clock seq
-        clock_seq = randNum.nextInt() & 0x03FFL;
-        
-        // Generate a random node ID since we can't get the MAC Address
-        node = (randNum.nextLong() & 0x0000FFFFFFFFFFFFL);
-        node |= 0x0000800000000000L; // mask in the multicast bit since we don't know if its unique.
     }
 }
