@@ -1756,8 +1756,8 @@ public class NetworkConfigurator {
         tcpConfig.setProtocol("tcp");
         tcpConfig.setInterfaceAddress(null);
         tcpConfig.setPort(9701);
-        tcpConfig.setStartPort(9701);
-        tcpConfig.setEndPort(9799);
+        //tcpConfig.setStartPort(9701);
+        //tcpConfig.setEndPort(9799);
         tcpConfig.setMulticastAddr("224.0.1.85");
         tcpConfig.setMulticastPort(1234);
         tcpConfig.setMulticastSize(16384);
