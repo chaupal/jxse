@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,37 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import net.jxta.document.Document;
 
 /**
+ * Medata Content instances are special Content instances that contain
+ * information about another Content instance. Multiple metadata Content
+ * instances can refer to the same Content instance. Metadata Content
+ * instances can hold any kind of information about a Content instance,
+ * such as a symbolic name, description, index and searching information, etc..
  *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * @see net.jxta.content.Content
+ * @see net.jxta.content.ContentID
+ * @see net.jxta.document.Document
  */
+public class Metadata extends Content {
 
-public class AllTests extends TestCase {
-
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
+    /**
+     * Constructs a Metadata instance for an existing Content given it's
+     * ContentID, the ContentID of the associated Content and a Document.
+     * <p/>
+     * This implementation does not verify that the ContentID matches the
+     * provided Document.
+     *
+     * @param id       ContentId of the new Content instance
+     * @param about    ContentID of an associated Content for which this
+     *  Content is metadata
+     * @param document Document which contains the content data for this
+     *  Content
+     */
+    public Metadata(ContentID id, ContentID about, Document document) {
+        super(id, about, document);
     }
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,58 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.util.EventListener;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * This interface should expose events which should be common to
+ * most/all implementations and which provide information relevant to
+ * allowing the application a mechanism by which to inform the end
+ * user of the share activity.  Anything beyond this is probably
+ * better off in a provider-specific extension of this base
+ * interface
+ * 
+ * @see net.jxta.content.ContentShare
+ * @see net.jxta.content.ContentShareEvent
+ * @see net.jxta.content.ContentProvider
  */
+public interface ContentShareListener extends EventListener {
+    
+    /**
+     * For ContentProvider mechanisms using connection-oriented
+     * protocols, this event indicates that a remote client has
+     * initiated Content data transfer.  As this would typically
+     * only apply to connection-oriented implementations, it's
+     * use by the ContentProvider is optional.
+     * 
+     * @param event event data
+     */
+    void shareSessionOpened(ContentShareEvent event);
+    
+    /**
+     * For provider mechanisms using connection-oriented protocols,
+     * this event indicates that a remote client session has
+     * completed.  Completion in this sense does not indicate success
+     * or failure, simply termination of the effort.  As this would
+     * typically only apply to connection-oriented implementations,
+     * it's use by the ContentProvider is optional.
+     * 
+     * @param event event data
+     */
+    void shareSessionClosed(ContentShareEvent event);
+    
+    /**
+     * Event indicating that a ContentShare object has been accessed by
+     * a remote peer.  This event is general enough that it should be
+     * supported by all ContentShare implementations, though implementations
+     * may wish to throttle the frequency of events being published to
+     * allow for more scalable performance.  ContentProviders must call
+     * this method for each distinguishable remote access on a
+     * best-effort basis.
+     * 
+     * @param event event data
+     */
+    void shareAccessed(ContentShareEvent event);
 
-public class AllTests extends TestCase {
-
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
-    }
 }

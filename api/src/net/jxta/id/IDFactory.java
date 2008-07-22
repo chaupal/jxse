@@ -58,6 +58,7 @@ package net.jxta.id;
 
 
 import net.jxta.codat.CodatID;
+import net.jxta.content.ContentID;
 import net.jxta.id.jxta.IDFormat;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -242,6 +243,200 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @throws IOException I/O Error reading document
          */
         public CodatID newCodatID(PeerGroupID groupID, byte[] seed, InputStream in) throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated randomly for the
+         * provided PeerGroup.
+         *
+         * @see net.jxta.content.Content
+         *
+         * @param groupID    the group to which this content will belong.
+         * @param contentIsStatic  true if this content is static content,
+         *  false otherwise
+         * @return the newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean contentIsStatic );
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param contentIsStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  data to use in the generation of the portion
+         *                    of the ContentID which uniquely identifies a
+         *                    particular object
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean contentIsStatic,
+                byte[] indexSeed);
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param contentIsStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  stream to use to generate the data used in the
+         *                    generation of the portion of the ContentID
+         *                    which uniquely identifies a particular object
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean contentIsStatic,
+                InputStream indexSeed)
+                throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param contentIsStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  data to use in the generation of the portion
+         *                    of the ContentID which uniquely identifies a
+         *                    particular object
+         *  @param variant    data to use to provide additional object
+         *                    identification, though this information is
+         *                    not used for indexing purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean contentIsStatic,
+                byte[] indexSeed, byte[] variant);
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param contentIsStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  stream to use to generate the data used in the
+         *                    generation of the portion of the ContentID
+         *                    which uniquely identifies a particular object
+         *  @param variant    data to use to provide additional object
+         *                    identification, though this information is
+         *                    not used for indexing purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean contentIsStatic,
+                InputStream indexSeed, byte[] variant)
+                throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param contentIsStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  data to use in the generation of the portion
+         *                    of the ContentID which uniquely identifies a
+         *                    particular object
+         *  @param variant    stream to use to generate the data used to
+         *                    provide additional object identification, though
+         *                    this information is not used for indexing
+         *                    purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean contentIsStatic,
+                byte[] indexSeed, InputStream variant)
+                throws IOException;
+        
+        /**
+         * Creates a new ContentID Instance, generated using the provided
+         * seed data to help uniquely identify the Content.
+         *
+         * <p/>
+         * This variant of ContentID allows you to create "well-known" content
+         * within the context of diverse groups. This can be useful for common
+         * services that need to do discovery without advertisements or for
+         * network organization services.  Because of the potential for ID
+         * collisions and the difficulties with maintaining common service
+         * interfaces this variant of ContentID should be used with great
+         * caution and pre-planning.
+         *
+         *  @see net.jxta.content.Content
+         *
+         *  @param groupID    the group to which this content will belong.
+         *  @param contentIsStatic   true if this content is static content,
+         *                    false otherwise
+         *  @param indexSeed  stream to use to generate the data used in the
+         *                    generation of the portion of the ContentID
+         *                    which uniquely identifies a particular object
+         *  @param variant    stream to use to generate the data used to
+         *                    provide additional object identification, though
+         *                    this information is not used for indexing
+         *                    purposes
+         *  @return The newly created ContentID.
+         */
+        public ContentID newContentID(
+                PeerGroupID groupID, boolean contentIsStatic,
+                InputStream indexSeed, InputStream variant)
+                throws IOException;
         
         /**
          *  Creates a new PeerID instance. A new random peer id will be generated.
@@ -733,6 +928,284 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newCodatID(groupID, seed, in).intern();
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated randomly for the
+     * provided PeerGroup.
+     *
+     * @see net.jxta.content.Content
+     *
+     * @param groupID    the group to which this content will belong.
+     * @param contentIsStatic   true if this content is static content,
+     *  false otherwise
+     * @return the newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic ) {
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, contentIsStatic );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param contentIsStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  data to use in the generation of the portion
+     *                    of the ContentID which uniquely identifies a
+     *                    particular object
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed) {
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, contentIsStatic, indexSeed );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param contentIsStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  stream to use to generate the data used in the
+     *                    generation of the portion of the ContentID
+     *                    which uniquely identifies a particular object
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed)
+            throws IOException{
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, contentIsStatic, indexSeed );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param contentIsStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  data to use in the generation of the portion
+     *                    of the ContentID which uniquely identifies a
+     *                    particular object
+     *  @param variant    data to use to provide additional object
+     *                    identification, though this information is
+     *                    not used for indexing purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant){
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, contentIsStatic, indexSeed, variant );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param contentIsStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  stream to use to generate the data used in the
+     *                    generation of the portion of the ContentID
+     *                    which uniquely identifies a particular object
+     *  @param variant    data to use to provide additional object
+     *                    identification, though this information is
+     *                    not used for indexing purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant)
+            throws IOException{
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, contentIsStatic, indexSeed, variant );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param contentIsStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  data to use in the generation of the portion
+     *                    of the ContentID which uniquely identifies a
+     *                    particular object
+     *  @param variant    stream to use to generate the data used to
+     *                    provide additional object identification, though
+     *                    this information is not used for indexing
+     *                    purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant)
+            throws IOException {
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, contentIsStatic, indexSeed, variant );
+    }
+    
+    /**
+     * Creates a new ContentID Instance, generated using the provided
+     * seed data to help uniquely identify the Content.
+     *
+     * <p/>
+     * This variant of ContentID allows you to create "well-known" content
+     * within the context of diverse groups. This can be useful for common
+     * services that need to do discovery without advertisements or for
+     * network organization services.  Because of the potential for ID
+     * collisions and the difficulties with maintaining common service
+     * interfaces this variant of ContentID should be used with great
+     * caution and pre-planning.
+     *
+     *  @see net.jxta.content.Content
+     *
+     *  @param groupID    the group to which this content will belong.
+     *  @param contentIsStatic   true if this content is static content,
+     *                    false otherwise
+     *  @param indexSeed  stream to use to generate the data used in the
+     *                    generation of the portion of the ContentID
+     *                    which uniquely identifies a particular object
+     *  @param variant    stream to use to generate the data used to
+     *                    provide additional object identification, though
+     *                    this information is not used for indexing
+     *                    purposes
+     *  @return The newly created ContentID.
+     */
+    public static ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant)
+            throws IOException {
+        String useFormat = groupID.getIDFormat();
+        
+        // is the group netpg or worldpg?
+        if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
+            useFormat = factory.idNewInstances;
+        }
+        
+        Instantiator instantiator = factory.getInstantiator( useFormat );
+        
+        return instantiator.newContentID(
+                groupID, contentIsStatic, indexSeed, variant );
     }
     
     /**

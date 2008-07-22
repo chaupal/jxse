@@ -54,41 +54,91 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.impl.id.CBID;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.io.InputStream;
+import java.io.IOException;
+import net.jxta.impl.id.UUID.IDBytes;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ *  An implementation of the {@link net.jxta.content.ContentID} ID Type.
  */
+public class ContentID extends net.jxta.impl.id.UUID.ContentID {
 
-public class AllTests extends TestCase {
-
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
+    /**
+     * Intializes contents from provided bytes. 
+     *
+     * @param id the ID data
+     */
+    protected ContentID( IDBytes id ) {
+        super( id );
     }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
+    
+    
+    /**
+     * See {@link net.jxta.id.IDFactory.Instantiator#newContentID(net.jxta.peergroup.PeerGroupID,boolean)}.
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean contentIsStatic) {
+        super(groupID, contentIsStatic);
     }
-
-    public AllTests(String name) {
-        super(name);
+    
+    /**
+     * See {@link net.jxta.id.IDFactory.Instantiator#newContentID(net.jxta.peergroup.PeerGroupID,boolean,byte[])}.
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed) {
+        super(groupID, contentIsStatic, indexSeed);
     }
+    
+    /**
+     * See {@link net.jxta.id.IDFactory.Instantiator#newContentID(net.jxta.peergroup.PeerGroupID,boolean,InputStream)}.
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed)
+            throws IOException {
+        super(groupID, contentIsStatic, indexSeed);
+    }
+    
+    /**
+     * See {@link net.jxta.id.IDFactory.Instantiator#newContentID(net.jxta.peergroup.PeerGroupID,boolean,byte[],byte[])}.
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant) {
+        super(groupID, contentIsStatic, indexSeed, variant);
+    }
+    
+    /**
+     * See {@link net.jxta.id.IDFactory.Instantiator#newContentID(net.jxta.peergroup.PeerGroupID,boolean,InputStream,byte[])}.
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant)
+            throws IOException {
+        super(groupID, contentIsStatic, indexSeed, variant);
+    }
+    
+    /**
+     * See {@link net.jxta.id.IDFactory.Instantiator#newContentID(net.jxta.peergroup.PeerGroupID,boolean,byte[],InputStream)}.
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant)
+            throws IOException {
+        super(groupID, contentIsStatic, indexSeed, variant);
+    }
+    
+    /**
+     * See {@link net.jxta.id.IDFactory.Instantiator#newContentID(net.jxta.peergroup.PeerGroupID,boolean,InputStream,InputStream)}.
+     */
+    public ContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant)
+            throws IOException {
+        super(groupID, contentIsStatic, indexSeed, variant);
+    }
+    
 }

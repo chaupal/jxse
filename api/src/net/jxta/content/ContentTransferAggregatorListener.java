@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,36 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.util.EventListener;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * Listener interface used for monitoring changes of state within a
+ * ContentTransferAggregator instance.
  */
+public interface ContentTransferAggregatorListener extends EventListener {
 
-public class AllTests extends TestCase {
+    /**
+     * Called when the aggregator has determined that it is going to
+     * switch to using a particular embedded ContentTransfer instance for
+     * the Content retrieval.  An example of when this may be called can
+     * be illustrated in a failover scenario;  If the aggregation mechanism
+     * determines that the current transfer mechanism is not working out,
+     * it could select a new one, start the transfer, and then fire this
+     * event.  In the event that no transfer mechanism is currently selected,
+     * the delegate transfer object will be <tt>null</tt>.
+     *
+     * @param event content transfer aggregator event object
+     */
+    public void selectedContentTransfer(ContentTransferAggregatorEvent event);
 
-    private static final String TITLE = "net.jxta.impl suite";
+    /**
+     * Called when the aggregator has added or removed a ContentTransfer
+     * instance from it's internally maintained list.
+     *
+     * @param event content transfer aggregator event object
+     */
+    public void updatedContentTransferList(ContentTransferAggregatorEvent event);
 
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
-    }
 }

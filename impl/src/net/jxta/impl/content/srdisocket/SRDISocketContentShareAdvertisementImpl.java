@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,103 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.impl.content.srdisocket;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.impl.content.AbstractPipeContentShareAdvertisement;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * This class is a simple re-badging of the more generic abstract version,
+ * AbstractPipeContentAdvertisement.  This allows us to use the same
+ * advertisement structure yet identify the pipes which will understand
+ * the protocol used by the SRDI socket transfer provider.
  */
+public class SRDISocketContentShareAdvertisementImpl
+        extends AbstractPipeContentShareAdvertisement {
+    /**
+     * ContentID field.
+     */
+    private static final String contentIDTag = "ContentID";
 
-public class AllTests extends TestCase {
+    /**
+     * Fields to index on.
+     */
+    private static final String [] fields = {
+        contentIDTag
+    };
 
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
+    /**
+     *  Returns the identifying type of this Advertisement.
+     *
+     * @return String the type of advertisement
+     */
+    public static String getAdvertisementType() {
+        return "jxta:SRDISocketContent";
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
+    /**
+     * Instantiator for this Advertisement type.
+     */
+    public static class Instantiator
+            implements AdvertisementFactory.Instantiator {
+        /**
+         *  {@inheritDoc}
+         */
+        public String getAdvertisementType( ) {
+            return SRDISocketContentShareAdvertisementImpl.getAdvertisementType();
+        }
 
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
+        /**
+         *  {@inheritDoc}
+         */
+        public Advertisement newInstance( ) {
+            return new SRDISocketContentShareAdvertisementImpl();
+        }
 
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
+        /**
+         *  {@inheritDoc}
+         */
+        public Advertisement newInstance( Element root ) {
+            return new SRDISocketContentShareAdvertisementImpl( root );
+        }
+    };
 
-        return suite;
+    /**
+     *  Construct a new AbstractPipeContentAdvertisement.
+     */
+    public SRDISocketContentShareAdvertisementImpl() {
+        // Empty.
     }
 
-    public AllTests(String name) {
-        super(name);
+    /**
+     *  Construct a new AbstractPipeContentAdvertisement.
+     */
+    public SRDISocketContentShareAdvertisementImpl(Element root) {
+        super(root);
     }
+
+    /**
+     * Clone this SRDISocketContentAdvertisement.
+     *
+     * @return a copy of this SRDISocketContentAdvertisement
+     */
+    @Override
+    public SRDISocketContentShareAdvertisementImpl clone() {
+        // All members are either immutable or never modified nor allowed to
+        // be modified: all accessors return clones.
+        SRDISocketContentShareAdvertisementImpl clone =
+                (SRDISocketContentShareAdvertisementImpl) super.clone();
+        return clone;
+    }
+
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public String [] getIndexFields() {
+        return fields;
+    }
+
 }

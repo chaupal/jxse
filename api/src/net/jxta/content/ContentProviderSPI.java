@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,37 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.net.URI;
+import net.jxta.id.ID;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.service.Service;
 
 /**
+ * Service provider interface used to define new implementations of
+ * ContentProvider search and transfer mechanism.  To implement a
+ * new back-end transfer mechanism and associated Content reference
+ * resolver, implement this interface, not the super-interface of
+ * ContentProvider.  This interface adds the necessary lifecycle
+ * methods required for integration into a ContentService instance.
  *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * @see net.jxta.content.ContentProvider
+ * @see net.jxta.content.ContentService
  */
+public interface ContentProviderSPI extends ContentProvider, Service {
 
-public class AllTests extends TestCase {
+    
+    /**
+     * ModuleClassID for use when defining new provider implementations.
+     */
+    static final ModuleClassID MODULE_CLASS_ID =
+            (ModuleClassID) ID.create(
+            URI.create("urn:jxta:uuid-AC3AA08FC4A14C15A78A88B4D4F8755405" ));
+    // TODO 20070911 mcumings: Update spec and impl IDs to well known IDs?
 
-    private static final String TITLE = "net.jxta.impl suite";
+    /*
+     * This interface simply joins the two extended interfaces together.
+     */
 
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
-    }
 }

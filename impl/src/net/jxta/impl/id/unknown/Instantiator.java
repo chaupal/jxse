@@ -110,6 +110,68 @@ final class Instantiator implements IDFactory.Instantiator {
     
     /**
      * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic) {
+        throw new ProviderException( "unsupported id type" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed ) {
+        throw new ProviderException( "unsupported id type" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed) throws IOException {
+        throw new ProviderException( "unsupported id type" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant ) {
+        throw new ProviderException( "unsupported id type" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant) {
+        throw new ProviderException( "unsupported id type" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant ) {
+        throw new ProviderException( "unsupported id type" );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant) {
+        throw new ProviderException( "unsupported id type" );
+    }
+    
+    /**
+     * {@inheritDoc}
      **/
     public net.jxta.peer.PeerID newPeerID(net.jxta.peergroup.PeerGroupID groupID) {
         throw new ProviderException("unsupported id type");

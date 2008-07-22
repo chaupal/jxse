@@ -19,3 +19,7 @@ net.jxta.impl.protocol.RouteAdv
 net.jxta.impl.protocol.AccessPointAdv
 net.jxta.impl.protocol.SignedAdv
 net.jxta.impl.protocol.GroupConfig
+net.jxta.impl.protocol.ContentAdvertisementImpl
+net.jxta.impl.protocol.ContentShareAdvertisementImpl
+net.jxta.impl.content.defprovider.DefaultContentShareAdvertisementImpl
+net.jxta.impl.content.srdisocket.SRDISocketContentShareAdvertisementImpl

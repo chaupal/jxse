@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.impl.content;
 
 
 import junit.framework.Test;
@@ -63,16 +63,9 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 
-/**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
- */
-
 public class AllTests extends TestCase {
 
-    private static final String TITLE = "net.jxta.impl suite";
+    private static final String TITLE = "net.jxta.impl.content suite";
 
     public static void main(String[] args) {
         TestRunner.run(AllTests.class);
@@ -81,9 +74,11 @@ public class AllTests extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite(TITLE);
 
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
+        suite.addTestSuite(net.jxta.impl.content.EventAggregatorTest.class);
+        suite.addTestSuite(net.jxta.impl.content.ModuleLifecycleManagerTest.class);
+        suite.addTestSuite(net.jxta.impl.content.ModuleLifecycleTrackerTest.class);
+        suite.addTestSuite(net.jxta.impl.content.ModuleWrapperFactoryTest.class);
+        suite.addTestSuite(net.jxta.impl.content.TransferAggregatorTest.class);
 
         return suite;
     }

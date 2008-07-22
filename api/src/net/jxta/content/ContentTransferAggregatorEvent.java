@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,56 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
-
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+package net.jxta.content;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * ContentTransfer event object, containing information related to the event
+ * being published.
  */
+public class ContentTransferAggregatorEvent extends ContentTransferEvent {
 
-public class AllTests extends TestCase {
+    /**
+     * Delegate ContentTransfer instance.
+     */
+    private ContentTransfer delegate;
 
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
+    /**
+     * Creates a new instance of ContentTransferEvent.
+     *
+     * @param source ContentTransfer issueing this event
+     */
+    public ContentTransferAggregatorEvent(ContentTransferAggregator source) {
+        this(source, null);
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
+    /**
+     * Creates a new instance of ContentTransferAggregatorEvent.
+     *
+     * @param source ContentTransferAggregator issueing this event
+     * @param codatTransfer ContentTransfer to which this event pertains
+     */
+    public ContentTransferAggregatorEvent(
+            ContentTransferAggregator source, ContentTransfer codatTransfer) {
+        super(source);
+        delegate = codatTransfer;
     }
 
-    public AllTests(String name) {
-        super(name);
+    /**
+     * Get the ContentTransferAggregator which produced this event.
+     *
+     * @return the originator of this event
+     */
+    public ContentTransferAggregator getContentTransferAggregator() {
+        return (ContentTransferAggregator) getSource();
     }
+
+    /**
+     * Get the ContentTransfer which the aggregator is working with.
+     *
+     * @return delegate ContentTransfer instance
+     */
+    public ContentTransfer getDelegateContentTransfer() {
+        return delegate;
+    }
+
 }

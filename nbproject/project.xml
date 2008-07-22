@@ -241,6 +241,11 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
                 </action>
             </ide-actions>
             <export>
+                <type>folder</type>
+                <location>classes</location>
+                <build-target>signjar</build-target>
+            </export>
+            <export>
                 <type>jar</type>
                 <location>dist/jxta.jar</location>
                 <build-target>signjar</build-target>
@@ -310,6 +315,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             <compilation-unit>
                 <package-root>api/src</package-root>
                 <classpath mode="compile">impl/src</classpath>
+                <built-to>classes</built-to>
                 <javadoc-built-to>doc/api</javadoc-built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
@@ -323,7 +329,7 @@ $Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
             <compilation-unit>
                 <package-root>test/src</package-root>
                 <unit-tests/>
-                <classpath mode="compile">tools/junit.jar:api/src:impl/src</classpath>
+                <classpath mode="compile">api/src:impl/src:tools/junit-4.4.jar:tools/jmock-2.5.0/hamcrest-core-1.1.jar:tools/jmock-2.5.0/hamcrest-library-1.1.jar:tools/jmock-2.5.0/jmock-2.5.0.jar:tools/jmock-2.5.0/jmock-junit4-2.5.0.jar</classpath>
                 <built-to>test_classes/test_classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>

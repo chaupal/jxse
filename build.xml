@@ -200,7 +200,11 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         <path id="test.classpath">
             <pathelement location="${jxtajar}" />
             <pathelement path="${build_test}" />
-            <pathelement location="${tools}/junit.jar" />
+            <pathelement location="${tools}/junit-4.4.jar" />
+            <pathelement location="${tools}/jmock-2.5.0/jmock-2.5.0.jar" />
+            <pathelement location="${tools}/jmock-2.5.0/jmock-junit4-2.5.0.jar" />
+            <pathelement location="${tools}/jmock-2.5.0/hamcrest-core-1.1.jar" />
+            <pathelement location="${tools}/jmock-2.5.0/hamcrest-library-1.1.jar" />
         </path>
     </target>
     
@@ -631,7 +635,7 @@ href="bcprov-ext.jnlp">
             <classpath>
                 <pathelement location="${build}" />
                 <fileset refid="lib.files" />
-                <pathelement location="${tools}/junit.jar" />
+		<path refid="test.classpath" />
             </classpath>
             <src path="${test}" />
         </javac>
@@ -655,7 +659,7 @@ href="bcprov-ext.jnlp">
             <classpath>
                 <pathelement location="${build_test}" />
                 <pathelement location="${build}" />
-                <pathelement location="${tools}/junit.jar" />
+		<path refid="test.classpath" />
                 <fileset refid="lib.files" />
                 <pathelement location="${api}" />
                 <pathelement location="${impl}" />
@@ -677,7 +681,7 @@ href="bcprov-ext.jnlp">
             <classpath>
                 <pathelement location="${build_test}" />
                 <pathelement location="${build}" />
-                <pathelement location="${tools}/junit.jar" />
+		<path refid="test.classpath" />
                 <fileset refid="lib.files" />
                 <pathelement location="${api}" />
                 <pathelement location="${impl}" />

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,63 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.util.List;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * This interface represents a content transfer which is acting as a front
+ * for multiple ContentTransfer instances, all of which are working to
+ * obtain a single Content instance.  This allows ContentService
+ * implementations to provide failover mechanisms and provider
+ * randomization while maintaining operational transparency to the
+ * end user.
+ * <p/>
+ * An explicit effort was made to always expose the actual ContentTransfer
+ * instances to the end-user.  This interface provides a mechanism by
+ * which to accomplish this design goal.
+ * 
+ * @see net.jxta.content.ContentTransfer
+ * @see net.jxta.content.ContentProvider
+ * @see net.jxta.content.ContentService
  */
+public interface ContentTransferAggregator extends ContentTransfer {
 
-public class AllTests extends TestCase {
+    /**
+     * Adds an event listener to track the operation and progress of the
+     * transfer.
+     *
+     * @param listener listener instance to add
+     */
+    void addContentTransferAggregatorListener(
+            ContentTransferAggregatorListener listener);
 
-    private static final String TITLE = "net.jxta.impl suite";
+    /**
+     * Removes a previously registered event listener.
+     *
+     * @param listener listener instance to remove
+     */
+    void removeContentTransferAggregatorListener(
+            ContentTransferAggregatorListener listener);
 
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
+    /**
+     * Returns the currently selected/active ContentTransfer instance being
+     * actively used to retrieve the Content.  Note that many instances may
+     * be actively seeking peers that have the requested Content (at the
+     * aggregator's discretion), but only the instance actively downloading
+     * from a remote peer will be returned by this method.
+     *
+     * @return current ContentTransfer instance, or null if no instance is
+     *  currently retrieving data
+     */
+    ContentTransfer getCurrentContentTransfer();
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
+    /**
+     * Returns the current list ContentTransfer instances being managed
+     * by the aggregated transfer object.
+     *
+     * @return list of ContentTransfer instances
+     */
+    List<ContentTransfer> getContentTransferList();
 
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
-    }
 }

@@ -125,6 +125,86 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic) {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID  );
+        return new ContentID( peerGroupID, contentIsStatic );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed) {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, contentIsStatic, indexSeed );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed )
+            throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, contentIsStatic, indexSeed );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant) {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, contentIsStatic, indexSeed, variant );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant )
+            throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, contentIsStatic, indexSeed, variant );
+    }
+   
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant)
+    throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, contentIsStatic, indexSeed, variant );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public net.jxta.content.ContentID newContentID(
+            net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant )
+            throws IOException {
+        PeerGroupID  peerGroupID =
+                (PeerGroupID) IDFormat.translateFromWellKnown( groupID );
+        return new ContentID( peerGroupID, contentIsStatic, indexSeed, variant );
+    }
+   
+    /**
+     * {@inheritDoc}
+     */
     public net.jxta.peergroup.PeerGroupID newPeerGroupID() {
         return new PeerGroupID();
     }
@@ -324,6 +404,10 @@ public class Instantiator implements IDFactory.Instantiator {
 
         case IDFormat.flagModuleSpecID:
             result = new ModuleSpecID(id);
+            break;
+
+        case IDFormat.flagContentID :
+	    result = new ContentID(id);
             break;
 
         default:

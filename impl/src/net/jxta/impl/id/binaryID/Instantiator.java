@@ -252,6 +252,96 @@ public final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
 
     /**
      * {@inheritDoc}
+     *
+     * @throws UnsupportedOperationException This form is not supported.
+     *  Use ContentID from UUID package instead.
+     */
+    public net.jxta.content.ContentID newContentID(
+            final net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic) {
+        throw new UnsupportedOperationException(
+                "This form is not supported. Use Content from UUID package instead.");
+    }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @throws UnsupportedOperationException This form is not supported.
+     *  Use ContentID from UUID package instead.
+     */
+    public net.jxta.content.ContentID newContentID(
+            final net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed) {
+        throw new UnsupportedOperationException(
+                "This form is not supported. Use Content from UUID package instead.");
+    }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @throws UnsupportedOperationException This form is not supported.
+     *  Use ContentID from UUID package instead.
+     */
+    public net.jxta.content.ContentID newContentID(
+            final net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed)  {
+        throw new UnsupportedOperationException(
+                "This form is not supported. Use Content from UUID package instead.");
+    }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @throws UnsupportedOperationException This form is not supported.
+     *  Use ContentID from UUID package instead.
+     */
+    public net.jxta.content.ContentID newContentID(
+            final net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant) {
+        throw new UnsupportedOperationException(
+                "This form is not supported. Use Content from UUID package instead.");
+    }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @throws UnsupportedOperationException This form is not supported.
+     *  Use ContentID from UUID package instead.
+     */
+    public net.jxta.content.ContentID newContentID(
+            final net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant) {
+        throw new UnsupportedOperationException(
+                "This form is not supported. Use Content from UUID package instead.");
+    }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @throws UnsupportedOperationException This form is not supported.
+     *  Use ContentID from UUID package instead.
+     */
+    public net.jxta.content.ContentID newContentID(
+            final net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant)  {
+        throw new UnsupportedOperationException(
+                "This form is not supported. Use Content from UUID package instead.");
+    }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @throws UnsupportedOperationException This form is not supported.
+     *  Use ContentID from UUID package instead.
+     */
+    public net.jxta.content.ContentID newContentID(
+            final net.jxta.peergroup.PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant)  {
+        throw new UnsupportedOperationException(
+                "This form is not supported. Use Content from UUID package instead.");
+    }
+    
+    /**
+     * {@inheritDoc}
      */
     public net.jxta.peer.PeerID newPeerID(final net.jxta.peergroup.PeerGroupID groupID) {
         LOG.log(Level.SEVERE, "random peer created", new RuntimeException());

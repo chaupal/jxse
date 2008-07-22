@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,50 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.util.List;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * The ContentService is intended to be the end-user's
+ * main access point when working with Content and Content transfers.
+ * It provides the ability to leverage multiple ContentProvider
+ * implementations concurrently, providing resilience and failover
+ * in the event that one or more ContentProvider implementations
+ * fail to perform the requested task(s) properly.
+ * <p/>
+ * The ability to enumerate the list of providers is in place to allow for
+ * programatic removal of providers which may not have been programatically
+ * added (e.g., added via the Jar SPI mechanism), default implementation(s)
+ * included.
+ * <p/>
+ * 
+ * @see net.jxta.content.ContentProvider
  */
+public interface ContentService extends ContentProviderSPI {
 
-public class AllTests extends TestCase {
+    /**
+     * Adds a provider instance.
+     *
+     * @param provider instance to register
+     */
+    void addContentProvider(ContentProviderSPI provider);
 
-    private static final String TITLE = "net.jxta.impl suite";
+    /**
+     * Removes a provider instance.  If transfers are already underway by
+     * the time this method is called, they will continue to use the provider
+     * until the transfer has completed or has been terminated.
+     *
+     * @param provider instance to remove.
+     */
+    void removeContentProvider(ContentProvider provider);
 
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
+    /**
+     * Returns a list of content service provider instances underlying this
+     * service.
+     *
+     * @return list of content providers registered with this service
+     */
+    List<ContentProvider> getContentProviders();
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
-    }
 }

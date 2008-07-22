@@ -58,6 +58,7 @@ package net.jxta.id.jxta;
 
 
 import net.jxta.codat.CodatID;
+import net.jxta.content.ContentID;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -126,6 +127,72 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
         throw new ProviderException("unsupported id type");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic ) {
+        throw new ProviderException("unsupported id type");
+    }
+        
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed) {
+        throw new ProviderException("unsupported id type");
+    }
+        
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed)
+            throws IOException {
+        throw new ProviderException("unsupported id type");
+    }
+        
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant){
+        throw new ProviderException("unsupported id type");
+    }
+        
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant)
+            throws IOException{
+        throw new ProviderException("unsupported id type");
+    }
+        
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant)
+            throws IOException{
+        throw new ProviderException("unsupported id type");
+    }
+        
+    /**
+     * {@inheritDoc}
+     */
+    public ContentID newContentID(
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant)
+            throws IOException{
+        throw new ProviderException("unsupported id type");
+    }
+        
     /**
      * {@inheritDoc}
      */

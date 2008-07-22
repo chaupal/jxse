@@ -1,0 +1,4 @@
+# The list of Content Provider Instance Classes included with this distribution.
+# Used by ContentServiceImpl
+net.jxta.impl.content.defprovider.DefaultContentProvider
+net.jxta.impl.content.srdisocket.SRDISocketContentProvider

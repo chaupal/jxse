@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,41 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.impl.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import static net.jxta.impl.content.ModuleLifecycleState.*;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * This interface defines the API which must be implemented to be notified of
+ * events and problems created while managing a list of subordinate Module
+ * lifecycles.
  */
+public interface ModuleLifecycleManagerListener
+        extends ModuleLifecycleListener {
 
-public class AllTests extends TestCase {
+    /**
+     * Called when a Module has stalled.  That is, when a Module has not been
+     * able to make forward progress while loading because it's
+     * <code>startApp</code> method has not been returning
+     * <code>Module.START_OK</code>.
+     *
+     * @param manager the manager which has detected the stalled Module
+     * @param subject the tracker monitoring the stalled Module
+     */
+    void moduleStalled(
+            ModuleLifecycleManager manager, ModuleLifecycleTracker subject);
 
-    private static final String TITLE = "net.jxta.impl suite";
+    /**
+     * Called when a Module has reported that it is disabled.  This occurs
+     * when a Module start attempt is made that results in
+     * a <code>Module.START_DISABLED</code> value.  This module will be
+     * discarded and dereferenced by the ModuleLifecycleManager immediately
+     * after this event is processed.
+     *
+     * @param manager the manager which has detected the disabled Module
+     * @param subject the tracker monitoring the stalled Module
+     */
+    void moduleDisabled(
+            ModuleLifecycleManager manager, ModuleLifecycleTracker subject);
 
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
-    }
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,87 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.impl.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import net.jxta.content.Content;
+import net.jxta.content.ContentProvider;
+import net.jxta.protocol.ContentAdvertisement;
+import net.jxta.protocol.PipeAdvertisement;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * Partial implementation of the ContentShare interface for use in provider
+ * implementations that use a PipeAdvertisement to contact the server.
+ * This class implements the bare minimum requirements for a Content share
+ * implementation and will need to be extended by the provider
+ * implementation to be useful.
  */
+public abstract class AbstractPipeContentShare<
+        T extends ContentAdvertisement,
+        U extends AbstractPipeContentShareAdvertisement>
+        extends AbstractContentShare<T, U> {
 
-public class AllTests extends TestCase {
+    /**
+     * Pipe advertisement used to locate the server which is promoting this
+     * advertisment.  The pipe identified must be used by a JxtaServerSocket.
+     */
+    private PipeAdvertisement pipeAdv;
 
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
+    /**
+     * Construct a new ContentShare object.
+     *
+     * @param origin provider which created this share
+     * @param content content object to share
+     */
+    public AbstractPipeContentShare(ContentProvider origin, Content content) {
+	super(origin, content);
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
+    /**
+     * Construct a new ContentShare object and immediately associate it
+     * with the specified pipe.
+     *
+     * @param content content object to share
+     * @param pAdv the pipe advertisement used to contact the server
+     */
+    public AbstractPipeContentShare(
+            ContentProvider origin, Content content, PipeAdvertisement pAdv) {
+        super(origin, content);
+        setPipeAdvertisement(pAdv);
     }
 
-    public AllTests(String name) {
-        super(name);
+    /**
+     * Sets the PipeAdvertisement used to contact the server.  This must
+     * be called prior to the call to <code>getContentAdvertisement()</code>.
+     *
+     * @param pAdv the pipe advertisement used to contact the server
+     */
+    public final void setPipeAdvertisement(PipeAdvertisement pAdv) {
+        pipeAdv = pAdv;
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * This method extends the functionality provided by the super-class
+     * by intercepting the resulting AbstractPipeContentShareAdvertisement
+     * and associating the Pipe with it.
+     */
+    @Override
+    public U getContentShareAdvertisement() {
+        U adv = super.getContentShareAdvertisement();
+        if (pipeAdv == null) {
+            throw(new IllegalStateException(
+                    "The PipeAdvertisement has not yet been set"));
+        }
+        adv.setPipeAdvertisement(pipeAdv);
+        return adv;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Restricts return type to AbstractPipeContentAdvertisement.
+     */
+    protected abstract U createContentShareAdvertisement();
+
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,42 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.content;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.util.EventListener;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * Listener interface used for monitoring the progress of a Content transfer.
+ * <p/>
+ * The progress made method intentionally avoids the use of a
+ * transfer event object.  This was done for performance reasons where
+ * many updates would have translated into many event objects being
+ * created and disposed of.
  */
+public interface ContentTransferListener extends EventListener {
 
-public class AllTests extends TestCase {
+    /**
+     * Called when remote data source location has started, stopped, or
+     * possibly when the remote source count has been modified.
+     *
+     * @param event content transfer event object
+     */
+    void contentLocationStateUpdated(ContentTransferEvent event);
 
-    private static final String TITLE = "net.jxta.impl suite";
+    /**
+     * Called when Content data transfer status has changed.
+     *
+     * @param event content transfer event object
+     */
+    void contentTransferStateUpdated(ContentTransferEvent event);
 
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
-    }
+    /**
+     * Called when transfer progress has been made.  The extent to which a
+     * transfer implementation fires this event is left up to the
+     * implementation.
+     *
+     * @param event content transfer event object
+     */
+    void contentTransferProgress(ContentTransferEvent event);
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
-    }
-
-    public AllTests(String name) {
-        super(name);
-    }
 }

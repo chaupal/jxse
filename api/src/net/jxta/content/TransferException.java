@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
  *  The Sun Project JXTA(TM) Software License
+ *  
+ *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
  *  
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
  *  the license in source files.
  *  
  *  ====================================================================
- *  
+
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
@@ -54,41 +54,48 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
-
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+package net.jxta.content;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * Base exception for representing terminal Content transfer problems.
  */
+public class TransferException extends Exception {
 
-public class AllTests extends TestCase {
-
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
+    /**
+     * Creates a new transfer exception with the default message.
+     */
+    public TransferException() {
+        super("Transfer terminated for an unspecified reason");
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message detail message
+     */
+    public TransferException(String message) {
+        super(message);
     }
 
-    public AllTests(String name) {
-        super(name);
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param message detail message
+     * @param cause cause of this exception
+     */
+    public TransferException(String message, Throwable cause) {
+        super(message, cause);
     }
+
+    /**
+     * Constructs a new exception with the specified cause and a detail message
+     * of <code>(cause==null ? null : cause.toString())</code> (which
+     * typically contains the class and detail message of <code>cause</code>).
+     *
+     * @param cause cause of this exception
+     */
+    public TransferException(Throwable cause) {
+        super(cause);
+    }
+
 }

@@ -125,9 +125,9 @@ public class IDFormat {
     public final static byte flagModuleSpecID = 0x06;
 
     /**
-     * Type value for CodatID
+     *  Type value for ContentID
      */
-    public final static byte flagCodatID7 = 0x07;
+    public final static byte flagContentID = 0x07;
 
     /**
      * Location of ID flags within byte array.
