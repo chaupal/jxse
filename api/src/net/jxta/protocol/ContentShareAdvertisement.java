@@ -125,11 +125,17 @@ public abstract class ContentShareAdvertisement
 
     /**
      * Returns a unique ID for that advertisement (for indexing purposes).
-     * ContentShareAdvertisements will by default return <code>null</code>.
-     * This will cause the default mechanism to be used, basing the ID of
-     * the advertisement on a hash of the entire document.
+     * ContentShareAdvertisements will by default return an ID based on
+     * the combination of the base adtertisement type, the advertisement
+     * type, and the ContentID being advertised.  This allows multiple
+     * ContentProviders instances to create unique advertisements that
+     * can coexist along side each other while preventing multiple
+     * variants of the same ContentID from the same provider.  Some
+     * providers may want to override this method to return
+     * <code>null</code>, indicating that an ID based on a hash of the
+     * entire document should be used, insted.
      *
-     * @return always null
+     * @return ContentID 
      */
     public ID getID() {
         if (hashID == null) {
