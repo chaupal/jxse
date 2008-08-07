@@ -129,12 +129,12 @@ public class ContentClient {
         }
 
         public void updatedContentTransferList(ContentTransferAggregatorEvent event) {
-	    ContentTransferAggregator aggregator =
-	        event.getContentTransferAggregator();
+            ContentTransferAggregator aggregator =
+                event.getContentTransferAggregator();
             System.out.println("ContentTransfer list updated:");
-	    for (ContentTransfer xfer : aggregator.getContentTransferList()) {
+            for (ContentTransfer xfer : aggregator.getContentTransferList()) {
                 System.out.println("    " + xfer);
-	    }
+            }
         }
     };
     
@@ -195,15 +195,15 @@ public class ContentClient {
                  */
                 transfer.addContentTransferListener(xferListener);
 
-		/*
-		 * If the transfer is actually an aggregation fronting multiple
-		 * provider implementations, we can listen in on what the
-		 * aggregator is doing.
-		 */
-		if (transfer instanceof ContentTransferAggregator) {
-		    ContentTransferAggregator aggregator = (ContentTransferAggregator) transfer;
-		    aggregator.addContentTransferAggregatorListener(aggListener);
-		}
+                /*
+                 * If the transfer is actually an aggregation fronting multiple
+                 * provider implementations, we can listen in on what the
+                 * aggregator is doing.
+                 */
+                if (transfer instanceof ContentTransferAggregator) {
+                    ContentTransferAggregator aggregator = (ContentTransferAggregator) transfer;
+                    aggregator.addContentTransferAggregatorListener(aggListener);
+                }
 
                 /*
                  * This step is not required but is here to illustrate the
@@ -237,11 +237,9 @@ public class ContentClient {
             pgx.printStackTrace(System.err);
         } catch (InterruptedException intx) {
             System.out.println("Interrupted");
+        } finally {
+            stop();
         }
-    }
-
-    private void stop() {
-        manager.stopNetwork();
     }
 
     /**
@@ -264,24 +262,27 @@ public class ContentClient {
         }
         try {
             Thread.currentThread().setName(ContentClient.class.getName() + ".main()");
-	    URI uri;
-	    if (args.length == 0) {
+            URI uri;
+            if (args.length == 0) {
                 uri = new URI(ContentServer.DEFAULT_CONTENT_ID);
-	    } else {
+            } else {
                 uri = new URI(args[0]);
-	    }
+            }
             ContentID id = (ContentID) IDFactory.fromURI(uri);
             String value = System.getProperty("RDVWAIT", "false");
             boolean waitForRendezvous = Boolean.valueOf(value);
             ContentClient socEx = new ContentClient(id, waitForRendezvous);
             socEx.run();
-            socEx.stop();
         } catch (Throwable e) {
             System.out.flush();
             System.err.println("Failed : " + e);
             e.printStackTrace(System.err);
             System.exit(-1);
         }
+    }
+
+    private void stop() {
+        manager.stopNetwork();
     }
 
 }

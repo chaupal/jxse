@@ -181,9 +181,9 @@ public class ContentServer {
             service.init(netPeerGroup, ContentService.MODULE_CLASS_ID, null);
             service.startApp(new String[0]);
            
-	    /*
-	     * Here we setup a Content object that we plan on sharing.
-	     */
+            /*
+             * Here we setup a Content object that we plan on sharing.
+             */
             System.out.println("Creating Content object");
             System.out.println("   ID     : " + contentID);
             FileDocument fileDoc = new FileDocument(file, MimeMediaType.AOS);
@@ -191,41 +191,41 @@ public class ContentServer {
             System.out.println("   Content: " + content);
             
             /*
-	     * Now we'll ask the ContentProvider implementations to share
-	     * the Content object we just created.  This single action may
-	     * result in more than one way to share the object, so we get
-	     * back a list of ContentShare objects.  Pragmatically, we
-	     * are likely to get one ContentShare per ContentProvider
-	     * implementation, though this isn't necessarily true.
-	     */
+             * Now we'll ask the ContentProvider implementations to share
+             * the Content object we just created.  This single action may
+             * result in more than one way to share the object, so we get
+             * back a list of ContentShare objects.  Pragmatically, we
+             * are likely to get one ContentShare per ContentProvider
+             * implementation, though this isn't necessarily true.
+             */
             List<ContentShare> shares = service.shareContent(content);
 
-	    /*
-	     * Now that we have some shares, we can advertise them so that
-	     * other peers can access them.  In this tutorial we are using
-	     * the DiscoveryService to publish the advertisements for the
-	     * ContentClient program to be able to discover them.
-	     */
+            /*
+             * Now that we have some shares, we can advertise them so that
+             * other peers can access them.  In this tutorial we are using
+             * the DiscoveryService to publish the advertisements for the
+             * ContentClient program to be able to discover them.
+             */
             DiscoveryService discoService = netPeerGroup.getDiscoveryService();
             for (ContentShare share : shares) {
-	        /*
-		 * We'll attach a listener to the ContentShare so that we
-		 * can see any activity relating to it.
-		 */
+                /*
+                 * We'll attach a listener to the ContentShare so that we
+                 * can see any activity relating to it.
+                 */
                 share.addContentShareListener(shareListener);
 
-		/*
-		 * Each ContentShare has it's own Advertisement, so we publish
-		 * them all.
-		 */
+                /*
+                 * Each ContentShare has it's own Advertisement, so we publish
+                 * them all.
+                 */
                 ContentShareAdvertisement adv = share.getContentShareAdvertisement();
                 discoService.publish(adv);
             }
            
-	    /*
-	     * Wait forever, allowing peers to retrieve the shared Content
-	     * until we terminate.
-	     */
+            /*
+             * Wait forever, allowing peers to retrieve the shared Content
+             * until we terminate.
+             */
             System.out.println("Waiting for clients...");
             synchronized(this) {
                 try {
@@ -239,11 +239,9 @@ public class ContentServer {
             pgx.printStackTrace(System.err);
         } catch (IOException io) {
             io.printStackTrace();
+        } finally {
+            stop();
         }
-    }
-
-    private void stop() {
-        manager.stopNetwork();
     }
 
     /**
@@ -268,14 +266,14 @@ public class ContentServer {
         try {
             File file;
             if (args.length > 0) {
-    	    file = new File(args[0]);
-	        // Use the file specified
+                file = new File(args[0]);
+                // Use the file specified
                 if (!file.exists()) {
                     System.err.println("ERROR: File '" + args[0] + "' does not exist");
                     System.exit(-1);
                 }
             } else {
-	        // Create and use a temporary file
+                // Create and use a temporary file
                 file = File.createTempFile("ContentServer_", ".tmp");
                 FileWriter fileWriter = new FileWriter(file);
                 fileWriter.write("This is some test data for our demonstration Content");
@@ -294,7 +292,6 @@ public class ContentServer {
             boolean waitForRendezvous = Boolean.valueOf(value);
             ContentServer socEx = new ContentServer(file, id, waitForRendezvous);
             socEx.run();
-            socEx.stop();
         } catch (Throwable e) {
             System.out.flush();
             System.err.println("Failed : " + e);
@@ -322,6 +319,10 @@ public class ContentServer {
         System.out.println("        Name      : " + event.getRemoteName());
         System.out.println("        Data Start: " + event.getDataStart());
         System.out.println("        Data Size : " + event.getDataSize());
+    }
+
+    private void stop() {
+        manager.stopNetwork();
     }
 
 }
