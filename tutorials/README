@@ -43,6 +43,9 @@ ant run -DAPP=tutorial.bidi.JxtaServerPipeExample
 
 ant run -DAPP=tutorial.customgroupservice.CustomGroupService
 
+ant run -DAPP=tutorial.content.ContentServer
+ant run -DAPP=tutorial.content.ContentClient
+
 ant run -DAPP=tutorial.discovery.DiscoveryClient
 ant run -DAPP=tutorial.discovery.DiscoveryServer
 
