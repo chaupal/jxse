@@ -196,9 +196,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * Counts the number of times an interface to this group has been given out.
      * This is decremented every time an interface object is GCed or its owner 
-     * calls unref().
-     *
-     * <p/>When it reaches zero, if it is time to tear-down the group instance;
+     * calls {@link unref()}.
+     * <p/
+     * >When it reaches zero, if it is time to tear-down the group instance;
      * nomatter what the GC thinks. There are threads that need to be stopped
      * before the group instance object ever becomes un-reachable.
      */
@@ -1233,7 +1233,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * object and wants to notify its abandoning it. Has no effect on the real
      * group object.
      */
-    public void unref() {
+    public boolean unref() {
+        return true;
     }
 
     /**
@@ -1283,24 +1284,26 @@ public abstract class GenericPeerGroup implements PeerGroup {
             throw new IllegalStateException("Group has been shutdown. getInterface() is not available");
         }
 
+        if (initComplete) {
+            // If init is complete the group can become sensitive to its ref 
+            // count reaching zero. Before there could be transient references
+            // before there is a chance to give a permanent reference to the
+            // invoker of newGroup.
+            stopWhenUnreferenced = true;
+        }
+
         int new_count = masterRefCount.incrementAndGet();
+        
+        PeerGroupInterface pgInterface = new RefCountPeerGroupInterface(this);
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             Throwable trace = new Throwable("Stack Trace");
             StackTraceElement elements[] = trace.getStackTrace();
 
-            LOG.info("[" + getPeerGroupID() + "] GROUP REF COUNT INCREMENTED TO: " + masterRefCount.get() + " by\n\t" + elements[2]);
+            LOG.info("[" + pgInterface + "] GROUP REF COUNT INCREMENTED TO: " + new_count + " by\n\t" + elements[2]);
         }
 
-        if (initComplete) {
-            // If init is complete the group can become sensitive to its ref 
-                // count reaching zero. Before there could be transient
-                // references before there is a chance to give a permanent
-                // reference to the invoker of newGroup.
-            stopWhenUnreferenced = true;
-        }
-
-        return new RefCountPeerGroupInterface(this);
+        return pgInterface;
     }
 
     /**

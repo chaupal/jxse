@@ -530,7 +530,8 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public void unref() {
+    public boolean unref() {
+        return true;
     }
 
     /**
