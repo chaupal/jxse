@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
+<!-- vi:set expandtab shiftwidth=4 softtabstop=4:
 
-Copyright (c) 2003-2007 Sun Microsystems, Inc. All rights reserved.
+Copyright (c) 2003-2008 Sun Microsystems, Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met: 
@@ -71,6 +71,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         doc - The destination directory for documentation.
         apidoc - The destination directory for API documentation.
         impldoc - The destination directory for implementation documentation.
+        combineddoc - The destination directory for combined API and implementation documentation.
         jnlp - The destination directory for jnlp built objects.
         lib - The source directory for dependent libraries.
         rpm - The destination directory for rpm built objects.
@@ -120,6 +121,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <property name="doc" value="${basedir}/doc" />
     <property name="apidoc" value="${doc}/api" />
     <property name="impldoc" value="${doc}/impl" />
+    <property name="combineddoc" value="${doc}/combined" />
     <property name="jnlp" value="${basedir}/jnlp" />
     <property name="rpm" value="${basedir}/rpm" />
     
@@ -300,6 +302,17 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         </javac>
     </target>
     
+    <!-- This target exists for Maven2 repository integration -->
+    <target name="-source-jar" description="Creates source jar file">
+        <delete file="${dist}/jxse-src-${net.jxta.build.version}.jar" />
+        
+        <jar destfile="${dist}/jxse-src-${net.jxta.build.version}.jar">
+            <fileset dir="${basedir}/api/src" />
+            <fileset dir="${basedir}/impl/src" />
+            <fileset dir="${basedir}" includes="license.txt" />
+        </jar>
+    </target>
+    
     <target name="-source-tbz2" description="Creates source tar.bz2 file">
         <delete file="${dist}/jxse-src-${net.jxta.build.version}.tar.bz2" />
         
@@ -310,6 +323,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
                 <exclude name="**/classes/**" />
                 <exclude name="dist/**" />
                 <exclude name="jnlp/**" />
+                <exclude name="maven2release/**" />
                 <exclude name="nbproject/private/**" />
                 <exclude name="tmp/**" />
                 <exclude name="rpm/**" />
@@ -328,6 +342,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
                 <exclude name="**/classes/**" />
                 <exclude name="dist/**" />
                 <exclude name="jnlp/**" />
+                <exclude name="maven2release/**" />
                 <exclude name="nbproject/private/**" />
                 <exclude name="tmp/**" />
                 <exclude name="rpm/**" />
@@ -344,6 +359,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
                 <exclude name="**/classes/**" />
                 <exclude name="dist/**" />
                 <exclude name="jnlp/**" />
+                <exclude name="maven2release/**" />
                 <exclude name="nbproject/private/**" />
                 <exclude name="rpm/**" />
                 <exclude name="tmp/**" />
@@ -495,7 +511,6 @@ href="bcprov-ext.jnlp">
     
     <target name="javadoc" depends="-prepare, -meterConfig" description="Creates HTML javadoc for JXTA APIs, References IMPL and Extensions">
         <mkdir dir="${apidoc}" />
-        
         <javadoc source="${source}" destdir="${apidoc}" access="protected" use="true" overview="${api}/net/jxta/overview.html" windowtitle="JXSE API" additionalparam="-notimestamp -breakiterator -quiet">
             <link href="http://java.sun.com/j2se/1.5.0/docs/api" />
             <classpath>
@@ -523,6 +538,22 @@ href="bcprov-ext.jnlp">
             </sourcepath>
             <package name="net.jxta.impl.*" />
             <group title="JXSE Reference Implementation (see &lt;a href='#implnote'&gt;note&lt;/a&gt;)" packages="net.jxta.impl.*" />
+            <doctitle>JXSE ${net.jxta.build.version}</doctitle>
+            <header>&lt;a href='http://jxta-jxse.dev.java.net' target='_blank'&gt;JXTA&lt;/a&gt;</header>
+            <footer>JXSE</footer>
+        </javadoc>
+
+        <mkdir dir="${combineddoc}" />
+        <javadoc source="${source}" destdir="${combineddoc}" access="package" use="true" overview="${impl}/net/jxta/impl/overview.html" windowtitle="JXSE Reference Implementation" additionalparam="-notimestamp -breakiterator -quiet">
+            <link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
+            <link href="http://www.bouncycastle.org/docs/docs1.5/" />
+            <link href="http://java.sun.com/products/servlet/2.3/javadoc/" />
+            <sourcepath>
+                <pathelement location="${api}" />
+                <pathelement location="${impl}" />
+            </sourcepath>
+            <package name="net.jxta.*" />
+            <group title="JXSE Reference Implementation (see &lt;a href='#implnote'&gt;note&lt;/a&gt;)" packages="net.jxta.*" />
             <doctitle>JXSE ${net.jxta.build.version}</doctitle>
             <header>&lt;a href='http://jxta-jxse.dev.java.net' target='_blank'&gt;JXTA&lt;/a&gt;</header>
             <footer>JXSE</footer>
@@ -558,6 +589,14 @@ href="bcprov-ext.jnlp">
             <fileset dir="${apidoc}/.." includes="api/" />
             <fileset dir="${impldoc}/.." includes="impl/" />
         </zip>
+    </target>
+   
+    <!-- This target exists for Maven2 repository integration -->
+    <target name="-javadoc-jar" description="Creates jar file of combined javadoc">
+        <jar destfile="${dist}/jxse-doc-${net.jxta.build.version}.jar">
+            <exclude name="**/.*" />
+            <fileset dir="${combineddoc}" />
+        </jar>
     </target>
     
     <target name="-lib-tbz2" description="creates tar.bz2 file of libs">
@@ -696,8 +735,8 @@ href="bcprov-ext.jnlp">
     <target name="-tutorials.compile" description="Compiles tutorials">
         <ant inheritAll="false" antfile="${basedir}/tutorials/build.xml" target="compile"/>
     </target>
-    
-    
+
+
     <!-- meta targets -->
   
     <target name="all" depends="clean, signjar" description="Clean build of core targets" />
@@ -707,6 +746,7 @@ href="bcprov-ext.jnlp">
             <antcall inheritRefs="true" target="-source-tbz2"/>
             <antcall inheritRefs="true" target="-source-tgz"/>
             <antcall inheritRefs="true" target="-source-zip"/>
+            <antcall inheritRefs="true" target="-source-jar"/>
             <sequential>
                 <antcall inheritRefs="true" target="signjar"/>
                 <parallel>
@@ -722,6 +762,7 @@ href="bcprov-ext.jnlp">
                     <antcall inheritRefs="true" target="-javadoc-tbz2"/>
                     <antcall inheritRefs="true" target="-javadoc-tgz"/>
                     <antcall inheritRefs="true" target="-javadoc-zip"/>
+                    <antcall inheritRefs="true" target="-javadoc-jar"/>
                 </parallel>
             </sequential>
         </parallel>
@@ -734,4 +775,5 @@ href="bcprov-ext.jnlp">
             </fileset>
         </copy>
     </target>
+
 </project>
