@@ -56,7 +56,6 @@
 package tutorial.content;
 
 import net.jxta.content.ContentID;
-import net.jxta.content.ContentProvider;
 import net.jxta.content.ContentService;
 import net.jxta.content.ContentTransfer;
 import net.jxta.content.ContentTransferEvent;
@@ -69,11 +68,8 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
-import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.socket.JxtaSocket;
 import net.jxta.impl.content.ContentServiceImpl;
 import java.io.*;
-import java.util.*;
 import java.net.*;
 
 /**
