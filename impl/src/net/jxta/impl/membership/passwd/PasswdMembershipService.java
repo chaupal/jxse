@@ -110,12 +110,12 @@ import java.util.logging.Logger;
  *
  * @see net.jxta.membership.MembershipService
  *
- **/
+ */
 public class PasswdMembershipService implements MembershipService {
     
     /**
      *  Log4J Logger
-     **/
+     */
     private static final Logger LOG = Logger.getLogger(PasswdMembershipService.class.getName());
     
     /**
@@ -127,37 +127,37 @@ public class PasswdMembershipService implements MembershipService {
     /**
      * This class provides the sub-class of Credential which is associated
      * with the password membership service.
-     **/
+     */
     public final static class PasswdCredential implements Credential, CredentialPCLSupport {
         
         /**
          * The MembershipService service which generated this credential.
-         **/
+         */
         PasswdMembershipService source;
         
         /**
          * The identity associated with this credential
-         **/
+         */
         String whoami;
         
         /**
          * The peerid associated with this credential.
-         **/
+         */
         ID peerid;
         
         /**
          * The peerid which has been "signed" so that the identity may be verified.
-         **/
+         */
         String signedPeerID;
         
         /**
          *  property change support
-         **/
+         */
         private PropertyChangeSupport support = new PropertyChangeSupport(this);
         
         /**
          *  Whether the credential is valid.
-         **/
+         */
         boolean valid = true;
         
         protected PasswdCredential(PasswdMembershipService source, String whoami, String signedPeerID) {
@@ -179,7 +179,7 @@ public class PasswdMembershipService implements MembershipService {
          *  Add a listener
          *
          *  @param listener the listener
-         **/
+         */
         public void addPropertyChangeListener(PropertyChangeListener listener) {
             support.addPropertyChangeListener(listener);
         }
@@ -189,7 +189,7 @@ public class PasswdMembershipService implements MembershipService {
          *
          *  @param propertyName the property to watch
          *  @param listener the listener
-         **/
+         */
         public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
             support.addPropertyChangeListener(propertyName, listener);
         }
@@ -198,7 +198,7 @@ public class PasswdMembershipService implements MembershipService {
          *  Remove a listener
          *
          *  @param listener the listener
-         **/
+         */
         public void removePropertyChangeListener(PropertyChangeListener listener) {
             support.removePropertyChangeListener(listener);
         }
@@ -208,21 +208,21 @@ public class PasswdMembershipService implements MembershipService {
          *
          *  @param propertyName the property which was watched
          *  @param listener the listener
-         **/
+         */
         public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
             support.removePropertyChangeListener(propertyName, listener);
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public ID getPeerGroupID() {
             return source.peergroup.getPeerGroupID();
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public ID getPeerID() {
             return peerid;
         }
@@ -231,7 +231,7 @@ public class PasswdMembershipService implements MembershipService {
          *  Set the peerid for this credential.
          *
          *  @param  peerid   the peerid for this credential
-         **/
+         */
         private void setPeerID(PeerID peerid) {
             this.peerid = peerid;
         }
@@ -240,7 +240,7 @@ public class PasswdMembershipService implements MembershipService {
          * {@inheritDoc}
          *
          * <p/>PasswdCredential never expire.
-         **/
+         */
         public boolean isExpired() {
             return false;
         }
@@ -249,7 +249,7 @@ public class PasswdMembershipService implements MembershipService {
          * {@inheritDoc}
          *
          * <p/>PasswdCredential are almost always valid.
-         **/
+         */
         public boolean isValid() {
             return valid;
         }
@@ -258,7 +258,7 @@ public class PasswdMembershipService implements MembershipService {
          * {@inheritDoc}
          *
          * <p/>PasswdCredential are always valid except after resign.
-         **/
+         */
         private void setValid(boolean valid) {
             boolean oldValid = isValid();
 
@@ -271,7 +271,7 @@ public class PasswdMembershipService implements MembershipService {
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public Object getSubject() {
             return whoami;
         }
@@ -280,21 +280,21 @@ public class PasswdMembershipService implements MembershipService {
          *  Sets the subject for this Credential
          *
          *  @param  subject The subject for this credential.
-         **/
+         */
         private void setSubject(String subject) {
             whoami = subject;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public Service getSourceService() {
             return source;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public StructuredDocument getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
             
@@ -329,7 +329,7 @@ public class PasswdMembershipService implements MembershipService {
          *
          *  @param elem the element to be processed.
          *  @return true if the element was recognized, otherwise false.
-         **/
+         */
         protected boolean handleElement(XMLElement elem) {
             if (elem.getName().equals("PeerGroupID")) {
                 try {
@@ -376,7 +376,7 @@ public class PasswdMembershipService implements MembershipService {
         
         /**
          *  Intialize from a portion of a structured document.
-         **/
+         */
         protected void initialize(Element root) {
             
             if (!XMLElement.class.isInstance(root)) {
@@ -432,39 +432,35 @@ public class PasswdMembershipService implements MembershipService {
 
     /**
      * Creates an authenticator for the passwd membership service. Anything
-     *  entered into the identity info section of the Authentication
-     *  credential is ignored.
-     *
-     *  <p/><strong>HACK ALERT!</strong> THE INHERITANCE FROM
-     *  <code>net.jxta.impl.membership.PasswdMembershipService.PasswdAuthenticator</code>
-     *  IS A TOTAL HACK FOR BACKWARDS COMPATIBILITY.
+     *  entered into the identity info section of the Authentication credential
+     *  is ignored.
      *
      *  @param source The instance of the passwd membership service which
      *  created this authenticator.
      *  @param application Anything entered into the identity info section of
      *  the Authentication credential is ignored.
-     **/
-    public final static class PasswdAuthenticator extends net.jxta.impl.membership.PasswdMembershipService.PasswdAuthenticator {
+     */
+    public final static class PasswdAuthenticator implements Authenticator {
         
         /**
          * The Membership Service which generated this authenticator.
-         **/
+         */
         PasswdMembershipService source;
         
         /**
          * The Authentication which was provided to the Apply operation of the
          * membership service.
-         **/
+         */
         AuthenticationCredential application;
         
         /**
          * the identity which is being claimed
-         **/
+         */
         String whoami = null;
         
         /**
          * the password for that identity.
-         **/
+         */
         String password = null;
         
         /**
@@ -476,7 +472,7 @@ public class PasswdMembershipService implements MembershipService {
          * authenticator.
          * @param application The Anything entered into the identity info section of the Authentication
          * credential is ignored.
-         **/
+         */
         PasswdAuthenticator(PasswdMembershipService source, AuthenticationCredential application) {
             this.source = source;
             this.application = application;
@@ -486,48 +482,44 @@ public class PasswdMembershipService implements MembershipService {
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public MembershipService getSourceService() {
             return (MembershipService) source.getInterface();
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         synchronized public boolean isReadyForJoin() {
             return ((null != password) && (null != whoami));
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public String getMethodName() {
             return "PasswdAuthentication";
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public AuthenticationCredential getAuthenticationCredential() {
             return application;
         }
         
-        @Override
         public void setAuth1Identity(String who) {
             whoami = who;
         }
         
-        @Override
         public String getAuth1Identity() {
             return whoami;
         }
         
-        @Override
         public void setAuth2_Password(String secret) {
             password = secret;
         }
         
-        @Override
         protected String getAuth2_Password() {
             return password;
         }
@@ -535,43 +527,43 @@ public class PasswdMembershipService implements MembershipService {
         
     /**
      * the peergroup to which this service is associated.
-     **/
+     */
     private PeerGroup peergroup = null;
     
     /**
      *  the default "nobody" credential
-     **/
+     */
     private Credential  defaultCredential = null;
     
     /**
      * The current set of principals associated with this peer within this peegroup.
-     **/
+     */
     private List principals;
     
     /**
      * The set of AuthenticationCredentials which were used to establish the principals.
-     **/
+     */
     private List authCredentials;
     
     /**
      * The ModuleImplAdvertisement which was used to instantiate this service.
-     **/
+     */
     private ModuleImplAdvertisement implAdvertisement = null;
     
     /**
      * An internal table containing the identity and password pairs as parsed from the
      * the PeerGroupAdvertisement.
-     **/
+     */
     private Map logins = null;
     
     /**
      *  property change support
-     **/
+     */
     private PropertyChangeSupport support;
     
     /**
      *  Default constructor. Normally only called by the peer group.
-     **/
+     */
     public PasswdMembershipService() throws PeerGroupException {
         principals = new ArrayList();
         authCredentials = new ArrayList();
@@ -583,7 +575,7 @@ public class PasswdMembershipService implements MembershipService {
      *  Add a listener
      *
      *  @param listener the listener
-     **/
+     */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }
@@ -593,7 +585,7 @@ public class PasswdMembershipService implements MembershipService {
      *
      *  @param propertyName the property to watch
      *  @param listener the listener
-     **/
+     */
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         support.addPropertyChangeListener(propertyName, listener);
     }
@@ -602,7 +594,7 @@ public class PasswdMembershipService implements MembershipService {
      *  Remove a listener
      *
      *  @param listener the listener
-     **/
+     */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         support.removePropertyChangeListener(listener);
     }
@@ -612,14 +604,14 @@ public class PasswdMembershipService implements MembershipService {
      *
      *  @param propertyName the property which was watched
      *  @param listener the listener
-     **/
+     */
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         support.removePropertyChangeListener(propertyName, listener);
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         
         peergroup = group;
@@ -679,14 +671,14 @@ public class PasswdMembershipService implements MembershipService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Service getInterface() {
         return this;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Advertisement getImplAdvertisement() {
         return implAdvertisement;
     }
@@ -705,14 +697,14 @@ public class PasswdMembershipService implements MembershipService {
      * {@inheritDoc}
      *
      * <p/>This request is currently ignored.
-     **/
+     */
     public void stopApp() {
         resign();
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Authenticator apply(AuthenticationCredential application) throws PeerGroupException, ProtocolNotSupportedException {
         
         String method = application.getMethod();
@@ -726,14 +718,14 @@ public class PasswdMembershipService implements MembershipService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Credential getDefaultCredential() {
         return defaultCredential;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     private void setDefaultCredential(Credential newDefault) {
         Credential oldDefault = defaultCredential;
 
@@ -744,21 +736,21 @@ public class PasswdMembershipService implements MembershipService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public synchronized Enumeration<Credential> getCurrentCredentials() {
         return Collections.enumeration(principals);
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public synchronized Enumeration<AuthenticationCredential> getAuthCredentials() {
         return Collections.enumeration(authCredentials);
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Credential join(Authenticator authenticated) throws PeerGroupException {
         
         if (!(authenticated instanceof PasswdAuthenticator)) {
@@ -803,7 +795,7 @@ public class PasswdMembershipService implements MembershipService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public synchronized void resign() {
         Iterator eachCred = Arrays.asList(principals.toArray()).iterator();
         
@@ -823,7 +815,7 @@ public class PasswdMembershipService implements MembershipService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public Credential makeCredential(Element element) throws PeerGroupException, Exception {
         
         return new PasswdCredential(this, element);
@@ -837,7 +829,7 @@ public class PasswdMembershipService implements MembershipService {
      * @param passwd the password guess being tested.
      * @return true if the password was correct for the specified identity
      * otherwise false.
-     **/
+     */
     private boolean checkPasswd(String identity, String passwd) {
         boolean result;
         
@@ -875,7 +867,7 @@ public class PasswdMembershipService implements MembershipService {
      *   @param source  the string to encode
      *   @return String the encoded version of the password.
      *
-     **/
+     */
     public static String makePsswd(String source) {
 
         /**
@@ -883,7 +875,7 @@ public class PasswdMembershipService implements MembershipService {
          * A->D  B->Q  C->K  D->W  E->H  F->R  G->T  H->E  I->N  J->O  K->G  L->X  M->C
          * N->V  O->Y  P->S  Q->F  R->J  S->P  T->I  U->L  V->Z  W->A  X->B  Y->M  Z->U
          *
-         **/
+         */
         
         final String xlateTable = "DQKWHRTENOGXCVYSFJPILZABMU";
         
