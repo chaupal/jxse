@@ -801,7 +801,13 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     }
 
     /**
-     * {@inheritDoc}
+     * Get a messenger instance for the specified destination endpoint address.
+     * 
+     * @param dst destination for messages
+     * @param hintIgnored ignored
+     * @param selfDestruct indicates whether the messenger created will self
+     *  destruct when idle 
+     * @return Messenger instance, or null if no instance could be created
      */
     public Messenger getMessenger(EndpointAddress dst, Object hintIgnored, boolean selfDestruct) {
 

@@ -447,7 +447,10 @@ public class StdPeerGroupParamAdv {
     }
 
     /**
-     * {@inheritDoc}
+     * Get the adv as a document of the specified MIME media type.
+     * 
+     * @param encodeAs mime type to encode as
+     * @return document instance
      */
     public Document getDocument(MimeMediaType encodeAs) {
         StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, PARAM_TAG);

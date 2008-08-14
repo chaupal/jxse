@@ -354,17 +354,15 @@ public enum FaultCodes {
     /**
      * Returns the fault code in numeric form.
      *
-     * @param code The Fault Code
-     * @return It's corresponding numeric code
+     * @return The Fault Code
      */
     public int getCode() {
         return code;
     }
 
     /**
-     * getMessage returns a textual form for the specified fault code.
+     * getMessage returns a textual form.
      *
-     * @param code The Fault Code
      * @return It's textual form
      */
     public String getMessage() {

@@ -427,7 +427,7 @@ public class TCPAdv extends TransportAdvertisement {
     /**
      * set the multicast interface
      *
-     * @param multicastaddr set multicastaddr
+     * @param multicastInterface set multicastaddr
      */
     public void setMulticastInterface(String multicastInterface) {
         if (null != multicastInterface) {

@@ -1130,7 +1130,9 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
     }
 
     /**
-     * {@inheritDoc}
+     * Get the SRDI index instance used by this resolver.
+     * 
+     * @return SRDI index
      */
     SrdiIndex getSrdiIndex() {
         return srdiIndex;

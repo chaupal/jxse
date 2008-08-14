@@ -417,10 +417,12 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     }
 
     /**
-     * {@inheritDoc}
+     * Sets whether or not the credential is valid.
      * <p/>
      * A PSE Credential is valid as long as the associated certificate is
      * valid.
+     * 
+     * @param valid {@code true} if it is valid, {@code false} otherwise
      */
     void setValid(boolean valid) {
         boolean oldValid = isValid();

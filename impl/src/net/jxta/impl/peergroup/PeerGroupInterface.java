@@ -120,9 +120,10 @@ class PeerGroupInterface implements PeerGroup {
     protected final int instance;
     
     /**
-     * If {@true} then {@link #unref()} has been called.
+     * If {@code true} then {@link #unref()} has been called.
      */
     protected final AtomicBoolean unrefed = new AtomicBoolean(false);
+    
     /**
      * The peer group instance which backs this interface object.
      */
@@ -218,10 +219,10 @@ class PeerGroupInterface implements PeerGroup {
      * Applications assume that they have exclusive access to the peer group
      * object. They call {@code stopApp()} to signify that they are finished 
      * with the peer group. Since peer groups are shared, we use 
-     * {@code stopApp()} to {@link unref()}.
+     * {@code stopApp()} to {@link #unref()}.
      * <p/>
      * We could also just do nothing and let this interface be GCed but calling
-     * {@link unref()} makes the group go away immediately if it is not shared, 
+     * {@link #unref()} makes the group go away immediately if it is not shared, 
      * which is what applications calling stopApp() expect.
      */
     public void stopApp() {

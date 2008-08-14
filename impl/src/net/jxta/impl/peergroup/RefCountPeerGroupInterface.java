@@ -103,7 +103,7 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
      * Constructs an interface object that front-ends the provided PeerGroup.
      * 
      * @param theRealThing the peer group
-     * @param roleMapA  Map of MCIDs for groups with multiple role ids of a 
+     * @param roleMap  Map of MCIDs for groups with multiple role ids of a 
      * single service.
      */
     RefCountPeerGroupInterface(GenericPeerGroup theRealThing, Map<ID, ID[]> roleMap) {
@@ -134,10 +134,10 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
      * <p/>
      * Normally the interface object protects the real object's start and stop 
      * methods from being called. Unlike the weak peer group interface objects, 
-     * we do call the real {@link PeerGroup#startApp()} as even the creator of a 
-     * group does not have access to the real object. So we must invoke the peer 
-     * group {@code startApp()} which is responsible for ensuring that it is 
-     * executed only once (if needed).
+     * we do call the real {@link PeerGroup#startApp(String[])} as even the
+     * creator of a group does not have access to the real object. So we must
+     * invoke the peer group {@code startApp()} which is responsible for
+     * ensuring that it is executed only once (if needed).
      */
     @Override
     public int startApp(String[] args) {

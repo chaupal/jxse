@@ -193,7 +193,10 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
     }
 
     /**
-     * {@inheritDoc}
+     * Gets this PeerGroup ID, possibly translated into it's well known
+     * form.
+     * 
+     * @return PeerGroupID
      */
     public net.jxta.id.ID getPeerGroupID() {
         // convert to the generic world PGID as necessary

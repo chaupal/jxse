@@ -92,7 +92,7 @@ import java.util.logging.Logger;
 final class HttpClientMessenger extends BlockingMessenger {
     
     /**
-     *  Logger
+     *  Logger.
      */
     private final static transient Logger LOG = Logger.getLogger(HttpClientMessenger.class.getName());
     
@@ -242,13 +242,6 @@ final class HttpClientMessenger extends BlockingMessenger {
         result.append("}");
 
         return result.toString();
-    }
-    
-    /**
-     *  {@inheritDoc}
-     */
-    void doShutdown() {
-        super.shutdown();
     }
     
     /**

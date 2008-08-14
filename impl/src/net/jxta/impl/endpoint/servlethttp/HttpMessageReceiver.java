@@ -268,7 +268,12 @@ class HttpMessageReceiver implements MessageReceiver {
     }
 
     /**
-     * {@inheritDoc}
+     * Notify messenger listener that we are ready.
+     * 
+     * @param newMessenger new messenger
+     * @param connAddr conenction endpoint address
+     * @return {@code true} if the listener claimed the messenger, {@code false}
+     *  otherwise
      */
     boolean messengerReadyEvent(HttpServletMessenger newMessenger, EndpointAddress connAddr) {
         MessengerEventListener temp = messengerEventListener;

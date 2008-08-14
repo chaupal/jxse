@@ -132,23 +132,23 @@ import java.util.logging.Logger;
  * advertisement is ensured.</strong>
  *
  * @see net.jxta.access.AccessService
- **/
+ */
 public class SimpleACLAccessService implements AccessService {
     
     /**
      *  Logger.
-     **/
+     */
     private final static Logger LOG = Logger.getLogger(SimpleACLAccessService.class.getName());
     
     /**
      * Well known access specification identifier: the simple ACL access service
-     **/
+     */
     public static final ModuleSpecID simpleACLAccessSpecID = (ModuleSpecID)
             ID.create(URI.create("urn:jxta:uuid-DeadBeefDeafBabaFeedBabe000000100206"));
     
     /**
      *  Operation for the Always Access Service.
-     **/
+     */
     private static class SimpleACLOperation implements PrivilegedOperation {
         
         SimpleACLAccessService source;
@@ -170,14 +170,14 @@ public class SimpleACLAccessService implements AccessService {
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public ID getPeerGroupID() {
             return source.getPeerGroup().getPeerGroupID();
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public ID getPeerID() {
             return null;
         }
@@ -186,7 +186,7 @@ public class SimpleACLAccessService implements AccessService {
          * {@inheritDoc}
          *
          * <p/>AlwaysOperation are always valid.
-         **/
+         */
         public boolean isExpired() {
             return false;
         }
@@ -195,28 +195,28 @@ public class SimpleACLAccessService implements AccessService {
          * {@inheritDoc}
          *
          * <p/>AlwaysOperation are always valid.
-         **/
+         */
         public boolean isValid() {
             return true;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public String getSubject() {
             return op;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public Service getSourceService() {
             return source;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public StructuredDocument getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
             
@@ -240,7 +240,7 @@ public class SimpleACLAccessService implements AccessService {
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public Credential getOfferer() {
             return offerer;
         }
@@ -250,7 +250,7 @@ public class SimpleACLAccessService implements AccessService {
          *
          *  @param elem the element to be processed.
          *  @return true if the element was recognized, otherwise false.
-         **/
+         */
         protected boolean handleElement(TextElement elem) {
             if (elem.getName().equals("PeerGroupID")) {
                 try {
@@ -289,7 +289,7 @@ public class SimpleACLAccessService implements AccessService {
         
         /**
          *  Initialize from a portion of a structured document.
-         **/
+         */
         protected void initialize(Element root) {
             
             if (!TextElement.class.isInstance(root)) {
@@ -341,27 +341,27 @@ public class SimpleACLAccessService implements AccessService {
     
     /**
      *  The peer group we are working for.
-     **/
+     */
     PeerGroup group;
     
     /**
      *  Implementation advertisement for this instance.
-     **/
+     */
     ModuleImplAdvertisement implAdvertisement;
     
     /**
      *  The ACLs we are supporting.
-     **/
+     */
     private final Map<String, Set<String>> ACLs = new HashMap<String, Set<String>>();
     
     /**
      *  The default constructor
-     **/
+     */
     public SimpleACLAccessService() {}      
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         this.group = group;
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
@@ -438,33 +438,33 @@ public class SimpleACLAccessService implements AccessService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public int startApp(String[] args) {
         return 0;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public void stopApp() {}
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdvertisement;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public SimpleACLAccessService getInterface() {
         return this;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public AccessResult doAccessCheck(PrivilegedOperation op, Credential cred) {
         if ((null != cred) && !cred.isValid()) {
             return AccessResult.DISALLOWED;
@@ -493,7 +493,7 @@ public class SimpleACLAccessService implements AccessService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public PrivilegedOperation newPrivilegedOperation(Object subject, Credential offerer) {
         if (!(subject instanceof String)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports String subjects.");
@@ -508,14 +508,16 @@ public class SimpleACLAccessService implements AccessService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public PrivilegedOperation newPrivilegedOperation(Element source) {
         return new SimpleACLOperation(this, source);
     }
     
     /**
-     * {@inheritDoc}
-     **/
+     * Get the PeerGroup this service is running in.
+     * 
+     * @return PeerGroup instance
+     */
     PeerGroup getPeerGroup() {
         return group;
     }

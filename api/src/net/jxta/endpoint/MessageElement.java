@@ -59,7 +59,6 @@ package net.jxta.endpoint;
 
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
-import net.jxta.impl.id.UUID.UUIDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.util.CountingOutputStream;
 import net.jxta.util.DevNullOutputStream;

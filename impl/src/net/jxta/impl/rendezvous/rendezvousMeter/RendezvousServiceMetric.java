@@ -75,8 +75,8 @@ import java.util.LinkedList;
 
 
 /**
- * The Service Monitor Metric for the standard Rendezvous Service
- **/
+ * The Service Monitor Metric for the standard Rendezvous Service.
+ */
 public class RendezvousServiceMetric implements ServiceMetric {
     private RendezvousMetric rendezvousMetric;
     private LinkedList rendezvousConnectionMetrics = new LinkedList();
@@ -84,8 +84,8 @@ public class RendezvousServiceMetric implements ServiceMetric {
     private ModuleClassID moduleClassID = MonitorResources.rendezvousServiceMonitorClassID;
 
     /**
-     * Create a Service Metric: No-arg constructor is required 
-     **/
+     * Create a Service Metric: No-arg constructor is required.
+     */
     public RendezvousServiceMetric() {}
 	
     private RendezvousServiceMetric(ModuleClassID moduleClassID) {
@@ -93,20 +93,22 @@ public class RendezvousServiceMetric implements ServiceMetric {
     }
 
     /**
-     * 	Initialize the metric with the ModuleClassID of the Monitor
-     **/
+     * 	Initialize the metric with the ModuleClassID of the Monitor.
+     */
     public void init(ModuleClassID moduleClassID) { 
         this.moduleClassID = moduleClassID;
     }
 
-    /** Get the ModuleClassID of the Monitor that generated this ServiceMetric **/
+    /**
+     * Get the ModuleClassID of the Monitor that generated this ServiceMetric.
+     */
     public ModuleClassID getModuleClassID() {
         return moduleClassID;
     }
 
     /**
-     * Get the General Rendezvous Metric
-     **/
+     * Get the General Rendezvous Metric.
+     */
     public RendezvousMetric getRendezvousMetric() {
         return rendezvousMetric;
     }
@@ -116,8 +118,8 @@ public class RendezvousServiceMetric implements ServiceMetric {
     }
 
     /**
-     *	Append a Client Connection Metric 
-     **/
+     *	Append a Client Connection Metric.
+     */
     public void addClientConnectionMetric(ClientConnectionMetric clientConnectionMetric) {
         synchronized (clientConnectionMetrics) {
             clientConnectionMetrics.add(clientConnectionMetric);
@@ -125,8 +127,8 @@ public class RendezvousServiceMetric implements ServiceMetric {
     }
 
     /**
-     * Get all the Client Connection Metrics 
-     **/
+     * Get all the Client Connection Metrics.
+     */
     public Iterator getClientConnectionMetrics() {
         return clientConnectionMetrics.iterator();
     }
@@ -136,8 +138,8 @@ public class RendezvousServiceMetric implements ServiceMetric {
     }
 
     /**
-     * Get the Client Connection Metrics for a single Peers ID
-     **/
+     * Get the Client Connection Metrics for a single Peers ID.
+     */
     public ClientConnectionMetric getClientConnectionMetric(PeerID peerId) {
         for (Iterator i = clientConnectionMetrics.iterator(); i.hasNext();) {
             ClientConnectionMetric clientConnectionMetric = (ClientConnectionMetric) i.next();
@@ -151,8 +153,8 @@ public class RendezvousServiceMetric implements ServiceMetric {
     }
 
     /**
-     *	Append a Rendezvous Connection Metric 
-     **/
+     *	Append a Rendezvous Connection Metric.
+     */
     public void addRendezvousConnectionMetric(RendezvousConnectionMetric rendezvousConnectionMetric) {
         synchronized (rendezvousConnectionMetrics) {
             rendezvousConnectionMetrics.add(rendezvousConnectionMetric);
@@ -160,8 +162,8 @@ public class RendezvousServiceMetric implements ServiceMetric {
     }
 
     /**
-     * Get all the Rendezvous Connection Metrics 
-     **/
+     * Get all the Rendezvous Connection Metrics.
+     */
     public Iterator getRendezvousConnectionMetrics() {
         return rendezvousConnectionMetrics.iterator();
     }
@@ -171,8 +173,8 @@ public class RendezvousServiceMetric implements ServiceMetric {
     }
 
     /**
-     * Get the Rendezvous Connection Metrics for each Peers ID
-     **/
+     * Get the Rendezvous Connection Metrics for each Peers ID.
+     */
     public RendezvousConnectionMetric getRendezvousConnectionMetric(PeerID peerID) {
         for (Iterator i = rendezvousConnectionMetrics.iterator(); i.hasNext();) {
             RendezvousConnectionMetric rendezvousConnectionMetric = (RendezvousConnectionMetric) i.next();
@@ -187,7 +189,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public void serializeTo(Element element) throws DocumentSerializationException {
         if (rendezvousMetric != null) {
             DocumentSerializableUtilities.addDocumentSerializable(element, "rendezvousMetric", rendezvousMetric);
@@ -215,7 +217,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public void initializeFrom(Element element) throws DocumentSerializationException {
         for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
             Element childElement = (TextElement) e.nextElement();
@@ -249,17 +251,18 @@ public class RendezvousServiceMetric implements ServiceMetric {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public void mergeMetrics(ServiceMetric otherServiceMetric) {
         mergeMetrics(otherServiceMetric, true, true, true);
     }
 
     /**
      * Make a deep copy of this metric only including the portions designated in the Filter
-     * The resulting metric is Safe to modify without danger to the underlying Monitor Metrics
+     * The resulting metric is Safe to modify without danger to the underlying Monitor Metrics.
+     * 
      * @param rendezvousServiceMonitorFilter Filter designates constituant parts to be included
      * @return a copy of this metric with references to the designated parts
-     **/
+     */
     public RendezvousServiceMetric deepCopy(RendezvousServiceMonitorFilter rendezvousServiceMonitorFilter) {
         RendezvousServiceMetric serviceMetric = new RendezvousServiceMetric();
 
@@ -272,12 +275,13 @@ public class RendezvousServiceMetric implements ServiceMetric {
     } 
 
     /**
-     * {@inheritDoc}
-     * <p> This will only merge the designated submetrics
+     * This will only merge the designated submetrics.
+     * 
+     * @param otherServiceMetric other metric to merge
      * @param includeRendezvousMetric Include the basic Rendezvous Metric in the merge
      * @param includeClientConnectionMetrics Include Client Connection Metrics in the merge
      * @param includeRendezvousConnectionMetrics Include Rendezvous Connection Metrics in the merge
-     **/
+     */
     public void mergeMetrics(ServiceMetric otherServiceMetric, boolean includeRendezvousMetric, boolean includeClientConnectionMetrics, boolean includeRendezvousConnectionMetrics) {
         RendezvousServiceMetric otherRendezvousServiceMetric = (RendezvousServiceMetric) otherServiceMetric;
 
@@ -325,17 +329,18 @@ public class RendezvousServiceMetric implements ServiceMetric {
 
     /**
      * {@inheritDoc}
-     **/
+     */
     public void diffMetrics(ServiceMetric otherOne) {
         throw new RuntimeException("Not Supported");
     }
 
     /**
-     * Make a shallow copy of this metric only including the portions designated in the Filter
-     * <P> Note: since this is a shallow copy it is dangerous to modify the submetrics
+     * Make a shallow copy of this metric only including the portions designated in the Filter.
+     * <P> Note: since this is a shallow copy it is dangerous to modify the submetrics.
+     * 
      * @param rendezvousServiceMonitorFilter Filter designates constituant parts to be included
      * @return a copy of this metric with references to the designated parts
-     **/
+     */
     public RendezvousServiceMetric shallowCopy(RendezvousServiceMonitorFilter rendezvousServiceMonitorFilter) {
         RendezvousServiceMetric rendezvousServiceMetric = new RendezvousServiceMetric(moduleClassID);
 

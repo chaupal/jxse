@@ -139,7 +139,7 @@ final class WorldPeerGroupID extends PeerGroupID {
     
     /**
      *  WorldPeerGroupID is not intended to be constructed. You should use the 
-     *  {@link PeerGroupID.worldPeerGroupID} constant instead.
+     *  {@link PeerGroupID#worldPeerGroupID} constant instead.
      */
     WorldPeerGroupID() {}
     
@@ -195,7 +195,7 @@ final class NetPeerGroupID extends PeerGroupID {
     
     /**
      *  NetPeerGroupID is not intended to be constructed. You should use the 
-     *  {@link PeerGroupID.defaultNetPeerGroupID} constant instead.
+     *  {@link PeerGroupID#defaultNetPeerGroupID} constant instead.
      */
     NetPeerGroupID() {}
     

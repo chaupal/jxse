@@ -518,8 +518,11 @@ href="bcprov-ext.jnlp">
             </classpath>
             <sourcepath>
                 <pathelement location="${api}" />
+                <pathelement location="${impl}" />
+                <pathelement location="${build_meter_generated}" />
             </sourcepath>
             <package name="net.jxta.*" />
+            <excludepackage name="net.jxta.impl.*" />
             <group title="JXSE API" packages="net.jxta.*" />
             <doctitle>JXSE ${net.jxta.build.version}</doctitle>
             <header>&lt;a href='http://jxta-jxse.dev.java.net' target='_blank'&gt;JXTA&lt;/a&gt;</header>
@@ -531,10 +534,15 @@ href="bcprov-ext.jnlp">
             <link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
             <link href="http://www.bouncycastle.org/docs/docs1.5/" />
             <link href="http://java.sun.com/products/servlet/2.3/javadoc/" />
-            <link href="https://jxta-docs.dev.java.net/nonav/jxse-javadoc/current/api/" offline="true" packagelistLoc="${apidoc}" />
+            <!-- The following used to reference a "current" subdir but this no longer held current apidocs -->
+            <link href="https://jxta-docs.dev.java.net/nonav/jxse-javadoc/2.5/jxse/api/" offline="true" packagelistLoc="${apidoc}" />
+            <classpath>
+                <path refid="compile.classpath" />
+            </classpath>
             <sourcepath>
                 <pathelement location="${api}" />
                 <pathelement location="${impl}" />
+                <pathelement location="${build_meter_generated}" />
             </sourcepath>
             <package name="net.jxta.impl.*" />
             <group title="JXSE Reference Implementation (see &lt;a href='#implnote'&gt;note&lt;/a&gt;)" packages="net.jxta.impl.*" />
@@ -548,9 +556,13 @@ href="bcprov-ext.jnlp">
             <link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
             <link href="http://www.bouncycastle.org/docs/docs1.5/" />
             <link href="http://java.sun.com/products/servlet/2.3/javadoc/" />
+            <classpath>
+                <path refid="compile.classpath" />
+            </classpath>
             <sourcepath>
                 <pathelement location="${api}" />
                 <pathelement location="${impl}" />
+                <pathelement location="${build_meter_generated}" />
             </sourcepath>
             <package name="net.jxta.*" />
             <group title="JXSE Reference Implementation (see &lt;a href='#implnote'&gt;note&lt;/a&gt;)" packages="net.jxta.*" />

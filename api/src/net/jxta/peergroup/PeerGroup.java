@@ -975,7 +975,7 @@ public interface PeerGroup extends Service {
      * <p/>
      * Whatever code obtains a weak interface object from a group object or
      * regular interface object, remains entirely liable for invoking 
-     * {@link unref()} on the initial object before discarding it. Giving away a
+     * {@link #unref()} on the initial object before discarding it. Giving away a
      * weak interface object is not equivalent to transferring ownership of the 
      * original.
      *

@@ -396,7 +396,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      *                  destination access point. Warning: The vector of endpoint addresses
      *                  is specified as a vector of String. Each string representing
      *                  one endpoint address.
-     * @deprecated Use {@link #addDestEndpointAddresses(List<EndpointAddress>)} instead.
+     * @deprecated Use {@link #addDestEndpointAddresses(List)} instead.
      */
     @Deprecated
     public void addDestEndpointAddresses(Vector<String> addresses) {

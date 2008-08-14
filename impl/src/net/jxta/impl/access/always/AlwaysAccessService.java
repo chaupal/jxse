@@ -94,17 +94,17 @@ import java.util.logging.Logger;
  * String "DENY" then the operation will be <code>DISALLOWED</code>.
  *
  * @see net.jxta.access.AccessService
- **/
+ */
 public class AlwaysAccessService implements AccessService {
     
     /**
-     *  log4J Logger
-     **/
+     *  Logger.
+     */
     private final static Logger LOG = Logger.getLogger(AlwaysAccessService.class.getName());
     
     /**
      *  Operation for the Always Access Service.
-     **/
+     */
     private static class AlwaysOperation implements PrivilegedOperation {
         
         AlwaysAccessService source;
@@ -126,14 +126,14 @@ public class AlwaysAccessService implements AccessService {
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public ID getPeerGroupID() {
             return source.getPeerGroup().getPeerGroupID();
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public ID getPeerID() {
             return null;
         }
@@ -142,7 +142,7 @@ public class AlwaysAccessService implements AccessService {
          * {@inheritDoc}
          *
          * <p/>AlwaysOperation are always valid.
-         **/
+         */
         public boolean isExpired() {
             return false;
         }
@@ -151,28 +151,28 @@ public class AlwaysAccessService implements AccessService {
          * {@inheritDoc}
          *
          * <p/>AlwaysOperation are always valid.
-         **/
+         */
         public boolean isValid() {
             return true;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public Object getSubject() {
             return op;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public Service getSourceService() {
             return source;
         }
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public StructuredDocument getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
             
@@ -196,7 +196,7 @@ public class AlwaysAccessService implements AccessService {
         
         /**
          * {@inheritDoc}
-         **/
+         */
         public Credential getOfferer() {
             return offerer;
         }
@@ -206,7 +206,7 @@ public class AlwaysAccessService implements AccessService {
          *
          *  @param elem the element to be processed.
          *  @return true if the element was recognized, otherwise false.
-         **/
+         */
         protected boolean handleElement(TextElement elem) {
             if (elem.getName().equals("PeerGroupID")) {
                 try {
@@ -245,7 +245,7 @@ public class AlwaysAccessService implements AccessService {
         
         /**
          *  Initialize from a portion of a structured document.
-         **/
+         */
         protected void initialize(Element root) {
             
             if (!TextElement.class.isInstance(root)) {
@@ -301,12 +301,12 @@ public class AlwaysAccessService implements AccessService {
     
     /**
      *  Default Constructor
-     **/
+     */
     public AlwaysAccessService() {}
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
         this.group = group;
@@ -329,40 +329,42 @@ public class AlwaysAccessService implements AccessService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public int startApp(String[] args) {
         return 0;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public void stopApp() {}
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdvertisement;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public AlwaysAccessService getInterface() {
         return this;
     }
     
     /**
-     * {@inheritDoc}
-     **/
+     * Get the PeerGroup this service is running in.
+     * 
+     * @return PeerGroup instance
+     */
     PeerGroup getPeerGroup() {
         return group;
     }
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public AccessResult doAccessCheck(PrivilegedOperation op, Credential cred) {
         if (null == cred) {
             return (null == op)
@@ -391,7 +393,7 @@ public class AlwaysAccessService implements AccessService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public PrivilegedOperation newPrivilegedOperation(Object subject, Credential offerer) {
         if (!(subject instanceof String)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports String subjects.");
@@ -406,7 +408,7 @@ public class AlwaysAccessService implements AccessService {
     
     /**
      * {@inheritDoc}
-     **/
+     */
     public PrivilegedOperation newPrivilegedOperation(Element source) {
         return new AlwaysOperation(this, source);
     }

@@ -303,7 +303,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
     }
 
     /**
-     * {@inheritDoc}
+     * Get a JxtaLoader instance which can be used to load modules
+     * irrespective of the PeerGroup.
+     * 
+     * @return JxtaLoader instance
      */
     public static JxtaLoader getJxtaLoader() {
         return loader;

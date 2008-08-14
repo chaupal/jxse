@@ -436,8 +436,8 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * clone of the advertisement.
      *
      * @param key The key.
-     * @return If {@code true} then the service is enabled otherwise {@false} if
-     * the service is disabled.
+     * @return If {@code true} then the service is enabled otherwise
+     * {@code false} if the service is disabled.
      */
     public boolean isSvcEnabled(ID key) {
         return !disabled.contains(key);
