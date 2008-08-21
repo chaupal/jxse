@@ -163,10 +163,7 @@ public class ContentClient {
     public void run() {
         try {
             /*
-             * Create a ContentService instance.  Normally this would be
-             * done by adding it into a PeerGroup's definition as a
-             * peer group service module.  This works just fine however,
-             * but creates a hard dependency to the implementation class.
+             * Get the PeerGroup's ContentService instance.
              */
             ContentService service = netPeerGroup.getContentService();
 
