@@ -66,12 +66,10 @@ import net.jxta.content.ContentShareListener;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.FileDocument;
 import net.jxta.document.MimeMediaType;
-import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ContentShareAdvertisement;
-import net.jxta.impl.content.ContentServiceImpl;
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -174,9 +172,7 @@ public class ContentServer {
              * peer group service module.  This works just fine however,
              * but creates a hard dependency to the implementation class.
              */
-            ContentService service = new ContentServiceImpl();
-            service.init(netPeerGroup, ContentService.MODULE_CLASS_ID, null);
-            service.startApp(new String[0]);
+            ContentService service = netPeerGroup.getContentService();
            
             /*
              * Here we setup a Content object that we plan on sharing.
@@ -232,8 +228,6 @@ public class ContentServer {
                 }
             }
             System.out.println("Exiting");
-        } catch (PeerGroupException pgx) {
-            pgx.printStackTrace(System.err);
         } catch (IOException io) {
             io.printStackTrace();
         } finally {

@@ -56,9 +56,6 @@
 
 package net.jxta.content;
 
-import java.net.URI;
-import net.jxta.id.ID;
-import net.jxta.platform.ModuleClassID;
 import net.jxta.service.Service;
 
 /**
@@ -73,15 +70,6 @@ import net.jxta.service.Service;
  * @see net.jxta.content.ContentService
  */
 public interface ContentProviderSPI extends ContentProvider, Service {
-
-    
-    /**
-     * ModuleClassID for use when defining new provider implementations.
-     */
-    static final ModuleClassID MODULE_CLASS_ID =
-            (ModuleClassID) ID.create(
-            URI.create("urn:jxta:uuid-AC3AA08FC4A14C15A78A88B4D4F8755405" ));
-    // TODO 20070911 mcumings: Update spec and impl IDs to well known IDs?
 
     /*
      * This interface simply joins the two extended interfaces together.

@@ -64,6 +64,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import net.jxta.access.AccessService;
+import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
@@ -414,6 +415,13 @@ public interface PeerGroup extends Service {
      */
     public final static ModuleClassID accessClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000001005"));
+
+    /**
+     * Well known module class identifier: content service
+     */
+    public final static ModuleClassID contentClassID =
+            ModuleClassID.create(URI.create(
+            "urn:jxta:uuid-DDC5CA55578E4AB99A0AA81D2DC6EF3F05"));
 
     /**
      * Well known group specification identifier: the platform
@@ -871,10 +879,19 @@ public interface PeerGroup extends Service {
      * Return the Access Service for this Peer Group. This service is present in
      * every Peer Group.
      *
-     * @return AccessService The Access Service for this Peer Group.
+     * @return The Access Service for this Peer Group.
      * @since JXTA 2.1
      */
     public AccessService getAccessService();
+
+    /**
+     * Return the Content Service for this Peer Group. This service is present
+     * in every Peer Group.
+     *
+     * @return The Content Service for this Peer Group.
+     * @since JXTA 2.6
+     */
+    public ContentService getContentService();
 
     // A few convenience methods. This information is available from the peer and peergroup advertisement.
 

@@ -87,6 +87,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.document.XMLDocument;
+import net.jxta.impl.content.ContentServiceImpl;
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -216,6 +217,8 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
         
+        paramAdv.addService(PeerGroup.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
+        
         // Applications
         ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
         if (null != moduleAdv) {
@@ -226,6 +229,8 @@ public class StdPeerGroup extends GenericPeerGroup {
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
         
         implAdv.setParam(paramElement);
+        
+        LOG.info("Impl Adv:\n" + implAdv);
         
         return implAdv;
     }

@@ -59,6 +59,7 @@ package net.jxta.impl.content;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -83,6 +84,7 @@ import net.jxta.content.ContentTransfer;
 import net.jxta.content.TransferException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logging;
+import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
 
@@ -93,6 +95,15 @@ import net.jxta.protocol.ModuleSpecAdvertisement;
  * which will perform the real work.
  */
 public class ContentServiceImpl implements ContentService {
+
+    /**
+     * Well known service spec identifier: reference implementation of the
+     * ContentService.
+     */
+    public final static ModuleSpecID MODULE_SPEC_ID =
+            ModuleSpecID.create(URI.create(
+            "urn:jxta:uuid-DDC5CA55578E4AB99A0AA81D2DC6EF3F"
+            + "3F7E9F18B5D84DD58D21CE9E37E19E6C06"));
 
     /**
      * Logger.

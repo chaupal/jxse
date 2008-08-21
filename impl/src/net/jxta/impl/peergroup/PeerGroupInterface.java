@@ -89,6 +89,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.content.ContentService;
 
 /**
  * Provides a pure interface object that permits interaction with the actual
@@ -623,6 +624,19 @@ class PeerGroupInterface implements PeerGroup {
         }
 
         return temp.getAccessService();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ContentService getContentService() {
+        PeerGroup temp = groupImpl;
+
+        if (unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used. {" + instance + "}");
+        }
+
+        return temp.getContentService();
     }
 
     /*

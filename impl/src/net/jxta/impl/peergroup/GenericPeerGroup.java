@@ -104,6 +104,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.content.ContentService;
 
 /**
  * Provides common services for most peer group implementations.
@@ -161,6 +162,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     private RendezVousService rendezvous;
     private PeerInfoService peerinfo;
     private AccessService access;
+    private ContentService content;
 
     /**
      * This peer's advertisement in this group.
@@ -537,6 +539,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         if (accessClassID.equals(mcid)) {
             access = (AccessService) service;
+        }
+        if (contentClassID.equals(mcid)) {
+            content = (ContentService) service;
         }
     }
 
@@ -1673,6 +1678,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
             return null;
         }
         return (AccessService) access.getInterface();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ContentService getContentService() {
+        if (content == null) {
+            return null;
+        }
+        return (ContentService) content.getInterface();
     }
 
     /**

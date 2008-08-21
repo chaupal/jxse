@@ -64,11 +64,9 @@ import net.jxta.content.ContentTransferAggregator;
 import net.jxta.content.ContentTransferAggregatorEvent;
 import net.jxta.content.ContentTransferAggregatorListener;
 import net.jxta.content.TransferException;
-import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
-import net.jxta.impl.content.ContentServiceImpl;
 import java.io.*;
 import java.net.*;
 
@@ -170,9 +168,7 @@ public class ContentClient {
              * peer group service module.  This works just fine however,
              * but creates a hard dependency to the implementation class.
              */
-            ContentService service = new ContentServiceImpl();
-            service.init(netPeerGroup, ContentService.MODULE_CLASS_ID, null);
-            service.startApp(new String[0]);
+            ContentService service = netPeerGroup.getContentService();
 
             System.out.println("Initiating Content transfer");
             // Create a transfer instance
@@ -229,8 +225,6 @@ public class ContentClient {
             }
         } catch (TransferException transx) {
             transx.printStackTrace(System.err);
-        } catch (PeerGroupException pgx) {
-            pgx.printStackTrace(System.err);
         } catch (InterruptedException intx) {
             System.out.println("Interrupted");
         } finally {
