@@ -107,6 +107,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * 
      * @deprecated will be removed in 2.8
      */
+    @Deprecated
     public static final XMLDocument STD_COMPAT =
             CompatibilityUtils.createDefaultCompatStatement();
     
@@ -118,6 +119,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * 
      * @deprecated will be removed in 2.8
      */
+    @Deprecated
     public static final String MODULE_IMPL_STD_URI =
             CompatibilityUtils.getDefaultPackageURI();
     
@@ -129,6 +131,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * 
      * @deprecated will be removed in 2.8
      */
+    @Deprecated
     public static final String MODULE_IMPL_STD_PROVIDER =
             CompatibilityUtils.getDefaultProvider();
     
