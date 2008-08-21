@@ -84,7 +84,9 @@ public class ShadowPeerGroup extends StdPeerGroup {
      *  @return The default module impl advertisement for this class.
      */
     public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
-        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.refNetPeerGroupSpecID, ShadowPeerGroup.class.getName(), "Default Network PeerGroup reference implementation");
+        ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(
+                PeerGroup.refNetPeerGroupSpecID, ShadowPeerGroup.class.getName(),
+                "Default Network PeerGroup reference implementation");
 
         // Build the param section now.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();

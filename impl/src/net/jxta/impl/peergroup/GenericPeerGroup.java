@@ -60,6 +60,7 @@ import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
+import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.exception.PeerGroupException;
@@ -68,6 +69,8 @@ import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.loader.RefJxtaLoader;
+import net.jxta.impl.protocol.PeerGroupConfigAdv;
+import net.jxta.impl.protocol.PeerGroupConfigFlag;
 import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.util.TimeUtils;
@@ -116,21 +119,36 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *  Holder for configuration parameters for groups in the process of being created.
      */
     private final static Map<ID, ConfigParams> group_configs = Collections.synchronizedMap(new HashMap<ID, ConfigParams>());
+    
+    /**
+     * Default compatibility equater instance.
+     */
+    private static final CompatibilityEquater COMP_EQ =
+            new CompatibilityEquater() {
+                public boolean compatible(Element test) {
+                    return CompatibilityUtils.isCompatible(test);
+                }
+            };
 
     /**
-     * The loader - use the getter and setter for modifying the ClassLoader for
-     * a security manager.
+     * Statically scoped JxtaLoader which is used as the root of the
+     * JXTA class loader hierarchy.  The world peer group defers to the
+     * static loader as it's parent class loader.
      * <p/>
-     * This should eventually be group scoped rather than implementation scoped.
-     * We are currently allowing classes to loaded into contexts which they
-     * should not be known. 
+     * This class loader is a concession.  Use the group-scoped loader
+     * instead.
+     * <p/>
+     * XXX 20080817 mcumings - I'd like this to go away entirely, now that
+     * each group has it's own JxtaLoader instance.  If the root loader was
+     * simply the JxtaLoader used by the WPG things would make more sense.
      */
-    private final static JxtaLoader loader = new RefJxtaLoader(new URL[0], new CompatibilityEquater() {
+    private final static JxtaLoader staticLoader =
+            new RefJxtaLoader(new URL[0], COMP_EQ);
 
-                public boolean compatible(Element test) {
-                    return StdPeerGroup.isCompatible(test);
-                }
-            });
+    /**
+     * The PeerGroup-specific JxtaLoader instance.
+     */
+    private JxtaLoader loader;
 
     /*
      * Shortcuts to well known services.
@@ -307,9 +325,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * irrespective of the PeerGroup.
      * 
      * @return JxtaLoader instance
+     * @deprecated this statically scoped JxtaLoader instance should be phased
+     *  out of use in favor of the group-scoped JxtaLoaders available via the
+     *  {@code getLoader()} method.
      */
+    @Deprecated
     public static JxtaLoader getJxtaLoader() {
-        return loader;
+        return staticLoader;
     }
 
     public GenericPeerGroup() {
@@ -384,9 +406,15 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         result.append('[');
         result.append(masterRefCount.get());
+        result.append(",");
+        result.append(loader.hashCode());
         result.append(']');
 
-        if (null != parentGroup) {
+        if (parentGroup == null) {
+            result.append(" / [");
+            result.append(staticLoader.hashCode());
+            result.append("]");
+        } else {
             result.append(" / ");
             result.append(parentGroup.toString());
         }
@@ -670,12 +698,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if ((null != implAdv.getCode()) && (null != implAdv.getUri())) {
             try {
                 // Good one. Try it.
-                Class<Module> clazz;
-
+                Class<? extends Module> clazz;
                 try {
-                    clazz = (Class<Module>) loader.findClass(implAdv.getModuleSpecID());
+                    clazz = loader.loadClass(implAdv.getModuleSpecID());
                 } catch (ClassNotFoundException notLoaded) {
-                    clazz = (Class<Module>) loader.defineClass(implAdv);
+                    clazz = loader.defineClass(implAdv);
                 }
 
                 if (null == clazz) {
@@ -1039,6 +1066,36 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 peerGroupAdvertisement.setModuleSpecID(implAdvertisement.getModuleSpecID());
             } else {
                 published = true;
+            }
+
+            // Now that we have our PeerGroupAdvertisement, we can pull out
+            // the config to see if we have any PeerGroupConfigAdv params
+            if (null == parentGroup) {
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Setting up group loader -> static loader");
+                }
+                loader = new RefJxtaLoader(new URL[0], staticLoader, COMP_EQ);
+            } else {
+                ClassLoader upLoader = parentGroup.getLoader();
+                StructuredDocument cfgDoc =
+                        peerGroupAdvertisement.getServiceParam(
+                        PeerGroup.peerGroupClassID);
+                PeerGroupConfigAdv pgca;
+                if (cfgDoc != null) {
+                    pgca = (PeerGroupConfigAdv)
+                            AdvertisementFactory.newAdvertisement((XMLElement)
+                            peerGroupAdvertisement.getServiceParam(PeerGroup.peerGroupClassID));
+                    if (pgca.isFlagSet(PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER)) {
+                        // We'll shunt to the same class loader that loaded this
+                        // class, but not the JXTA form (to prevent Module
+                        // definitions).
+                        upLoader = getClass().getClassLoader();
+                    }
+                }
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Setting up group loader -> " + upLoader);
+                }
+                loader = new RefJxtaLoader(new URL[0], upLoader, COMP_EQ);
             }
 
             // If we still do not have a config adv, make one with the minimal info in it.

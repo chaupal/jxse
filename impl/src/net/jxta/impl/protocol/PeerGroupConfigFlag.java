@@ -54,41 +54,81 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.impl;
+package net.jxta.impl.protocol;
 
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import java.util.EnumSet;
 
 /**
- *
- * @version $Id: AllTests.java,v 1.4 2003/11/26 03:55:41 gonzo Exp $
- *
- * @author james todd [gonzo at jxta dot org]
+ * Flags used in the configuration of the standard peer group.
  */
-
-public class AllTests extends TestCase {
-
-    private static final String TITLE = "net.jxta.impl suite";
-
-    public static void main(String[] args) {
-        TestRunner.run(AllTests.class);
+public enum PeerGroupConfigFlag {
+    
+    /**
+     * Configures the peer group class loader such that the parent
+     * class loader is the non-JXTA ClassLoader instance with which the
+     * GenericPeerGroup was constructed, effectively bypassing any
+     * Module definitions present in the parent groups' JxtaLoaders.
+     */
+    SHUNT_PARENT_CLASSLOADER("shuntParentClassLoader", false);
+    
+    /**
+     * Stored tag name.
+     */
+    private final String tagName;
+    
+    /**
+     * Default value for the flag if no value is specified in the data source.
+     */
+    private final boolean defaultEnabled;
+    
+    /**
+     * Initializer.
+     * 
+     * @param docTagName tag name for this flag when it appears in a
+     *  {@code PeerGroupConfigAdv} document.
+     * @param defEnabled {@code true} if the flag should be considered enabled
+     *  if no specific flag state is specified, {@code false} otherwise
+     */
+    PeerGroupConfigFlag(final String docTagName, final boolean defEnabled) {
+        tagName = docTagName;
+        defaultEnabled = defEnabled;
     }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TITLE);
-
-        suite.addTest(net.jxta.impl.peergroup.PeerGroupTest.suite());
-        suite.addTest(net.jxta.impl.content.AllTests.suite());
-        suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
-
-        return suite;
+    
+    /**
+     * Gets the tag name which is used to store this flag in a
+     * {@code PeerGroupConfigAdv} document.
+     * 
+     * @return document tag name
+     */
+    public String getTagName() {
+        return tagName;
     }
-
-    public AllTests(String name) {
-        super(name);
+    
+    /**
+     * Gets the flags default state in a situation where no information is
+     * specifically provided as to which state it should be in.
+     * 
+     * @return {@code true} if the flag should be considered enabled by default,
+     *  {@code false} otherwise.
+     */
+    public boolean isDefaultEnabled() {
+        return defaultEnabled;
+    }
+    
+    /**
+     * Returns a set of all the flags which are enabled by default.
+     * 
+     * @return set containing only those flag values which are
+     *  enabled by default
+     */
+    public static EnumSet<PeerGroupConfigFlag> getDefaultFlags() {
+        EnumSet<PeerGroupConfigFlag> result =
+                EnumSet.noneOf(PeerGroupConfigFlag.class);
+        for (PeerGroupConfigFlag flag : values()) {
+            if (flag.isDefaultEnabled()) {
+                result.add(flag);
+            }
+        }
+        return result;
     }
 }

@@ -64,6 +64,7 @@ import net.jxta.logging.Logging;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,6 +102,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
     private final static String PEERGROUP_ID_TAG = "PeerGroupID";
     private final static String PEERGROUP_NAME_TAG = "PeerGroupName";
     private final static String PEERGROUP_DESC_TAG = "PeerGroupDesc";
+    private final static String ATTR_ENABLED = "enabled";
 
     /**
      * Instantiator for PeerGroupConfigAdv
@@ -126,7 +128,8 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
          */
         public Advertisement newInstance(Element root) {
             if (!XMLElement.class.isInstance(root)) {
-                throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
+                throw new IllegalArgumentException(
+                        getClass().getName() + " only supports XLMElement");
             }
 
             return new PeerGroupConfigAdv((XMLElement) root);
@@ -147,6 +150,12 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
      * Descriptive meta-data about this peer group.
      */
     private Element description = null;
+
+    /**
+     * Set of all the configuration flags which are currently set.
+     */
+    private final EnumSet<PeerGroupConfigFlag> flags =
+            EnumSet.copyOf(PeerGroupConfigFlag.getDefaultFlags());
 
     /**
      * Returns the identifying type of this Advertisement.
@@ -247,6 +256,27 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
             return true;
         }
 
+        for (PeerGroupConfigFlag flag : PeerGroupConfigFlag.values()) {
+            if (flag.getTagName().equals(elem.getName())) {
+                Attribute attr = elem.getAttribute(ATTR_ENABLED);
+                if (attr == null) {
+                    throw(new IllegalArgumentException(
+                            "Enabled attribute not found on element: "
+                            + flag.getTagName()));
+                }
+                
+                boolean isSet = Boolean.parseBoolean(attr.getValue());
+                if (isSet) {
+                    flags.add(flag);
+                } else {
+                    flags.remove(flag);
+                }
+                
+                // We found it so early-out.
+                return true;
+            }
+        }
+                
         return false;
     }
 
@@ -304,6 +334,9 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
         }
 
         StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
+        if (!(adv instanceof Attributable)) {
+            throw new IllegalStateException("Only Attributable documents are supported.");
+        }
 
         Element e = adv.createElement(PEERGROUP_ID_TAG, getPeerGroupID().toString());
 
@@ -317,9 +350,22 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
 
         // desc is optional
         StructuredDocument desc = getDesc();
-
         if (desc != null) {
             StructuredDocumentUtils.copyElements(adv, adv, desc);
+        }
+        
+        // flags are optional, where lack of presence indicates default value
+        for (PeerGroupConfigFlag flag : PeerGroupConfigFlag.values()) {
+            boolean isSet = flags.contains(flag);
+            if ((flag.isDefaultEnabled() && !isSet)
+                || (!flag.isDefaultEnabled() && isSet)) {
+                // Flag deviates from default value.  Document it.
+                e = adv.createElement(flag.getTagName());
+                adv.appendChild(e);
+
+                Attributable attrAble = (Attributable) e;
+                attrAble.addAttribute(ATTR_ENABLED, Boolean.toString(isSet));
+            }
         }
 
         return adv;
@@ -429,4 +475,25 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
             this.description = null;
         }
     }
+    
+    /**
+     * Sets a config flag within this config document.
+     * 
+     * @param flag flag to set/enable/activate
+     */
+    public void setFlag(PeerGroupConfigFlag flag) {
+        flags.add(flag);
+    }
+    
+    /**
+     * Determines if the specified flag is set/enabled/activated within this
+     * config document.
+     * 
+     * @param flag flag to query for
+     * @return {@code true} if it is, {@code false} otherwise
+     */
+    public boolean isFlagSet(PeerGroupConfigFlag flag) {
+        return flags.contains(flag);
+    }
+
 }

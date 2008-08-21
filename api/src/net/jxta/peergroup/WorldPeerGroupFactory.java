@@ -233,9 +233,6 @@ public final class WorldPeerGroupFactory {
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
             
         try {
-            // XXX 20070713 bondolo Temporary hack to resolve class load order issue. StdPeerGroup is responsible for initializing standard modules.
-            String unused = net.jxta.impl.peergroup.StdPeerGroup.STD_COMPAT.toString();
-            
             JxtaLoader loader = net.jxta.impl.peergroup.GenericPeerGroup.getJxtaLoader();
             
             ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);

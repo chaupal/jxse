@@ -57,12 +57,8 @@ package net.jxta.impl.peergroup;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.TextElement;
-import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
@@ -81,23 +77,16 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.document.XMLDocument;
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -110,122 +99,45 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     private final static transient Logger LOG = Logger.getLogger(StdPeerGroup.class.getName());
     
-    // A few things common to all ImplAdv for built-in things.
-    public static final XMLDocument STD_COMPAT = mkCS();
-    public static final String MODULE_IMPL_STD_URI = "http://jxta-jxse.dev.java.net/download/jxta.jar";
-    public static final String MODULE_IMPL_STD_PROVIDER = "sun.com";
-    
-    protected static final String STD_COMPAT_FORMAT = "Efmt";
+    /**
+     * This field is for backwards compatibility with broken code and will
+     * be removed in the near future.  The correct way to obtain a compatibility
+     * statement is to obtain it from a peer group's implementation
+     * advertisement.
+     * 
+     * @deprecated will be removed in 2.8
+     */
+    public static final XMLDocument STD_COMPAT =
+            CompatibilityUtils.createDefaultCompatStatement();
     
     /**
-     * The Specification title and Specification version we require.
+     * This field is for backwards compatibility with broken code and will
+     * be removed in the near future.  The correct way to obtain this
+     * information is to obtain it from a peer group's implementation
+     * advertisement.
+     * 
+     * @deprecated will be removed in 2.8
      */
-    protected static final String STD_COMPAT_FORMAT_VALUE = "JRE1.5";
-    protected static final String STD_COMPAT_BINDING = "Bind";
-    protected static final String STD_COMPAT_BINDING_VALUE = "V2.0 Ref Impl";
+    public static final String MODULE_IMPL_STD_URI =
+            CompatibilityUtils.getDefaultPackageURI();
     
+    /**
+     * This field is for backwards compatibility with broken code and will
+     * be removed in the near future.  The correct way to obtain this
+     * information is to obtain it from a peer group's implementation
+     * advertisement.
+     * 
+     * @deprecated will be removed in 2.8
+     */
+    public static final String MODULE_IMPL_STD_PROVIDER =
+            CompatibilityUtils.getDefaultProvider();
+    
+    /**
+     * Static initializer.
+     */
     static {
-        // Initialize the JXTA class loader with the standard modules.
-        try {
-            Enumeration<URL> allProviderLists = GenericPeerGroup.class.getClassLoader().getResources("META-INF/services/net.jxta.platform.Module");
-            for (URL providers : Collections.list(allProviderLists)) {
-                registerFromFile(providers);
-            }
-        } catch (IOException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to locate provider lists", ex);
-            }
-        }
-        
         // XXX Force redefinition of StdPeerGroup implAdvertisement.
         getJxtaLoader().defineClass(getDefaultModuleImplAdvertisement());
-    }
-    
-    /**
-     * Register instance classes given a URL to a file containing modules which
-     * must be found on the current class path. Each line of the file contains a 
-     * module spec ID, the class name and the Module description. The fields are 
-     * separated by whitespace. Comments are marked with a '#', the pound sign. 
-     * Any text following # on any line in the file is ignored.
-     *
-     * @param providers The URL to a file containing a list of providers.
-     * @return {@code true} if at least one of the instance classes could be
-     * registered otherwise {@code false}.
-     */
-    private static boolean registerFromFile(URL providers) {
-        boolean registeredSomething = false;
-        InputStream urlStream = null;
-        
-        try {
-            urlStream = providers.openStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
-            
-            String provider;
-            while ((provider = reader.readLine()) != null) {
-                int comment = provider.indexOf('#');
-                
-                if (comment != -1) {
-                    provider = provider.substring(0, comment);
-                }
-                
-                provider = provider.trim();
-                
-                if (0 == provider.length()) {
-                    continue;
-                }
-                
-                try {
-                    String[] parts = provider.split("\\s", 3);
-                    
-                    if (3 == parts.length) {
-                        ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
-                        String code = parts[1];
-                        String description = parts[2];
-                        
-                        ModuleImplAdvertisement moduleImplAdv;
-                        
-                        try {
-                            Class<Module> moduleClass = (Class<Module>) Class.forName(code);
-                            
-                            Method getImplAdvMethod = moduleClass.getMethod("getDefaultModuleImplAdvertisement");
-                            
-                            moduleImplAdv = (ModuleImplAdvertisement) getImplAdvMethod.invoke(null);
-                        } catch(Exception failed) {
-                            // Use default ModuleImplAdvertisement.
-                            moduleImplAdv = StdPeerGroup.mkImplAdvBuiltin(msid, code, description);
-                        }
-                        
-                        getJxtaLoader().defineClass(moduleImplAdv);
-                        
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Registered Module " + msid + " : " + parts[1] + "(" + parts[2] + ")");
-                        }
-                    } else {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'");
-                        }
-                    }
-                } catch (Exception allElse) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'", allElse);
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to read provider list " + providers, ex);
-            }
-        } finally {
-            if (null != urlStream) {
-                try {
-                    urlStream.close();
-                } catch (IOException ignored) {
-                    
-                }
-            }
-        }
-        
-        return registeredSomething;
     }
     
     /**
@@ -266,51 +178,15 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     private Cm cm = null;
     
-    private static XMLDocument mkCS() {
-        XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
-        
-        XMLElement e = doc.createElement(STD_COMPAT_FORMAT, STD_COMPAT_FORMAT_VALUE);
-        
-        doc.appendChild(e);
-        
-        e = doc.createElement(STD_COMPAT_BINDING, STD_COMPAT_BINDING_VALUE);
-        doc.appendChild(e);
-        return doc;
-    }
-    
-    /**
-     * An internal convenience method essentially for bootstrapping.
-     * Make a standard ModuleImplAdv for any service that comes builtin this
-     * reference implementation.
-     * In most cases there are no params, so we do not take that argument.
-     * The invoker may add params afterwards.
-     *
-     * @param specID spec ID
-     * @param code   code uri
-     * @param descr  description
-     * @return a ModuleImplAdvertisement
-     */
-    static ModuleImplAdvertisement mkImplAdvBuiltin(ModuleSpecID specID, String code, String descr) {
-        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement)
-        AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
-        
-        implAdv.setModuleSpecID(specID);
-        implAdv.setCompat(STD_COMPAT);
-        implAdv.setCode(code);
-        implAdv.setUri(MODULE_IMPL_STD_URI);
-        implAdv.setProvider(MODULE_IMPL_STD_PROVIDER);
-        implAdv.setDescription(descr);
-        
-        return implAdv;
-    }
-    
     /**
      *  Create and populate the default module impl Advertisement for this class.
      *
      *  @return The default module impl advertisement for this class.
      */
     private static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
-        ModuleImplAdvertisement implAdv = mkImplAdvBuiltin(PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(), "General Purpose Peer Group Implementation");
+        ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(
+                PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(),
+                "General Purpose Peer Group Implementation");
         
         // Create the service list for the group.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv();
@@ -355,6 +231,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      * constructor
      */
     public StdPeerGroup() {
+        // Empty
     }
     
     /**
@@ -362,73 +239,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     // @Override
     public boolean compatible(Element compat) {
-        return isCompatible(compat);
-    }
-    
-    /**
-     * Evaluates if the given compatibility statement makes the module that
-     * bears it is loadable by this group.
-     *
-     * @param compat The compatibility statement being tested.
-     * @return {@code true} if we are compatible with the provided statement
-     * otherwise {@code false}.
-     */
-    static boolean isCompatible(Element compat) {
-        boolean formatOk = false;
-        boolean bindingOk = false;
-        
-        if(!(compat instanceof TextElement)) {
-            return false;
-        }
-        
-        try {
-            Enumeration<TextElement> hisChildren = ((TextElement)compat).getChildren();
-            int i = 0;
-            while (hisChildren.hasMoreElements()) {
-                // Stop after 2 elements; there shall not be more.
-                if (++i > 2) {
-                    return false;
-                }
-                
-                TextElement e = hisChildren.nextElement();
-                String key = e.getKey();
-                String val = e.getValue().trim();
-                
-                if (STD_COMPAT_FORMAT.equals(key)) {
-                    Package javaLangPackage = Package.getPackage("java.lang");
-                    
-                    boolean specMatches;
-                    String version;
-                    
-                    if (val.startsWith("JDK") || val.startsWith("JRE")) {
-                        specMatches = true;
-                        version = val.substring(3).trim(); // allow for spaces.
-                    } else if (val.startsWith(javaLangPackage.getSpecificationTitle())) {
-                        specMatches = true;
-                        version = val.substring(javaLangPackage.getSpecificationTitle().length()).trim(); // allow for spaces.
-                    } else {
-                        specMatches = false;
-                        version = null;
-                    }
-
-                    formatOk = specMatches && javaLangPackage.isCompatibleWith(version);
-                } else if (STD_COMPAT_BINDING.equals(key) && STD_COMPAT_BINDING_VALUE.equals(val)) {
-                    bindingOk = true;
-                } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Bad element in compatibility statement : " + key);
-                    }
-                    return false; // Might as well stop right now.
-                }
-            }
-        } catch (Exception any) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure handling compatibility statement", any);
-            }
-            return false;
-        }
-        
-        return formatOk && bindingOk;
+        return CompatibilityUtils.isCompatible(compat);
     }
     
     /**
@@ -875,7 +686,8 @@ public class StdPeerGroup extends GenericPeerGroup {
             
             configInfo.append("\n\tConfiguration :");
             configInfo.append("\n\t\tCompatibility Statement :\n\t\t\t");
-            StringBuilder indent = new StringBuilder(STD_COMPAT.toString().trim());
+            StringBuilder indent = new StringBuilder(
+                    CompatibilityUtils.createDefaultCompatStatement().toString().trim());
             int from = indent.length();
             
             while (from > 0) {
@@ -929,7 +741,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        JxtaLoader loader = getJxtaLoader();
+        JxtaLoader loader = getLoader();
         
         // grab an impl adv
         ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.allPurposePeerGroupSpecID);
