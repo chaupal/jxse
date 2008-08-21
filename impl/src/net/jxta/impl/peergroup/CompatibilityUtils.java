@@ -118,6 +118,7 @@ public final class CompatibilityUtils {
      * @return default module impl package URI
      * @deprecated will be removed in 2.8
      */
+    @Deprecated
     public static String getDefaultPackageURI() {
         return MODULE_IMPL_STD_URI;
     }
@@ -129,6 +130,7 @@ public final class CompatibilityUtils {
      * @return default module impl provider
      * @deprecated will be removed in 2.8
      */
+    @Deprecated
     public static String getDefaultProvider() {
         return MODULE_IMPL_STD_PROVIDER;
     }
