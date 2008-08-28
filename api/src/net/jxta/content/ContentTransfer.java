@@ -190,7 +190,8 @@ public interface ContentTransfer {
 
     /**
      * Wait for the completion of the transfer for a maximum of timeout
-     * milliseconds.
+     * milliseconds.  If the timeout expires, the method will return
+     * without raising an exception.
      *
      * @param timeout maximum amount of time to wait, in milliseconds
      * @throws InterruptedException when the thread is interrupted.
@@ -203,8 +204,8 @@ public interface ContentTransfer {
     throws InterruptedException, TransferException;
 
     /**
-     * Blocks until the Content transfer has completed and then returns the
-     * completed Content.
+     * Blocks until the Content transfer has completed (or failed) and then
+     * returns the completed Content.
      *
      * @throws InterruptedException when the thread is interrupted.
      * @throws TransferException if there is an unrecoverable problem during
