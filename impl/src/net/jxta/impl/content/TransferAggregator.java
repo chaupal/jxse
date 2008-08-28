@@ -235,6 +235,10 @@ public class TransferAggregator
                         LOG.fine("Provider returned null transfer: " + prov);
                     }
                 } else {
+                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                        LOG.finer("Provider '" + prov + "' returned transfer: "
+                                + transfer);
+                    }
                     idle.add(transfer);
                     transfer.addContentTransferListener(this);
                 }
@@ -285,7 +289,7 @@ public class TransferAggregator
     public void startSourceLocation() {
         // Map to our next state or early out if we can
         synchronized(this) {
-            if (locationState.isLocating()) {
+            if (transferState.isSuccessful() || locationState.isLocating()) {
                 // Nothing to do
                 return;
             }
@@ -386,14 +390,19 @@ public class TransferAggregator
      */
     public void waitFor(long timeout)
     throws InterruptedException, TransferException {
+        long exitTime = System.currentTimeMillis() + timeout;
+        long remaining = timeout;
         synchronized(this) {
-            do {
-                checkTransferState();
-                if (transferState.isFinished()) {
-                    return;
+            checkTransferState();
+            while (!transferState.isFinished()) {
+                wait(remaining);
+                if (timeout > 0) {
+                    remaining = exitTime - System.currentTimeMillis();
+                    if (remaining <= 0) {
+                        return;
+                    }
                 }
-                wait(timeout);
-            } while (true);
+            }
         }
     }
 
@@ -402,7 +411,14 @@ public class TransferAggregator
      */
     public Content getContent() throws TransferException {
         checkTransferState();
-        return content;
+        do {
+            try {
+                waitFor();
+                return content;
+            } catch (InterruptedException intx) {
+                // Ignore
+            }
+        } while (true);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -798,7 +814,7 @@ public class TransferAggregator
                     }
                     throw(new TransferException("Transfer failed"));
                 }
-            } else if (!transferState.isRetrieving()) {
+            } else if (!transferState.isRetrieving() && selected != null) {
                 // Make sure the transfer has started
                 selected.startTransfer(destFile);
             }
