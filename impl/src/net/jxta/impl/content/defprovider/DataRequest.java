@@ -275,14 +275,14 @@ public class DataRequest {
     }
 
     /**
-     * Sets the Codat ID of this request.
+     * Sets the Content ID of this request.
      */
     public void setContentID(ContentID id) {
         this.id = id;
     }
 
     /**
-     * Returns Codat ID of this request.
+     * Returns Content ID of this request.
      */
     public ContentID getContentID() {
         return id;

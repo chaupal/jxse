@@ -80,12 +80,12 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
      * Creates a new instance of ContentTransferAggregatorEvent.
      *
      * @param source ContentTransferAggregator issueing this event
-     * @param codatTransfer ContentTransfer to which this event pertains
+     * @param contentTransfer ContentTransfer to which this event pertains
      */
     public ContentTransferAggregatorEvent(
-            ContentTransferAggregator source, ContentTransfer codatTransfer) {
+            ContentTransferAggregator source, ContentTransfer contentTransfer) {
         super(source);
-        delegate = codatTransfer;
+        delegate = contentTransfer;
     }
 
     /**
@@ -104,6 +104,25 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
      */
     public ContentTransfer getDelegateContentTransfer() {
         return delegate;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        builder.append(getClass().getSimpleName());
+        builder.append(": source=");
+        builder.append(source);
+        if (delegate != null) {
+            builder.append(", delegate=");
+            builder.append(delegate);
+        }
+        builder.append("]");
+        return builder.toString();
     }
 
 }

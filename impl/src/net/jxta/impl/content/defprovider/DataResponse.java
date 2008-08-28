@@ -180,7 +180,7 @@ public class DataResponse {
                 contentId = (ContentID) IDFactory.fromURI( uri );
                 setContentID(contentId);
             } catch ( URISyntaxException badID ) {
-                throw new IllegalArgumentException("Bad codat ID in response", badID);
+                throw new IllegalArgumentException("Bad Content ID in response", badID);
             }
             return true;
         } else if (elem.getName().equals(tagOffs)) {

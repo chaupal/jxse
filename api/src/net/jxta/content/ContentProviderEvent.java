@@ -117,7 +117,7 @@ public class ContentProviderEvent extends EventObject {
     /**
      * Creates a new instance of ContentProviderEvent.  This is the full form
      * of the constructor and is typically used to support the
-     * <code>findCodatShares</code> capability.
+     * <code>findContentShares</code> capability.
      *
      * @param source ContentProvider issueing this event
      * @param id ContentID of the Content which this event pertains to

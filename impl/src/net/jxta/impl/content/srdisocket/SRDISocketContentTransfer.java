@@ -128,7 +128,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
             + ".discoveryTreshold", 10).intValue();
 
     /**
-     * The buffer size used when retrieving remote Codat data.
+     * The buffer size used when retrieving remote Content data.
      */
     private static final int BUFFER_SIZE =
             Integer.getInteger(SRDISocketContentTransfer.class.getName()

@@ -211,5 +211,31 @@ public class ContentTransferEvent extends EventObject {
     public Long getBytesTotal() {
         return bytesTotal;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        builder.append(getClass().getSimpleName());
+        builder.append(": source=");
+        builder.append(source);
+        if (locationCount != null) {
+            builder.append(", locationCount=");
+            builder.append(locationCount);
+        }
+        if (locationState != null) {
+            builder.append(", locationState=");
+            builder.append(locationState);
+        }
+        if (transferState != null) {
+            builder.append(", transferState=");
+            builder.append(transferState);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 
 }
