@@ -82,6 +82,7 @@ import net.jxta.content.ContentTransfer;
 import net.jxta.content.ContentProviderSPI;
 import net.jxta.content.ContentProviderEvent;
 import net.jxta.content.ContentProviderListener;
+import net.jxta.content.NullContentTransfer;
 import net.jxta.endpoint.Message;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.id.ID;
@@ -422,15 +423,22 @@ public class DefaultContentProvider implements
     /**
      * {@inheritDoc}
      */
-    public synchronized ContentTransfer retrieveContent(ContentID contentID) {
+    public ContentTransfer retrieveContent(ContentID contentID) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("retrieveContent(" + contentID + ")");
         }
-        if (running) {
-            return new DefaultContentTransfer(this, executor, peerGroup, contentID);
-        } else {
-            return null;
+        synchronized(this) {
+            if (!running) {
+                return null;
+            }
         }
+        synchronized(shares) {
+            ContentShare share = getShare(contentID);
+            if (share != null) {
+                //return new NullContentTransfer(this, share.getContent());
+            }
+        }
+        return new DefaultContentTransfer(this, executor, peerGroup, contentID);
     }
 
     /**
@@ -440,11 +448,18 @@ public class DefaultContentProvider implements
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("retrieveContent(" + adv + ")");
         }
-        if (running) {
-            return new DefaultContentTransfer(this, executor, peerGroup, adv);
-        } else {
-            return null;
+        synchronized(this) {
+            if (!running) {
+                return null;
+            }
         }
+        synchronized(shares) {
+            ContentShare share = getShare(adv.getContentID());
+            if (share != null) {
+                return new NullContentTransfer(this, share.getContent());
+            }
+        }
+        return new DefaultContentTransfer(this, executor, peerGroup, adv);
     }
 
     /**
@@ -452,7 +467,7 @@ public class DefaultContentProvider implements
      */
     public List<ContentShare> shareContent(Content content) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("shareCodat(): Content=" + content);
+            LOG.fine("shareContent(): Content=" + content);
         }
 
         PipeAdvertisement pAdv;
@@ -536,6 +551,8 @@ public class DefaultContentProvider implements
 
     /**
      * Returns the peer peerGroup the service is running in.
+     * 
+     * @return peer group the service is running in
      */
     protected PeerGroup getPeerGroup() {
         return peerGroup;
@@ -546,6 +563,8 @@ public class DefaultContentProvider implements
 
     /**
      * Processes incoming Content service requests.
+     * 
+     * @param pme incoming pipe message event
      */
     public synchronized void pipeMsgEvent(PipeMsgEvent pme) {
         if (!running) {
@@ -584,7 +603,7 @@ public class DefaultContentProvider implements
     // Private methods:
 
     /**
-     * Returns the content share entry for the specified CodatID.
+     * Returns the content share entry for the specified ContentID.
      *
      * @return content share
      */

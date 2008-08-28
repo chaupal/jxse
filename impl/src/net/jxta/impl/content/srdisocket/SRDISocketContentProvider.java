@@ -87,6 +87,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.content.ContentShare;
 import net.jxta.content.ContentTransfer;
+import net.jxta.content.NullContentTransfer;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
@@ -367,6 +368,12 @@ public class SRDISocketContentProvider
                 return null;
             }
         }
+        synchronized(shares) {
+            ContentShare share = getShare(contentID);
+            if (share != null) {
+                return new NullContentTransfer(this, share.getContent());
+            }
+        }
         return new SRDISocketContentTransfer(
                 this, executor, peerGroup, contentID);
     }
@@ -383,6 +390,12 @@ public class SRDISocketContentProvider
                 return null;
             }
         }
+        synchronized(shares) {
+            ContentShare share = getShare(adv.getContentID());
+            if (share != null) {
+                return new NullContentTransfer(this, share.getContent());
+            }
+        }
         return new SRDISocketContentTransfer(this, executor, peerGroup, adv);
 
     }
@@ -392,7 +405,7 @@ public class SRDISocketContentProvider
      */
     public List<ContentShare> shareContent(Content content) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("shareCodat(): Content=" + content);
+            LOG.fine("shareContent(): Content=" + content);
         }
 
         PipeAdvertisement pAdv;
@@ -614,7 +627,7 @@ public class SRDISocketContentProvider
     }
 
     /**
-     * Returns the content share entry for the specified CodatID.
+     * Returns the content share entry for the specified ContentID.
      *
      * @return content share
      */
