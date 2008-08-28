@@ -63,7 +63,9 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -243,7 +245,7 @@ public class ContentServiceImpl implements ContentService {
             configInfo.append( "\n\t\tPeer ID : " + group.getPeerID() );
 
             configInfo.append( "\n\tProviders: ");
-            for (ContentProviderSPI provider : providers) {
+            for (ContentProviderSPI provider : toAdd) {
                 configInfo.append( "\n\t\tProvider: " + provider );
             }
             
@@ -574,70 +576,83 @@ public class ContentServiceImpl implements ContentService {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Locating providers");
         }
+        
+        Enumeration resources;
         try {
-            Enumeration resources = loader.getResources(
+            resources = loader.getResources(
                     "META-INF/services/" + ContentProviderSPI.class.getName());
-            while (resources.hasMoreElements()) {
-                URL resURL = (URL) resources.nextElement();
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("   Provider source:" + resURL);
-                }
-                try {
-                    InputStreamReader inReader =
-                            new InputStreamReader(resURL.openStream());
-                    BufferedReader reader = new BufferedReader(inReader);
-                    String str;
-
-                    while ((str = reader.readLine()) != null) {
-                        int idx = str.indexOf('#');
-                        if (idx >= 0) {
-                            str = str.substring(0, idx);
-                        }
-                        str = str.trim();
-                        if (str.length() == 0) {
-                            // Probably a commented line
-                            continue;
-                        }
-
-                        try {
-                            Class cl = loader.loadClass(str);
-                            provider = (ContentProviderSPI) cl.newInstance();
-                            result.add(provider);
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("Added provider: " + str);
-                            }
-                        } catch (ClassNotFoundException cnfx) {
-                            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                                LOG.log(Level.SEVERE,
-                                        "Could not load service provider", cnfx);
-                            }
-                            // Continue to next provider class name
-                        } catch (InstantiationException instx) {
-                            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                                LOG.log(Level.SEVERE,
-                                        "Could not load service provider", instx);
-                            }
-                            // Continue to next provider class name
-                        } catch (IllegalAccessException iaccx) {
-                            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                                LOG.log(Level.SEVERE,
-                                        "Could not load service provider", iaccx);
-                            }
-                            // Continue to next provider class name
-                        }
-                    }
-                } catch (IOException iox2) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "Could not inspect resource", iox2);
-                    }
-                    // Continue to next resource URL
-                }
-            }
         } catch (IOException iox) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not probe for providers", iox);
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING,
+                        "Unable to enumerate ContentProviders", iox);
+            }
+            // Early-out.
+            return result;
+        }
+        
+        // Create a Set of all unique class names
+        Set<String> provClassNames = new HashSet<String>();
+        while (resources.hasMoreElements()) {
+            URL resURL = (URL) resources.nextElement();
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("   Provider services resource: " + resURL);
+            }
+            try {
+                InputStreamReader inReader =
+                        new InputStreamReader(resURL.openStream());
+                BufferedReader reader = new BufferedReader(inReader);
+                String str;
+
+                while ((str = reader.readLine()) != null) {
+                    int idx = str.indexOf('#');
+                    if (idx >= 0) {
+                        str = str.substring(0, idx);
+                    }
+                    str = str.trim();
+                    if (str.length() == 0) {
+                        // Probably a commented line
+                        continue;
+                    }
+                    provClassNames.add(str);
+                }
+            } catch (IOException iox) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING,
+                            "Could not parse ContentProvider services from: "
+                            + resURL, iox);
+                }
             }
         }
+         
+        // Now attempt to instantiate all the providers we've found
+        for (String str : provClassNames) {
+            try {
+                Class cl = loader.loadClass(str);
+                provider = (ContentProviderSPI) cl.newInstance();
+                result.add(provider);
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Added provider: " + str);
+                }
+            } catch (ClassNotFoundException cnfx) {
+                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE,
+                            "Could not load service provider", cnfx);
+                }
+                // Continue to next provider class name
+            } catch (InstantiationException instx) {
+                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE,
+                            "Could not load service provider", instx);
+                }
+                // Continue to next provider class name
+            } catch (IllegalAccessException iaccx) {
+                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE,
+                            "Could not load service provider", iaccx);
+                }
+                // Continue to next provider class name
+            }
+        }            
 
         return result;
     }
