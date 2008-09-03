@@ -128,7 +128,6 @@ public class LRUCache<K, V> {
             node = new CacheNode<K, V>(key, value);
         }
         node.value = value;
-        node.key = key;
         moveToHead(node);
         nodes.put(key, node);
     }
@@ -181,7 +180,7 @@ public class LRUCache<K, V> {
      * cache node object wrapper
      */
     protected class CacheNode<K, V> {
-        K key;
+        final K key;
         CacheNode<K, V> next;
 
         CacheNode<K, V> prev;
