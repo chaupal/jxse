@@ -62,16 +62,17 @@ import net.jxta.credential.AuthenticationCredential;
 
 /**
  * An Authenticator is returned by the
- * {@linkplain MembershipService#apply(AuthenticationCredential) apply()} to the
- * Membership Service of a peergroup. The Membership
- When the authenticator has been completed it is
- * returned to the Membership Service via the "Join" operation.
+ * {@link MembershipService#apply(AuthenticationCredential) apply()} 
+ * method of the Membership Service of a peergroup. When the authenticator has 
+ * been completed it is returned to the Membership Service via the 
+ * {@link MembershipService#join(Authenticator) join()}  
+ * operation.
  *
- * <p/>The mechanism for completing the authentication object is unique for each
+ * <p/>The mechanism for completing authentication is unique for each
  * authentication method. (That's the whole point of writing a Membership
- * Service). The only common operation is <code>isReadyForJoin</code>, which
- * provides information as to whether you have completed the authenticator
- * correctly.
+ * Service/Authentication). The only common operation is 
+ * {@code isReadyForJoin()}, which provides confirmation as to whether you 
+ * have completed the authenticator correctly.
  *
  * @see net.jxta.membership.MembershipService
  * @see net.jxta.credential.Credential
@@ -107,18 +108,27 @@ public interface Authenticator {
     public MembershipService  getSourceService();
     
     /**
-     * Returns true if this Authenticator has been satisfied and is ready
-     * for submission to {@link MembershipService#join(Authenticator)}. Some
-     * authenticators may behave asynchronously and this method can be used to
-     * determine if the authentication process has completed.
-     * <p/>This method provides no distinction between incomplete authentication
+     * Returns {@code true} if the minimal requirements of this Authenticator 
+     * have been satisfied and it is  ready for submission to 
+     * {@link MembershipService#join(Authenticator)}.
+     * <p/>
+     * Membership services may use this method in a variety of ways. The 
+     * simplest (and most common) usage is to ensure that all of the required
+     * authentication parameters have acceptable (not necessarily correct) 
+     * values. Some authenticators may behave asynchronously and this method can 
+     * be used to determine if the authentication process has completed.
+     * <p/>
+     * In all cases {@link #isReadyForJoin()} should be lower cost than calling
+     * {@link MembershipService#join(Authenticator)}.
+     * <p/>
+     * This method provides no distinction between incomplete authentication
      * and failed authentication.
      *
      * @see MembershipService#join(Authenticator)
      *
-     * @return true if the authenticator object is complete and ready for
-     * submitting to the Membership Service service for 
-     * {@link MembershipService#join(Authenticator)}, otherwise false.
+     * @return {@code true} if the authenticator is "complete" and ready for
+     * submitting to {@link MembershipService#join(Authenticator)}, otherwise 
+     * {@code false}.
      **/
     public boolean  isReadyForJoin();
 }
