@@ -731,7 +731,8 @@ href="bcprov-ext.jnlp">
                 <pathelement location="${impl}" />
                 <pathelement location="${basedir}" />
             </classpath>
-            <batchtest fork="yes">
+            <formatter type="plain"/>
+            <batchtest fork="yes" todir="${tmp}">
                 <fileset dir="${test}"
                     includesfile="${test_junit_includes}"
                     excludesfile="${test_junit_excludes}"
