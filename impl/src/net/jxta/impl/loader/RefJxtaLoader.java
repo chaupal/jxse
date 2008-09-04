@@ -56,6 +56,10 @@
 package net.jxta.impl.loader;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import net.jxta.content.ContentTransferAggregatorEvent;
+import net.jxta.content.ContentTransferEvent;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
@@ -65,6 +69,15 @@ import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.content.Content;
+import net.jxta.content.ContentID;
+import net.jxta.content.ContentService;
+import net.jxta.content.ContentTransfer;
+import net.jxta.content.TransferException;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.impl.peergroup.CompatibilityUtils;
+import net.jxta.peergroup.PeerGroup;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,6 +86,7 @@ import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +97,10 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.impl.peergroup.CompatibilityUtils;
+import net.jxta.content.ContentTransferAggregator;
+import net.jxta.content.ContentTransferAggregatorListener;
+import net.jxta.content.ContentTransferListener;
+import net.jxta.impl.content.TransferAggregator;
 
 
 /**
@@ -96,12 +113,25 @@ public class RefJxtaLoader extends JxtaLoader {
      */
     private final static transient Logger LOG =
             Logger.getLogger(RefJxtaLoader.class.getName());
-
+    
+    /**
+     * Maximum amount of time which will be allotted to the retrieval of
+     * remoge package Content items.
+     */
+    private static final long MAX_XFER_TIME =
+            Long.getLong(RefJxtaLoader.class.getName() + ".maxTransferTime",
+            60 * 1000L);
+    
     /**
      * The equator we will use to determine if compatibility statements are
      * compatible with this JXTA implementation.
      */
     private final CompatibilityEquater equator;
+    
+    /**
+     * The PeerGroup we are loading modules for, or null if unknown.
+     */
+    private final PeerGroup group;
 
     /**
      * <ul>
@@ -143,8 +173,24 @@ public class RefJxtaLoader extends JxtaLoader {
      * @param equator The equator to use in comparing compatibility statements.
      */
     public RefJxtaLoader(URL[] urls, ClassLoader parent, CompatibilityEquater equator) {
+        this(urls, parent, equator, null);
+    }
+    
+    /**
+     * Construct a new loader for the specified URLS with the specified parent
+     * loader and specified compatibility equator and the specified peer
+     * group.  The addition of the PeerGroup allows the loader to support
+     * loading of package URIs specified as ContentIDs.
+     *
+     * @param urls    The URLs from which to load classes and resources.
+     * @param parent  The parent class loader for delegation.
+     * @param equator The equator to use in comparing compatibility statements.
+     * @param pGroup  The peer group which this loader is loading modules for
+     */
+    public RefJxtaLoader(URL[] urls, ClassLoader parent, CompatibilityEquater equator, PeerGroup pGroup) {
         super(urls, parent);
         this.equator = equator;
+        group = pGroup;
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -155,12 +201,12 @@ public class RefJxtaLoader extends JxtaLoader {
      * URL provided, if available.
      *
      * @param name class name
-     * @param url  url to class (e.g., jar URL)
+     * @param uri  URI to class (e.g., jar URL, ContentID of jar)
      * @return the Class
      * @throws ClassNotFoundException if class not found
      */
-    protected Class loadClass(String name, URL url) throws ClassNotFoundException {
-        return loadClass(name, url, false);
+    protected Class loadClass(String name, URI uri) throws ClassNotFoundException {
+        return loadClass(name, uri, false);
     }
 
     /**
@@ -169,20 +215,60 @@ public class RefJxtaLoader extends JxtaLoader {
      * that do not need download.
      *
      * @param name    The class name.
-     * @param url     The location of the class.
+     * @param uri     The location of the class.
      * @param resolve If {@code true} then resolve the class.
      * @return the class
      * @throws ClassNotFoundException if class not found
      */
-    protected Class loadClass(String name, URL url, boolean resolve) throws ClassNotFoundException {
+    protected Class loadClass(String name, URI uri, boolean resolve) throws ClassNotFoundException {
         try {
+            // First, make sure we don't already have it loaded/loadable
             return loadClass(name, resolve);
         } catch (ClassNotFoundException e) {
-            if (url != null) {
+            if (uri == null) {
+                // Nothing more we can do
+                throw(e);
+            }
+            
+            /*
+             * If the package URI is a JXTA ContentID we will need to retrieve
+             * the Content and then redefine the URL we use later on, pointing
+             * the URL at the newly downloaded Content which we assume is a
+             * jar file.
+             */
+            try {
+                ID id = IDFactory.fromURI(uri);
+                if (!(id instanceof ContentID)) {
+                    throw(new ClassNotFoundException(
+                            "Of all JXTA IDs, only ContentIDs are supported package URIs"));
+                }
+                
+                URI contentURI = retrieveContent((ContentID) id);
+                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                    LOG.finest(hashHex() + ": Using Content URI: " + contentURI);
+                }
+                
+                // Switch to the Content URI and fall through
+                uri = contentURI;
+            } catch (URISyntaxException urisx) {
+                // Not a JXTA ID.  Fall through and try as URL.
+                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                    LOG.finest(hashHex() + ": Not a JXTA ID: " + uri);
+                }
+            }
+
+            /*
+             * Fall back to the standard jar loading mechanism.  We just
+             * turn it into a URL and add the URL to what the URLClassLoader
+             * handles, then try loading the class again.
+             */
+            try {
+                URL url = uri.toURL();
                 addURL(url);
                 return loadClass(name, resolve);
-            } else {
-                throw e;
+            } catch (MalformedURLException mux) {
+                throw(new ClassNotFoundException(
+                        "Could not load class from URL: " + uri));
             }
         }
     }
@@ -232,7 +318,7 @@ public class RefJxtaLoader extends JxtaLoader {
     @Override
     public synchronized Class<? extends Module> findClass(ModuleSpecID spec) throws ClassNotFoundException {
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashCode() + ": findClass(MSID=" + spec + ")");
+            LOG.finest(hashHex() + ": findClass(MSID=" + spec + ")");
         }
         
         // search through already existing compats for something that works
@@ -256,7 +342,7 @@ public class RefJxtaLoader extends JxtaLoader {
         }
         
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashCode() + "    No class found for MSID");
+            LOG.finest(hashHex() + "    No class found for MSID");
         }
         throw new ClassNotFoundException(spec.toString());
     }
@@ -276,7 +362,7 @@ public class RefJxtaLoader extends JxtaLoader {
          * defer to our parent loader (since it is the only JxtaLoader).
          */
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashCode() + ": loadClass(MSID=" + spec + ")");
+            LOG.finest(hashHex() + ": loadClass(MSID=" + spec + ")");
         }
         
         // Try the parent JxtaLoader, if present
@@ -286,17 +372,17 @@ public class RefJxtaLoader extends JxtaLoader {
                 JxtaLoader jxtaLoader = (JxtaLoader) parentLoader;
                 Class<? extends Module> result = jxtaLoader.loadClass(spec);
                 if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest(hashCode() + ": Parent found: " + result);
+                    LOG.finest(hashHex() + ": Parent found: " + result);
                 }
                 return result;
             } else {
                 if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest(hashCode() + ": No parent loader to try.");
+                    LOG.finest(hashHex() + ": No parent loader to try.");
                 }
             }
         } catch (ClassNotFoundException cnfx) {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.log(Level.FINER, hashCode() + ": Parent could not load MSID: " + spec);
+                LOG.log(Level.FINER, hashHex() + ": Parent could not load MSID: " + spec);
             }
             // Fall through
         }
@@ -305,12 +391,12 @@ public class RefJxtaLoader extends JxtaLoader {
         try {
             Class found = findClass(spec);
             if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(hashCode() + ": Self loaded: " + found);
+                LOG.finest(hashHex() + ": Self loaded: " + found);
             }
             return verifyAndCast(found);
         } catch (ClassNotFoundException cnfx) {
             if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(hashCode() + ": Self loader threw: "
+                LOG.finest(hashHex() + ": Self loader threw: "
                         + cnfx.getClass() + ": " + cnfx.getMessage());
             }
             throw(cnfx);
@@ -340,12 +426,21 @@ public class RefJxtaLoader extends JxtaLoader {
 
         if (null == loaded) {
             try {
-                Class<?> clazz = loadClass(impl.getCode(), new URL(impl.getUri()), false);
+                URI uri = URI.create(impl.getUri());
+                Class<?> clazz = loadClass(impl.getCode(), uri, false);
                 loaded = verifyAndCast(clazz);
+            } catch (IllegalArgumentException iax) {
+                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                    LOG.log(Level.FINER, hashHex() + ": Caught exception", iax);
+                }
+                throw new ClassFormatError("Class '" + impl.getCode()
+                        + "' could not be loaded from : " + impl.getUri());
             } catch (ClassNotFoundException failed) {
-                throw new ClassFormatError("Class '" + impl.getCode() + "' could not be loaded from : " + impl.getUri());
-            } catch (MalformedURLException failed) {
-                throw new ClassFormatError("Cannot load class '" + impl.getCode() + "' from : " + impl.getUri());
+                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                    LOG.log(Level.FINER, hashHex() + ": Caught exception", failed);
+                }
+                throw new ClassFormatError("Class '" + impl.getCode()
+                        + "' could not be loaded from : " + impl.getUri());
             }
 
             // Remember the class along with the matching compatibility statement.
@@ -372,7 +467,7 @@ public class RefJxtaLoader extends JxtaLoader {
         }
         
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashCode() + ": findModuleImplAdv(" + clazz + ")");
+            LOG.finest(hashHex() + ": findModuleImplAdv(" + clazz + ")");
         }
         ClassLoader parentLoader = getParent();
         if (parentLoader instanceof JxtaLoader) {
@@ -386,7 +481,7 @@ public class RefJxtaLoader extends JxtaLoader {
         ModuleImplAdvertisement result = implAdvs.get(modClass);
         if (result == null) {
             if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(hashCode() + ":    MIA for class not found");
+                LOG.finest(hashHex() + ":    MIA for class not found");
             }
             return null;
         } else {
@@ -402,13 +497,13 @@ public class RefJxtaLoader extends JxtaLoader {
         Class<? extends Module> moduleClass;
 
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashCode() + ": findModuleImplAdvertisement(MSID=" + msid + ")");
+            LOG.finest(hashHex() + ": findModuleImplAdvertisement(MSID=" + msid + ")");
         }
         try {
             moduleClass = loadClass(msid);
         } catch (ClassNotFoundException failed) {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.log(Level.FINER, hashCode() + ": Failed to find class for " + msid, failed);
+                LOG.log(Level.FINER, hashHex() + ": Failed to find class for " + msid, failed);
             }
             return null;
         }
@@ -466,7 +561,7 @@ public class RefJxtaLoader extends JxtaLoader {
                         MimeMediaType.XMLUTF8, new StringReader(aCompat));
             } catch (IOException iox) {
                 if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.log(Level.FINEST, hashCode() + ": Caught exception", iox);
+                    LOG.log(Level.FINEST, hashHex() + ": Caught exception", iox);
                 }
                 continue;
             }
@@ -489,7 +584,7 @@ public class RefJxtaLoader extends JxtaLoader {
      */
     private void locateModuleImplementations(ModuleSpecID msid) {
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashCode() + ": discoverModuleImplementations(MSID=" + msid + ")");
+            LOG.finest(hashHex() + ": discoverModuleImplementations(MSID=" + msid + ")");
         }
 
         List<ModuleImplAdvertisement> locatedAdvs = null;
@@ -540,7 +635,7 @@ public class RefJxtaLoader extends JxtaLoader {
         InputStream urlStream = null;
         
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashCode() + ": discoverModuleImplementations(MSID="+ specID + ", URL=" + providers + ")");
+            LOG.finest(hashHex() + ": discoverModuleImplementations(MSID="+ specID + ", URL=" + providers + ")");
         }
         try {
             urlStream = providers.openStream();
@@ -585,7 +680,7 @@ public class RefJxtaLoader extends JxtaLoader {
                         }
                     } else {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, hashCode() + ": Failed to register \'" + provider + "\'");
+                            LOG.log(Level.WARNING, hashHex() + ": Failed to register \'" + provider + "\'");
                         }
                     }
                     
@@ -597,13 +692,13 @@ public class RefJxtaLoader extends JxtaLoader {
                     }
                 } catch (Exception allElse) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, hashCode() + ": Failed to register \'" + provider + "\'", allElse);
+                        LOG.log(Level.WARNING, hashHex() + ": Failed to register \'" + provider + "\'", allElse);
                     }
                 }
             }
         } catch (IOException ex) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, hashCode() + ": Failed to read provider list " + providers, ex);
+                LOG.log(Level.WARNING, hashHex() + ": Failed to read provider list " + providers, ex);
             }
         } finally {
             if (null != urlStream) {
@@ -634,7 +729,7 @@ public class RefJxtaLoader extends JxtaLoader {
             return (ModuleImplAdvertisement) getImplAdvMethod.invoke(null);
         } catch(Exception ex) {
             if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, hashCode() + ": Could not introspect Module for MIA: " + className, ex);
+                LOG.log(Level.FINEST, hashHex() + ": Could not introspect Module for MIA: " + className, ex);
             }
         }
         return null;
@@ -656,6 +751,239 @@ public class RefJxtaLoader extends JxtaLoader {
             throw(new ClassNotFoundException(
                     "Class found but was not a Module class: " + clazz));
         }
+    }
+    
+    /**
+     * Determines the location that we should use to store the retrieved
+     * Content.  This location follows the current standards for Module
+     * information persistance in the store home.
+     * 
+     * @param service ContentService instance 
+     */
+    private File getContentFile(ContentID forContentID) {
+        ModuleSpecID groupMSID =
+                group.getPeerGroupAdvertisement().getModuleSpecID();
+        URI storeHomeURI = group.getStoreHome();
+        File storeHome = new File(storeHomeURI);
+        File grpHome = new File(storeHome,
+                group.getPeerGroupID().getUniqueValue().toString());
+        File modHome = new File(grpHome, groupMSID.getUniqueValue().toString());
+        File svcHome = new File(modHome, getClass().getSimpleName());
+        if (!svcHome.isDirectory() && !svcHome.mkdirs()) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, hashHex() 
+                        + ": Could not create Content dir: " + svcHome);
+            }
+        }
+        File result =
+                new File(svcHome, forContentID.getUniqueValue().toString());
+        
+        return result;
+    }
+    
+    /**
+     * Attempts to retrieve the remote Content which is assumed to be a
+     * jar.  The Content will be stored in the PeerGroup's store home, ensuring
+     * that it's our own private copy.  If the Content cannot be retrieved in
+     * a reasonable amount of time this method will throw a ClassNotFound
+     * exception and attempt to carry on.
+     * 
+     * @param contentID ID of the content to retrieve
+     * @return URI to the local Content, once it has been retrieved.  Never
+     *  returns {@code null}.
+     * @throws ClassNotFoundException if the Content cannot be retrieved in a
+     *  reasonable amount of time
+     */
+    private URI retrieveContent(ContentID contentID)
+            throws ClassNotFoundException {
+        if (group == null) {
+            throw(new ClassNotFoundException(
+                    "Loading of ContentID is only possible when JxtaLoader "
+                    + "is constructed with a PeerGroup reference"));
+        }
+        
+        // Get the storage location for this Content
+        File file = getContentFile(contentID);
+        if (file.exists()) {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine(hashHex()
+                        + ": Using previously retrieved package Content: "
+                        + file);
+            }
+            return file.toURI();
+        }
+        
+        // Obtain and check content service instances from local and parent
+        ContentService groupService = group.getContentService();
+        PeerGroup parentGroup = group.getParentGroup();
+        ContentService parentService;
+        if (parentGroup == null) {
+            parentService = null;
+        } else {
+            parentService = parentGroup.getContentService();
+        }
+        if (groupService == null && parentService == null) {
+            throw(new ClassNotFoundException(
+                    "No ContentService instance found in either the local "
+                    + "group or the parent group"));
+        }
+        
+        // Commence the transfer, creating an aggregation as necessary
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine(hashHex()
+                    + ": Starting retrieval of Module package Content: "
+                    + contentID);
+        }
+        ContentTransfer xfer;
+        if (groupService == null) {
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.fine(hashHex() + ": Using only the parent ContentService");
+            }
+            xfer = parentService.retrieveContent(contentID);
+        } else if (parentService == null) {
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.fine(hashHex() + ": Using only the local ContentService");
+            }
+            xfer = groupService.retrieveContent(contentID);
+        } else {
+            /*
+             * We have both group and parent ContentServices.  Aggregate them
+             * but prefer the local group over the parent.  We use an
+             * aggregation to allow the ContentProviders in either of the
+             * groups to respond immediately if the Content is being shared
+             * by the local peer in either of the groups.
+             */
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.fine(hashHex()
+                        + ": Using both the local and parent ContentService");
+            }
+            
+            List<ContentTransfer> toAgg = new ArrayList<ContentTransfer>();
+            xfer = groupService.retrieveContent(contentID);
+            if (xfer != null) {
+                toAgg.add(xfer);
+            }
+            
+            xfer = parentService.retrieveContent(contentID);
+            if (xfer != null) {
+                toAgg.add(xfer);
+            }
+            
+            if (toAgg.size() == 0) {
+                throw(new ClassNotFoundException(
+                        "No Content providers were able to load content ID: "
+                        + contentID));
+            } else if (toAgg.size() == 1) {
+                // No reason to use an aggregation.
+                xfer = toAgg.get(0);
+            } else {
+                // Use an aggregation
+                xfer = new TransferAggregator(null, toAgg);
+            }
+        }
+        attachDebugListeners(xfer);
+        
+        Content content = null;
+        try {
+            xfer.startTransfer(file);
+            xfer.waitFor(MAX_XFER_TIME);
+            if (!xfer.getTransferState().isFinished()) {
+                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                    LOG.finer(hashHex() + ": Transfer did not complete in "
+                            + "maximum allotted time");
+                }
+                xfer.cancel();
+            }
+            content = xfer.getContent();
+        } catch (InterruptedException intx) {
+            xfer.cancel();
+            file.delete();
+            throw(new ClassNotFoundException(
+                    "Thread was interrupted during transfer attempt", intx));
+        } catch (TransferException xferx) {
+            xfer.cancel();
+            file.delete();
+            throw(new ClassNotFoundException(
+                    "Package Content transfer failed", xferx));
+        }
+        
+        // If the Content is not stored in the file, persist it
+        if (!file.exists()) {
+            // In-memory content.  Persist it to disk.
+            try {
+                FileOutputStream fileOut = new FileOutputStream(file);
+                content.getDocument().sendToStream(fileOut);
+                fileOut.close();
+            } catch (IOException iox) {
+                file.delete();
+                throw(new ClassNotFoundException(
+                        "Could not persist Content", iox));
+            }
+        }
+        
+        return file.toURI();
+    }
+    
+    /**
+     * Attaches listeners to the provider transfer for the purpose of
+     * debug logging.
+     * 
+     * @param xfer transfer to attach listeners to
+     */
+    private void attachDebugListeners(ContentTransfer xfer) {
+        if (!(Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST))) {
+            // Early out.
+            return;
+        }
+        
+        final String prefix = hashHex();
+
+        final ContentTransferListener xListener = new ContentTransferListener() {
+            public void contentLocationStateUpdated(ContentTransferEvent event) {
+                LOG.finest(prefix + ": Received event: " + event);
+            }
+
+            public void contentTransferStateUpdated(ContentTransferEvent event) {
+                LOG.finest(prefix + ": Received event: " + event);
+            }
+
+            public void contentTransferProgress(ContentTransferEvent event) {
+                LOG.finest(prefix + ": Received event: " + event);
+            }
+        };
+
+        final ContentTransferAggregatorListener xaListener =
+                new ContentTransferAggregatorListener() {
+            public void selectedContentTransfer(ContentTransferAggregatorEvent event) {
+                LOG.finest(prefix + ": Received event: " + event);
+            }
+
+            public void updatedContentTransferList(ContentTransferAggregatorEvent event) {
+                LOG.finest(prefix + ": Received event: " + event);
+            }
+        };
+
+        LOG.finest(hashHex() + ": Attaching ContentTransferListener to: " + xfer);
+        xfer.addContentTransferListener(xListener);
+        if (xfer instanceof ContentTransferAggregator) {
+            ContentTransferAggregator xferAgg = (ContentTransferAggregator) xfer;
+            LOG.finest(hashHex() + ": Attaching ContentTransferAggregatorListener to: " + xfer);
+            xferAgg.addContentTransferAggregatorListener(xaListener);
+            
+            // Recurse...
+            for (ContentTransfer child : xferAgg.getContentTransferList()) {
+                attachDebugListeners(child);
+            }
+        }
+    }
+    
+    /**
+     * Returns the hashCode value in hex.
+     * 
+     * @return hex hashCode value
+     */
+    private String hashHex() {
+        return Integer.toString(hashCode(), 16);
     }
     
 }

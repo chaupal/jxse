@@ -60,7 +60,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.logging.Logging;
@@ -110,14 +111,14 @@ public class TransferAggregator
     /**
      * ContentTransferListeners.
      */
-    private final List<ContentTransferListener> ctListeners =
-            new CopyOnWriteArrayList<ContentTransferListener>();
+    private final Set<ContentTransferListener> ctListeners =
+            new CopyOnWriteArraySet<ContentTransferListener>();
 
     /**
      * ContentTransferAggregatorListeners.
      */
-    private final List<ContentTransferAggregatorListener> ctaListeners =
-            new CopyOnWriteArrayList<ContentTransferAggregatorListener>();
+    private final Set<ContentTransferAggregatorListener> ctaListeners =
+            new CopyOnWriteArraySet<ContentTransferAggregatorListener>();
     
     /**
      * ContentProvider which created and manages this transfer.
@@ -232,19 +233,29 @@ public class TransferAggregator
                 }
                 if (transfer == null) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Provider returned null transfer: " + prov);
+                        LOG.fine(hashHex() +
+                                ": Provider returned null transfer: " + prov);
                     }
                 } else {
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Provider '" + prov + "' returned transfer: "
+                        LOG.finer(hashHex() +
+                                ": Provider '" + prov + "' returned transfer: "
                                 + transfer);
                     }
                     idle.add(transfer);
-                    transfer.addContentTransferListener(this);
+                }
+                if (content != null) {
+                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                        LOG.finer(hashHex() + ": Provider '" + prov
+                                + "' found the Content.  Skipping remaining "
+                                + "providers.");
+                    }
+                    break;
                 }
             } catch (UnsupportedOperationException unsupx) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Provider does not support operation: " + prov);
+                    LOG.fine(hashHex() +
+                            ": Provider does not support operation: " + prov);
                 }
             }
         }
@@ -256,8 +267,43 @@ public class TransferAggregator
 
         // Randomize the list, effectively randomizing which impl(s) we use
         Collections.shuffle(idle);
+        
+        /*
+         * Attach as a listener as the final step to ensure that events
+         * which are fired immediately don't cause false failures due to
+         * idle.size() becoming 0.
+         */
+        for (ContentTransfer xfer : idle) {
+            xfer.addContentTransferListener(this);
+        }
     }
 
+    /**
+     * Alternate form where the ContentTransfer instances have already been
+     * obtained and put into the desired attempt order.  It is assumed that
+     * all the transfer instances refer to the same Content and thus will
+     * be multiplexed in the same manner as when the transfer instances must
+     * be discovered by interacting with the ContentProviders directly.
+     * 
+     * @param origin content provider which created and manager this
+     *  transfer
+     * @param transfers list of transfers to use for attempts
+     */
+    public TransferAggregator(
+            ContentProvider origin,
+            List<ContentTransfer> transfers) {
+        provider = origin;
+        
+        if (transfers.size() == 0) {
+            throw(new IllegalArgumentException(
+                    "No transfer instances provided"));
+        }
+        for (ContentTransfer xfer : transfers) {
+            idle.add(xfer);
+            xfer.addContentTransferListener(this);
+        }
+    }
+    
 
     ///////////////////////////////////////////////////////////////////////////
     // ContentTransfer methods:
@@ -266,7 +312,22 @@ public class TransferAggregator
      * {@inheritDoc}
      */
     public void addContentTransferListener(ContentTransferListener listener) {
+        /*
+         * Handle the special case where the transfer is compelted before
+         * the listener is added.  In this case, we want to immediately
+         * fire a completion event to only that listener.
+         */
+        ContentTransferEvent toFire = null;
+        synchronized(this) {
+            if (content != null) {
+                toFire = new ContentTransferEvent(
+                        this, null, locationState, transferState);
+            }
+        }
         ctListeners.add(listener);
+        if (toFire != null) {
+            listener.contentTransferStateUpdated(toFire);
+        }
     }
 
     /**
@@ -302,7 +363,7 @@ public class TransferAggregator
             populateStandby();
         } catch (TransferException transx) {
             if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, "Ignoring exception", transx);
+                LOG.log(Level.FINEST, hashHex() + ": Ignoring exception", transx);
             }
         }
 
@@ -366,13 +427,15 @@ public class TransferAggregator
      * {@inheritDoc}
      */
     public void cancel() {
+        LOG.fine(hashHex() + ": Cancelling transfer");
+        cancelAll(null, false);
         synchronized(this) {
-            if (transferState.isFinished()) {
-                // Cancelling now has no effect.
-                return;
+            if (!transferState.isFinished()) {
+                transferState = CANCELLED;
             }
-
-            transferState = CANCELLED;
+            selected = null;
+            standby.clear();
+            idle.clear();
             notifyAll();
         }
     }
@@ -488,7 +551,8 @@ public class TransferAggregator
                 // Try to send events only when useful
                 if (oldState != locationState || locationCount != null) {
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Location update (location count: "
+                        LOG.finer(hashHex()
+                                + ": Location update (location count: "
                                 + locationCount + ")");
                         LOG.finer("    Was  : " + oldState);
                         LOG.finer("    Is   : " + locationState);
@@ -529,7 +593,8 @@ public class TransferAggregator
         boolean doTransferStart = false;
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Transfer state updated: " + transfer + " (" + state + ")");
+            LOG.fine(hashHex() + ": Transfer state updated: " + transfer
+                    + " (" + state + ")");
         }
 
         if (state.isSuccessful()) {
@@ -544,15 +609,44 @@ public class TransferAggregator
 
             // make sure it isn't lying
             try {
-                content = transfer.getContent();
-
-                stopSourceLocation();
-                cancelAll(transfer, true);
+                boolean eureka = false;
+                boolean newSelected = false;
                 synchronized(this) {
-                    transferState = COMPLETED;
-                    toFire = new ContentTransferEvent(
-                            this, null, locationState, transferState);
-                    notifyAll();
+                    if (content == null) {
+                        content = transfer.getContent();
+                        if (content != null) {
+                            eureka = true;
+                            if (selected != transfer) {
+                                // promote the transfer to being selected
+                                if (selected != null) {
+                                    standby.add(selected);
+                                }
+                                standby.remove(transfer);
+                                idle.remove(transfer);
+                                
+                                newSelected = true;
+                                selected = transfer;
+                            }
+                            
+                            transferState = COMPLETED;
+                            toFire = new ContentTransferEvent(
+                                    this, null, locationState, transferState);
+                            notifyAll();
+                        }
+                    }
+                }
+
+                // Only go crazy if this is the first provider to succeed
+                if (eureka) {
+                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                        LOG.finer(hashHex() + ": Eureka!");
+                    }
+                    if (newSelected) {
+                        fireSelectedContentTransfer(transfer);
+                    }
+                    cancelAll(null, true);
+                } else {
+                    terminateTransfer = true;
                 }
             } catch (InterruptedException intx) {
                 // Bad timing?
@@ -577,15 +671,47 @@ public class TransferAggregator
                 exception = transx;
             }
             terminateTransfer = true;
-        } else {
+        } else if (!state.isRetrieving()) {
+            /*
+             * This should currently only pick up PENDING states.  Since this
+             * is the starting state, we never transition to new states based
+             * on the reception of this state.  We use it to start the
+             * uninitiated transfer instances.
+             */
             synchronized(this) {
-                if (transfer == selected && transferState != state) {
-                    if (destFile != null && !state.isRetrieving()) {
+                if (transferState.isFinished()) {
+                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                        LOG.finer(hashHex() + " Ignoring event due to being "
+                                + "in a finished state");
+                    }
+                } else if (transfer == selected) {
+                    if (destFile != null) {
                         doTransferStart = true;
                     }
-                    transferState = state;
-                    toFire = new ContentTransferEvent(
-                            this, null, locationState, transferState);
+                }
+            }
+        } else {
+            synchronized(this) {
+                if (transferState.isFinished()) {
+                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                        LOG.finer(hashHex() + " Ignoring event due to being "
+                                + "in a finished state");
+                    }
+                } else if (transfer == selected && transferState != state) {
+                    /*
+                     * We need to absorb or transform events which would
+                     * otherwise be an illegal strate transition when viewed
+                     * from our listeners' perspective.  All final states are
+                     * absorbed since we will generate them elsewhere.  We
+                     * are already in at least the PENDING state, so we can't
+                     * go back to PENDING.  Thus, only active retrieval states
+                     * are allowed for transitions.
+                     */
+                    if (state.isRetrieving()) {
+                        transferState = state;
+                        toFire = new ContentTransferEvent(
+                                this, null, locationState, transferState);
+                    }
                 }
             }
         }
@@ -623,6 +749,9 @@ public class TransferAggregator
         }
 
         if (doTransferStart) {
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                LOG.finer(hashHex() + ": Starting transfer: " + transfer);
+            }
             transfer.startTransfer(destFile);
         }
     }
@@ -768,12 +897,14 @@ public class TransferAggregator
          */
         if (doStart) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Starting source location for transfer: " + transfer);
+                LOG.fine(hashHex() + ": Starting source location for transfer: "
+                        + transfer);
             }
             transfer.startSourceLocation();
         } else if (doStop) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Stopping source location for transfer: " + transfer);
+                LOG.fine(hashHex() + ": Stopping source location for transfer: "
+                        + transfer);
             }
             transfer.stopSourceLocation();
         }
@@ -816,6 +947,9 @@ public class TransferAggregator
                 }
             } else if (!transferState.isRetrieving() && selected != null) {
                 // Make sure the transfer has started
+                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                    LOG.finer(hashHex() + ": Starting transfer: " + selected);
+                }
                 selected.startTransfer(destFile);
             }
         }
@@ -853,6 +987,9 @@ public class TransferAggregator
      * @param event event information to send to listeners
      */
     private void fireLocationStateUpdated(ContentTransferEvent event) {
+        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            LOG.finer(hashHex() + ": Firing event: " + event);
+        }
         for (ContentTransferListener listener : ctListeners) {
             try {
                 listener.contentLocationStateUpdated(event);
@@ -871,6 +1008,9 @@ public class TransferAggregator
      * @param event event information to send to listeners
      */
     private void fireTransferStateUpdated(ContentTransferEvent event) {
+        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            LOG.finer(hashHex() + ": Firing event: " + event);
+        }
         for (ContentTransferListener listener : ctListeners) {
             try {
                 listener.contentTransferStateUpdated(event);
@@ -891,6 +1031,9 @@ public class TransferAggregator
      */
     private void fireSelectedContentTransfer(ContentTransfer newSelected) {
         ContentTransferAggregatorEvent event = null;
+        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            LOG.finer(hashHex() + ": Firing new selected: " + newSelected);
+        }
 
         for (ContentTransferAggregatorListener listener : ctaListeners) {
             try {
@@ -907,4 +1050,14 @@ public class TransferAggregator
             }
         }
     }
+    
+    /**
+     * Returns the hashCode value in hex.
+     * 
+     * @return hex hashCode value
+     */
+    private String hashHex() {
+        return Integer.toString(hashCode(), 16);
+    }
+    
 }

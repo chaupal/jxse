@@ -346,6 +346,7 @@ public abstract class AbstractContentTransfer
      * @param group peer group that this transfer is taking place within
      * @param contentAdv master advertisement used to identify the desired
      *  content
+     * @param loggerID logger name under which to log messages
      */
     protected AbstractContentTransfer(
             ContentProvider origin,
@@ -359,6 +360,7 @@ public abstract class AbstractContentTransfer
         masterID = contentAdv.getContentID();
         LOG = Logger.getLogger(
                 AbstractContentTransfer.class.getName() + "-" + loggerID);
+        addDiscoveredSource(contentAdv);
     }
 
     /**
@@ -370,6 +372,7 @@ public abstract class AbstractContentTransfer
      *  location activities.
      * @param group peer group that this transfer is taking place within
      * @param contentID ID of the content that we would like to retrieve
+     * @param loggerID logger name under which to log messages
      */
     protected AbstractContentTransfer(
             ContentProvider origin,
@@ -1000,6 +1003,7 @@ public abstract class AbstractContentTransfer
     /**
      * Transfer execution mainline.
      */
+    @SuppressWarnings("fallthrough")
     private void transferExecution() throws InterruptedException {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Transfer execution starting");

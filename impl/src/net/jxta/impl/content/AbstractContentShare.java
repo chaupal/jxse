@@ -59,7 +59,6 @@ package net.jxta.impl.content;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.jxta.content.Content;
-import net.jxta.content.ContentID;
 import net.jxta.content.ContentProvider;
 import net.jxta.content.ContentShare;
 import net.jxta.content.ContentShareListener;
@@ -178,8 +177,8 @@ public abstract class AbstractContentShare
         T adv = (T) AdvertisementFactory.newAdvertisement(
                 ContentAdvertisement.getAdvertisementType());
         Document doc = content.getDocument();
-        adv.setContentID((ContentID) content.getContentID());
-        adv.setMetaID((ContentID) content.getMetaID());
+        adv.setContentID(content.getContentID());
+        adv.setMetaID(content.getMetaID());
         adv.setMimeType(doc.getMimeType());
         return adv;
     }

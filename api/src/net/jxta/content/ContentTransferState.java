@@ -63,7 +63,9 @@ package net.jxta.content;
 public enum ContentTransferState {
 
     /**
-     * Transfer has not yet started.
+     * Transfer has not yet started.  This state should be used as the initial
+     * state and should not be returned to once {@code startTransfer()} has
+     * been called.
      */
     PENDING(false, false),
 
@@ -90,20 +92,23 @@ public enum ContentTransferState {
 
     /**
      * The transfer has started and completed successfully.  The Content is
-     * ready to be retrieved from the transfer object.
+     * ready to be retrieved from the transfer object.  This is a terminal
+     * state - once this state is reached it should never change again.
      */
     COMPLETED(false, true),
 
     /**
      * The transfer was started but encountered a terminal failure, failing
      * to complete Content retrieval successfully.  Retrying is not likely to
-     * result in a successful retrieval.
+     * result in a successful retrieval.  This is a terminal state - once
+     * this state is reached it should never change again.
      */
     FAILED(false, true),
 
     /**
      * The transfer was programmatically cancelled.  This can occur before,
-     * during, or after the retrieval attempt.
+     * during, or after the retrieval attempt.  This is a terminal state - once
+     * this state is reached it should never change again.
      */
     CANCELLED(false, true);
 

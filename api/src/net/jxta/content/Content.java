@@ -54,11 +54,9 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-
 package net.jxta.content;
 
 import net.jxta.document.Document;
-import net.jxta.id.ID;
 
 
 /**
@@ -127,7 +125,7 @@ public class Content {
      *
      * @return ContentID of this Content instance
      */
-    public ID getContentID() {
+    public ContentID getContentID() {
         return id;
     }
 
@@ -139,7 +137,7 @@ public class Content {
      * @return ContentID The ContentID of an associated Content for which this
      *  Content is metadata or <tt>null</tt> if there is no associated Content
      */
-    public ID getMetaID() {
+    public ContentID getMetaID() {
         return metaId;
     }
 

@@ -1079,7 +1079,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Setting up group loader -> static loader");
                 }
-                loader = new RefJxtaLoader(new URL[0], staticLoader, COMP_EQ);
+                loader = new RefJxtaLoader(new URL[0], staticLoader, COMP_EQ, this);
             } else {
                 ClassLoader upLoader = parentGroup.getLoader();
                 StructuredDocument cfgDoc =
@@ -1100,7 +1100,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Setting up group loader -> " + upLoader);
                 }
-                loader = new RefJxtaLoader(new URL[0], upLoader, COMP_EQ);
+                loader = new RefJxtaLoader(new URL[0], upLoader, COMP_EQ, this);
             }
 
             // If we still do not have a config adv, make one with the minimal info in it.

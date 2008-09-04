@@ -435,7 +435,7 @@ public class DefaultContentProvider implements
         synchronized(shares) {
             ContentShare share = getShare(contentID);
             if (share != null) {
-                //return new NullContentTransfer(this, share.getContent());
+                return new NullContentTransfer(this, share.getContent());
             }
         }
         return new DefaultContentTransfer(this, executor, peerGroup, contentID);
@@ -699,8 +699,6 @@ public class DefaultContentProvider implements
         ByteArrayOutputStream byteOut = null;
         DataResponse resp;
         DefaultContentShare share;
-        Object groupObj;
-        Object reqObj;
         int written;
 
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
@@ -710,17 +708,6 @@ public class DefaultContentProvider implements
             LOG.finest("   Length : " + req.getLength());
             LOG.finest("   QID    : " + req.getQueryID());
             LOG.finest("   PipeAdv: " + req.getResponsePipe());
-        }
-
-        // Make sure we only serve stuff for our peer group.
-        groupObj = peerGroup.getPeerGroupID().getUniqueValue();
-        reqObj = req.getContentID().getPeerGroupID().getUniqueValue();
-        if (!groupObj.equals(reqObj)) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Request for Content ID not belonging to peer group: "
-                        + req.getContentID());
-            }
-            return;
         }
 
         share = getShare(req.getContentID());

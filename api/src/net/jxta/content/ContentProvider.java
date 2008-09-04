@@ -154,6 +154,12 @@ public interface ContentProvider {
      * understood or (optionally) if the ContentAdvertisement embedded in
      * the share advertisement can be used to automatically discover
      * remote shares.
+     * <p/>
+     * Provider implementations should use the ContentAdvertisement contained
+     * within the share advertisement if it can be understood.  If it
+     * cannot be understood, or if the provider implementations detects a
+     * failure to retrieve the Content, the provider may attempt to locate
+     * alternative data sources automatically.
      *
      * @param adv ContentAdvertisement of the Content to attempt to retrieve.
      * @return ContentTransfer object representing a potential future transfer

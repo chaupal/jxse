@@ -172,7 +172,9 @@ public interface ContentTransfer {
     /**
      * Cancels all remote data source location and Content transfer activity,
      * if still in progress.  After a transfer has been cancelled it can
-     * no longer be used to locate sources or retrieve data.
+     * no longer be used to locate sources or retrieve data.   If a transfer
+     * has reached a terminal state (i.e., {@code transferState.isFinished()}
+     * returns {@code true}) then this method should have no effect.
      */
     void cancel();
 

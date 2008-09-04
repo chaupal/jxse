@@ -81,6 +81,7 @@ public class AllTests extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite(TITLE);
 
+        suite.addTest(net.jxta.impl.loader.RefJxtaLoaderTest.suite());
         suite.addTest(net.jxta.impl.peergroup.PeerGroupTest.suite());
         suite.addTest(net.jxta.impl.content.AllTests.suite());
         suite.addTest(net.jxta.impl.endpoint.AllTests.suite());
