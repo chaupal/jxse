@@ -230,8 +230,6 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         implAdv.setParam(paramElement);
         
-        LOG.info("Impl Adv:\n" + implAdv);
-        
         return implAdv;
     }
     
