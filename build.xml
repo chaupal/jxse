@@ -111,7 +111,10 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <property name="impl" value="${basedir}/impl/src" />
     <property name="test" value="${basedir}/test/src" />
     <property name="test_res" value="${basedir}/test/resources" />
-    <property name="test_logging_cfg" value="${basedir}/test_logging.properties" />
+    <property name="test_logging_cfg" value="${basedir}/test/logging.properties" />
+    <property name="test_junit_output" value="no" />
+    <property name="test_junit_includes" value="${basedir}/test/junit.includes" />
+    <property name="test_junit_excludes" value="${basedir}/test/junit.excludes" />
     <property name="tutorials" value="${basedir}/tutorials" />
     <property name="build" value="${basedir}/classes" />
     <property name="build_meter_generated" value="${basedir}/build_generated" />
@@ -704,13 +707,21 @@ href="bcprov-ext.jnlp">
     
     <target name="runtest" depends="-test.compile" description="Console JUnit test runner">
         <delete dir="${tmp}/JUnit" />
-        
-        <java classname="junit.textui.TestRunner" fork="yes" failonerror="true">
+       
+        <junit
+            printsummary="on"
+            haltonerror="no"
+            haltonfailure="no"
+            fork="yes"
+            forkmode="once"
+            showoutput="${test_junit_output}"
+            >
             <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-            <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-            <sysproperty key="JXTA_HOME" value="${tmp}/JUnit" />
-            <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-            <sysproperty key="java.util.logging.config.file" value="${test_logging_cfg}" />
+            <jvmarg value="-Xms${net.jxta.jvm.xms}" />
+            <jvmarg value="-DJXTA_HOME=${tmp}/JUnit" />
+            <jvmarg value="-Dnet.jxta.tls.password=${net.jxta.tls.password}" />
+            <jvmarg value="-Djava.util.logging.config.file=${test_logging_cfg}" />
+            <jvmarg value="-Dnet.jxta.impl.loader.RefJxtaLoader.maxTransferTime=2000" />
             <classpath>
                 <pathelement location="${build_test}" />
                 <pathelement location="${build}" />
@@ -720,33 +731,16 @@ href="bcprov-ext.jnlp">
                 <pathelement location="${impl}" />
                 <pathelement location="${basedir}" />
             </classpath>
-            <arg value="net.jxta.AllTests" />
-        </java>
+            <batchtest fork="yes">
+                <fileset dir="${test}"
+                    includesfile="${test_junit_includes}"
+                    excludesfile="${test_junit_excludes}"
+                    />
+            </batchtest>
+        </junit>
+
         <delete dir="${tmp}/JUnit" />
     </target>
-    
-    <target name="runtestui" depends="-test.compile" description="GUI JUnit test runner">
-        <delete dir="${tmp}/JUnit" />
-        
-        <java classname="junit.swingui.TestRunner" fork="yes">
-            <jvmarg value="-Xms${net.jxta.jvm.xms}" />
-            <jvmarg value="-Xmx${net.jxta.jvm.xmx}" />
-            <sysproperty key="JXTA_HOME" value="${tmp}/JUnit" />
-            <sysproperty key="net.jxta.tls.password" value="${net.jxta.tls.password}" />
-            <classpath>
-                <pathelement location="${build_test}" />
-                <pathelement location="${build}" />
-		<path refid="test.classpath" />
-                <fileset refid="lib.files" />
-                <pathelement location="${api}" />
-                <pathelement location="${impl}" />
-                <pathelement location="${basedir}/" />
-            </classpath>
-        </java>
-        
-        <delete dir="${tmp}/Junit" />
-    </target>
-    
     
     <target name="-tutorials.compile" description="Compiles tutorials">
         <ant inheritAll="false" antfile="${basedir}/tutorials/build.xml" target="compile"/>
