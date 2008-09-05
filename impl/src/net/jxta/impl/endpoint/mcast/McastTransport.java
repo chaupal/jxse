@@ -403,7 +403,12 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         // Create the multicast input socket
         try {
-            multicastSocket = new MulticastSocket(new InetSocketAddress(usingInterface, multicastPort));
+            if (usingInterface.equals(IPUtils.ANYADDRESS)) {
+                multicastSocket = new MulticastSocket(new InetSocketAddress(usingInterface, multicastPort));
+            } else {
+                multicastSocket = new MulticastSocket(multicastPort);
+                multicastSocket.setInterface(usingInterface);
+            }
         } catch (IOException failed) {
             throw new PeerGroupException("Could not open multicast socket", failed);
         }
@@ -414,6 +419,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         } catch (SocketException ignored) {
             // We may not be able to set loopback mode. It is inconsistent
             // whether an error will occur if the set fails.
+             LOG.log(Level.CONFIG, "exception occurred enabling multicastsocket loopbackmode", ignored);
         }
 
         // Tell tell the world about our configuration.
@@ -441,7 +447,13 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             configInfo.append("\n\tBound To :");
             configInfo.append("\n\t\tUsing Interface: ").append(usingInterface.getHostAddress());
-
+            try {
+                configInfo.append("\n\t\tUsing Interface (from socket): ").append(multicastSocket.getInterface());
+                configInfo.append("\n\t\tUsing Network Interface (from socket): ").append(multicastSocket.getNetworkInterface());
+                configInfo.append("\n\t\tLoopBackMode disabled: ").append(multicastSocket.getLoopbackMode());
+            } catch (java.net.SocketException se) {
+                LOG.log(Level.CONFIG, "SocketException handled accessing multicastSocket", se);
+            }
             configInfo.append("\n\t\tMulticast Server Bind Addr: ").append(multicastSocket.getLocalSocketAddress());
             configInfo.append("\n\t\tPublic Address: ").append(publicAddress);
 
