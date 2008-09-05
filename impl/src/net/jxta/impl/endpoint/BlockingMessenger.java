@@ -55,13 +55,7 @@
  */
 package net.jxta.impl.endpoint;
 
-import net.jxta.endpoint.AbstractMessenger;
-import net.jxta.endpoint.ChannelMessenger;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.MessengerState;
-import net.jxta.endpoint.OutgoingMessageEvent;
+import net.jxta.endpoint.*;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
@@ -434,7 +428,6 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         //
         // FIXME 20040413 jice : we trust transports to implement isIdle reasonably, which may be a leap of faith. We
         // should probably superimpose a time limit of our own.
-        //
         if (selfDestruct) {
             selfDestructTask = new TimerTask() {
 
@@ -455,9 +448,10 @@ public abstract class BlockingMessenger extends AbstractMessenger {
                         }
                     }
                     cancel();
+                    timer.purge();
                 }
             };
-
+            timer.purge();
             timer.schedule(selfDestructTask, TimeUtils.AMINUTE, TimeUtils.AMINUTE);
         } else {
             selfDestructTask = null;
