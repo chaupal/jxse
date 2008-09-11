@@ -634,7 +634,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             // This is an error because we can't start without a concept of ID.
             IllegalStateException failure =
 		new IllegalStateException("Could not initialize ID defaults", notFound);
-            LOG.log(Level.SEVERE, "Cound not initialize IDFactory", failure);
+            LOG.log(Level.SEVERE, "Could not initialize IDFactory", failure);
             throw failure;
         }
     }
