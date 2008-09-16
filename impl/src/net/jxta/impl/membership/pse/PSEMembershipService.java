@@ -59,14 +59,7 @@ package net.jxta.impl.membership.pse;
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
+import net.jxta.document.*;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
@@ -96,13 +89,7 @@ import java.security.cert.CertPath;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -257,26 +244,21 @@ public final class PSEMembershipService implements MembershipService {
             StringBuilder configInfo = new StringBuilder("Configuring PSE Membership Service : " + assignedID);
 
             configInfo.append("\n\tImplementation :");
-            configInfo.append("\n\t\tModule Spec ID: " + implAdvertisement.getModuleSpecID());
-            configInfo.append("\n\t\tImpl Description : " + implAdvertisement.getDescription());
-            configInfo.append("\n\t\tImpl URI : " + implAdvertisement.getUri());
-            configInfo.append("\n\t\tImpl Code : " + implAdvertisement.getCode());
+            configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
+            configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
+            configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
+            configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             configInfo.append("\n\tGroup Params :");
-            configInfo.append("\n\t\tGroup : " + group.getPeerGroupName());
-            configInfo.append("\n\t\tGroup ID : " + group.getPeerGroupID());
-            configInfo.append("\n\t\tPeer ID : " + group.getPeerID());
+            configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
+            configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
+            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
             configInfo.append("\n\tConfiguration :");
-            configInfo.append("\n\t\tPSE state : " + (pseStore.isInitialized() ? "inited" : "new"));
-            configInfo.append(
-                    "\n\t\tPSE KeyStore location : "
-                            + ((null != config.getKeyStoreLocation())
-                                    ? config.getKeyStoreLocation().toString()
-                                    : assignedID.toString()));
-            configInfo.append(
-                    "\n\t\tPSE KeyStore type : " + ((null != config.getKeyStoreType()) ? config.getKeyStoreType() : "<default>"));
-            configInfo.append(
-                    "\n\t\tPSE KeyStore provider : "
-                            + ((null != config.getKeyStoreProvider()) ? config.getKeyStoreProvider() : "<default>"));
+            configInfo.append("\n\t\tPSE state : ").append(pseStore.isInitialized() ? "inited" : "new");
+            configInfo.append("\n\t\tPSE KeyStore location : ").append((null != config.getKeyStoreLocation())
+                    ? config.getKeyStoreLocation().toString()
+                    : assignedID.toString());
+            configInfo.append("\n\t\tPSE KeyStore type : ").append((null != config.getKeyStoreType()) ? config.getKeyStoreType() : "<default>");
+            configInfo.append("\n\t\tPSE KeyStore provider : ").append((null != config.getKeyStoreProvider()) ? config.getKeyStoreProvider() : "<default>");
             LOG.config(configInfo.toString());
         }
         

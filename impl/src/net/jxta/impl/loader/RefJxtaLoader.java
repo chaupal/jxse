@@ -55,52 +55,31 @@
  */
 package net.jxta.impl.loader;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import net.jxta.content.ContentTransferAggregatorEvent;
-import net.jxta.content.ContentTransferEvent;
+import net.jxta.content.*;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.impl.content.TransferAggregator;
 import net.jxta.impl.peergroup.CompatibilityEquater;
+import net.jxta.impl.peergroup.CompatibilityUtils;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.content.Content;
-import net.jxta.content.ContentID;
-import net.jxta.content.ContentService;
-import net.jxta.content.ContentTransfer;
-import net.jxta.content.TransferException;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.impl.peergroup.CompatibilityUtils;
-import net.jxta.peergroup.PeerGroup;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.content.ContentTransferAggregator;
-import net.jxta.content.ContentTransferAggregatorListener;
-import net.jxta.content.ContentTransferListener;
-import net.jxta.impl.content.TransferAggregator;
 
 
 /**
@@ -522,9 +501,9 @@ public class RefJxtaLoader extends JxtaLoader {
         result.append(" - Classes: ");
         for (Map.Entry<ModuleSpecID, Map<String, Class<? extends Module>>> eachMCID : classes.entrySet()) {
             ModuleSpecID mcid = eachMCID.getKey();
-            result.append("\n\t" + mcid + " :");
+            result.append("\n\t").append(mcid).append(" :");
             for (Map.Entry<String, Class<? extends Module>> eachClass : eachMCID.getValue().entrySet()) {
-                result.append("\n\t\t" + eachClass.getValue().toString());
+                result.append("\n\t\t").append(eachClass.getValue().toString());
             }
         }
 

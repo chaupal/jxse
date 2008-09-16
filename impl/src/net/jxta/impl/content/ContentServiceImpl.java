@@ -56,39 +56,26 @@
 
 package net.jxta.impl.content;
 
+import net.jxta.content.*;
+import net.jxta.document.Advertisement;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.id.ID;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.ModuleSpecID;
+import net.jxta.protocol.ContentShareAdvertisement;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.ModuleSpecAdvertisement;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.jxta.content.Content;
-import net.jxta.content.ContentID;
-import net.jxta.document.Advertisement;
-import net.jxta.id.ID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.content.ContentService;
-import net.jxta.content.ContentProviderListener;
-import net.jxta.content.ContentProvider;
-import net.jxta.content.ContentProviderSPI;
-import net.jxta.content.ContentProviderEvent;
-import net.jxta.content.ContentShare;
-import net.jxta.content.ContentTransfer;
-import net.jxta.content.TransferException;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.logging.Logging;
-import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ContentShareAdvertisement;
-import net.jxta.protocol.ModuleSpecAdvertisement;
 
 /**
  * Reference implementation of the ContentService.  This implementation
@@ -226,27 +213,24 @@ public class ContentServiceImpl implements ContentService {
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
             StringBuilder configInfo = new StringBuilder();
 
-            configInfo.append( "Configuring Content Service : "
-                    + assignedID );
+            configInfo.append("Configuring Content Service : ").append(assignedID);
 
             configInfo.append( "\n\tImplementation :" );
             if (implAdv != null) {
-                configInfo.append( "\n\t\tModule Spec ID: "
-                        + implAdv.getModuleSpecID());
-                configInfo.append( "\n\t\tImpl Description : "
-                        + implAdv.getDescription());
-                configInfo.append( "\n\t\tImpl URI : " + implAdv.getUri());
-                configInfo.append( "\n\t\tImpl Code : " + implAdv.getCode());
+                configInfo.append("\n\t\tModule Spec ID: ").append(implAdv.getModuleSpecID());
+                configInfo.append("\n\t\tImpl Description : ").append(implAdv.getDescription());
+                configInfo.append("\n\t\tImpl URI : ").append(implAdv.getUri());
+                configInfo.append("\n\t\tImpl Code : ").append(implAdv.getCode());
             }
 
             configInfo.append( "\n\tGroup Params :" );
-            configInfo.append( "\n\t\tGroup : " + group.getPeerGroupName() );
-            configInfo.append( "\n\t\tGroup ID : " + group.getPeerGroupID() );
-            configInfo.append( "\n\t\tPeer ID : " + group.getPeerID() );
+            configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
+            configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
+            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
 
             configInfo.append( "\n\tProviders: ");
             for (ContentProviderSPI provider : toAdd) {
-                configInfo.append( "\n\t\tProvider: " + provider );
+                configInfo.append("\n\t\tProvider: ").append(provider);
             }
             
             LOG.config( configInfo.toString() );

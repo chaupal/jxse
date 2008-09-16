@@ -60,14 +60,7 @@ package net.jxta.impl.access.pse;
 import net.jxta.access.AccessService;
 import net.jxta.credential.Credential;
 import net.jxta.credential.PrivilegedOperation;
-import net.jxta.document.Advertisement;
-import net.jxta.document.Attributable;
-import net.jxta.document.Attribute;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.TextElement;
+import net.jxta.document.*;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
@@ -328,15 +321,15 @@ public class PSEAccessService implements AccessService {
             StringBuilder configInfo = new StringBuilder("Configuring PSE Access Service : " + assignedID);
             
             configInfo.append("\n\tImplementation :");
-            configInfo.append("\n\t\tModule Spec ID: " + implAdvertisement.getModuleSpecID());
-            configInfo.append("\n\t\tImpl Description : " + implAdvertisement.getDescription());
-            configInfo.append("\n\t\tImpl URI : " + implAdvertisement.getUri());
-            configInfo.append("\n\t\tImpl Code : " + implAdvertisement.getCode());
+            configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
+            configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
+            configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
+            configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             
             configInfo.append("\n\tGroup Params :");
-            configInfo.append("\n\t\tGroup : " + group.getPeerGroupName());
-            configInfo.append("\n\t\tGroup ID : " + group.getPeerGroupID());
-            configInfo.append("\n\t\tPeer ID : " + group.getPeerID());
+            configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
+            configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
+            configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
             
             LOG.config(configInfo.toString());
         }

@@ -511,7 +511,7 @@ class JTlsOutputStream extends OutputStream {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     dumpRETRQ.append('\n');
                 }
-                dumpRETRQ.append("\tRETRQ (size=" + retrQ.size() + ")");
+                dumpRETRQ.append("\tRETRQ (size=").append(retrQ.size()).append(")");
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     dumpRETRQ.append(" : ");
                     for (int y = 0; y < retrQ.size(); y++) {
@@ -526,7 +526,7 @@ class JTlsOutputStream extends OutputStream {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     dumpRETRQ.append('\n');
                 }
-                dumpRETRQ.append("\tSACKLIST (size=" + sackList.length + ")");
+                dumpRETRQ.append("\tSACKLIST (size=").append(sackList.length).append(")");
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     dumpRETRQ.append(" : ");
                     for (int y = 0; y < sackList.length; y++) {

@@ -60,15 +60,7 @@ package net.jxta.impl.membership.passwd;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.credential.CredentialPCLSupport;
-import net.jxta.document.Advertisement;
-import net.jxta.document.Attributable;
-import net.jxta.document.Attribute;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
+import net.jxta.document.*;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
@@ -87,14 +79,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -621,14 +606,14 @@ public class PasswdMembershipService implements MembershipService {
             StringBuilder configInfo = new StringBuilder("Configuring Password Membership Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
-            configInfo.append("\n\t\tModule Spec ID: " + implAdvertisement.getModuleSpecID());
-            configInfo.append("\n\t\tImpl Description : " + implAdvertisement.getDescription());
-            configInfo.append("\n\t\tImpl URI : " + implAdvertisement.getUri());
-            configInfo.append("\n\t\tImpl Code : " + implAdvertisement.getCode());
+            configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
+            configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
+            configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
+            configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             configInfo.append("\n\tGroup Params:");
-            configInfo.append("\n\t\tGroup: " + group.getPeerGroupName());
-            configInfo.append("\n\t\tGroup ID: " + group.getPeerGroupID());
-            configInfo.append("\n\t\tPeer ID: " + group.getPeerID());
+            configInfo.append("\n\t\tGroup: ").append(group.getPeerGroupName());
+            configInfo.append("\n\t\tGroup ID: ").append(group.getPeerGroupID());
+            configInfo.append("\n\t\tPeer ID: ").append(group.getPeerID());
             LOG.config(configInfo.toString());
         }
         
