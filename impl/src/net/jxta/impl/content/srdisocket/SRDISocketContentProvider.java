@@ -56,15 +56,30 @@
 
 package net.jxta.impl.content.srdisocket;
 
+import net.jxta.content.*;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Document;
+import net.jxta.document.MimeMediaType;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.impl.content.ModuleWrapperFactory;
+import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.pipe.PipeID;
+import net.jxta.pipe.PipeService;
+import net.jxta.platform.Module;
+import net.jxta.platform.ModuleSpecID;
+import net.jxta.protocol.ContentShareAdvertisement;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.socket.JxtaServerSocket;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,60 +90,35 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
-import net.jxta.content.Content;
-import net.jxta.content.ContentID;
-import net.jxta.protocol.ContentShareAdvertisement;
-import net.jxta.content.ContentProviderEvent;
-import net.jxta.content.ContentProviderListener;
-import net.jxta.content.ContentProviderSPI;
-import net.jxta.id.ID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.content.ContentShare;
-import net.jxta.content.ContentTransfer;
-import net.jxta.content.NullContentTransfer;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Document;
-import net.jxta.document.MimeMediaType;
-import net.jxta.id.IDFactory;
-import net.jxta.impl.content.ModuleWrapperFactory;
-import net.jxta.pipe.PipeID;
-import net.jxta.pipe.PipeService;
-import net.jxta.platform.Module;
-import net.jxta.platform.ModuleSpecID;
-import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.socket.JxtaServerSocket;
 
 /**
  * Reference implementation of the ContentProvider interface.  This
  * implementation works
  * as follows:
  * <ul>
- *      <li>
- *          Being the default/fallback implementation, this provider makes no
- *          assumptions as to the data contained within the Content instance.
- *          It may be static or dynamic content and may or may not be
- *          different across multiple peers who are sharing the same Content ID.
- *          Each client will be served using a single call to a
- *          <code>Content</code>'s document stream.
- *      </li>
- *      <li>
- *          Content instances are shared by calling the shareContent(Content)
- *          method and then making another peer aware of the returned
- *          ContentAdvertisement.  How the remote peer is made aware of the
- *          ContentAdvertisement is of no concern.
- *      </li>
- *      <li>
- *          The ContentAdvertisement passed to <code>retrieveContent</code>
- *          is assumed to contain only the information required to rebuild
- *          a Content instance in the presence of the data itself.
- *      </li>
- *      <li>
- *          No validation is performed on the transferred data.  All validation
- *          must be done out-of-band and post-transfer.
- *      </li>
+ * <li>
+ * Being the default/fallback implementation, this provider makes no
+ * assumptions as to the data contained within the Content instance.
+ * It may be static or dynamic content and may or may not be
+ * different across multiple peers who are sharing the same Content ID.
+ * Each client will be served using a single call to a
+ * <code>Content</code>'s document stream.
+ * </li>
+ * <li>
+ * Content instances are shared by calling the shareContent(Content)
+ * method and then making another peer aware of the returned
+ * ContentAdvertisement.  How the remote peer is made aware of the
+ * ContentAdvertisement is of no concern.
+ * </li>
+ * <li>
+ * The ContentAdvertisement passed to <code>retrieveContent</code>
+ * is assumed to contain only the information required to rebuild
+ * a Content instance in the presence of the data itself.
+ * </li>
+ * <li>
+ * No validation is performed on the transferred data.  All validation
+ * must be done out-of-band and post-transfer.
+ * </li>
  * </ul>
  */
 public class SRDISocketContentProvider
@@ -145,22 +135,22 @@ public class SRDISocketContentProvider
      */
     private static final int ACCEPT_RETRY_DELAY =
             Integer.getInteger(SRDISocketContentProvider.class.getName()
-            + ".acceptRetryDelay", 5 * 1000).intValue();
-    
+                    + ".acceptRetryDelay", 5 * 1000);
+
     /**
      * Module spec ID for this provider.
      */
     private static final String MODULE_SPEC_ID =
             "urn:jxta:uuid-AC3AA08FC4A14C15A78A88B4D4F87554"
-            + "A7A79198AC274BF38DDBA376EB9A788406";
+                    + "A7A79198AC274BF38DDBA376EB9A788406";
 
     /**
      * Parsed and ready-to-use version of MODULE_SPEC_ID.
      */
     private static final ModuleSpecID specID;
-    
+
     // Initialized at construction
-    private Map<ID, SRDIContentShare> shares =
+    private final Map<ID, SRDIContentShare> shares =
             new HashMap<ID, SRDIContentShare>();
     private CopyOnWriteArrayList<ContentProviderListener> listeners =
             new CopyOnWriteArrayList<ContentProviderListener>();
@@ -205,7 +195,7 @@ public class SRDISocketContentProvider
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE,
                         "Uncaught throwable in pool thread: "
-                        + thread, throwable);
+                                + thread, throwable);
             }
         }
     }
@@ -227,7 +217,7 @@ public class SRDISocketContentProvider
 
     //////////////////////////////////////////////////////////////////////////
     // Constructors and initializers:
-    
+
     /**
      * Static initializer.
      */
@@ -236,7 +226,7 @@ public class SRDISocketContentProvider
             URI specURI = new URI(MODULE_SPEC_ID);
             specID = (ModuleSpecID) IDFactory.fromURI(specURI);
         } catch (URISyntaxException urisx) {
-            throw(new RuntimeException(
+            throw (new RuntimeException(
                     "Illegal ModuleSpecURI in code: " + MODULE_SPEC_ID,
                     urisx));
         }
@@ -258,7 +248,7 @@ public class SRDISocketContentProvider
 
         pipeAdv =
                 (PipeAdvertisement) AdvertisementFactory.newAdvertisement(
-                PipeAdvertisement.getAdvertisementType());
+                        PipeAdvertisement.getAdvertisementType());
         pipeAdv.setType(PipeService.UnicastType);
 
         PipeID pipeID = IDFactory.newPipeID(peerGroup.getPeerGroupID());
@@ -310,7 +300,7 @@ public class SRDISocketContentProvider
          * like the idea of each instance using it's own dedicated thread.
          * Suggestions?
          */
-        
+
         running = false;
         notifyAll();
     }
@@ -319,9 +309,9 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public ContentProviderSPI getInterface() {
-        return  (ContentProviderSPI) ModuleWrapperFactory.newWrapper(
-                new Class[] { ContentProviderSPI.class },
-                this);        
+        return (ContentProviderSPI) ModuleWrapperFactory.newWrapper(
+                new Class[]{ContentProviderSPI.class},
+                this);
     }
 
     /**
@@ -330,12 +320,12 @@ public class SRDISocketContentProvider
     public Advertisement getImplAdvertisement() {
         ModuleImplAdvertisement adv =
                 (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(
-                ModuleImplAdvertisement.getAdvertisementType());
+                        ModuleImplAdvertisement.getAdvertisementType());
         adv.setModuleSpecID(specID);
         adv.setCode(getClass().getName());
         adv.setProvider("https://jxta.dev.java.net/");
         adv.setDescription("ContentProvider implementation using JxtaSockets");
-        
+
         return adv;
     }
 
@@ -363,12 +353,12 @@ public class SRDISocketContentProvider
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("retrieveContent(" + contentID + ")");
         }
-        synchronized(this) {
+        synchronized (this) {
             if (!running) {
                 return null;
             }
         }
-        synchronized(shares) {
+        synchronized (shares) {
             ContentShare share = getShare(contentID);
             if (share != null) {
                 return new NullContentTransfer(this, share.getContent());
@@ -385,12 +375,12 @@ public class SRDISocketContentProvider
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("retrieveContent(ContentShareAdvertisement)");
         }
-        synchronized(this) {
+        synchronized (this) {
             if (!running) {
                 return null;
             }
         }
-        synchronized(shares) {
+        synchronized (shares) {
             ContentShare share = getShare(adv.getContentID());
             if (share != null) {
                 return new NullContentTransfer(this, share.getContent());
@@ -409,7 +399,7 @@ public class SRDISocketContentProvider
         }
 
         PipeAdvertisement pAdv;
-        synchronized(this) {
+        synchronized (this) {
             if (pipeAdv == null) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Cannot create share before initialization");
@@ -422,7 +412,7 @@ public class SRDISocketContentProvider
         List<ContentShare> result = new ArrayList<ContentShare>(1);
         ID id = content.getContentID();
         SRDIContentShare share;
-        synchronized(shares) {
+        synchronized (shares) {
             share = getShare(id);
             if (share == null) {
                 share = new SRDIContentShare(this, content, pAdv);
@@ -451,7 +441,7 @@ public class SRDISocketContentProvider
             LOG.fine("unhareContent(): ContentID=" + contentID);
         }
         ContentShare oldShare;
-        synchronized(shares) {
+        synchronized (shares) {
             oldShare = shares.remove(contentID);
         }
         if (oldShare == null) {
@@ -466,11 +456,11 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public void findContentShares(int maxNum, ContentProviderListener listener) {
-        List<ContentShare> shareList = new ArrayList<ContentShare>();
+        List<ContentShare> shareList;
 
-        synchronized(shares) {
+        synchronized (shares) {
             shareList = new ArrayList<ContentShare>(Math.min(maxNum, shares.size()));
-            for (ContentShare share: shares.values()) {
+            for (ContentShare share : shares.values()) {
                 if (shareList.size() >= maxNum) {
                     break;
                 }
@@ -505,7 +495,7 @@ public class SRDISocketContentProvider
         JxtaServerSocket serverSocket = null;
 
         while (true) {
-            synchronized(this) {
+            synchronized (this) {
                 if (!running) {
                     if (serverSocket != null) {
                         try {
@@ -564,12 +554,12 @@ public class SRDISocketContentProvider
     private void clientExecution(Socket socket) {
         SocketAddress remote = socket.getRemoteSocketAddress();
         SRDIContentShare share = null;
-        
+
         try {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Client executing against socket: " + socket);
             }
-            
+
             InputStream inStream = socket.getInputStream();
             ContentRequest request = ContentRequest.readFromStream(inStream);
 
@@ -591,10 +581,10 @@ public class SRDISocketContentProvider
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Client transfer starting");
                 }
-                
+
                 // Notify listeners of access by remote peer
                 share.fireShareSessionAccessed(remote);
-                
+
                 Content content = share.getContent();
                 Document contentDocument = content.getDocument();
                 contentDocument.sendToStream(outStream);
@@ -611,7 +601,7 @@ public class SRDISocketContentProvider
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Caught runtime exception", rtx);
             }
-            throw(rtx);
+            throw (rtx);
         } finally {
             if (share != null) {
                 share.fireShareSessionClosed(remote);
@@ -632,14 +622,14 @@ public class SRDISocketContentProvider
      * @return content share
      */
     private SRDIContentShare getShare(ID id) {
-        synchronized(shares) {
+        synchronized (shares) {
             return shares.get(id);
         }
     }
-    
+
     /**
      * Notify our listeners that the provided shares are being exposed.
-     * 
+     *
      * @param shares list of fresh shares
      */
     private void fireContentShared(List<ContentShare> shares) {
@@ -655,9 +645,9 @@ public class SRDISocketContentProvider
     /**
      * Notify our listeners that the provided shares are that are no
      * longer being exposed.
-     * 
+     *
      * @param contentID ContentID of the content which is no longer
-     *  being shared
+     *                  being shared
      */
     private void fireContentUnshared(ContentID contentID) {
         ContentProviderEvent event = null;
