@@ -332,8 +332,10 @@ public class WirePipeImpl implements EndpointListener {
             }
             return;
         }
-
-        WirePipe wirePipe = getWirePipe(header.getPipeID(), rendezvous.isRendezVous());
+        
+        // rendezvous is set to null when stopped
+        boolean create = rendezvous != null ? rendezvous.isRendezVous() : false;
+        WirePipe wirePipe = getWirePipe(header.getPipeID(), false);
         if (null != wirePipe) {
             wirePipe.processIncomingMessage(message, header, srcAddr, dstAddr);
         } else {
