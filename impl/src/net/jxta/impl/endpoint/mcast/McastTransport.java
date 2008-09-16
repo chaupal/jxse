@@ -398,10 +398,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         // Create the multicast input socket
         try {
-            if (usingInterface.equals(IPUtils.ANYADDRESS)) {
-                multicastSocket = new MulticastSocket(new InetSocketAddress(usingInterface, multicastPort));
-            } else {
-                multicastSocket = new MulticastSocket(multicastPort);
+            multicastSocket = new MulticastSocket(multicastPort);
+            if (!usingInterface.equals(IPUtils.ANYADDRESS)) {
                 multicastSocket.setInterface(usingInterface);
             }
         } catch (IOException failed) {
@@ -677,6 +675,9 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             }
 
             DatagramPacket packet = new DatagramPacket(buffer.toByteArray(), numBytesInPacket, multicastInetAddress, multicastPort);
+            if (isClosed || multicastSocket == null) {
+                return false;
+            }
             multicastSocket.send(packet);
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -692,7 +693,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 multicastTransportBindingMeter.sendFailure(true, message, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
             }
 
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) && !multicastSocket.isClosed()) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) &&  
+                multicastSocket != null && !multicastSocket.isClosed()) {
                 LOG.log(Level.WARNING, "Multicast socket send failed", e);
             }
             return false;
