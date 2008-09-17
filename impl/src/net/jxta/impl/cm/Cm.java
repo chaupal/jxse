@@ -56,14 +56,7 @@
 package net.jxta.impl.cm;
 
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.XMLDocument;
+import net.jxta.document.*;
 import net.jxta.impl.util.JxtaHash;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.xindice.core.DBException;
@@ -79,27 +72,11 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.SrdiMessage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -1118,6 +1095,7 @@ public final class Cm {
 
             for (Map.Entry<String, String> anEntry : indexables.entrySet()) {
                 SrdiMessage.Entry entry = new SrdiMessage.Entry(anEntry.getKey(), anEntry.getValue(), exp);
+                newDeltas.add(entry);
             }
 
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
