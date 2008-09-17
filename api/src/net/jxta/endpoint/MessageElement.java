@@ -408,13 +408,7 @@ public abstract class MessageElement implements Document {
             result = cachedGetBytes.get();
 
             if (null != result) {
-                if (copy) {
-                    byte[] theCopy = new byte[result.length];
-
-                    System.arraycopy(theCopy, 0, result, 0, result.length);
-                } else {
-                    return result;
-                }
+                return copy ? result.clone() : result;
             }
         }
 

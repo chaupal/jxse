@@ -217,13 +217,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             result = cachedGetChars.get();
 
             if (null != result) {
-                if (copy) {
-                    char[] theCopy = new char[result.length];
-
-                    System.arraycopy(theCopy, 0, result, 0, result.length);
-                } else {
-                    return result;
-                }
+                return copy ? result.clone() : result;
             }
         }
 
