@@ -371,7 +371,7 @@ public class StringMessageElement extends TextMessageElement {
             return new ByteArrayInputStream(cachedBytes);
         } else {
             String charset = type.getParameter("charset");
-            return new CharSequenceInputStream(data, charset);
+            return new CharBufferInputStream(data, charset);
         }
     }
 
@@ -406,7 +406,7 @@ public class StringMessageElement extends TextMessageElement {
     /**
      *
      **/
-    private static class CharSequenceInputStream extends InputStream {
+    static class CharBufferInputStream extends InputStream {
 
         private final CharBuffer charData;
 
@@ -419,11 +419,31 @@ public class StringMessageElement extends TextMessageElement {
         private byte multiByteChar[];
         private int position;
 
+        
+        /**
+         * @param s        the char buffer
+         * @param encoding the charset encoding
+         */
+        public CharBufferInputStream(CharBuffer s, String encoding) {
+            charData = s.duplicate();
+
+            Charset encodingCharset = Charset.forName(encoding);
+
+            conversion = encodingCharset.newEncoder();
+            conversion.onMalformedInput(CodingErrorAction.REPLACE);
+            conversion.onUnmappableCharacter(CodingErrorAction.REPLACE);
+
+            int maxBytes = new Float(conversion.maxBytesPerChar()).intValue();
+
+            multiByteChar = new byte[maxBytes];
+            position = multiByteChar.length;
+        }
+        
         /**
          * @param s        the char sequence
          * @param encoding the charset encoding
          */
-        CharSequenceInputStream(CharSequence s, String encoding) {
+        public CharBufferInputStream(CharSequence s, String encoding) {
             charData = CharBuffer.wrap(s);
 
             Charset encodingCharset = Charset.forName(encoding);
