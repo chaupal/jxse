@@ -56,7 +56,14 @@
 package net.jxta.impl.cm;
 
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.*;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.XMLDocument;
 import net.jxta.impl.util.JxtaHash;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.xindice.core.DBException;
@@ -72,18 +79,33 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.SrdiMessage;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A limited document caching mechanism for services that search and exchange 
+ * A limited document caching mechanism for services that search and exchange
  * jxta documents.
  * <p/>
  * Only Core Services are intended to use this mechanism.
@@ -110,10 +132,10 @@ public final class Cm {
      * Alternative to GC. If we accumulate this many changes without a GC then
      * we start the GC early.
      */
-    private final static  int MAX_INCONVENIENCE_LEVEL = 1000;
+    private final static int MAX_INCONVENIENCE_LEVEL = 1000;
     private final static String DATABASE_FILE_NAME = "advertisements";
     /**
-     *  Shared timer for scheduling GC tasks.
+     * Shared timer for scheduling GC tasks.
      */
     private final static Timer GC_TIMER = new Timer("CM GC Timer", true);
     /**
@@ -132,7 +154,7 @@ public final class Cm {
      * Record indexer.
      */
     private final Indexer indexer;
-     /**
+    /**
      * If {@code true} then we will track changes to the indexes.
      */
     private boolean trackDeltas;
@@ -144,7 +166,7 @@ public final class Cm {
      * file descriptor for the root of the cm
      */
     protected final File rootDir;
-   /**
+    /**
      * If {@code true} then this cache has been stopped.
      */
     private boolean stop = false;
@@ -162,8 +184,8 @@ public final class Cm {
      */
     private final long gcMaxInterval;
     /**
-     * Measure of accumulated number of record changes since the last GC. If 
-     * this reaches {@link #MAX_INCONVENIENCE_LEVEL} then the GC operation will  
+     * Measure of accumulated number of record changes since the last GC. If
+     * this reaches {@link #MAX_INCONVENIENCE_LEVEL} then the GC operation will
      * be started early.
      */
     private AtomicInteger inconvenienceLevel = new AtomicInteger(0);
@@ -171,7 +193,7 @@ public final class Cm {
     /**
      * Constructor for cm
      *
-     * @param executor The Executor we will use for executing tasks.
+     * @param executor    The Executor we will use for executing tasks.
      * @param storeRoot   persistence location
      * @param areaName    storage area name
      * @param gcInterval  garbage collect max interval in milliseconds or &lt;= 0 to use default value.
@@ -247,7 +269,7 @@ public final class Cm {
             }
             IOException failure = new IOException("Unable to Initialize databases");
             failure.initCause(de);
-            
+
             throw failure;
         }
     }
@@ -1076,8 +1098,8 @@ public final class Cm {
 
     /**
      * Clear all the SRDI message entries for the specified directory.
-     * 
-     * @param dn  the relative dir name
+     *
+     * @param dn the relative dir name
      */
     private void clearDeltas(String dn) {
         synchronized (deltaMap) {
@@ -1203,10 +1225,11 @@ public final class Cm {
     }
 
     /**
-     * Rebuilds record indexes by reading every record and generating 
+     * Rebuilds record indexes by reading every record and generating
      * new/replacement index entries.
-     * 
+     *
      * @throws net.jxta.impl.xindice.core.DBException
+     *
      * @throws java.io.IOException
      */
     private synchronized void rebuildIndex() throws DBException, IOException {
