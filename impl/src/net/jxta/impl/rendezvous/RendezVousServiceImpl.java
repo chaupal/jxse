@@ -159,7 +159,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * The current provider
      */
-    private RendezVousServiceProvider provider = null;
+    private volatile RendezVousServiceProvider provider = null;
 
     /**
      * Our interface object. We currently always return the same object.
