@@ -168,6 +168,9 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     protected volatile boolean bound = false;
     protected volatile boolean closed = false;
     private CredentialValidator credValidator = null;
+    
+    private volatile Throwable creatorTrace =
+            new Throwable("Instance construction stack trace");
 
     /**
      * Default Constructor
@@ -280,7 +283,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         super.finalize();
         if (!closed) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("JxtaServerSocket is being finalized without being previously closed. This is likely an application level bug.");
+                LOG.log(Level.WARNING, "JxtaServerSocket is being finalized without being previously closed. This is likely an application level bug.", creatorTrace);
             }
         }
         close();
@@ -418,6 +421,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
             return;
         }
         closed = true;
+        creatorTrace = null;
 
         if (isBound()) {
             // close all the pipe
