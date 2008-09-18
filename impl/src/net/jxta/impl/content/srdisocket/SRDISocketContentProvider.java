@@ -266,8 +266,15 @@ public class SRDISocketContentProvider
         if (running) {
             return Module.START_OK;
         }
+        
+        if (peerGroup.getPipeService() == null) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Stalled until there is a PipeService");
+            }
+            return Module.START_AGAIN_STALLED;
+        }
+        
         running = true;
-
 
         // Start the accept loop
         executor.execute(new Runnable() {
@@ -477,6 +484,8 @@ public class SRDISocketContentProvider
 
     /**
      * Returns the peer peerGroup the service is running in.
+     * 
+     * @return PeerGroup instance this service is running in
      */
     protected PeerGroup getPeerGroup() {
         return peerGroup;
@@ -493,53 +502,68 @@ public class SRDISocketContentProvider
             LOG.fine("Acceptor thread starting");
         }
         JxtaServerSocket serverSocket = null;
+        try {
+            while (true) {
+                synchronized (this) {
+                    if (!running) {
+                        break;
+                    }
+                }
 
-        while (true) {
-            synchronized (this) {
-                if (!running) {
-                    if (serverSocket != null) {
-                        try {
-                            serverSocket.close();
-                        } catch (IOException iox) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING,
-                                        "Could not close server socket", iox);
-                            }
+                try {
+                    if (serverSocket == null) {
+                        LOG.fine("Creating new server socket");
+                        serverSocket = new JxtaServerSocket(peerGroup, pipeAdv);
+                    }
+                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+                        LOG.finer("Waiting to accept client...");
+                    }
+                    Socket socket = serverSocket.accept();
+                    if (socket != null) {
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                            LOG.fine("Incoming socket connection");
+                        }
+                        executor.execute(new Client(socket));
+                    }
+                } catch (SocketTimeoutException socktox) {
+                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                        LOG.finest("Socket timed out");
+                    }
+                } catch (IOException iox) {
+                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                        LOG.log(Level.SEVERE,
+                                "Caught exception in acceptor loop", iox);
+                    }
+                    
+                    // Close and deref the current socket
+                    try {
+                        serverSocket.close();
+                    } catch (IOException iox2) {
+                        LOG.log(Level.WARNING, "Could not close socket", iox);
+                    } finally {
+                        serverSocket = null;
+                    }
+                    
+                    // Wait a while before the next attempt
+                    try {
+                        Thread.sleep(ACCEPT_RETRY_DELAY);
+                    } catch (InterruptedException intx) {
+                        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                            LOG.log(Level.SEVERE, "Interrupted", intx);
                         }
                     }
-                    break;
+                } catch (RuntimeException rtx) {
+                    LOG.log(Level.WARNING, "Caught runtime exception", rtx);
+                    throw(rtx);
                 }
             }
-
-            try {
-                if (serverSocket == null) {
-                    serverSocket = new JxtaServerSocket(peerGroup, pipeAdv);
-                }
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Waiting to accept client...");
-                }
-                Socket socket = serverSocket.accept();
-                if (socket != null) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Incoming socket connection");
-                    }
-                    executor.execute(new Client(socket));
-                }
-            } catch (SocketTimeoutException socktox) {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Socket timed out");
-                }
-            } catch (IOException iox) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            "Caught exception in acceptor loop", iox);
-                }
+        } finally {
+            LOG.info("Exiting");
+            if (serverSocket != null) {
                 try {
-                    Thread.sleep(ACCEPT_RETRY_DELAY);
-                } catch (InterruptedException intx) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "Interrupted", intx);
-                    }
+                    serverSocket.close();
+                } catch (IOException iox) {
+                    LOG.log(Level.WARNING, "Could not close socket", iox);
                 }
             }
         }
