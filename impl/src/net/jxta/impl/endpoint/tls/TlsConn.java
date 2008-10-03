@@ -422,8 +422,8 @@ class TlsConn {
                 outBoundMessenger = transport.endpoint.getMessenger(realAddr);
 
                 if (outBoundMessenger == null) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("Could not get messenger for " + realAddr);
+                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        LOG.warning("Could not get messenger for " + realAddr);
                     }
                     return false;
                 }
