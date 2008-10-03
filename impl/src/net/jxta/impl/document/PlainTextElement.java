@@ -75,7 +75,7 @@ import java.util.Vector;
 
 
 /**
- * This class is an implementation of the StructuredDocument interface using
+ * This class is an implementation of the StructuredTextDocument interface using
  * simple text
  */
 public class PlainTextElement implements TextElement<PlainTextElement>, Attributable {
@@ -87,9 +87,9 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
 
     protected final String val;
 
-    private List children = new Vector();
+    private final List<PlainTextElement> children = new ArrayList<PlainTextElement>();
 
-    private Map attributes = new HashMap();
+    private final Map<String,String> attributes = new HashMap<String,String>();
 
     /**
      * Creates new PlainTextElement
@@ -179,7 +179,7 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
     /**
      * {@inheritDoc}
      */
-    public Enumeration getChildren() {
+    public Enumeration<PlainTextElement> getChildren() {
         return Collections.enumeration(children);
     }
 
@@ -223,11 +223,9 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
      * {@inheritDoc}
      */
     public Enumeration<PlainTextElement> getChildren(String name) {
-        List result = new ArrayList();
+        List<PlainTextElement> result = new ArrayList<PlainTextElement>();
 
-        for (Iterator eachChild = children.iterator(); eachChild.hasNext();) {
-            TextElement aChild = (TextElement) eachChild.next();
-
+        for (PlainTextElement aChild : children) {
             if (name.equals(aChild.getName())) {
                 result.add(aChild);
             }
@@ -257,13 +255,13 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
         into.write(name);
 
         // print attributes
-        Enumeration attributes = getAttributes();
+        Enumeration<Attribute> attributes = getAttributes();
 
         if (attributes.hasMoreElements()) {
             into.write(" ( ");
 
             while (attributes.hasMoreElements()) {
-                Attribute anAttr = (Attribute) attributes.nextElement();
+                Attribute anAttr = attributes.nextElement();
 
                 into.write(anAttr.getName() + "=\"" + anAttr.getValue() + "\" ");
             }
@@ -280,8 +278,8 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
 
         // recurse as needed
         if (recurse) {
-            for (Enumeration childrens = getChildren(); childrens.hasMoreElements();) {
-                ((PlainTextElement) childrens.nextElement()).printNice(into, indent + 1, recurse);
+            for (Enumeration<PlainTextElement> childrens = getChildren(); childrens.hasMoreElements();) {
+                childrens.nextElement().printNice(into, indent + 1, recurse);
             }
         }
     }
@@ -293,7 +291,7 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
      */
     public String addAttribute(String name, String value) {
 
-        String oldAttrValue = (String) attributes.remove(name);
+        String oldAttrValue = attributes.remove(name);
 
         attributes.put(name, value);
 
@@ -318,26 +316,24 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
     /**
      * {@inheritDoc}
      */
-    public Enumeration getAttributes() {
+    public Enumeration<Attribute> getAttributes() {
 
-        Vector attrs = new Vector();
+        List<Attribute> attrs = new ArrayList<Attribute>();
 
-        for (Iterator eachAttr = attributes.entrySet().iterator(); eachAttr.hasNext();) {
-            Map.Entry anAttr = (Map.Entry) eachAttr.next();
+        for (Map.Entry<String,String> anAttr : attributes.entrySet()) {
+            Attribute attr = new Attribute(this, anAttr.getKey(), anAttr.getValue());
 
-            Attribute attr = new Attribute(this, (String) anAttr.getKey(), (String) anAttr.getValue());
-
-            attrs.addElement(attr);
+            attrs.add(attr);
         }
 
-        return attrs.elements();
+        return Collections.enumeration(attrs);
     }
 
     /**
      * {@inheritDoc}
      */
     public Attribute getAttribute(String name) {
-        String value = (String) attributes.get(name);
+        String value = attributes.get(name);
 
         if (null == value) {
             return null;
