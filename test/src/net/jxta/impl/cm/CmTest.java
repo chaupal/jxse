@@ -45,7 +45,6 @@
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
  *  
- *  ====================================================================
  *  
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
@@ -99,9 +98,9 @@ public class CmTest extends TestCase {
     private static Cm cm = null;
     private static boolean failed = false;
 
-    private static Random random = new Random();
+    private final static Random random = new Random();
 
-    private List<PeerAdvertisement> queue = Collections.synchronizedList(new ArrayList<PeerAdvertisement>());
+    private final List<PeerAdvertisement> queue = Collections.synchronizedList(new ArrayList<PeerAdvertisement>());
 
     /**
      * Constructor for the CmTest object
