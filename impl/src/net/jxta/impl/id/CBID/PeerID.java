@@ -73,7 +73,7 @@ import java.util.logging.Logger;
 public class PeerID extends net.jxta.impl.id.UUID.PeerID {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(PeerID.class.getName());
 
@@ -109,14 +109,11 @@ public class PeerID extends net.jxta.impl.id.UUID.PeerID {
      * @param seed the seed
      */
     public PeerID(PeerGroupID groupID, byte[] seed) {
-        this();
+        this(groupID.getUUID(), seedToHashUUID(seed));
+    }
 
-        UUID groupUUID = groupID.getUUID();
-
-        id.longIntoBytes(PeerID.groupIdOffset, groupUUID.getMostSignificantBits());
-        id.longIntoBytes(PeerID.groupIdOffset + 8, groupUUID.getLeastSignificantBits());
-
-        MessageDigest digester = null;
+    private static UUID seedToHashUUID(byte[] seed) {
+            MessageDigest digester = null;
 
         try {
             digester = MessageDigest.getInstance("SHA-1");
@@ -135,12 +132,10 @@ public class PeerID extends net.jxta.impl.id.UUID.PeerID {
 
         System.arraycopy(digest, 0, buf16, 0, 16);
 
-        UUID peerCBID = new UUID(buf16);
-
-        id.longIntoBytes(PeerID.idOffset, peerCBID.getMostSignificantBits());
-        id.longIntoBytes(PeerID.idOffset + 8, peerCBID.getLeastSignificantBits());
+        return new UUID(buf16);
     }
-
+    
+    
     /**
      * Creates a PeerID. A PeerGroupID is provided
      *
@@ -164,12 +159,14 @@ public class PeerID extends net.jxta.impl.id.UUID.PeerID {
      */
     @Override
     public net.jxta.id.ID getPeerGroupID() {
-        UUID groupCBID = new UUID(id.bytesIntoLong(PeerID.groupIdOffset), id.bytesIntoLong(PeerID.groupIdOffset + 8));
+        net.jxta.id.ID superGroupID = super.getPeerGroupID();
 
-        PeerGroupID groupID = new PeerGroupID(groupCBID);
-
-        // convert to the generic world PGID as necessary
-        return IDFormat.translateToWellKnown(groupID);
+        if(superGroupID instanceof net.jxta.impl.id.UUID.PeerGroupID) {
+            return new PeerGroupID(((net.jxta.impl.id.UUID.PeerGroupID) superGroupID).getUUID());
+        } else {
+            // It's already been transformed into a well-known id.
+            return superGroupID;
+        }
     }
 
     /**
