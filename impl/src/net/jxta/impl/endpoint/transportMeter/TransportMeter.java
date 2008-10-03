@@ -63,7 +63,7 @@ import net.jxta.peer.PeerID;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-
+import java.util.Collections;
 
 /**
  * Transport Meter for a specific registered Transport
@@ -71,11 +71,11 @@ import java.util.Hashtable;
 public class TransportMeter {
     public static final EndpointAddress UNKNOWN_ADDRESS = new EndpointAddress("<unknown>", "<unknown>", null, null);
     public static final String UNKNOWN_PEER = MetricUtilities.UNKNOWN_PEERID.toString();
-    private String protocol;
-    private EndpointAddress endpointAddress;
+    private final String protocol;
+    private final EndpointAddress endpointAddress;
 
-    private Hashtable<EndpointAddress, TransportBindingMeter> transportBindingMeters = new Hashtable<EndpointAddress, TransportBindingMeter>();
-    private TransportMetric cumulativeMetrics;
+    private final Hashtable<EndpointAddress, TransportBindingMeter> transportBindingMeters = new Hashtable<EndpointAddress, TransportBindingMeter>();
+    private final TransportMetric cumulativeMetrics;
 
     public TransportMeter(String protocol, EndpointAddress endpointAddress) {
         this.endpointAddress = endpointAddress;
@@ -91,8 +91,7 @@ public class TransportMeter {
         TransportMetric transportMetric = new TransportMetric(this);
         boolean anyData = false;
 
-        for (Enumeration<TransportBindingMeter> e = transportBindingMeters.elements(); e.hasMoreElements();) {
-            TransportBindingMeter transportBindingMeter = e.nextElement();
+        for (TransportBindingMeter transportBindingMeter : transportBindingMeters.values()) {
             TransportBindingMetric transportBindingMetric = transportBindingMeter.collectMetrics();
 
             if (transportBindingMetric != null) {
@@ -145,7 +144,7 @@ public class TransportMeter {
     }
 
     public Enumeration<TransportBindingMeter> getTransportBindingMeters() {
-        return transportBindingMeters.elements();
+        return Collections.enumeration(transportBindingMeters.values());
     }
 
     public int getTransportBindingCount() {
