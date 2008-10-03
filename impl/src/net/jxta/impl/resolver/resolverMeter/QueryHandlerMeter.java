@@ -57,6 +57,7 @@
 package net.jxta.impl.resolver.resolverMeter;
 
 
+import java.util.Collections;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.meter.MetricUtilities;
 import net.jxta.peer.PeerID;
@@ -67,22 +68,24 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 
 public class QueryHandlerMeter {
     private static final int QUERY_CULLING_INTERVAL = 5 * 60 * 1000; // Fix-Me: Five minutes hardcoded for now...
 	
     private ResolverServiceMonitor resolverServiceMonitor;
-    private String handlerName;
+    private final String handlerName;
 
     private QueryHandlerMetric cumulativeMetrics;
     private QueryHandlerMetric deltaMetrics;
 
-    private Hashtable queryDestinationMeters = new Hashtable();
+    private final Map<PeerID, QueryDestinationMeter> queryDestinationMeters = new Hashtable<PeerID, QueryDestinationMeter>();
 
-    private Hashtable queryMetricsTable = null;
+    private QueryMetricsTable queryMetricsTable = null;
 
-    private class QueryMetricsTable extends Hashtable {
+    private class QueryMetricsTable extends Hashtable<Integer,QueryMetric> {
 
         void deReference() {
             queryMetricsTable = null;
@@ -106,7 +109,7 @@ public class QueryHandlerMeter {
         }
     }
 
-    private static LinkedList queryMetricsTables = new LinkedList();
+    private static List<QueryMetricsTable> queryMetricsTables = new LinkedList<QueryMetricsTable>();
 	
     static {
         Thread cullQueries = new Thread(new Runnable() {
@@ -119,31 +122,30 @@ public class QueryHandlerMeter {
                     long dormantTime = System.currentTimeMillis() - QUERY_CULLING_INTERVAL;
 					
                     synchronized (queryMetricsTables) {
-                        LinkedList keysToRemove = new LinkedList();
+                        List<Integer> keysToRemove = new LinkedList<Integer>();
 						
-                        for (Iterator i = queryMetricsTables.iterator(); i.hasNext();) {
-                            QueryMetricsTable queryMetricsTable = (QueryMetricsTable) i.next();
+                        for (Iterator<QueryMetricsTable> i = queryMetricsTables.iterator(); i.hasNext();) {
+                            QueryMetricsTable queryMetricsTable = i.next();
 
                             keysToRemove.clear();
 							
                             synchronized (queryMetricsTable) {
-                                for (Enumeration e = queryMetricsTable.keys(); e.hasMoreElements();) {
-                                    Integer key = (Integer) e.nextElement();
-                                    QueryMetric queryMetric = (QueryMetric) queryMetricsTable.get(key);
+                                for (Integer key : queryMetricsTable.keySet()) {
+                                    QueryMetric queryMetric = queryMetricsTable.get(key);
 	
                                     if (queryMetric.lastResponseTime < dormantTime) {
                                         keysToRemove.add(key);
                                     }
                                 }
 
-                                for (Iterator k = keysToRemove.iterator(); k.hasNext();) {
-                                    Integer key = (Integer) k.next();
+                                for (Iterator<Integer> k = keysToRemove.iterator(); k.hasNext();) {
+                                    Integer key = k.next();
 
                                     queryMetricsTable.deReference();
                                     queryMetricsTable.remove(key);
                                 }
 
-                                if (queryMetricsTable.size() == 0) {
+                                if (queryMetricsTable.isEmpty()) {
                                     i.remove();
                                 }
                             }
@@ -174,18 +176,16 @@ public class QueryHandlerMeter {
     public synchronized QueryHandlerMetric collectMetrics() {
         QueryHandlerMetric prevDelta = deltaMetrics;
 
-        for (Enumeration e = queryDestinationMeters.elements(); e.hasMoreElements();) {
-            QueryDestinationMeter queryDestinationMeter = (QueryDestinationMeter) e.nextElement();
-
+        for (QueryDestinationMeter queryDestinationMeter : queryDestinationMeters.values()) {
             QueryDestinationMetric queryDestinationMetric = queryDestinationMeter.collectMetrics();
 
             if (queryDestinationMetric != null) {
-
-                /* Fix-me: while fixing an exception thrown by SrdiHandlerMeter, I noticed that
-                 a similar problem might occur here if there can be a case where a destinationMtric
-                 is available even though nothing has happened to create the delta.
-                 If that is not possible (we need to do a code review!) remove the check for
-                 a null delta here.
+                /*
+                 * Fix-me: while fixing an exception thrown by SrdiHandlerMeter, I noticed that
+                 * a similar problem might occur here if there can be a case where a destinationMtric
+                 * is available even though nothing has happened to create the delta.
+                 * If that is not possible (we need to do a code review!) remove the check for
+                 * a null delta here.
                  */
                 if (prevDelta == null) {
                     createDeltaMetric();
@@ -211,7 +211,7 @@ public class QueryHandlerMeter {
     }
 		
     public synchronized QueryDestinationMeter getQueryDestinationMeter(PeerID peerID) {
-        QueryDestinationMeter queryDestinationMeter = (QueryDestinationMeter) queryDestinationMeters.get(peerID);
+        QueryDestinationMeter queryDestinationMeter = queryDestinationMeters.get(peerID);
 
         if (queryDestinationMeter == null) {
             queryDestinationMeter = new QueryDestinationMeter(peerID);
@@ -229,7 +229,7 @@ public class QueryHandlerMeter {
 
     @Override
     public String toString() {
-        return "ResolverHandlerMeter(" + handlerName + ")";
+        return "QueryHandlerMeter(" + handlerName + ")";
     }
 
     public void setRegistered(boolean registered) {
@@ -242,8 +242,6 @@ public class QueryHandlerMeter {
     }
 
     private QueryMetric getQueryMetric(int queryId) {
-        Integer key = new Integer(queryId);
-
         synchronized (queryMetricsTables) {
             if (queryMetricsTable == null) {
                 queryMetricsTable = new QueryMetricsTable();
@@ -251,12 +249,12 @@ public class QueryHandlerMeter {
                 queryMetricsTables.add(queryMetricsTable);
             }
 			
-            QueryMetric queryMetric = (QueryMetric) queryMetricsTable.get(key);
+            QueryMetric queryMetric = queryMetricsTable.get(queryId);
 	
             if (queryMetric == null) {
                 queryMetric = new QueryMetric(queryId);
 				
-                queryMetricsTable.put(key, queryMetric);
+                queryMetricsTable.put(queryId, queryMetric);
             }
 	
             return queryMetric;	
@@ -509,7 +507,7 @@ public class QueryHandlerMeter {
     }
 
     public Enumeration getQueryDestinationMeters() {
-        return queryDestinationMeters.elements();
+        return Collections.enumeration(queryDestinationMeters.values());
     }
 
     public int getQueryDestinationCount() {
