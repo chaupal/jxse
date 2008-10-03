@@ -434,7 +434,8 @@ public class EdgePeerRdvService extends StdRendezVousService {
     @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
         
-        propagate(destPeerIDs.elements(), msg, serviceName, serviceParam, initialTTL);
+        propagate(Collections.enumeration(destPeerIDs), msg, serviceName,
+                  serviceParam, initialTTL);
     }
     
     /**

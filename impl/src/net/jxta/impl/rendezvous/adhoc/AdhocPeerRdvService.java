@@ -76,6 +76,7 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.rendezvous.RendezvousEvent;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -360,7 +361,8 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
     @Override
     public void walk(Vector<? extends ID> destPeerIDs, Message msg, String serviceName, String serviceParam, int ttl) throws IOException {
 
-        propagate(destPeerIDs.elements(), msg, serviceName, serviceParam, ttl);
+        propagate(Collections.enumeration(destPeerIDs), msg, serviceName,
+                  serviceParam, ttl);
     }
 
     /**
