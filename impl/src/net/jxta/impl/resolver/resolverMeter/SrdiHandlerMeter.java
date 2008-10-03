@@ -62,16 +62,16 @@ import net.jxta.impl.meter.MetricUtilities;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.ResolverSrdiMsg;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 
 
 public class SrdiHandlerMeter {
-    private String handlerName;
+    private final String handlerName;
 
     private SrdiHandlerMetric cumulativeMetrics;
     private SrdiHandlerMetric deltaMetrics;
-    private Hashtable srdiDestinationMeters = new Hashtable();
+    private final Map<PeerID, SrdiDestinationMeter> srdiDestinationMeters = new Hashtable<PeerID, SrdiDestinationMeter>();
 
     public SrdiHandlerMeter(String handlerName) {
         this.handlerName = handlerName;
@@ -89,16 +89,14 @@ public class SrdiHandlerMeter {
     public synchronized SrdiHandlerMetric collectMetrics() {
         SrdiHandlerMetric prevDelta = deltaMetrics;
 
-        for (Enumeration e = srdiDestinationMeters.elements(); e.hasMoreElements();) {
-            SrdiDestinationMeter srdiDestinationMeter = (SrdiDestinationMeter) e.nextElement();
-
+        for (SrdiDestinationMeter srdiDestinationMeter : srdiDestinationMeters.values()) {
             SrdiDestinationMetric srdiDestinationMetric = srdiDestinationMeter.collectMetrics();
 
             if (srdiDestinationMetric != null) {
-
-                /* Fix-me: Apparantly, we can have a case where NO Srdi mteric is tickled, but a 
-                 destination metric is available.  This may be a bug.  For now, we'll create the
-                 delta in that case.
+                /*
+                 * Fix-me: Apparantly, we can have a case where NO Srdi mteric is tickled, but a
+                 * destination metric is available.  This may be a bug.  For now, we'll create the
+                 * delta in that case.
                  */
                 if (prevDelta == null) {
                     createDeltaMetric();
@@ -124,8 +122,7 @@ public class SrdiHandlerMeter {
     }
 	
     public synchronized SrdiDestinationMeter getSrdiDestinationMeter(PeerID peerID) {
-		
-        SrdiDestinationMeter srdiDestinationMeter = (SrdiDestinationMeter) srdiDestinationMeters.get(peerID);
+        SrdiDestinationMeter srdiDestinationMeter = srdiDestinationMeters.get(peerID);
 
         if (srdiDestinationMeter == null) {
             srdiDestinationMeter = new SrdiDestinationMeter(peerID);

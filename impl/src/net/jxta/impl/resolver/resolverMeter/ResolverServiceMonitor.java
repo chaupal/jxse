@@ -61,8 +61,8 @@ import net.jxta.impl.meter.GenericServiceMonitor;
 import net.jxta.meter.ServiceMetric;
 import net.jxta.meter.ServiceMonitorFilter;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 
 
 /**
@@ -71,10 +71,10 @@ import java.util.Hashtable;
 public class ResolverServiceMonitor extends GenericServiceMonitor {
     public static final String UNKNOWN_HANDLER = "--UNKNOWN-HANDLER--";
 	
-    private Hashtable queryHandlerMeters = new Hashtable();
-    private Hashtable srdiHandlerMeters = new Hashtable();
-    private Hashtable destinationMeters = new Hashtable();
-    private Hashtable sourceMeters = new Hashtable();
+    private final Map<String,QueryHandlerMeter> queryHandlerMeters = new Hashtable<String,QueryHandlerMeter>();
+    private final Map<String, SrdiHandlerMeter> srdiHandlerMeters = new Hashtable<String, SrdiHandlerMeter>();
+    private final Map destinationMeters = new Hashtable();
+    private final Map sourceMeters = new Hashtable();
 	
     private ResolverMeter resolverMeter = new ResolverMeter(this);
 	
@@ -91,7 +91,7 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
     }
 	
     public synchronized QueryHandlerMeter registerQueryHandlerMeter(String handlerName) {
-        QueryHandlerMeter queryHandlerMeter = (QueryHandlerMeter) queryHandlerMeters.get(handlerName);
+        QueryHandlerMeter queryHandlerMeter = queryHandlerMeters.get(handlerName);
         
         if (queryHandlerMeter == null) { 
             queryHandlerMeter = addQueryHandlerMeter(handlerName, true);
@@ -121,7 +121,7 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
     }
 
     public QueryHandlerMeter getQueryHandlerMeter(String handlerName) {
-        QueryHandlerMeter queryHandlerMeter = (QueryHandlerMeter) queryHandlerMeters.get(handlerName);
+        QueryHandlerMeter queryHandlerMeter = queryHandlerMeters.get(handlerName);
 		
         if (queryHandlerMeter == null) {
             queryHandlerMeter = addQueryHandlerMeter(handlerName, false);
@@ -131,7 +131,7 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
     }
 
     public synchronized SrdiHandlerMeter registerSrdiHandlerMeter(String handlerName) {
-        SrdiHandlerMeter srdiHandlerMeter = (SrdiHandlerMeter) srdiHandlerMeters.get(handlerName);
+        SrdiHandlerMeter srdiHandlerMeter = srdiHandlerMeters.get(handlerName);
         
         if (srdiHandlerMeter == null) { 
             srdiHandlerMeter = addSrdiHandlerMeter(handlerName, true);
@@ -161,7 +161,7 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
     }
 
     public SrdiHandlerMeter getSrdiHandlerMeter(String handlerName) {
-        SrdiHandlerMeter srdiHandlerMeter = (SrdiHandlerMeter) srdiHandlerMeters.get(handlerName);
+        SrdiHandlerMeter srdiHandlerMeter = srdiHandlerMeters.get(handlerName);
 		
         if (srdiHandlerMeter == null) {
             srdiHandlerMeter = addSrdiHandlerMeter(handlerName, false);
@@ -176,9 +176,8 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
 
         boolean anyData = false;
 		
-        for (Enumeration e = queryHandlerMeters.elements(); e.hasMoreElements();) {
-            QueryHandlerMeter queryHandlerMeter = (QueryHandlerMeter) e.nextElement();
-            QueryHandlerMetric queryHandlerMetric = queryHandlerMeter.collectMetrics(); // clears delta from meter
+        for (QueryHandlerMeter queryHandlerMeter : queryHandlerMeters.values()) {
+            QueryHandlerMetric queryHandlerMetric = queryHandlerMeter.collectMetrics();
 
             if (queryHandlerMetric != null) {
                 resolverServiceMetric.addQueryHandlerMetric(queryHandlerMetric);
@@ -186,9 +185,8 @@ public class ResolverServiceMonitor extends GenericServiceMonitor {
             }
         }
 
-        for (Enumeration e = srdiHandlerMeters.elements(); e.hasMoreElements();) {
-            SrdiHandlerMeter srdiHandlerMeter = (SrdiHandlerMeter) e.nextElement();
-            SrdiHandlerMetric srdiHandlerMetric = srdiHandlerMeter.collectMetrics(); // clears delta from meter
+        for (SrdiHandlerMeter srdiHandlerMeter : srdiHandlerMeters.values()) {
+            SrdiHandlerMetric srdiHandlerMetric = srdiHandlerMeter.collectMetrics();
 
             if (srdiHandlerMetric != null) {
                 resolverServiceMetric.addSrdiHandlerMetric(srdiHandlerMetric);
