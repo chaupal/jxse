@@ -100,11 +100,11 @@ public class PeerID extends net.jxta.peer.PeerID {
     protected PeerID(UUID groupUUID, UUID idUUID) {
         this();
         
-        id.longIntoBytes(PipeID.groupIdOffset, groupUUID.getMostSignificantBits());
-        id.longIntoBytes(PipeID.groupIdOffset + 8, groupUUID.getLeastSignificantBits());
+        id.longIntoBytes(PeerID.groupIdOffset, groupUUID.getMostSignificantBits());
+        id.longIntoBytes(PeerID.groupIdOffset + 8, groupUUID.getLeastSignificantBits());
         
-        id.longIntoBytes(PipeID.idOffset, idUUID.getMostSignificantBits());
-        id.longIntoBytes(PipeID.idOffset + 8, idUUID.getLeastSignificantBits());
+        id.longIntoBytes(PeerID.idOffset, idUUID.getMostSignificantBits());
+        id.longIntoBytes(PeerID.idOffset + 8, idUUID.getLeastSignificantBits());
     }
     
     /**
@@ -120,8 +120,7 @@ public class PeerID extends net.jxta.peer.PeerID {
     public PeerID(PeerGroupID groupID, byte[] seed) {
         this();
         
-        UUID groupUUID = new UUID(groupID.id.bytesIntoLong(PeerGroupID.groupIdOffset)
-                ,
+        UUID groupUUID = new UUID(groupID.id.bytesIntoLong(PeerGroupID.groupIdOffset),
                 groupID.id.bytesIntoLong(PeerGroupID.groupIdOffset + 8));
         
         byte[] idUUIDbytes = new byte[IDFormat.uuidSize];
@@ -130,11 +129,11 @@ public class PeerID extends net.jxta.peer.PeerID {
         
         UUID idUUID = UUIDFactory.newUUID(idUUIDbytes);
         
-        id.longIntoBytes(PipeID.groupIdOffset, groupUUID.getMostSignificantBits());
-        id.longIntoBytes(PipeID.groupIdOffset + 8, groupUUID.getLeastSignificantBits());
+        id.longIntoBytes(PeerID.groupIdOffset, groupUUID.getMostSignificantBits());
+        id.longIntoBytes(PeerID.groupIdOffset + 8, groupUUID.getLeastSignificantBits());
         
-        id.longIntoBytes(PipeID.idOffset, idUUID.getMostSignificantBits());
-        id.longIntoBytes(PipeID.idOffset + 8, idUUID.getLeastSignificantBits());
+        id.longIntoBytes(PeerID.idOffset, idUUID.getMostSignificantBits());
+        id.longIntoBytes(PeerID.idOffset + 8, idUUID.getLeastSignificantBits());
     }
     
     /**
