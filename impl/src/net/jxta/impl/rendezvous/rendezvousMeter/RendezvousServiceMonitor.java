@@ -208,9 +208,8 @@ public class RendezvousServiceMonitor extends GenericServiceMonitor {
 
         boolean anyData = false;
 
-        for (Enumeration<ClientConnectionMeter> e = clientConnectionMeters.elements(); e.hasMoreElements();) {
-            ClientConnectionMeter clientConnectionMeter = e.nextElement();
-            ClientConnectionMetric clientConnectionMetric = clientConnectionMeter.collectMetrics(); // clears delta from meter
+        for (ClientConnectionMeter clientConnectionMeter : clientConnectionMeters.values()) {
+            ClientConnectionMetric clientConnectionMetric = clientConnectionMeter.collectMetrics();
 
             if (clientConnectionMetric != null) {
                 rendezvousServiceMetric.addClientConnectionMetric(clientConnectionMetric);
