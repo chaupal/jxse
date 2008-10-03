@@ -123,7 +123,7 @@ public class PeerGroupID extends net.jxta.peergroup.PeerGroupID {
     public PeerGroupID(PeerGroupID parent) {
         this(UUIDFactory.newUUID());
 
-        System.arraycopy(parent.id.bytes, 0, id.bytes, 16, IDFormat.uuidSize);
+        System.arraycopy(parent.id.bytes, PeerGroupID.groupIdOffset, id.bytes, PeerGroupID.parentgroupIdOffset, IDFormat.uuidSize);
     }
     
     /**
@@ -152,7 +152,7 @@ public class PeerGroupID extends net.jxta.peergroup.PeerGroupID {
     public PeerGroupID(PeerGroupID parent, byte[] seed) {
         this(seed);
 
-        System.arraycopy(parent.id.bytes, 0, id.bytes, 16, IDFormat.uuidSize);
+        System.arraycopy(parent.id.bytes, PeerGroupID.groupIdOffset, id.bytes, PeerGroupID.parentgroupIdOffset, IDFormat.uuidSize);
     }
     
     /**
@@ -216,8 +216,7 @@ public class PeerGroupID extends net.jxta.peergroup.PeerGroupID {
             return null;
         }
         
-        UUID groupUUID = new UUID(id.bytesIntoLong(PeerGroupID.parentgroupIdOffset)
-                ,
+        UUID groupUUID = new UUID(id.bytesIntoLong(PeerGroupID.parentgroupIdOffset),
                 id.bytesIntoLong(PeerGroupID.parentgroupIdOffset + 8));
         
         PeerGroupID groupID = new PeerGroupID(groupUUID);
@@ -231,7 +230,7 @@ public class PeerGroupID extends net.jxta.peergroup.PeerGroupID {
      *
      *  @return The UUID associated with this PeerGroupID.
      */
-    protected UUID getUUID() {
+    public UUID getUUID() {
         return new UUID(id.bytesIntoLong(PeerGroupID.groupIdOffset), id.bytesIntoLong(PeerGroupID.groupIdOffset + 8));
     }
 }
