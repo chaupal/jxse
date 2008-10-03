@@ -226,9 +226,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         int queryId = peerInfoServiceImpl.getNextQueryId();
 
         RequestInfo oldRequestInfo = null;
-        for (Enumeration<RequestInfo> e = requestInfos.elements(); e.hasMoreElements();) {
-            RequestInfo ri = e.nextElement();
-
+        for (RequestInfo ri : requestInfos.values()) {
             if (ri.monitorListener == monitorListener) {
                 oldRequestInfo = ri;
                 break;
@@ -254,11 +252,10 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     }
 
     public void removeRemoteMonitorListener(MonitorListener monitorListener, long timeout, PeerInfoMessenger peerInfoMessenger) throws MonitorException {
-        for (Enumeration<RequestInfo> e = requestInfos.elements(); e.hasMoreElements();) {
-            RequestInfo requestInfo = e.nextElement();
-
+        for (RequestInfo requestInfo : requestInfos.values()) {
             if (requestInfo.monitorListener == monitorListener) {
-                removeRemoteMonitorListener(requestInfo.peerId, monitorListener, timeout, peerInfoMessenger);
+                removeRemoteMonitorListener(requestInfo.peerId, monitorListener,
+                                            timeout, peerInfoMessenger);
             }
         }
     }
