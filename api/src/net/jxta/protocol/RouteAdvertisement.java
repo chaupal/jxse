@@ -67,6 +67,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -495,7 +496,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * @return Enumeration list of hops as AccessPointAdvertisement
      */
     public Enumeration<AccessPointAdvertisement> getHops() {
-        return hops.elements();
+        return Collections.enumeration(hops);
     }
 
     /**
@@ -553,7 +554,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * @return AccessPointAdvertisement of first hop.
      */
     public AccessPointAdvertisement getFirstHop() {
-        return hops.isEmpty() ? null : hops.firstElement();
+        return hops.isEmpty() ? null : hops.get(0);
     }
 
     /**
@@ -850,7 +851,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         }
 
         if (lastHop != null && newHops.size() > 0) {
-            newHops.setElementAt(lastHop, newHops.size() - 1);
+            newHops.set(newHops.size() - 1, lastHop);
         }
 
         // update the new hops in the route
