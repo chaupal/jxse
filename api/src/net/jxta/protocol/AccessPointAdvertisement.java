@@ -58,6 +58,7 @@ package net.jxta.protocol;
 
 
 import java.util.Collection;
+import java.util.Collections;
 import net.jxta.document.ExtendableAdvertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.peer.PeerID;
@@ -256,7 +257,7 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
      *         represented as {@link java.lang.String}.
      */
     public Enumeration<String> getEndpointAddresses() {
-        return endpointAddresses.elements();
+        return Collections.enumeration(endpointAddresses);
     }
 
     /**
