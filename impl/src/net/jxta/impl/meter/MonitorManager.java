@@ -70,6 +70,7 @@ import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -612,12 +613,11 @@ public class MonitorManager implements Service {
     private void generateReports() {
         long beginReportTime = System.currentTimeMillis();
 
-        for (Enumeration<ServiceMonitorPulseInfo> e = serviceMonitorPulseInfos.elements(); e.hasMoreElements();) {
-            ServiceMonitorPulseInfo serviceMonitorPulseInfo = e.nextElement();
+        for (ServiceMonitorPulseInfo serviceMonitorPulseInfo : serviceMonitorPulseInfos.values()) {
             int servicePulseRateIndex = serviceMonitorPulseInfo.getPulseRateIndex();
 
-            if ((serviceMonitorPulseInfo.serviceMonitor instanceof ServiceMonitorImpl)
-                    && isEvenPulseForRateIndex(servicePulseRateIndex)) {
+            if ((serviceMonitorPulseInfo.serviceMonitor instanceof ServiceMonitorImpl) &&
+                isEvenPulseForRateIndex(servicePulseRateIndex)) {
                 ((ServiceMonitorImpl) serviceMonitorPulseInfo.serviceMonitor).beginPulse(serviceMonitorPulseInfo);
             }
         }
@@ -666,12 +666,11 @@ public class MonitorManager implements Service {
             }
         }
 
-        for (Enumeration<ServiceMonitorPulseInfo> e = serviceMonitorPulseInfos.elements(); e.hasMoreElements();) {
-            ServiceMonitorPulseInfo serviceMonitorPulseInfo = e.nextElement();
+        for (ServiceMonitorPulseInfo serviceMonitorPulseInfo : serviceMonitorPulseInfos.values()) {
             int servicePulseRateIndex = serviceMonitorPulseInfo.getPulseRateIndex();
 
-            if ((serviceMonitorPulseInfo.serviceMonitor instanceof ServiceMonitorImpl)
-                    && isEvenPulseForRateIndex(servicePulseRateIndex)) {
+            if ((serviceMonitorPulseInfo.serviceMonitor instanceof ServiceMonitorImpl) &&
+                isEvenPulseForRateIndex(servicePulseRateIndex)) {
                 ((ServiceMonitorImpl) serviceMonitorPulseInfo.serviceMonitor).endPulse(serviceMonitorPulseInfo);
             }
         }
@@ -737,8 +736,7 @@ public class MonitorManager implements Service {
         isRunning = false;
         reportThread.interrupt();
 
-        for (Enumeration<ServiceMonitorPulseInfo> e = serviceMonitorPulseInfos.elements(); e.hasMoreElements();) {
-            ServiceMonitorPulseInfo serviceMonitorPulseInfo = e.nextElement();
+        for (ServiceMonitorPulseInfo serviceMonitorPulseInfo : serviceMonitorPulseInfos.values()) {
             ServiceMonitor serviceMonitor = serviceMonitorPulseInfo.serviceMonitor;
 
             serviceMonitor.destroy();
