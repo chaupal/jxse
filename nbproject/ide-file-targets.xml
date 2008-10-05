@@ -116,7 +116,7 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
 
           <pathelement location="${basedir}" />
 
-          <pathelement location="${tools}/junit.jar" />
+          <pathelement location="${tools}/junit-4.4.jar" />
       </path>
 
       <java classname="junit.textui.TestRunner" fork="yes">
@@ -177,7 +177,7 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
 
           <pathelement location="${basedir}" />
 
-          <pathelement location="${tools}/junit.jar" />
+          <pathelement location="${tools}/junit-4.4.jar" />
       </path>
 
       <nbjpdastart addressproperty="jpda.address" name="JUnit ${classname}" transport="dt_socket">
