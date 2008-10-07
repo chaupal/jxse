@@ -87,7 +87,7 @@ import java.util.logging.Logger;
 public abstract class TextMessageElement extends MessageElement implements TextDocument {
 
     /**
-     * Log4J Logger
+     * Logger
      */
     private static final Logger LOG = Logger.getLogger(TextMessageElement.class.getName());
 
@@ -102,13 +102,13 @@ public abstract class TextMessageElement extends MessageElement implements TextD
     protected transient SoftReference<char[]> cachedGetChars = null;
 
     /**
-     * Internal constructor for initializaing everything but the data.
+     * Internal constructor for initializing everything but the data.
      *
      * @param name Name of the Element. May be the empty string ("") if
      *             the Element is not named.
      * @param type Type of the Element. null is equivalent to specifying
      *             the type "Application/Octet-stream"
-     * @param sig  optional message digest/digital signature elemnent. If
+     * @param sig  optional message digest/digital signature element. If
      *             no signature is to be specified, pass null.
      */
     protected TextMessageElement(String name, MimeMediaType type, MessageElement sig) {
