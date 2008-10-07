@@ -58,7 +58,6 @@ package net.jxta.document;
 
 
 import java.io.*;
-import java.util.Enumeration;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
