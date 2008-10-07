@@ -55,9 +55,14 @@ public class CustomGroupService {
      */
     public static void main(String args[]) {
         try {
-            
+            // Set the main thread name for debugging.
+            Thread.currentThread().setName(CustomGroupService.class.getSimpleName());
+
+            // Configure JXTA
             NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "customgroupservice", new File(new File(".cache"), "customgroupservice").toURI());
             manager.setPeerID(IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID));  // create a random peer id.
+            
+            // Start JXTA.
             System.out.println("Starting JXTA");
             PeerGroup npg = manager.startNetwork();
             System.out.println("JXTA Started : " + npg);
@@ -173,8 +178,9 @@ public class CustomGroupService {
             
             System.out.println("Stopping JXTA");
             manager.stopNetwork();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            System.err.println("Fatal error -- quitting.");
+            e.printStackTrace(System.err);
             System.exit(-1);
         }
     }
