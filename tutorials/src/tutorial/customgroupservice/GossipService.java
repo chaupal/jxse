@@ -91,14 +91,18 @@ import net.jxta.service.Service;
  *  receives one.
  *  <p/>
  *  The protocol for this service consists of JXTA messages sent via Endpoint
- *  propagation. This gossip service implementation uses the <tt>assignedID</tt>
- *  which is initialized in the <tt>init()</tt> method as the endpoint address
- *  for the messages it sends and receives. Use of the <tt>assignedID</tt> as
- *  the <tt>serviceParam</tt> is a common choice because it is gauranteed to be
- *  unique within the PeerGroup and the <tt>assignedID</tt>
+ *  propagation. In order for this example to work you <i>must</i> enable at
+ *  least one message transport which supports broadcast/multicast.
+ *  <p/>
+ *  This gossip service implementation uses the <tt>assignedID</tt>
+ *  which is initialized in <tt>init()</tt> as the endpoint address for the 
+ *  messages it sends and receives. Use of the <tt>assignedID</tt> as the 
+ *  <tt>serviceParam</tt> is a common choice because it is gauranteed to be
+ *  unique within the PeerGroup and the <tt>assignedID</tt> 
  *  <tt>serviceParam</tt> is informally reserved for the service with that
  *  <tt>assignedID</tt>.
- *  <p/>The messages exchanged by the gossip service contain two message
+ *  <p/>
+ *  The messages exchanged by the gossip service contain two message
  *  elements in the "<tt>gossip</tt>" namespace. "<tt>sender</tt>" contains a
  *  <tt>String</tt> of the peer id of the message sender. "<tt>gossip</tt>"
  *  contains a <tt>String</tt> of the gossip text which is being shared by the
