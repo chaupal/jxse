@@ -187,6 +187,7 @@ $Id: ide-targets.xml,v 1.7 2007/05/22 18:25:23 bondolo Exp $
           <sourcepath>
               <pathelement location="${basedir}/api/src/" />
               <pathelement location="${basedir}/impl/src/" />
+              <pathelement location="${basedir}/test/src/" />
           </sourcepath>
       </nbjpdastart>
 
