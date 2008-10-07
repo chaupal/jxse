@@ -142,6 +142,10 @@ public class SocketClient extends TestCase {
     
     /**
      * Interact with the server.
+     * @param run
+     * @param iterations
+     * @param loss
+     * @param delayRatio 
      */
     public void singleTest(int run, long iterations, double loss, double delayRatio) {
         try {
@@ -305,6 +309,7 @@ public class SocketClient extends TestCase {
         /**
          *  {@inheritDoc}
          */
+        @Override
         protected Outgoing makeOutgoing(Messenger msgr, long timeout) {
             return new OutgoingFaultyMsgrAdaptor(msgr, (int) timeout, loss, delay);
         }
