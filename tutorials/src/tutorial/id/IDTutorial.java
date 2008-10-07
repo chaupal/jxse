@@ -66,7 +66,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 
 /**
- * A simple and re-usable exmaple of creating various JXTA IDs.
+ * A simple and re-usable example of creating various JXTA IDs
  * <p/>
  * This is a two part tutorial :
  * <ol>
