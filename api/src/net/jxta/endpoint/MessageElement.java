@@ -232,9 +232,9 @@ public abstract class MessageElement implements Document {
     /**
      * {@inheritDoc}
      * <p/>
-     * <p/>Elements are considered equal if they have the same name, type and
-     * signatures. Element data is not considered by this implementation as
-     * it is mostly intended for subclass use.
+     * Elements are considered equal if they have the same name, same basic
+     * MIME type and signatures. Element data is not considered by this 
+     * implementation as it is mostly intended for subclass use.
      */
     @Override
     public boolean equals(Object target) {
@@ -248,7 +248,7 @@ public abstract class MessageElement implements Document {
             // sig is nullable so test seperatly.
             boolean sigequals = (null != sig) ? sig.equals(likeMe.sig) : (null == likeMe.sig);
 
-            return sigequals && name.equals(likeMe.name) && type.equals(likeMe.type);
+            return sigequals && name.equals(likeMe.name) && type.equalsIngoringParams(likeMe.type);
         }
 
         return false; // not a MessageElement
@@ -263,7 +263,7 @@ public abstract class MessageElement implements Document {
 
         int result = sigHash * 2467 + // a prime
                 getElementName().hashCode() * 3943 + // also a prime
-                getMimeType().hashCode();
+                getMimeType().getBaseMimeMediaType().hashCode();
 
         return (0 != result) ? result : 1;
     }
