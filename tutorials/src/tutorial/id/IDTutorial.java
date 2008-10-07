@@ -66,7 +66,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 
 /**
- * A simple and re-usable exmaple of creating various JXTA IDs
+ * A simple and re-usable exmaple of creating various JXTA IDs.
  * <p/>
  * This is a two part tutorial :
  * <ol>
@@ -173,18 +173,19 @@ public class IDTutorial {
     }
 
     /**
-     * Given a group name generates a Peer Group ID who's value is chosen based upon that name.
+     * Constructs a Peer Group ID based upon a hash of the provided group name.
      *
      * @param groupName group name encoding value
      * @return The PeerGroupID value
      */
     public static PeerGroupID createPeerGroupID(final String groupName) {
-        // Use lower case to avoid any locale conversion inconsistencies
+        // Use lower case to avoid any locale conversion inconsistencies.
         return IDFactory.newPeerGroupID(PeerGroupID.defaultNetPeerGroupID, hash(SEED + groupName.toLowerCase()));
     }
 
     /**
-     * Contructs and returns an string encoded Infrastructure PeerGroupID.
+     * Constructs a peer group id suitable for use as an Infrastructure Peer
+     * Group ID based upon a hash of the provided group name.
      *
      * @param groupName the string encoding
      * @return The infraPeerGroupID PeerGroupID
