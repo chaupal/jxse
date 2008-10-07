@@ -55,17 +55,18 @@
  */
 package net.jxta.endpoint;
 
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.logging.Logging;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
@@ -78,9 +79,8 @@ import java.nio.charset.CodingErrorAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
- * A Message Element using character strings for the element data.
+ * A Message Element using character sequences for the element data.
  */
 public class StringMessageElement extends TextMessageElement {
 
@@ -88,17 +88,15 @@ public class StringMessageElement extends TextMessageElement {
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(StringMessageElement.class.getName());
-
     /**
      * The MIME media type we will be use for encoding {@code String}s when no
      * encoding is specified.
      */
     private static final MimeMediaType DEFAULT_TEXT_ENCODING = new MimeMediaType(MimeMediaType.TEXT_DEFAULTENCODING, "charset=\"" + Charset.defaultCharset().name() + "\"", true).intern();
-
     /**
      * The data for this Message Element.
      */
-    protected String data;
+    protected final CharSequence data;
 
     /**
      * Returns an appropriate mime type for the given encoding name. The
@@ -129,7 +127,7 @@ public class StringMessageElement extends TextMessageElement {
      * @throws IllegalArgumentException if <code>value</code> is
      *                                  <code>null</code>.
      */
-    public StringMessageElement(String name, String value, MessageElement sig) {
+    public StringMessageElement(String name, CharSequence value, MessageElement sig) {
         super(name, MimeMediaType.TEXTUTF8, sig);
 
         if (null == value) {
@@ -157,7 +155,7 @@ public class StringMessageElement extends TextMessageElement {
      * @throws UnsupportedEncodingException if the requested encoding is not
      *                                      supported.
      */
-    public StringMessageElement(String name, String value, String encoding, MessageElement sig) throws UnsupportedEncodingException {
+    public StringMessageElement(String name, CharSequence value, String encoding, MessageElement sig) throws UnsupportedEncodingException {
         super(name, (null == encoding) ? DEFAULT_TEXT_ENCODING : makeMimeType(encoding), sig);
 
         if (null == value) {
@@ -178,17 +176,16 @@ public class StringMessageElement extends TextMessageElement {
 
         if (target instanceof MessageElement) {
             if (!super.equals(target)) {
-                return false;
+                return false;               
             }
 
             if (target instanceof StringMessageElement) {
                 StringMessageElement likeMe = (StringMessageElement) target;
 
-                return data.equals(likeMe.data); // same chars?
+                return data.toString().equals(likeMe.data.toString()); // same chars?
             } else if (target instanceof TextMessageElement) {
                 // have to do a slow char by char comparison. Still better than the stream since it saves encoding.
                 // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
-
                 TextMessageElement likeMe = (TextMessageElement) target;
 
                 try {
@@ -203,8 +200,9 @@ public class StringMessageElement extends TextMessageElement {
                         its = itsReader.read();
 
                         if (mine != its) {
+                            // content didn't match
                             return false;
-                        }       // content didn't match
+                        }       
 
                     } while ((-1 != mine) && (-1 != its));
 
@@ -217,8 +215,7 @@ public class StringMessageElement extends TextMessageElement {
                 }
             } else {
                 // have to do a slow stream comparison.
-                // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
-
+                // XXX 20020615 bondolo the performance of this could be much improved.
                 MessageElement likeMe = (MessageElement) target;
 
                 try {
@@ -233,8 +230,9 @@ public class StringMessageElement extends TextMessageElement {
                         its = itsStream.read();
 
                         if (mine != its) {
+                            // content didn't match
                             return false;
-                        }       // content didn't match
+                        }       
 
                     } while ((-1 != mine) && (-1 != its));
 
@@ -257,7 +255,7 @@ public class StringMessageElement extends TextMessageElement {
     @Override
     public int hashCode() {
         int result = super.hashCode() * 6037 + // a prime
-                data.hashCode();
+                data.toString().hashCode();
 
         return result;
     }
@@ -267,7 +265,7 @@ public class StringMessageElement extends TextMessageElement {
      */
     @Override
     public String toString() {
-        return data;
+        return data.toString();
     }
 
     /**
@@ -278,20 +276,26 @@ public class StringMessageElement extends TextMessageElement {
         byte[] cachedBytes = null;
 
         if (null != cachedGetBytes) {
-            cachedBytes = cachedGetBytes.get();
+            cachedBytes = cachedGetBytes.get();                 
         }
 
         if (null == cachedBytes) {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(
-                        "Creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(this)));
+                LOG.finer( "Creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(this)));
             }
 
             String charset = type.getParameter("charset");
 
             try {
-                cachedBytes = data.getBytes(charset);
-            } catch (UnsupportedEncodingException caught) {
+                // implementation note : As of 1.6.0_07 this impl results in one 
+                // less copy of the data then data.toString().getBytes(charset)
+                Charset characterset = Charset.forName(charset);
+                CharsetEncoder encoder = characterset.newEncoder();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream((int) ((double) encoder.maxBytesPerChar() * data.length()));
+                sendToStream(bos);
+                bos.close();
+                cachedBytes = bos.toByteArray();
+            } catch (IOException caught) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "MessageElement Data could not be generated", caught);
                 }
@@ -337,9 +341,12 @@ public class StringMessageElement extends TextMessageElement {
                 LOG.finer("creating cachedGetChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
             }
 
-            cachedChars = new char[data.length()];
+            if ((data instanceof CharBuffer) && ((CharBuffer) data).hasArray()) {
+                cachedChars = ((CharBuffer) data).array();
+            } else {
+                cachedChars = data.toString().toCharArray();
+            }
 
-            data.getChars(0, data.length(), cachedChars, 0);
 
             // if this is supposed to be a shared buffer then we can cache it.
 
@@ -383,7 +390,7 @@ public class StringMessageElement extends TextMessageElement {
      */
     public Reader getReader() throws IOException {
 
-        return new StringReader(data);
+        return new CharArrayReader(getChars(false));
     }
 
     /**
@@ -391,8 +398,10 @@ public class StringMessageElement extends TextMessageElement {
      */
     @Override
     public void sendToStream(OutputStream sendTo) throws IOException {
+        OutputStreamWriter osw = new OutputStreamWriter(sendTo, type.getParameter("charset"));
 
-        sendTo.write(getBytes(false));
+        sendToWriter(osw);
+        osw.close();
     }
 
     /**
@@ -400,7 +409,7 @@ public class StringMessageElement extends TextMessageElement {
      */
     @Override
     public void sendToWriter(Writer sendTo) throws IOException {
-        sendTo.write(data);
+        sendTo.append(data);
     }
 
     /**
@@ -409,17 +418,13 @@ public class StringMessageElement extends TextMessageElement {
     static class CharBufferInputStream extends InputStream {
 
         private final CharBuffer charData;
-
         private final CharsetEncoder conversion;
-
         private boolean marked = false;
         private byte mark_multiByteChar[];
         private int mark_position;
-
         private byte multiByteChar[];
         private int position;
 
-        
         /**
          * @param s        the char buffer
          * @param encoding the charset encoding
@@ -438,7 +443,7 @@ public class StringMessageElement extends TextMessageElement {
             multiByteChar = new byte[maxBytes];
             position = multiByteChar.length;
         }
-        
+
         /**
          * @param s        the char sequence
          * @param encoding the charset encoding
