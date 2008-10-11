@@ -106,25 +106,30 @@ public class FileDocument implements Document {
     
     /**
      *  {@inheritDoc}
-     *
-     * <p/>Returns everything after the last '.' in the filename, or the
-     * empty string if the file name does not contain a '.'.
-     **/
+     * 
+     * @return everything after the last '.' in the filename, or if the
+     * file has no extension, will return a default file extension for the
+     * MIME media type of this document.
+     */
     public String getFileExtension() {
-        return getFileExtension(file);
+        String result = getFileExtension(file);
+        if (result == null) {
+            result = StructuredDocumentFactory.getFileExtensionForMimeType(type);
+        }
+        return result;
     }
     
     /**
-     * <p/>Returns everything after the last '.' in the filename, or the
-     * empty string if the file name does not contain a '.'.
-     **/
+     * Returns everything after the last '.' in the filename, or null
+     * if the file name does not contain a '.'.
+     */
     private static String getFileExtension(File file) {
         
         String fileName = file.getName();
         int idx = fileName.lastIndexOf('.');
 
         if (idx < 0 || idx == fileName.length()) {
-            return "";
+            return null;
         } else {
             return fileName.substring(idx + 1);
         }
