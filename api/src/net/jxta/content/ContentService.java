@@ -71,6 +71,9 @@ import java.util.List;
  * added (e.g., added via the Jar SPI mechanism), default implementation(s)
  * included.
  * <p/>
+ * ContentService implementations supporting multiple provider implementations
+ * may choose to defer the startup of the providers until the time of first
+ * use.
  * 
  * @see net.jxta.content.ContentProvider
  */
@@ -94,10 +97,34 @@ public interface ContentService extends ContentProviderSPI {
 
     /**
      * Returns a list of content service provider instances underlying this
-     * service.
+     * service.  This method returns all registered provider instances,
+     * including those which have not been initialized and/or started.  If
+     * you wish to obtain a list of only those providers which have successfully
+     * started and are available for use, use the
+     * {@code getActiveContentProviders()} method form instead.
      *
-     * @return list of content providers registered with this service
+     * @return list of content providers registered with this service.  If no
+     * providers are registered, this method return an empty list.
      */
     List<ContentProvider> getContentProviders();
+
+    /**
+     * Returns a list of content service provider instances underlying this
+     * service which have been started and are available for use.  Since
+     * this method only returns the provider instance which have successfully
+     * made it through intialization, it will not be a complete list of all
+     * registered providers.  Also, a {@code ContentService} implementation
+     * may choose to defer the initialization of it's underlying
+     * provider instances (if any) until the time of use.  In this case, this
+     * method would return an empty list until after the first use.
+     * <p/>
+     * ContentService instances which defer the starting of the providers
+     * until first use should treat a call to this method as a first use.
+     * 
+     *
+     * @return list of content providers registered with this service.  If no
+     *  providers are active, this method returns an empty list.
+     */
+    List<ContentProvider> getActiveContentProviders();
 
 }

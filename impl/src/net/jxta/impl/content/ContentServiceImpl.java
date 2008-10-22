@@ -101,9 +101,17 @@ public class ContentServiceImpl implements ContentService {
             ContentServiceImpl.class.getName());
     
     /**
+     * List of all currently registered providers, used only for providing
+     * programmatic access to the API user (hence the use of the
+     * ContentProvider super-interface versus the SPI interface).
+     */
+    private final List<ContentProvider> providers = 
+            new CopyOnWriteArrayList<ContentProvider>();
+    
+    /**
      * List of providers which are started and ready for use.
      */
-    private final List<ContentProviderSPI> providers = 
+    private final List<ContentProviderSPI> active = 
             new CopyOnWriteArrayList<ContentProviderSPI>();
     
     /**
@@ -149,7 +157,7 @@ public class ContentServiceImpl implements ContentService {
     /**
      * Flag indicating that this instance has been started.
      */
-    private boolean started = false;
+    private volatile boolean started = false;
 
     /**
      * Default constructor.
@@ -180,9 +188,9 @@ public class ContentServiceImpl implements ContentService {
                 LOG.fine("Content provider lifecycle state update: "
                         + provider + " --> " + newState);
                 if (newState == ModuleLifecycleState.STARTED) {
-                    providers.add(provider);
+                    active.add(provider);
                 } else {
-                    providers.remove(provider);
+                    active.remove(provider);
                 }
             }
             
@@ -254,7 +262,6 @@ public class ContentServiceImpl implements ContentService {
             started = true;
         }
         
-        manager.start();
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine( "Content Service started.");
         }
@@ -308,6 +315,7 @@ public class ContentServiceImpl implements ContentService {
      */
     public void addContentProvider(ContentProviderSPI provider) {
         boolean addToManager = false;
+        providers.add(provider);
         synchronized(lock) {
             if (initialized) {
                 // Add to manager and let the manager event add to list
@@ -347,8 +355,13 @@ public class ContentServiceImpl implements ContentService {
              * returns the ContentProvider sub-interface to prevent
              * user access to SPI methods.
              */
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.finer("Cannot remove provider which is not a full SPI: "
+                        + provider);
+            }
             return;
         }
+        providers.remove(provider);
         ContentProviderSPI spi = (ContentProviderSPI) provider;
         boolean removeFromManager = false;
         synchronized(lock) {
@@ -369,6 +382,14 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public List<ContentProvider> getContentProviders() {
+        return Collections.unmodifiableList(providers);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<ContentProvider> getActiveContentProviders() {
+        checkStart();
         /*
          * NOTE mcumings 20061120:  Note that this could also be implemented
          * using Collections.unmodifiableList(), but having the returned list
@@ -376,7 +397,7 @@ public class ContentServiceImpl implements ContentService {
          * read-through) led me to select a full copy instead.
          */
         List<ContentProvider> result =
-                new ArrayList<ContentProvider>(providers);
+                new ArrayList<ContentProvider>(active);
         return result;
     }
 
@@ -388,6 +409,7 @@ public class ContentServiceImpl implements ContentService {
      */
     public void addContentProviderListener(
             ContentProviderListener listener) {
+        checkStart();
         listeners.add(listener);
     }
 
@@ -396,6 +418,7 @@ public class ContentServiceImpl implements ContentService {
      */
     public void removeContentProviderListener(
             ContentProviderListener listener) {
+        checkStart();
         listeners.remove(listener);
     }
 
@@ -403,8 +426,10 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
+        checkStart();
+        
         try {
-            return new TransferAggregator(this, providers, contentID);
+            return new TransferAggregator(this, active, contentID);
         } catch (TransferException transx) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Returning null due to exception", transx);
@@ -417,8 +442,9 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
+        checkStart();
         try {
-            return new TransferAggregator(this, providers, adv);
+            return new TransferAggregator(this, active, adv);
         } catch (TransferException transx) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Returning null due to exception", transx);
@@ -431,10 +457,11 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public List<ContentShare> shareContent(Content content) {
+        checkStart();
+        
         List<ContentShare> result = null;
         List<ContentShare> subShares;
-
-        for (ContentProvider provider : providers) {
+        for (ContentProvider provider : active) {
             try {
                 subShares = provider.shareContent(content);
                 if (subShares == null) {
@@ -470,9 +497,10 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public boolean unshareContent(ContentID contentID) {
+        checkStart();
+        
         boolean unshared = false;
-
-        for (ContentProvider provider : providers) {
+        for (ContentProvider provider : active) {
             unshared |= provider.unshareContent(contentID);
         }
 
@@ -487,18 +515,37 @@ public class ContentServiceImpl implements ContentService {
      */
     public void findContentShares(
             int maxNum, ContentProviderListener listener) {
+        checkStart();
+        
         List<ContentProviderListener> findListeners =
                 new ArrayList<ContentProviderListener>();
         findListeners.add(listener);
 
         EventAggregator aggregator =
-                new EventAggregator(findListeners, providers);
+                new EventAggregator(findListeners, active);
         aggregator.dispatchFindRequest(maxNum);
     }
 
 
     //////////////////////////////////////////////////////////////////////////
     // Private methods:
+    
+    /**
+     * Check to see if the ContentService has been started.  If so, make
+     * sure that the provider implementations are started.  If not, throw
+     * an illegal state exception.  This method should be used in places
+     * where providers are about to be used, allowing their intialization to
+     * be deferred until the time of use.
+     */
+    private void checkStart() {
+        synchronized(lock) {
+            if (!started) {
+                throw(new IllegalStateException(
+                        "Service instance has not yet been started"));
+            }
+        }
+        manager.start();
+    }
 
     /**
      * Notify listeners of a new Content share.
