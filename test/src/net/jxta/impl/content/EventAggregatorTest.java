@@ -56,7 +56,6 @@ package net.jxta.impl.content;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
 import net.jxta.content.ContentID;
 import net.jxta.content.ContentProviderEvent;
 import net.jxta.content.ContentProviderListener;
@@ -71,12 +70,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
 
 /**
  * Test the workings of the EventAggregator class.
  */
 @RunWith(JMock.class)
-public class EventAggregatorTest extends TestCase {
+public class EventAggregatorTest {
     private static Logger LOG =
             Logger.getLogger(EventAggregatorTest.class.getName());
     private EventAggregator aggregator;
@@ -103,7 +103,6 @@ public class EventAggregatorTest extends TestCase {
     }
 
     @Before
-    @Override
     public void setUp() {
         LOG.info("===========================================================");
         provider = context.mock(ContentProviderSPI.class);
@@ -130,7 +129,6 @@ public class EventAggregatorTest extends TestCase {
     }
 
     @After
-    @Override
     public void tearDown() {
         System.out.flush();
     }

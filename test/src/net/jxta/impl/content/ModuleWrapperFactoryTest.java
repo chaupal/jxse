@@ -53,7 +53,6 @@
 package net.jxta.impl.content;
 
 import java.util.logging.Logger;
-import junit.framework.TestCase;
 import net.jxta.content.Content;
 import net.jxta.content.ContentService;
 import net.jxta.platform.Module;
@@ -65,12 +64,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
 
 /**
  * Test the workings of the ModuleWrapperFactory class.
  */
 @RunWith(JMock.class)
-public class ModuleWrapperFactoryTest extends TestCase {
+public class ModuleWrapperFactoryTest {
     private static final Logger LOG =
             Logger.getLogger(ModuleWrapperFactoryTest.class.getName());
     private Module module;
@@ -85,7 +85,6 @@ public class ModuleWrapperFactoryTest extends TestCase {
     }
 
     @Before
-    @Override
     public void setUp() {
         LOG.info("===========================================================");
         module = context.mock(Module.class);
@@ -94,7 +93,6 @@ public class ModuleWrapperFactoryTest extends TestCase {
     }
 
     @After
-    @Override
     public void tearDown() {
         System.out.flush();
     }

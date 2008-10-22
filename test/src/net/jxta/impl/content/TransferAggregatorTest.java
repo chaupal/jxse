@@ -59,7 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
 import net.jxta.content.Content;
 import net.jxta.content.ContentID;
 import net.jxta.content.ContentProviderSPI;
@@ -86,12 +85,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
 
 /**
  * Test the workings of the TransferAggregator class.
  */
 @RunWith(JMock.class)
-public class TransferAggregatorTest extends TestCase {
+public class TransferAggregatorTest {
     private static Logger LOG =
             Logger.getLogger(TransferAggregatorTest.class.getName());
     private static final TempDir TEMP_DIR;
@@ -135,7 +135,6 @@ public class TransferAggregatorTest extends TestCase {
     }
 
     @Before
-    @Override
     public void setUp() throws Exception {
         LOG.info("===========================================================");
         TEMP_DIR.clear();
@@ -166,7 +165,6 @@ public class TransferAggregatorTest extends TestCase {
     }
 
     @After
-    @Override
     public void tearDown() {
         Thread.yield();
         System.out.flush();

@@ -53,7 +53,6 @@
 package net.jxta.impl.content;
 
 import java.util.logging.Logger;
-import junit.framework.TestCase;
 import net.jxta.document.Advertisement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
@@ -66,12 +65,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
 
 /**
  * Test the workings of the ModuleLifecycleTracker.
  */
 @RunWith(JMock.class)
-public class ModuleLifecycleTrackerTest extends TestCase {
+public class ModuleLifecycleTrackerTest {
     private static final Logger LOG =
             Logger.getLogger(ModuleLifecycleTrackerTest.class.getName());
     private ModuleLifecycleTracker tracker;
@@ -91,7 +91,6 @@ public class ModuleLifecycleTrackerTest extends TestCase {
     }
 
     @Before
-    @Override
     public void setUp() {
         LOG.info("===========================================================");
         module = context.mock(Module.class);
@@ -104,7 +103,6 @@ public class ModuleLifecycleTrackerTest extends TestCase {
     }
 
     @After
-    @Override
     public void tearDown() {
         System.out.flush();
     }
