@@ -77,7 +77,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.impl.content.ContentServiceImpl;
 
 /**
  * Provides the implementation for the World PeerGroup. The World peer group
@@ -126,7 +125,6 @@ public class Platform extends StdPeerGroup {
         paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
         paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
         paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
-        paramAdv.addService(PeerGroup.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
         // Do the Message Transports
 
