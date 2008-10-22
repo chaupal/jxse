@@ -78,9 +78,10 @@ import static net.jxta.impl.content.ModuleLifecycleState.*;
  * PeerGroup, the intent is for a manager instance to be created per peer
  * group, allowing the entire set of Modules in the PeerGroup to be centrally
  * managed by a single control point.
+ * 
+ * @param <T> Module type to be managed
  */
 public class ModuleLifecycleManager<T extends Module> {
-    // TODO 20070911 mcumings: Exponential backoff to retry stalled modules?
 
     /**
      * The maximum number of consecutive times a tracker state check can
@@ -247,15 +248,15 @@ public class ModuleLifecycleManager<T extends Module> {
         for (ModuleLifecycleTracker tracker : trackers) {
             Module module = tracker.getModule();
             if (subordinate.equals(module)) {
-                tracker.removeModuleLifecycleListener(proxy);
-
                 // Stop on request
                 if (stopFirst) {
                     tracker.stopApp();
                 }
+                tracker.removeModuleLifecycleListener(proxy);
 
                 // Make sure we no longer track this Module as started
                 started.remove(tracker);
+                trackers.remove(tracker);
                 break;
             }
         }
@@ -299,6 +300,19 @@ public class ModuleLifecycleManager<T extends Module> {
     public int getModuleCount() {
         return trackers.size();
     }
+    
+    /**
+     * Gets the current goal state.  This is the state which all suboridnate
+     * modules are attempting to get to, though they may not all be at this
+     * state.
+     * 
+     * @return current goal state
+     */
+    public ModuleLifecycleState getGoalState() {
+        synchronized(this) {
+            return state;
+        }
+    }
 
     /**
      * Returns the number of subordinate modules that are currently at
@@ -309,12 +323,7 @@ public class ModuleLifecycleManager<T extends Module> {
      * @return number of subordinate Modules in the goal state
      */
     public int getModuleCountInGoalState() {
-        ModuleLifecycleState goalState;
-
-        synchronized(this) {
-            goalState = state;
-        }
-
+        ModuleLifecycleState goalState = getGoalState();
         int result = 0;
         for (ModuleLifecycleTracker tracker : trackers) {
             ModuleLifecycleState tState = tracker.getState();
