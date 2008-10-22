@@ -89,7 +89,6 @@ import net.jxta.platform.NetworkManager.ConfigMode;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.test.util.DelegateClassLoader;
 import net.jxta.test.util.TempDir;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -102,7 +101,6 @@ import static org.junit.Assert.*;
  * General tests to apply to ContentProviders to verify compliance and
  * functionality.
  */
-@RunWith(JMock.class)
 public abstract class AbstractContentProviderTest {
     private static Logger LOG =
             Logger.getLogger(AbstractContentProviderTest.class.getName());
