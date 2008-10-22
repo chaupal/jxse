@@ -467,7 +467,7 @@ public class DefaultContentProvider implements
      */
     public List<ContentShare> shareContent(Content content) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("shareContent(): Content=" + content);
+            LOG.fine("shareContent(): Content=" + content + " " + this);
         }
 
         PipeAdvertisement pAdv;
