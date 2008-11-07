@@ -858,6 +858,15 @@ public class NetworkConfigurator {
     }
 
     /**
+     * Sets the group multicast thread pool size (default 10)
+     *
+     * @param size the new multicast thread pool size
+     */
+    public void setMulticastPoolSize(int size) {
+        tcpConfig.setMulticastPoolSize(size);
+    }
+
+    /**
      * Sets the node name
      *
      * @param name node name
@@ -1950,6 +1959,15 @@ public class NetworkConfigurator {
      */
     public int getMulticastPort() {
         return tcpConfig.getMulticastPort();
+    }
+
+    /**
+     * Gets the group multicast thread pool size
+     *
+     * @return multicast thread pool size
+     */
+    public int getMulticastPoolSize() {
+        return tcpConfig.getMulticastPoolSize();
     }
 
     /**

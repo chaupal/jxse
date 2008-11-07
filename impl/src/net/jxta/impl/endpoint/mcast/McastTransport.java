@@ -97,7 +97,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.net.URI;
@@ -186,6 +185,10 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      * The port number will send/receive upon.
      */
     private int multicastPort = 1234;
+     /**
+      * The thread pool size
+      */
+     private int poolSize = 10;
 
     /**
      * The "return address" we will advertise.
@@ -327,6 +330,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         TCPAdv adv = (TCPAdv) paramsAdv;
 
+        poolSize = adv.getMulticastPoolSize();
+
         // Check if we are disabled. If so, don't bother with the rest of config.
         if (!adv.getMulticastState()) {
             disabled = true;
@@ -441,6 +446,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             configInfo.append("\n\t\tInterface address: ").append(interfaceAddressStr == null ? "(unspecified)" : interfaceAddressStr);
             configInfo.append("\n\t\tMulticast Addr: ").append(multicastAddress);
             configInfo.append("\n\t\tMulticast Port: ").append(multicastPort);
+            configInfo.append("\n\t\tMulticast Thread Pool Size: ").append(poolSize);
             configInfo.append("\n\t\tMulticast Packet Size: ").append(multicastPacketSize);
 
             configInfo.append("\n\tBound To :");
@@ -504,7 +510,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         // Cannot start before registration
-        multicastProcessor = new DatagramProcessor(((StdPeerGroup) group).getExecutor());
+        multicastProcessor = new DatagramProcessor(((StdPeerGroup) group).getExecutor(), poolSize);
         multicastThread = new Thread(group.getHomeThreadGroup(), this, "IP Multicast Listener for " + publicAddress);
         multicastThread.setDaemon(true);
         multicastThread.start();
@@ -805,7 +811,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         /**
          * The maximum number of datagrams we will simultaneously process.
          */
-        private static final int MAX_SIMULTANEOUS_PROCESSING = 5;
+        private final int poolSize;
+
 
         /**
          * The executor to which we will issue tasks.
@@ -817,7 +824,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
          * The goal is not to cache datagrams in memory. If we can't keep up it
          * is better that we drop messages.
          */
-        final BlockingQueue<DatagramPacket> queue = new ArrayBlockingQueue<DatagramPacket>(MAX_SIMULTANEOUS_PROCESSING + 1);
+        final BlockingQueue<DatagramPacket> queue;
 
         /**
          * The number of executor tasks we are currently using.
@@ -833,8 +840,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
          * Default constructor
          *
          * @param executor the threadpool
+         * @param size the thread pool size
          */
-        DatagramProcessor(Executor executor) {
+        DatagramProcessor(Executor executor, int size) {
+            poolSize = size;
+            queue = new ArrayBlockingQueue<DatagramPacket>(poolSize + 1);
             this.executor = executor;
         }
 
@@ -869,7 +879,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             // See if we can start a new executor.
             synchronized (this) {
-                if (!stopped && (currentTasks < MAX_SIMULTANEOUS_PROCESSING)) {
+                if (!stopped && (currentTasks < poolSize)) {
                     currentTasks++;
                     execute = true;
                 }
