@@ -86,11 +86,13 @@ public class TCPAdv extends TransportAdvertisement {
     private static final String INDEXFIELDS[] = {/* none */};
 
     private static final String PORT_ELEMENT = "Port";
+    private static final String MCAST_THREAD_POOL = "Mcast_Pool_Size";
     private static final String ClientOffTag = "ClientOff";
     private static final String ServerOffTag = "ServerOff";
     private static final String MULTICAST_OFF_TAG = "MulticastOff";
     private static final String MULTICAST_INTERFACE_TAG = "MulticastInterface";
     private static final String MULTICAST_ADDRESS_TAG = "MulticastAddr";
+    private static final String MULTICAST_PORT_TAG = "MulticastPort";
     private static final String FlagsTag = "Flags";
     private static final String PublicAddressOnlyAttr = "PublicAddressOnly";
 
@@ -103,6 +105,7 @@ public class TCPAdv extends TransportAdvertisement {
     private String publicAddress = null;
     private String multicastaddr = null;
     private int multicastport = -1;
+    private int poolSize = 5;
     private int multicastsize = -1;
     private boolean clientEnabled = true;
     private boolean serverEnabled = true;
@@ -452,10 +455,18 @@ public class TCPAdv extends TransportAdvertisement {
     /**
      * returns the multicastport
      *
-     * @return string multicastport
+     * @return int multicastport
      */
     public int getMulticastPort() {
         return multicastport;
+    }
+    /**
+     * returns the multicast pool size
+     *
+     * @return the multicast pool size
+     */
+    public int getMulticastPoolSize() {
+        return poolSize;
     }
 
     /**
@@ -465,6 +476,15 @@ public class TCPAdv extends TransportAdvertisement {
      */
     public void setMulticastPort(int multicastport) {
         this.multicastport = multicastport;
+    }
+
+    /**
+     * set the multicast thread pool size
+     *
+     * @param size thread pool size
+     */
+    public void setMulticastPoolSize(int size) {
+        this.poolSize = poolSize;
     }
 
     /**
@@ -662,9 +682,17 @@ public class TCPAdv extends TransportAdvertisement {
             return true;
         }
 
-        if (elem.getName().equals("MulticastPort")) {
+        if (elem.getName().equals(MULTICAST_PORT_TAG)) {
             try {
                 setMulticastPort(Integer.parseInt(value));
+            } catch (NumberFormatException badPort) {
+                throw new IllegalArgumentException("Illegal multicast port value : " + value);
+            }
+            return true;
+        }
+        if (elem.getName().equals(MCAST_THREAD_POOL)) {
+            try {
+                setMulticastPoolSize(Integer.parseInt(value));
             } catch (NumberFormatException badPort) {
                 throw new IllegalArgumentException("Illegal multicast port value : " + value);
             }
@@ -794,7 +822,6 @@ public class TCPAdv extends TransportAdvertisement {
         }
 
         Element portEl = adv.createElement(PORT_ELEMENT, Integer.toString(listenPort));
-
         adv.appendChild(portEl);
         if (adv instanceof Attributable) {
             Attributable attrElem = (Attributable) portEl;
@@ -805,7 +832,6 @@ public class TCPAdv extends TransportAdvertisement {
         }
 
         String serverAddr = getServer();
-
         if (null != serverAddr) {
             Element server = adv.createElement("Server", serverAddr);
             adv.appendChild(server);
@@ -827,8 +853,13 @@ public class TCPAdv extends TransportAdvertisement {
         }
 
         if (-1 != getMulticastPort()) {
-            Element mPort = adv.createElement("MulticastPort", Integer.toString(getMulticastPort()));
+            Element mPort = adv.createElement(MULTICAST_PORT_TAG, Integer.toString(getMulticastPort()));
             adv.appendChild(mPort);
+        }
+
+        if (-1 != getMulticastPoolSize()) {
+            Element poolEl = adv.createElement(MCAST_THREAD_POOL, Integer.toString(getMulticastPoolSize()));
+            adv.appendChild(poolEl);
         }
 
         if (-1 != getMulticastSize()) {
