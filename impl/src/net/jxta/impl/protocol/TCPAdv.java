@@ -476,7 +476,7 @@ public class TCPAdv extends TransportAdvertisement {
      * @param size thread pool size
      */
     public void setMulticastPoolSize(int size) {
-        this.poolSize = poolSize;
+        this.poolSize = size;
     }
 
     /**
