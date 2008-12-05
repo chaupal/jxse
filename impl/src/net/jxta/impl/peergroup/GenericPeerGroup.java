@@ -1100,8 +1100,70 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         threadGroup = new ThreadGroup(parentThreadGroup, "Group " + peerGroupAdvertisement.getPeerGroupID());
 
-        taskQueue = new ArrayBlockingQueue<Runnable>(COREPOOLSIZE * 2);
-        threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE,
+        // Cheap and dirty way to make these parameters configurable.
+        // TBD:
+        // Introduce an API similar to setMcastPoolSize() API that can be called from shoal to configure these
+        // parameters rather than shortcut of getting values from system environment variable.
+        int corepoolsize = COREPOOLSIZE;
+        int maxpoolsize = MAXPOOLSIZE;
+        int queuesize = COREPOOLSIZE * 2;
+
+        String tcpMaxPoolSizeString = System.getProperty("jxtaTcpMaxPoolSize");
+        if (tcpMaxPoolSizeString == null) {
+            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                LOG.log(Level.CONFIG, "default TcpMaxPoolSize=" + maxpoolsize);
+            }
+        } else {   // process override
+            try {
+                maxpoolsize = Integer.parseInt(tcpMaxPoolSizeString);
+                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                    LOG.log(Level.CONFIG, "System property override: jxtaTcpMaxPoolSize=" + maxpoolsize);
+                }
+            } catch (Throwable t) {
+                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                    LOG.log(Level.FINEST, "Failed to override: jxtaTcpMaxPoolSize. Using default of " + maxpoolsize, t);
+                }
+            }
+        }
+
+        String tcpCorePoolSizeString = System.getProperty("jxtaTcpCorePoolSize");
+        if (tcpCorePoolSizeString == null) {
+            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                LOG.log(Level.CONFIG, "default TcpCorePoolSize=" + corepoolsize);
+            }
+        } else { // process override
+            try {
+                corepoolsize = Integer.parseInt(tcpCorePoolSizeString);
+                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                    LOG.log(Level.CONFIG, "System property override: jxtaTcpCorePoolSize=" + corepoolsize);
+                }
+            } catch (Throwable t) {
+                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                    LOG.log(Level.FINEST, "Failed to override: jxtaTcpCorePoolSize. Using default of " + corepoolsize, t);
+                }
+            }
+        }
+
+        String tcpQueueSizeString = System.getProperty("jxtaTcpBlockingQueueSize");
+        if (tcpQueueSizeString == null) {
+            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                LOG.log(Level.CONFIG, "default TcpBlockingQueueSize=" + queuesize);
+            }
+        } else { // process override
+            try {
+                queuesize = Integer.parseInt(tcpQueueSizeString);
+                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                    LOG.log(Level.CONFIG, "System property override: jxtaTcpBlockingQueueSize=" + queuesize);
+                }
+            } catch (Throwable t) {
+                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+                    LOG.log(Level.FINEST, "Failed to override: jxtaTcpBlockingQueueSize. Using default of " + queuesize, t);
+                }
+            }
+        }
+
+        taskQueue = new ArrayBlockingQueue<Runnable>(queuesize);
+        threadPool = new ThreadPoolExecutor(corepoolsize, maxpoolsize,
                 KEEPALIVETIME, TimeUnit.SECONDS,
                 taskQueue,
                 new PeerGroupThreadFactory("Executor", getHomeThreadGroup()),

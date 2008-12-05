@@ -862,6 +862,11 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         return WireFormatMessageFactory.fromBuffer(buffer, msgMime, null);
     }
 
+    private final long NEXT_PRINT_DURATION = 60 * 1000 * 2;  // 2 minutes in millisecs
+    private long maxQueue = 0;
+    private long lastMaxQueuePrinted = 0;
+    private long nextMaxQueuePrintTime = System.currentTimeMillis() + NEXT_PRINT_DURATION;
+
     /**
      * {@inheritDoc}
      * <p/>
@@ -875,6 +880,19 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 for (Message msg : msgs) {
                     // Use the group's threadpool to process the message
                     tcpTransport.executor.execute(new MessageProcessor(msg));
+                    if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+                        // Logging info that would be better served as monitor tracked data.
+                        int queuesize = ((java.util.concurrent.ThreadPoolExecutor)tcpTransport.executor).getQueue().size();
+                        if (queuesize > maxQueue) {
+                            maxQueue = queuesize;
+                        }
+                        if (maxQueue > lastMaxQueuePrinted &&
+                            System.currentTimeMillis() > nextMaxQueuePrintTime) {
+                            lastMaxQueuePrinted = maxQueue;
+                            nextMaxQueuePrintTime = System.currentTimeMillis() + NEXT_PRINT_DURATION;
+                            LOG.info("TcpMessenger executor.getQueue().maxSize=" + lastMaxQueuePrinted);
+                        }
+                    }
                 }
             }
 
