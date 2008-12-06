@@ -159,7 +159,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     /**
      * Sequence number of the message we most recently sent out.
      */
-    private AtomicInteger sequenceNumber = new AtomicInteger(0);
+    private final AtomicInteger sequenceNumber = new AtomicInteger(0);
     
     /**
      * Sequence number of highest sequential ACK.
@@ -191,7 +191,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     /**
      * Number of ACK message received.
      */
-    private AtomicInteger numACKS = new AtomicInteger(0);
+    private final AtomicInteger numACKS = new AtomicInteger(0);
     
     /**
      * When to start computing aveRTT
@@ -206,12 +206,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     /**
      * Minimum Retry Timeout measured in milliseconds.
      */
-    private volatile long minRTO = initRTT * 5;
-    
-    /**
-     * Maximum Retry Timeout measured in milliseconds.
-     */
-    private volatile long maxRTO = initRTT * 60;
+    private final long minRTO = 500;
     
     /**
      * absolute time in milliseconds of last sequential ACK.
@@ -318,7 +313,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         // initial RTO is set to maxRTO so as to give time
         // to the receiver to catch-up
-        this.RTO = maxRTO;
+        this.RTO = outgoing.getMaxRetryAge();
         
         this.mrrIQFreeSpace = rmaxQSize;
         this.rttThreshold = rmaxQSize;
@@ -720,7 +715,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         // Enforce a min/max
         RTO = Math.max(RTO, minRTO);
-        RTO = Math.min(RTO, maxRTO);
+        RTO = Math.min(RTO, outgoing.getMaxRetryAge());
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms");
@@ -1239,7 +1234,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         // exceeds the rwindow, and we've had no response for
                         // twice the current RTO.
                         if ((retransed > 0) && (realWait >= 2 * RTO) && (nAtThisRTO >= 2 * rwindow)) {
-                            RTO = (realWait > maxRTO ? maxRTO : 2 * RTO);
+                            RTO = (realWait > outgoing.getMaxRetryAge() ? outgoing.getMaxRetryAge() : 2 * RTO);
                             nAtThisRTO = 0;
                         }
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
