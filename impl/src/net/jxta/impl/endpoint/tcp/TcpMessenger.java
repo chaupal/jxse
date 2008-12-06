@@ -862,10 +862,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         return WireFormatMessageFactory.fromBuffer(buffer, msgMime, null);
     }
 
-    private final long NEXT_PRINT_DURATION = 60 * 1000 * 2;  // 2 minutes in millisecs
-    private long maxQueue = 0;
-    private long lastMaxQueuePrinted = 0;
-    private long nextMaxQueuePrintTime = System.currentTimeMillis() + NEXT_PRINT_DURATION;
+    static private final long NEXT_PRINT_DURATION = 60 * 1000 * 2;  // 2 minutes in millisecs
+    static volatile private long maxQueue = 0;
+    static volatile private long lastMaxQueuePrinted = 0;
+    static volatile private long nextMaxQueuePrintTime = System.currentTimeMillis() + NEXT_PRINT_DURATION;
 
     /**
      * {@inheritDoc}
