@@ -165,6 +165,13 @@ public abstract class MessengerState {
             number = stateNum;
         }
 
+        /**
+         * Perform late intialization of the events and actions for each
+         * transition. Since states refer to each other this cannot be done at
+         * construction time.
+         * 
+         * @param data The events and actions for each transition.
+         */
         void init(Object[] data) {
             stResolve = (State) data[0];
             acResolve = (Action) data[1];
@@ -184,7 +191,6 @@ public abstract class MessengerState {
             acIdle = (Action) data[15];
         }
     }
-
 
     // All the states. (We put them together in a class essentially to simplify initialization).
     private static class TransitionMap {
