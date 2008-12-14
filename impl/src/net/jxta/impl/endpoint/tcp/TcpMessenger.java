@@ -90,6 +90,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -152,7 +153,11 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     private InetAddress inetAddress = null;
     private int port = 0;
 
-    private volatile boolean closed = false;
+    /**
+     * If {@code true} Then this messenger is closed or in the process of
+     * closing and can no longer be used.
+     */
+    private AtomicBoolean closed = new AtomicBoolean(false);
     private boolean closingDueToFailure = false;
 
     private WelcomeMessage itsWelcome = null;
@@ -409,23 +414,26 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * The cost of just having a finalize routine is high. The finalizer is
      * a bottleneck and can delay garbage collection all the way to heap
      * exhaustion. Leave this comment as a reminder to future maintainers.
-     * Below is the reason why finalize is not needed here.
      * <p/>
-     * These messengers are never given to application layers. Endpoint code
-     * always calls close when needed.
+     * These messengers are given to application layers. Endpoint code
+     * always calls {@code close()} when needed.
      * <p/>
      * There used to be an incoming special case in order to *prevent*
      * closure because the inherited finalize used to call close. This is
      * no-longer the case. For the outgoing case, we do not need to call close
      * for the reason explained above.
+     * @throws Throwable for errors during finalization.
      */
+    @Override
     protected void finalize() throws Throwable {
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Messenger being finalized. closing messenger");
+        try {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Messenger being finalized. closing messenger");
+            }
+            closeImpl();
+        } finally {
+            super.finalize();
         }
-
-        closeImpl();
-        super.finalize();
     }
 
     /**
@@ -433,20 +441,16 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * <p/>
      * Now everyone knows its closed and the connection can no-longer be
      * obtained. So, we can go about our business of closing it.
-     * It can happen that a redundant close() is done but it does not matter.
-     * close() is idempotent.
      */
-    public synchronized void closeImpl() {
+    public void closeImpl() {
+	    if (!closed.compareAndSet(false, true)) {
+	        return;
+	    }
         super.close();
-
-        if (closed) {
-            return;
-        }
-
-        closed = true;
 
         // we are idle now. Way idle.
         setLastUsed(0);
+
         if (socketChannel != null) {
             // unregister from selector.
             tcpTransport.unregister(socketChannel);
@@ -582,7 +586,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             read();
             processBuffer();
         }
-        if (!closed) {
+        if (!closed.get()) {
             socketChannel.configureBlocking(false);
             tcpTransport.register(socketChannel, this);
         }
@@ -596,7 +600,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      */
     private void xmitMessage(Message msg) throws IOException {
 
-        if (closed) {
+        if (closed.get()) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("Connection was closed to : " + dstAddress);
             }
@@ -912,7 +916,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * @return true to indicate read maybe required
      */
     private boolean read() {
-        if (closed || socketChannel == null) {
+        if (closed.get() || socketChannel == null) {
             return false;
         }
         if (!socketChannel.isConnected()) {
@@ -1106,7 +1110,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * @return true if there is an active connection to the remote peer, otherwise false.
      */
     private boolean isConnected() {
-        return !closed;
+        return !closed.get();
     }
 
     /**
