@@ -128,7 +128,8 @@ class RouterMessenger extends BlockingMessenger {
      * {@inheritDoc}
      */
     @Override
-    public void closeImpl() {// Nothing to do. The underlying connection is not affected.
+    public void closeImpl() {
+        // Nothing to do. The underlying connection is not affected.
         // The messenger will be marked closed by the state machine once completely down; that's it.
     }
 
