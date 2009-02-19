@@ -393,27 +393,21 @@ public class StringMessageElement extends TextMessageElement {
         return new CharArrayReader(getChars(false));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void sendToStream(OutputStream sendTo) throws IOException {
-        OutputStreamWriter osw = new OutputStreamWriter(sendTo, type.getParameter("charset"));
+        Writer osw = new OutputStreamWriter(sendTo, type.getParameter("charset"));
 
         sendToWriter(osw);
-        osw.close();
+        osw.flush();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void sendToWriter(Writer sendTo) throws IOException {
         sendTo.append(data);
     }
 
     /**
-     *
+     * Presents a {@link java.nio.CharBuffer} as an {@link java.io.InputStream}.
      **/
     static class CharBufferInputStream extends InputStream {
 
@@ -426,22 +420,11 @@ public class StringMessageElement extends TextMessageElement {
         private int position;
 
         /**
-         * @param s        the char buffer
+         * @param b        the char buffer
          * @param encoding the charset encoding
          */
-        public CharBufferInputStream(CharBuffer s, String encoding) {
-            charData = s.duplicate();
-
-            Charset encodingCharset = Charset.forName(encoding);
-
-            conversion = encodingCharset.newEncoder();
-            conversion.onMalformedInput(CodingErrorAction.REPLACE);
-            conversion.onUnmappableCharacter(CodingErrorAction.REPLACE);
-
-            int maxBytes = new Float(conversion.maxBytesPerChar()).intValue();
-
-            multiByteChar = new byte[maxBytes];
-            position = multiByteChar.length;
+        public CharBufferInputStream(CharBuffer b, String encoding) {
+            this(b.duplicate(), Charset.forName(encoding));
         }
 
         /**
@@ -449,13 +432,21 @@ public class StringMessageElement extends TextMessageElement {
          * @param encoding the charset encoding
          */
         public CharBufferInputStream(CharSequence s, String encoding) {
-            charData = CharBuffer.wrap(s);
+            this(CharBuffer.wrap(s), Charset.forName(encoding));
 
-            Charset encodingCharset = Charset.forName(encoding);
+        }
 
-            conversion = encodingCharset.newEncoder();
-            conversion.onMalformedInput(CodingErrorAction.REPLACE);
-            conversion.onUnmappableCharacter(CodingErrorAction.REPLACE);
+        /**
+         * @param b The char buffer. <b>Must be for exclusive use of this
+         * instance.</n>
+         * @param encoding the charset encoding
+         */
+        public CharBufferInputStream(CharBuffer b, Charset encoding) {
+            charData = b;
+
+            conversion = encoding.newEncoder();
+            conversion.onMalformedInput(CodingErrorAction.REPORT);
+            conversion.onUnmappableCharacter(CodingErrorAction.REPORT);
 
             int maxBytes = new Float(conversion.maxBytesPerChar()).intValue();
 
