@@ -721,9 +721,11 @@ final class HttpClientMessenger extends BlockingMessenger {
                         connectTime = TimeUtils.timeNow();
                         noReconnectBefore = TimeUtils.toAbsoluteTimeMillis(MIMIMUM_POLL_INTERVAL, connectTime);
                         
-                        if (0 == conn.getContentLength()) {
-                            continue;
-                        }
+			if (0 == conn.getContentLength()) {
+			    conn.disconnect();
+			    conn = null;
+			    continue;
+			}
                         
                         if (HttpURLConnection.HTTP_NO_CONTENT == responseCode) {
                             // the connection timed out.
