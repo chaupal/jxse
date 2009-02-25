@@ -57,6 +57,8 @@ package net.jxta.endpoint;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -252,6 +254,28 @@ public class StringMessageElementTest extends TestCase {
         }
     }
 
+    public void testSendToDeviceStream() {
+        File tmp = null;
+        try {
+            tmp = File.createTempFile("jxta", "junit");
+            for (ElementTestCase elem : this.testElements) {
+                // Need a 'real' stream as writing to a closed ByteArrayOutputStream does not throw
+                FileOutputStream os = new FileOutputStream(tmp);
+                elem.element.sendToStream(os);
+                // Ensure the stream is still open before we close it
+                os.write(32);
+                os.close();
+            }
+        } catch (Exception caught) {
+            caught.printStackTrace();
+            fail("exception thrown : " + caught.getMessage());
+        } finally{
+        	if( null != tmp){
+        		tmp.delete();
+        	}
+        }
+    }
+    
     public void testSendToWriter() {
         try {
             for (ElementTestCase elem : testElements) {
