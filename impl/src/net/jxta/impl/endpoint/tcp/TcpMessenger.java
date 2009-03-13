@@ -738,11 +738,11 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                     }
                     wKey = socketChannel.register(writeSelector, SelectionKey.OP_WRITE);
                 }
-
+                 long time = TimeUtils.timeNow();
                 // Wait until we are told we can write again.
                 int ready = writeSelector.select(TcpTransport.connectionTimeOut);
 
-                if (ready == 0) {
+                if (ready == 0 && (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), time) <= 0)) {
                     throw new SocketTimeoutException("Timeout during socket write");
                 } else {
                     attempts--;
