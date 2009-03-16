@@ -263,11 +263,12 @@ public class BlockingWireOutputPipe implements OutputPipe {
 
         checkMessenger();
         try {
-            return destMessenger.sendMessage(msg, null, null);
+            destMessenger.sendMessageB(msg, null, null);
         } catch (IOException io) {
             checkMessenger();
-            return destMessenger.sendMessage(msg, null, null);
+            destMessenger.sendMessageB(msg, null, null);
         }
+        return true;
 
     }
 }
