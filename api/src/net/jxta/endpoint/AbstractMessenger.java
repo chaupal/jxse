@@ -236,37 +236,39 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
         // We have to retrieve the failure from the message and throw it if its an IOException, this is what the API
         // says that this method does.
 
-        if (sendMessageN(msg, rService, rServiceParam)) {
-            return true;
-        }
+        boolean ret = sendMessageN(msg, rService, rServiceParam);
 
         Object failed = msg.getMessageProperty(Messenger.class);
 
-        if ((failed == null) || !(failed instanceof OutgoingMessageEvent)) {
+        if (failed == null) {
             // huh ?
-            return false;
+            return ret;
+        }
+        if (failed == OutgoingMessageEvent.SUCCESS) {
+            return true;
         }
 
-        Throwable t = ((OutgoingMessageEvent) failed).getFailure();
+        Throwable throwable;
+        if (failed instanceof Throwable)
+            throwable = (Throwable) failed;
+        else throwable = ((OutgoingMessageEvent) failed).getFailure();
 
-        if (t == null) {
+        if (throwable == null) {
             // Must be saturation, then. (No throw for that).
             return false;
         }
 
         // Now see how we can manage to throw it.
-        if (t instanceof IOException) {
-            throw (IOException) t;
-        } else if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        } else if (t instanceof Error) {
-            throw (Error) t;
+        if (throwable instanceof IOException) {
+            throw (IOException) throwable;
+        } else if (throwable instanceof RuntimeException) {
+            throw (RuntimeException) throwable;
+        } else if (throwable instanceof Error) {
+            throw (Error) throwable;
         }
 
         IOException failure = new IOException("Failure sending message");
-
-        failure.initCause(t);
-
+        failure.initCause(throwable);
         throw failure;
     }
 

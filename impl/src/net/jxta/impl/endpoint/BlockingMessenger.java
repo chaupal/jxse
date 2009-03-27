@@ -55,7 +55,13 @@
  */
 package net.jxta.impl.endpoint;
 
-import net.jxta.endpoint.*;
+import net.jxta.endpoint.AbstractMessenger;
+import net.jxta.endpoint.ChannelMessenger;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.MessengerState;
+import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
@@ -677,11 +683,11 @@ public abstract class BlockingMessenger extends AbstractMessenger {
                     if (currentThrowable == null) {
                         currentThrowable = new IOException("Unknown error");
                     }
-                    msg.setMessageProperty(Message.class, currentThrowable);
+                    msg.setMessageProperty(Messenger.class, currentThrowable);
                     // Ok, let it go, now.
                     storeCurrent(null, null, null);
                 } else {
-                    msg.setMessageProperty(Message.class, OutgoingMessageEvent.SUCCESS);
+                    msg.setMessageProperty(Messenger.class, OutgoingMessageEvent.SUCCESS);
                     // Don't touch the current msg; it's not our msg.
                 }
             }
