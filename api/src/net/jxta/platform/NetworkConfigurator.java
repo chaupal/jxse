@@ -2097,7 +2097,7 @@ public class NetworkConfigurator {
      * @see #setRelayMaxClients
      */
     public int getRelayMaxClients() {
-        return rdvConfig.getMaxClients();
+        return relayConfig.getMaxClients();
     }
 
     /**
