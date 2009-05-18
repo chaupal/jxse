@@ -994,21 +994,21 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     public synchronized void close() throws IOException {
         try {
             synchronized (closeLock) {
-                long closeEndsAt = System.currentTimeMillis() + timeout;
-
-                if (closeEndsAt < timeout) {
+            	// ServerSocket has a timeout of zero which is no use...
+            	int to = (int)Math.max(DEFAULT_TIMEOUT, timeout);
+            	
+                long closeEndsAt = System.currentTimeMillis() + to;
+                if (closeEndsAt < to) {
                     closeEndsAt = Long.MAX_VALUE;
                 }
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Closing " + this + " timeout=" + timeout + "ms.");
+                    LOG.info("Closing " + this + " timeout=" + to + "ms.");
                 }
                 if (closed) {
                     return;
                 }
 
                 closed = true;
-                shutdownOutput();
-                shutdownInput();
                 while (isConnected()) {
                     long closingFor = closeEndsAt - System.currentTimeMillis();
 
@@ -1061,6 +1061,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 }
             }
         } finally {
+        	// We must keep the streams open until we've exchanged close request/response
+        	// ...now we can close them.
+            shutdownOutput();
+            shutdownInput();
             // No matter what else happens at the end of close() we are no
             // longer connected and no longer bound.
             setConnected(false);
@@ -1092,6 +1096,12 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 LOG.info("Received a remote close request." + this);
             }
 
+            // If we are still bound then send them a close ACK.
+            if (isBound() && (ros != null && ros.isQueueEmpty())) {
+                // do not ack until the queue is empty
+                sendCloseACK();
+            }
+            
             if (isConnected()) {
                 setConnected(false);
                 if (isReliable) {
@@ -1103,11 +1113,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 }
             }
 
-            // If we are still bound then send them a close ACK.
-            if (isBound() && (ros != null && ros.isQueueEmpty())) {
-                // do not ack until the queue is empty
-                sendCloseACK();
-            }
             if (closeAckReceived) {
                 closeLock.notifyAll();
             }
@@ -1421,7 +1426,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Sending a close request " + this + " : " + msg);
         }
-        remoteEphemeralPipeMsgr.sendMessageN(msg, null, null);
+        if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
+            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                LOG.severe("Failed to send a close request " + this + " : " + msg);
+            }
+        }
     }
 
     /**
@@ -1435,7 +1444,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Sending a close ACK " + this + " : " + msg);
         }
-        remoteEphemeralPipeMsgr.sendMessageN(msg, null, null);
+        if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
+            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                LOG.severe("Failed to send a close ACK " + this + " : " + msg);
+            }
+        }
     }
 
     /**
