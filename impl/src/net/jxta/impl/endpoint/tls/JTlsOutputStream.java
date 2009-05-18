@@ -71,6 +71,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -147,11 +148,12 @@ class JTlsOutputStream extends OutputStream {
      *  Average round trip time in milliseconds.
      **/
     private volatile long aveRTT = initRTT;
+    private volatile long remRTT = 0;
 
     /**
      *  Number of ACK message received.
      **/
-    private int nACKS = 0;
+    private final AtomicInteger nACKS = new AtomicInteger(0);
 
     /**
      *  Retry Time Out measured in milliseconds.
@@ -198,6 +200,13 @@ class JTlsOutputStream extends OutputStream {
     private int rmaxQSize = 0;
 
     /**
+     * Number of acknowledged sends (round trips) before the connection is regarded as 'stable'
+     * Once stabilisation is established, downward tracking of RTO is suspended
+     * Set to zero to defeat this behaviour.
+     */
+    private volatile int stabalizationAckCount = 0;
+    
+    /**
      * retrans queue element
      **/
     private static class RetrQElt {
@@ -217,6 +226,22 @@ class JTlsOutputStream extends OutputStream {
     }
 
     JTlsOutputStream(TlsTransport tp, TlsConn conn) {
+    	
+        String maxrto = System.getProperty( "net.jxta.tlsout.maxrto" );
+        if( null != maxrto ){
+        	this.maxRTO = Integer.parseInt( maxrto );
+        }
+
+        String minrto = System.getProperty( "net.jxta.tlsout.minrto" );
+        if( null != minrto ){
+        	this.minRTO = Integer.parseInt( minrto );
+        }
+
+        String ackStabilizaton = System.getProperty( "net.jxta.tlsout.stablizeacks" );
+        if( null != ackStabilizaton ){
+        	this.stabalizationAckCount = Integer.parseInt( ackStabilizaton );
+        }
+    	
         this.conn = conn; // TlsConnection.
         this.tp = tp; // our transport
 
@@ -356,10 +381,10 @@ class JTlsOutputStream extends OutputStream {
                 // forever because the most recent SACK cleared it, and the receiver
                 // is waiting for more data.
 
-                // max of 200ms wait
-                int maxwait = Math.min((int) aveRTT, 200);
+                // max of ??? wait
+                int maxwait = (int)Math.min(RTO, maxRTO);
                 // iterations to wait (max 3, min 1)
-                int waitCt = Math.max(maxwait / 60, 1);
+                int waitCt = Math.max(maxwait / 250, 1);
 
                 // check if the queue has gone dead.
                 if (retrQ.size() > 0) {
@@ -404,7 +429,7 @@ class JTlsOutputStream extends OutputStream {
 
                     // Less than 20% free queue space is left. Wait.
                     try {
-                        retrQ.wait(60);
+                        retrQ.wait(250);
                     } catch (InterruptedException ignored) {
                         Thread.interrupted();
                     }
@@ -449,22 +474,31 @@ class JTlsOutputStream extends OutputStream {
             dt += 1;
         }
 
-        int n = nACKS;
-
-        nACKS += 1;
-
-        aveRTT = ((n * aveRTT) + dt) / (nACKS);
-
-        // Set retransmission time out: 2.5 x RTT
-        RTO = (aveRTT << 1) + (aveRTT >> 1);
-
-        // Enforce a min/max
-
-        RTO = Math.max(RTO, minRTO);
-        RTO = Math.min(RTO, maxRTO);
-
+        // Use the same single exponential smoothing as ReliableOutputStream
+        if( nACKS.incrementAndGet() > 2 ){
+        	
+	        long tmp = (6 * aveRTT) + ((6 * remRTT) / 9) + (3 * dt);
+	        
+	        aveRTT = tmp / 9;
+	        remRTT = tmp - aveRTT * 9;
+        }
+        
+        long newRTO = aveRTT * 2;
+        
+        // Unless stabalizationAckCount is zero, after a period of stream stabilisation, do not reduce the RTO value further. 
+        // This avoids the situation where a few small message sends reduce the RTO so much that when a large
+        // message is sent it immediately requires repetitive retransmission until the value of RTO climbs again.
+        // This is most apparent when using 'slow' relayed streams and large MTUs. 
+        if( 0 != this.stabalizationAckCount && nACKS.get() > this.stabalizationAckCount ){
+       		RTO = Math.max( RTO, newRTO );
+        } else {
+            // Enforce a min/max
+            RTO = Math.max(newRTO, minRTO);
+            RTO = Math.min(RTO, maxRTO);
+        }
+        
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("TLS!! RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms");
+            LOG.fine("TLS!! RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms" + " maxRTO = " + maxRTO + "ms");
         }
     }
 

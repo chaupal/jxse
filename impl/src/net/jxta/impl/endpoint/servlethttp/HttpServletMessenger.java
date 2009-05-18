@@ -158,6 +158,28 @@ final class HttpServletMessenger extends BlockingMessenger {
             try {
                 HttpServletMessenger temp = messenger;
 
+                while( ( null != temp ) &&  ( null != temp.outgoingMessage || temp.sendResult == SEND_INPROGRESS  ) ){
+                	
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                       	LOG.log(Level.FINE, "Waiting for outgoingMessage to clear before we close..." + temp);
+                    }
+
+                    // Wait a while
+                    try {
+						Thread.sleep(250);
+					} catch (InterruptedException ignore) {
+						;
+					}
+                    
+                    if( temp.isClosed() || null == this.messenger ){
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                           	LOG.log(Level.FINE, "Messenger closed while waiting for send to complete.  Operation cancelled: " + temp);
+                        }
+                    	return;
+                    }
+                    
+                }
+                
                 messenger = null;
                 
                 if (null != temp) {
@@ -166,6 +188,10 @@ final class HttpServletMessenger extends BlockingMessenger {
             } catch (Throwable all) {
                 if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                     LOG.log(Level.SEVERE, "Uncaught Throwable in timer task :" + Thread.currentThread().getName(), all);
+                }
+            } finally {
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                   	LOG.log(Level.FINE, "Messenger self destruct complete.");
                 }
             }
         }

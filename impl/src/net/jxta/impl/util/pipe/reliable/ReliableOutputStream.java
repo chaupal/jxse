@@ -124,12 +124,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     private int writeBufferSize = DEFAULT_MESSAGE_CHUNK_SIZE;
     
     /**
-     * Absolute time in milliseconds at which the write buffer began
-     * accumulating bytes to be written.
-     */
-    private long writeBufferAge = Long.MAX_VALUE;
-    
-    /**
      * If less than {@code TimeUtils.timenow()} then we are closed otherwise
      * this is the absolute time at which we will become closed. We begin by
      * setting this value as {@Long.MAX_VALUE} until we establish an earlier
@@ -206,7 +200,12 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     /**
      * Minimum Retry Timeout measured in milliseconds.
      */
-    private final long minRTO = 500;
+    private volatile long minRTO =  initRTT * 5;
+
+    /**
+     * Maximum Retry Timeout measured in milliseconds.
+     */
+    private volatile long maxRTO =  initRTT * 60;
     
     /**
      * absolute time in milliseconds of last sequential ACK.
@@ -241,6 +240,13 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      * Cache of the last rwindow recommendation by fc.
      */
     private volatile int rwindow = 0;
+    
+    /**
+     * Number of acknowledged sends (round trips) before the connection is regarded as 'stable'
+     * Once stabilisation is established, downward tracking of RTO is suspended
+     * Set to zero to defeat this behaviour.
+     */
+    private volatile int stabalizationAckCount = 0;
     
     /**
      * retrans queue element
@@ -310,10 +316,25 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      */
     public ReliableOutputStream(Outgoing outgoing, FlowControl fc) {
         this.outgoing = outgoing;
+
+        String maxrto = System.getProperty( "net.jxta.reliable.maxrto" );
+        if( null != maxrto ){
+        	this.maxRTO = Integer.parseInt( maxrto );
+        }
+
+        String minrto = System.getProperty( "net.jxta.reliable.minrto" );
+        if( null != minrto ){
+        	this.minRTO = Integer.parseInt( minrto );
+        }
+
+        String ackStabilizaton = System.getProperty( "net.jxta.reliable.stablizeacks" );
+        if( null != ackStabilizaton ){
+        	this.stabalizationAckCount = Integer.parseInt( ackStabilizaton );
+        }
         
         // initial RTO is set to maxRTO so as to give time
         // to the receiver to catch-up
-        this.RTO = outgoing.getMaxRetryAge();
+        this.RTO = maxRTO;
         
         this.mrrIQFreeSpace = rmaxQSize;
         this.rttThreshold = rmaxQSize;
@@ -327,6 +348,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         // Update our initial rwindow to reflect fc's initial value
         this.rwindow = fc.getRwindow();
+
     }
     
     /**
@@ -410,7 +432,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         synchronized (writeLock) {
             writeCount = 0;
             writeBuffer = null;
-            writeBufferAge = Long.MAX_VALUE;
         }
         
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -470,7 +491,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 if (0 == writeCount) {
                     // No bytes written? We need a new buffer.
                     writeBuffer = new byte[writeBufferSize];
-                    writeBufferAge = TimeUtils.timeNow();
                 }
                 
                 int remain = end - current;
@@ -502,7 +522,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             } finally {
                 writeCount = 0;
                 writeBuffer = null;
-                writeBufferAge = Long.MAX_VALUE;
             }
         }
     }
@@ -697,28 +716,44 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             // Carefull with the computation: integer division with round-down
             // causes cumulative damage: the ave never goes up if this is not
             // taken care of. We keep the reminder from one round to the other.
+        	
+        	// What follows is the calculation of exponential smoothing variable with
+        	// a smoothing constant (lambda) set to 1/3.  The previous value of 1/9 was
+        	// a bit too small, and caused the implementation to be somewhat slow 
+        	// to adjust to changes in network latency.  1/3 gives a 
+        	// more reliable mean and a smaller standard deviation across various network conditions
+        	//
+        	// See http://www.itl.nist.gov/div898/handbook/pmc/section4/pmc431.htm for
+        	// more discussion on the exponential smoothing algorithm(s) and running averages
+
             
             if (!aveRTTreset) {
                 aveRTT = dt;
                 aveRTTreset = true;
             } else {
-                long tmp = (8 * aveRTT) + ((8 * remRTT) / 9) + dt;
-
+                long tmp = (6 * aveRTT) + ((6 * remRTT) / 9) + (3 * dt);
+                
                 aveRTT = tmp / 9;
                 remRTT = tmp - aveRTT * 9;
             }
         }
         
-        // Set retransmission time out: 2.5 x RTT
-        // RTO = (aveRTT << 1) + (aveRTT >> 1);
-        RTO = aveRTT * 2;
+        long newRTO = aveRTT * 2;
         
-        // Enforce a min/max
-        RTO = Math.max(RTO, minRTO);
-        RTO = Math.min(RTO, outgoing.getMaxRetryAge());
+        // Unless stabalizationAckCount is zero, after a period of stream stabilisation, do not reduce the RTO value further. 
+        // This avoids the situation where a few small message sends reduce the RTO so much that when a large
+        // message is sent it immediately requires repetitive retransmission until the value of RTO climbs again.
+        // This is most apparent when using 'slow' relayed streams and large MTUs. 
+        if( 0 != this.stabalizationAckCount && numACKS.get() > this.stabalizationAckCount ){
+       		RTO = Math.max( RTO, newRTO );
+        } else {
+            // Enforce a min/max
+            RTO = Math.max(newRTO, minRTO);
+            RTO = Math.min(RTO, maxRTO);
+        }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms");
+            LOG.fine("RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms" + " maxRTO = " + maxRTO + "ms");
         }
     }
     
@@ -1197,7 +1232,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     }
                     
                     // see if the queue has gone dead
-                    if (oldestInQueueWait > outgoing.getMaxRetryAge()) {
+                    if (oldestInQueueWait > maxRTO) {
                         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                             LOG.info("Shutting down stale connection " + outgoing);
                         }
@@ -1234,7 +1269,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         // exceeds the rwindow, and we've had no response for
                         // twice the current RTO.
                         if ((retransed > 0) && (realWait >= 2 * RTO) && (nAtThisRTO >= 2 * rwindow)) {
-                            RTO = (realWait > outgoing.getMaxRetryAge() ? outgoing.getMaxRetryAge() : 2 * RTO);
+                            RTO = (realWait > maxRTO ? maxRTO : 2 * RTO);
                             nAtThisRTO = 0;
                         }
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1244,9 +1279,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         }
                     } else {
                         idleCounter += 1;
-                        // reset RTO to min if we are idle
+                        
                         if (idleCounter == 2) {
-                            RTO = minRTO;
+                        	RTO = minRTO;
                             idleCounter = 0;
                             nAtThisRTO = 0;
                         }

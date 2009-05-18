@@ -861,9 +861,10 @@ final class HttpClientMessenger extends BlockingMessenger {
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                             LOG.log(Level.FINE, "Failed to read message from " + senderURL, e);
                         }
-                        // Time to call this connection dead.
-                        stop();
-                        break;
+                        if (null != conn) {
+                            conn.disconnect();
+                        }
+                        conn = null;
                     } finally {
                         try {
                             inputStream.close();
