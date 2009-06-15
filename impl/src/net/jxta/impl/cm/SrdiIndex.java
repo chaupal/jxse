@@ -100,7 +100,8 @@ public class SrdiIndex implements Runnable {
      */
     private final static transient Logger LOG = Logger.getLogger(SrdiIndex.class.getName());
     
-    private long interval = 10 * TimeUtils.AMINUTE;
+    private final static long DEFAULT_INTERVAL = 10 * TimeUtils.AMINUTE;
+    private long interval = 0;
     private volatile boolean stop = false;
     private final Indexer srdiIndexer;
     private final BTreeFiler cacheDB;
@@ -116,7 +117,20 @@ public class SrdiIndex implements Runnable {
      * @param indexName the index name
      */
     public SrdiIndex(PeerGroup group, String indexName) {
+        this(group, indexName, DEFAULT_INTERVAL);
+    }
+    
+    /**
+     * Construct a SrdiIndex and starts a GC thread which runs every "interval"
+     * milliseconds
+     *
+     * @param interval  the interval at which the gc will run in milliseconds
+     * @param group     group context
+     * @param indexName SrdiIndex name
+     */
+    public SrdiIndex(PeerGroup group, String indexName, long interval) {
         this.indexName = indexName;
+        this.interval = interval;
         
         try {
             String pgdir = null;
@@ -161,6 +175,9 @@ public class SrdiIndex implements Runnable {
                 srdiIndexer.open();
             }
             
+            // Start the GC thread
+            startGC(group, indexName, interval);
+            
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Initialized " + indexName);
             }
@@ -183,21 +200,6 @@ public class SrdiIndex implements Runnable {
                 throw new UndeclaredThrowableException(e, "Unable to create Cm");
             }
         }
-    }
-    
-    /**
-     * Construct a SrdiIndex and starts a GC thread which runs every "interval"
-     * milliseconds
-     *
-     * @param interval  the interval at which the gc will run in milliseconds
-     * @param group     group context
-     * @param indexName SrdiIndex name
-     */
-    
-    public SrdiIndex(PeerGroup group, String indexName, long interval) {
-        this(group, indexName);
-        this.interval = interval;
-        startGC(group, indexName, interval);
     }
     
     /**
