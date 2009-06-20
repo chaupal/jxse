@@ -213,8 +213,13 @@ public class SrdiIndex implements Runnable {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
         }
-        
-        gcThread = new Thread(group.getHomeThreadGroup(), this, "SrdiIndex GC :" + indexName + " every " + interval + "ms");
+
+        if (group != null) {
+            gcThread = new Thread(group.getHomeThreadGroup(), this, "SrdiIndex GC :" + indexName + " every " + interval + "ms");
+        } else {
+            gcThread = new Thread(this, "SrdiIndex GC :" + indexName + " every " + interval + "ms");
+        }
+
         gcThread.setDaemon(true);
         gcThread.start();
     }
