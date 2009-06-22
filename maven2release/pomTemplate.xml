@@ -1,0 +1,207 @@
+<!-- vi:set expandtab shiftwidth=4 softtabstop=4:
+
+Copyright (c) 2003-2008 Sun Microsystems, Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, 
+are permitted provided that the following conditions are met: 
+
+1. Redistributions of source code must retain the above copyright notice, this 
+list of conditions and the following disclaimer. 
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation and/or 
+other materials provided with the distribution. 
+
+3. The end-user documentation included with the redistribution, if any, must 
+include the following acknowledgment: "This product includes software developed 
+by the Sun Microsystems, Inc. for Project JXTA." Alternately, this 
+acknowledgment may appear in the software itself, if and wherever such 
+third-party acknowledgments normally appear. 
+
+4. The names "Sun" "Sun Microsystems, Inc." "JXTA" and "Project JXTA" must not 
+be used to endorse or promote products derived from this software without prior 
+written permission. For written permission, please contact Project JXTA at the 
+Project JXTA homepage <http://www.jxta.org>
+
+5. Products derived from this software may not be called "JXTA" nor may "JXTA" 
+appear in their name, without prior written permission of Sun. 
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
+MICROSYSTEMS INCORPORATED OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+This software consists of voluntary contributions made by many individuals on 
+behalf of Project JXTA. For more information on Project JXTA, please see the 
+Project JXTA homepage <http://www.jxta.org>
+
+This license is based on the BSD license adopted by the Apache Foundation. 
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>net.jxta</groupId>
+    <artifactId>jxta-jxse</artifactId>
+    <version>@VERSION@</version>
+    <name>JXTA Platform</name>
+    <packaging>jar</packaging>
+    <url>https://jxta-jxse.dev.java.net/</url>
+    
+    <scm>
+        <url>https://jxta-jxse.dev.java.net/source/browse/jxta-jxse/</url>
+    </scm>
+
+    <organization>
+        <name>Project JXTA</name>
+        <url>https://jxta.dev.java.net/</url>
+    </organization>
+
+    <description>
+        JXTA technology is a set of open protocols that allow any connected
+        device on the network ranging from cell phones and wireless PDAs to PCs
+        and servers to communicate and collaborate in a P2P manner.
+
+        JXTA peers create a virtual network where any peer can interact with
+        other peers and resources directly even when some of the peers and
+        resources are behind firewalls and NATs or are on different network
+        transports.
+    </description>
+
+    <issueManagement>
+        <system>Project Issues</system>
+        <url>https://jxta-jxse.dev.java.net/issues/</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>announce</name>
+            <subscribe>announce-subscribe@jxta.dev.java.net?subject=Subscribe</subscribe>
+            <archive>https://jxta.dev.java.net/servlets/SummarizeList?listName=announce</archive>
+        </mailingList>
+        <mailingList>
+            <name>discuss</name>
+            <subscribe>discuss-subscribe@jxta.dev.java.net?subject=Subscribe</subscribe>
+            <archive>https://jxta.dev.java.net/servlets/SummarizeList?listName=discuss</archive>
+        </mailingList>
+        <mailingList>
+            <name>user</name>
+            <subscribe>user-subscribe@jxta.dev.java.net?subject=Subscribe</subscribe>
+            <archive>https://jxta.dev.java.net/servlets/SummarizeList?listName=user</archive>
+        </mailingList>
+        <mailingList>
+            <name>dev</name>
+            <subscribe>dev-subscribe@jxta.dev.java.net?subject=Subscribe</subscribe>
+            <archive>https://jxta.dev.java.net/servlets/SummarizeList?listName=dev</archive>
+        </mailingList>
+    </mailingLists>
+
+    <licenses>
+        <license>
+            <name>Project JXTA License</name>
+            <url>https://jxta.dev.java.net/jxta_license.htm</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <distributionManagement>
+        <repository>
+            <id>java.net-m2-repository</id>
+            <url>java-net:/maven2-repository/trunk/www/repository/</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/2/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+            <version>136</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>4.2.27</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.jvnet.wagon-svn</groupId>
+                <artifactId>wagon-svn</artifactId>
+                <version>RELEASE</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <!-- This plugin includes to activate upload of the sources jar -->
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- This plugin includes to activate upload of the sources jar -->
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy file="@DISTDIR@/jxta.jar"
+                                    tofile="${project.build.directory}/${project.build.finalName}.jar"
+                                    overwrite="true" />
+                                <copy file="@DISTDIR@/jxse-src-@BUILD@.jar"
+                                    tofile="${project.build.directory}/${project.build.finalName}-sources.jar"
+                                    overwrite="true" />
+                                <copy file="@DISTDIR@/jxse-doc-@BUILD@.jar"
+                                    tofile="${project.build.directory}/${project.build.finalName}-javadoc.jar"
+                                    overwrite="true" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,20 @@
+This directory defines a pseudo-Maven project for use in deploying the
+JXSE build to the java.net Maven repository.  It is not intended to be
+a Maven encapsulation of the JXSE project build.
+
+To build, first build the JXSE distribution by executing 'and dist'
+in the jxta-jxse base directory.  Then, execute the following
+command:
+
+        ant -Dnet.jxta.build.version=<ver1> -Dnet.jxta.maven.version=<ver2>
+
+WHERE:
+
+ver1    The JXSE build version (e.g., 2.5, 20080812).  This version must be
+        the same version string that was used/generated when JXSE was
+	built.  This version string is used to identify the files in the
+	jxta-jxse/dist/ directory.
+
+ver2    The Maven artifact version (e.g., 2.5, 2.5.1-SNAPSHOT).  This version
+        is used in the POM for the jxta-jxse artifact.
+
