@@ -55,10 +55,21 @@
  */
 package net.jxta.impl.peergroup;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
+import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
@@ -66,6 +77,7 @@ import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.impl.cm.Cm;
 import net.jxta.impl.cm.SrdiIndex;
+import net.jxta.impl.content.ContentServiceImpl;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
@@ -76,18 +88,6 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.jxta.document.XMLDocument;
-import net.jxta.impl.content.ContentServiceImpl;
 
 /**
  * A subclass of GenericPeerGroup that makes a peer group out of independent
@@ -577,7 +577,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // initialize cm before starting services.
         try {
-            cm = new Cm(getExecutor(), getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
+            cm = new Cm(getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
         } catch (Exception e) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Failure instantiating local store", e);

@@ -55,6 +55,7 @@
  */
 package net.jxta.impl.rendezvous;
 
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
@@ -66,6 +67,7 @@ import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
@@ -78,6 +80,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,7 +119,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      */
     private StdRdvProtocolListener handler;
 
-    protected final Timer timer;
+    protected final ScheduledExecutorService scheduledExecutor;
 
     /**
      * Interface for listeners to : &lt;assignedID>/<group-unique>
@@ -138,7 +141,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         pName = rdvService.getAssignedID().toString();
         pParam = group.getPeerGroupID().getUniqueValue().toString();
 
-        timer = new Timer("StdRendezVousService Timer for " + group.getPeerGroupID(), true);
+        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
     }
 
     /**
@@ -170,7 +173,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
             }
         }
 
-        timer.cancel();
+        scheduledExecutor.shutdownNow();
 
         super.stopApp();
     }

@@ -55,6 +55,13 @@
  */
 package net.jxta.impl.endpoint.servlethttp;
 
+import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
@@ -62,14 +69,10 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
-
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Simple messenger that waits for a message to give back to the requesting client
@@ -105,11 +108,8 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     private final static EndpointAddress nullEndpointAddr = new EndpointAddress("http", "0.0.0.0:0", null, null);
     
-    private final static Timer closeMessengerTimer = new Timer("HttpServletMessenger Expiration timer", true);
-    
     private final EndpointAddress logicalAddress;
     private final MessageElement srcAddressElement;
-    private ScheduledExipry expirationTask;
     
     /**
      *  The message "queue"
@@ -118,43 +118,41 @@ final class HttpServletMessenger extends BlockingMessenger {
     
     private int sendResult = SEND_IDLE;
     private long sendingSince = 0;
+
+	private ScheduledFuture<?> expirationTaskHandle;
     
     /**
      *  Allows us to schedule the closing of a messenger.
      */
-    private static class ScheduledExipry extends TimerTask {
+    private static class ScheduledExpiry extends SelfCancellingTask {
 
         /**
          *  The messenger we will be expiring.
          */
         HttpServletMessenger messenger;
         
-        ScheduledExipry(HttpServletMessenger toExpire) {
+        ScheduledExpiry(HttpServletMessenger toExpire) {
             messenger = toExpire;
         }
         
         /**
          *  {@inheritDoc}
          */
-        @Override
-        public boolean cancel() {
+        public void cancel() {
             // It is important we clear the messenger because Timer doesn't
             // remove cancelled TimerTasks from it's queue until they fire. This
             // means that the Messenger would not be GCed until the TimerTask
             // fired.
+        	// 24.06.09 - This is now properly handled by the scheduledExecutorService
             messenger = null;
-            boolean result = super.cancel();
-
-            // take the opportunity to also purge canceled tasks
-            closeMessengerTimer.purge();
-            return result;
+            super.cancel();
         }
         
         /**
          *  {@inheritDoc}
          */
         @Override
-        public void run() {
+        public void execute() {
             try {
                 HttpServletMessenger temp = messenger;
 
@@ -215,9 +213,8 @@ final class HttpServletMessenger extends BlockingMessenger {
         this.srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddress.toString(), null);
         
         if ((0 != validFor) && (validFor < Long.MAX_VALUE)) {
-            expirationTask = new ScheduledExipry(this);
-            
-            closeMessengerTimer.schedule(expirationTask, validFor);
+            ScheduledExecutorService scheduledExecutorService = TaskManager.getTaskManager().getScheduledExecutorService();
+            expirationTaskHandle = scheduledExecutorService.schedule(new ScheduledExpiry(this), validFor, TimeUnit.MILLISECONDS);
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -234,11 +231,11 @@ final class HttpServletMessenger extends BlockingMessenger {
             LOG.fine("close\n\t" + toString());
         }
         
-        ScheduledExipry cancelExpire = expirationTask;
+        ScheduledFuture<?> cancelExpire = expirationTaskHandle;
 
-        expirationTask = null;
+        expirationTaskHandle = null;
         if (null != cancelExpire) {
-            cancelExpire.cancel();
+            cancelExpire.cancel(false);
         }
         
         super.close();

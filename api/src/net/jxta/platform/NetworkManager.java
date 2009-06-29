@@ -57,18 +57,21 @@
 package net.jxta.platform;
 
 
-import javax.security.cert.CertificateException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.security.cert.CertificateException;
+
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.membership.pse.StringAuthenticator;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
@@ -79,8 +82,6 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
-
-import net.jxta.impl.membership.pse.StringAuthenticator;
 
 
 /**
@@ -110,7 +111,7 @@ public class NetworkManager implements RendezvousListener {
     /**
      * Define node standard node operating modes
      */
-    public enum ConfigMode {
+    public enum ConfigMode { 
 
         /**
          * A AD-HOC node
@@ -405,6 +406,9 @@ public class NetworkManager implements RendezvousListener {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "Starting JXTA Network! MODE = " + mode.toString() + ",  HOME = " + instanceHome);
         }
+        
+// Not needed since the TM is completely static now (at least temporarily) -- Bill
+//        TaskManager.getTaskManager().startup();
 
         // create, and Start the default jxta NetPeerGroup
         NetPeerGroupFactory factory = new NetPeerGroupFactory(config.getPlatformConfig(), instanceHome);
@@ -493,6 +497,8 @@ public class NetworkManager implements RendezvousListener {
         netPeerGroup.stopApp();
         netPeerGroup.unref();
         netPeerGroup = null;
+        
+        TaskManager.getTaskManager().shutdown();
         // permit restart.
         started = false;
 

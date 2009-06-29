@@ -57,12 +57,6 @@
 package net.jxta.impl.endpoint.router;
 
 
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Messenger;
-import net.jxta.impl.util.TimeUtils;
-import net.jxta.logging.Logging;
-
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -73,9 +67,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.Messenger;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logging;
 
 
 /**
@@ -131,7 +134,7 @@ class Destinations {
     /**
      * The wisdom GC task for this instance.
      */
-    private final WisdomGCTask wisdomGC;
+    private final ScheduledFuture<?> wisdomGCHandle;
 
     /**
      * Stores knowledge about one particular destination.
@@ -426,9 +429,8 @@ class Destinations {
 
         this.endpoint = endpoint;
 
-        wisdomGC = new WisdomGCTask();
-
-        cleanup.schedule(wisdomGC, TimeUtils.AMINUTE, TimeUtils.AMINUTE);
+        ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+        wisdomGCHandle = executor.scheduleAtFixedRate(new WisdomGCTask(), 60, 60, TimeUnit.SECONDS);
     }
 
     /**
@@ -440,13 +442,13 @@ class Destinations {
         // forget everything.
         wisdoms.clear();
 
-        wisdomGC.cancel();
+        wisdomGCHandle.cancel(false);
     }
 
     /**
      * Handles cleanup of expired wisdoms
      */
-    class WisdomGCTask extends TimerTask {
+    class WisdomGCTask implements Runnable {
 
         /**
          * {@inheritDoc}
@@ -473,7 +475,7 @@ class Destinations {
                 }
             } catch (Throwable all) {
                 if (Logging.SHOW_SEVERE && Destinations.LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in TimerTask :" + Thread.currentThread().getName(), all);
+                    LOG.log(Level.SEVERE, "Uncaught Throwable in ScheduledTask :" + Thread.currentThread().getName(), all);
                 }
             }
         }

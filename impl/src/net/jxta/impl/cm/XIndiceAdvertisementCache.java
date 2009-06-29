@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +35,7 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
 import net.jxta.impl.util.JxtaHash;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Record;
@@ -86,7 +87,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     /**
      * The Executor we use for our tasks.
      */
-    private final Executor executor;
+    private final ScheduledExecutorService executor;
     /*
      *  record db
      */
@@ -113,9 +114,10 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      */
     private boolean stop = false;
     /**
-     * The timer task we use for scheduling our GC operations.
+     * The scheduler for our GC operations.
      */
-    private final GC_Task gcTask;
+    private final ScheduledFuture<?> gcTaskHandle;
+
     /**
      * The absolute time in milliseconds after which the next GC operation will
      * begin.
@@ -146,7 +148,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 		// Granted, it's only used in tests right now, but clearly we dont need
 		// yet another pool floating around.  SingleThreadExecutor seems safest...
 		// however, the current implementation uses CachedThreadPool.
-		this(Executors.newCachedThreadPool(), storeRoot, areaName, DEFAULT_GC_MAX_INTERVAL, false);
+		this(storeRoot, areaName, DEFAULT_GC_MAX_INTERVAL, false);
 	}
 
     /**
@@ -159,8 +161,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @param trackDeltas when true deltas are tracked
      * @throws IOException thrown for failures initilzing the CM store.
      */
-    public XIndiceAdvertisementCache(Executor executor, URI storeRoot, String areaName, long gcInterval, boolean trackDeltas) throws IOException {
-        this.executor = executor;
+    public XIndiceAdvertisementCache(URI storeRoot, String areaName, long gcInterval, boolean trackDeltas) throws IOException {
+        this.executor = TaskManager.getTaskManager().getScheduledExecutorService();
         this.trackDeltas = trackDeltas;
         this.gcMaxInterval = (0 >= gcInterval) ? DEFAULT_GC_MAX_INTERVAL : gcInterval;
 
@@ -219,8 +221,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             // Install Record GC task.
             gcTime = TimeUtils.toAbsoluteTimeMillis(gcMaxInterval);
-            gcTask = new GC_Task();
-            GC_TIMER.scheduleAtFixedRate(gcTask, GC_CHECK_PERIOD, GC_CHECK_PERIOD);
+            gcTaskHandle = executor.scheduleAtFixedRate(new GC_Task(), GC_CHECK_PERIOD, GC_CHECK_PERIOD, TimeUnit.SECONDS);
 
             if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
                 LOG.config("Instantiated Cm for: " + rootDir.getAbsolutePath());
@@ -1105,7 +1106,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             cacheDB.close();
             indexer.close();
             stop = true;
-            gcTask.cancel();
+            gcTaskHandle.cancel(false);
             GC_TIMER.purge();
         } catch (DBException ex) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -1114,7 +1115,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         }
     }
 
-    private final class GC_Task extends TimerTask {
+    private final class GC_Task implements Runnable {
 
         /**
          * {@inheritDoc}

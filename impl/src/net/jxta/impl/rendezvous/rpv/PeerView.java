@@ -55,6 +55,29 @@
  */
 package net.jxta.impl.rendezvous.rpv;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Vector;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -78,6 +101,7 @@ import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -94,13 +118,6 @@ import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class models a Rendezvous Peer View (RPV):
@@ -289,7 +306,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * the PeerView (i.e. per instance of joined PeerGroup) is the best
      * workaround.
      */
-    private final Timer timer;
+    private final ScheduledExecutorService scheduledExecutor;
 
     /**
      * A random number generator.
@@ -299,7 +316,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     /**
      * List of scheduled tasks
      */
-    private final Set<TimerTask> scheduledTasks = Collections.synchronizedSet(new HashSet<TimerTask>());
+    private final Map<Runnable, ScheduledFuture<?>> scheduledTasks = Collections.synchronizedMap(new HashMap<Runnable, ScheduledFuture<?>>());
 
     /**
      * Describes the frequency and amount of effort we will spend updating
@@ -399,7 +416,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         this.uniqueGroupId = group.getPeerGroupID().getUniqueValue().toString();
 
-        timer = new Timer("PeerView Timer for " + group.getPeerGroupID(), true);
+        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
 
         Advertisement adv = null;
         ConfigParams confAdv = group.getConfigAdvertisement();
@@ -775,8 +792,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             if ((RendezvousEvent.BECAMERDV == theEventType) || (RendezvousEvent.BECAMEEDGE == theEventType)) {
                 // kill any existing watchdog task
                 if (null != watchdogTask) {
-                    removeTask(watchdogTask);
-                    watchdogTask.cancel();
+                    ScheduledFuture<?> taskHandle = removeTask(watchdogTask);
+                    taskHandle.cancel(false);
                     watchdogTask = null;
                 }
             }
@@ -846,8 +863,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         // the closed flag where it matters.
         synchronized (this) {
             if (watchdogTask != null) {
-                removeTask(watchdogTask);
-                watchdogTask.cancel();
+                ScheduledFuture<?> taskHandle = removeTask(watchdogTask);
+                taskHandle.cancel(false);
                 watchdogTask = null;
             }
 
@@ -862,13 +879,12 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             // cheaper and simpler.
 
             synchronized (scheduledTasks) {
-                Iterator<TimerTask> eachTask = scheduledTasks.iterator();
-
+                Iterator<Runnable> eachTask = scheduledTasks.keySet().iterator();
+                
                 while (eachTask.hasNext()) {
                     try {
-                        TimerTask task = eachTask.next();
-
-                        task.cancel();
+                        Runnable task = eachTask.next();
+                        scheduledTasks.get(task).cancel(false);
                         eachTask.remove();
                     } catch (Exception ez1) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
@@ -886,32 +902,37 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             upPeer = null;
             localView.clear();
 
-            timer.cancel();
+            scheduledExecutor.shutdownNow();
 
             rpvListeners.clear();
         }
     }
 
-    protected void addTask(TimerTask task, long delay, long interval) {
+    protected void addTask(Runnable task, long delay, long interval) {
 
-        synchronized (scheduledTasks) {
-            if (scheduledTasks.contains(task)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Task list already contains specified task.");
-                }
-            }
-            scheduledTasks.add(task);
-        }
-
+    	ScheduledFuture<?> future;
         if (interval >= 1) {
-            timer.schedule(task, delay, interval);
+        	future = scheduledExecutor.scheduleAtFixedRate(task, delay, interval, TimeUnit.MILLISECONDS);
         } else {
-            timer.schedule(task, delay);
+        	future = scheduledExecutor.schedule(task, delay, TimeUnit.MILLISECONDS);
+        }
+        
+        synchronized (scheduledTasks) {
+        	if (scheduledTasks.containsKey(task)) {
+        		if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+        			LOG.warning("Task list already contains specified task.");
+        		}
+        	}
+        	scheduledTasks.put(task, future);
         }
     }
 
-    protected void removeTask(TimerTask task) {
-        scheduledTasks.remove(task);
+    /**
+     * Removes the provided task from the scheduled task list.
+     * @return the {@link java.util.concurrent.ScheduledFuture} for the task, if running.
+     */
+    protected ScheduledFuture<?> removeTask(Runnable task) {
+        return scheduledTasks.remove(task);
     }
 
     /**
@@ -1023,7 +1044,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * Service, and since updateStatus is invoked this work must happen in
      * background, giving a chance to other services to be started.
      */
-    private class OpenPipesTask extends TimerTask {
+    private class OpenPipesTask implements Runnable {
 
         /**
          * {@inheritDoc}
@@ -1713,29 +1734,16 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             return;
         }
 
-        TimerTask task = new AdvertisingGroupQueryTask();
-
-        addTask(task, delay, -1);
+        addTask(new AdvertisingGroupQueryTask(), delay, -1);
     }
 
     /**
      * Class implementing the query request on the AdvertisingGroup
      */
-    private final class AdvertisingGroupQueryTask extends TimerTask {
-
+    private final class AdvertisingGroupQueryTask implements Runnable {
         /**
          * {@inheritDoc}
          */
-        @Override
-        public boolean cancel() {
-            boolean res = super.cancel();
-            return res;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
         public void run() {
             try {
                 if (closed) {
@@ -1945,7 +1953,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     /**
      * A task that checks on upPeer and downPeer.
      */
-    private final class WatchdogTask extends TimerTask {
+    private final class WatchdogTask implements Runnable {
 
         /**
          *  The number of iterations that the watchdog task has executed.
@@ -1957,7 +1965,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         /**
          * {@inheritDoc}
          */
-        @Override
         public void run() {
             try {
                 if (closed) {
@@ -2028,12 +2035,11 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     /**
      * Class implementing the kicker
      */
-    private final class KickerTask extends TimerTask {
+    private final class KickerTask implements Runnable {
 
         /**
          * {@inheritDoc}
          */
-        @Override
         public void run() {
             try {
                 if (closed) {
