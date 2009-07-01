@@ -55,12 +55,18 @@
  */
 package net.jxta.impl.util;
 
+
 /**
  * Utilities for manipulating absolute and relative times and for accelerating
  * and decelerating time for testing purposes.
  * <p/>
  * The "time warp" functionality is useful for debugging and is scoped to
  * the class loader in which the TimeUtils class is loaded.
+ * <p/>
+ * Additionally, an alternative {@link SystemClock} implementation can be provided
+ * to decouple your tests from the real system clock. This is particularly useful
+ * for precise control over time for time-dependent behaviour tests, without
+ * needing to use Thread.sleep() or a busy-wait loop.
  */
 public final class TimeUtils {
 
@@ -213,20 +219,22 @@ public final class TimeUtils {
      */
     private TimeUtils() {
     }
+    
+    private static SystemClock clock = new JavaSystemClock();
+    
+    public static void setClock(SystemClock sc) {
+    	clock = sc;
+    }
+    
+    public static void resetClock() {
+    	clock = new JavaSystemClock();
+	}
 
     /**
-     * Return the current time. This value may differ from the value returned
-     * by {@link System#currentTimeMillis()} if the {@link #timeWarp(long)} or
-     * {@link #autoWarp(double)} features are being used. Using
-     * {@link #timeNow()} allows test harnesses to simulate long periods of
-     * time passing.
-     *
-     * @return The current time which has been possibly adjusted by a "time warp"
-     *         factor.
+     * @return The current time which has been possibly adjusted for testing purposes
      */
     public static long timeNow() {
-        long now = System.currentTimeMillis();
-
+        long now = clock.getCurrentTime();
         if (WARPFACTOR != 1.0) {
             long elapsed = now - WARPBEGAN;
 

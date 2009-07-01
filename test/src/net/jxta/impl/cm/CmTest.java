@@ -111,11 +111,11 @@ public class CmTest extends TestCase {
         super(testName);
         synchronized (CmTest.class) {
             if (null == cm) {
-                cm = new Cm(Executors.newCachedThreadPool(),
-                        new File(new File(".cache"), "CmTest").toURI(),
-                        "CmTest", 0, true);
+                cm = new Cm(
+                        new File(new File(".cache"), "CmTest").toURI(), "CmTest");
             }
         }
+        
     }
 
     /**
