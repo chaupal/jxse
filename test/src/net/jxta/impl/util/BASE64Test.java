@@ -81,7 +81,7 @@ public class BASE64Test extends TestCase {
     }
     
     public static Test suite() {
-        TestSuite suite = new TestSuite(CopyOfBASE64Test.class);
+        TestSuite suite = new TestSuite(BASE64Test.class);
 
         return suite;
     }
