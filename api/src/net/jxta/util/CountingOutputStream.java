@@ -69,11 +69,6 @@ import java.io.OutputStream;
 public class CountingOutputStream extends java.io.FilterOutputStream {
     
     /**
-     *  For recursion detection to prevent overcounting.
-     **/
-    private transient boolean alreadycounting;
-    
-    /**
      *  number of bytes which have been written on this stream
      **/
     private long bytesWritten;
@@ -84,7 +79,6 @@ public class CountingOutputStream extends java.io.FilterOutputStream {
     public CountingOutputStream(OutputStream out) {
         super(out);
         bytesWritten = 0;
-        alreadycounting = false;
     }
     
     /**
@@ -108,14 +102,8 @@ public class CountingOutputStream extends java.io.FilterOutputStream {
      **/
     @Override
     public synchronized void write(int b) throws IOException {
-        boolean wascounting = alreadycounting;
-
-        alreadycounting = true;
-        super.write(b);
-        alreadycounting = wascounting;
-        if (!alreadycounting) {
-            bytesWritten++;
-        }
+        out.write(b);
+        bytesWritten++;
     }
     
     /**
@@ -125,14 +113,8 @@ public class CountingOutputStream extends java.io.FilterOutputStream {
      **/
     @Override
     public synchronized void write(byte[] b, int off, int len) throws IOException {
-        boolean wascounting = alreadycounting;
-
-        alreadycounting = true;
-        super.write(b, off, len);
-        alreadycounting = wascounting;
-        if (!alreadycounting) {
-            bytesWritten += len;
-        }
+        out.write(b, off, len);
+        bytesWritten += len;
     }
     
     /**
