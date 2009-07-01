@@ -112,8 +112,6 @@ public class PipeClient implements OutputPipeListener {
         try {
             manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "PipeClient",
                     new File(new File(".cache"), "PipeClient").toURI());
-            manager.getConfigurator().setTcpEnabled(true);
-            manager.getConfigurator().setUseMulticast(false);
             manager.startNetwork();
         } catch (Exception e) {
             e.printStackTrace();
