@@ -96,8 +96,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -282,7 +282,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         // when when have no answer.
         walker = walk.getWalker();
 
-        timer.scheduleAtFixedRate(new GCTask(), GC_INTERVAL, GC_INTERVAL);
+        scheduledExecutor.scheduleAtFixedRate(new GCTask(), GC_INTERVAL, GC_INTERVAL, TimeUnit.MILLISECONDS);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.startRendezvous();
@@ -765,12 +765,11 @@ public class RdvPeerRdvService extends StdRendezVousService {
     /**
      * Periodic cleanup task
      */
-    private class GCTask extends TimerTask {
+    private class GCTask implements Runnable {
 
         /**
          * {@inheritDoc
          */
-        @Override
         public void run() {
 
             try {

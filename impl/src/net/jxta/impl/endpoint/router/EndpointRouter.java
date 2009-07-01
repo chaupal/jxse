@@ -55,16 +55,45 @@
  */
 package net.jxta.impl.endpoint.router;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLElement;
-import net.jxta.endpoint.*;
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointListener;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageReceiver;
+import net.jxta.endpoint.MessageSender;
+import net.jxta.endpoint.MessageTransport;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.MessengerEvent;
+import net.jxta.endpoint.MessengerEventListener;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.TimerThreadNamer;
+import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -74,13 +103,6 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.service.Service;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class EndpointRouter implements EndpointListener, MessageReceiver, MessageSender, MessengerEventListener, Module {
 
@@ -216,7 +238,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     /**
      * Timer by which we schedule the clearing of pending queries.
      */
-    private final Timer timer = new Timer("EndpointRouter Timer", true);
+    private final ScheduledExecutorService timer = TaskManager.getTaskManager().getScheduledExecutorService();
 
     /**
      * PeerAdv tracking.
@@ -244,7 +266,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      */
     private RouteResolver routeResolver;
 
-    class ClearPendingQuery extends TimerTask {
+    class ClearPendingQuery extends SelfCancellingTask {
         final PeerID peerID;
         volatile boolean failed = false;
         long nextRouteResolveAt = 0;
@@ -253,7 +275,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             this.peerID = peerID;
             // We schedule for one tick at one minute and another at 5 minutes
             // after the second, we cancel ourselves.
-            timer.schedule(this, TimeUtils.AMINUTE, 5L * TimeUtils.AMINUTE);
+            setHandle(timer.scheduleAtFixedRate(this, 60, 60 * 5, TimeUnit.SECONDS));
             nextRouteResolveAt = TimeUtils.toAbsoluteTimeMillis(20L * TimeUtils.ASECOND);
         }
 
@@ -261,7 +283,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
          * {@inheritDoc}
          */
         @Override
-        public void run() {
+        public void execute() {
             try {
                 if (failed) {
                     // Second tick.
@@ -641,9 +663,6 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
-
-        timer.schedule(new TimerThreadNamer("EndpointRouter Timer for " + group.getPeerGroupID()), 0);
-
         this.group = group;
         this.assignedID = assignedID;
         ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;

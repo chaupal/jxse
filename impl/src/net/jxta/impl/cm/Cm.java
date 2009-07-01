@@ -149,21 +149,22 @@ public final class Cm {
      * provided parameters.
      * @throws IOException 
      */
-    public Cm(Executor executor, URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
+    
+    public Cm(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
     	String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
     	if(cacheImpl == null) {
-    		this.wrappedImpl = new XIndiceAdvertisementCache(executor, storeRoot, areaName, gcinterval, trackDeltas);
+    		this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, gcinterval, trackDeltas);
     	} else {
     		try {
 				Class<?> cacheClass = Class.forName(cacheImpl);
 				Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
 				Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(ThreadGroup.class, URI.class, String.class, long.class, boolean.class);
-				this.wrappedImpl = constructor.newInstance(executor, storeRoot, areaName, gcinterval, trackDeltas);
+				this.wrappedImpl = constructor.newInstance(storeRoot, areaName, gcinterval, trackDeltas);
 			} catch (Exception e) {
 				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
 					LOG.log(Level.SEVERE, "Unable to construct cache type [" + cacheImpl + "] specified by system property, constructing default", e);
 				}
-				this.wrappedImpl = new XIndiceAdvertisementCache(executor, storeRoot, areaName, gcinterval, trackDeltas);
+				this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, gcinterval, trackDeltas);
 			}
     	}
     }

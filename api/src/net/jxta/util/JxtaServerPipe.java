@@ -67,6 +67,7 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.tcp.TcpMessenger;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
@@ -165,7 +166,7 @@ public class JxtaServerPipe implements PipeMsgListener {
      */
     public JxtaServerPipe(PeerGroup group, PipeAdvertisement pipeadv, int backlog) throws IOException {
         this.group = group;
-        this.executor = Executors.newFixedThreadPool(3);
+        this.executor = TaskManager.getTaskManager().getExecutorService();
         this.pipeadv = pipeadv;
         this.backlog = backlog;
         connectionQueue = new ArrayBlockingQueue<JxtaBiDiPipe>(backlog);
@@ -263,7 +264,6 @@ public class JxtaServerPipe implements PipeMsgListener {
                 // close all the pipe
                 serverPipe.close();
                 connectionQueue.clear();
-                executor.shutdownNow();
                 bound = false;
             }
             closed = true;

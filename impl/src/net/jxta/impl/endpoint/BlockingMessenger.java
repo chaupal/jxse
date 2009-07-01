@@ -55,6 +55,15 @@
  */
 package net.jxta.impl.endpoint;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.endpoint.AbstractMessenger;
 import net.jxta.endpoint.ChannelMessenger;
 import net.jxta.endpoint.EndpointAddress;
@@ -62,17 +71,11 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerState;
 import net.jxta.endpoint.OutgoingMessageEvent;
-import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.util.SimpleSelectable;
-
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class is a near-drop-in replacement for the previous BlockingMessenger class.
@@ -173,7 +176,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     /**
      * The timer task watching over our self destruction requirement.
      */
-    private final TimerTask selfDestructTask;
+    private final ScheduledFuture<?> selfDestructTaskHandle;
 
     /**
      * State lock and engine.
@@ -239,8 +242,8 @@ public abstract class BlockingMessenger extends AbstractMessenger {
             lieToOldTransports = false;
 
             // Disconnect from the timer.
-            if (selfDestructTask != null) {
-                selfDestructTask.cancel();
+            if (selfDestructTaskHandle != null) {
+                selfDestructTaskHandle.cancel(false);
             }
         }
 
@@ -434,33 +437,30 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         //
         // FIXME 20040413 jice : we trust transports to implement isIdle reasonably, which may be a leap of faith. We
         // should probably superimpose a time limit of our own.
+        //
         if (selfDestruct) {
-            selfDestructTask = new TimerTask() {
-
-                /**
-                 * {@inheritDoc}
-                 */
-                @Override
-                public void run() {
-                    try {
-                        if (isIdleImpl()) {
-                            close();
-                        } else {
-                            return;
-                        }
-                    } catch (Throwable uncaught) {
-                        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                            LOG.log(Level.SEVERE, "Uncaught Throwable in selfDescructTask. ", uncaught);
-                        }
-                    }
-                    cancel();
-                    timer.purge();
-                }
+        	
+            SelfCancellingTask selfDestructTask = new SelfCancellingTask() {
+            	public void execute() {
+        		    try {
+        		        if (isIdleImpl()) {
+        		            close();
+        		        } else {
+        		            return;
+        		        }
+        		    } catch (Throwable uncaught) {
+        		        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+        		            LOG.log(Level.SEVERE, "Uncaught Throwable in selfDescructTask. ", uncaught);
+        		        }
+        		    }
+        		}
             };
-            timer.purge();
-            timer.schedule(selfDestructTask, TimeUtils.AMINUTE, TimeUtils.AMINUTE);
+
+            ScheduledExecutorService scheduledExecutorService = TaskManager.getTaskManager().getScheduledExecutorService();
+            selfDestructTaskHandle = scheduledExecutorService.scheduleAtFixedRate(selfDestructTask, 60, 60, TimeUnit.SECONDS);
+            selfDestructTask.setHandle(selfDestructTaskHandle);
         } else {
-            selfDestructTask = null;
+            selfDestructTaskHandle = null;
         }
     }
 

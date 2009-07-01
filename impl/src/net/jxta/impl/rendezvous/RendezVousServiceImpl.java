@@ -55,6 +55,26 @@
  */
 package net.jxta.impl.rendezvous;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Set;
+import java.util.Vector;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLDocument;
@@ -76,6 +96,7 @@ import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.PeerGroup;
@@ -91,12 +112,6 @@ import net.jxta.rendezvous.RendezVousStatus;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.service.Service;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -129,8 +144,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     private RendezvousServiceMonitor rendezvousServiceMonitor;
 
-    private Timer timer;
-    private RdvWatchdogTask autoRdvTask = null;
+    private ScheduledExecutorService scheduledExecutor;
+    private ScheduledFuture<?> autoRdvTaskHandle = null;
 
     private long rdv_watchdog_interval = 5 * TimeUtils.AMINUTE; // 5 Minutes
 
@@ -309,7 +324,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         // }
         //
 
-        timer = new Timer("RendezVousServiceImpl Timer for " + group.getPeerGroupID(), true);
+        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
 
         if (!rdvProviderSwitchStatus.compareAndSet(true, true)) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -365,8 +380,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
             provider = null;
         }
 
-        timer.cancel();
-        timer = null;
+        scheduledExecutor.shutdownNow();
+        scheduledExecutor = null;
 
         msgIds.clear();
         eventListeners.clear();
@@ -798,33 +813,26 @@ public final class RendezVousServiceImpl implements RendezVousService {
     private synchronized void startWatchDogTimer() {
         stopWatchDogTimer();
 
-        autoRdvTask = new RdvWatchdogTask();
+        Runnable autoRdvTask = new RdvWatchdogTask();
 
         // Now that we have an Auto-switch flag we only use the higher timeout
         // if auto-switch is off .
         // Set a watchdog, so the peer will become rendezvous if, after rdv_watchdog_interval it
         // still has not connected to any rendezvous peer.
-        timer.schedule(autoRdvTask, rdv_watchdog_interval, rdv_watchdog_interval);
+        autoRdvTaskHandle = scheduledExecutor.scheduleAtFixedRate(autoRdvTask, rdv_watchdog_interval, rdv_watchdog_interval, TimeUnit.MILLISECONDS);
     }
 
     private synchronized void stopWatchDogTimer() {
-        RdvWatchdogTask tw = autoRdvTask;
-
-        if (tw != null) {
-            autoRdvTask.cancel();
-            autoRdvTask = null;
+        if (autoRdvTaskHandle != null) {
+            autoRdvTaskHandle.cancel(false);
+            autoRdvTaskHandle = null;
         }
     }
 
     /**
      * Edge Peer mode connection watchdog.
      */
-    private class RdvWatchdogTask extends TimerTask {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
+    private class RdvWatchdogTask implements Runnable {
         public synchronized void run() {
             try {
                 int connectedPeers = getConnectedPeerIDs().size();

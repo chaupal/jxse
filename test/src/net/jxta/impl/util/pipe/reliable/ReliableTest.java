@@ -93,6 +93,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Collections;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.io.IOException;
 import java.io.StringReader;
 import junit.framework.TestSuite;
@@ -101,6 +104,7 @@ import junit.framework.Test;
 import junit.textui.TestRunner;
 
 import net.jxta.impl.util.UnbiasedQueue;
+import net.jxta.impl.util.threads.TaskManager;
 
 
 public class ReliableTest extends TestCase implements 
@@ -140,7 +144,10 @@ public class ReliableTest extends TestCase implements
     private ArrayList loadElements = null;
 
     private int dropMsgCount = 0;
-
+    
+    private ScheduledExecutorService scheduledExecutor;
+    private ScheduledFuture<?> reliableTestTaskHandle = null;
+    
     private PeerGroup netPeerGroup = null;
     private RendezVousService rendezvousService = null;
     private DiscoveryService discoverySvc = null;
@@ -157,8 +164,8 @@ public class ReliableTest extends TestCase implements
 
     ReliableOutputStream ros = null;
     ReliableInputStream ris = null;
+    
 
-    Timer bwTimer = new Timer();
     UnbiasedQueue bwQueue = new UnbiasedQueue(Integer.MAX_VALUE, false);
     long bwQueueSz = 0;
     long nextInjectTime = 0;
@@ -167,7 +174,7 @@ public class ReliableTest extends TestCase implements
 
     long lostToCongestion = 0;
 
-    class TimedMsg extends TimerTask {
+    class TimedMsg implements Runnable {
 
         long delivDate;
 
@@ -247,7 +254,7 @@ public class ReliableTest extends TestCase implements
         // Because we strictly serialize messages.
         // Their delivery order is the same than their queuing order. So the
         // timer task only needs to pickup the next message and deliver it.
-        bwTimer.schedule(new TimedMsg(delivDate), delivDelay);
+        reliableTestTaskHandle = scheduledExecutor.scheduleAtFixedRate(new TimedMsg(delivDate), delivDelay, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
     }
 
     public ReliableTest(String testName) {
@@ -262,6 +269,7 @@ public class ReliableTest extends TestCase implements
  
     @Override
     protected void setUp() {
+        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
         loadElements = new ArrayList();
         for (int size = MIN_LOAD; size <= MAX_LOAD; size = size << 1) {
             byte[] le = new byte[size];
@@ -302,6 +310,10 @@ public class ReliableTest extends TestCase implements
 
     @Override
     public void tearDown() {
+            if (reliableTestTaskHandle != null) {
+                reliableTestTaskHandle.cancel(false);
+                reliableTestTaskHandle = null;
+            }
         System.exit(0);
     }
     

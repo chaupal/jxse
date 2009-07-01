@@ -105,6 +105,9 @@ public class PipeServer implements PipeMsgListener {
         try {
             manager = new net.jxta.platform.NetworkManager(NetworkManager.ConfigMode.ADHOC, "PipeServer",
                     new File(new File(".cache"), "PipeServer").toURI());
+            manager.getConfigurator().setTcpEnabled(true);
+            manager.getConfigurator().setUseMulticast(false);
+            
             manager.startNetwork();
         } catch (Exception e) {
             e.printStackTrace();
