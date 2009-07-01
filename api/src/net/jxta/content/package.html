@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<HTML>
+<HEAD>
+</HEAD>
+<BODY>
+Content objects are container objects that can hold arbitrary data and are
+associated with a JXTA ID (replacing the older Codat API).  This package is
+intended to provide a definition of Content as well as provide an interface
+to share and reetrieve the Content to and from remote peers.
+<p/>
+This API may appear to be quite complex for such a simple task.  This is
+due to the fact that it was designed to be able to provide a unified front-end
+to the programmer while retaining the option to host multiple transfer
+implementations concurrently.  Since each transfer implementation may have it's
+own specific controls and telemetry, this package was designed such that objects
+created for the user by each transfer implementation would be directly
+accessible by the user, allowing for polymorphic checks to expose more
+functionality than appears in this common API.
+<p/>
+For most uses, the following are probably the best entry point into
+this package:
+<ul>
+    <li>
+        <code>Content</code>: The container for arbitary data
+    </li>
+    <li>
+        <code>ContentService</code>: Allows Content to be shared and retrieved
+    </li>
+    <li>
+        <code>ContentShare</code>: Represents Content which has been made
+        available to remote peers
+    </li>
+    <li>
+        <code>ContentTransfer</code>: Represents Content which has been made
+        available by one or more remote peers and is being retrieved to this
+        peer
+    </li>
+</ul>
+
+
+@see net.jxta.id
+@see net.jxta.content.Content
+@see net.jxta.content.ContentService
+@see net.jxta.content.ContentShare
+@see net.jxta.content.ContentTransfer
+@see <a href="http://spec.jxta.org/nonav/v1.0/docbook/JXTAProtocols.html#proto" target='_blank'>
+    JXTA Protocols Specification : Protocols</a>
+</BODY>
+</HTML>
