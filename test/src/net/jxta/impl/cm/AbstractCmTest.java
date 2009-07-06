@@ -281,6 +281,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     public void testSaveAdvWithIllegalLifetime() throws Exception {
         try {
             cm.save("test", "test2", adv, -1, 100);
+            fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException e) {
             assertEquals("Bad expiration or lifetime.", e.getMessage());
         }
@@ -289,6 +290,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     public void testSaveAdvWithIllegalExpiry() throws Exception {
         try {
             cm.save("test", "test2", adv, 100, -1);
+            fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException e) {
             assertEquals("Bad expiration or lifetime.", e.getMessage());
         }
@@ -297,6 +299,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     public void testSaveBytesWithIllegalLifetime() throws Exception {
         try {
             cm.save("test", "test2", new byte[64], -1, 100);
+            fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException e) {
             assertEquals("Bad expiration or lifetime.", e.getMessage());
         }
@@ -305,6 +308,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     public void testSaveBytesWithIllegalExpiry() throws Exception {
         try {
             cm.save("test", "test2", new byte[64], 100, -1);
+            fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException e) {
             assertEquals("Bad expiration or lifetime.", e.getMessage());
         }

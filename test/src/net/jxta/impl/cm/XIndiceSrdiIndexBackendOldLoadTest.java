@@ -70,9 +70,13 @@ import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 
 /**
- * A SrdiIndexTest unit test
+ * This class was formerly known as SrdiIndexTest. It contains a number
+ * of stress tests of the XIndiceSrdiIndexBackend, which is the original
+ * SrdiIndex implementation. The tests take some time to run so are not
+ * technically unit tests. In future, these tests may be refactored into
+ * a more generic load testing suite for all SrdiIndexBackend implementations.
  */
-public class SrdiIndexTest extends TestCase {
+public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     static final String peerStr = "urn:jxta:uuid-59616261646162614A7874615032503346A235E18A1D427FAB4E8CA426964ADD03";
     static final String phantomStr = "urn:jxta:uuid-59616261646162614A7874615032503346A235E18A1D427ABA4E8CA426964ADD03";
     static final String pipeID = "urn:jxta:uuid-59616261646162614E50472050325033DCD44908E42B4EF790A4B9715E5AE29904";
@@ -106,7 +110,7 @@ public class SrdiIndexTest extends TestCase {
      *
      * @param testName test name
      */
-    public SrdiIndexTest(String testName) {
+    public XIndiceSrdiIndexBackendOldLoadTest(String testName) {
         super(testName);
     }
 
@@ -116,7 +120,7 @@ public class SrdiIndexTest extends TestCase {
      * @return The test suite
      */
     public static Test suite() {
-        return new TestSuite(SrdiIndexTest.class);
+        return new TestSuite(XIndiceSrdiIndexBackendOldLoadTest.class);
     }
 
     @Override
@@ -146,7 +150,6 @@ public class SrdiIndexTest extends TestCase {
         List<PeerID> res = srdi.query("pkey", "ID", pipeID, 1);
 
         assertTrue("query should not have returned a result", res.size() == 0);
-        srdi.clear();
         srdi.stop();
     }
 
@@ -244,16 +247,6 @@ public class SrdiIndexTest extends TestCase {
         }
 
         System.out.println("mt all done");
-        srdi.stop();
-    }
-
-    public void testClear() {
-        SrdiIndex srdi = new SrdiIndex(null, "SrdiIndexTest");
-
-        for (int i = 0; i < ITERATIONS; i++) {
-            srdi.add("pkey", "attr", "value" + i, pid, 1000);
-        }
-        srdi.clear();
         srdi.stop();
     }
 

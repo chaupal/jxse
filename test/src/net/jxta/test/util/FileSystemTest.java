@@ -26,9 +26,7 @@ public abstract class FileSystemTest extends TestCase {
     protected void setUp() throws Exception {
     	super.setUp();
     	
-    	testRootDir = File.createTempFile(testDirPrefix, "");
-        testRootDir.delete();
-        testRootDir.mkdir();
+    	this.testRootDir = createTempDirectory(testDirPrefix);
     }
     
     @Override
@@ -38,7 +36,15 @@ public abstract class FileSystemTest extends TestCase {
     	deleteDir(testRootDir);
     }
     
-    protected void deleteDir(File dir) throws IOException {
+    public static File createTempDirectory(String dirPrefix) throws IOException {
+    	File tempDir = File.createTempFile(dirPrefix, null);
+    	deleteDir(tempDir);
+        tempDir.mkdir();
+        
+        return tempDir;
+    }
+    
+    public static void deleteDir(File dir) throws IOException {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i=0; i<children.length; i++) {

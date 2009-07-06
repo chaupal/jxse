@@ -43,4 +43,8 @@ public class CacheUtils {
 	    }
 	    return map;
 	}
+	
+	public static String convertValueQueryToRegex(String value) {
+		return value.replaceAll("\\*", ".*?");
+	}
 }
