@@ -740,7 +740,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 // Wait until we are told we can write again.
                 int ready = writeSelector.select(TcpTransport.connectionTimeOut);
 
-                if (ready == 0 && (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), time) <= 0)) {
+                if (ready == 0 && (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), time) > TcpTransport.connectionTimeOut)) {
                     throw new SocketTimeoutException("Timeout during socket write");
                 } else {
                     attempts--;
