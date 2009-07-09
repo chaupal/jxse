@@ -58,10 +58,9 @@ package net.jxta.impl.cm;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -87,6 +86,7 @@ import net.jxta.test.util.FileSystemTest;
  */
 public abstract class AbstractCmTest extends FileSystemTest {
 	
+	private static final int NO_THRESHOLD = Integer.MAX_VALUE;
 	protected String cacheImplClassName;
 	protected AdvertisementCache wrappedCache;
     protected Cm cm;
@@ -94,14 +94,14 @@ public abstract class AbstractCmTest extends FileSystemTest {
     protected PeerAdvertisement adv;
     protected PeerGroupID groupId;
 	
-    static protected FakeSystemClock fakeTimer = new FakeSystemClock();
+    protected FakeSystemClock fakeTimer = new FakeSystemClock();
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         
         TimeUtils.setClock(fakeTimer);
-        wrappedCache = createWrappedCache(); 
+        wrappedCache = createWrappedCache("testArea"); 
         cm = new Cm(wrappedCache);
         groupId = IDFactory.newPeerGroupID();
         adv = createPeerAdvert(groupId, "MyPeer100");
@@ -127,7 +127,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
      * @return an instance of the advertisement cache to be tested, instantiated
      * with whatever parameters and options are required for it's normal functioning.
      */
-    public abstract AdvertisementCache createWrappedCache() throws Exception;
+    public abstract AdvertisementCache createWrappedCache(String areaName) throws Exception;
 
     protected PeerAdvertisement createPeerAdvert(PeerGroupID pgID, String peerName) {
         PeerAdvertisement peerAdv = (PeerAdvertisement)
@@ -151,7 +151,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	List<InputStream> records = cm.getRecords("a", 3, null);
     	assertEquals(3, records.size());
     	assertTrue("expected peers not found", containsXOf(extractNames(records), 3, "Peer1", "Peer2", "Peer3", "Peer4", "SuperPeerX", "other"));
-    	removeTestData();
     }
     
     public void testGetRecords_checkExpirationsMatch() throws Exception {
@@ -181,8 +180,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
 			
 			index++;
 		}
-		cm.remove("a", "b");
-		cm.remove("a", "c");
     }
     
     public void testGetRecords() throws Exception {
@@ -199,13 +196,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	// ensure dn strings which are substrings of one another do not affect the outcome
     	assertEquals(1, cm.getRecords("ab", 100, null).size());
     	assertEquals(1, cm.getRecords("bc", 100, null).size());
-		cm.remove("a","b");
-		cm.remove("a","c");
-		cm.remove("a","d");
-		cm.remove("b","b");
-		cm.remove("b","c");
-		cm.remove("ab","d");
-		cm.remove("bc","d");
     }
     
     public void testGetLifetime_withUnknownDnFnPair() throws Exception {
@@ -222,7 +212,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(10000L, cm.getLifetime("a", "b"));
     	fakeTimer.currentTime = 60000;
     	assertEquals(-10000L, cm.getLifetime("a", "b"));
-    	cm.remove("a", "b");  
     }
     
     public void testGetExpirationTime_withUnknownDnFnPair() throws Exception {
@@ -242,7 +231,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(10000L, cm.getExpirationtime("a", "b"));
     	fakeTimer.currentTime = 80000;
     	assertEquals(-1L, cm.getExpirationtime("a", "b"));
-    	cm.remove("a", "b"); 
     }
     
     public void testGetInputStream_withUnknownDnFnPair() throws Exception {
@@ -264,7 +252,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	}
     	
     	assertEquals("input stream is not depleted when expected", -1, inputStream.read());
-    	cm.remove("a", "b"); 
     }
     
     public void testRemove() throws Exception {
@@ -320,7 +307,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	cm.save("a", "b", ad, 10000L, 30000L);
     	
     	assertEquals(20000L, cm.getLifetime("a", "b"));
-    	cm.remove("a", "b");
     }
     
     public void testSaveBytes_overridesLifetimeIfLower() throws Exception {
@@ -329,7 +315,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	cm.save("a", "b", bytes, 10000L, 30000L);
     	
     	assertEquals(20000L, cm.getLifetime("a", "b"));
-    	cm.remove("a", "b");  
     }
     
     public void testSearch_exactMatch() throws IOException {
@@ -337,7 +322,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	List<InputStream> results = cm.search("a", "Name", "MyPeer100", 5, null);
     	assertEquals(1, results.size());
     	assertEquals("MyPeer100", getNameFromResult(results.get(0)));
-    	cm.remove("a", "b");  
 	}
 
 	protected String getNameFromResult(InputStream stream) throws IOException {
@@ -352,19 +336,14 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	List<InputStream> results = cm.search("a", "Name", "*PeerX", 10, null);
     	assertEquals(1, results.size());
     	checkContains(extractNames(results), "SuperPeerX");
-    	removeTestData();
-
     }
     
     public void testSearch_startsWith() throws IOException {
     	createTestData();
     	
     	List<InputStream> results = cm.search("a", "Name", "Peer*", 10, null);
-    	System.err.println("Results size is " + results.size());
     	assertEquals(4, results.size());
     	checkContains(extractNames(results), "Peer1", "Peer2", "Peer3", "Peer4");    	
-    	removeTestData();
-
     }
     
     public void testSearch_contains() throws IOException {
@@ -373,8 +352,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	List<InputStream> results = cm.search("a", "Name", "*Peer*", 10, null);
     	assertEquals(5, results.size());
     	checkContains(extractNames(results), "Peer1", "Peer2", "Peer3", "Peer4", "SuperPeerX");
-    	removeTestData();
-
     }
     
     public void testSearch_matchAnything() throws IOException {
@@ -383,18 +360,8 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	List<InputStream> results = cm.search("a", "Name", "*", 10, null);
     	assertEquals(6, results.size());
     	checkContains(extractNames(results), "Peer1", "Peer2", "Peer3", "Peer4", "SuperPeerX", "other");
-    	removeTestData();
-
     }
-	private void removeTestData() throws IOException {
-		cm.remove("a","b");
-		cm.remove("a","c");
-		cm.remove("a","d");
-		cm.remove("a","e");
-		cm.remove("a","f");
-		cm.remove("a","g");
 
-	}
 	private void createTestData() throws IOException {
 		cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 100000, 200000);
     	cm.save("a", "c", createPeerAdvert(groupId, "Peer2"), 150000, 200000);
@@ -407,22 +374,19 @@ public abstract class AbstractCmTest extends FileSystemTest {
     public void testSearch_withThreshold() throws IOException {
     	createTestData();
     	
-    	// search could return 6 results with this query, but we only want 2
+    	// search could return 4 results with this query, but we only want 2
     	List<InputStream> result = cm.search("a", "Name", "*", 2, null);
     	assertEquals(2, result.size());
     	
-    	// cannot predict which 2 of the 6 will be returned
+    	// cannot predict which 2 of the 4 will be returned
     	assertTrue("Subset of expected peers not found", containsXOf(extractNames(result), 2, "Peer1", "Peer2", "Peer3", "Peer4"));
     	
     	result = cm.search("a", "Name", "*", 3, null);
     	assertEquals(3, result.size());
     	assertTrue(containsXOf(extractNames(result), 3, "Peer1", "Peer2", "Peer3", "Peer4"));
-    	removeTestData();
-
     }
     
     public void testSearch_expiredEntriesNotReturned() throws IOException {
-    	fakeTimer.currentTime=0;
     	createTestData();
     	
     	fakeTimer.currentTime = 150000;
@@ -447,8 +411,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     		
     		index++;
     	}
-    	removeTestData();
-
     }
     
     public void testGetDeltas_generatedBySave() throws Exception {
@@ -477,8 +439,6 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	keys.add(deltas.get(0).key);
     	keys.add(deltas.get(1).key);
     	checkContains(keys, "PID", "Name");
-    	cm.remove("a", "b");  
-    	cm.remove("a", "c"); 
     }
     
     public void testGetDeltas_generatedByRemove() throws Exception {
@@ -513,14 +473,12 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	cm.setTrackDeltas(true);
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 10000L, 0L);
     	assertEquals(0, cm.getDeltas("a").size());
-    	cm.remove("a", "b"); 
     }
     
     public void testSave_deltasNotGeneratedWithTrackingOff() throws Exception {
     	cm.setTrackDeltas(false);
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer2"), 100000L, 200000L);
     	assertEquals(0, cm.getDeltas("a").size());
-    	cm.remove("a", "b"); 
     }
     
     public void testRemove_deltasNotGeneratedWithTrackingOff() throws Exception {
@@ -532,62 +490,137 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(0, cm.getDeltas("a").size());
     }
     
-    public void testConstruct() {
+    public void testGetEntries() throws Exception {
+        PeerAdvertisement peerAdv = createPeerAdvert(groupId, "Test peer");
+
+        cm.save("a", "b", adv, 100000L, 100000L);
+        cm.save("a", "c", peerAdv, 200000L, 200000L);
+        
+        // this advert won't be included in the returned results, wrong dn
+        cm.save("b", "c", createPeerAdvert(groupId, "Test peer 2"));
+        
+        List<Entry> entries = cm.getEntries("a", false);
+        assertNotNull(entries);
+        assertEquals(4, entries.size());
+        checkContains(entries, new EntryComparator(),
+                               new Entry("PID", adv.getPeerID().toString(), 100000L), 
+                               new Entry("Name", adv.getName(), 100000L),
+                               new Entry("PID", peerAdv.getPeerID().toString(), 200000L),
+                               new Entry("Name", peerAdv.getName(), 200000L));
+    }
+
+    /**
+     * Pseudo-comparator for Entry objects that returns 0 if there is an exact match, -1 otherwise. Used
+     * by the tests to make sure entries returned also have the expected expiration, as the equals() method
+     * on Entry does not take this into account.
+     */
+    private class EntryComparator implements Comparator<Entry> {
+
+        public int compare(Entry o1, Entry o2) {
+            return o1.key.equals(o2.key) && o1.value.equals(o2.value) && o1.expiration == o2.expiration ? 0 : -1;
+        }
+    }
+    
+    public void testGetEntries_flushesDeltasIfRequested() throws IOException {
+        cm.setTrackDeltas(true);
+        cm.save("a", "b", adv, 100000L, 100000L);
+        cm.getEntries("a", true);
+        assertEquals(0, cm.getDeltas("a").size());
+    }
+    
+    public void testGetEntries_doesNotFlushDeltasIfNotRequested() throws IOException {
+        cm.setTrackDeltas(true);
+        cm.save("a", "b", adv, 100000L, 100000L);
+        cm.getEntries("a", false);
+        List<Entry> deltas = cm.getDeltas("a");
+        assertEquals(2, deltas.size());
+        checkContains(deltas, new EntryComparator(), 
+                              new Entry("PID", adv.getPeerID().toString(), 100000L), 
+                              new Entry("Name", adv.getName(), 100000L));
+    }
+    
+    public void testGetEntries_immuneToDeltaClear() throws IOException {
+        cm.setTrackDeltas(true);
+        cm.save("a", "b", adv, 100000L, 100000L);
+        cm.getEntries("a", false);
+        
+        // will clear deltas for dn=a
+        cm.getDeltas("a");
+        
+        // this should still return all entries
+        List<Entry> entries = cm.getEntries("a", false);
+        assertEquals(2, entries.size());
+        checkContains(entries, new EntryComparator(),
+                               new Entry("PID", adv.getPeerID().toString(), 100000L), 
+                               new Entry("Name", adv.getName(), 100000L));
+    }
+    
+    public void testGetEntries_returnsExpirationsBasedOnLifetimeOnly() throws IOException {
+        cm.save("a", "b", adv, 100000L, 50000L);
+        
+        List<Entry> entries = cm.getEntries("a", false);
+        assertEquals(2, entries.size());
+        checkContains(entries, new EntryComparator(),
+                new Entry("PID", adv.getPeerID().toString(), 100000L), 
+                new Entry("Name", adv.getName(), 100000L));
+        
+        fakeTimer.currentTime = 40000L;
+        
+        entries = cm.getEntries("a", false);
+        assertEquals(2, entries.size());
+        checkContains(entries, new EntryComparator(),
+                new Entry("PID", adv.getPeerID().toString(), 60000L), 
+                new Entry("Name", adv.getName(), 60000L));
+    }
+    
+    public void testSaveIsolation_differentAreaNames() throws Exception {
+        Cm alternateArea = new Cm(createWrappedCache("testArea2"));
+        cm.save("a", "b", adv);
+        
+        assertEquals(1, cm.getRecords("a", NO_THRESHOLD, null).size());
+        assertEquals(0, alternateArea.getRecords("a", NO_THRESHOLD, null).size());
+        
+        assertEquals(2, cm.getEntries("a", false).size());
+        assertEquals(0, alternateArea.getEntries("a", false).size());
+        
+        assertNotNull(cm.getInputStream("a", "b"));
+        assertNull(alternateArea.getInputStream("a", "b"));
+    }
+    
+    public void testRemoveIsolation_differentAreaNames() throws Exception {
+        Cm alternateArea = new Cm(createWrappedCache("testArea2"));
+        cm.save("a", "b", adv);
+        alternateArea.remove("a", "b");
+        
+        // item should still exist
+        assertEquals(1, cm.getRecords("a", NO_THRESHOLD, null).size());
+    }
+    
+    public void testConstruct() throws IOException {
     	System.setProperty(Cm.CACHE_IMPL_SYSPROP, getCacheClassName());
-        Cm cmFromConstructor = null;
-		try {
-			cmFromConstructor = new Cm(testRootDir.toURI(), "testArea");
-		} catch (IOException e) {
-			System.err.println("Failed to construct the CM");
-			e.printStackTrace();
-		}
+        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea");
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }
-    public void testRestoreBytes(){
-    		int ITERATIONS = 1000;
-            long t0 = TimeUtils.timeNow();
-
-            for (int i = 0; i < ITERATIONS; i++) {
-                byte[] testdata = new byte[1 << (i % 16)];
-
-                Arrays.fill(testdata, (byte) (i % 16));
-
-                try {
-                    cm.save("bytes", Integer.toString(i), testdata, Long.MAX_VALUE, Long.MAX_VALUE);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    fail("Failed to raw data: " + e.getMessage());
+    
+    protected <T, U extends Collection<T>> void checkContains(U results, Comparator<T> comparator, T... expectedSet) {
+        for (T expected : expectedSet) {
+            assertTrue(expected + " not included in set", results.contains(expected));
+            if(comparator != null) {
+                boolean foundMatch = false;
+                for(T item : results) {
+                    if(comparator.compare(item, expected) == 0) {
+                        foundMatch = true;
+                        break;
+                    }
                 }
+                assertTrue("Did not find exact match using comparator for " + expected, foundMatch);
             }
-            System.out.println(
-                    "Completed Creation of " + ITERATIONS + " Raw data in: " + (System.currentTimeMillis() - t0) / 1000 + " seconds");
-
-
-            t0 = TimeUtils.timeNow();
-
-            for (int i = 0; i < ITERATIONS; i++) {
-                byte[] testdata = new byte[1 << (i % 16)];
-
-                Arrays.fill(testdata, (byte) (i % 16));
-
-                try {
-                    byte[] check = cm.restoreBytes("bytes", Integer.toString(i));
-
-                    assertTrue("values should have been equal at" + i, Arrays.equals(testdata, check));
-                	cm.remove("bytes",Integer.toString(i));  
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    fail("Failed to raw data: " + e.getMessage());
-                }
-            }
-            System.out.println(
-                    "Completed checking of " + ITERATIONS + " Raw data in: " + (System.currentTimeMillis() - t0) / 1000 + " seconds");
+        }
     }
-    protected <T> void checkContains(Collection<T> results, T... expectedSet) {
-		for (T expected : expectedSet) {
-			assertTrue(expected + " not included in set", results.contains(expected));
-		}
+    
+    protected <T, U extends Collection<T>> void checkContains(U results, T... expectedSet) {
+        checkContains(results, null, expectedSet);
     }
     
     protected boolean containsXOf(HashSet<String> set, int numExpected, String... expectedSet) {

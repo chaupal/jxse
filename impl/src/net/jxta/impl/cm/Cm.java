@@ -100,6 +100,7 @@ import net.jxta.protocol.SrdiMessage.Entry;
  */
 public final class Cm {
 
+    public static final int NO_THRESHOLD = Integer.MAX_VALUE;
 	public static final String CACHE_IMPL_SYSPROP = "net.jxta.impl.cm.cache.impl";
 
 	private final static Logger LOG = Logger.getLogger(Cm.class.getName());
@@ -174,7 +175,14 @@ public final class Cm {
     }
 
     public List<Entry> getEntries(String dn, boolean clearDeltas) {
-        return wrappedImpl.getEntries(dn, clearDeltas);
+        try {
+            return wrappedImpl.getEntries(dn, clearDeltas);
+        } catch(IOException e) {
+            if(Logging.SHOW_WARNING || LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Exception occurred when getting entries for dn=[" + dn + "], clearDeltas=[" + clearDeltas + "]", e);
+            }
+            return new ArrayList<Entry>(0);
+        }
     }
 
     public long getExpirationtime(String dn, String fn) {
@@ -190,10 +198,6 @@ public final class Cm {
 
     public InputStream getInputStream(String dn, String fn) throws IOException {
         return wrappedImpl.getInputStream(dn, fn);
-    }
-
-    public byte[] restoreBytes(String dn, String fn) throws IOException {
-        return wrappedImpl.restoreBytes(dn, fn);
     }
 
     public long getLifetime(String dn, String fn) {

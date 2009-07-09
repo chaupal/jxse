@@ -318,6 +318,11 @@ public abstract class SrdiMessage {
             this.value = value;
             this.expiration = expiration;
         }
+        
+        @Override
+        public String toString() {
+            return "SrdiMessage.Entry(key=[" + key + "], value=[" + value + "], expiration=[" + expiration + "])";
+        }
     }
 }
 

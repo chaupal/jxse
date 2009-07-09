@@ -33,8 +33,9 @@ public interface AdvertisementCache {
      * @param dn          the relative dir name
      * @param clearDeltas if true clears the delta cache
      * @return SrdiMessage.Entries
+     * @throws IOException if an I/O error occurs
      */
-    List<SrdiMessage.Entry> getEntries(String dn, boolean clearDeltas);
+    List<SrdiMessage.Entry> getEntries(String dn, boolean clearDeltas) throws IOException;
 
     /**
      * Returns the maximum duration in milliseconds for which this
@@ -74,17 +75,6 @@ public interface AdvertisementCache {
      */
     long getLifetime(String dn, String fn) throws IOException;
 
-    /**
-     * Returns the relative time in milliseconds at which the file
-     * will expire.
-     *
-     * @param dn contains the name of the folder
-     * @param fn contains the name of the file
-     * @return the absolute time in milliseconds at which this
-     * document will expire. -1 is returned if the file is not
-     * recognized or already expired.
-     * @throws IOException if an I/O error occurs
-     */
     List<InputStream> getRecords(String dn, int threshold, List<Long> expirations, boolean purge) throws IOException;
 
     /**
@@ -96,17 +86,6 @@ public interface AdvertisementCache {
      */
     void remove(String dn, String fn) throws IOException;
 
-    /**
-     * Restore an advetisement into a byte array.
-     *
-     * @param dn directory name
-     * @param fn file name
-     * @return byte [] containing the file
-     * @throws IOException if an I/O error occurs
-     */
-    byte[] restoreBytes(String dn, String fn) throws IOException;
-    
-    
     /**
      * Stores a StructuredDocument in specified dir, and file name, and
      * associated doc timeouts

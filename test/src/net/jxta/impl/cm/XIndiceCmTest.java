@@ -56,7 +56,6 @@
 
 package net.jxta.impl.cm;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -71,9 +70,9 @@ import java.io.IOException;
 public class XIndiceCmTest extends AbstractCmTest {
 
 	@Override
-	public AdvertisementCache createWrappedCache() {
+	public AdvertisementCache createWrappedCache(String areaName) {
 		try {
-			return new XIndiceAdvertisementCache(new File(testDirPrefix).toURI(), "test");
+		    return new XIndiceAdvertisementCache(testRootDir.toURI(), areaName);
 		} catch (IOException e) {
 			System.err.println("Failed to construct the CM");
 			e.printStackTrace();

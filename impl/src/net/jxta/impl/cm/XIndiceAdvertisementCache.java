@@ -822,7 +822,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 return true;
             }
             Long life = (Long) record.getMetaData(Record.LIFETIME);
-            SrdiMessage.Entry entry = new SrdiMessage.Entry(key, val.toString(), life - System.currentTimeMillis());
+            SrdiMessage.Entry entry = new SrdiMessage.Entry(key, val.toString(), life - TimeUtils.timeNow());
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(" key [" + entry.key + "] value [" + entry.value + "] exp [" + entry.expiration + "]");
