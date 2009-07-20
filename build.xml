@@ -295,8 +295,26 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         <delete dir="${build}" />
         <mkdir dir="${build}" />
     </target>
-    
-    <target name="-compile" depends="-prepare, -meterConfig" description="Compile the API and Implementation">      
+	
+	<!-- This target requires java6 and ant 1.7, minimally, to set the condition -->
+	<target name="getjvm">
+		<condition property="jvm.is.6">
+			<equals arg1="${ant.java.version}" arg2="1.6" />
+		</condition>
+	</target>
+	<!-- 
+	If running java6, then we can patch ProxiedScheduledExecutor appropriately...
+	This is adapted directly from Apache Geronimo and discussed on the jxta-dev
+	mailing list 
+	-->
+    <target name="patchme" depends="getjvm" if="jvm.is.6">
+        <replace dir="${impl}" >
+            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+            <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
+        </replace>
+	</target>
+    	
+    <target name="-compile" depends="-prepare, -meterConfig, patchme" description="Compile the API and Implementation">   
         <javac compiler="${net.jxta.build.compiler}" destdir="${build}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
             <compilerarg compiler="modern" value="-Xlint:all,-deprecation,-serial,-unchecked"/>
             <classpath>

@@ -19,6 +19,11 @@ import java.util.concurrent.TimeoutException;
  * execute tasks.  This allows for small, purpose-driven scheduled executors
  * to be created which then delegate to the more common application-level
  * thread pools.
+ * 
+ * NOTE: This class is dynamically patched at build time by ant to support the 
+ * java 1.6 semantics for invokeAny and invokeAll if 1.6 is found.  See the discussion
+ * beginning at https://jxta.dev.java.net/servlets/ReadMsg?list=dev&msgNo=981
+ * 
  */
 public class ProxiedScheduledExecutorService
         implements ScheduledExecutorService {
@@ -312,8 +317,8 @@ public class ProxiedScheduledExecutorService
      * @throws InterruptedException if interrupted while waiting, in which
      *  case unfinished tasks are cancelled 
      */
-	@Override
-	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+
+	public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks)
 			throws InterruptedException {
 		return targetExec.invokeAll(tasks);
 	}
@@ -328,10 +333,8 @@ public class ProxiedScheduledExecutorService
 	  * @throws InterruptedException if interrupted while waiting, in which
 	  *  case unfinished tasks are cancelled 
 	  */
-	@Override
-	public <T> List<Future<T>> invokeAll(
-			Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
-			throws InterruptedException {
+	public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks, 
+			long timeout, TimeUnit unit) throws InterruptedException {
 		return targetExec.invokeAll(tasks, timeout, unit);
 	}
 
@@ -346,11 +349,12 @@ public class ProxiedScheduledExecutorService
 	  * @throws InterruptedException if interrupted while waiting, in which
 	  *  case unfinished tasks are cancelled 
 	  */
-	@Override
-	public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+	public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks)
 			throws InterruptedException, ExecutionException {
 		return targetExec.invokeAny(tasks);
 	}
+
+
 
 	  /**
 	  * {@inheritDoc}
@@ -361,8 +365,7 @@ public class ProxiedScheduledExecutorService
 	  * @param <T> return type of the function(s)
 	  * @throws InterruptedException if interrupted while waiting 
 	  */
-	@Override
-	public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
+	public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks,
 			long timeout, TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
 		return targetExec.invokeAny(tasks, timeout, unit);
