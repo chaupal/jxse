@@ -1049,7 +1049,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         /**
          * {@inheritDoc}
          */
-        @Override
         public void run() {
             try {
                 if (closed) {

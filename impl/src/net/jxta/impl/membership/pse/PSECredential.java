@@ -562,7 +562,6 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
             Runnable becomesValidTask = new Runnable() {
 
-                @Override
                 public void run() {
                     support.firePropertyChange("expired", false, true);
                     if (valid) {
@@ -583,7 +582,6 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         if (expires.compareTo(now) > 0) {
             Runnable expiresTask = new Runnable() {
 
-                @Override
                 public void run() {
                     support.firePropertyChange("expired", true, false);
                     if (valid) {

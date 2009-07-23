@@ -755,7 +755,6 @@ public class EdgePeerRdvService extends StdRendezVousService {
         /**
          * @inheritDoc
          */
-        @Override
         public void run() {
             try {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {

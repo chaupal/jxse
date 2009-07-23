@@ -459,7 +459,6 @@ class Destinations {
          * relevant information; so there's no change in the total meaning of
          * the map when an entry is removed.
          */
-        @Override
         public void run() {
             try {
                 synchronized (Destinations.this) {

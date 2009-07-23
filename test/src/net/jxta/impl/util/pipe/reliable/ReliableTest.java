@@ -182,7 +182,6 @@ public class ReliableTest extends TestCase implements
             delivDate = date;
         }
 
-        @Override
         public void run() {
             Message msg;
 
