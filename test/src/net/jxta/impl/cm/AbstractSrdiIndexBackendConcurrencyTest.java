@@ -37,7 +37,7 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest extends MockObject
 		SrdiIndex[] indices = new SrdiIndex[NUM_INDICES];
 		
 		for(int i=0; i < NUM_INDICES; i++) {
-			indices[i] = new SrdiIndex(createBackend(group, "index" + i));
+			indices[i] = new SrdiIndex(createBackend(group, "index" + i), SrdiIndex.NO_AUTO_GC);
 		}
 		
 		randomLoadTest(indices);
@@ -71,7 +71,7 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest extends MockObject
 		for(int groupNum = 0; groupNum < NUM_GROUPS; groupNum++) {
 			PeerGroup group = createGroup(IDFactory.newPeerGroupID(), "group" + groupNum);
 			for(int indexNum = 0; indexNum < NUM_INDICES; indexNum++) {
-				indices[NUM_INDICES * groupNum + indexNum] = new SrdiIndex(createBackend(group, "index" + indexNum));
+				indices[NUM_INDICES * groupNum + indexNum] = new SrdiIndex(createBackend(group, "index" + indexNum), SrdiIndex.NO_AUTO_GC);
 			}
 		}
 		

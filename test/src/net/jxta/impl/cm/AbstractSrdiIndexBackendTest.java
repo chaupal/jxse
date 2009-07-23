@@ -11,6 +11,7 @@ import java.util.Queue;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.cm.SrdiIndex.Entry;
 import net.jxta.impl.util.FakeSystemClock;
+import net.jxta.impl.util.JavaSystemClock;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -57,9 +58,9 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		checking(createExpectationsForConstruction_withPeerGroup_IndexName(group1, GROUP_ID_1, "group1"));
 		checking(createExpectationsForConstruction_withPeerGroup_IndexName(group2, GROUP_ID_2, "group2"));
 		
-		srdiIndex = new SrdiIndex(createBackend(group1, "testIndex"));
-		srdiIndexForGroup2 = new SrdiIndex(createBackend(group2, "testIndex"));
-		alternativeIndexForGroup1 = new SrdiIndex(createBackend(group1, "testIndex2"));
+		srdiIndex = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC);
+		srdiIndexForGroup2 = new SrdiIndex(createBackend(group2, "testIndex"), SrdiIndex.NO_AUTO_GC);
+		alternativeIndexForGroup1 = new SrdiIndex(createBackend(group1, "testIndex2"), SrdiIndex.NO_AUTO_GC);
 		clock = new FakeSystemClock();
 		comparator = new EntryComparator();
 		TimeUtils.setClock(clock);
@@ -290,7 +291,17 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		clock.currentTime = 4500L;
 		srdiIndex.garbageCollect();
 		assertEquals(0, srdiIndex.query("a", "b", "c", NO_THRESHOLD).size());
-		
+	}
+	
+	public void testGarbageCollect_automatic() throws Exception {
+	    TimeUtils.setClock(new JavaSystemClock());
+	    SrdiIndex srdiIndexWithAutoGC = new SrdiIndex(createBackend(group1, "gcIndex"), 500L);
+	    srdiIndexWithAutoGC.add("a", "b", "c", PEER_ID, 500L);
+	    assertEquals(1, srdiIndexWithAutoGC.query("a", "b", "c", NO_THRESHOLD).size());
+	    
+	    Thread.sleep(1000L);
+	    
+	    assertEquals(0, srdiIndexWithAutoGC.query("a", "b", "c", NO_THRESHOLD).size());
 	}
 	
 	public void testClear() throws Exception {
@@ -309,7 +320,7 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		srdiIndex.add("a", "b", "c", PEER_ID, 1000L);
 		srdiIndex.stop();
 		
-		SrdiIndex restarted = new SrdiIndex(createBackend(group1, "testIndex"));
+		SrdiIndex restarted = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC);
 		
 		assertEquals(1, restarted.query("a", "b", "c", NO_THRESHOLD).size());
 		assertEquals(PEER_ID, restarted.query("a", "b", "c", NO_THRESHOLD).get(0));
@@ -428,19 +439,6 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 	}
 	
 	protected abstract Expectations createExpectationsForConstruction_withPeerGroup_IndexName(final PeerGroup mockGroup, final PeerGroupID groupId, String groupName);
-	
-	public void testConstruction_withGroup_IndexName_Interval() {
-		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
-		final PeerGroup group = mock(PeerGroup.class);
-		
-		checking(createExpectationsForConstruction_withPeerGroup_IndexName_Interval(group));
-		
-		SrdiIndex srdiIndex = new SrdiIndex(group, "testIndex", 20000L);
-		assertEquals(getBackendClassname(), srdiIndex.getBackendClassName());
-		srdiIndex.stop();
-	}
-	
-	protected abstract Expectations createExpectationsForConstruction_withPeerGroup_IndexName_Interval(final PeerGroup mockGroup);
 	
 	protected <T> void assertContains(List<T> entries, T... expected) {
 		assertContains(entries, null, expected);

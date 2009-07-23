@@ -7,12 +7,13 @@ import net.jxta.peer.PeerID;
 
 /**
  * Interface for all storage backends of SrdiIndex. In addition to correctly implementing this interface, all
- * implementations should also provide constructors matching the signatures of {@link net.jxta.impl.cm.SrdiIndex#SrdiIndex(net.jxta.peergroup.PeerGroup, String)} and
- * {@link net.jxta.impl.cm.SrdiIndex#SrdiIndex(net.jxta.peergroup.PeerGroup, String, long)} and a static method matching 
- * {@link net.jxta.impl.cm.SrdiIndex#clearSrdi(net.jxta.peergroup.PeerGroup)}. Classes not meeting these requirements cannot be used as
+ * implementations should also provide a constructor with the same signature as {@link net.jxta.impl.cm.SrdiIndex#SrdiIndex(net.jxta.peergroup.PeerGroup, String)} and
+ * a static method matching {@link net.jxta.impl.cm.SrdiIndex#clearSrdi(net.jxta.peergroup.PeerGroup)}. Classes not meeting these requirements cannot be used as
  * backends and SrdiIndex will default to using {@link net.jxta.impl.cm.XIndiceSrdiIndexBackend}.
  * <p>
- * All implementations are expected to pass the full test suite specified in {@link net.jxta.impl.cm.AbstractSrdiIndexBackendTest}.
+ * All implementations are expected to pass the full test suite specified in {@link net.jxta.impl.cm.AbstractSrdiIndexBackendTest} and pass the concurrency tests
+ * in {@link net.jxta.impl.cm.AbstractSrdiIndexBackendLoadTest}. Load testing can be conducted using {@link net.jxta.impl.cm.AbstractSrdiIndexBackendLoadTest},
+ * which is useful for comparative benchmarking with other implementations.
  * <p>
  * In order to specify an alternative SrdiIndexBackend from the default, change the system property {@link net.jxta.impl.cm.SrdiIndex#SRDI_INDEX_BACKEND_SYSPROP} to
  * the full class name of the required alternative, or construct SrdiIndex directly using {@link net.jxta.impl.cm.SrdiIndex#SrdiIndex(SrdiIndexBackend)}.

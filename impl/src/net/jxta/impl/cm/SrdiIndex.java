@@ -61,10 +61,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
@@ -83,9 +87,13 @@ public class SrdiIndex implements SrdiIndexBackend {
 	public static final String SRDI_INDEX_BACKEND_SYSPROP = "net.jxta.impl.cm.SrdiIndex.backend.impl";
 	public static final String DEFAULT_SRDI_INDEX_BACKEND = "net.jxta.impl.cm.XIndiceSrdiIndexBackend";
 	
+	public static final long DEFAULT_GC_INTERVAL = 10 * TimeUtils.AMINUTE;
+	public static final long NO_AUTO_GC = -1;
+	
     private final static transient Logger LOG = Logger.getLogger(SrdiIndex.class.getName());
     
     private SrdiIndexBackend backend;
+    private ScheduledFuture<?> gcHandle;
     
     /**
      * Constructor for the SrdiIndex
@@ -94,17 +102,7 @@ public class SrdiIndex implements SrdiIndexBackend {
      * @param indexName the index name
      */
     public SrdiIndex(PeerGroup group, String indexName) {
-    	String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
-    	try {
-			Class<? extends SrdiIndexBackend> backendClass = getBackendClass();
-			Constructor<? extends SrdiIndexBackend> constructor = backendClass.getConstructor(PeerGroup.class, String.class);
-			backend = (SrdiIndexBackend) constructor.newInstance(group, indexName);
-		} catch (Exception e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Unable to construct SRDI Index backend [" + backendClassName + "] specified by system property, constructing default", e);
-			}
-			backend = new XIndiceSrdiIndexBackend(group, indexName);
-		}
+    	this(group, indexName, DEFAULT_GC_INTERVAL);
     }
     
     /**
@@ -118,20 +116,46 @@ public class SrdiIndex implements SrdiIndexBackend {
     
     public SrdiIndex(PeerGroup group, String indexName, long interval) {
     	String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
-    	try {
-    		Class<? extends SrdiIndexBackend> backendClass = getBackendClass();
-    		Constructor<? extends SrdiIndexBackend> constructor = backendClass.getConstructor(PeerGroup.class, String.class, long.class);
-			backend = (SrdiIndexBackend) constructor.newInstance(group, indexName, interval);
-		} catch (Exception e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Unable to construct SRDI Index backend [" + backendClassName + "] specified by system property, constructing default", e);
-			}
-			backend = new XIndiceSrdiIndexBackend(group, indexName);
-		}
+    	createBackend(backendClassName, group, indexName);
+
+        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+            LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
+        }
+    	startGC(interval);
+    	// FIXME?  The scheduledexecutor doesn't give the ability to name threads...
+    }
+
+    private void startGC(long interval) {
+        if(interval <= 0) {
+            // automatic gc disabled
+            return;
+        }
+        
+        ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+        gcHandle = executor.scheduleWithFixedDelay(new Runnable() {
+            public void run() {
+                garbageCollect();
+            }
+        }, interval, interval, TimeUnit.MILLISECONDS);
+    }
+
+    private void createBackend(String backendClassName, PeerGroup group, String indexName) {
+        try {
+            Class<? extends SrdiIndexBackend> backendClass = getBackendClass();
+            Constructor<? extends SrdiIndexBackend> constructor = backendClass.getConstructor(PeerGroup.class,
+                    String.class);
+            backend = (SrdiIndexBackend) constructor.newInstance(group, indexName);
+        } catch (Exception e) {
+            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "Unable to construct SRDI Index backend [" + backendClassName + "] specified by system property, constructing default", e);
+            }
+            backend = new XIndiceSrdiIndexBackend(group, indexName);
+        }
     }
     
-    public SrdiIndex(SrdiIndexBackend backend) {
+    public SrdiIndex(SrdiIndexBackend backend, long gcInterval) {
     	this.backend = backend;
+    	startGC(gcInterval);
     }
     
     protected String getBackendClassName() {
@@ -244,6 +268,10 @@ public class SrdiIndex implements SrdiIndexBackend {
      * stop the current running thread
      */
     public synchronized void stop() {
+        if(gcHandle != null) {
+            gcHandle.cancel(false);
+        }
+        
     	backend.stop();
     }
     
@@ -303,15 +331,6 @@ public class SrdiIndex implements SrdiIndexBackend {
 		} catch (Exception e) {
 			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
 				LOG.log(Level.SEVERE, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup and String as parameters", e);
-			}
-			return getDefaultBackendClass();
-		}
-		
-		try {
-			backendClassChecked.getConstructor(PeerGroup.class, String.class, long.class);
-		} catch(Exception e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup, String and Long as parameters", e);
 			}
 			return getDefaultBackendClass();
 		}

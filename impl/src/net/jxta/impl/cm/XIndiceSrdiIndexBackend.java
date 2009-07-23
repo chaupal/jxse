@@ -94,19 +94,16 @@ import net.jxta.peergroup.PeerGroup;
 /**
  * SrdiIndex
  */
-public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
+public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
     
     /**
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(XIndiceSrdiIndexBackend.class.getName());
     
-    private final static long DEFAULT_INTERVAL = 10 * TimeUtils.AMINUTE;
-    private long interval = 0;
     private volatile boolean stop = false;
     private final Indexer srdiIndexer;
     private final BTreeFiler cacheDB;
-    private Thread gcThread = null;
     private final Set<PeerID> gcPeerTBL = new HashSet<PeerID>();
     
     private final String indexName;
@@ -118,26 +115,10 @@ public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
      * @param indexName the index name
      */
     public XIndiceSrdiIndexBackend(PeerGroup group, String indexName) {
-    	this(group, indexName, DEFAULT_INTERVAL);
-        startGC(group, indexName, interval);
-    }
-    
-    /**
-     * Construct a SrdiIndex
-     *
-     * @param interval  the interval at which the gc will run in milliseconds
-     * @param group     group context
-     * @param indexName SrdiIndex name
-     */
-    public XIndiceSrdiIndexBackend(PeerGroup group, String indexName, long interval) {
-    	this(getRootDir(group), indexName, interval);
+        this(getRootDir(group), indexName);
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Initialized " + indexName);
         }
-    }
-    
-    public XIndiceSrdiIndexBackend(File storeRoot, String indexName) {
-    	this(storeRoot, indexName, DEFAULT_INTERVAL);
     }
     
     
@@ -166,9 +147,8 @@ public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
         return rootDir;
 	}
     
-	public XIndiceSrdiIndexBackend(File storageDir, String indexName, long interval) {
+	public XIndiceSrdiIndexBackend(File storageDir, String indexName) {
 		this.indexName = indexName;
-        this.interval = interval;
 		
 		try {
 	    	// peerid database
@@ -211,28 +191,6 @@ public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
 	            throw new UndeclaredThrowableException(e, "Unable to create Cm");
 	        }
 	    }
-    }
-    
-    /**
-     * Start the GC thread
-     *
-     * @param group the PeerGroup
-     * @param indexName index name
-     * @param interval interval in milliseconds
-     */
-    protected void startGC(PeerGroup group, String indexName, long interval) {
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
-        }
-        
-        if (group != null) {
-        gcThread = new Thread(group.getHomeThreadGroup(), this, "SrdiIndex GC :" + indexName + " every " + interval + "ms");
-        } else {
-            gcThread = new Thread(this, "SrdiIndex GC :" + indexName + " every " + interval + "ms");
-        }
-        
-        gcThread.setDaemon(true);
-        gcThread.start();
     }
     
     /**
@@ -748,8 +706,12 @@ public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
     /**
      * Garbage Collect expired entries
      */
+
     public void garbageCollect() {
         try {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Garbage collection started");
+            }
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
             
             for(NameIndexer idxr : map.values()) {
@@ -769,6 +731,9 @@ public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Failure during SRDI Garbage Collect", ex);
             }
+        }
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Garbage collection completed");
         }
     }
     
@@ -804,18 +769,6 @@ public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
         
         stop = true;
         
-        // wakeup and die
-        try {
-            Thread temp = gcThread;
-            if (temp != null) {
-                synchronized (temp) {
-                    temp.notify();
-                }
-            }
-        } catch (Exception ignored) {
-            // ignored
-        }
-        
         // Stop the database
         
         try {
@@ -825,52 +778,6 @@ public class XIndiceSrdiIndexBackend implements Runnable, SrdiIndexBackend {
         } catch (Exception ex) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Unable to stop the Srdi Indexer", ex);
-            }
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * Periodic thread for GC
-     */
-    public void run() {
-        try {
-            while (!stop) {
-                try {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Waiting for " + interval + "ms before garbage collection");
-                    }
-                    synchronized (gcThread) {
-                        gcThread.wait(interval);
-                    }
-                } catch (InterruptedException woken) {
-                    // The only reason we are woken is to stop.
-                    Thread.interrupted();
-                    continue;
-                }
-                
-                if (stop) {
-                    break;
-                }
-                
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Garbage collection started");
-                }
-                
-                garbageCollect();
-                
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Garbage collection completed");
-                }
-            }
-        } catch (Throwable all) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-            }
-        } finally {
-            synchronized (this) {
-                gcThread = null;
             }
         }
     }

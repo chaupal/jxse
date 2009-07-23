@@ -23,8 +23,8 @@ public class XIndiceSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 	
 	@Override
 	protected void tearDown() throws Exception {
+	    super.tearDown();
 		FileSystemTest.deleteDir(storeHome);
-		super.tearDown();
 	}
 	
 	@Override
@@ -103,26 +103,6 @@ public class XIndiceSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 		}
 	}
 	
-	public void testConstruction_withNoBackendOverride_GCIntervalSpecified() {
-		String oldBackend = System.getProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
-		try {
-			System.clearProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
-			final PeerGroup group = mock(PeerGroup.class);
-			
-			checking(createExpectationsForConstruction_withPeerGroup_IndexName_Interval(group));
-			
-			SrdiIndex srdiIndex = new SrdiIndex(group, "testIndex", 20000L);
-			assertEquals("net.jxta.impl.cm.XIndiceSrdiIndexBackend", srdiIndex.getBackendClassName());
-			srdiIndex.stop();
-		} finally {
-			if(oldBackend != null) {
-				System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, oldBackend);
-			} else {
-				System.clearProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
-			}
-		}
-	}
-	
 	@Override
 	public Expectations createExpectationsForConstruction_withPeerGroup_IndexName(final PeerGroup mockGroup, final PeerGroupID groupId, String groupName) {
 		final URI storeHomeURI = storeHome.toURI();
@@ -134,30 +114,8 @@ public class XIndiceSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 		}};
 	}
 	
-	@Override
-	public Expectations createExpectationsForConstruction_withPeerGroup_IndexName_Interval(final PeerGroup mockGroup) {
-		final URI storeHomeURI = storeHome.toURI();
-		return new Expectations() {{
-			ignoring(mockGroup).getPeerGroupName(); will(returnValue("testGroup"));
-			atLeast(1).of(mockGroup).getPeerGroupID(); will(returnValue(PeerGroupID.defaultNetPeerGroupID));
-			atLeast(1).of(mockGroup).getStoreHome(); will(returnValue(storeHomeURI));
-			ignoring(mockGroup).getHomeThreadGroup(); will(returnValue(Thread.currentThread().getThreadGroup()));
-		}};
-	}
-	
 	public void testConstruction_withSrdiIndexBackendMissingConstructor_PeerGroup_IndexName() {
 		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, SrdiIndexBackendWithoutConstructor_PeerGroup_IndexName.class.getName());
-		final PeerGroup group = mock(PeerGroup.class);
-		checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
-		
-		SrdiIndex index = new SrdiIndex(group, "testIndex");
-		
-		// should fall back to default
-		assertEquals(index.getBackendClassName(), SrdiIndex.DEFAULT_SRDI_INDEX_BACKEND);
-	}
-	
-	public void testConstruction_withSrdiIndexBackendMissingConstructor_PeerGroup_IndexName_Interval() {
-		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, SrdiIndexBackendWithoutConstructor_PeerGroup_IndexName_Interval.class.getName());
 		final PeerGroup group = mock(PeerGroup.class);
 		checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 		
@@ -193,16 +151,6 @@ public class XIndiceSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 	 * has everything needed except for the constructor that takes a peer group and string as parameters.
 	 */
 	public static class SrdiIndexBackendWithoutConstructor_PeerGroup_IndexName extends NullSrdiIndexBackend {
-		public SrdiIndexBackendWithoutConstructor_PeerGroup_IndexName(PeerGroup group, String indexName, long interval) {}
-		public static void clearSrdi(PeerGroup group) {}
-	}
-	
-	/**
-	 * has everything needed except for the constructor that takes a peer group, index name and GC interval as parameters.
-	 */
-	public static class SrdiIndexBackendWithoutConstructor_PeerGroup_IndexName_Interval extends NullSrdiIndexBackend {
-		
-		public SrdiIndexBackendWithoutConstructor_PeerGroup_IndexName_Interval(PeerGroup group, String indexName) {}
 		public static void clearSrdi(PeerGroup group) {}
 	}
 	
@@ -212,7 +160,6 @@ public class XIndiceSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 	public static class SrdiIndexBackendWithoutStaticMethod_clearSrdi extends NullSrdiIndexBackend {
 		
 		public SrdiIndexBackendWithoutStaticMethod_clearSrdi(PeerGroup group, String indexName) {}
-		public SrdiIndexBackendWithoutStaticMethod_clearSrdi(PeerGroup group, String indexName, long interval) {}
 	}
 	
 	/**
@@ -220,7 +167,6 @@ public class XIndiceSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 	 */
 	public static class BackendThatDoesNotImplementSrdiIndexBackend {
 		public BackendThatDoesNotImplementSrdiIndexBackend(PeerGroup group, String indexName) {}
-		public BackendThatDoesNotImplementSrdiIndexBackend(PeerGroup group, String indexName, long interval) {}
 		public static void clearSrdi(PeerGroup group) {}
 	}
 }
