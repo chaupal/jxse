@@ -209,10 +209,13 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             <pathelement location="${jxtajar}" />
             <pathelement path="${build_test}" />
             <pathelement location="${tools}/junit-4.4.jar" />
-            <pathelement location="${tools}/jmock-2.5.0/jmock-2.5.0.jar" />
-            <pathelement location="${tools}/jmock-2.5.0/jmock-junit4-2.5.0.jar" />
-            <pathelement location="${tools}/jmock-2.5.0/hamcrest-core-1.1.jar" />
-            <pathelement location="${tools}/jmock-2.5.0/hamcrest-library-1.1.jar" />
+            <pathelement location="${tools}/jmock-2.5.1/cglib-nodep-2.1_3.jar" />
+            <pathelement location="${tools}/jmock-2.5.1/jmock-2.5.1.jar" />
+            <pathelement location="${tools}/jmock-2.5.1/jmock-legacy-2.5.1.jar" />
+            <pathelement location="${tools}/jmock-2.5.1/jmock-junit3-2.5.1.jar" />
+            <pathelement location="${tools}/jmock-2.5.1/jmock-junit4-2.5.1.jar" />
+            <pathelement location="${tools}/jmock-2.5.1/hamcrest-core-1.1.jar" />
+            <pathelement location="${tools}/jmock-2.5.1/hamcrest-library-1.1.jar" />
         </path>
     </target>
     
@@ -308,7 +311,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
 	mailing list 
 	-->
     <target name="patchme" depends="getjvm" if="jvm.is.6">
-        <replace dir="${impl}" >
+        <replace dir="${impl}/net/jxta/impl/util/threads" >
             <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
             <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
         </replace>
