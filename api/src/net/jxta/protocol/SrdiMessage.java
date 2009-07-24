@@ -124,28 +124,6 @@ public abstract class SrdiMessage {
     }
 
     /**
-     * Returns the current TTL value.
-     *
-     * @return The current TTL value.
-     * @deprecated ttl is a misnomer, it is meant to be defined as scope. use #getScope() instead
-     */
-    @Deprecated
-    public int getTTL() {
-        return scope;
-    }
-
-    /**
-     * sets the ttl
-     *
-     * @param newTTL The new TTL value.
-     * @deprecated ttl is a misnomer, it is meant to be defined as scope. use #setScope() instead
-     */
-    @Deprecated
-    public void setTTL(int newTTL) {
-        scope = newTTL;
-    }
-
-    /**
      * Returns the current scope of this message.
      * <p/>
      * Scope is either 0 (persist only), or 1 (persist and replicate)
