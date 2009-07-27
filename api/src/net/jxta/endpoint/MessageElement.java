@@ -219,18 +219,6 @@ public abstract class MessageElement implements Document {
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated Since Message Elements are immutable this method does
-     *             nothing useful.
-     */
-    @Override
-    @Deprecated
-    public final MessageElement clone() {
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
      * <p/>
      * Elements are considered equal if they have the same name, same basic
      * MIME type and signatures. Element data is not considered by this 
