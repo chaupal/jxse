@@ -96,21 +96,10 @@ public class JxtaSocketAddress extends SocketAddress {
      * @param pipeAdv   the advertisement of a pipe for the socket to listen on
      */
     public JxtaSocketAddress(PeerGroup peerGroup, PipeAdvertisement pipeAdv) {
-        this(peerGroup.getPeerGroupID(), pipeAdv, null);
-    }
-
-    /**
-     * Creates a new instance of JxtaSocketAddress.
-     *
-     * @param peerGroup peer group within which this socket exists
-     * @param pipeAdv   the advertisement of a pipe for the socket to listen on
-     * @param peerId    the ID of a specific peer to be contacted over this socket
-     *                  (may be null)
-     * @deprecated use the PeerAdvertisement variant instead
-     */
-    @Deprecated
-    public JxtaSocketAddress(PeerGroup peerGroup, PipeAdvertisement pipeAdv, PeerID peerId) {
-        this(peerGroup.getPeerGroupID(), pipeAdv, peerId);
+    	this.pipeAdv = pipeAdv.clone();
+		this.peerGroupId = peerGroup.getPeerGroupID();
+		this.peerId = null;
+		this.peerAdv = null;
     }
 
     /**
@@ -135,44 +124,6 @@ public class JxtaSocketAddress extends SocketAddress {
         this.peerGroupId = peerGroup.getPeerGroupID();
         this.peerId = peerAdv.getPeerID();
         this.peerAdv = peerAdv.clone();
-    }
-
-    /**
-     * Creates a new instance of JxtaSocketAddress.
-     *
-     * @param peerGroupId ID of peer group within which this socket exists
-     * @param pipeAdv     the advertisement of a pipe for the socket to listen on
-     * @deprecated use the PeerAdvertisement variant instead
-     */
-    @Deprecated
-    public JxtaSocketAddress(PeerGroupID peerGroupId, PipeAdvertisement pipeAdv) {
-        this(peerGroupId, pipeAdv, null);
-    }
-
-    /**
-     * Creates a new instance of JxtaSocketAddress.
-     *
-     * @param peerGroupId ID of peer group within which this socket exists
-     * @param pipeAdv     the advertisement of a pipe for the socket to listen on
-     * @param peerId      the ID of a specific peer to be contacted over this socket
-     *                    (may be null)
-     * @throws IllegalArgumentException if peerGroupId or pipeAdv are null
-     * @deprecated use the PeerAdvertisement variant instead
-     */
-    @Deprecated
-    public JxtaSocketAddress(PeerGroupID peerGroupId, PipeAdvertisement pipeAdv, PeerID peerId) {
-
-        if (peerGroupId == null) {
-            throw new IllegalArgumentException("peerGroupId is required.");
-        }
-        if (pipeAdv == null) {
-            throw new IllegalArgumentException("pipeAdv is required.");
-        }
-
-        this.pipeAdv = pipeAdv.clone();
-        this.peerGroupId = peerGroupId;
-        this.peerId = peerId;
-        this.peerAdv = null;
     }
 
     /**
