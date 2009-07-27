@@ -561,32 +561,4 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         params.remove(key);
         ads.remove(key);
     }
-    
-    /**
-     * Returns the set of params held by this object. The parameters are not
-     * copied and any changes to the Set are reflected in this object's version.
-     * incModCount should be called as appropriate.
-     *
-     *  @deprecated This method exposes the internal data structures of the
-     *  advertisement and will be removed in order to prevent unexpected
-     *  behaviour.
-     */
-    @Deprecated
-    public Set<Map.Entry<ID, StructuredDocument>> getServiceParamsEntrySet() {
-        Map<ID, StructuredDocument> result = new HashMap<ID, StructuredDocument>();
-        
-        result.putAll(params);
-        
-        for (Map.Entry<ID, Advertisement> anEntry : ads.entrySet()) {
-            XMLDocument entryDoc = (XMLDocument) anEntry.getValue().getDocument(MimeMediaType.XMLUTF8);
-            
-            if(disabled.contains(anEntry.getKey())) {
-                entryDoc.appendChild(entryDoc.createElement("isOff", null));
-            }
-
-            result.put(anEntry.getKey(), entryDoc);
-        }
-        
-        return Collections.unmodifiableSet(result.entrySet());
-    }
 }
