@@ -65,6 +65,7 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.TextElement;
+import net.jxta.document.XMLDocument;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
@@ -216,10 +217,11 @@ public class PipeResolverMsg extends PipeResolverMessage {
                 String peerAdv = elem.getTextValue();
 
                 try {
-                    setInputPeerAdv(
-                            (PeerAdvertisement) AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8
-                            ,
-                            new StringReader(peerAdv)));
+                	setInputPeerAdv((PeerAdvertisement) AdvertisementFactory
+							.newAdvertisement((XMLDocument) StructuredDocumentFactory
+									.newStructuredDocument(
+											MimeMediaType.XMLUTF8,
+											new StringReader(peerAdv))));
                 } catch (IOException caught) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.log(Level.FINE, "Malformed peer adv in message", caught);

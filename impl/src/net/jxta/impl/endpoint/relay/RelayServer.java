@@ -59,6 +59,7 @@ import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -1142,7 +1143,8 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 // XMLUTF8 rather than the actual mime type associated with the
                 // MessageElement since the advertisement is often incorrectly
                 // stored as a String by older JXTA implementations.
-                adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, me.getStream());
+             	XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, me.getStream() );
+            	adv = AdvertisementFactory.newAdvertisement(advDocument);
             } catch (IOException failed) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Failed building relay advertisement", failed);

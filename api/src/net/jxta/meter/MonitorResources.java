@@ -63,7 +63,7 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
+import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaException;
 import net.jxta.id.ID;
 import net.jxta.platform.ModuleClassID;
@@ -368,7 +368,7 @@ public class MonitorResources {
             String serviceMonitorClassIDText = DocumentSerializableUtilities.getString(serviceMonitorElement, CLASS_ID_TAG, "");
                 
             if (classIDText.equals(serviceMonitorClassIDText)) {
-                TextElement serviceMonitorAdvertisementElement = (TextElement) DocumentSerializableUtilities.getChildElement(
+                XMLElement serviceMonitorAdvertisementElement = (XMLElement) DocumentSerializableUtilities.getChildElement(
                         serviceMonitorElement, SERVICE_MONITOR_ADVERTISEMENT_TAG);
 
                 return (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(serviceMonitorAdvertisementElement);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
+W * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
  *  
@@ -286,7 +286,8 @@ public class SignedAdv extends SignedAdvertisement {
                 advertisementB64 = new StringReader(elem.getTextValue());
                 bis = new BASE64InputStream(advertisementB64);
 
-                adv = AdvertisementFactory.newAdvertisement(elem.getRoot().getMimeType(), bis);
+                XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem.getRoot().getMimeType(),bis);
+                adv = AdvertisementFactory.newAdvertisement(advDocument);
 
                 return true;
             } catch (IOException failed) {
