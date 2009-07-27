@@ -173,20 +173,6 @@ public interface MembershipService extends Service {
     public Enumeration<Credential> getCurrentCredentials() throws PeerGroupException;
     
     /**
-     * Returns the authentication credentials which were used to establish the 
-     * current identities.
-     *
-     * @deprecated This interface is being removed in favour of individual
-     * Credentials providing their AuthenticationCredential as appropriate.
-     *
-     * @return Enumeration of the AuthenticationCredentials which were used to
-     * establish the current identities.
-     * @throws PeerGroupException Thrown in the event of errors.
-     */
-    @Deprecated
-    public Enumeration<AuthenticationCredential> getAuthCredentials() throws PeerGroupException;
-    
-    /**
      * Given a fragment of a StructuredDocument, reconstruct a Credential object
      * from that fragment.
      *

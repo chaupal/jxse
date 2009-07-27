@@ -456,15 +456,6 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
-    public Enumeration<AuthenticationCredential> getAuthCredentials() {
-        List<AuthenticationCredential> credList = new ArrayList<AuthenticationCredential>(authCredentials);
-        
-        return Collections.enumeration(credList);
-    }
-    
-    /**
-     * {@inheritDoc}
-     **/
     public Credential join(Authenticator authenticated) throws PeerGroupException {
         
         if (this != authenticated.getSourceService()) {
