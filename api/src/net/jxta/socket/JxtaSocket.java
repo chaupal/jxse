@@ -499,21 +499,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     }
 
     /**
-     * Creates either a stream or a datagram socket.
-     *
-     * @param reliable {@code true} for reliable stream connection or {@code false} for unreliable stream connection.
-     * @throws IOException if an I/O error occurs while creating the socket.
-     * @deprecated Unreliable mode is being removed. Use JxtaBiDiPipe instead.
-     */
-    @Deprecated
-    public void create(boolean reliable) throws IOException {
-        if (isBound()) {
-            throw new IOException("Socket already bound, it is not possible to change connection type");
-        }
-        this.isReliable = reliable;
-    }
-
-    /**
      * {@inheritDoc}
      * <p/>
      * Unsupported operation, an IOException will be thrown.
@@ -920,29 +905,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         setConnected(true);
         // The socket is bound now.
         setBound(true);
-    }
-
-    /**
-     * Returns the internal output stream buffer size
-     *
-     * @return the internal buffer size.
-     * @deprecated Use the standard {@link #getSendBufferSize()} method instead.
-     */
-    @Deprecated
-    public int getOutputStreamBufferSize() {
-        return (outputBufferSize == -1) ? DEFAULT_OUTPUT_BUFFER_SIZE : outputBufferSize;
-    }
-
-    /**
-     * Sets the internal output stream buffer size.
-     *
-     * @param size The internal buffer size.
-     * @throws IOException if an I/O error occurs
-     * @deprecated Use the standard {@link #setSendBufferSize(int)} method instead.
-     */
-    @Deprecated
-    public void setOutputStreamBufferSize(int size) throws IOException {
-        setSendBufferSize(size);
     }
 
     /**
@@ -1490,33 +1452,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         } else {
             nonReliableInputStream.setTimeout((long) soTimeout);
         }
-    }
-
-    /**
-     * Gets the Maximum Retry Timeout of the reliability layer
-     *
-     * @return The maximum retry Timeout value
-     * @deprecated The reliability layer manages it's own maximum. This value is not useful.
-     */
-    @Deprecated
-    public int getMaxRetryTimeout() {
-        return maxRetryTimeout;
-    }
-
-    /**
-     * Gets the Maximum Retry Timeout of the reliability layer
-     *
-     * @param maxRetryTimeout The new maximum retry timeout value
-     * @throws IllegalArgumentException if maxRetryTimeout exceeds jxta platform maximum retry timeout
-     * @deprecated The reliability layer manages it's own maximum. This value is not useful.
-     */
-    @Deprecated
-    public void setMaxRetryTimeout(int maxRetryTimeout) {
-        if (maxRetryTimeout <= 0 || maxRetryTimeout > MAXRETRYTIMEOUT) {
-            throw new IllegalArgumentException("Invalid Maximum retry timeout :" + maxRetryTimeout + " Exceed Global maximum retry timeout :"
-                    + MAXRETRYTIMEOUT);
-        }
-        this.maxRetryTimeout = maxRetryTimeout;
     }
 
     /**
