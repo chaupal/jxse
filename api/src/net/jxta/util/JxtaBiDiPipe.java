@@ -1187,35 +1187,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Returns the message listener for this pipe
      *
      * @return PipeMsgListener
-     * @deprecated use getMessageListener instead
-     */
-    @Deprecated
-    public PipeMsgListener getListener() {
-        return getMessageListener();
-    }
-
-    /**
-     * Returns the message listener for this pipe
-     *
-     * @return PipeMsgListener
      */
     public PipeMsgListener getMessageListener() {
         return msgListener;
-    }
-
-    /**
-     * Sets message listener for a pipe spawned by the JxtaServerPipe.
-     * There is a window where a message could arrive prior to listener being
-     * registered therefore a message queue is created to queue messages, once
-     * a listener is registered these messages will be dequeued by calling the
-     * listener until the queue is empty
-     *
-     * @param msgListener New value of property listener.
-     * @deprecated use setMessageListener instead
-     */
-    @Deprecated
-    public void setListener(PipeMsgListener msgListener) {
-        setMessageListener(msgListener);
     }
 
     /**
@@ -1253,17 +1227,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 }
             }
         }
-    }
-
-    /**
-     * Sets a Pipe event listener, set listener to null to unset the listener
-     *
-     * @param eventListener New value of property listener.
-     * @deprecated use setPipeEventListener instead
-     */
-    @Deprecated
-    public void setListener(PipeEventListener eventListener) {
-        setPipeEventListener(eventListener);
     }
 
     /**
