@@ -404,7 +404,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             PeerID requestSourceID = null;
 
             try {
-                requestSourceID = (PeerID) IDFactory.fromURI(new URI(query.getSrc()));
+                requestSourceID = (PeerID) query.getSrcPeer();
             } catch (Exception e) {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.log(Level.FINE, "PeerInfoService.processQuery got a bad query, not valid src", e);

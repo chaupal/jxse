@@ -56,6 +56,7 @@
 package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
+import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ResolverQueryMsg;
@@ -137,7 +138,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
         setHandlerName(HandlerName);
         setCredential(Credential);
         setQueryId(qid);
-        setSrc(pId);
+        setSrcPeer(ID.create(URI.create(pId)));
         setQuery(Query);
     }
 
