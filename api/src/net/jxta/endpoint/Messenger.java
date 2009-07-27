@@ -304,48 +304,12 @@ public interface Messenger extends SimpleSelectable {
     boolean isClosed();
 
     /**
-     * Returns an indication of whether this messenger may be worth closing.
-     *
-     * @return {@code true} if the messenger is idle otherwise {@code false}.
-     * @deprecated no longer relevant and always false. This notably is <bold>not</bold> equivalent to the {@link #IDLE} state.
-     */
-    @Deprecated
-    boolean isIdle();
-
-    /**
-     * Returns {@code true} if the <code>sendMessage</code> methods of
-     * this messenger are fully synchronous.
-     *
-     * @deprecated all messengers are asynchronous, and the {@link #sendMessageB} method is always blocking.
-     *
-     * @return true if synchronous
-     */
-    @Deprecated
-    boolean isSynchronous();
-
-    /**
      * Returns the destination of this messenger.
      *
      * @return The destination address of this messenger
      * @see Messenger#getLogicalDestinationAddress()
      */
     EndpointAddress getDestinationAddress();
-
-    /**
-     * Returns the internal EndpointAddress object of the destination of the user. 
-     * This method is intended to be used for applications that require a weak
-     * or soft reference to an EndpointMessenger: the returned Endpoint Address 
-     * object will be unreferenced when this messenger will finalize.
-     *
-     * @deprecated EndpointAddress is now immutable which means that this result
-     * is the same as {@link #getDestinationAddress()}. This method will be
-     * eventually removed.
-     *
-     * @return EndpointAddress the destination address of this messenger
-     * @see #getDestinationAddress()
-     */
-    @Deprecated
-    EndpointAddress getDestinationAddressObject();
 
     /**
      * Returns the logical destination of this messenger. This may be a
