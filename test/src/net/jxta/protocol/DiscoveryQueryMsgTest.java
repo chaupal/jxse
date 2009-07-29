@@ -126,7 +126,7 @@ public class DiscoveryQueryMsgTest extends TestCase {
             assertEquals("Corrupted attribute", attribute, query.getAttr());
             assertEquals("Corrupted value", value, query.getValue());
             assertEquals("Corrupted type", type, query.getDiscoveryType());
-            assertEquals("Corrupted PeerAdvertisement", padv.toString(), query.getPeerAdv());
+            assertEquals("Corrupted PeerAdvertisement", padv.toString(), query.getPeerAdvertisement().toString());
             assertEquals("Corrupted threshold", threshold, query.getThreshold());
                           
             DiscoveryQueryMsg doctest = new DiscoveryQuery(doc);

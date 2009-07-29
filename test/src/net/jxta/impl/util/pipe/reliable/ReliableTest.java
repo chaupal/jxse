@@ -80,6 +80,8 @@ import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.ByteArrayMessageElement;
@@ -611,9 +613,12 @@ public class ReliableTest extends TestCase implements
             String str = (String) ae.nextElement();
             // create Advertisement from response
             Advertisement adv = null;
-
+            XMLDocument advDocument = null;
+            
             try {
-                adv = AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, new StringReader(str));
+                advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, new StringReader(str) );
+            	
+                adv = AdvertisementFactory.newAdvertisement(advDocument);
             } catch (IOException ex) {
                 System.err.println("error parsing discovery response");
                 System.err.println(ex.getMessage());
