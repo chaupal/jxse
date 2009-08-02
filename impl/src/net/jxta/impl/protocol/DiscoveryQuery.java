@@ -310,26 +310,4 @@ public class DiscoveryQuery extends DiscoveryQueryMsg {
         }
         return adv;
     }
-
-    /**
-     * return the string representaion of this doc
-     *
-     * @deprecated should not be used. use getDocument().toString() instead.
-     */
-    @Override
-    @Deprecated
-    public String toString() {
-
-        try {
-            StructuredTextDocument doc = (StructuredTextDocument) getDocument(MimeMediaType.XMLUTF8);
-
-            return doc.toString();
-        } catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new UndeclaredThrowableException(e);
-            }
-        }
-    }
 }

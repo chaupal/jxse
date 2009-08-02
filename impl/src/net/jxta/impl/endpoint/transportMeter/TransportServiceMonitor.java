@@ -86,21 +86,6 @@ public class TransportServiceMonitor extends GenericServiceMonitor {
     /**
      * Create a service TransportMeter for a registerd Transport Type
      *
-     * @param protocol            protocol identifier
-     * @param sourceAddressString source address string
-     * @return a <code>TransportMeter</code>
-     * @deprecated use <code>#createTransportMeter(String, EndpointAddress)</code>
-     */
-    @Deprecated
-    public synchronized TransportMeter createTransportMeter(String protocol, String sourceAddressString) {
-        EndpointAddress endpointAddress = new EndpointAddress(sourceAddressString);
-
-        return createTransportMeter(protocol, endpointAddress);
-    }
-
-    /**
-     * Create a service TransportMeter for a registerd Transport Type
-     *
      * @param protocol        Descriptive name of protocol
      * @param endpointAddress The common public address for this transport
      * @return Transport Meter for this transport

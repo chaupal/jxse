@@ -1387,7 +1387,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     server.refreshTime = System.currentTimeMillis() + ACL_REFRESH_PERIOD;
                     if (server.aclFile.lastModified() > server.aclFileLastModified) {
                         server.aclFileLastModified = server.aclFile.lastModified();
-                        server.acl.refresh(server.aclFile);
+                        server.acl.refresh(server.aclFile.toURI());
                     }
                 }
             } catch (Throwable all) {
