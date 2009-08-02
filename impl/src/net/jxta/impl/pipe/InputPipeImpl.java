@@ -60,7 +60,6 @@ import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.UnbiasedQueue;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.PipeID;
@@ -69,6 +68,9 @@ import net.jxta.pipe.PipeMsgListener;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -93,7 +95,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
     protected volatile boolean closed = false;
 
     protected PipeMsgListener listener;
-    protected final UnbiasedQueue queue;
+    protected final BlockingQueue<Message> queue;
 
     /**
      * Constructor for the InputPipeImpl object
@@ -118,7 +120,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         // queue based inputpipe?
         if (listener == null) {
-            queue = UnbiasedQueue.synchronizedQueue(new UnbiasedQueue(QUEUESIZE, true));
+            queue = new LinkedBlockingQueue<Message>(QUEUESIZE);
         } else {
             queue = null;
         }
@@ -156,7 +158,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      */
     public Message poll(int timeout) throws InterruptedException {
         if (listener == null) {
-            return (Message) queue.pop(timeout);
+            return (Message) queue.poll(timeout, TimeUnit.SECONDS);
         } else {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("poll() has no effect in listener mode.");
@@ -173,12 +175,6 @@ class InputPipeImpl implements EndpointListener, InputPipe {
             return;
         }
         closed = true;
-
-        // Close the queue
-        if (null == listener) {
-            queue.close();
-        }
-
         listener = null;
         // Remove myself from the pipe registrar.
         if (!registrar.forget(this)) {
@@ -224,9 +220,9 @@ class InputPipeImpl implements EndpointListener, InputPipe {
             }
         } else {
             boolean pushed = false;
-            while (!pushed && !queue.isClosed()) {
+            while (!pushed) {
                 try {
-                    pushed = queue.push(msg, TimeUtils.ASECOND);
+                    pushed = queue.offer(msg, TimeUtils.ASECOND, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException woken) {
                     Thread.interrupted();
                 }
@@ -234,9 +230,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 synchronized (this) {
-                    LOG.fine("Queued " + msg + " for " + pipeID + "\n\tqueue closed : " + queue.isClosed() + "\tnumber in queue : "
-                            + queue.getCurrentInQueue() + "\tnumber queued : " + queue.getNumEnqueued() + "\tnumber dequeued : "
-                            + queue.getNumDequeued());
+                    LOG.fine("Queued " + msg + " for " + pipeID);
                 }
             }
         }

@@ -61,7 +61,6 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.id.ID;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.UnbiasedQueue;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
@@ -72,6 +71,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -165,7 +167,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
     /**
      * Queue of messages waiting to be sent.
      */
-    private final UnbiasedQueue queue = UnbiasedQueue.synchronizedQueue(new UnbiasedQueue(50, false));
+    private final BlockingQueue<Message> queue = new LinkedBlockingQueue<Message>(50);
 
     /**
      * Tracks the state of our worker thread.
@@ -263,11 +265,10 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
     public synchronized void close() {
 
         // Close the queue so that no more messages are accepted
-        if (!closed) {
+        if (!isClosed()) {
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 LOG.info("Closing for " + getPipeID());
             }
-            queue.close();
         }
         closed = true;
     }
@@ -316,16 +317,16 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         }
 
         boolean pushed = false;
-        while (!queue.isClosed()) {
+        while (!isClosed()) {
             try {
-                pushed = queue.push(msg, 250 * TimeUtils.AMILLISECOND);
+                pushed = queue.offer(msg,250 * TimeUtils.AMILLISECOND,TimeUnit.MILLISECONDS);
                 break;
             } catch (InterruptedException woken) {
                 Thread.interrupted();
             }
         }
 
-        if (!pushed && queue.isClosed()) {
+        if (!pushed && !isClosed()) {
             IOException failed = new IOException("Could not enqueue " + msg + " for sending. Pipe is closed.");
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, failed.getMessage(), failed);
@@ -588,7 +589,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                     Message msg = null;
 
                     try {
-                        msg = (Message) queue.pop(IDLEWORKERLINGER);
+                        msg = (Message) queue.poll(IDLEWORKERLINGER, TimeUnit.MILLISECONDS);
                     } catch (InterruptedException woken) {
                         Thread.interrupted();
                         continue;
@@ -655,8 +656,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 LOG.info(
                         "Thread exit : " + Thread.currentThread().getName() + "\n\tworker state : " + workerstate
-                        + "\tqueue closed : " + queue.isClosed() + "\tnumber in queue : " + queue.getCurrentInQueue()
-                        + "\tnumber queued : " + queue.getNumEnqueued() + "\tnumber dequeued : " + queue.getNumDequeued());
+                        );
             }
         }
     }
@@ -674,9 +674,8 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             serviceThread.start();
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 LOG.info(
-                        "Thread start : " + serviceThread.getName() + "\n\tworker state : " + workerstate + "\tqueue closed : "
-                        + queue.isClosed() + "\tnumber in queue : " + queue.getCurrentInQueue() + "\tnumber queued : "
-                        + queue.getNumEnqueued() + "\tnumber dequeued : " + queue.getNumDequeued());
+                        "Thread start : " + serviceThread.getName() + "\n\tworker state : " + workerstate 
+                        );
             }
         }
     }

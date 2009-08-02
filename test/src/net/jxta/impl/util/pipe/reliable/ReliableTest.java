@@ -95,6 +95,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Collections;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +107,6 @@ import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.textui.TestRunner;
 
-import net.jxta.impl.util.UnbiasedQueue;
 import net.jxta.impl.util.threads.TaskManager;
 
 
@@ -168,7 +169,7 @@ public class ReliableTest extends TestCase implements
     ReliableInputStream ris = null;
     
 
-    UnbiasedQueue bwQueue = new UnbiasedQueue(Integer.MAX_VALUE, false);
+    BlockingQueue<Message> bwQueue = new LinkedBlockingQueue<Message>(Integer.MAX_VALUE);
     long bwQueueSz = 0;
     long nextInjectTime = 0;
     long delayAdj = 0;
@@ -189,7 +190,7 @@ public class ReliableTest extends TestCase implements
 
             synchronized (bwQueue) {
 
-                msg = (Message) bwQueue.pop();
+                msg = (Message) bwQueue.poll();
                 long msgLen = msg.getByteLength();
 
                 bwQueueSz -= msgLen;
@@ -215,7 +216,7 @@ public class ReliableTest extends TestCase implements
                 }
                 return;
             }
-            bwQueue.push(msg);
+            bwQueue.offer(msg);
             bwQueueSz += len;
         }
 
