@@ -20,7 +20,7 @@ public class TaskManager {
 	
 	static final int DEFAULT_CORE_POOL_SIZE =4;
 	static final int DEFAULT_MAX_POOL_SIZE = 16;
-	static final int DEFAULT_QUEUE_SIZE = 100;
+	static final int DEFAULT_QUEUE_SIZE = 1000;
 	static final int DEFAULT_SCHEDULED_POOL_SIZE = 2;
 	
 	private static TaskManager singleton;
