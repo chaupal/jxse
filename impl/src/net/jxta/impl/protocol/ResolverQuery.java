@@ -122,27 +122,6 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
     }
 
     /**
-     * Construct a doc from strings
-     *
-     * @param HandlerName the handler name
-     * @param Credential  credential document
-     * @param pId         source PeerID
-     * @param Query       opaque query string
-     * @param qid         query ID
-     * @deprecated use the individual accessor methods instead.
-     */
-    @Deprecated
-    public ResolverQuery(String HandlerName, StructuredDocument Credential, String pId, String Query, int qid) {
-
-        this();
-        setHandlerName(HandlerName);
-        setCredential(Credential);
-        setQueryId(qid);
-        setSrcPeer(ID.create(URI.create(pId)));
-        setQuery(Query);
-    }
-
-    /**
      * Construct from a StructuredDocument
      *
      * @param root the element

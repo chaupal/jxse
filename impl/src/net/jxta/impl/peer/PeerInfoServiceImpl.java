@@ -520,9 +520,12 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 XMLDocument doc = (XMLDocument) peerInfoResponseMessage.getDocument(MimeMediaType.XMLUTF8);
                 String peerInfoResponse = doc.toString();
                 
-                ResolverResponse resolverResponse = new ResolverResponse(resolverHandlerName, credentialDoc, queryId
-                        ,
-                        peerInfoResponse);
+                ResolverResponse resolverResponse = new ResolverResponse();
+                
+                resolverResponse.setHandlerName(resolverHandlerName);
+                resolverResponse.setCredential(credentialDoc);
+                resolverResponse.setQueryId(queryId);
+                resolverResponse.setResponse(peerInfoResponse);
 
                 resolver.sendResponse(destinationPeerID.toString(), resolverResponse);
             } catch (JxtaException e) {
@@ -551,10 +554,13 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 XMLDocument doc = (XMLDocument) peerInfoQueryMsg.getDocument(MimeMediaType.XMLUTF8);
                 String peerInfoRequest = doc.toString();
                 
-                ResolverQuery resolverQuery = new ResolverQuery(resolverHandlerName, credentialDoc, localPeerId.toString()
-                        ,
-                        peerInfoRequest, queryID);
-
+                ResolverQuery resolverQuery = new ResolverQuery();
+                resolverQuery.setHandlerName(resolverHandlerName);
+                resolverQuery.setCredential(credentialDoc);
+                resolverQuery.setSrcPeer(localPeerId);
+                resolverQuery.setQuery(peerInfoRequest);
+                resolverQuery.setQueryId(queryID);
+                
                 resolver.sendQuery(destinationPeerID.toString(), resolverQuery);
             } catch (JxtaException e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
