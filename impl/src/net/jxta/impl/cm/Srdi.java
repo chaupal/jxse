@@ -55,30 +55,7 @@
  */
 package net.jxta.impl.cm;
 
-import net.jxta.credential.Credential;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.impl.protocol.ResolverSrdiMsgImpl;
-import net.jxta.impl.protocol.SrdiMessageImpl;
-import net.jxta.impl.util.JxtaHash;
-import net.jxta.logging.Logging;
-import net.jxta.membership.MembershipService;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.RdvAdvertisement;
-import net.jxta.protocol.ResolverQueryMsg;
-import net.jxta.protocol.ResolverSrdiMsg;
-import net.jxta.protocol.SrdiMessage;
-import net.jxta.rendezvous.RendezVousService;
-import net.jxta.rendezvous.RendezVousStatus;
-import net.jxta.rendezvous.RendezvousEvent;
-import net.jxta.rendezvous.RendezvousListener;
-import net.jxta.resolver.ResolverService;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -92,9 +69,29 @@ import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.jxta.credential.Credential;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.impl.protocol.ResolverSrdiMsgImpl;
+import net.jxta.impl.protocol.SrdiMessageImpl;
+import net.jxta.impl.util.JxtaHash;
+import net.jxta.logging.Logging;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.protocol.RdvAdvertisement;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverSrdiMsg;
+import net.jxta.protocol.SrdiMessage;
+import net.jxta.protocol.SrdiMessage.Entry;
+import net.jxta.rendezvous.RendezVousService;
+import net.jxta.rendezvous.RendezVousStatus;
+import net.jxta.rendezvous.RendezvousEvent;
+import net.jxta.rendezvous.RendezvousListener;
+import net.jxta.resolver.ResolverService;
 
 /**
  * Srdi is a service which provides SRDI functionalities such as :
@@ -122,7 +119,7 @@ import java.util.logging.Logger;
  *
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-prp" target="_blank">JXTA Protocols Specification : Peer Resolver Protocol</a>
  */
-public class Srdi implements Runnable, RendezvousListener {
+public class Srdi implements RendezvousListener {
 
     /**
      * Logger
@@ -132,20 +129,14 @@ public class Srdi implements Runnable, RendezvousListener {
     private PeerGroup group = null;
     private String handlername = null;
     private SrdiInterface srdiService = null;
-    private SrdiIndex srdiIndex;
-    private long connectPollInterval = 0;
-    private long pushInterval = 0;
-
-    private volatile boolean stop = false;
-    private AtomicBoolean republishSignal = new AtomicBoolean(false);
+    private SrdiIndexBackend srdiIndex;
 
     private ResolverService resolver;
-    private MembershipService membership;
     private final JxtaHash jxtaHash = new JxtaHash();
-    private CredentialListener membershipCredListener = null;
     private Credential credential = null;
-    private StructuredDocument credentialDoc = null;
-    private final String rdvEventLock;
+    
+    private SrdiPeriodicPushTask srdiPushTask;
+
 
     /**
      * Random number generator used for random result selection
@@ -157,38 +148,6 @@ public class Srdi implements Runnable, RendezvousListener {
      * Replication threshold (minimum number of rdv's in peer view before replication)
      */
     public final static int RPV_REPLICATION_THRESHOLD = 3;
-
-    /**
-     * Listener we use for membership property events.
-     */
-    private class CredentialListener implements PropertyChangeListener {
-
-        /**
-         * {@inheritDoc}
-         */
-        public void propertyChange(PropertyChangeEvent evt) {
-            if ("defaultCredential".equals(evt.getPropertyName())) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("New default credential event");
-                }
-
-                synchronized (Srdi.this) {
-                    credential = (Credential) evt.getNewValue();
-                    credentialDoc = null;
-                    if (null != credential) {
-                        try {
-                            credentialDoc = credential.getDocument(MimeMediaType.XMLUTF8);
-                        } catch (Exception all) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING, "Could not generate credential document", all);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 
     /**
      * Interface for pushing entries.
@@ -214,67 +173,29 @@ public class Srdi implements Runnable, RendezvousListener {
      * @param srdiService         the service utilizing this Srdi, for purposes of
      *                            callback push entries on events such as rdv connect/disconnect, etc.
      * @param srdiIndex           The index instance associated with this service
-     * @param connectPollInterval initial timeout before the very first push of entries in milliseconds
-     * @param pushInterval        the Interval at which the deltas are pushed in milliseconds
      */
-    public Srdi(PeerGroup group, String handlername, SrdiInterface srdiService, SrdiIndex srdiIndex, long connectPollInterval, long pushInterval) {
+    public Srdi(PeerGroup group, String handlername, SrdiInterface srdiService, SrdiIndexBackend srdiIndex) {
 
         this.group = group;
         this.handlername = handlername;
         this.srdiService = srdiService;
         this.srdiIndex = srdiIndex;
-        this.connectPollInterval = connectPollInterval;
-        this.pushInterval = pushInterval;
-        this.rdvEventLock = new String(handlername);
-        membership = group.getMembershipService();
 
         resolver = group.getResolverService();
 
         group.getRendezVousService().addListener(this);
-
-        synchronized (this) {
-            membershipCredListener = new CredentialListener();
-            membership.addPropertyChangeListener("defaultCredential", membershipCredListener);
-
-            try {
-                credential = membership.getDefaultCredential();
-
-                if (null != credential) {
-                    credentialDoc = credential.getDocument(MimeMediaType.XMLUTF8);
-                } else {
-                    credentialDoc = null;
-                }
-            } catch (Exception all) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "could not get credential", all);
-                }
-            }
-        }
     }
 
     /**
      * stop the current running thread
      */
     public synchronized void stop() {
-
-        if (stop) {
-            return;
-        }
-
-        stop = true;
+        stopPush();
 
         RendezVousService rendezvous = group.getRendezVousService();
 
         if (null != rendezvous) {
             rendezvous.removeListener(this);
-        }
-
-        membership.removePropertyChangeListener("defaultCredential", membershipCredListener);
-        membershipCredListener = null;
-
-        // wakeup and die
-        synchronized (rdvEventLock) {
-            rdvEventLock.notify();
         }
     }
 
@@ -295,11 +216,11 @@ public class Srdi implements Runnable, RendezvousListener {
             return;
         }
 
-        Iterator allEntries = srdiMsg.getEntries().iterator();
+        Iterator<Entry> allEntries = srdiMsg.getEntries().iterator();
         Map<PeerID, SrdiMessageImpl> bins = new HashMap<PeerID, SrdiMessageImpl>(rpv.size());
 
         while (allEntries.hasNext()) {
-            SrdiMessage.Entry entry = (SrdiMessage.Entry) allEntries.next();
+            Entry entry = allEntries.next();
             PeerID destPeer = getReplicaPeer(srdiMsg.getPrimaryKey() + entry.key + entry.value);
 
             if (destPeer == null || destPeer.equals(group.getPeerID())) {
@@ -518,7 +439,6 @@ public class Srdi implements Runnable, RendezvousListener {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("fallthrough")
     public void rendezvousEvent(RendezvousEvent event) {
 
         int theEventType = event.getType();
@@ -530,92 +450,76 @@ public class Srdi implements Runnable, RendezvousListener {
         switch (theEventType) {
 
             case RendezvousEvent.RDVCONNECT:
-                synchronized (rdvEventLock) {
-                    // wake up the publish thread now.
-                    rdvEventLock.notify();
-                }
-
-               /*
-                *  FALLSTHRU
-                */
+                startPush();
+                break;
             case RendezvousEvent.RDVRECONNECT:
                 // No need to wake up the publish thread; reconnect should not force indices to be published.
                 break;
-
             case RendezvousEvent.CLIENTCONNECT:
-            case RendezvousEvent.CLIENTRECONNECT:
-            case RendezvousEvent.BECAMERDV:
-            case RendezvousEvent.BECAMEEDGE:
-                // XXX 20031110 bondolo perhaps becoming edge one should cause it to wake up so that run() switch to
-                // don't do anything.
                 break;
-
+            case RendezvousEvent.CLIENTRECONNECT:
+                break;
+            case RendezvousEvent.BECAMERDV:
+                stopPush();
+                break;
+            case RendezvousEvent.BECAMEEDGE:
+                startPush();
+                break;
             case RendezvousEvent.RDVFAILED:
+                stopPush();
+                break;
             case RendezvousEvent.RDVDISCONNECT:
-                republishSignal.set(true);
+                stopPush();
                 break;
 
             case RendezvousEvent.CLIENTFAILED:
             case RendezvousEvent.CLIENTDISCONNECT:
                 // we should flush the cache for the peer
-                synchronized (rdvEventLock) {
-                    if (group.isRendezvous() && (srdiIndex != null)) {
+                if (group.isRendezvous() && (srdiIndex != null)) {
+                    try {
                         srdiIndex.remove((PeerID) event.getPeerID());
+                    } catch(IOException e) {
+                        if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.log(Level.WARNING, "IOException occurred when attempting to remove peer from SRDI index", e);
+                        }
                     }
                 }
                 break;
 
             default:
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning(
-                            MessageFormat.format("[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event));
+                    LOG.warning(MessageFormat.format("[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event));
                 }
                 break;
         }
     }
-
+    
     /**
-     * {@inheritDoc}
-     * <p/>
-     * Main processing method for the SRDI Worker thread
-     * Send all entries, wait for pushInterval, then send deltas
+     * Starts the periodic push of deltas at the specified rate, using the provided
+     * {@link java.util.concurrent.ScheduledExecutorService} to control the periodic
+     * execution.
+     * @param pushInterval the Interval at which the deltas are pushed in milliseconds
      */
-    public void run() {
-
-        boolean waitingForRdv;
-        boolean republish = true;
-
-        try {
-            while (!stop) {
-                // upon connection we will have to republish
-                republish |= republishSignal.compareAndSet(true, false);
-                waitingForRdv = group.isRendezvous() || !group.getRendezVousService().isConnectedToRendezVous() ||
-                        group.getRendezVousService().getRendezVousStatus() == RendezVousStatus.ADHOC;
-
-                if (!waitingForRdv) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("[" + group.getPeerGroupName() + " / " + handlername + "] Pushing "
-                                + (republish ? "all entries" : "deltas"));
-                    }
-
-                    srdiService.pushEntries(republish);
-                    republish = false;
-                }
-
-                synchronized (rdvEventLock) {
-                    try {
-                        rdvEventLock.wait(waitingForRdv ? connectPollInterval : pushInterval);
-                    } catch (InterruptedException e) {
-                        Thread.interrupted();
-                    }
-                }
-            }
-        } catch (Throwable all) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE,
-                        "Uncaught Throwable in " + Thread.currentThread().getName() + "[" + group.getPeerGroupName() + " / "
-                                + handlername + "]",all);
-            }
+    public void startPush(ScheduledExecutorService executor, long pushInterval) {
+        if(srdiPushTask == null) {
+            srdiPushTask = new SrdiPeriodicPushTask(this.handlername, srdiService, executor, pushInterval);
+        }
+        
+        startPush();
+    }
+    
+    private void startPush() {
+        if(srdiPushTask != null 
+                && !group.isRendezvous() 
+                && group.getRendezVousService().isConnectedToRendezVous() 
+                && group.getRendezVousService().getRendezVousStatus() != RendezVousStatus.ADHOC) {
+            srdiPushTask.start();
+        }
+    }
+    
+    private void stopPush() {
+        if(srdiPushTask != null) {
+            srdiPushTask.stop();
         }
     }
 
