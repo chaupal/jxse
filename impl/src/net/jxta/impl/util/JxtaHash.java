@@ -58,6 +58,7 @@ package net.jxta.impl.util;
 
 import net.jxta.logging.Logging;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -77,6 +78,7 @@ public class JxtaHash {
     public final static String DSA = "DSA";
     public final static String RSA = "RSA";
     public final static String SHA1withDSA = "SHA1WITHDSA";
+    public final static String DEFAULTECHARSET = "UTF-8";
     private MessageDigest dig = null;
 
     /**
@@ -95,27 +97,25 @@ public class JxtaHash {
 
     /**
      * Default JxtaHash constructor, with the default algorithm SHA1
+     *<p/>This method uses the UFT-8 charset to extract bytes from the expression parameter
      *
      * @param  expression  message to hash
+     * @throws UnsupportedEncodingException  If the UFT-8 charset is not supported
      */
-    public JxtaHash(String expression) {
+    public JxtaHash(String expression) throws UnsupportedEncodingException {
         this(SHA1, expression);
     }
 
     /**
      * Constructor for the JxtaHash object
-     *
-     * @deprecated This implementation may produce inconsistent results
-     * based upon varience of the locale. (The locale of getBytes() is
-     * not defined).
+     * <p/>This method uses the UFT-8 charset to extract bytes from the expression parameter
      *
      * @param  algorithm   algorithm - the name of the algorithm requested
      * @param  expression  expression to digest
+     * @throws UnsupportedEncodingException If the UFT-8 charset is not supported
      */
-    @Deprecated
-    public JxtaHash(String algorithm, String expression) {
-		
-        this(algorithm, expression.getBytes());
+    public JxtaHash(String algorithm, String expression) throws UnsupportedEncodingException {
+        this(algorithm, expression.getBytes(DEFAULTECHARSET));
     }
 
     /**
