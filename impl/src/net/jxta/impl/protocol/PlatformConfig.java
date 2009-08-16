@@ -330,30 +330,6 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
     }
 
     /**
-     * returns the debugLevel
-     *
-     * @deprecated The debug level is no longer set via this api. See
-     * {@link net.jxta.logging.Logging}.
-     *
-     * @return String the debugLevel
-     */
-    @Deprecated
-    public String getDebugLevel() {
-        return "user default";
-    }
-
-    /**
-     * Sets the debugLevel
-     *
-     * @deprecated The debug level is no longer set via this api. See
-     * {@link net.jxta.logging.Logging}.
-     *
-     * @param debugLevel the debugLevel
-     */
-    @Deprecated
-    public void setDebugLevel(String debugLevel) {}
-
-    /**
      * {@inheritDoc}
      */
     @Override
