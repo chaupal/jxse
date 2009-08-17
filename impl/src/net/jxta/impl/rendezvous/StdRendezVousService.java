@@ -55,7 +55,6 @@
  */
 package net.jxta.impl.rendezvous;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
@@ -119,8 +118,6 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
      */
     private StdRdvProtocolListener handler;
 
-    protected final ScheduledExecutorService scheduledExecutor;
-
     /**
      * Interface for listeners to : &lt;assignedID>/<group-unique>
      */
@@ -140,8 +137,6 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         pName = rdvService.getAssignedID().toString();
         pParam = group.getPeerGroupID().getUniqueValue().toString();
-
-        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
     }
 
     /**
@@ -172,8 +167,6 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                 LOG.warning("Unregistered listener was not as expected." + handler + " != " + shouldbehandler);
             }
         }
-
-        scheduledExecutor.shutdownNow();
 
         super.stopApp();
     }

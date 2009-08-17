@@ -55,19 +55,23 @@
  */
 package net.jxta.impl.rendezvous.edge;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -77,12 +81,22 @@ import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.relay.RelayReferralSeedingManager;
+import net.jxta.logging.Logging;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.Module;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.RouteAdvertisement;
+import net.jxta.rendezvous.RendezvousEvent;
+
 import net.jxta.impl.protocol.RdvConfigAdv;
 import net.jxta.impl.rendezvous.PeerConnection;
 import net.jxta.impl.rendezvous.RendezVousPropagateMessage;
@@ -95,16 +109,7 @@ import net.jxta.impl.rendezvous.rpv.PeerviewSeedingManager;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
-import net.jxta.logging.Logging;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.Module;
-import net.jxta.protocol.ConfigParams;
-import net.jxta.protocol.PeerAdvertisement;
-import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.rendezvous.RendezvousEvent;
-
+import net.jxta.impl.util.threads.TaskManager;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -150,6 +155,8 @@ public class EdgePeerRdvService extends StdRendezVousService {
      * Our current connections with RendezVous peers.
      */
     private final Map<ID, RdvConnection> rendezVous = Collections.synchronizedMap(new HashMap<ID, RdvConnection>());
+    
+    private ScheduledFuture<?> monitorTaskHandle;
     
     /**
      * Standard Constructor
@@ -264,7 +271,8 @@ public class EdgePeerRdvService extends StdRendezVousService {
         
         rdvService.generateEvent(RendezvousEvent.BECAMEEDGE, group.getPeerID());
         
-        scheduledExecutor.scheduleAtFixedRate(new MonitorTask(), 0, MONITOR_INTERVAL, TimeUnit.MILLISECONDS);
+        ScheduledExecutorService scheduledExecutor = TaskManager.getTaskManager().getScheduledExecutorService();
+        monitorTaskHandle = scheduledExecutor.scheduleAtFixedRate(new MonitorTask(), 0, MONITOR_INTERVAL, TimeUnit.MILLISECONDS);
         
         return Module.START_OK;
     }
@@ -284,6 +292,8 @@ public class EdgePeerRdvService extends StdRendezVousService {
         seedingManager.stop();
         
         disconnectFromAllRendezVous();
+        
+        monitorTaskHandle.cancel(false);
         
         super.stopApp();
         
@@ -774,7 +784,9 @@ public class EdgePeerRdvService extends StdRendezVousService {
                         }
                         
                         // Reschedule another run very soon.
-                        scheduledExecutor.schedule(new MonitorTask(), 2, TimeUnit.SECONDS);
+                        monitorTaskHandle.cancel(false);
+                        ScheduledExecutorService executorService = TaskManager.getTaskManager().getScheduledExecutorService();
+                        monitorTaskHandle = executorService.scheduleAtFixedRate(this, 2 * TimeUtils.ASECOND, MONITOR_INTERVAL, TimeUnit.MILLISECONDS);
                         return;
                     }
                 }

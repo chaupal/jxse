@@ -74,6 +74,7 @@ import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.SrdiMessageImpl;
 import net.jxta.impl.resolver.InternalQueryHandler;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -366,10 +367,8 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
         // start srdi
         srdiIndex = new SrdiIndex(myGroup, srdiIndexerFileName, GcDelay);
 
-        srdi = new Srdi(myGroup, PipeResolverName, this, srdiIndex, 2 * TimeUtils.AMINUTE, 1 * TimeUtils.AYEAR);
-        srdiThread = new Thread(myGroup.getHomeThreadGroup(), srdi, "Pipe Resolver Srdi Thread");
-        srdiThread.setDaemon(true);
-        srdiThread.start();
+        srdi = new Srdi(myGroup, PipeResolverName, this, srdiIndex);
+        srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), 1 * TimeUtils.AYEAR);
 
         resolver.registerSrdiHandler(PipeResolverName, this);
         synchronized (this) {
@@ -1130,9 +1129,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
     }
 
     /**
-     * Get the SRDI index instance used by this resolver.
-     * 
-     * @return SRDI index
+     * {@inheritDoc}
      */
     SrdiIndex getSrdiIndex() {
         return srdiIndex;

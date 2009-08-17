@@ -79,6 +79,7 @@ import net.jxta.impl.protocol.ResolverResponse;
 import net.jxta.impl.protocol.SrdiMessageImpl;
 import net.jxta.impl.resolver.InternalQueryHandler;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -179,8 +180,6 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private boolean isRdv = false;
     private SrdiIndex srdiIndex = null;
     private Srdi srdi = null;
-    private Thread srdiThread = null;
-    private long initialDelay = 60 * TimeUtils.ASECOND;
     private long runInterval = 30 * TimeUtils.ASECOND;
     /**
      * the discovery interface object
@@ -570,8 +569,6 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         // stop SRDI
         if (srdi != null) {
             srdi.stop();
-            srdiThread = null;
-            srdi = null;
         }
         srdiIndex = null;
 
@@ -1599,12 +1596,11 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         // Kill SRDI, create a new one.
         if (srdi != null) {
             srdi.stop();
-            srdiThread = null;
             srdi = null;
         }
 
         if (!localonly) {
-            srdi = new Srdi(group, handlerName, this, srdiIndex, initialDelay, runInterval);
+            srdi = new Srdi(group, handlerName, this, srdiIndex);
             resolver.registerSrdiHandler(handlerName, this);
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("srdi created, and registered as an srdi handler ");
@@ -1623,7 +1619,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private synchronized void beEdge() {
 
         // make sure we have been here before
-        if (!isRdv && srdiThread != null) {
+        if (!isRdv) {
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 LOG.info("Already an Edge peer -- No Switch is needed.");
             }
@@ -1648,21 +1644,13 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         // Kill SRDI
         if (srdi != null) {
             srdi.stop();
-            srdiThread = null;
             srdi = null;
         }
 
         if (!localonly) {
             // Create a new SRDI
-            srdi = new Srdi(group, handlerName, this, null, initialDelay, runInterval);
-
-            // only edge peers distribute srdi
-            srdiThread = new Thread(group.getHomeThreadGroup(), srdi, "Discovery Srdi Thread");
-            srdiThread.setDaemon(true);
-            srdiThread.start();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Started SRDIThread");
-            }
+            srdi = new Srdi(group, handlerName, this, null);
+            srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
         }
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {

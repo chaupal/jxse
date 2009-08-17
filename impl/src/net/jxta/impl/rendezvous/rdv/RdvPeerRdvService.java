@@ -81,6 +81,7 @@ import net.jxta.impl.rendezvous.rendezvousMeter.ClientConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -96,7 +97,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -145,6 +149,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
      * The peer view for this rendezvous server.
      */
     public final PeerView rpv;
+
+    private ScheduledFuture<?> gcTaskHandle;
 
     /**
      * Constructor for the RdvPeerRdvService object
@@ -282,7 +288,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         // when when have no answer.
         walker = walk.getWalker();
 
-        scheduledExecutor.scheduleAtFixedRate(new GCTask(), GC_INTERVAL, GC_INTERVAL, TimeUnit.MILLISECONDS);
+        ScheduledExecutorService scheduledExecutor = TaskManager.getTaskManager().getScheduledExecutorService();
+        gcTaskHandle = scheduledExecutor.scheduleAtFixedRate(new GCTask(), GC_INTERVAL, GC_INTERVAL, TimeUnit.MILLISECONDS);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.startRendezvous();
@@ -319,6 +326,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
         clients.clear();
 
+        gcTaskHandle.cancel(false);
+        
         super.stopApp();
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
