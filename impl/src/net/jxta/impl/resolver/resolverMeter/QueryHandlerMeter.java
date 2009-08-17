@@ -475,7 +475,7 @@ public class QueryHandlerMeter {
         deltaMetrics.queryProcessed(result, processTime);
         cumulativeMetrics.queryProcessed(result, processTime);
 
-        QueryDestinationMeter destinationMeter = getQueryDestinationMeter(query.getSrc());
+        QueryDestinationMeter destinationMeter = getQueryDestinationMeter(query.getSrcPeer().toString());
 
         destinationMeter.queryProcessed();
     }
@@ -488,7 +488,7 @@ public class QueryHandlerMeter {
         deltaMetrics.queryToUnregisteredHandler();
         cumulativeMetrics.queryToUnregisteredHandler();
 
-        QueryDestinationMeter destinationMeter = getQueryDestinationMeter(query.getSrc());
+        QueryDestinationMeter destinationMeter = getQueryDestinationMeter(query.getSrcPeer().toString());
 
         destinationMeter.queryToUnregisteredHandler();
     }
@@ -501,7 +501,7 @@ public class QueryHandlerMeter {
         deltaMetrics.errorWhileProcessingQuery();
         cumulativeMetrics.errorWhileProcessingQuery();
 
-        QueryDestinationMeter destinationMeter = getQueryDestinationMeter(query.getSrc());
+        QueryDestinationMeter destinationMeter = getQueryDestinationMeter(query.getSrcPeer().toString());
 
         destinationMeter.errorWhileProcessingQuery();
     }

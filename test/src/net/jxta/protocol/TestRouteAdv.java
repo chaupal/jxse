@@ -134,8 +134,9 @@ public class TestRouteAdv extends TestCase {
             out.close();
             
             StringReader in = new StringReader(out.toString());
+            XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in);
             AccessPointAdvertisement apAdv = (AccessPointAdvertisement)
-                    AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, in);
+                    AdvertisementFactory.newAdvertisement(advDocument);
 
             in.close();
             
@@ -175,8 +176,9 @@ public class TestRouteAdv extends TestCase {
             out.close();
             
             StringReader in = new StringReader(out.toString());
+            XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in);
             RouteAdvertisement routeAdv = (RouteAdvertisement)
-                    AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, in);
+                    AdvertisementFactory.newAdvertisement(advDocument);
 
             in.close();
             
@@ -259,8 +261,9 @@ public class TestRouteAdv extends TestCase {
             out.close();
             
             FileInputStream is = new FileInputStream("route1.adv");
+            XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, is);
             RouteAdvertisement routeAdv = (RouteAdvertisement)
-                    AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);
+                    AdvertisementFactory.newAdvertisement(advDocument);
 
             is.close();
             

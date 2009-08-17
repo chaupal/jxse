@@ -99,13 +99,15 @@ public class XportConfTest extends TestCase {
 
         PlatformConfig advertisement = null;
         FileInputStream advStream = null;
+        XMLDocument advDocument = null;
 
         try {
 
             advStream = new FileInputStream(file);
-            
+            advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, advStream );
+
             advertisement = (PlatformConfig)
-                    AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, advStream);
+                    AdvertisementFactory.newAdvertisement(advDocument);
 
         } finally {
             try {
@@ -181,7 +183,7 @@ public class XportConfTest extends TestCase {
             throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located");
         }
         
-        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((TextElement) param);
+        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
 
         if (!(paramsAdv instanceof TCPAdv)) {
             throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
@@ -214,7 +216,7 @@ public class XportConfTest extends TestCase {
             throw new IllegalArgumentException("configuration did not contain http advertisement");
         }
             
-        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((TextElement) param);
+        Advertisement paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
             
         if (!(paramsAdv instanceof HTTPAdv)) {
             throw new IllegalArgumentException("Provided Advertisement was not a " + HTTPAdv.getAdvertisementType());
@@ -360,7 +362,7 @@ public class XportConfTest extends TestCase {
                 param = (Element) paramChilds.nextElement();
             }
             route = (RouteAdvertisement) 
-                    AdvertisementFactory.newAdvertisement((TextElement) param);
+                    AdvertisementFactory.newAdvertisement((XMLElement) param);
         } catch (Exception ex) {
             return null;
         }

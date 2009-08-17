@@ -171,19 +171,6 @@ public class EndpointAddress {
     private transient SoftReference<String> cachedToString = null;
 
     /**
-     * Returns an unmodifiable clone of the provided EndpointAddress.
-     *
-     * @param address the address to be cloned.
-     * @return the unmodifiable address clone.
-     * @deprecated All EndpointAddresses are now unmodifiable so this method is
-     *             no longer needed.
-     */
-    @Deprecated
-    public static EndpointAddress unmodifiableEndpointAddress(EndpointAddress address) {
-        return address;
-    }
-
-    /**
      * Builds an Address from a string
      *
      * @param address the string representation of the address.
@@ -251,18 +238,6 @@ public class EndpointAddress {
         setProtocolAddress(id.getUniqueValue().toString());
         setServiceName(service);
         setServiceParameter(serviceParam);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated EndpointAddress objects are immutable and never need to be
-     *             cloned.
-     */
-    @Override
-    @Deprecated
-    public EndpointAddress clone() {
-        return this;
     }
 
     /**

@@ -268,7 +268,7 @@ public class TcpConnection implements Runnable {
      *@return    The destinationAddress value
      */
     public EndpointAddress getDestinationAddress() {
-        return dstAddress.clone();
+        return dstAddress;
     }
     
     /**

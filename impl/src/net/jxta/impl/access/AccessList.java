@@ -163,25 +163,6 @@ public class AccessList {
     }
 
     /**
-     * Refresh access list from a file
-     *
-     * @param file file to refresh from
-     * @deprecated use URI variant
-     */
-    @Deprecated
-    public void refresh(File file) {
-        if (file.exists()) {
-            try {
-                InputStream is = new FileInputStream(file);
-
-                refresh(is);
-                is.close();
-            } catch (IOException io) {// bad input
-            }
-        }
-    }
-
-    /**
      * refresh the access list from a stream
      *
      * @param stream the input stream

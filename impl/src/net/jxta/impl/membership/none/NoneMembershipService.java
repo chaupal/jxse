@@ -617,13 +617,6 @@ public class NoneMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
-    public synchronized Enumeration<AuthenticationCredential> getAuthCredentials() {
-        return Collections.enumeration(principalsAuth);
-    }
-    
-    /**
-     * {@inheritDoc}
-     **/
     public Credential join(Authenticator authenticated) throws PeerGroupException {
         
         if (!(authenticated instanceof NoneAuthenticator)) {

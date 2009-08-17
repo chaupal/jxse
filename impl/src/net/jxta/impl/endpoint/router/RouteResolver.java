@@ -447,7 +447,11 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
         try {
             // create a new RouteQuery message
             RouteQuery doc;
-
+     
+            doc = new RouteQuery();
+            doc.setDestPeerID(EndpointRouter.addr2pid(peer));
+            doc.setSrcRoute(myRoute);
+            
             // check if we have some bad route information
             // for that peer, in that case pass the bad hop count
             BadRoute badRoute;
@@ -460,9 +464,9 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("findRoute sends query: known bad Hops" + badRoute);
                 }
-                doc = new RouteQuery(EndpointRouter.addr2pid(peer), myRoute, badRoute.getBadHops());
+                doc.setBadHops(badRoute.getBadHops());
             } else {
-                doc = new RouteQuery(EndpointRouter.addr2pid(peer), myRoute, null);
+            	doc.setBadHops(null);
             }
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -478,8 +482,14 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
                 credentialDoc = null;
             }
           
-            ResolverQuery query = new ResolverQuery(routerSName, credentialDoc, localPeerId.toString(), doc.toString(), qid.incrementAndGet());
+            ResolverQuery query = new ResolverQuery();
 
+            query.setHandlerName(routerSName);
+            query.setCredential(credentialDoc);
+            query.setSrcPeer(localPeerId);
+            query.setQuery(doc.toString());
+            query.setQueryId(qid.incrementAndGet());
+            
             // only run SRDI if we are a rendezvous
             // FIXME 20060106 bondolo This is not dynamic enough. The route 
             // resolver needs to respond to changes in rendezvous configuration 

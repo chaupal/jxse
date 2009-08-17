@@ -112,7 +112,8 @@ public class PeerAdvertisementTest extends TestCase {
     public void testDocument() {
         PeerAdvertisement peer1 = buildPeer();
         PeerAdvertisement peer2 = null;
-
+        XMLDocument advDocument = null;
+        
         try {
             Document doc = peer1.getDocument(MimeMediaType.XMLUTF8);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -121,8 +122,9 @@ public class PeerAdvertisementTest extends TestCase {
             bos.close();
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, bis);
 
-            peer2 = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, bis);
+            peer2 = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(advDocument);
             bis.close();
         } catch (IOException e) {
             fail("Transfert document to stream:" + e.toString());

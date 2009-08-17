@@ -59,7 +59,7 @@ package net.jxta.util;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
-import net.jxta.document.TextElement;
+import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
@@ -97,7 +97,7 @@ public final class PipeUtilities {
     }
 	
     public static PipeAdvertisement createPipeAdvertisement(Element root) {
-        TextElement pipeAdvElement = (TextElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
+    	XMLElement pipeAdvElement = (XMLElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
 		
         if (pipeAdvElement == null) {
             return null;

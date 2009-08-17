@@ -66,7 +66,8 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.TextElement;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 import net.jxta.exception.JxtaException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
@@ -134,11 +135,13 @@ public final class AdvertisementUtilities {
      */
     public static Advertisement readAdvertisementFromFile(File file) throws JxtaException {
         FileInputStream in = null;
-
+        XMLDocument advDocument = null;
         try {
             in = new FileInputStream(file);
+            advDocument = (XMLDocument) StructuredDocumentFactory
+			.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING,in);
 
-            return AdvertisementFactory.newAdvertisement(MimeMediaType.XML_DEFAULTENCODING, in);
+            return AdvertisementFactory.newAdvertisement(advDocument);
         } catch (IOException e) {
             throw new JxtaException("Advertisement Load Failed: " + file, e);
         } catch (Exception e) {
@@ -224,7 +227,8 @@ public final class AdvertisementUtilities {
     public static Advertisement bytesToAdvertisement(byte buf[]) {
         try {
             InputStream in = new ByteArrayInputStream(buf);
-            Advertisement advertisement = AdvertisementFactory.newAdvertisement(MimeMediaType.XML_DEFAULTENCODING, in);
+            XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING,in);
+            Advertisement advertisement = AdvertisementFactory.newAdvertisement(advDocument);
 
             return advertisement;
         } catch (IOException e) {
@@ -283,9 +287,11 @@ public final class AdvertisementUtilities {
     @Deprecated
     public static Advertisement newAdvertisementFromXml(byte xmlTextAsBytes[]) throws JxtaException {
         try {
-            return AdvertisementFactory.newAdvertisement(MimeMediaType.XML_DEFAULTENCODING
-                    ,
-                    new ByteArrayInputStream(xmlTextAsBytes));
+        	XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory
+			.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING,
+					new ByteArrayInputStream(xmlTextAsBytes));
+
+        	return AdvertisementFactory.newAdvertisement(advDocument);
         } catch (Exception e) {
             throw new JxtaException("Unable to create Advertisement from the provided XML", e);
         }
@@ -304,7 +310,11 @@ public final class AdvertisementUtilities {
     @Deprecated
     public static Advertisement newAdvertisementFromXml(String xmlText) throws JxtaException {
         try {
-            return AdvertisementFactory.newAdvertisement(MimeMediaType.XML_DEFAULTENCODING, new StringReader(xmlText));
+        	XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory
+			.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING,
+					new StringReader(xmlText));
+
+			return AdvertisementFactory.newAdvertisement(advDocument);
         } catch (Exception e) {
             throw new JxtaException("Unable to create Advertisement from the provided XML", e);
         }
@@ -369,7 +379,7 @@ public final class AdvertisementUtilities {
      * @return A new Pipe Advertisement
      */
     public static PipeAdvertisement createPipeAdvertisement(Element root) {
-        TextElement pipeAdvElement = (TextElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
+        XMLElement pipeAdvElement = (XMLElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
 
         if (pipeAdvElement == null) {
             return null;
@@ -444,7 +454,7 @@ public final class AdvertisementUtilities {
      */
     @Deprecated
     public static PipeAdvertisement getPipeAdvertisement(Element root) {
-        TextElement pipeAdvElement = (TextElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
+        XMLElement pipeAdvElement = (XMLElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
 
         if (pipeAdvElement == null) {
             return null;
@@ -462,7 +472,7 @@ public final class AdvertisementUtilities {
      */
     @Deprecated
     public static PeerAdvertisement getPeerAdvertisement(Element root) {
-        TextElement peerAdvElement = (TextElement) DocumentUtilities.getChild(root, PeerAdvertisement.getAdvertisementType());
+        XMLElement peerAdvElement = (XMLElement) DocumentUtilities.getChild(root, PeerAdvertisement.getAdvertisementType());
 
         if (peerAdvElement == null) {
             return null;

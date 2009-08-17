@@ -333,7 +333,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             query.setCredential(current.credentialDoc);
         }
         query.setSrcPeer(localPeerId);
-        query.setQuery(dquery.toString());
+        query.setQuery(dquery.getDocument(MimeMediaType.XMLUTF8).toString());
         query.setQueryId(myQueryID);
 
         // check srdi

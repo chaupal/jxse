@@ -56,6 +56,7 @@
 package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
+import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ResolverQueryMsg;
@@ -118,27 +119,6 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
      */
     public ResolverQuery() {
         super();
-    }
-
-    /**
-     * Construct a doc from strings
-     *
-     * @param HandlerName the handler name
-     * @param Credential  credential document
-     * @param pId         source PeerID
-     * @param Query       opaque query string
-     * @param qid         query ID
-     * @deprecated use the individual accessor methods instead.
-     */
-    @Deprecated
-    public ResolverQuery(String HandlerName, StructuredDocument Credential, String pId, String Query, int qid) {
-
-        this();
-        setHandlerName(HandlerName);
-        setCredential(Credential);
-        setQueryId(qid);
-        setSrc(pId);
-        setQuery(Query);
     }
 
     /**

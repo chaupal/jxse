@@ -66,6 +66,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.TextElement;
+import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -567,7 +568,7 @@ public class ModuleManager {
                 pel = (Element) list.nextElement();
             }
         }
-        Advertisement adv = AdvertisementFactory.newAdvertisement((TextElement) pel);
+        Advertisement adv = AdvertisementFactory.newAdvertisement((XMLElement) pel);
 
         return adv;
     }

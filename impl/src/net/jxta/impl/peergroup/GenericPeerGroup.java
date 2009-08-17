@@ -55,7 +55,37 @@
  */
 package net.jxta.impl.peergroup;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.access.AccessService;
+import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -69,11 +99,12 @@ import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.loader.RefJxtaLoader;
+import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigFlag;
-import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -92,19 +123,6 @@ import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.resolver.ResolverService;
 import net.jxta.service.Service;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.net.URI;
-import java.net.URL;
-import java.security.cert.Certificate;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.jxta.content.ContentService;
 
 /**
  * Provides common services for most peer group implementations.
@@ -278,12 +296,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * The PeerGroup ThreadPool
      */
-    private ThreadPoolExecutor threadPool;
+    private ExecutorService threadPool;
 
     /**
      * The PeerGroup ScheduledExecutor
      */
-    private ScheduledThreadPoolExecutor scheduledExecutor;
+    private ScheduledExecutorService scheduledExecutor;
 
     /**
      * {@inheritDoc}
@@ -1164,14 +1182,20 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 : Thread.currentThread().getThreadGroup();
 
         threadGroup = new ThreadGroup(parentThreadGroup, "Group " + peerGroupAdvertisement.getPeerGroupID());
-
-        taskQueue = new ArrayBlockingQueue<Runnable>(COREPOOLSIZE * 2);
-        threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE,
-                KEEPALIVETIME, TimeUnit.SECONDS,
-                taskQueue,
-                new PeerGroupThreadFactory("Executor", getHomeThreadGroup()),
-                new CallerBlocksPolicy());
-
+        
+        threadPool = TaskManager.getTaskManager().getExecutorService();
+        scheduledExecutor = TaskManager.getTaskManager().getScheduledExecutorService();
+        
+// This was the older form, before TaskManager...
+//        taskQueue = new ArrayBlockingQueue<Runnable>(COREPOOLSIZE * 2);
+//        threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE,
+//                KEEPALIVETIME, TimeUnit.SECONDS,
+//                taskQueue,
+//                new PeerGroupThreadFactory("Executor", getHomeThreadGroup()),
+//                new CallerBlocksPolicy());
+//      scheduledExecutor = new ScheduledThreadPoolExecutor(1,
+//      new PeerGroupThreadFactory("Scheduled Executor", getHomeThreadGroup()));
+        
         // Try to allow core threads to idle out. (Requires a 1.6 method)
         try {
             Method allowCoreThreadTimeOut = threadPool.getClass().getMethod("allowCoreThreadTimeOut", boolean.class);
@@ -1183,9 +1207,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 LOG.log(Level.FINEST, "Failed to enable 'allowCoreThreadTimeOut'", ohWell);
             }
         }
-
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1,
-                new PeerGroupThreadFactory("Scheduled Executor", getHomeThreadGroup()));
 
     /*
          * The rest of construction and initialization are left to the

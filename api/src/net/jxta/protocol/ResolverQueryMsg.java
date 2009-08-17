@@ -184,17 +184,6 @@ public abstract class ResolverQueryMsg {
     /**
      * Returns the source of the query
      *
-     * @return String the peerid of the source of the query
-     * @deprecated Use {@link #getSrcPeer()} instead.
-     */
-    @Deprecated
-    public String getSrc() {
-        return (null == srcPeerId) ? null : srcPeerId.toString();
-    }
-
-    /**
-     * Returns the source of the query
-     *
      * @return The peerid of the source of the query
      */
     public ID getSrcPeer() {
@@ -258,21 +247,6 @@ public abstract class ResolverQueryMsg {
      */
     public void setSrcPeerRoute(RouteAdvertisement route) {
         srcPeerRoute = route;
-    }
-
-    /**
-     * Set the source of the query
-     *
-     * @param src is a containing the peerid of the source
-     * @deprecated Use {@link #setSrcPeer(ID)} instead.
-     */
-    @Deprecated
-    public void setSrc(String src) {
-        if (null == src) {
-            setSrcPeer(null);
-        } else {
-            setSrcPeer(ID.create(URI.create(src)));
-        }
     }
 
     /**

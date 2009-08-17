@@ -92,22 +92,6 @@ public class RouteQuery extends RouteQueryMsg {
     public RouteQuery() {}
 
     /**
-     * Constructs a RouteQuery
-     *
-     * @deprecated Use default constructor and accessors.
-     *
-     * @param dest     dest PeerID
-     * @param srcRoute source source
-     * @param badhops  lis of AccessPointAdvertisements
-     */
-    @Deprecated
-    public RouteQuery(PeerID dest, RouteAdvertisement srcRoute, Collection<PeerID> badhops) {
-        setDestPeerID(dest);
-        setSrcRoute(srcRoute);
-        setBadHops(badhops);
-    }
-
-    /**
      * Construct from an XML document fragment.
      *
      * @param doc the element

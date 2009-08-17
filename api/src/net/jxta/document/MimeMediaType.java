@@ -62,14 +62,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import net.jxta.util.ConcurrentWeakHashMap;
 
 
 /**
@@ -108,7 +107,7 @@ public class MimeMediaType implements Serializable {
     /**
      * A canonical map of Mime Media Types.
      */
-    private static final Map<MimeMediaType, Reference<MimeMediaType>> interned = new WeakHashMap<MimeMediaType, Reference<MimeMediaType>>();
+    private static final ConcurrentMap<MimeMediaType, MimeMediaType> interned = new ConcurrentWeakHashMap<MimeMediaType, MimeMediaType>();
 
     /**
      * Common Mime Media Type for arbitrary unparsed binary data.
@@ -200,7 +199,7 @@ public class MimeMediaType implements Serializable {
         final String value;
 
         parameter(String attr, String val) {
-            attribute = attr;
+            attribute = attr.intern();
             value = val;
         }
 
@@ -522,7 +521,7 @@ public class MimeMediaType implements Serializable {
             throw new IllegalArgumentException("type cannot contain a seperator");
         }
 
-        this.type = cleaned;
+        this.type = cleaned.intern();
     }
 
     /**
@@ -568,7 +567,7 @@ public class MimeMediaType implements Serializable {
             throw new IllegalArgumentException("subtype cannot contain a seperator");
         }
 
-        this.subtype = cleaned;
+        this.subtype = cleaned.intern();
     }
 
     /**
@@ -821,24 +820,18 @@ public class MimeMediaType implements Serializable {
      *         guaranteed to be from a pool of unique types.
      */
     public MimeMediaType intern() {
-        synchronized (MimeMediaType.class) {
-            Reference<MimeMediaType> common = interned.get(this);
-
-            MimeMediaType result;
-
-            if (null == common) {
-                common = new WeakReference<MimeMediaType>(this);
-                interned.put(this, common);
-                result = this;
-            } else {
-                result = common.get();
-                if (null == result) {
-                    interned.put(this, new WeakReference<MimeMediaType>(this));
-                    result = this;
-                }
-            }
-
-            return result;
-        }
+    	MimeMediaType singleton = interned.putIfAbsent(this, this);
+    	if(singleton == null) {
+    		return this;
+    	}
+    	
+    	return singleton;
     }
+
+    /**
+     * This method should only be used for testing purposes.
+     */
+	static void clearInternMap() {
+		interned.clear();
+	}
 }

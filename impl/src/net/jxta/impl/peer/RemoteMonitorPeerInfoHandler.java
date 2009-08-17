@@ -55,11 +55,30 @@
  */
 package net.jxta.impl.peer;
 
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.document.Element;
 import net.jxta.exception.PeerGroupException;
-import net.jxta.impl.util.TimerThreadNamer;
+import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
-import net.jxta.meter.*;
+import net.jxta.meter.MonitorEvent;
+import net.jxta.meter.MonitorException;
+import net.jxta.meter.MonitorFilter;
+import net.jxta.meter.MonitorFilterException;
+import net.jxta.meter.MonitorListener;
+import net.jxta.meter.MonitorReport;
+import net.jxta.meter.MonitorResources;
+import net.jxta.meter.PeerMonitorInfo;
+import net.jxta.meter.PeerMonitorInfoEvent;
+import net.jxta.meter.PeerMonitorInfoListener;
+import net.jxta.meter.ServiceMonitorFilter;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
 import net.jxta.peergroup.PeerGroup;
@@ -68,15 +87,6 @@ import net.jxta.protocol.PeerInfoQueryMessage;
 import net.jxta.protocol.PeerInfoResponseMessage;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     public static final String MONITOR_HANDLER_NAME = "Monitor";
@@ -91,16 +101,16 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     private Hashtable<Integer, Long> timeouts = new Hashtable<Integer, Long>();
     private PeerGroup peerGroup;
     private PeerInfoServiceImpl peerInfoServiceImpl;
-    private Timer timer = new Timer(true);
+    private ScheduledExecutorService executor;
 
     RemoteMonitorPeerInfoHandler(PeerGroup peerGroup, PeerInfoServiceImpl peerInfoServiceImpl) {
         this.peerGroup = peerGroup;
         this.peerInfoServiceImpl = peerInfoServiceImpl;
-        timer.schedule(new TimerThreadNamer("RemoteMonitorPeerInfo timer for " + peerGroup.getPeerGroupID()), 0);
+        this.executor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
     }
 
     public void stop() {
-        timer.cancel();
+        executor.shutdownNow();
     }
 
     private int getNextLeaseId() {
@@ -171,8 +181,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         peerInfoMessenger.sendPeerInfoRequest(queryId, peerID, MONITOR_HANDLER_NAME, remoteMonitorQuery);
         final RequestInfo requestInfo = new RequestInfo(peerID, queryId, peerMonitorInfoListener, timeout, peerInfoMessenger);
         requestInfos.put(queryId, requestInfo);
-        timer.schedule(new TimerTask() {
-            @Override
+        executor.schedule(new Runnable() {
             public void run() {
                 if (!requestInfo.responseReceived) {
                     PeerMonitorInfoEvent peerMonitorInfoEvent = new PeerMonitorInfoEvent(peerID, null);
@@ -181,7 +190,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                     requestInfos.remove(requestInfo.queryId);
                 }
             }
-        }, timeout);
+        }, timeout, TimeUnit.MILLISECONDS);
     }
 
     public void getCumulativeMonitorReport(PeerID peerID, MonitorFilter monitorFilter, MonitorListener monitorListener, long timeout, PeerInfoMessenger peerInfoMessenger) throws MonitorException {
@@ -190,14 +199,13 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         peerInfoMessenger.sendPeerInfoRequest(queryId, peerID, MONITOR_HANDLER_NAME, remoteMonitorQuery);
         final RequestInfo requestInfo = new RequestInfo(peerID, queryId, monitorListener, timeout, peerInfoMessenger);
         requestInfos.put(queryId, requestInfo);
-        timer.schedule(new TimerTask() {
-            @Override
+        executor.schedule(new Runnable() {
             public void run() {
                 if (!requestInfo.responseReceived) {
                     requestInfos.remove(requestInfo.queryId);
                 }
             }
-        }, timeout);
+        }, timeout, TimeUnit.MILLISECONDS);
     }
 
     public void addRemoteMonitorListener(PeerID peerID, MonitorFilter monitorFilter, long reportRate, boolean includeCumulative, MonitorListener monitorListener, long lease, long timeout, PeerInfoMessenger peerInfoMessenger) throws MonitorException {
@@ -207,8 +215,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         final RequestInfo requestInfo = new RequestInfo(peerID, queryId, monitorListener, timeout, peerInfoMessenger);
         requestInfo.requestedLease = lease;
         requestInfos.put(queryId, requestInfo);
-        timer.schedule(new TimerTask() {
-            @Override
+        executor.schedule(new Runnable() {
             public void run() {
                 if (!requestInfo.responseReceived) {
                     MonitorEvent monitorEvent = MonitorEvent.createFailureEvent(MonitorEvent.TIMEOUT, requestInfo.peerId,
@@ -218,7 +225,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                     requestInfos.remove(requestInfo.queryId);
                 }
             }
-        }, timeout);
+        }, timeout, TimeUnit.MILLISECONDS);
         scheduleTimeout(requestInfo);
     }
 
@@ -242,13 +249,11 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         }
 
         final RequestInfo requestInfo = oldRequestInfo;
-        timer.schedule(new TimerTask() {
-
-            @Override
+        executor.schedule(new Runnable() {
             public void run() {
                 requestInfos.remove(new Integer(requestInfo.queryId));
             }
-        }, timeout);
+        }, timeout, TimeUnit.MILLISECONDS);
     }
 
     public void removeRemoteMonitorListener(MonitorListener monitorListener, long timeout, PeerInfoMessenger peerInfoMessenger) throws MonitorException {
@@ -359,10 +364,8 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     private void scheduleTimeout(final RequestInfo requestInfo) {
         final int queryId = requestInfo.queryId;
 
-        timer.schedule(
-                new TimerTask() {
-            @Override
-            public void run() {
+        SelfCancellingTask task = new SelfCancellingTask() {
+            public void execute() {
                 if (requestInfos.containsKey(new Integer(queryId))) {
                     try {
                         if (System.currentTimeMillis() > getTimeout(queryId)) {
@@ -376,7 +379,8 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                     cancel();
                 }
             }
-        }, requestInfo.timeout, requestInfo.timeout);
+        };
+		task.setHandle(executor.scheduleAtFixedRate(task, requestInfo.timeout, requestInfo.timeout, TimeUnit.MILLISECONDS));
     }
 
     private void scheduleLeaseRenewal(RequestInfo requestInfo, long leaseLength) {
@@ -386,9 +390,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         final int queryId = requestInfo.queryId;
 
         if (renewTime > MIN_LEASE) {
-            timer.schedule(new TimerTask() {
-
-                @Override
+            executor.schedule(new Runnable() {
                 public void run() {
                     try {
                         renewLease(queryId);
@@ -398,7 +400,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                         }
                     }
                 }
-            }, renewTime);
+            }, renewTime, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -599,9 +601,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
     private void setupLeaseTimeout(final int leaseId, long lease) {
 
-        timer.schedule(new TimerTask() {
-
-            @Override
+        executor.schedule(new Runnable() {
             public void run() {
                 LeaseInfo leaseInfo = leaseInfos.get(new Integer(leaseId));
 
@@ -619,6 +619,6 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                     }
                 }
             }
-        }, lease);
+        }, lease, TimeUnit.MILLISECONDS);
     }
 }

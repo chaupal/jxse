@@ -57,25 +57,6 @@
 package net.jxta.impl.membership.pse;
 
 
-import net.jxta.credential.Credential;
-import net.jxta.credential.CredentialPCLSupport;
-import net.jxta.document.Attributable;
-import net.jxta.document.Attribute;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
-import net.jxta.exception.PeerGroupException;
-import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.service.Service;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;
@@ -104,10 +85,32 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.jxta.credential.Credential;
+import net.jxta.credential.CredentialPCLSupport;
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logging;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.service.Service;
 
 
 /**
@@ -164,11 +167,6 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     private static final Logger LOG = Logger.getLogger(PSECredential.class.getName());
 
     /**
-     * A Timer we use for managing the cert expirations.
-     */
-    private static Timer expirationTimer = new Timer("PSECredential Expiration Timer", true);
-
-    /**
      * The MembershipService service which generated this credential.
      * <p/>
      * XXX 20030609 bondolo@jxta.org Perhaps this should be a weak reference.
@@ -205,8 +203,8 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     /**
      * Optional Timer task
      */
-    private TimerTask becomesValidTask = null;
-    private TimerTask expiresTask = null;
+    private ScheduledFuture<?> becomesValidTaskHandle = null;
+    private ScheduledFuture<?> expiresTaskHandle = null;
 
     /**
      * Are we still a valid credential?
@@ -290,12 +288,12 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      */
     @Override
     protected void finalize() throws Throwable {
-        if (null != becomesValidTask) {
-            becomesValidTask.cancel();
+        if (null != becomesValidTaskHandle) {
+            becomesValidTaskHandle.cancel(false);
         }
 
-        if (null != expiresTask) {
-            expiresTask.cancel();
+        if (null != expiresTaskHandle) {
+            expiresTaskHandle.cancel(false);
         }
 
         super.finalize();
@@ -558,13 +556,12 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         Date expires = ((X509Certificate) certs.getCertificates().get(0)).getNotAfter();
 
         if (becomesValid.compareTo(now) > 0) {
-            if (null != becomesValidTask) {
-                becomesValidTask.cancel();
+            if (null != becomesValidTaskHandle) {
+                becomesValidTaskHandle.cancel(false);
             }
 
-            becomesValidTask = new TimerTask() {
+            Runnable becomesValidTask = new Runnable() {
 
-                @Override
                 public void run() {
                     support.firePropertyChange("expired", false, true);
                     if (valid) {
@@ -573,17 +570,18 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
                 }
             };
 
-            expirationTimer.schedule(becomesValidTask, becomesValid);
+            ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+            long delay = TimeUtils.toRelativeTimeMillis(becomesValid.getTime());
+            becomesValidTaskHandle = executor.schedule(becomesValidTask, delay, TimeUnit.MILLISECONDS);
         }
 
-        if (null != expiresTask) {
-            expiresTask.cancel();
+        if (null != expiresTaskHandle) {
+            expiresTaskHandle.cancel(false);
         }
 
         if (expires.compareTo(now) > 0) {
-            expiresTask = new TimerTask() {
+            Runnable expiresTask = new Runnable() {
 
-                @Override
                 public void run() {
                     support.firePropertyChange("expired", true, false);
                     if (valid) {
@@ -592,10 +590,12 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
                 }
             };
 
-            expirationTimer.schedule(expiresTask, expires);
+            ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+            long delay = TimeUtils.toRelativeTimeMillis(expires.getTime());
+            expiresTaskHandle = executor.schedule(expiresTask, delay, TimeUnit.MILLISECONDS);
         }
 
-        boolean nowGood = (null == becomesValidTask) && (null != expiresTask);
+        boolean nowGood = (null == becomesValidTaskHandle) && (null != expiresTaskHandle);
 
         support.firePropertyChange("expired", true, nowGood);
         setValid(nowGood);

@@ -98,21 +98,6 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
 
     public PeerInfoResponseMsg() {}
 
-    /**
-     * @param spid      source PeerID
-     * @param tpid      target PeerID
-     * @param uptime    uotime in millis
-     * @param timestamp TimeStamp
-     * @deprecated Please use the individual setters
-     */
-    @Deprecated
-    public PeerInfoResponseMsg(PeerID spid, PeerID tpid, long uptime, long timestamp) {
-        setSourcePid(spid);
-        setTargetPid(tpid);
-        setUptime(uptime);
-        setTimestamp(timestamp);
-    }
-
     public PeerInfoResponseMsg(Element root) {
         initialize(root);
     }

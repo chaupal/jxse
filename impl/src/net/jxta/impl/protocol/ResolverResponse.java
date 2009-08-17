@@ -102,23 +102,23 @@ public class ResolverResponse extends ResolverResponseMsg {
      */
     public ResolverResponse() {}
 
-    /**
-     * Construct a doc from strings
-     *
-     *  @deprecated use the individual accessor methods instead.
-     * @param HandlerName the handler name
-     * @param Credential the credential doc
-     * @param QueryId    query ID
-     * @param Response   the response
-     *
-     */
-    @Deprecated
-    public ResolverResponse(String HandlerName, StructuredDocument Credential, int QueryId, String Response) {
-        setHandlerName(HandlerName);
-        setCredential(Credential);
-        setQueryId(QueryId);
-        setResponse(Response);
-    }
+//    /**
+//     * Construct a doc from strings
+//     *
+//     *  @deprecated use the individual accessor methods instead.
+//     * @param HandlerName the handler name
+//     * @param Credential the credential doc
+//     * @param QueryId    query ID
+//     * @param Response   the response
+//     *
+//     */
+//    @Deprecated
+//    public ResolverResponse(String HandlerName, StructuredDocument Credential, int QueryId, String Response) {
+//        setHandlerName(HandlerName);
+//        setCredential(Credential);
+//        setQueryId(QueryId);
+//        setResponse(Response);
+//    }
 
     /**
      * Construct from a StructuredDocument

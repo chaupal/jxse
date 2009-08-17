@@ -119,22 +119,6 @@ public abstract class DiscoveryQueryMsg {
     public abstract Document getDocument(MimeMediaType asMimeType);
 
     /**
-     * returns the responding peer advertisement
-     *
-     * @return String handlername name
-     * @deprecated Peer Advertisement is available directly via
-     *             {@link #getPeerAdvertisement()}.
-     */
-    @Deprecated
-    public String getPeerAdv() {
-        if (null != peerAdvertisement) {
-            return peerAdvertisement.toString();
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * returns the querying peer's advertisement
      *
      * @return peer advertisement of querier.

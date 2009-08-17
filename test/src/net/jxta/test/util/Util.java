@@ -59,6 +59,9 @@ package net.jxta.test.util;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+
 import java.io.*;
 import java.lang.reflect.*;
 
@@ -68,11 +71,13 @@ class Util {
     static Advertisement getAdvFromFile(File f) throws IOException, InvocationTargetException {
 
         FileInputStream in = null;
+        XMLDocument advDocument = null;
 
         try {
             in = new FileInputStream(f);
+            advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, in );
 
-            return AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, in);	
+            return AdvertisementFactory.newAdvertisement(advDocument);	
 	
         } finally {
 

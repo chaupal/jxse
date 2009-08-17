@@ -61,9 +61,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.*;
@@ -71,9 +73,33 @@ import junit.framework.*;
 
 public class MimeMediaTypeTest extends TestCase {
     
-    public MimeMediaTypeTest(java.lang.String testName) {
+	private boolean exceptionOnThread = false;
+	
+    private final class ExceptionCatchingThreadFactory implements ThreadFactory {
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r);
+			t.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+				
+				public void uncaughtException(Thread t, Throwable exception) {
+					System.err.println("Exception occurred on test thread");
+					exception.printStackTrace();
+					exceptionOnThread = true;
+				}
+			});
+			
+			return t;
+		}
+	}
+
+	public MimeMediaTypeTest(java.lang.String testName) {
         super(testName);
     }
+	
+	@Override
+	protected void tearDown() throws Exception {
+		MimeMediaType.clearInternMap();
+		exceptionOnThread = false;
+	}
     
     public void testConstructors() {
         MimeMediaType plainXMLString = new MimeMediaType("text/xml");
@@ -279,7 +305,7 @@ public class MimeMediaTypeTest extends TestCase {
         final int trials = 50000;
         long stop;
         
-        ExecutorService executor = Executors.newCachedThreadPool();
+        ExecutorService executor = Executors.newCachedThreadPool(new ExceptionCatchingThreadFactory());
         
         // Pre-create threads.
         for(int spawn = 0; spawn < concurrency; spawn++) {
@@ -328,6 +354,7 @@ public class MimeMediaTypeTest extends TestCase {
         } catch(InterruptedException woken) {
             
         }
+        assertFalse(exceptionOnThread);
         stop = System.currentTimeMillis();
         System.err.flush();
         System.out.flush();
@@ -337,10 +364,10 @@ public class MimeMediaTypeTest extends TestCase {
     
     public void testInternUniquesContention() {
         final int concurrency = 50;
-        final int trials = 10000;
+        final int trials = 1000;
         long stop;
         
-        ExecutorService executor = Executors.newCachedThreadPool();
+        ExecutorService executor = Executors.newCachedThreadPool(new ExceptionCatchingThreadFactory());
         
         // Pre-create threads.
         for(int spawn = 0; spawn < concurrency; spawn++) {
@@ -385,11 +412,12 @@ public class MimeMediaTypeTest extends TestCase {
        
         executor.shutdown();
         try {
-            executor.awaitTermination(60, TimeUnit.SECONDS);
+            executor.awaitTermination(320, TimeUnit.SECONDS);
         } catch(InterruptedException woken) {
             
         }
         stop = System.currentTimeMillis();
+        assertFalse("Exception occurred in one or more threads", exceptionOnThread);
         System.err.flush();
         System.out.flush();
         

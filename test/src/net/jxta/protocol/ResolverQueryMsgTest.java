@@ -62,6 +62,7 @@ import junit.framework.TestSuite;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.impl.protocol.ResolverQuery;
+import net.jxta.peer.PeerID;
 import net.jxta.test.util.AdvUtil;
 
 
@@ -71,7 +72,7 @@ import net.jxta.test.util.AdvUtil;
 public class ResolverQueryMsgTest extends TestCase {
 
     private static final String handlername = "urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000006";
-    String src;
+    PeerID src;
     String querystr = "Some arbitrary query";
     int  hc = 0;
     int qid = 0;
@@ -116,13 +117,13 @@ public class ResolverQueryMsgTest extends TestCase {
         try {
             PeerAdvertisement padv = AdvUtil.newPeerAdv("Fakey1", "0.0.0.0", 0, false);
 
-            src = padv.getPeerID().toString();
+            src = (PeerID)padv.getPeerID();
             ResolverQueryMsg query = new ResolverQuery();
 
             query.setHandlerName(handlername);
             query.setQuery(querystr);
             query.setQueryId(qid);
-            query.setSrc(src);
+            query.setSrcPeer(src);
 
             StructuredDocument doc = (StructuredDocument) query.getDocument(new MimeMediaType("text/xml"));
 
@@ -134,7 +135,7 @@ public class ResolverQueryMsgTest extends TestCase {
             assertEquals("Corrupted hopcount", hc + 1, query.getHopCount());
 
             assertEquals("Corrupted query", querystr, query.getQuery());
-            assertEquals("Corrupted source peer", src, query.getSrc());
+            assertEquals("Corrupted source peer", src.toString(), query.getSrcPeer().toString());
 
             ResolverQueryMsg doctest = new ResolverQuery(doc);
 

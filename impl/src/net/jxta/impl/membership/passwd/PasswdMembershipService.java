@@ -729,13 +729,6 @@ public class PasswdMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      */
-    public synchronized Enumeration<AuthenticationCredential> getAuthCredentials() {
-        return Collections.enumeration(authCredentials);
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
     public Credential join(Authenticator authenticated) throws PeerGroupException {
         
         if (!(authenticated instanceof PasswdAuthenticator)) {

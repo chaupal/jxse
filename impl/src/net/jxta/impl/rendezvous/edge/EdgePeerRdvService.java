@@ -55,6 +55,20 @@
  */
 package net.jxta.impl.rendezvous.edge;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -91,19 +105,6 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.rendezvous.RendezvousEvent;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimerTask;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -263,7 +264,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         
         rdvService.generateEvent(RendezvousEvent.BECAMEEDGE, group.getPeerID());
         
-        timer.schedule(new MonitorTask(), 0, MONITOR_INTERVAL);
+        scheduledExecutor.scheduleAtFixedRate(new MonitorTask(), 0, MONITOR_INTERVAL, TimeUnit.MILLISECONDS);
         
         return Module.START_OK;
     }
@@ -749,12 +750,11 @@ public class EdgePeerRdvService extends StdRendezVousService {
      * <p/>
      * Checks leases, initiates lease renewals, starts new lease requests.
      */
-    private class MonitorTask extends TimerTask {
+    private class MonitorTask implements Runnable {
         
         /**
          * @inheritDoc
          */
-        @Override
         public void run() {
             try {
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -774,7 +774,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
                         }
                         
                         // Reschedule another run very soon.
-                        timer.schedule(new MonitorTask(), 2 * TimeUtils.ASECOND);
+                        scheduledExecutor.schedule(new MonitorTask(), 2, TimeUnit.SECONDS);
                         return;
                     }
                 }

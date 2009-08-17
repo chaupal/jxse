@@ -65,7 +65,6 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.util.ProducerBiasedQueue;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -88,6 +87,9 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -160,7 +162,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
     protected OutputPipe outputPipe;
     protected boolean closed = false;
     protected boolean bound = false;
-    protected ProducerBiasedQueue queue = new ProducerBiasedQueue();
+    protected BlockingQueue<Message> queue = new LinkedBlockingQueue<Message>(100);
     protected Credential credential = null;
     protected StructuredDocument credentialDoc = null;
     private int timeout = 60000;
@@ -263,7 +265,6 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
         closed = true;
         in.close();
         outputPipe.close();
-        queue.close();
         in = null;
     }
 
@@ -289,10 +290,16 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Pushing a message onto queue");
             }
-            queue.push(message, -1);
+            if(!queue.offer(message, -1, TimeUnit.MILLISECONDS))
+            	LOG.fine("Failed to push the message onto queue due to no available space");
+           
         } catch (InterruptedException e) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Interrupted", e);
+            }
+        } catch (IllegalArgumentException e){
+        	if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Failed to push the message onto queue", e);
             }
         }
     }
@@ -400,7 +407,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
         MessageElement sel = null;
 
         try {
-            msg = (Message) queue.pop(timeout);
+            msg = (Message) queue.poll(timeout, TimeUnit.SECONDS);
             if (msg == null) {
                 if (timeout > 0) {
                     throw new SocketTimeoutException("Socket timeout reached");

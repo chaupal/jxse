@@ -135,24 +135,6 @@ public class SrdiMessageImpl extends SrdiMessage {
     }
 
     /**
-     * Construct a doc from InputStream
-     *
-     * @param stream the underlying input stream.
-     * @throws IOException if an I/O error occurs.
-     * @deprecated It's better to generate the document yourself. This method
-     *             cannot deduce the mime type of the content.
-     */
-    @Deprecated
-    public SrdiMessageImpl(InputStream stream) throws IOException {
-
-        // We are asked to assume that the message from which this response
-        // is constructed is an XML document.
-        XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, stream);
-
-        readIt(doc);
-    }
-
-    /**
      * Construct from a StructuredDocument
      *
      * @param root the underlying document

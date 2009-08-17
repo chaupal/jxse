@@ -128,41 +128,10 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
         this.stateLock = stateLock;
     }
 
-    /*
-     * Messenger methods implementations.
-     */
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This is here for backward compatibility reasons.  The notion of long term unemployment still exists, but is no-longer part
-     * of the API.  Self closing for unemployment is now a built-in feature of messengers.
-     */
-    @Deprecated
-    public final boolean isIdle() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public final boolean isSynchronous() {
-        return false;
-    }
-
     /**
      * {@inheritDoc}
      */
     public final EndpointAddress getDestinationAddress() {
-        return dstAddress;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public final EndpointAddress getDestinationAddressObject() {
         return dstAddress;
     }
 
