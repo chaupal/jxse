@@ -52,9 +52,15 @@ public abstract class FileSystemTest extends TestCase {
                 deleteDir(child);
             }
         }
-
         if (!dir.delete()) {
-            throw new IOException("Unable to delete file " + dir.getAbsolutePath());
+        	// Throwing an exception here is too harsh.  This often fails on windows, a warning suffices
+        	try {
+				if(System.getProperty("os.name").toLowerCase().indexOf("win") >= 0){
+					System.err.println("FilesystemTest.deleteDir() - Unable to delete file " + dir.getAbsolutePath());
+					return;
+				}
+			} catch (Exception e) {}
+			throw new IOException("Unable to delete file " + dir.getAbsolutePath());
         }
     }
 }
