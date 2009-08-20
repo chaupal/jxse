@@ -902,7 +902,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             upPeer = null;
             localView.clear();
 
-            scheduledExecutor.shutdownNow();
+            // executors from TaskManager are now shutdown by the NetworkManager
 
             rpvListeners.clear();
         }

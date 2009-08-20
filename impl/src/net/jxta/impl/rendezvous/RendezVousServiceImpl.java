@@ -380,8 +380,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             provider = null;
         }
 
-        scheduledExecutor.shutdownNow();
-        scheduledExecutor = null;
+        // executors from TaskManager are now shutdown by the NetworkManager
 
         msgIds.clear();
         eventListeners.clear();
