@@ -407,7 +407,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
         MessageElement sel = null;
 
         try {
-            msg = (Message) queue.poll(timeout, TimeUnit.SECONDS);
+            msg = queue.poll(timeout, TimeUnit.SECONDS);
             if (msg == null) {
                 if (timeout > 0) {
                     throw new SocketTimeoutException("Socket timeout reached");

@@ -589,7 +589,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                     Message msg = null;
 
                     try {
-                        msg = (Message) queue.poll(IDLEWORKERLINGER, TimeUnit.MILLISECONDS);
+                        msg = queue.poll(IDLEWORKERLINGER, TimeUnit.MILLISECONDS);
                     } catch (InterruptedException woken) {
                         Thread.interrupted();
                         continue;
