@@ -7,6 +7,7 @@ import java.util.logging.Level;
 
 import net.jxta.document.Element;
 import net.jxta.document.StructuredDocument;
+import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 
 /**
@@ -23,6 +24,7 @@ public class CacheUtils {
 	 */
 	public static Map<String, String> getIndexfields(String[] fields, StructuredDocument<?> doc) {
 	    Map<String, String> map = new HashMap<String, String>();
+	
 	    if (doc == null) {
 	        if (Logging.SHOW_WARNING && XIndiceAdvertisementCache.LOG.isLoggable(Level.WARNING)) {
 	            XIndiceAdvertisementCache.LOG.warning("Null document");
@@ -42,6 +44,10 @@ public class CacheUtils {
 	        }
 	    }
 	    return map;
+	}
+	
+	public static long getRelativeExpiration(long absoluteLifetime, long relativeExpiry) {
+		return Math.min(Math.max(-1, TimeUtils.toRelativeTimeMillis(absoluteLifetime)), relativeExpiry);
 	}
 	
 	public static String convertValueQueryToRegex(String value) {

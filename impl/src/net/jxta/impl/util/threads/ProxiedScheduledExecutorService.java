@@ -318,7 +318,7 @@ public class ProxiedScheduledExecutorService
      *  case unfinished tasks are cancelled 
      */
 
-	public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks)
+	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
 			throws InterruptedException {
 		return targetExec.invokeAll(tasks);
 	}
@@ -333,7 +333,7 @@ public class ProxiedScheduledExecutorService
 	  * @throws InterruptedException if interrupted while waiting, in which
 	  *  case unfinished tasks are cancelled 
 	  */
-	public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks, 
+	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, 
 			long timeout, TimeUnit unit) throws InterruptedException {
 		return targetExec.invokeAll(tasks, timeout, unit);
 	}
@@ -349,7 +349,7 @@ public class ProxiedScheduledExecutorService
 	  * @throws InterruptedException if interrupted while waiting, in which
 	  *  case unfinished tasks are cancelled 
 	  */
-	public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks)
+	public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
 			throws InterruptedException, ExecutionException {
 		return targetExec.invokeAny(tasks);
 	}
@@ -365,7 +365,7 @@ public class ProxiedScheduledExecutorService
 	  * @param <T> return type of the function(s)
 	  * @throws InterruptedException if interrupted while waiting 
 	  */
-	public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks,
+	public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
 			long timeout, TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
 		return targetExec.invokeAny(tasks, timeout, unit);

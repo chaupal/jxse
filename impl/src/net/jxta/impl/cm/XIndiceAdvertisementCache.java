@@ -215,9 +215,6 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             if (System.getProperty("net.jxta.impl.cm.index.rebuild") != null) {
                 rebuildIndex();
             }
-//            gcThread = new Thread(threadGroup, this, "CM GC Thread interval : " + gcMinInterval);
-//           gcThread.setDaemon(true);
-//            gcThread.start();
 
             // Install Record GC task.
             gcTime = TimeUtils.toAbsoluteTimeMillis(gcMaxInterval);
