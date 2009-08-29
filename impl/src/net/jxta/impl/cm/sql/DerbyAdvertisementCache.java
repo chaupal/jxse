@@ -19,9 +19,13 @@ public class DerbyAdvertisementCache extends JdbcAdvertisementCache {
 	
 	@Override
 	protected EmbeddedConnectionPoolDataSource createDataSource() {
+		if(!loadDbDriver( "org.apache.derby.jdbc.EmbeddedDriver")) {
+			throw new RuntimeException("Unable to loadDB driver:  org.apache.derby.jdbc.EmbeddedDriver");
+		}
 		EmbeddedConnectionPoolDataSource dataSource = new EmbeddedConnectionPoolDataSource();
 		dataSource.setDatabaseName(dbDir.getAbsolutePath());
 		dataSource.setCreateDatabase("create");
+		System.err.println("Created derby cache");
 		return dataSource;
 	}
 	

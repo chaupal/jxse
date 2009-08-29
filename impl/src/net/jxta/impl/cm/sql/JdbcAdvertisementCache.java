@@ -48,7 +48,6 @@ import net.jxta.protocol.SrdiMessage.Entry;
 public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache {
 
 	private static final Logger LOG = Logger.getLogger(JdbcAdvertisementCache.class.getName());
-	public static final String DATABASE_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
 	private static final int MAX_CONNECTIONS = 16;
 	
 	private static final String CREATE_RECORD_TABLE_SQL 
@@ -56,7 +55,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			"(\n" + 
 			"	dn VARCHAR(255) NOT NULL, \n" + 
 			"	fn VARCHAR(255) NOT NULL, \n" +
-			"   isAdvertisement TINYINT NOT NULL, \n" +
+			"   isAdvertisement SMALLINT NOT NULL, \n" +
 			"	lifetime BIGINT NOT NULL, \n" + 
 			"	expiry BIGINT NOT NULL, \n" + 
 			"	data BLOB NOT NULL,\n" + 
@@ -80,13 +79,13 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	private static final String PUT_INDEXFIELD_SQL
 		= "INSERT INTO IndexField VALUES (?,?,?,?)";
 	
-	static {
-		if(!loadDbDriver(DATABASE_DRIVER)) {
-			throw new RuntimeException("Unable to load Apache Derby DB driver");
-		}
-	}
+//	static {
+//		if(!loadDbDriver(DATABASE_DRIVER)) {
+//			throw new RuntimeException("Unable to load " + DATABASE_DRIVER + " DB driver");
+//		}
+//	}
 	
-	private static boolean loadDbDriver(String dbDriver) {
+	protected static boolean loadDbDriver(String dbDriver) {
 		try {
 			Class.forName(dbDriver).newInstance();
 			return true;
@@ -158,7 +157,11 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			
 			conn.commit();
 			successful = true;
-		} finally {
+		} 
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		finally {
 			closeResources(conn, !successful);
 		}
 	}

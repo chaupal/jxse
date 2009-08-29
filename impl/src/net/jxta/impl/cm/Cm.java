@@ -159,7 +159,7 @@ public final class Cm {
     		try {
 				Class<?> cacheClass = Class.forName(cacheImpl);
 				Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
-				Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(ThreadGroup.class, URI.class, String.class, long.class, boolean.class);
+				Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class, long.class, boolean.class);
 				this.wrappedImpl = constructor.newInstance(storeRoot, areaName, gcinterval, trackDeltas);
 			} catch (Exception e) {
 				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {

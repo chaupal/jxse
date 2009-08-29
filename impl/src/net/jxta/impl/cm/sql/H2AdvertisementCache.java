@@ -9,7 +9,6 @@ import javax.sql.ConnectionPoolDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 
 public class H2AdvertisementCache extends JdbcAdvertisementCache {
-
 	public H2AdvertisementCache(URI storeRoot, String areaName) throws IOException {
 		super(storeRoot, areaName);
 	}
@@ -20,9 +19,12 @@ public class H2AdvertisementCache extends JdbcAdvertisementCache {
 	
 	@Override
 	protected ConnectionPoolDataSource createDataSource() {
+		if(!loadDbDriver("org.h2.Driver")) {
+			throw new RuntimeException("Unable to loadDB driver: org.h2.Driver");
+		}
 		JdbcDataSource source = new JdbcDataSource();
 		source.setURL("jdbc:h2:" + dbDir.getAbsolutePath());
-		
+		System.err.println("HEY CREATED h2 cache");
 		return source;
 	}
 	
