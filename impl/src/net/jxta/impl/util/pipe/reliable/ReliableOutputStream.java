@@ -93,8 +93,11 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     
     /**
      * Initial estimated Round Trip Time
+     * 
+     * Ten seconds is much too long here.  Reduced to five.
+     * 
      */
-    private final static long initRTT = 10 * TimeUtils.ASECOND;
+    private final static long initRTT = 5 * TimeUtils.ASECOND;
     
     /**
      *  The default size for the blocks we will chunk the stream into.
@@ -200,12 +203,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     /**
      * Minimum Retry Timeout measured in milliseconds.
      */
-    private volatile long minRTO =  initRTT * 5;
-
-    /**
-     * Maximum Retry Timeout measured in milliseconds.
-     */
-    private volatile long maxRTO =  initRTT * 60;
+    private volatile long minRTO =  500; // We begin with a reasonable value for an average network.  This will not be used if RTT is greater.
     
     /**
      * absolute time in milliseconds of last sequential ACK.
@@ -317,11 +315,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     public ReliableOutputStream(Outgoing outgoing, FlowControl fc) {
         this.outgoing = outgoing;
 
-        String maxrto = System.getProperty( "net.jxta.reliable.maxrto" );
-        if( null != maxrto ){
-        	this.maxRTO = Integer.parseInt( maxrto );
-        }
-
         String minrto = System.getProperty( "net.jxta.reliable.minrto" );
         if( null != minrto ){
         	this.minRTO = Integer.parseInt( minrto );
@@ -334,7 +327,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         // initial RTO is set to maxRTO so as to give time
         // to the receiver to catch-up
-        this.RTO = maxRTO;
+        this.RTO = outgoing.getMaxRetryAge();
         
         this.mrrIQFreeSpace = rmaxQSize;
         this.rttThreshold = rmaxQSize;
@@ -749,11 +742,11 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         } else {
             // Enforce a min/max
             RTO = Math.max(newRTO, minRTO);
-            RTO = Math.min(RTO, maxRTO);
+            RTO = Math.min(RTO, outgoing.getMaxRetryAge());
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms" + " maxRTO = " + maxRTO + "ms");
+            LOG.fine("RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms" + " maxRTO = " + outgoing.getMaxRetryAge() + "ms");
         }
     }
     
@@ -1232,7 +1225,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     }
                     
                     // see if the queue has gone dead
-                    if (oldestInQueueWait > maxRTO) {
+                    if (oldestInQueueWait > outgoing.getMaxRetryAge()) {
                         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                             LOG.info("Shutting down stale connection " + outgoing);
                         }
@@ -1269,7 +1262,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         // exceeds the rwindow, and we've had no response for
                         // twice the current RTO.
                         if ((retransed > 0) && (realWait >= 2 * RTO) && (nAtThisRTO >= 2 * rwindow)) {
-                            RTO = (realWait > maxRTO ? maxRTO : 2 * RTO);
+                            RTO = (realWait > outgoing.getMaxRetryAge() ? outgoing.getMaxRetryAge() : 2 * RTO);
                             nAtThisRTO = 0;
                         }
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -1279,7 +1272,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         }
                     } else {
                         idleCounter += 1;
-                        
+                        // reset RTO to min if we are idle
                         if (idleCounter == 2) {
                         	RTO = minRTO;
                             idleCounter = 0;
