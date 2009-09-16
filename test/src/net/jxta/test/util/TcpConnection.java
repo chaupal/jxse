@@ -80,8 +80,8 @@ import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
 import net.jxta.util.LimitInputStream;
-import net.jxta.util.WatchedInputStream;
-import net.jxta.util.WatchedOutputStream;
+import net.jxta.test.util.WatchedInputStream;
+import net.jxta.test.util.WatchedOutputStream;
 
 import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
