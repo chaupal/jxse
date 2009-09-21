@@ -69,7 +69,13 @@ import net.jxta.protocol.PipeAdvertisement;
 
 import java.net.URI;
 
-
+/**
+ *
+ * @since 2.6 This class is not used anywhere in the code and has been deprecated.
+ * It will be removed in the next release.
+ *
+ **/
+@Deprecated
 public final class PipeUtilities {
     
     private PipeUtilities() {}

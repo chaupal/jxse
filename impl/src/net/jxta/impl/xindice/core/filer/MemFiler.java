@@ -73,7 +73,12 @@ import java.util.Map;
  * MemFiler is an In-Memory Filer implementation for Xindice.  MemFiler can be
  * used for temporary collections and caching.  It's basically a layering on
  * top of HashMap.
- */
+ *
+ * @since 2.6 This class is not used anywhere in the code and has been deprecated.
+ * It will be removed in the next release.
+ *
+ **/
+@Deprecated
 public final class MemFiler implements Filer {
     private Map<Key, Record> hashTable = null;
     private Map<Long, Key> posTable = null;
