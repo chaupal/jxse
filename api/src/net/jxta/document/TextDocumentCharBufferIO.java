@@ -60,7 +60,11 @@ package net.jxta.document;
 /**
  * Provides {@code Reader}/{@code Writer} based interfaces for manipulating
  * {@code TextDocument}s.
+ *
+ * @since 2.6 This interface is not used anywhere in the code. Therefore, it has been
+ * deprecated and should be removed in a future release.
  */
+@Deprecated
 public interface TextDocumentCharBufferIO {
 
     /**
