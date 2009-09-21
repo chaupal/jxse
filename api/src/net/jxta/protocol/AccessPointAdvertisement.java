@@ -112,7 +112,8 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
             AccessPointAdvertisement a = (AccessPointAdvertisement) super.clone();
 
             a.setPeerID(getPeerID());
-            a.addEndpointAddresses(endpointAddresses);
+            for(String endpointAddress : endpointAddresses)
+            	a.addEndpointAddress(endpointAddress);
 
             return a;
         } catch (CloneNotSupportedException impossible) {
@@ -263,47 +264,25 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
     /**
      * Returns the vector of endpoint addresses associated with this access
      * point. The result is a vector of endpoint addresses represented as
-     * {@code String}. <strong>The Vector contains the "live" data of this
-     * advertisement. It should be modified only with great care.</strong>
+     * {@code String}. The vector is copied from this advertisement instead of being directly
+     * referred to.
      *
      * @return The endpoint addresses associated with this access point
      *         represented as {@link java.lang.String}.
-     * @deprecated Returning the Vector is dangerous and unwise. This feature
-     *             will be removed.
      */
-    @Deprecated
     public Vector<String> getVectorEndpointAddresses() {
-        return endpointAddresses;
+        return new Vector<String>(endpointAddresses);
     }
 
     /**
      * Sets the list of endpoint addresses associated with this access point.
      *
      * @param addresses Vector of EndpointAddresses represented as
-     *                  {@link java.lang.String}. <b>The Vector is not copied!</b>
-     * @deprecated This method causes the AccessPointAdvertisement to reference
-     *             the provided array. This means that subsequent changes to the array will
-     *             alter the endpoint addresses which are part of the
-     *             {@code AcccessPointAdvertisement}.
+     *                  {@link java.lang.String}. <b>The Vector is copied instead of 
+     *                  being referred to directly</b>
      */
-    @Deprecated
     public void setEndpointAddresses(Vector<String> addresses) {
-        endpointAddresses = addresses;
-    }
-
-    /**
-     * Add a new list of EndpointAddresses to the access point.
-     *
-     * @param addresses List of EndpointAddresses represented as
-     *                  {@link java.lang.String}.
-     *
-     * @deprecated Use {@link #addEndpointAddresses(List)} instead.
-     */
-    @Deprecated
-    public void addEndpointAddresses(Vector<String> addresses) {
-        for (String toAdd : addresses) {
-            addEndpointAddress(toAdd);
-        }
+        endpointAddresses = new Vector<String>(addresses);
     }
 
     /**
