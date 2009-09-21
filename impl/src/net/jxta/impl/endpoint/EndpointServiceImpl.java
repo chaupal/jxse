@@ -1146,7 +1146,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     XMLElement param = (XMLElement) paramChilds.nextElement();
 
                     route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
-                    route.addDestEndpointAddresses(ea);
+                    for(String endpointAddress:ea){
+                    	route.addDestEndpointAddress(new EndpointAddress(endpointAddress));
+                    }
                     if (relay) {
                         // need to add the relay info if we have some
                         Vector<AccessPointAdvertisement> hops = ((RelayClient) proto).getActiveRelays(group);
@@ -1255,7 +1257,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             RouteAdvertisement route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
 
-            route.removeDestEndpointAddresses(ea);
+            for(String endpointAddress:ea){
+            	route.removeDestEndpointAddress(new EndpointAddress(endpointAddress));
+            }
 
             // update the new route to a new parm structure.
             XMLDocument newParam = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
