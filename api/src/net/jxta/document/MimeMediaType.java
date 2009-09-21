@@ -66,8 +66,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import net.jxta.util.ConcurrentWeakHashMap;
+
 
 /**
  * MIME Media Types are used to describe the format of data streams. MIME
@@ -105,8 +107,8 @@ public class MimeMediaType implements Serializable {
     /**
      * A canonical map of Mime Media Types.
      */
-    private static final ConcurrentMap<MimeMediaType, MimeMediaType> interned = (ConcurrentMap<MimeMediaType, MimeMediaType>)
-            Collections.synchronizedMap(new WeakHashMap<MimeMediaType, MimeMediaType>());
+    private static final ConcurrentMap<MimeMediaType, MimeMediaType> interned = new ConcurrentWeakHashMap<MimeMediaType, MimeMediaType>();
+
     /**
      * Common Mime Media Type for arbitrary unparsed binary data.
      */
