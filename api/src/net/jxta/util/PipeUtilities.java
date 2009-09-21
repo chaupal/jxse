@@ -68,6 +68,7 @@ import net.jxta.pipe.PipeID;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.net.URI;
+import java.util.Enumeration;
 
 /**
  *
@@ -103,8 +104,12 @@ public final class PipeUtilities {
     }
 	
     public static PipeAdvertisement createPipeAdvertisement(Element root) {
-    	XMLElement pipeAdvElement = (XMLElement) DocumentUtilities.getChild(root, PipeAdvertisement.getAdvertisementType());
-		
+    	Enumeration e = root.getChildren(PipeAdvertisement.getAdvertisementType());
+    	if (e == null) {
+        	return null;
+         }
+
+        XMLElement pipeAdvElement=(XMLElement) e.nextElement();
         if (pipeAdvElement == null) {
             return null;
         }
