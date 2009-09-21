@@ -69,7 +69,6 @@ import net.jxta.id.ID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
-import net.jxta.util.AdvertisementUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 
 import java.net.URI;
@@ -91,6 +90,11 @@ public class MonitorResources {
     public static final String SERVICE_MONITOR_IMPL_TAG = "serviceMonitorImpl";
     public static final String METRIC_CLASS_TAG = "serviceMetric";
     public static final String FILTER_CLASS_TAG = "serviceMonitorFilter";
+    
+    public static final StructuredTextDocument STANDARD_COMPATABILITY = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
+            MimeMediaType.XMLUTF8, "Comp");
+    public static final String STANDARD_URI = "http://www.jxta.org/download/jxta.jar";
+    public static final String STANDARD_PROVIDER = "jxta.org";
     
     private static Map<ModuleClassID,ServiceResource> registeredMonitorResources = new Hashtable<ModuleClassID,ServiceResource>();
     
@@ -280,8 +284,18 @@ public class MonitorResources {
         transportServiceMonitorClassID };
         
     public static ModuleImplAdvertisement getReferenceAllPurposeMonitorServiceImplAdvertisement(boolean includeTransports) {
-        ModuleImplAdvertisement moduleImplAdvertisement = AdvertisementUtilities.createModuleImplAdvertisement(
-                refMonitorServiceSpecID, "net.jxta.impl.meter.MonitorManager", "Service Monitor");
+    	ModuleImplAdvertisement moduleImplAdvertisement = (ModuleImplAdvertisement)AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
+        
+    	moduleImplAdvertisement.setModuleSpecID(refMonitorServiceSpecID);
+        moduleImplAdvertisement.setDescription("Service Monitor");
+        moduleImplAdvertisement.setCode("net.jxta.impl.meter.MonitorManager");
+        moduleImplAdvertisement.setCompat(STANDARD_COMPATABILITY);
+        moduleImplAdvertisement.setUri(STANDARD_URI);
+        moduleImplAdvertisement.setProvider(STANDARD_PROVIDER);
+        
+        
+        
+        
         StructuredTextDocument param = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "serviceMonitor");
             
@@ -341,10 +355,16 @@ public class MonitorResources {
     }
         
     public static ModuleImplAdvertisement createServiceMonitorModuleImplAdvertisement(ModuleSpecID moduleSpecID, String title, String implClassName, String metricClassName, String filterClassName) {
-        ModuleImplAdvertisement moduleImplAdvertisement = AdvertisementUtilities.createModuleImplAdvertisement(moduleSpecID
-                ,
-                implClassName, "Service Monitor");
-            
+
+    	ModuleImplAdvertisement moduleImplAdvertisement = (ModuleImplAdvertisement)AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
+       
+    	moduleImplAdvertisement.setModuleSpecID(moduleSpecID);
+        moduleImplAdvertisement.setDescription("Service Monitor");
+        moduleImplAdvertisement.setCode(implClassName);
+        moduleImplAdvertisement.setCompat(STANDARD_COMPATABILITY);
+        moduleImplAdvertisement.setUri(STANDARD_URI);
+        moduleImplAdvertisement.setProvider(STANDARD_PROVIDER);
+        
         StructuredTextDocument param = (StructuredTextDocument) StructuredDocumentFactory.newStructuredDocument(
                 MimeMediaType.XMLUTF8, "serviceMonitor");
             
