@@ -65,7 +65,12 @@ import java.io.InputStream;
 /**
  *  Implements a filter which disables the mark() feature of an input stream.
  *  Useful for when the stream is shared.
+ * 
+ * @since 2.6 This class is not used anywhere in the code and has been deprecated.
+ * It will be removed in the next release.
+ *
  **/
+@Deprecated
 public class MarkProhibitedFilterStream extends FilterInputStream {
     
     /**
