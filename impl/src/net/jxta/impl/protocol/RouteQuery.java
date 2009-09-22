@@ -69,18 +69,23 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.protocol.RouteQueryMsg;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * RouteQuery message used by the Endpoint Routing protocol to
  * query for route
  */
-public class RouteQuery extends RouteQueryMsg {
+public class RouteQuery  {
+
+	private PeerID destPID = null;
+    private RouteAdvertisement srcRoute = null;
+    private final Set<PeerID> badHops = new HashSet<PeerID>();
 
     private static final String destPIDTag = "Dst";
     private static final String srcRouteTag = "Src";
@@ -91,6 +96,92 @@ public class RouteQuery extends RouteQueryMsg {
      */
     public RouteQuery() {}
 
+    /**
+     * All messages have a type (in xml this is !doctype)
+     * which identifies the message
+     *
+     * @return String "jxta:ERQ"
+     */
+    public static String getAdvertisementType() {
+        return "jxta:ERQ";
+    }   
+    
+    /**
+     * set the destination PeerID we are searching a route for
+     *
+     * @param pid destination peerID
+     */
+    public void setDestPeerID(PeerID pid) {
+        destPID = pid;
+    }
+
+    /**
+     * returns the destination peer ID we are looking for
+     *
+     * @return pid PeerID of the route destination
+     */
+
+    public PeerID getDestPeerID() {
+        return destPID;
+    }
+
+    /**
+     * set the Route advertisement of the source peer that is originating
+     * the query
+     *
+     * @param route RouteAdvertisement of the source
+     */
+    public void setSrcRoute(RouteAdvertisement route) {
+        if(null == route.getDestPeerID()) {
+            throw new IllegalArgumentException("route lacks destination!");
+        }
+        
+        srcRoute = route.clone();
+    }
+
+    /**
+     * returns the route of the src peer that issued the routequery
+     *
+     * @return route RouteAdvertisement of the source peer
+     */
+    public RouteAdvertisement getSrcRoute() {
+        if(null == srcRoute) {
+            return null;
+        } else {
+            return srcRoute.clone();
+        }
+    }
+
+    /**
+     * Adds a bad hop to the list of those known to be bad for this route.
+     *
+     * @param badHop The known bad hop for the route.
+     */
+    public void addBadHop(PeerID badHop) {
+        badHops.add(badHop);
+    }
+
+    /**
+     * Set the bad hops known into that route
+     *
+     * @param hops RouteAdvertisement of the source
+     */
+    public void setBadHops(Collection<PeerID> hops) {
+        badHops.clear();
+        if (null != hops) {
+            badHops.addAll(hops);
+        }
+    }
+
+    /**
+     * returns the bad hops know to the route
+     *
+     * @return The known bad hops for the route
+     */
+    public Set<PeerID> getBadHops() {
+        return new HashSet<PeerID>(badHops);
+    }
+    
     /**
      * Construct from an XML document fragment.
      *
@@ -153,10 +244,6 @@ public class RouteQuery extends RouteQueryMsg {
         }        
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public StructuredDocument getDocument(MimeMediaType asMimeType) {
         if(null == getDestPeerID()) {
             throw new IllegalStateException("Destination peer not initialized");

@@ -59,7 +59,15 @@ package net.jxta.util;
 
 import java.awt.*;
 
+/**
+ * This class is not used anywhere in the code.
+ *
+ * @since 2.6 This class has been deprecated and will be removed from the code
+ * in the next release.
+ *
+ */
 
+@Deprecated
 public class AwtUtils {
 
     // It is recommended to invoke this method at least once before

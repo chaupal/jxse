@@ -71,7 +71,13 @@ import java.io.IOException;
  * @see net.jxta.codat.Codat
  * @see net.jxta.codat.CodatID
  * @see net.jxta.document.Document
+ *
+ * @since 2.6 The content of the {@code net.jxta.codat} package has been replaced
+ * by the {@code net.jxta.content}. Therefore, this class is deprecated and will be
+ * removed in a future release.
+ *
  */
+@Deprecated
 public class Metadata extends Codat {
 
     /**

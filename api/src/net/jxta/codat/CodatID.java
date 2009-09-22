@@ -76,7 +76,13 @@ import java.net.URI;
  *
  * @see net.jxta.codat.Codat
  * @see net.jxta.peergroup.PeerGroupID
+ *
+ * @since 2.6 The content of the {@code net.jxta.codat} package has been replaced
+ * by the {@code net.jxta.content}. Therefore, this class is deprecated and will be
+ * removed in a future release.
+ *
  */
+@Deprecated
 public abstract class CodatID extends ID {
 
     /**

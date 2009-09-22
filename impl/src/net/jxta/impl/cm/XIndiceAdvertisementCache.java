@@ -154,7 +154,6 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     /**
      * Constructor for cm
      *
-     * @param executor    The Executor we will use for executing tasks.
      * @param storeRoot   persistence location
      * @param areaName    storage area name
      * @param gcInterval  garbage collect max interval in milliseconds or &lt;= 0 to use default value.
@@ -215,9 +214,6 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             if (System.getProperty("net.jxta.impl.cm.index.rebuild") != null) {
                 rebuildIndex();
             }
-//            gcThread = new Thread(threadGroup, this, "CM GC Thread interval : " + gcMinInterval);
-//           gcThread.setDaemon(true);
-//            gcThread.start();
 
             // Install Record GC task.
             gcTime = TimeUtils.toAbsoluteTimeMillis(gcMaxInterval);

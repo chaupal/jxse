@@ -92,7 +92,12 @@ import java.util.Map;
  * rendezvous managers) but maybe generally useful.
  *
  * @author vasha
- */
+ *
+ * @since 2.6 This class is not used anywhere in the code and has been deprecated.
+ * It will be removed in the next release.
+ *
+ **/
+@Deprecated
 public class AdvCooker {
     
     /**

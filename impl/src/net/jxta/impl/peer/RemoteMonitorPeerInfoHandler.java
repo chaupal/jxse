@@ -110,7 +110,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     }
 
     public void stop() {
-        executor.shutdownNow();
+    	// Previously we shut down the executor here, now done via NetworkManager.stopNetwork();
     }
 
     private int getNextLeaseId() {

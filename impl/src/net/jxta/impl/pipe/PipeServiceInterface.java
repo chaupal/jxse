@@ -75,126 +75,128 @@ import java.util.Set;
  */
 class PipeServiceInterface implements PipeService {
 
-    PipeServiceImpl impl;
+	PipeServiceImpl impl;
 
-    /**
-     * The only authorized constructor.
-     * @param theRealThing the PipeService
-     */
-    public PipeServiceInterface(PipeServiceImpl theRealThing) {
-        impl = theRealThing;
-    }
+	/**
+	 * The only authorized constructor.
+	 * 
+	 * @param theRealThing
+	 *            the PipeService
+	 */
+	public PipeServiceInterface(PipeServiceImpl theRealThing) {
+		impl = theRealThing;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * Since THIS is already such an object, it returns itself.
-     * FIXME: it is kind of absurd to have this method part of the
-     * interface but we do not want to define two levels of Service interface
-     * just for that.
-     *
-     * @return ResolverService An interface object that implements
-     *         this service and nothing more.
-     */
-    public PipeService getInterface() {
-        return this;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * Since THIS is already such an object, it returns itself. FIXME: it is
+	 * kind of absurd to have this method part of the interface but we do not
+	 * want to define two levels of Service interface just for that.
+	 * 
+	 * @return ResolverService An interface object that implements this service
+	 *         and nothing more.
+	 */
+	public PipeService getInterface() {
+		return this;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public ModuleImplAdvertisement getImplAdvertisement() {
-        return impl.getImplAdvertisement();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public ModuleImplAdvertisement getImplAdvertisement() {
+		return impl.getImplAdvertisement();
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * FIXME: This is meaningless for the interface object;
-     * it is there only to satisfy the requirements of the
-     * interface that we implement. Ultimately, the API should define
-     * two levels of interfaces: one for the real service implementation
-     * and one for the interface object. Right now it feels a bit heavy
-     * to so that since the only different between the two would be
-     * init() and may-be getName().
-     */
-    public void init(PeerGroup pg, ID assignedID, Advertisement impl) {}
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * FIXME: This is meaningless for the interface object; it is there only to
+	 * satisfy the requirements of the interface that we implement. Ultimately,
+	 * the API should define two levels of interfaces: one for the real service
+	 * implementation and one for the interface object. Right now it feels a bit
+	 * heavy to so that since the only different between the two would be init()
+	 * and may-be getName().
+	 */
+	public void init(PeerGroup pg, ID assignedID, Advertisement impl) {
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This is here for temporary class hierarchy reasons.
-     * it is ALWAYS ignored. By definition, the interface object
-     * protects the real object's start/stop methods from being called
-     */
-    public int startApp(String[] arg) {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * This is here for temporary class hierarchy reasons. it is ALWAYS ignored.
+	 * By definition, the interface object protects the real object's start/stop
+	 * methods from being called
+	 */
+	public int startApp(String[] arg) {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This is here for temporary class hierarchy reasons.
-     * it is ALWAYS ignored. By definition, the interface object
-     * protects the real object's start/stop methods from being called
-     * <p/>
-     * This request is currently ignored.
-     */
-    public void stopApp() {}
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * This is here for temporary class hierarchy reasons. it is ALWAYS ignored.
+	 * By definition, the interface object protects the real object's start/stop
+	 * methods from being called
+	 * <p/>
+	 * This request is currently ignored.
+	 */
+	public void stopApp() {
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public InputPipe createInputPipe(PipeAdvertisement adv) throws IOException {
-        return impl.createInputPipe(adv);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public InputPipe createInputPipe(PipeAdvertisement adv) throws IOException {
+		return impl.createInputPipe(adv);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public InputPipe createInputPipe(PipeAdvertisement adv, PipeMsgListener listener) throws IOException {
-        return impl.createInputPipe(adv, listener);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public InputPipe createInputPipe(PipeAdvertisement adv,
+			PipeMsgListener listener) throws IOException {
+		return impl.createInputPipe(adv, listener);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public OutputPipe createOutputPipe(PipeAdvertisement pipeAdv, long timeout) throws IOException {
-        return impl.createOutputPipe(pipeAdv, timeout);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public OutputPipe createOutputPipe(PipeAdvertisement pipeAdv, long timeout)
+			throws IOException {
+		return impl.createOutputPipe(pipeAdv, timeout);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public OutputPipe createOutputPipe(PipeAdvertisement adv, Set<? extends ID> peers, long timeout) throws IOException {
-        return impl.createOutputPipe(adv, peers, timeout);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public OutputPipe createOutputPipe(PipeAdvertisement adv,
+			Set<? extends ID> peers, long timeout) throws IOException {
+		return impl.createOutputPipe(adv, peers, timeout);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public void createOutputPipe(PipeAdvertisement pipeAdv, OutputPipeListener listener) throws IOException {
-        impl.createOutputPipe(pipeAdv, listener);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public void createOutputPipe(PipeAdvertisement pipeAdv,
+			OutputPipeListener listener) throws IOException {
+		impl.createOutputPipe(pipeAdv, listener);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public void createOutputPipe(PipeAdvertisement adv, Set<? extends ID> peers, OutputPipeListener listener) throws IOException {
-        impl.createOutputPipe(adv, peers, listener);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public void createOutputPipe(PipeAdvertisement adv,
+			Set<? extends ID> peers, OutputPipeListener listener)
+			throws IOException {
+		impl.createOutputPipe(adv, peers, listener);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public OutputPipeListener removeOutputPipeListener(String pipeID, OutputPipeListener listener) {
-        return removeOutputPipeListener(ID.create(URI.create(pipeID)), listener);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public OutputPipeListener removeOutputPipeListener(ID pipeID, OutputPipeListener listener) {
-        return impl.removeOutputPipeListener(pipeID, listener);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public OutputPipeListener removeOutputPipeListener(ID pipeID,
+			OutputPipeListener listener) {
+		return impl.removeOutputPipeListener(pipeID, listener);
+	}
 }

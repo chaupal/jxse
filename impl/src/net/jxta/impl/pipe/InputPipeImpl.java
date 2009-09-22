@@ -158,7 +158,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      */
     public Message poll(int timeout) throws InterruptedException {
         if (listener == null) {
-            return (Message) queue.poll(timeout, TimeUnit.SECONDS);
+            return queue.poll(timeout, TimeUnit.SECONDS);
         } else {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.warning("poll() has no effect in listener mode.");

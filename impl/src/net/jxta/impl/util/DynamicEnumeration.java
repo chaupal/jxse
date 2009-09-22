@@ -75,7 +75,11 @@ import java.util.NoSuchElementException;
  *  and to add objects from a single thread is not recommended, as it may
  *  deadlock the thread.
  *
+ * @since 2.6 This class is not used anywhere and has been deprecated. It will be
+ * removed in the next release.
+ *
  **/
+@Deprecated
 public class DynamicEnumeration implements Enumeration {
     private List sequence = new ArrayList();
     

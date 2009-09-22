@@ -1303,11 +1303,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             parentGroup.unref();
             parentGroup = null;
         }
-
-        // shutdown the threadpool
-        threadPool.shutdownNow();
-        scheduledExecutor.shutdownNow();
-
+        // executors from TaskManager are now shutdown by the NetworkManager
         // No longer initialized.
         initComplete = false;
     }

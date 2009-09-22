@@ -67,9 +67,11 @@ import java.io.Reader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 import java.util.Set;
 import net.jxta.document.AdvertisementFactory;
@@ -77,6 +79,7 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
+import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 
@@ -313,8 +316,8 @@ public class TestRouteAdv extends TestCase {
         ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
-        addresses.add("TCP:123.123.123.123");
-        addresses.add("TCP:134.134.134.134");
+        addresses.add("TCP://123.123.123.123");
+        addresses.add("TCP://134.134.134.134");
         ap.setEndpointAddresses(addresses);
         
         // create the route
@@ -324,30 +327,30 @@ public class TestRouteAdv extends TestCase {
         route.setDest(ap);
         
         // add new addresses to the destination
-        Vector<String> newaddresses = new Vector<String>();
+        List<EndpointAddress> newaddresses = new ArrayList<EndpointAddress>();
 
-        newaddresses.add("TCP:222.123.123.123");
-        newaddresses.add("TCP:222.134.134.134");
+        newaddresses.add(new EndpointAddress("TCP://222.123.123.123"));
+        newaddresses.add(new EndpointAddress("TCP://222.134.134.134"));
         route.addDestEndpointAddresses(newaddresses);
-        addresses.add("TCP:222.123.123.123");
-        addresses.add("TCP:222.134.134.134");
+        addresses.add("TCP://222.123.123.123");
+        addresses.add("TCP://222.134.134.134");
         
         // verify advertisement
         Enumeration e1 = Collections.enumeration(addresses);
 
         for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
-            assertEquals(e.nextElement(), e1.nextElement());
+            assertEquals(e.nextElement().toString(), e1.nextElement().toString());
         }
         
         // test to remove access point
         route.removeDestEndpointAddresses(newaddresses);
-        addresses.remove("TCP:222.123.123.123");
-        addresses.remove("TCP:222.134.134.134");
+        addresses.remove("TCP://222.123.123.123");
+        addresses.remove("TCP://222.134.134.134");
         
         // verify advertisement
         e1 = Collections.enumeration(addresses);
         for (Enumeration e = route.getDest().getEndpointAddresses(); e.hasMoreElements();) {
-            assertEquals(e.nextElement(), e1.nextElement());
+            assertEquals(e.nextElement().toString(), e1.nextElement().toString());
         }
     }
     

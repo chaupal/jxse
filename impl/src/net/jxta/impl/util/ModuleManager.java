@@ -65,7 +65,6 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.TextElement;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
@@ -115,8 +114,13 @@ import java.util.Hashtable;
  *      // Start SampleModule
  *      moduleManager.startModule ("SampleModule", moduleArgs);
  * </pre>
+ *
+ * @since 2.6 Peergroups offer loadmodule() methods, making this class obsolete. It has been
+ * deprecated and will be removed in the next version.
+ * 
  */
 
+@Deprecated
 public class ModuleManager {
 
     private static Hashtable<PeerGroupID, ModuleManager> managers = null;

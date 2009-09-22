@@ -1,8 +1,6 @@
-**/AllTests.java
 **/Abstract*.java
 **/jxta/endpoint/TextDocumentMessageElementTest.java
 **/jxta/impl/access/**/*
-**/jxta/impl/cm/**/*
 **/jxta/impl/endpoint/**/*
 **/jxta/impl/id/**/*
 **/jxta/impl/membership/**/*

@@ -87,7 +87,7 @@ import net.jxta.test.util.FileSystemTest;
 public abstract class AbstractCmTest extends FileSystemTest {
 	
 	private static final int NO_THRESHOLD = Integer.MAX_VALUE;
-	protected String cacheImplClassName;
+    protected String cacheImplClassName;
 	protected AdvertisementCache wrappedCache;
     protected Cm cm;
 
@@ -205,6 +205,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     public void testGetLifetime() throws Exception {
     	fakeTimer.currentTime = 0;
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 50000, 100000);
+    	
     	assertEquals(50000L, cm.getLifetime("a", "b"));
     	fakeTimer.currentTime = 20000;
     	assertEquals(30000L, cm.getLifetime("a", "b"));
@@ -246,6 +247,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	cm.save("a", "b", data, 10000L, 20000L);
     	
     	InputStream inputStream = cm.getInputStream("a", "b");
+    	assertNotNull("Returned input stream was null", inputStream);
     	
     	for(int i=0; i < data.length; i++) {
     		assertEquals(data[i], inputStream.read());
@@ -259,7 +261,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	
     	assertNotNull(cm.getInputStream("a", "b"));
     	cm.remove("a", "b");
-    	assertNull(cm.getInputStream("a", "b"));
+    	assertNull("Returned input stream should be null", cm.getInputStream("a", "b"));
     	assertEquals(-1, cm.getLifetime("a", "b"));
     	assertEquals(-1, cm.getExpirationtime("a", "b"));
     	assertNull(cm.getInputStream("a", "b"));
@@ -374,11 +376,11 @@ public abstract class AbstractCmTest extends FileSystemTest {
     public void testSearch_withThreshold() throws IOException {
     	createTestData();
     	
-    	// search could return 4 results with this query, but we only want 2
+    	// search could return 6 results with this query, but we only want 2
     	List<InputStream> result = cm.search("a", "Name", "*", 2, null);
     	assertEquals(2, result.size());
     	
-    	// cannot predict which 2 of the 4 will be returned
+    	// cannot predict which 2 of the 6 will be returned
     	assertTrue("Subset of expected peers not found", containsXOf(extractNames(result), 2, "Peer1", "Peer2", "Peer3", "Peer4"));
     	
     	result = cm.search("a", "Name", "*", 3, null);
@@ -585,6 +587,8 @@ public abstract class AbstractCmTest extends FileSystemTest {
         
         assertNotNull(cm.getInputStream("a", "b"));
         assertNull(alternateArea.getInputStream("a", "b"));
+        
+        alternateArea.stop();
     }
     
     public void testRemoveIsolation_differentAreaNames() throws Exception {
@@ -594,29 +598,31 @@ public abstract class AbstractCmTest extends FileSystemTest {
         
         // item should still exist
         assertEquals(1, cm.getRecords("a", NO_THRESHOLD, null).size());
+        
+        alternateArea.stop();
     }
     
     public void testConstruct() throws IOException {
     	System.setProperty(Cm.CACHE_IMPL_SYSPROP, getCacheClassName());
-        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea");
+        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2");
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }
-    
+
     protected <T, U extends Collection<T>> void checkContains(U results, Comparator<T> comparator, T... expectedSet) {
-        for (T expected : expectedSet) {
-            assertTrue(expected + " not included in set", results.contains(expected));
-            if(comparator != null) {
-                boolean foundMatch = false;
-                for(T item : results) {
-                    if(comparator.compare(item, expected) == 0) {
-                        foundMatch = true;
-                        break;
-                    }
-                }
-                assertTrue("Did not find exact match using comparator for " + expected, foundMatch);
-            }
-        }
+		for (T expected : expectedSet) {
+			assertTrue(expected + " not included in set", results.contains(expected));
+			if(comparator != null) {
+			    boolean foundMatch = false;
+    			for(T item : results) {
+    			    if(comparator.compare(item, expected) == 0) {
+    			        foundMatch = true;
+    			        break;
+    			    }
+    			}
+    			assertTrue("Did not find exact match using comparator for " + expected, foundMatch);
+			}
+		}
     }
     
     protected <T, U extends Collection<T>> void checkContains(U results, T... expectedSet) {

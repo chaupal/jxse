@@ -208,7 +208,8 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
 
         try {
             routeAdvertisement = (RouteAdvertisement) super.clone();
-            routeAdvertisement.setDestEndpointAddresses(new Vector<String>());
+            //make sure  endpoint addresses are removed;
+            routeAdvertisement.removeDestEndpointAddresses(routeAdvertisement.getDestEndpointAddresses());
         } catch (CloneNotSupportedException impossible) {
             throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
         }
@@ -353,15 +354,13 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     }
 
     /**
-     * Returns the destination access point. <b>This does <i>NOT</i> copy
+     * Returns the destination access point. <b>This is a clone of
      * the AccessPointAdvertisement</b>.
      *
      * @return AccessPointAdvertisement of the destination peer.
-     * @deprecated Because this method unsafely exposes destination AccessPointAdvertisement it will be removed.
      */
-    @Deprecated
     public AccessPointAdvertisement getDest() {
-        return dest;
+        return dest.clone();
     }
 
     /**
@@ -387,21 +386,6 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         synchronized (this) {
             hashID = null;
         }
-    }
-
-    /**
-     * Add a new list of EndpointAddresses to the Route Destination access
-     * point
-     *
-     * @param addresses vector of endpoint addresses to add to the
-     *                  destination access point. Warning: The vector of endpoint addresses
-     *                  is specified as a vector of String. Each string representing
-     *                  one endpoint address.
-     * @deprecated Use {@link #addDestEndpointAddresses(List)} instead.
-     */
-    @Deprecated
-    public void addDestEndpointAddresses(Vector<String> addresses) {
-        dest.addEndpointAddresses(addresses);
     }
 
     /**
@@ -448,19 +432,6 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
     }
 
     /**
-     * Remove a list of EndpointAddresses from the Route Destination
-     * access point
-     *
-     * @param addresses vector of endpoint addresses to remove from the
-     *                  destination access point.
-     * @deprecated Use {@link #removeDestEndpointAddresses(Collection)}.
-     */
-    @Deprecated
-    public void removeDestEndpointAddresses(Vector<String> addresses) {
-        dest.removeEndpointAddresses(addresses);
-    }
-
-    /**
      * Returns the endpoint addresses of the destination peer in their
      * preferred order.
      *
@@ -476,18 +447,6 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         }
 
         return result;
-    }
-
-    /**
-     * Set the route destination endpoint addresses
-     *
-     * @param ea vector of endpoint addresses. Warning: The vector is not copied
-     *           and is used directly.
-     * @deprecated Use {@link #addDestEndpointAddress(EndpointAddress)} instead.
-     */
-    @Deprecated
-    public void setDestEndpointAddresses(Vector<String> ea) {
-        dest.setEndpointAddresses(ea);
     }
 
     /**

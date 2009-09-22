@@ -106,6 +106,11 @@ public class MimeMediaType implements Serializable {
 
     /**
      * A canonical map of Mime Media Types.
+     *
+     * @since 2.6 This map uses a feature called ConcurrentWeakHashMap which will only be
+     * part of Java 7. It should not be replaced with a call to Collection.synchronizedMap()
+     * in the mean time.
+     * 
      */
     private static final ConcurrentMap<MimeMediaType, MimeMediaType> interned = new ConcurrentWeakHashMap<MimeMediaType, MimeMediaType>();
 

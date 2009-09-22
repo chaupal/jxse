@@ -59,7 +59,6 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.protocol.RouteResponseMsg;
 
 import java.util.Enumeration;
 
@@ -94,10 +93,13 @@ import java.util.Enumeration;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-erp"
  *      target="_blank">JXTA Protocols Specification : Endpoint Routing Protocol</a>
  */
-public class RouteResponse extends RouteResponseMsg {
+public class RouteResponse{
 
     private static final String destRouteTag = "Dst";
     private static final String srcRouteTag = "Src";
+    
+    private RouteAdvertisement dstRoute = null;
+    private RouteAdvertisement srcRoute = null;
 
     /**
      * Construct a new Route Response Message
@@ -165,9 +167,60 @@ public class RouteResponse extends RouteResponseMsg {
     }
 
     /**
+     * All messages have a type (in xml this is !doctype)
+     * which identifies the message
+     * @return String "jxta:ERR"
+     */
+
+    public static String getAdvertisementType() {
+        return "jxta:ERR";
+    }
+
+    /**
+     * set the destination route we were looking for
+     *
+     * @param dst destination route
+     */
+ 
+    public void setDestRoute(RouteAdvertisement dst) {
+        dstRoute = dst;
+    }
+
+    /**
+     * returns the destination route we were looking for
+     *
+     * @return route destination route advertisement
+     */
+
+    public RouteAdvertisement getDestRoute() {
+        return  dstRoute;
+    }
+
+    /**
+     * Set the Route advertisement of the source peer that is originating
+     * the query
+     *
+     * @param route RouteAdvertisement of the source
+     */
+ 
+    public void setSrcRoute(RouteAdvertisement route) {
+        srcRoute = route;
+    }
+
+    /**
+     * Returns the route of the src peer that responded
+     *
+     * @return route RouteAdvertisement of the source peer
+     * that responded to the query
+     */
+
+    public RouteAdvertisement getSrcRoute() {
+        return  srcRoute;
+    }   
+    
+    /**
      * return a Document representation of this object
      */
-    @Override
     public Document getDocument(MimeMediaType asMimeType) {        
         if (null == getSrcRoute()) {
             throw new IllegalStateException("Missing source route.");
