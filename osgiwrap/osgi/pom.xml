@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <parent>
+    <artifactId>onedrum.jxta</artifactId>
+    <groupId>net.jxta</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <packaging>bundle</packaging>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.jxta</groupId>
+  <artifactId>osgi</artifactId>
+  <name>osgi</name>
+  <version>1.0-SNAPSHOT</version>
+  <url>http://maven.apache.org</url>
+  <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.4.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>net.jxta.osgi</Bundle-SymbolicName>
+						<Bundle-Version>${pom.version}</Bundle-Version>
+						<Export-Package>net.jxta.osgi.peergroup,net.jxta.osgi.platform,net.jxta.osgi.pipe</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+  <dependencies>
+  </dependencies>
+</project>
