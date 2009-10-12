@@ -10,6 +10,12 @@ import java.util.concurrent.TimeUnit;
  * Singleton manager for periodic, deferred and multi-threaded execution of tasks. The intention
  * of this class is to abstract away the details of how tasks will be executed, and specifics
  * of how many threads are used.
+ * <p>
+ * <em>NOTE</em>: This is <em>not</em> part of the stable API for JXTA, and should not be used
+ * by code which is not a core module of the JXTA-JXSE implementation. We anticipate that in
+ * future a similar mechanism to this will be adopted as the standard way of controlling the
+ * execution thread pools in JXTA, and may be later exposed to the outside world, but the
+ * details have not yet been adequately discussed.
  */
 public class TaskManager {
 	
