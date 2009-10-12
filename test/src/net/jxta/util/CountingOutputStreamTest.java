@@ -1,36 +1,45 @@
 package net.jxta.util;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jmock.Expectations;
-import org.jmock.integration.junit3.MockObjectTestCase;
-import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Before;
+import org.junit.Test;
 
-public class CountingOutputStreamTest extends MockObjectTestCase {
+public class CountingOutputStreamTest {
 
+    private FakeOutputStream underlying;
 	private CountingOutputStream stream;
 	
-	@Override
-	protected void setUp() throws Exception {
-		setImposteriser(ClassImposteriser.INSTANCE);
-		stream = new CountingOutputStream(new DevNullOutputStream());
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
+	    underlying = new FakeOutputStream();
+		stream = new CountingOutputStream(underlying);
 	}
 	
+	@Test
 	public void testInitiallyZeroBytesWritten() {
-		assertEquals(0L, stream.getBytesWritten());
+	    assertEquals(0L, stream.getBytesWritten());
 	}
 	
+	@Test
 	public void testWriteSingleByte() throws Exception {
 		stream.write(0);
 		assertEquals(1L, stream.getBytesWritten());
 	}
 	
+	@Test
 	public void testWriteMultipleBytes() throws Exception {
 		stream.write(new byte[1024]);
 		assertEquals(1024L, stream.getBytesWritten());
 	}
 	
+	@Test
 	public void testMultipleConsecutiveWriteCalls() throws Exception {
 		stream.write(0);
 		stream.write(new byte[100]);
@@ -38,6 +47,7 @@ public class CountingOutputStreamTest extends MockObjectTestCase {
 		assertEquals(102, stream.getBytesWritten());
 	}
 	
+	@Test
 	public void testWriteMillionsOfBytes() throws Exception {
 		byte[] megabyteArray = new byte[1024 * 1024];
 		
@@ -51,8 +61,6 @@ public class CountingOutputStreamTest extends MockObjectTestCase {
 		System.out.println("Time taken to write 1GB:" + (totalTimeTaken / 1000000.0) + "ms");
 	}
 	
-	
-	
 	/**
 	 * This test will fail in the pre-patch implementation of CountingOutputStream.
 	 * The original implementation was pushing all bytes through
@@ -60,29 +68,39 @@ public class CountingOutputStreamTest extends MockObjectTestCase {
 	 * that was appropriate. This was a significant and unnecessary performance
 	 * hit.
 	 */
+	@Test
 	public void testWriteByteArray_usesWriteByteArrayInWrappedStream() throws Exception {
-		final OutputStream mockedStream = mock(OutputStream.class);
 		final byte[] bytesToWrite = new byte[1024];
-		checking(new Expectations() {{
-			oneOf(mockedStream).write(bytesToWrite, 0, 1024);
-		}});
-		
-		stream = new CountingOutputStream(mockedStream);
 		stream.write(bytesToWrite);
+		
+		// there should be a single byte array, of size 1024
+		assertEquals(1, underlying.writtenBytes.size());
+		assertEquals(1024, underlying.writtenBytes.get(0).length);
 	}
 	
-	public void testWriteByteArray_passesCorrectParameters() throws Exception {
-		final OutputStream mockedStream = mock(OutputStream.class);
-		final byte[] bytesToWrite = new byte[1024];
-		checking(new Expectations() {{
-			oneOf(mockedStream).write(bytesToWrite, 0, 100);
-			oneOf(mockedStream).write(bytesToWrite, 100, 24);
-			oneOf(mockedStream).write(bytesToWrite, 124, 900);
-		}});
-		
-		stream = new CountingOutputStream(mockedStream);
-		stream.write(bytesToWrite, 0, 100);
-		stream.write(bytesToWrite, 100, 24);
-		stream.write(bytesToWrite, 124, 900);
+	private class FakeOutputStream extends OutputStream {
+
+	    private List<byte[]> writtenBytes = new LinkedList<byte[]>();
+	    
+        @Override
+        public void write(int b) throws IOException {
+            writtenBytes.add(new byte[] { (byte)b });
+        }
+        
+        @Override
+        public void write(byte[] b) throws IOException {
+            writtenBytes.add(b);
+        }
+        
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            if(off == 0 && len == b.length) {
+                write(b);
+            } else {
+                byte[] written = new byte[len];
+                System.arraycopy(b, off, written, 0, len);
+                writtenBytes.add(written);
+            }
+        }
 	}
 }
