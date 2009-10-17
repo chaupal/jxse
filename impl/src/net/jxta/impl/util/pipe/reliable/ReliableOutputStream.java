@@ -353,7 +353,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         super.close();
         localClosed = true;
-        closedAt = TimeUtils.toRelativeTimeMillis(lingerDelay);
+        closedAt = TimeUtils.toAbsoluteTimeMillis(lingerDelay);
         
         synchronized (retrQ) {
             retrQ.notifyAll();
