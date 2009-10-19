@@ -3,8 +3,10 @@ package net.jxta.impl.util.threads;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * Singleton manager for periodic, deferred and multi-threaded execution of tasks. The intention
@@ -19,6 +21,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class TaskManager {
 	
+    protected static final Logger LOG = Logger.getLogger(TaskManager.class.getName());
+    
 	static final String CORE_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.corePoolSize";
 	static final String MAX_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.maxPoolSize";
 	static final String QUEUE_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.queueSize";
@@ -33,6 +37,7 @@ public class TaskManager {
 	
 	private static SharedThreadPoolExecutor normalExecutor;
 	private static SharedScheduledThreadPoolExecutor scheduledExecutor;
+	private static ScheduledExecutorService monitoringExecutor;
 	
 	private static boolean started;
 	
@@ -56,8 +61,9 @@ public class TaskManager {
 		if(TaskManager.singleton == null) {
 			TaskManager.singleton = new TaskManager();
 			BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(getQueueSize());
-			normalExecutor = new SharedThreadPoolExecutor(getCorePoolSize(), getMaxPoolSize(), 60000, TimeUnit.SECONDS, workQueue);
-			scheduledExecutor = new SharedScheduledThreadPoolExecutor(getScheduledPoolSize());
+			monitoringExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("JxtaTaskMonitor"));
+			normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor, getCorePoolSize(), getMaxPoolSize(), 60, TimeUnit.SECONDS, workQueue, new NamedThreadFactory("JxtaWorker"));
+			scheduledExecutor = new SharedScheduledThreadPoolExecutor(monitoringExecutor, getScheduledPoolSize(), new NamedThreadFactory("JxtaScheduledWorker"));
 			started=true;
 		}
 		return TaskManager.singleton;
@@ -104,6 +110,7 @@ public class TaskManager {
 		}
 		normalExecutor.shutdownShared();
 		scheduledExecutor.shutdownShared();
+		monitoringExecutor.shutdownNow();
 		
 		started = false;
 	}
