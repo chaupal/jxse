@@ -427,6 +427,35 @@ public final class IPUtils {
      */
     final static int rangesize = 200;
 
+    public static List<InetSocketAddress> createRandomSocketAddressList(InetAddress bindAddress, int preferredPort, int minPort, int maxPort) {
+        
+        if (minPort < 1 || minPort > 65535) {
+            throw new IllegalArgumentException("Minimum port is outside legal range (1-65535). min=" + minPort);
+        }
+        
+        if(maxPort < minPort) {
+            throw new IllegalArgumentException("Maximum port is less than minimum port. max=" + maxPort + ", min=" + minPort);
+        }
+        
+        if(maxPort > 65535) {
+            throw new IllegalArgumentException("Maximum port is outside legal range (1-65535). max=" + maxPort);
+        }
+        
+        ArrayList<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>(maxPort - minPort);
+        addresses.add(new InetSocketAddress(bindAddress, preferredPort));
+        for(int port=minPort; port < maxPort; port++) {
+            if(port == preferredPort) {
+                continue;
+            }
+            
+            addresses.add(new InetSocketAddress(bindAddress, port));
+        }
+        
+        
+        Collections.shuffle(addresses.subList(1, addresses.size()));
+        return addresses;
+    }
+    
     /**
      * Open a ServerSocket in the specified range.
      * <p/>

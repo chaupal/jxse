@@ -1874,67 +1874,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     public Messenger getDirectMessenger(EndpointAddress address, Object hint, boolean exclusive) {
 
-        if (!exclusive) {
-            Reference<Messenger> reference = directMessengerMap.get(address);
-            if (reference != null) {
-                Messenger messenger = reference.get();
-                if (messenger != null && !messenger.isClosed()) {
-                    return messenger;
-                }
-            }
-        }
-
-        // We must have access to a TCP transport to create a direct messenger.
-        TcpTransport tcpTransport = (TcpTransport) getMessageTransport("tcp");
-
-        if ((tcpTransport != null) && (hint != null)) {
-            RouteAdvertisement route;
-            EndpointAddress direct;
-            Messenger messenger;
-            if (hint instanceof RouteAdvertisement) {
-                route = (RouteAdvertisement) hint;
-            } else if (hint instanceof PeerAdvertisement) {
-                route = EndpointUtils.extractRouteAdv((PeerAdvertisement) hint);
-            } else {
-                throw new IllegalArgumentException("Unknown route hint object type" + hint);
-            }
-            
-            for (EndpointAddress transportAddr : route.getDestEndpointAddresses()) {
-                if (transportAddr.getProtocolName().equals("tcp")) {                    
-                    direct = createDirectAddress(transportAddr, address);
-                    // direct messengers are non self destructive
-                    messenger = tcpTransport.getMessenger(direct, route, false);
-                    if (messenger != null) {
-                        if (!exclusive) {
-                            directMessengerMap.put(address, new WeakReference<Messenger>(messenger));
-                        }
-                        return messenger;
-                    }
-                }
-            }
-        }
-        
+        /* XXX: direct messengers are a hack, removing them here forces the JXTA code to go through
+         * the normal route selection process which also has it's own issues. The broader topic
+         * of prioritising transports needs more attention, in particular making it more configurable
+         * to suit the user's needs rather than just the general case.
+         */
         return null;
-    }
-
-    /**
-     * Given a transport address and service address, create a mangled endpoint address
-     *
-     * @param transportAddr   the transport messenger address
-     * @param serviceEndpoint the service endpoint
-     * @return an composite endpoint address
-     */
-    private EndpointAddress createDirectAddress(EndpointAddress transportAddr, EndpointAddress serviceEndpoint) {
-        //physical transport address
-        StringBuilder destStr = new StringBuilder(transportAddr.toString()).append("/");
-        // EndpointService
-        destStr.append(ENDPOINTSERVICE_NAME);
-        //Dest peergroup
-        destStr.append(":").append(group.getPeerGroupID().getUniqueValue().toString()).append("/");
-        //Service endpoint
-        destStr.append(serviceEndpoint.getServiceName()).append("/").append(serviceEndpoint.getServiceParameter());
-
-        //return new EndpointAddress(transportAddr, serviceEndpoint.getServiceName(), serviceEndpoint.getServiceParameter());
-        return new EndpointAddress(destStr.toString());
     }
 }

@@ -202,6 +202,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         
         <path id="compile.classpath">
             <fileset refid="lib.files" />
+            <pathelement location="${tools}/netty-3.1.5.GA.jar" />
             <pathelement location="${tools}/h2/h2-1.1.117.jar" />
             <pathelement location="${tools}/derby/derby-10.5.1.1.jar" />
         </path>
