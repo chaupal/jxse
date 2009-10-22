@@ -73,7 +73,6 @@ import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.Messenger;
 import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
@@ -981,7 +980,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                                 // we did not ask to get the adv back.
                                 // Make sure that we do not keep going with
                                 // an adv for the wrong peer. That can happen.
-                                if (relayAdv != null && !addr2pid(logicalAddress).equals(relayAdv.getDestPeerID())) {
+                                if (relayAdv != null && !RelayTransport.addr2pid(logicalAddress).equals(relayAdv.getDestPeerID())) {
                                     // oops, wrong guy !
                                     messenger.close();
                                     messenger = null;
@@ -1327,15 +1326,4 @@ public class RelayClient implements MessageReceiver, Runnable {
 
         return hops;        
     }
-        
-    // convert an endpointRouterAddress into a PeerID
-    private static PeerID addr2pid(EndpointAddress addr) {
-        try {
-            URI asURI = new URI(ID.URIEncodingName, ID.URNNamespace + ":" + addr.getProtocolAddress(), null);
-
-            return (PeerID) IDFactory.fromURI(asURI);
-        } catch (Exception ex) {
-            return null;
             }
-            }
-        }
