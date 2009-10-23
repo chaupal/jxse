@@ -61,7 +61,6 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -296,6 +295,7 @@ public final class Cm {
      * @deprecated use {@link XIndiceAdvertisementCache#getIndexQuery(java.lang.String) }
      * directly instead.
      */
+    @Deprecated
     public static IndexQuery getIndexQuery(String value) {
         return XIndiceAdvertisementCache.getIndexQuery(value);
     }
