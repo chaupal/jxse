@@ -608,6 +608,13 @@ public abstract class AbstractCmTest extends FileSystemTest {
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }
+    
+    public void testConstructWithGcIntervalAndTrackDeltasParams() throws IOException {
+        System.setProperty(Cm.CACHE_IMPL_SYSPROP, getCacheClassName());
+        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2", 30000, false);
+        assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
+        cmFromConstructor.stop();
+    }
 
     protected <T, U extends Collection<T>> void checkContains(U results, Comparator<T> comparator, T... expectedSet) {
 		for (T expected : expectedSet) {
