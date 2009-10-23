@@ -3,21 +3,16 @@ package net.jxta.impl.cm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.cm.SrdiIndex.Entry;
-import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
 
