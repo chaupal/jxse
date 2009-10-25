@@ -203,7 +203,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         <path id="compile.classpath">
             <fileset refid="lib.files" />
             <pathelement location="${tools}/netty-3.1.5.GA.jar" />
-            <pathelement location="${tools}/h2/h2-1.1.117.jar" />
+            <pathelement location="${tools}/h2/h2-1.1.118.jar" />
             <pathelement location="${tools}/derby/derby-10.5.1.1.jar" />
         </path>
         
@@ -306,20 +306,39 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
 	
 	<!-- This target requires java6 and ant 1.7, minimally, to set the condition -->
 	<target name="getjvm">
-		<condition property="jvm.is.6">
-			<equals arg1="${ant.java.version}" arg2="1.6" />
+		<condition property="jvm.is.6plus">
+			<or>
+				<equals arg1="${ant.java.version}" arg2="1.6" />
+				<equals arg1="${ant.java.version}" arg2="1.7" />
+			</or>
 		</condition>
 	</target>
+	
+	<target name="patchme-java5" unless="jvm.is.6plus">
+		<replace file="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java" >
+			<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+			<replacevalue><![CDATA[Collection<Callable<T>>]]></replacevalue>
+        </replace>
+	</target>
+	
+	<target name="patchme-java6plus" if="jvm.is.6plus">
+		<replace file="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java" >
+            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+            <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
+        </replace>
+	</target>
+	
 	<!-- 
 	If running java6, then we can patch ProxiedScheduledExecutor appropriately...
 	This is adapted directly from Apache Geronimo and discussed on the jxta-dev
 	mailing list 
 	-->
-    <target name="patchme" depends="getjvm" if="jvm.is.6">
-        <replace dir="${impl}/net/jxta/impl/util/threads" >
-            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
-            <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
-        </replace>
+    <target name="patchme" depends="getjvm">
+    	<copy file="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.template"
+    	      tofile="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java"
+    		  failonerror="true"/>
+    	<antcall target="patchme-java5"/>
+        <antcall target="patchme-java6plus"/>
 	</target>
     	
     <target name="-compile" depends="-prepare, -meterConfig, patchme" description="Compile the API and Implementation">   
