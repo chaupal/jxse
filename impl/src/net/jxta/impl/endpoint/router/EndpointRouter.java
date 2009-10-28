@@ -186,7 +186,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     private PeerGroup group = null;
 
     private ID assignedID = null;
-    
+
     /**
      * If {@code true} this service has been closed.
      */
@@ -424,7 +424,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 if (event != null) {
                     messenger = event.getMessenger();
                     if (null != messenger) {
-                        if(!logDest.equals(messenger.getLogicalDestinationAddress())) {
+                        if (!logDest.equals(messenger.getLogicalDestinationAddress())) {
                             // Ooops, wrong number !
                             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                                 LOG.warning("Incorrect Messenger logical destination : " + logDest + "!=" + messenger.getLogicalDestinationAddress());
@@ -818,7 +818,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      */
     public synchronized void stopApp() {
         stopped = true;
-        
+
         if (endpoint != null) {
             endpoint.removeIncomingMessageListener(ROUTER_SERVICE_NAME, null);
             endpoint.removeMessengerEventListener(this, EndpointService.MediumPrecedence);
@@ -832,7 +832,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         routeResolver.stopApp();
 
         destinations.close();
-        
+
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info(group + " : Router Message Transport stopped.");
         }
@@ -918,7 +918,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             // to give a chance for the async messenger to respond (success or failure)
             long findRouteAt = TimeUtils.toAbsoluteTimeMillis(ASYNC_MESSENGER_WAIT);
 
-            EndpointAddress addr;
+            EndpointAddress addr = null;
 
             while (TimeUtils.toRelativeTimeMillis(quitAt) > 0) {
                 // Then check if by any chance we can talk to it directly.
@@ -937,36 +937,22 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
 
                 if (hint != null) {
                     route = hint;
-                } else {
-                    route = getRoute(peerAddress, seekRoute);
+                    addr = extractUsableAddress(peerAddress, route);
+                    if(addr != null){
+                        return addr;
+                    }
                 }
 
+                // the hint that we got was useless or we did not get any hint
+                route = getRoute(peerAddress, seekRoute);
                 if (route != null && route.size() > 0) {
-                    addr = pid2addr(route.getLastHop().getPeerID());
-                    if (ensureLocalRoute(addr, null) != null) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Found last hop remote address: " + peerAddress + " -> " + route.getLastHop().getPeerID());
-                        }
-
-                        // Ensure local route removes negative cache info about
-                        // addr. We also need to remove that about peerAddress.
+                    addr = extractUsableAddress(peerAddress, route);
+                    if (addr != null) {
                         return addr;
-                    } else { // need to try the first hop
-                        addr = pid2addr(route.getFirstHop().getPeerID());
-
-                        if (ensureLocalRoute(addr, null) != null) {
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("Found first hop remote address first hop: " + peerAddress + " -> "
-                                          + route.getFirstHop().getPeerID());
-                            }
-
-                            // Ensure local route removes negative cache info about addr.
-                            return addr;
-                        } else {
-                            removeRoute(peerID);
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("Found no reachable route to " + peerAddress);
-                            }
+                    } else {
+                        removeRoute(peerID);
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                            LOG.fine("Found no reachable route to " + peerAddress);
                         }
                     }
                 }
@@ -1073,6 +1059,36 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             }
             return null;
         }
+    }
+
+    private EndpointAddress extractUsableAddress(EndpointAddress peerAddress, RouteAdvertisement route) {
+        EndpointAddress addr = null;
+        if (route != null && route.size() > 0) {
+            addr = pid2addr(route.getLastHop().getPeerID());
+            if (ensureLocalRoute(addr, null) != null) {
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Found last hop remote address: " + peerAddress + " -> " + route.getLastHop().getPeerID());
+                }
+
+                // Ensure local route removes negative cache info about
+                // addr. We also need to remove that about peerAddress.
+            } else { // need to try the first hop
+                addr = pid2addr(route.getFirstHop().getPeerID());
+
+                if (ensureLocalRoute(addr, null) != null) {
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Found first hop remote address first hop: " + peerAddress + " -> "
+                                + route.getFirstHop().getPeerID());
+                    }
+
+                    // Ensure local route removes negative cache info about addr.
+                } else {
+                    // nullify the result - we did not find anythig usable
+                    addr = null;
+                }
+            }
+        }
+        return addr;
     }
 
     /**
@@ -2251,7 +2267,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
         RouteAdvertisement routeHint = null;
         EndpointAddress plainAddr = new EndpointAddress(addr, null, null);
-        
+
         // If the dest is the local peer, just loop it back without going
         // through the router.
         if (plainAddr.equals(localPeerAddr)) {
