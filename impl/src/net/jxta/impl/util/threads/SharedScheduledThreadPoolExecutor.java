@@ -46,40 +46,40 @@ public class SharedScheduledThreadPoolExecutor extends ScheduledThreadPoolExecut
 	
 	@Override
 	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
-	    return super.schedule(new RunMetricsWrapper<V>(longTaskMonitorExecutor, callable), delay, unit);
+	    return super.schedule((Callable<V>)new RunMetricsWrapper<V>(longTaskMonitorExecutor, callable), delay, unit);
 	}
 	
 	@Override
 	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-	    return super.schedule((Runnable)new RunnableRunMetricsWrapper(longTaskMonitorExecutor, command), delay, unit);
+	    return super.schedule((Runnable)new RunMetricsWrapper<Void>(longTaskMonitorExecutor, command), delay, unit);
 	}
 	
 	@Override
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-	    return super.scheduleAtFixedRate((Runnable)new RunnableRunMetricsWrapper(longTaskMonitorExecutor, command), initialDelay, period, unit);
+	    return super.scheduleAtFixedRate((Runnable)new RunMetricsWrapper<Void>(longTaskMonitorExecutor, command), initialDelay, period, unit);
 	}
 	
 	@Override
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-	    return super.scheduleWithFixedDelay((Runnable)new RunnableRunMetricsWrapper(longTaskMonitorExecutor, command), initialDelay, delay, unit);
+	    return super.scheduleWithFixedDelay((Runnable)new RunMetricsWrapper<Void>(longTaskMonitorExecutor, command), initialDelay, delay, unit);
 	}
 	
 	@Override
 	public <T> Future<T> submit(Callable<T> task) {
-	    return super.submit(new RunMetricsWrapper<T>(longTaskMonitorExecutor, task));
+	    return super.submit((Callable<T>)new RunMetricsWrapper<T>(longTaskMonitorExecutor, task));
 	}
 	
 	@Override
 	public Future<?> submit(Runnable task) {
-	    return super.submit((Runnable)new RunnableRunMetricsWrapper(longTaskMonitorExecutor, task));
+	    return super.submit((Runnable)new RunMetricsWrapper<Void>(longTaskMonitorExecutor, task));
 	}
 	
 	public <T extends Object> java.util.concurrent.Future<T> submit(Runnable task, T result) {
-	    return super.submit((Runnable)new RunnableRunMetricsWrapper(longTaskMonitorExecutor, task), result);
+	    return super.submit((Runnable)new RunMetricsWrapper<Void>(longTaskMonitorExecutor, task), result);
 	};
 	
 	@Override
 	public void execute(Runnable command) {
-	    super.execute((Runnable)new RunnableRunMetricsWrapper(longTaskMonitorExecutor, command));
+	    super.execute((Runnable)new RunMetricsWrapper<Void>(longTaskMonitorExecutor, command));
 	}
 }

@@ -19,26 +19,27 @@ import net.jxta.logging.Logging;
  * 
  * @author iain.mcginniss@onedrum.com
  */
-class RunMetricsWrapper<T> implements Callable<T> {
-
+class RunMetricsWrapper<T> implements Callable<T>, Runnable {
+	
     private Callable<T> wrappedRunnable;
     Thread executorThread;
-    private long scheduleTime;
+    
     private long startTime;
     private ScheduledExecutorService longTaskMonitor;
+    private String wrappedType;
     
     public RunMetricsWrapper(ScheduledExecutorService longTaskMonitor, Callable<T> wrapped) {
         this.wrappedRunnable = wrapped;
-        this.scheduleTime = System.currentTimeMillis();
         this.longTaskMonitor = longTaskMonitor;
+        this.wrappedType = wrapped.getClass().getName();
+    }
+    
+    public RunMetricsWrapper(ScheduledExecutorService longTaskMonitor, Runnable wrapped) {
+    	this(longTaskMonitor, new RunnableAsCallableWrapper<T>(wrapped));
+    	this.wrappedType = wrapped.getClass().getName();
     }
     
     public T call() throws Exception {
-        long queuedTime = System.currentTimeMillis() - scheduleTime;
-        if(queuedTime > 2000 && Logging.SHOW_WARNING && SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
-            SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [{0}] queued for {1}ms!", new Object[] { wrappedRunnable.getClass(), queuedTime });
-        }
-        
         executorThread = Thread.currentThread();
         ScheduledFuture<?> future = longTaskMonitor.scheduleAtFixedRate(new LongTaskDetector(this), 1L, 5L, TimeUnit.SECONDS);
 
@@ -60,7 +61,7 @@ class RunMetricsWrapper<T> implements Callable<T> {
     }
 
     public String getWrappedType() {
-        return wrappedRunnable.getClass().getName();
+        return wrappedType;
     }
 
     public Object getExecutorThreadName() {
@@ -82,5 +83,13 @@ class RunMetricsWrapper<T> implements Callable<T> {
     @Override
     public int hashCode() {
         return wrappedRunnable.hashCode();
+    }
+    
+    public void run() {
+    	try {
+			call();
+		} catch (Exception e) {
+			
+		}
     }
 }

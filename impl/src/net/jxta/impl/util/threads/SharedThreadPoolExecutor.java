@@ -56,21 +56,20 @@ public class SharedThreadPoolExecutor extends ThreadPoolExecutor {
 	
 	@Override
 	public void execute(Runnable command) {
-	    RunnableRunMetricsWrapper wrapper = new RunnableRunMetricsWrapper(longTaskMonitorService, command);
-	    super.execute(wrapper);
+	    super.execute(new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, command));
 	}
 	
 	@Override
 	public <T> Future<T> submit(Callable<T> task) {
-	    return super.submit(new RunMetricsWrapper<T>(longTaskMonitorService, task));
+	    return super.submit((Callable<T>)new QueueTimeRunMetricsWrapper<T>(longTaskMonitorService, task));
 	}
 	
 	@Override
 	public Future<?> submit(Runnable task) {
-	    return super.submit((Runnable)new RunnableRunMetricsWrapper(longTaskMonitorService, task));
+	    return super.submit((Runnable)new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, task));
 	}
 	
 	public <T extends Object> java.util.concurrent.Future<T> submit(Runnable task, T result) {
-	    return super.submit(new RunnableRunMetricsWrapper(longTaskMonitorService, task), result);
+	    return super.submit((Runnable)new QueueTimeRunMetricsWrapper<Void>(longTaskMonitorService, task), result);
 	};
 }
