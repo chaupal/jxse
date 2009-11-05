@@ -204,8 +204,10 @@ public class EventAggregator implements ContentProviderListener {
 
         ContentProviderEvent aggEvent;
         if (needsNewEvent) {
-            aggEvent = new ContentProviderEvent(
-                    provider, id, shares, isLastRecord);
+            aggEvent = new ContentProviderEvent.Builder(provider, shares)
+                    .contentID(id)
+                    .lastRecord(isLastRecord)
+                    .build();
         } else {
             aggEvent = event;
         }

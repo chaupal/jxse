@@ -320,8 +320,10 @@ public class TransferAggregator
         ContentTransferEvent toFire = null;
         synchronized(this) {
             if (content != null) {
-                toFire = new ContentTransferEvent(
-                        this, null, locationState, transferState);
+                toFire = new ContentTransferEvent.Builder(this)
+                        .locationState(locationState)
+                        .transferState(transferState)
+                        .build();
             }
         }
         ctListeners.add(listener);
@@ -558,8 +560,10 @@ public class TransferAggregator
                         LOG.finer("    Is   : " + locationState);
                         LOG.finer("    Cause: " + state);
                     }
-                    toFire = new ContentTransferEvent(
-                            this, locationCount, locationState, null);
+                    toFire = new ContentTransferEvent.Builder(this)
+                            .locationCount(locationCount)
+                            .locationState(locationState)
+                            .build();
                 }
             }
         }
@@ -629,8 +633,10 @@ public class TransferAggregator
                             }
                             
                             transferState = COMPLETED;
-                            toFire = new ContentTransferEvent(
-                                    this, null, locationState, transferState);
+                            toFire = new ContentTransferEvent.Builder(this)
+                                    .locationState(locationState)
+                                    .transferState(transferState)
+                                    .build();
                             notifyAll();
                         }
                     }
@@ -709,8 +715,10 @@ public class TransferAggregator
                      */
                     if (state.isRetrieving()) {
                         transferState = state;
-                        toFire = new ContentTransferEvent(
-                                this, null, locationState, transferState);
+                        toFire = new ContentTransferEvent.Builder(this)
+                                .locationState(locationState)
+                                .transferState(transferState)
+                                .build();
                     }
                 }
             }
@@ -737,8 +745,10 @@ public class TransferAggregator
                 synchronized(this) {
                     failureCause = transx;
                     transferState = FAILED;
-                    toFire = new ContentTransferEvent(
-                            this, null, locationState, transferState);
+                    toFire = new ContentTransferEvent.Builder(this)
+                            .locationState(locationState)
+                            .transferState(transferState)
+                            .build();
                     notifyAll();
                 }
             }
@@ -1038,8 +1048,9 @@ public class TransferAggregator
         for (ContentTransferAggregatorListener listener : ctaListeners) {
             try {
                 if (event == null) {
-                    event = new ContentTransferAggregatorEvent(
-                            this, newSelected);
+                    event = new ContentTransferAggregatorEvent.Builder(this)
+                            .contentTransfer(newSelected)
+                            .build();
                 }
                 listener.selectedContentTransfer(event);
             } catch (Throwable t) {

@@ -476,7 +476,9 @@ public class SRDISocketContentProvider
         }
 
         listener.contentSharesFound(
-                new ContentProviderEvent(this, null, shareList, true));
+                new ContentProviderEvent.Builder(this, shareList)
+                    .lastRecord(true)
+                    .build());
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -660,7 +662,8 @@ public class SRDISocketContentProvider
         ContentProviderEvent event = null;
         for (ContentProviderListener listener : listeners) {
             if (event == null) {
-                event = new ContentProviderEvent(this, shares);
+                event = new ContentProviderEvent.Builder(this, shares)
+                        .build();
             }
             listener.contentShared(event);
         }
@@ -677,7 +680,8 @@ public class SRDISocketContentProvider
         ContentProviderEvent event = null;
         for (ContentProviderListener listener : listeners) {
             if (event == null) {
-                event = new ContentProviderEvent(this, contentID);
+                event = new ContentProviderEvent.Builder(this, contentID)
+                        .build();
             }
             listener.contentUnshared(event);
         }

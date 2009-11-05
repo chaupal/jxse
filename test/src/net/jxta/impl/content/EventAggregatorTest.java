@@ -116,16 +116,25 @@ public class EventAggregatorTest {
         share = context.mock(ContentShare.class);
         shares.clear();
         shares.add(share);
+        
+        context.checking(new Expectations() {{
+            ignoring(share);
+        }});
 
         PeerGroupID peerGroupID = IDFactory.newPeerGroupID();
         contentID = IDFactory.newContentID(peerGroupID, true);
 
         cpEventShared =
-                new ContentProviderEvent(provider, contentID);
+                new ContentProviderEvent.Builder(provider, contentID)
+                .build();
         cpEventUnshared =
-                new ContentProviderEvent(provider, shares);
+                new ContentProviderEvent.Builder(provider, shares)
+                .build();
         cpEventFound =
-                new ContentProviderEvent(provider, contentID, shares, false);
+                new ContentProviderEvent.Builder(provider, shares)
+                .contentID(contentID)
+                .lastRecord(false)
+                .build();
     }
 
     @After

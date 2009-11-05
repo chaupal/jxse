@@ -59,6 +59,7 @@ package net.jxta.impl.content.srdisocket;
 import java.net.SocketAddress;
 import net.jxta.content.Content;
 import net.jxta.content.ContentShareEvent;
+import net.jxta.content.ContentShareEvent.Builder;
 import net.jxta.content.ContentShareListener;
 import net.jxta.id.ID;
 import net.jxta.protocol.ContentAdvertisement;
@@ -100,6 +101,8 @@ public class SRDIContentShare extends AbstractPipeContentShare<
     /**
      * Notify all listeners of this object of a new session being
      * created.
+     * 
+     * @param session session being opened
      */
     protected void fireShareSessionOpened(SocketAddress session) {
         ContentShareEvent event = null;
@@ -114,6 +117,8 @@ public class SRDIContentShare extends AbstractPipeContentShare<
     /**
      * Notify all listeners of this object of an idle session being
      * garbage collected.
+     * 
+     * @param session session being closed
      */
     protected void fireShareSessionClosed(SocketAddress session) {
         ContentShareEvent event = null;
@@ -128,6 +133,8 @@ public class SRDIContentShare extends AbstractPipeContentShare<
     /**
      * Notify all listeners of this object that the share is being
      * accessed.
+     * 
+     * @param session session being accessed
      */
     protected void fireShareSessionAccessed(SocketAddress session) {
         ContentShareEvent event = null;
@@ -150,17 +157,17 @@ public class SRDIContentShare extends AbstractPipeContentShare<
      * @return event object
      */
     private ContentShareEvent createEvent(SocketAddress session) {
-        ContentShareEvent result =  new ContentShareEvent(this, session);
+        Builder result =  new Builder(this, session);
         
         // Name the remote peer by it's pipe ID
         if (session instanceof JxtaSocketAddress) {
             JxtaSocketAddress jxtaAddr = (JxtaSocketAddress) session;
             PipeAdvertisement pipeAdv = jxtaAddr.getPipeAdv();
             ID pipeID = pipeAdv.getPipeID();
-            result.setRemoteName(pipeID.toString());
+            result.remoteName(pipeID.toString());
         }
         
-        return  result;
+        return result.build();
     }
 
 }

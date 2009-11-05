@@ -710,8 +710,8 @@ href="bcprov-ext.jnlp">
        
         <junit
             printsummary="on"
-            haltonerror="no"
-            haltonfailure="no"
+            haltonerror="yes"
+            haltonfailure="yes"
             fork="yes"
             forkmode="once"
             showoutput="${test_junit_output}"

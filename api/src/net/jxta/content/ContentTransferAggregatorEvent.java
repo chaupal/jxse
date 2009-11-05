@@ -65,27 +65,54 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
     /**
      * Delegate ContentTransfer instance.
      */
-    private ContentTransfer delegate;
-
+    private final ContentTransfer delegate;
+    
     /**
-     * Creates a new instance of ContentTransferEvent.
-     *
-     * @param source ContentTransfer issueing this event
+     * Builder pattern.
      */
-    public ContentTransferAggregatorEvent(ContentTransferAggregator source) {
-        this(source, null);
+    public static class Builder extends ContentTransferEvent.Builder {
+        // Optional parameters:
+        private ContentTransfer bDelegate;
+        
+        /**
+         * Creates a new event builder instance.
+         * 
+         * @param source event source
+         */
+        public Builder(final ContentTransferAggregator source) {
+            super(source);
+        }
+        
+        /**
+         * Sets the ContentTransfer which is the subject of the event.
+         * 
+         * @param value ContentTransfer to which this event pertains
+         * @return builder instance
+         */
+        public Builder contentTransfer(final ContentTransfer value) {
+            bDelegate = value;
+            return this;
+        }
+        
+        /**
+         * Build the event instance.
+         * 
+         * @return event instance
+         */
+        @Override
+        public ContentTransferAggregatorEvent build() {
+            return new ContentTransferAggregatorEvent(this);
+        }
     }
 
     /**
      * Creates a new instance of ContentTransferAggregatorEvent.
      *
-     * @param source ContentTransferAggregator issueing this event
-     * @param contentTransfer ContentTransfer to which this event pertains
+     * @param builder builder instance
      */
-    public ContentTransferAggregatorEvent(
-            ContentTransferAggregator source, ContentTransfer contentTransfer) {
-        super(source);
-        delegate = contentTransfer;
+    public ContentTransferAggregatorEvent(final Builder builder) {
+        super(builder);
+        delegate = builder.bDelegate;
     }
 
     /**
@@ -106,7 +133,6 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
         return delegate;
     }
 
-    
     /**
      * {@inheritDoc}
      */
