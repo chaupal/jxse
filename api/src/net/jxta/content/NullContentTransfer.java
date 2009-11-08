@@ -99,9 +99,13 @@ public class NullContentTransfer implements ContentTransfer {
      */
     public void addContentTransferListener(ContentTransferListener listener) {
         // Immediately notify of completion
-        ContentTransferEvent event = new ContentTransferEvent(this, 1,
-                ContentSourceLocationState.NOT_LOCATING_HAS_ENOUGH,
-                ContentTransferState.COMPLETED);
+        ContentTransferEvent event =
+                new ContentTransferEvent.Builder(this)
+                    .locationCount(1)
+                    .locationState(
+                        ContentSourceLocationState.NOT_LOCATING_HAS_ENOUGH)
+                    .transferState(ContentTransferState.COMPLETED)
+                    .build();
         listener.contentTransferStateUpdated(event);
     }
 
@@ -204,10 +208,11 @@ public class NullContentTransfer implements ContentTransfer {
     /**
      * {@inheritDoc}
      *
-     * Returns the content used during construction of this object for this
+     * @return the content used during construction of this object for this
      * implementation.
      */
     public Content getContent() {
         return content;
     }
+    
 }

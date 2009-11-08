@@ -995,8 +995,11 @@ public abstract class AbstractContentTransfer
      */
     private ContentTransferEvent createTransferEvent() {
         synchronized(lockObject) {
-            return new ContentTransferEvent(this, allSources.size(),
-                    locationState, transferState);
+            return new ContentTransferEvent.Builder(this)
+                    .locationCount(allSources.size())
+                    .locationState(locationState)
+                    .transferState(transferState)
+                    .build();
         }
     }
 

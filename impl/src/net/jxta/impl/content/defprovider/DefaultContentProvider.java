@@ -200,9 +200,9 @@ public class DefaultContentProvider implements
     private static final ModuleSpecID specID;
     
     // Initialized at construction
-    private Map<ID, DefaultContentShare> shares =
+    private final Map<ID, DefaultContentShare> shares =
             new HashMap<ID, DefaultContentShare>();
-    private CopyOnWriteArrayList<ContentProviderListener> listeners =
+    private final CopyOnWriteArrayList<ContentProviderListener> listeners =
             new CopyOnWriteArrayList<ContentProviderListener>();
     private final Queue<PipeMsgEvent> msgQueue =
             new ArrayBlockingQueue<PipeMsgEvent>(MAX_QUEUE_SIZE);
@@ -543,7 +543,9 @@ public class DefaultContentProvider implements
         }
 
         listener.contentSharesFound(
-                new ContentProviderEvent(this, null, shareList, true));
+                new ContentProviderEvent.Builder(this, shareList)
+                    .lastRecord(true)
+                    .build());
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -794,7 +796,8 @@ public class DefaultContentProvider implements
         ContentProviderEvent event = null;
         for (ContentProviderListener listener : listeners) {
             if (event == null) {
-                event = new ContentProviderEvent(this, shares);
+                event = new ContentProviderEvent.Builder(this, shares)
+                        .build();
             }
             listener.contentShared(event);
         }
@@ -811,7 +814,8 @@ public class DefaultContentProvider implements
         ContentProviderEvent event = null;
         for (ContentProviderListener listener : listeners) {
             if (event == null) {
-                event = new ContentProviderEvent(this, contentID);
+                event = new ContentProviderEvent.Builder(this, contentID)
+                        .build();
             }
             listener.contentUnshared(event);
         }

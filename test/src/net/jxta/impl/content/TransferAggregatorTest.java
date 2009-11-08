@@ -354,9 +354,12 @@ public class TransferAggregatorTest {
     @Test
     public void testSelectedLocationStateHasEnough() throws Exception {
         testStartSourceLocation();
-        final ContentTransferEvent ctEvent = new ContentTransferEvent(
-                selected, 100, ContentSourceLocationState.LOCATING_HAS_ENOUGH,
-                ContentTransferState.PENDING);
+        final ContentTransferEvent ctEvent =
+                new ContentTransferEvent.Builder(selected)
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING_HAS_ENOUGH)
+                .transferState(ContentTransferState.PENDING)
+                .build();
 
         context.checking(new Expectations() {{
             one(listener).contentLocationStateUpdated(
@@ -374,9 +377,12 @@ public class TransferAggregatorTest {
     @Test
     public void testSelectedLocationStateHasMany() throws Exception {
         testStartSourceLocation();
-        final ContentTransferEvent ctEvent = new ContentTransferEvent(
-                selected, 100, ContentSourceLocationState.LOCATING_HAS_MANY,
-                ContentTransferState.PENDING);
+        final ContentTransferEvent ctEvent =
+                new ContentTransferEvent.Builder(selected)
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING_HAS_MANY)
+                .transferState(ContentTransferState.PENDING)
+                .build();
 
         context.checking(new Expectations() {{
             one(listener).contentLocationStateUpdated(
@@ -394,9 +400,12 @@ public class TransferAggregatorTest {
     @Test
     public void testStandbyLocationStateHasEnough() throws Exception {
         testStartSourceLocation();
-        final ContentTransferEvent ctEvent = new ContentTransferEvent(
-                standby, 100, ContentSourceLocationState.LOCATING_HAS_ENOUGH,
-                ContentTransferState.PENDING);
+        final ContentTransferEvent ctEvent =
+                new ContentTransferEvent.Builder(standby)
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING_HAS_ENOUGH)
+                .transferState(ContentTransferState.PENDING)
+                .build();
 
         context.checking(new Expectations() {{
             one(standby).getSourceLocationState();
@@ -412,9 +421,12 @@ public class TransferAggregatorTest {
     @Test
     public void testStandbyLocationStateHasMany() throws Exception {
         testStartSourceLocation();
-        final ContentTransferEvent ctEvent = new ContentTransferEvent(
-                standby, 100, ContentSourceLocationState.LOCATING_HAS_MANY,
-                ContentTransferState.PENDING);
+        final ContentTransferEvent ctEvent =
+                new ContentTransferEvent.Builder(standby)
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING_HAS_MANY)
+                .transferState(ContentTransferState.PENDING)
+                .build();
 
         context.checking(new Expectations() {{
             one(standby).getSourceLocationState();
@@ -430,9 +442,12 @@ public class TransferAggregatorTest {
     @Test
     public void testStandbyTransferCompletion() throws Exception {
         testStartSourceLocation();
-        final ContentTransferEvent ctEvent = new ContentTransferEvent(
-                standby, 100, ContentSourceLocationState.LOCATING_HAS_MANY,
-                ContentTransferState.COMPLETED);
+        final ContentTransferEvent ctEvent =
+                new ContentTransferEvent.Builder(standby)
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING_HAS_MANY)
+                .transferState(ContentTransferState.COMPLETED)
+                .build();
 
         context.checking(new Expectations() {{
             // Ignore everything except selected and standby
@@ -486,13 +501,19 @@ public class TransferAggregatorTest {
     public void testDontReturnToPending() throws Exception {
         testStartSourceLocation();
         
-        final ContentTransferEvent failedEvent = new ContentTransferEvent(
-                selected, 100, ContentSourceLocationState.LOCATING,
-                ContentTransferState.FAILED);
+        final ContentTransferEvent failedEvent =
+                new ContentTransferEvent.Builder(selected)
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING)
+                .transferState(ContentTransferState.FAILED)
+                .build();
 
-        final ContentTransferEvent stalledEvent = new ContentTransferEvent(
-                selected, 100, ContentSourceLocationState.LOCATING,
-                ContentTransferState.STALLED);
+        final ContentTransferEvent stalledEvent =
+                new ContentTransferEvent.Builder(selected)
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING)
+                .transferState(ContentTransferState.STALLED)
+                .build();
 
         context.checking(new Expectations() {{
             // Ignore everything except selected and standby
@@ -580,37 +601,45 @@ public class TransferAggregatorTest {
         
         // The FAILED event should have been absorbed
         aggregator.contentTransferStateUpdated(
-                new ContentTransferEvent(
-                aggregator.getCurrentContentTransfer(),
-                100, ContentSourceLocationState.LOCATING,
-                ContentTransferState.FAILED));
+            new ContentTransferEvent.Builder(
+                    aggregator.getCurrentContentTransfer())
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING)
+                .transferState(ContentTransferState.FAILED)
+                .build());
         assertEquals(ContentTransferState.PENDING,
                 aggregator.getTransferState());
 
         // The FAILED event should have been absorbed
         aggregator.contentTransferStateUpdated(
-                new ContentTransferEvent(
-                aggregator.getCurrentContentTransfer(),
-                100, ContentSourceLocationState.LOCATING,
-                ContentTransferState.FAILED));
+            new ContentTransferEvent.Builder(
+                    aggregator.getCurrentContentTransfer())
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING)
+                .transferState(ContentTransferState.FAILED)
+                .build());
         assertEquals(ContentTransferState.PENDING,
                 aggregator.getTransferState());
 
         // The FAILED event should have been absorbed
         aggregator.contentTransferStateUpdated(
-                new ContentTransferEvent(
-                aggregator.getCurrentContentTransfer(),
-                100, ContentSourceLocationState.LOCATING,
-                ContentTransferState.FAILED));
+            new ContentTransferEvent.Builder(
+                    aggregator.getCurrentContentTransfer())
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING)
+                .transferState(ContentTransferState.FAILED)
+                .build());
         assertEquals(ContentTransferState.PENDING,
                 aggregator.getTransferState());
 
         // This is the last transfer instance, so the failure is exposed
         aggregator.contentTransferStateUpdated(
-                new ContentTransferEvent(
-                aggregator.getCurrentContentTransfer(),
-                100, ContentSourceLocationState.LOCATING,
-                ContentTransferState.FAILED));
+            new ContentTransferEvent.Builder(
+                    aggregator.getCurrentContentTransfer())
+                .locationCount(100)
+                .locationState(ContentSourceLocationState.LOCATING)
+                .transferState(ContentTransferState.FAILED)
+                .build());
         assertEquals(ContentTransferState.FAILED,
                 aggregator.getTransferState());
 

@@ -56,6 +56,7 @@
 
 package net.jxta.content;
 
+import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Iterator;
@@ -68,70 +69,160 @@ import net.jxta.protocol.ContentShareAdvertisement;
 public class ContentProviderEvent extends EventObject {
 
     /**
+     * Serialized version.
+     */
+    private static final long serialVersionUID = 2009110500L;
+
+    /**
      * Content ID.
      */
-    private ContentID contentID;
+    private final ContentID contentID;
 
     /**
      * List of ContentShare objects.
      */
-    private List<ContentShare> contentShares;
+    private final List<ContentShare> contentShares;
 
     /**
      * Flag indicating that this event signifies the last record of a
      * series of events.
      */
-    private Boolean amLastRecord;
-    
-    /**
-     * Flag indicating whether or not a ContentID has been calculated.
-     * This is only used when no ContentID is provided in the constructor
-     * and getContentID() is called.
-     */
-    private transient boolean contentIDSet = false;
+    private final Boolean amLastRecord;
 
     /**
-     * Creates a new instance of ContentProviderEvent.  This form is typically
-     * used in creating content unshared events.
-     *
-     * @param source ContentProvider issueing this event
-     * @param id of the Content which this event pertains to
+     * Builder pattern.
      */
-    public ContentProviderEvent(
-            ContentProvider source, ContentID id) {
-        this(source, id, null, null);
+    public static class Builder {
+        // Required parameters:
+        private final ContentProvider bSource;
+
+        // Optional parameters:
+        private ContentID bContentID;
+        private List<ContentShare> bShares;
+        private Boolean bLastRecord;
+
+        /**
+         * Constructs a new builder, used to create and initialize the
+         * event instance.
+         *
+         * @param provider ContentProvider issueing this event
+         * @param contentID id of the Content which this event pertains to
+         */
+        public Builder(
+                final ContentProvider provider,
+                final ContentID contentID) {
+            if (provider == null) {
+                throw(new IllegalArgumentException(
+                        "provider argument cannot be null"));
+            }
+            if (contentID == null) {
+                throw(new IllegalArgumentException(
+                        "contentID argument cannot be null"));
+            }
+            bSource = provider;
+            bContentID = contentID;
+        }
+
+        /**
+         * Constructs a new builder, used to create and initialize the
+         * event instance.
+         *
+         * @param provider ContentProvider issueing this event
+         * @param shareList list of ContentShares
+         */
+        public Builder(
+                final ContentProvider provider,
+                final List<ContentShare> shareList) {
+            if (provider == null) {
+                throw(new IllegalArgumentException(
+                        "provider argument cannot be null"));
+            }
+            if (shareList == null) {
+                throw(new IllegalArgumentException(
+                        "shareList argument cannot be null"));
+            }
+            bSource = provider;
+            bShares = Collections.unmodifiableList(shareList);
+        }
+
+        /**
+         * Sets the ContentID which this event pertains to.
+         *
+         * @param id of the Content which this event pertains to
+         * @return builder instance
+         */
+        public Builder contentID(final ContentID id) {
+            bContentID = id;
+            return this;
+        }
+
+        /**
+         * Sets the flag indicating that this is the last event in a
+         * series of events from this provider source.
+         *
+         * @param flag {@code true} if this is the last event in the series,
+         *  {@code false} otherwise
+         * @return builder instance
+         */
+        public Builder lastRecord(final boolean flag) {
+            bLastRecord = Boolean.valueOf(flag);
+            return this;
+        }
+
+
+        /**
+         * Build the event object.
+         *
+         * @return event instance
+         */
+        public ContentProviderEvent build() {
+            if (bContentID == null && bShares != null) {
+                bContentID = probeContentID();
+            }
+            return new ContentProviderEvent(this);
+        }
+
+        /**
+         * Probes to obtain a ContentID from the list of shares provided.
+         * Will be successful if all advs define the same CotnentID.
+         *
+         * @return probed ContentID value, or {@code null} if probe failed
+         */
+        private ContentID probeContentID() {
+            if (bShares == null) {
+                return null;
+            }
+            ContentID newID = null;
+            Iterator<ContentShare> iter = bShares.iterator();
+            while (iter.hasNext()) {
+                ContentShareAdvertisement adv =
+                        iter.next().getContentShareAdvertisement();
+                if (newID == null) {
+                    // First one.  Set it using the adv's ID.
+                    if (adv != null) {
+                        newID = adv.getContentID();
+                    }
+                } else if (adv == null
+                            || adv.getContentID() != null
+                            || (!newID.equals(adv.getContentID()))) {
+                    // We found one that differs. We can't probe.
+                    return null;
+                }
+            }
+            return newID;
+        }
     }
 
     /**
-     * Creates a new instance of ContentProviderEvent.  This form is typically
-     * used in creating content shared events.
+     * Create a new instance of ContentProviderEvent.
      *
-     * @param source ContentProvider issueing this event
-     * @param shareList list of ContentShares
+     * @param Builder builder with our data
      */
-    public ContentProviderEvent(
-            ContentProvider source, List<ContentShare> shareList) {
-        this(source, null, shareList, null);
-    }
-
-    /**
-     * Creates a new instance of ContentProviderEvent.  This is the full form
-     * of the constructor and is typically used to support the
-     * <code>findContentShares</code> capability.
-     *
-     * @param source ContentProvider issueing this event
-     * @param id ContentID of the Content which this event pertains to
-     * @param shareList list of ContentShares
-     * @param lastRecord flag indicating that this is the last event in a
-     *  series of events from this provider source.
-     */
-    public ContentProviderEvent(
-            ContentProvider source, ContentID id,
-            List<ContentShare> shareList, Boolean lastRecord) {
-        super(source);
-        contentID = id;
-        contentShares = shareList;
-        amLastRecord = lastRecord;
+    private ContentProviderEvent(final Builder builder) {
+        super(builder.bSource);
+        contentID = builder.bContentID;
+        contentShares = builder.bShares;
+        amLastRecord = builder.bLastRecord;
     }
 
     /**
@@ -151,37 +242,6 @@ public class ContentProviderEvent extends EventObject {
      * @return Content ID
      */
     public ContentID getContentID() {
-         /*
-         * Attempt to lazily populate ContentID field if all the
-         * ContentShare instances share the same value.
-         */
-        if (contentIDSet == false && contentID == null) {
-            if (contentShares != null) {
-                ContentID newID = null;
-                Iterator<ContentShare> iter = contentShares.iterator();
-                while (iter.hasNext()) {
-                    ContentShareAdvertisement adv =
-                            iter.next().getContentShareAdvertisement();
-                    if (contentIDSet) {
-                        if ((newID == null
-                                && (adv == null || adv.getContentID() != null))
-                            || (!newID.equals(adv.getContentID()))) {
-                            // We found one that differs. Unset things.
-                            newID = null;
-                            break;
-                        }
-                    } else {
-                        // First one.  Set it using the adv's ID.
-                        if (adv != null) {
-                            newID = adv.getContentID();
-                        }
-                        contentIDSet = true;
-                    }
-                }
-                contentID = newID;
-            }
-        }
-        
         return contentID;
     }
 
