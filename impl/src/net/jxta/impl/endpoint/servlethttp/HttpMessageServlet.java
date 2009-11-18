@@ -375,7 +375,7 @@ public class HttpMessageServlet extends HttpServlet {
                 }
 
                 try {
-                    endpoint.demux(incomingMessage);
+                    endpoint.processIncomingMessage(incomingMessage);
                 } catch (Throwable e) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                         LOG.log(Level.WARNING, "Failure demuxing an incoming message", e);

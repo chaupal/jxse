@@ -986,6 +986,15 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     public void demux(Message msg) {
 
+        processIncomingMessage(msg);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void processIncomingMessage(Message msg) {
+
         // Get the message destination
         MessageElement dstAddressElement = msg.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS,
                 EndpointServiceImpl.MESSAGE_DESTINATION_NAME);

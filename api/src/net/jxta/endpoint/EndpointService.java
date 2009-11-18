@@ -422,6 +422,17 @@ public interface EndpointService extends Service, EndpointListener {
     public MessageFilterListener removeOutgoingMessageFilterListener(MessageFilterListener listener, String namespace, String name);
 
     /**
+     * This method has been replaced with {@code processIncomingMessage(Message msg)}
+     *
+     * @param msg The message to be delivered.
+     * @deprecated Please convert your code to use {@code processIncomingMessage(Message msg)}.
+     * This method will be removed from the code in a future release.
+     *
+     */
+    @Deprecated
+    public void demux(Message msg);
+    
+    /**
      * Delivers the provided message to the correct listener as specified by
      * the message's destination address.
      * <p/>
@@ -433,34 +444,30 @@ public interface EndpointService extends Service, EndpointListener {
      * mechanisms for determining message source and destination addresses and
      * need not use these elements.
      * <p/>
-     * The {@code jxta:EndpointSourceAddress} Message Element contains an 
+     * The {@code jxta:EndpointSourceAddress} Message Element contains an
      * Endpoint Address for the source of this message. The source address has a
-     * variety of meanings based upon the usage of the underlying Message 
-     * Transport. For low level transports such as TCP or HTTP the source 
-     * address is the return address of the peer from which the message was 
-     * received, ie. the hop address. For higher level Message Transports such 
-     * as the Endpoint Router Transport or the TLS transport the source address 
-     * is the virtual Endpoint Address of the peer which originated the message 
+     * variety of meanings based upon the usage of the underlying Message
+     * Transport. For low level transports such as TCP or HTTP the source
+     * address is the return address of the peer from which the message was
+     * received, ie. the hop address. For higher level Message Transports such
+     * as the Endpoint Router Transport or the TLS transport the source address
+     * is the virtual Endpoint Address of the peer which originated the message
      * regardless of any intervening hops the message may have made.
      * <p/>
-     * The {@code jxta:EndpointDestinationAddress} Message Element contains an 
+     * The {@code jxta:EndpointDestinationAddress} Message Element contains an
      * Endpoint Address which will be used by the Endpoint Service to dispatch a
-     * received message to the recipient specified by the service name and 
-     * service parameter. The protocol address is also provided to the recipient 
-     * service and can be used in some protocols for determining how the message 
+     * received message to the recipient specified by the service name and
+     * service parameter. The protocol address is also provided to the recipient
+     * service and can be used in some protocols for determining how the message
      * was received. For example a service may wish to handle messages which
-     * were sent directly differently than messages which were sent via 
+     * were sent directly differently than messages which were sent via
      * propagation.
      *
      * @param msg The message to be delivered.
-     * @deprecated Please convert your code to use the
-     * {@link EndpointListener#processIncomingMessage(Message,EndpointAddress,EndpointAddress)}
-     * method instead. The addressing method used by demux() was never part of
-     * the formal JXTA protocol specification but was a defacto part because
-     * demux() depended upon it.
+     *
      */
-    @Deprecated
-    public void demux(Message msg);
+    public void processIncomingMessage(Message msg);
+
 
     /**
      * Adds the specified MessageTransport to this endpoint. A MessageTransport

@@ -338,6 +338,13 @@ class EndpointServiceInterface implements EndpointService {
     /**
      * {@inheritDoc}
      */
+    public void processIncomingMessage(Message msg) {
+        theRealThing.processIncomingMessage(msg);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void processIncomingMessage(Message message, EndpointAddress source, EndpointAddress destination) {
         theRealThing.processIncomingMessage(message, source, destination);
     }
