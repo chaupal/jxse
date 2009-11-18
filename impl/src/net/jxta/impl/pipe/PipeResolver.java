@@ -782,6 +782,22 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
         resolver.unregisterHandler(PipeResolverName);
         resolver.unregisterSrdiHandler(PipeResolverName);
 
+        outputpipeListeners.clear();
+
+        // close the local pipes
+        List<InputPipe> openLocalPipes = new ArrayList<InputPipe>(localInputPipes.values());
+        for (InputPipe aPipe : openLocalPipes) {
+            try {
+                aPipe.close();
+            } catch (Exception failed) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Failure closing " + aPipe);
+                }
+            }
+        }
+
+        localInputPipes.clear();
+        
         srdiIndex.stop();
         srdiIndex = null;
         // stop the srdi thread
@@ -799,22 +815,6 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
         resolver = null;
         discovery = null;
         membership = null;
-
-        outputpipeListeners.clear();
-
-        // close the local pipes
-        List<InputPipe> openLocalPipes = new ArrayList<InputPipe>(localInputPipes.values());
-        for (InputPipe aPipe : openLocalPipes) {
-            try {
-                aPipe.close();
-            } catch (Exception failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Failure closing " + aPipe);
-                }
-            }
-        }
-
-        localInputPipes.clear();
     }
 
     /**
