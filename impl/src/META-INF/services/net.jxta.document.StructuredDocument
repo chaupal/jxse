@@ -1,4 +1,4 @@
 # The list of StructuredDocument Instance Classes included in this distribution.
 # Used by StructuredDocumentFactory.
 net.jxta.impl.document.PlainTextDocument
-net.jxta.impl.document.LiteXMLDocument
+net.jxta.impl.document.DOMXMLDocument

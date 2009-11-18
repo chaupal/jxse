@@ -204,6 +204,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
 
         seedDoc.append('<');
         seedDoc.append(type);
+        seedDoc.append(" xmlns:jxta=\"http://jxta.org\"");
         seedDoc.append('>');
 
         seedDoc.append(textValue);
