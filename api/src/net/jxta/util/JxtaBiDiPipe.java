@@ -199,6 +199,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         this.inputPipe = pipeSvc.createInputPipe(pipe, this);
         this.msgr = msgr;
         this.isReliable = isReliable;
+        if (msgListener == null) {
+            queue = new ArrayBlockingQueue<PipeMsgEvent>(windowSize);
+        }
         if (!direct) {
             createRLib();
         }
