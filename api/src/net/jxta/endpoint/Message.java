@@ -80,6 +80,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.annotation.DoNotDelete;
+import net.jxta.annotation.DoNotRelyOnThisCode;
 
 /**
  * Messages are abstract containers for protocol messages within JXTA. Services
@@ -210,9 +212,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
      * If <tt>true</tt> then the message is modifiable. This is primarily
      * intended as a diagnostic tool for detecting concurrent modification.
      *
-     * @deprecated You really should not depend on this feature.
+     * </p>Do not rely on this code for your applications.
      */
-    @Deprecated
+    @DoNotRelyOnThisCode(Rem="For debugging purposes only")
+    @DoNotDelete
     public boolean modifiable = true;
 
     /**
