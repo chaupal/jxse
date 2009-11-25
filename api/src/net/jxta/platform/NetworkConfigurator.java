@@ -266,12 +266,18 @@ public class NetworkConfigurator {
 
     /**
      * Default Proxy configuration
+     *
+     * @since 2.6 Will be removed in a future release
      */
+    @Deprecated
     public final static int PROXY_NODE = PROXY_SERVER | RELAY_NODE;
 
     /**
      * Default Rendezvous/Relay/Proxy configuration
+     *
+     * @since 2.6 Will be removed in a future release
      */
+    @Deprecated
     public final static int RDV_RELAY_PROXY_NODE = RDV_NODE | PROXY_NODE;
 
     // end configuration modes
@@ -331,6 +337,7 @@ public class NetworkConfigurator {
     /**
      * Proxy Service Document
      */
+    @Deprecated
     protected transient XMLElement proxyConfig;
 
     /**
@@ -440,7 +447,10 @@ public class NetworkConfigurator {
      *
      * @param storeHome the URI to persistent store
      * @return NetworkConfigurator instance with defaultProxy configuration
+     *
+     * @since 2.6 Will be removed in a future release
      */
+    @Deprecated
     public static NetworkConfigurator newProxyConfiguration(URI storeHome) {
         return new NetworkConfigurator(PROXY_NODE, storeHome);
     }
@@ -450,7 +460,10 @@ public class NetworkConfigurator {
      *
      * @param storeHome the URI to persistent store
      * @return NetworkConfigurator instance with default Rendezvous, Relay, Proxy configuration
+     *
+     * @since 2.6 It will be removed in a future release
      */
+    @Deprecated
     public static NetworkConfigurator newRdvRelayProxyConfiguration(URI storeHome) {
         return new NetworkConfigurator(RDV_RELAY_PROXY_NODE, storeHome);
     }
@@ -1691,6 +1704,7 @@ public class NetworkConfigurator {
      *
      * @return ProxyService configuration advertisement
      */
+    @Deprecated
     protected XMLDocument createProxyAdv() {
         return (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
     }

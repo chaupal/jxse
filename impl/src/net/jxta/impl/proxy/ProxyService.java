@@ -113,6 +113,10 @@ import java.util.logging.Logger;
 // Making the locking finer-grain would require significant code rework, so
 // it will have to do for now.
 
+/**
+ * @since 2.6 To be removed in a future release
+ */
+@Deprecated
 public class ProxyService implements Service, EndpointListener, PipeMsgListener, OutputPipeListener, CacheEntryListener {
 
     private final static Logger LOG = Logger.getLogger(ProxyService.class.getName());

@@ -186,7 +186,10 @@ public class MonitorResources {
     
     /**
      * Well known module class identifier: ProxyService
+     *
+     * @since 2.6 To be removed in a future release
      */
+    @Deprecated
     public static final ModuleClassID proxyServiceMonitorClassID = (ModuleClassID)
             ID.create(URI.create(WK_ID_PREFIX + "0000010E05"));
     
