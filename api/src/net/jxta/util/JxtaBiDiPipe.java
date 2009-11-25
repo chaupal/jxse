@@ -107,8 +107,9 @@ import java.util.logging.Logger;
 /**
  * JxtaBiDiPipe is a pair of UnicastPipe channels that implements a bidirectional pipe.
  * By default, JxtaBiDiPipe operates in reliable mode, unless otherwise specified,
- * in addition, messages must not exceed the Endpoint MTU size of 64K, exceeding the
- * MTU will lead to unexpected behavior.
+ * in addition, messages must not exceed the Endpoint MTU size of 64K (to make sure
+ * bandwidth is distributed fairly). This size can be configured in the
+ * {@code AbstractMessenger} class.
  * <p/>
  * It highly recommended that an application message listener is specified, not doing so, may
  * lead to message loss in the event the internal queue is overflowed.
@@ -1280,13 +1281,13 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws InterruptedException if the operation is interrupted before
      *                              the timeout interval is completed.
      */
-    public Message getMessage(int timeout) throws InterruptedException {
+    public Message getMessage(long timeout) throws InterruptedException {
         BlockingQueue<PipeMsgEvent> msg_queue = queue;
         if (msg_queue == null) {
             return null;
         } else {
             if (0 == timeout) {
-                timeout = Integer.MAX_VALUE;
+                timeout = Long.MAX_VALUE;
             }
             PipeMsgEvent ev = msg_queue.poll(timeout, TimeUnit.MILLISECONDS);
             if (ev != null) {
