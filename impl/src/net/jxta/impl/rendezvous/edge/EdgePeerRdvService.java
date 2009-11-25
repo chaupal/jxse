@@ -581,7 +581,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         
         PeerConnection rdvConnection;
         
-        synchronized (this) {
+        synchronized (rendezVous) {
             rdvConnection = rendezVous.remove(rdvid);
         }
         
