@@ -82,7 +82,7 @@ import java.util.logging.Logger;
  * supply the email and a string for the function. The same combination can be
  * created by another peer to search for either of these pipes. <p>
  * <p/>
- * This implementation uses the "SHA-1" algorythum. This was selected for relitive
+ * This implementation uses the "SHA-1" algorithm. This was selected for relative
  * speed. It is used as a one-way conversion that cannot be reversed engineered to
  * create the original string. This allows you to publish the hash without the
  * possibility of the contents being decoded. This allows for public indexing of
@@ -102,16 +102,11 @@ import java.util.logging.Logger;
  * System.out.println("test1: "+DigestID.test(clearTextID, function,digest1));
  * System.out.println("test2: "+DigestID.test(clearTextID, digest2));
  * System.out.println("Digest1 != Digest2: "+DigestID.test(clearTextID, function,digest2));
- * </code><p>
+ * </code>
+ * <p>The BouncyCastle that comes with JXTA is {@code bcprov-jdk15-144.jar}.
  * <p/>
- * To use an algorythum other than SHA-1, you will need stronger encyption.
- * The BouncyCastle that comes with JXTA is just a minimum implimentation so
- * a good choice is  the normal bouncy castle (it is much larger, nearing a meg,
- * which is why it is not a part of the normal JXTA distribution. The full version
- * of bouncy includes SHA-128, SHA-256, SHA-384, and SHA-512.<p>
- * <p/>
- * Here is how you create a provider from the full version of Bouncy. Once you do this, you can access the extended
- * Digest ecryption levels.
+ * Here is how you create a provider from Bouncy. Once you do this, you
+ * can access the extended Digest ecryption levels.
  * <code>
  * provider = new org.bouncycastle.jce.provider.BouncyCastleProvider();
  * System.out.println("provider:"+provider.getName());
