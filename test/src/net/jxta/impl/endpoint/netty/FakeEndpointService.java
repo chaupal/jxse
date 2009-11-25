@@ -181,4 +181,10 @@ public class FakeEndpointService implements EndpointService {
     public void refuseRegistration() {
         refuseRegistration = true;
     }
+
+	@Override
+	public void processIncomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
+	}
 }
