@@ -182,6 +182,7 @@ public abstract class ExtendableAdvertisement extends Advertisement {
         if (adv instanceof XMLDocument) {
             XMLDocument xmlAdv = (XMLDocument) adv;
 
+            xmlAdv.addAttribute("xmlns:jxta", "http://jxta.org");
             if (!formatted) {
                 xmlAdv.addAttribute("xml:space", "preserve");
             }
