@@ -644,6 +644,15 @@ public class NetworkConfigurator {
     }
 
     /**
+     * Returns the HTTP interface Address
+     *
+     * @param address the HTTP interface address
+     */
+    public String getHttpInterfaceAddress() {
+        return httpConfig.getInterfaceAddress();
+    }
+
+    /**
      * Sets the HTTP JXTA Public Address
      * e.g. "192.168.1.1:9700"
      *
@@ -653,6 +662,24 @@ public class NetworkConfigurator {
     public void setHttpPublicAddress(String address, boolean exclusive) {
         httpConfig.setServer(address);
         httpConfig.setPublicAddressOnly(exclusive);
+    }
+
+    /**
+     * Returns the HTTP JXTA Public Address
+     *
+     * @return exclusive determines whether an address is advertised exclusively
+     */
+    public String getHttpPublicAddress() {
+        return httpConfig.getServer();
+    }
+
+    /**
+     * Returns the HTTP JXTA Public Address exclusivity
+     *
+     * @return exclusive determines whether an address is advertised exclusively
+     */
+    public boolean getHttpPublicAddressExclusivity() {
+        return httpConfig.getPublicAddressOnly();
     }
 
     /**
@@ -1215,6 +1242,15 @@ public class NetworkConfigurator {
     public void setTcpPublicAddress(String address, boolean exclusive) {
         tcpConfig.setServer(address);
         tcpConfig.setPublicAddressOnly(exclusive);
+    }
+
+    /**
+     * Indicates whether the public TCP address is advertised exclusively.
+     *
+     * @return boolean indicating whether public address is advertised exclusively
+     */
+    public boolean getTcpPublicAddressExclusivity() {
+        return tcpConfig.getPublicAddressOnly();
     }
 
     /**
@@ -1988,6 +2024,16 @@ public class NetworkConfigurator {
     }
 
     /**
+     * Retrieves the Tcp outgoing status
+     *
+     * @return true if tcp outcoming is enabled, else returns false
+     * @see #setTcpOutgoing
+     */
+    public boolean getTcpOutgoingStatus() {
+        return tcpConfig.getClientEnabled();
+    }
+
+    /**
      * Retrieves the Tcp interface address
      *
      * @return the current tcp interface address
@@ -2088,13 +2134,33 @@ public class NetworkConfigurator {
     }
 
     /**
-     * Retrieves the rendezvous seeds
+     * Retrieves the rendezvous seedings
      *
-     * @return the array of rendezvous seed URL
+     * @return the array of rendezvous seeding URL
      * @see #addRdvSeedingURI
      */
     public URI[] getRdvSeedingURIs() {
         return rdvConfig.getSeedingURIs();
+    }
+
+    /**
+     * Retrieves the rendezvous seeds
+     *
+     * @return the array of rendezvous seeds URL
+     * @see #addRdvSeedURI
+     */
+    public URI[] getRdvSeedURIs() {
+        return rdvConfig.getSeedRendezvous();
+    }
+
+    /**
+     * Retrieves the relay seeds
+     *
+     * @return the array of relay seeds URL
+     * @see #addRelaySeedURI
+     */
+    public URI[] getRelaySeedURIs() {
+        return relayConfig.getSeedRelayURIs();
     }
 
     /**

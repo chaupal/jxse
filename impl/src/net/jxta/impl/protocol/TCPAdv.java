@@ -553,6 +553,16 @@ public class TCPAdv extends TransportAdvertisement {
     }
 
     /**
+     * Returns the configuration for outbound connections.
+     *
+     * @return enabled <code>true</code> if outbound connections are allowed otherwise
+     *                <code>false</code>
+     */
+    public boolean getClientEnabled() {
+        return clientEnabled;
+    }
+
+    /**
      * Returns the configuration for inbound connections.
      *
      * @return <code>true</code> if inbound connections are allowed otherwise

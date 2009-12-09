@@ -765,6 +765,18 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
         return seedRelays.toArray(new EndpointAddress[seedRelays.size()]);
     }
 
+    public URI[] getSeedRelayURIs() {
+
+        EndpointAddress[] Temp = getSeedRelays();
+        URI[] Result = new URI[Temp.length];
+
+        for (int i=0;i<Temp.length;i++) {
+            Result[i]=Temp[i].toURI();
+        }
+
+        return Result;
+    }
+
     public void addSeedRelay(EndpointAddress addr) {
         if (null == addr) {
             throw new IllegalArgumentException("addr may not be null");
