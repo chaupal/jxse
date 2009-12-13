@@ -805,87 +805,94 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected Module loadModule(ID assignedID, ModuleSpecID specID, int where, boolean privileged) {
 
-        List<Advertisement> allModuleImplAdvs = new ArrayList<Advertisement>();
+    	List<Advertisement> allModuleImplAdvs = new ArrayList<Advertisement>();
 
-        ModuleImplAdvertisement loadedImplAdv = loader.findModuleImplAdvertisement(specID);
-        if (null != loadedImplAdv) {
-            // We already have a module defined for this spec id. Use that.
-            allModuleImplAdvs.add(loadedImplAdv);
-        } else {
-            // Search for a module to use.
-            boolean fromHere = (where == Here || where == Both);
-            boolean fromParent = (where == FromParent || where == Both);
+    	ModuleImplAdvertisement loadedImplAdv = loader.findModuleImplAdvertisement(specID);
 
-            if (fromHere && (null != discovery)) {
-                Collection<Advertisement> here = discoverSome(discovery, DiscoveryService.ADV,
-                        "MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
 
-                allModuleImplAdvs.addAll(here);
-            }
+    	// We already have a module defined for this spec id.
+    	// We test the spec id before deciding to use it
+    	if (null != loadedImplAdv && specID.equals(loadedImplAdv.getModuleSpecID())) {
+    		allModuleImplAdvs.add(loadedImplAdv);
+    	}
 
-            if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
-                Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV,
-                        "MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
+    	// A module implementation may have been found, but was not valid and not registered.
+    	// If so, we need to broaden the search
+    	if (allModuleImplAdvs.isEmpty()){
 
-                allModuleImplAdvs.addAll(parent);
-            }
-        }
+    		boolean fromHere = (where == Here || where == Both);
+    		boolean fromParent = (where == FromParent || where == Both);
 
-        Throwable recentFailure = null;
+    		if (fromHere && (null != discovery)) {
+    			Collection<Advertisement> here = discoverSome(discovery, DiscoveryService.ADV,
+    					"MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
 
-        for (Advertisement eachAdv : allModuleImplAdvs) {
-            if (!(eachAdv instanceof ModuleImplAdvertisement)) {
-                continue;
-            }
+    			allModuleImplAdvs.addAll(here);
+    		}
 
-            ModuleImplAdvertisement foundImpl = (ModuleImplAdvertisement) eachAdv;
+    		if (fromParent && (null != getParentGroup()) && (null != parentGroup.getDiscoveryService())) {
+    			Collection<Advertisement> parent = discoverSome(parentGroup.getDiscoveryService(), DiscoveryService.ADV,
+    					"MSID", specID.toString(), 120, ModuleImplAdvertisement.class);
 
-            try {
-                // First check that the MSID is really the one we're looking for.
-                // It could have appeared somewhere else in the adv than where
-                // we're looking, and discovery doesn't know the difference.
-                if (!specID.equals(foundImpl.getModuleSpecID())) {
-                    continue;
-                }
+    			allModuleImplAdvs.addAll(parent);
+    		}
+    	}
 
-                Module newMod = loadModule(assignedID, foundImpl, privileged);
+    	Throwable recentFailure = null;
 
-                // If we reach that point, the module is good.
-                return newMod;
-            } catch (ProtocolNotSupportedException failed) {
-                // Incompatible implementation.
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Incompatbile impl adv");
-                }
-            } catch (PeerGroupException failed) {
-                // Initialization failure.
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Initialization failed", failed);
-                }
-            } catch (Throwable e) {
-                recentFailure = e;
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Not a usable impl adv: ", e);
-                }
-            }
-        }
+    	for (Advertisement eachAdv : allModuleImplAdvs) {
+    		if (!(eachAdv instanceof ModuleImplAdvertisement)) {
+    			continue;
+    		}
 
-        // Throw an exception if there was a recent failure.
-        if (null != recentFailure) {
-            if (recentFailure instanceof Error) {
-                throw (Error) recentFailure;
-            } else if (recentFailure instanceof RuntimeException) {
-                throw (RuntimeException) recentFailure;
-            } else {
-                throw new UndeclaredThrowableException(recentFailure);
-            }
-        }
+    		ModuleImplAdvertisement foundImpl = (ModuleImplAdvertisement) eachAdv;
 
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Could not find a loadable implementation for SpecID: " + specID);
-        }
+    		try {
+    			// First check that the MSID is really the one we're looking for.
+    			// It could have appeared somewhere else in the adv than where
+    			// we're looking, and discovery doesn't know the difference.
+    			if (!specID.equals(foundImpl.getModuleSpecID())) {
+    				continue;
+    			}
 
-        return null;
+    			Module newMod = loadModule(assignedID, foundImpl, privileged);
+
+    			// If we reach that point, the module is good.
+    			return newMod;
+    		} catch (ProtocolNotSupportedException failed) {
+    			// Incompatible implementation.
+    			if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+    				LOG.log(Level.FINE, "Incompatbile impl adv");
+    			}
+    		} catch (PeerGroupException failed) {
+    			// Initialization failure.
+    			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+    				LOG.log(Level.WARNING, "Initialization failed", failed);
+    			}
+    		} catch (Throwable e) {
+    			recentFailure = e;
+    			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+    				LOG.log(Level.WARNING, "Not a usable impl adv: ", e);
+    			}
+    		}
+    	}
+
+    	// Throw an exception if there was a recent failure.
+    	if (null != recentFailure) {
+    		if (recentFailure instanceof Error) {
+    			throw (Error) recentFailure;
+    		} else if (recentFailure instanceof RuntimeException) {
+    			throw (RuntimeException) recentFailure;
+    		} else {
+    			throw new UndeclaredThrowableException(recentFailure);
+    		}
+    	}
+
+    	if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+    		LOG.warning("Could not find a loadable implementation for SpecID: " + specID);
+    	}
+
+    	return null;
     }
 
     /**
