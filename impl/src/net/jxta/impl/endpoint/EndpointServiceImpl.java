@@ -98,6 +98,8 @@ import java.util.logging.Logger;
 import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 
+import net.jxta.annotation.*;
+
 /**
  * This class implements the frontend for all the JXTA  endpoint protocols, as
  * well as the API for the implementation of the core protocols that use
@@ -265,7 +267,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * If that was not kept in check, it would be possible to inadvertently
      * create an infinite number of channels with pending messages, thus an
      * infinite number of messages too.
+     *
+     * @deprecated Functionally speaking, channel messengers are unecessary features. Messengers
+     * will do the job as well. The concept of 'channel' (and corresponding) code should be tossed
+     * out of JXSE (i.e., re-engineered) somewhere after 2.6.
+     *
      */
+    @Deprecated
     private final Map<EndpointAddress, Reference<Messenger>> channelCache = new WeakHashMap<EndpointAddress, Reference<Messenger>>();
 
 
@@ -1523,8 +1531,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * Any address rewriting must be specified when getting a channel. However,
      * canonical knows the default group redirection for its owning endpoint and
      * will automatically skip redirection if it is the same.
+     *
+     * @deprecated
+     *
      */
-
+    @Deprecated
     public Messenger getCanonicalMessenger(EndpointAddress addr, Object hint) {
 
         // XXX: maybe we should enforce the stripping of the address here.
@@ -1916,8 +1927,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     * <p/>
-     * convenience method not supported here.
      */
     public Messenger getMessenger(EndpointAddress addr) {
         return getMessenger(addr, null);
@@ -1925,9 +1934,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     * <p/>
-     * convenience method not supported here.
      */
+    @NeedsRedesign(Rem="Channel messengers are uncessessary conplex features")
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint) {
         // Note: for now, the hint is not used for canonicalization (hint != QOS).
         synchronized (channelCache) {
@@ -1985,8 +1993,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     * <p/>
-     * convenience method not supported here.
      */
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
 

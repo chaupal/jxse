@@ -95,46 +95,29 @@ public interface EndpointService extends Service, EndpointListener {
     public PeerGroup getGroup();
 
     /**
-     * Returns a messenger to the specified destination.
+     * Returns a (potentially unresolved) messenger to the specified destination.
+     * If a resolution is required, it is performed asynchronously (may not be
+     * successful at all). This method returns immediately. The messenger is not
+     * shared with other EndpointService object instances.
      * <p/>
-     * The canonical messenger is shared between all channels who's
-     * destination contain the same protocol name and protocol address, in all
-     * groups that have access to the same transport. The ChannelMessenger
-     * returned is configured to send messages to the specified service name and
-     * service param when these are not specified at the time of sending.
-     * <p/>
-     * The channel will also ensure delivery to this EndpointService's group
-     * on arrival. The channel is not shared with any other module. That is,
-     * each endpoint service interface object (as returned by {@link
-     * net.jxta.peergroup.PeerGroup#getEndpointService()}) will return a
-     * different channel messenger for the same destination. However, there is
-     * no guarantee that two invocations of the same endpoint service interface
-     * object for the same destination will return different channel objects.
-     * Notably, if the result of a previous invocation is still strongly
-     * referenced and in a {@link Messenger#USABLE} state, then that is what
-     * this method will return.
-     * <p/>
-     * This method returns immediately. The messenger is not necessarily
-     * resolved (the required underlying connection established, for example),
-     * and it might never resolve at all.  Changes in the state of a messenger
-     * may monitored with {@link Messenger#getState} and
-     * {@link Messenger#waitState}. One may monitor multiple
+     * If the result of a previous invocation is still strongly referenced and in a
+     * {@link Messenger#USABLE} state, then that is what this method will return.
+     * The resolution status can be monitored with the {@link Messenger#getState()}
+     * method and {@link Messenger#waitState}. One may monitor multiple
      * {@link Messenger messengers} (and {@link Message Messages}) at a time by
      * using a {@link net.jxta.util.SimpleSelector}.  One may also arrange to
      * have a listener invoked when resolution is complete by using
      * {@link ListenerAdaptor}.
      * <p/>
-     * The {@code hint} is interpreted by the transport. The only transport
-     * known to consider hints is the endpoint router, and the hint is a route.
-     * As a result, if addr is in the form: jxta://uniqueID, then hint may be a
-     * RouteAdvertisement.  If that route is valid the router will add it to
-     * it's cache of route and may then use it to successfully create a messenger
-     * to the given destination.  There is no guarantee at this time that the
-     * route will end up being the one specified, nor that this route will be
-     * used only for this messenger (likely the opposite), nor that it will
-     * remain in use in the future, nor that it will be used at all. However, if
-     * there is no other route, and if the specified route is valid, it will be
-     * used rather than seeking an alternative.
+     * A {@code hint} (i.e., route information) may be provided. The only transport
+     * considering hints is the endpoint router. As a result, if addr is in the form:
+     * jxta://PeerID, then hint may be a RouteAdvertisement.  If that route is valid
+     * the router will add it to it's cache of route and may then use it to successfully
+     * create a messenger to the given destination.
+     * </p>There is no guarantee that the route used by the messenger will end up being
+     * the one specified, nor that this route will be used in the future or at all.
+     * However, if there is no other route, and if the specified route is valid, it will
+     * be used rather than seeking an alternative.
      *
      * @param addr The complete destination address.
      * @param hint A optional hint to be supplied to whichever transport ends-up
@@ -142,7 +125,6 @@ public interface EndpointService extends Service, EndpointListener {
      * @return A messenger for the specified destination address or {@code null}
      *         if the address is not handled by any of the available Message Transports.
      *         The messenger, if returned, is not necessarily functional, nor resolved.
-     * @see net.jxta.endpoint.ChannelMessenger
      */
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint);
 
@@ -214,7 +196,12 @@ public interface EndpointService extends Service, EndpointListener {
      * @return A Canonical messenger that obtains transport messengers to the
      *         specified address, from LOCAL transports. Returns {@code null} if no
      *         local transport handles this type address.
+     *
+     * @since 2.6 This method is deprecated and will be removed from this interface in a
+     * future release. Use {@link #getMessengerImmediate(EndpointAddress,Object)} or
+     * {@link #getMessenger(EndpointAddress,Object)} instead.
      */
+    @Deprecated
     public Messenger getCanonicalMessenger(EndpointAddress addr, Object hint);
 
     /**
