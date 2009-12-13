@@ -1096,7 +1096,12 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @param pipeAdv Remote Pipe Advertisement
      * @param peer    Remote Peer advertisement
      * @return Messenger
+     *
+     * @since 2.6 Direct messengers cause connectivity issues. One should not rely on
+     * corresponding code anymore.
+     *
      */
+    @Deprecated
     protected static Messenger getDirectMessenger(PeerGroup group, PipeAdvertisement pipeAdv, PeerAdvertisement peer) {
         // Get an endpoint messenger to that address
         if (pipeAdv.getType().equals(PipeService.PropagateType)) {

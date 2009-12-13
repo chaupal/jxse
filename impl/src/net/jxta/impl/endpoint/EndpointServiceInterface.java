@@ -544,7 +544,12 @@ class EndpointServiceInterface implements EndpointService {
      * @param hint the messenger hint, if any, otherwise null.
      * @param exclusive if true avoids caching the messenger
      * @return The messenger or {@code null} is returned if the destination address is not reachable.
+     *
+     * @since 2.6 Direct messengers cause connectivity issues. One should not rely on
+     * corresponding code anymore.
+     *
      */
+    @Deprecated
     public Messenger getDirectMessenger(EndpointAddress addr, Object hint, boolean exclusive) {
 
         return theRealThing.getDirectMessenger(addr, hint, exclusive);

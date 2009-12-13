@@ -2028,7 +2028,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * @param exclusive if true avoids caching the messenger
      * @return The messenger or {@code null} is returned if the destination address is not reachable.
      * @throws IllegalArgumentException if hint is not of RouteAdvertisement, or PeerAdvertisement type.
+     *
+     * @since 2.6 Direct messengers cause connectivity issues. One should not rely on
+     * corresponding code anymore.
+     *
      */
+    @Deprecated
     public Messenger getDirectMessenger(EndpointAddress address, Object hint, boolean exclusive) {
 
         /* XXX: direct messengers are a hack, removing them here forces the JXTA code to go through
