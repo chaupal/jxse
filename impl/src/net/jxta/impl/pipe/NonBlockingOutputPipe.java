@@ -319,14 +319,14 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         boolean pushed = false;
         while (!isClosed()) {
             try {
-                pushed = queue.offer(msg,250 * TimeUtils.AMILLISECOND,TimeUnit.MILLISECONDS);
+                pushed = queue.offer(msg,100 * TimeUtils.AMILLISECOND,TimeUnit.MILLISECONDS);
                 break;
             } catch (InterruptedException woken) {
                 Thread.interrupted();
             }
         }
 
-        if (!pushed && !isClosed()) {
+        if (!pushed && isClosed()) {
             IOException failed = new IOException("Could not enqueue " + msg + " for sending. Pipe is closed.");
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, failed.getMessage(), failed);
