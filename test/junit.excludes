@@ -7,7 +7,9 @@
 **/jxta/impl/util/**/*
 **/jxta/impl/xindice/**/*
 **/jxta/peergroup/**/*
+**/jxta/pipe/PipeTest.java
 **/jxta/platform/**/*
+**/jxta/protocol/SignedAdvertisementTest.java
 **/jxta/rendezvous/**/*
 **/jxta/socket/**/*
 **/jxta/test/**/*

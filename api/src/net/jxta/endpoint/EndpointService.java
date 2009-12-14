@@ -95,46 +95,29 @@ public interface EndpointService extends Service, EndpointListener {
     public PeerGroup getGroup();
 
     /**
-     * Returns a messenger to the specified destination.
+     * Returns a (potentially unresolved) messenger to the specified destination.
+     * If a resolution is required, it is performed asynchronously (may not be
+     * successful at all). This method returns immediately. The messenger is not
+     * shared with other EndpointService object instances.
      * <p/>
-     * The canonical messenger is shared between all channels who's
-     * destination contain the same protocol name and protocol address, in all
-     * groups that have access to the same transport. The ChannelMessenger
-     * returned is configured to send messages to the specified service name and
-     * service param when these are not specified at the time of sending.
-     * <p/>
-     * The channel will also ensure delivery to this EndpointService's group
-     * on arrival. The channel is not shared with any other module. That is,
-     * each endpoint service interface object (as returned by {@link
-     * net.jxta.peergroup.PeerGroup#getEndpointService()}) will return a
-     * different channel messenger for the same destination. However, there is
-     * no guarantee that two invocations of the same endpoint service interface
-     * object for the same destination will return different channel objects.
-     * Notably, if the result of a previous invocation is still strongly
-     * referenced and in a {@link Messenger#USABLE} state, then that is what
-     * this method will return.
-     * <p/>
-     * This method returns immediately. The messenger is not necessarily
-     * resolved (the required underlying connection established, for example),
-     * and it might never resolve at all.  Changes in the state of a messenger
-     * may monitored with {@link Messenger#getState} and
-     * {@link Messenger#waitState}. One may monitor multiple
+     * If the result of a previous invocation is still strongly referenced and in a
+     * {@link Messenger#USABLE} state, then that is what this method will return.
+     * The resolution status can be monitored with the {@link Messenger#getState()}
+     * method and {@link Messenger#waitState}. One may monitor multiple
      * {@link Messenger messengers} (and {@link Message Messages}) at a time by
      * using a {@link net.jxta.util.SimpleSelector}.  One may also arrange to
      * have a listener invoked when resolution is complete by using
      * {@link ListenerAdaptor}.
      * <p/>
-     * The {@code hint} is interpreted by the transport. The only transport
-     * known to consider hints is the endpoint router, and the hint is a route.
-     * As a result, if addr is in the form: jxta://uniqueID, then hint may be a
-     * RouteAdvertisement.  If that route is valid the router will add it to
-     * it's cache of route and may then use it to successfully create a messenger
-     * to the given destination.  There is no guarantee at this time that the
-     * route will end up being the one specified, nor that this route will be
-     * used only for this messenger (likely the opposite), nor that it will
-     * remain in use in the future, nor that it will be used at all. However, if
-     * there is no other route, and if the specified route is valid, it will be
-     * used rather than seeking an alternative.
+     * A {@code hint} (i.e., route information) may be provided. The only transport
+     * considering hints is the endpoint router. As a result, if addr is in the form:
+     * jxta://PeerID, then hint may be a RouteAdvertisement.  If that route is valid
+     * the router will add it to it's cache of route and may then use it to successfully
+     * create a messenger to the given destination.
+     * </p>There is no guarantee that the route used by the messenger will end up being
+     * the one specified, nor that this route will be used in the future or at all.
+     * However, if there is no other route, and if the specified route is valid, it will
+     * be used rather than seeking an alternative.
      *
      * @param addr The complete destination address.
      * @param hint A optional hint to be supplied to whichever transport ends-up
@@ -142,7 +125,6 @@ public interface EndpointService extends Service, EndpointListener {
      * @return A messenger for the specified destination address or {@code null}
      *         if the address is not handled by any of the available Message Transports.
      *         The messenger, if returned, is not necessarily functional, nor resolved.
-     * @see net.jxta.endpoint.ChannelMessenger
      */
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint);
 
@@ -214,7 +196,12 @@ public interface EndpointService extends Service, EndpointListener {
      * @return A Canonical messenger that obtains transport messengers to the
      *         specified address, from LOCAL transports. Returns {@code null} if no
      *         local transport handles this type address.
+     *
+     * @since 2.6 This method is deprecated and will be removed from this interface in a
+     * future release. Use {@link #getMessengerImmediate(EndpointAddress,Object)} or
+     * {@link #getMessenger(EndpointAddress,Object)} instead.
      */
+    @Deprecated
     public Messenger getCanonicalMessenger(EndpointAddress addr, Object hint);
 
     /**
@@ -422,6 +409,17 @@ public interface EndpointService extends Service, EndpointListener {
     public MessageFilterListener removeOutgoingMessageFilterListener(MessageFilterListener listener, String namespace, String name);
 
     /**
+     * This method has been replaced with {@code processIncomingMessage(Message msg)}
+     *
+     * @param msg The message to be delivered.
+     * @deprecated Please convert your code to use {@code processIncomingMessage(Message msg)}.
+     * This method will be removed from the code in a future release.
+     *
+     */
+    @Deprecated
+    public void demux(Message msg);
+    
+    /**
      * Delivers the provided message to the correct listener as specified by
      * the message's destination address.
      * <p/>
@@ -433,34 +431,30 @@ public interface EndpointService extends Service, EndpointListener {
      * mechanisms for determining message source and destination addresses and
      * need not use these elements.
      * <p/>
-     * The {@code jxta:EndpointSourceAddress} Message Element contains an 
+     * The {@code jxta:EndpointSourceAddress} Message Element contains an
      * Endpoint Address for the source of this message. The source address has a
-     * variety of meanings based upon the usage of the underlying Message 
-     * Transport. For low level transports such as TCP or HTTP the source 
-     * address is the return address of the peer from which the message was 
-     * received, ie. the hop address. For higher level Message Transports such 
-     * as the Endpoint Router Transport or the TLS transport the source address 
-     * is the virtual Endpoint Address of the peer which originated the message 
+     * variety of meanings based upon the usage of the underlying Message
+     * Transport. For low level transports such as TCP or HTTP the source
+     * address is the return address of the peer from which the message was
+     * received, ie. the hop address. For higher level Message Transports such
+     * as the Endpoint Router Transport or the TLS transport the source address
+     * is the virtual Endpoint Address of the peer which originated the message
      * regardless of any intervening hops the message may have made.
      * <p/>
-     * The {@code jxta:EndpointDestinationAddress} Message Element contains an 
+     * The {@code jxta:EndpointDestinationAddress} Message Element contains an
      * Endpoint Address which will be used by the Endpoint Service to dispatch a
-     * received message to the recipient specified by the service name and 
-     * service parameter. The protocol address is also provided to the recipient 
-     * service and can be used in some protocols for determining how the message 
+     * received message to the recipient specified by the service name and
+     * service parameter. The protocol address is also provided to the recipient
+     * service and can be used in some protocols for determining how the message
      * was received. For example a service may wish to handle messages which
-     * were sent directly differently than messages which were sent via 
+     * were sent directly differently than messages which were sent via
      * propagation.
      *
      * @param msg The message to be delivered.
-     * @deprecated Please convert your code to use the
-     * {@link EndpointListener#processIncomingMessage(Message,EndpointAddress,EndpointAddress)}
-     * method instead. The addressing method used by demux() was never part of
-     * the formal JXTA protocol specification but was a defacto part because
-     * demux() depended upon it.
+     *
      */
-    @Deprecated
-    public void demux(Message msg);
+    public void processIncomingMessage(Message msg);
+
 
     /**
      * Adds the specified MessageTransport to this endpoint. A MessageTransport
@@ -547,6 +541,12 @@ public interface EndpointService extends Service, EndpointListener {
      * @param exclusive if true avoids caching the messenger
      * @return The messenger or {@code null} is returned if the destination address is not reachable.
      * @throws IllegalArgumentException if hint is not of RouteAdvertisement, or PeerAdvertisement type.
+     *
+     * @since 2.6 Direct messengers cause connectivity issues. One should not rely on
+     * corresponding code anymore.
+     *
      */
+    @Deprecated
     public Messenger getDirectMessenger(EndpointAddress addr, Object hint, boolean exclusive);
+    
 }

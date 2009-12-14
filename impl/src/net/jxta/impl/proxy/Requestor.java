@@ -73,7 +73,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * @since 2.6 To be removed in a future release
+ */
+@Deprecated
 public class Requestor {
     private final static Logger LOG = Logger.getLogger(Requestor.class.getName());
 

@@ -580,7 +580,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             ((GenericPeerGroup)group).getExecutor().execute( new Runnable() {
                 public void run() {
                     try {
-                        endpoint.demux(msg);
+                        endpoint.processIncomingMessage(msg);
                     } catch(Throwable uncaught) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                             LOG.log(Level.WARNING, "Failure demuxing an incoming message", uncaught);

@@ -162,7 +162,7 @@ class HttpMessageSender implements MessageSender {
             
             while (eachMessenger.hasNext()) {
                 HttpClientMessenger aMessenger = eachMessenger.next();
-
+                aMessenger.closeImpl();
                 eachMessenger.remove();
             }
         }

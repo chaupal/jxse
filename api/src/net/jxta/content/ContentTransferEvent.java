@@ -66,6 +66,11 @@ import java.util.EventObject;
 public class ContentTransferEvent extends EventObject {
 
     /**
+     * Serialized version.
+     */
+    private static final long serialVersionUID = 2009110500L;
+
+    /**
      * The current source location state.
      */
     private final ContentSourceLocationState locationState;
@@ -83,52 +88,115 @@ public class ContentTransferEvent extends EventObject {
     /**
      * Total number of bytes received this far, if provided.
      */
-    private Long bytesReceived;
+    private final Long bytesReceived;
     
     /**
      * Total number of bytes to be transferred, if provided.
      */
-    private Long bytesTotal;
-
+    private final Long bytesTotal;
+    
     /**
-     * Creates a new instance of ContentTransferEvent.
-     *
-     * @param source ContentTransfer issueing this event
+     * Builder pattern.
      */
-    public ContentTransferEvent(ContentTransfer source) {
-        this(source, null, null, null);
+    public static class Builder {
+        // Required paramters:
+        private final ContentTransfer bSource;
+        
+        // Optional parameters:
+        private ContentSourceLocationState bLocationState;
+        private ContentTransferState bTransferState;
+        private Integer bLocationCount;
+        private Long bBytesReceived;
+        private Long bBytesTotal;
+        
+        /**
+         * Creates a new builder instance.
+         * 
+         * @param source ContentTransfer issueing this event
+         */
+        public Builder(final ContentTransfer source) {
+            bSource = source;
+        }
+        
+        /**
+         * Sets the value of the current location state.
+         * 
+         * @param value current source location state
+         * @return builder instance
+         */
+        public Builder locationState(final ContentSourceLocationState value) {
+            bLocationState = value;
+            return this;
+        }
+        
+        /**
+         * Sets the value of the current transfer state.
+         * 
+         * @param value current transfer state
+         * @return builder instance
+         */
+        public Builder transferState(final ContentTransferState value) {
+            bTransferState = value;
+            return this;
+        }
+        
+        /**
+         * Sets the current number of discovered remote data sources.
+         * 
+         * @param value number of remote data sources
+         * @return builder instance
+         */
+        public Builder locationCount(final int value) {
+            bLocationCount = Integer.valueOf(value);
+            return this;
+        }
+        
+        /**
+         * Sets the number of bytes received thus far for the transfer
+         * to which this event pertains.  This method is intended to be
+         * called by ContentProvider implementations during event creation
+         * and should not be called by listeners of these events.
+         * 
+         * @param value number of bytes
+         * @return builder instance
+         */
+        public Builder bytesReceived(final long value) {
+            bBytesReceived = Long.valueOf(value);
+            return this;
+        }
+        
+        /**
+         * 
+         * @param value
+         * @return builder instance
+         */
+        public Builder bytesTotal(final long value) {
+            bBytesTotal = Long.valueOf(value);
+            return this;
+        }
+        
+        /**
+         * Builds the final event instance.
+         * 
+         * @return event instance
+         */
+        public ContentTransferEvent build() {
+            return new ContentTransferEvent(this);
+        }
     }
 
     /**
      * Creates a new instance of ContentTransferEvent.
      *
-     * @param source ContentTransfer issueing this event
-     * @param knownLocations current number of discovered remote data sources,
-     *  if known
+     * @param builder builder instance to obtain values from
      */
-    public ContentTransferEvent(
-            ContentTransfer source, Integer knownLocations) {
-        this(source, knownLocations, null, null);
-    }
-
-    /**
-     * Creates a new instance of ContentTransferEvent.
-     *
-     *
-     * @param source ContentTransfer issueing this event
-     * @param knownLocations current number of discovered remote data sources,
-     *  if known
-     * @param contentLocationState current source location state, if known
-     * @param contentTransferState current transfer state, if known
-     */
-    public ContentTransferEvent(
-            ContentTransfer source, Integer knownLocations,
-            ContentSourceLocationState contentLocationState,
-            ContentTransferState contentTransferState) {
-        super(source);
-        locationCount = knownLocations;
-        locationState = contentLocationState;
-        transferState = contentTransferState;
+    protected ContentTransferEvent(final Builder builder) {
+        super(builder.bSource);
+        locationCount = builder.bLocationCount;
+        locationState = builder.bLocationState;
+        transferState = builder.bTransferState;
+        bytesReceived = builder.bBytesReceived;
+        bytesTotal = builder.bBytesTotal;
     }
 
     /**
@@ -169,18 +237,6 @@ public class ContentTransferEvent extends EventObject {
     }
     
     /**
-     * Sets the number of bytes received thus far for the transfer
-     * to which this event pertains.  This method is intended to be
-     * called by ContentProvider implementations during event creation
-     * and should not be called by listeners of these events.
-     * 
-     * @param count number of bytes
-     */
-    public void setBytesReceived(long count) {
-        bytesReceived = count;
-    }
-    
-    /**
      * Gets the number of bytes received thus far for the transfer to
      * which this event pertains, if provided.
      * 
@@ -190,18 +246,6 @@ public class ContentTransferEvent extends EventObject {
         return bytesReceived;
     }
 
-    /**
-     * Sets the total of bytes to be received for the transfer
-     * to which this event pertains.  This method is intended to be
-     * called by ContentProvider implementations during event creation
-     * and should not be called by listeners of these events.
-     * 
-     * @param count number of bytes
-     */
-    public void setBytesTotal(long count) {
-        bytesTotal = count;
-    }
-    
     /**
      * Gets the number of bytes to be received for the transfer to
      * which this event pertains, if provided.

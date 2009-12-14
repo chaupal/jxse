@@ -181,9 +181,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     protected OutputPipe connectOutpipe;
 
     /**
-     * The timeout of the read() of this socket's input stream
+     * The timeout of the read() of this socket's input stream (in milliseconds)
      */
-    private int soTimeout = 0;
+    private int soTimeout = 100;
 
     /**
      * timeout for connect and close

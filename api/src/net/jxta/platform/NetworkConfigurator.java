@@ -266,12 +266,18 @@ public class NetworkConfigurator {
 
     /**
      * Default Proxy configuration
+     *
+     * @since 2.6 Will be removed in a future release
      */
+    @Deprecated
     public final static int PROXY_NODE = PROXY_SERVER | RELAY_NODE;
 
     /**
      * Default Rendezvous/Relay/Proxy configuration
+     *
+     * @since 2.6 Will be removed in a future release
      */
+    @Deprecated
     public final static int RDV_RELAY_PROXY_NODE = RDV_NODE | PROXY_NODE;
 
     // end configuration modes
@@ -331,6 +337,7 @@ public class NetworkConfigurator {
     /**
      * Proxy Service Document
      */
+    @Deprecated
     protected transient XMLElement proxyConfig;
 
     /**
@@ -440,7 +447,10 @@ public class NetworkConfigurator {
      *
      * @param storeHome the URI to persistent store
      * @return NetworkConfigurator instance with defaultProxy configuration
+     *
+     * @since 2.6 Will be removed in a future release
      */
+    @Deprecated
     public static NetworkConfigurator newProxyConfiguration(URI storeHome) {
         return new NetworkConfigurator(PROXY_NODE, storeHome);
     }
@@ -450,7 +460,10 @@ public class NetworkConfigurator {
      *
      * @param storeHome the URI to persistent store
      * @return NetworkConfigurator instance with default Rendezvous, Relay, Proxy configuration
+     *
+     * @since 2.6 It will be removed in a future release
      */
+    @Deprecated
     public static NetworkConfigurator newRdvRelayProxyConfiguration(URI storeHome) {
         return new NetworkConfigurator(RDV_RELAY_PROXY_NODE, storeHome);
     }
@@ -631,6 +644,15 @@ public class NetworkConfigurator {
     }
 
     /**
+     * Returns the HTTP interface Address
+     *
+     * @param address the HTTP interface address
+     */
+    public String getHttpInterfaceAddress() {
+        return httpConfig.getInterfaceAddress();
+    }
+
+    /**
      * Sets the HTTP JXTA Public Address
      * e.g. "192.168.1.1:9700"
      *
@@ -640,6 +662,24 @@ public class NetworkConfigurator {
     public void setHttpPublicAddress(String address, boolean exclusive) {
         httpConfig.setServer(address);
         httpConfig.setPublicAddressOnly(exclusive);
+    }
+
+    /**
+     * Returns the HTTP JXTA Public Address
+     *
+     * @return exclusive determines whether an address is advertised exclusively
+     */
+    public String getHttpPublicAddress() {
+        return httpConfig.getServer();
+    }
+
+    /**
+     * Returns the HTTP JXTA Public Address exclusivity
+     *
+     * @return exclusive determines whether an address is advertised exclusively
+     */
+    public boolean getHttpPublicAddressExclusivity() {
+        return httpConfig.getPublicAddressOnly();
     }
 
     /**
@@ -1205,6 +1245,15 @@ public class NetworkConfigurator {
     }
 
     /**
+     * Indicates whether the public TCP address is advertised exclusively.
+     *
+     * @return boolean indicating whether public address is advertised exclusively
+     */
+    public boolean getTcpPublicAddressExclusivity() {
+        return tcpConfig.getPublicAddressOnly();
+    }
+
+    /**
      * Toggles whether to use IP group multicast (default is true)
      *
      * @param multicastOn the new useMulticast value
@@ -1691,6 +1740,7 @@ public class NetworkConfigurator {
      *
      * @return ProxyService configuration advertisement
      */
+    @Deprecated
     protected XMLDocument createProxyAdv() {
         return (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
     }
@@ -1974,6 +2024,16 @@ public class NetworkConfigurator {
     }
 
     /**
+     * Retrieves the Tcp outgoing status
+     *
+     * @return true if tcp outcoming is enabled, else returns false
+     * @see #setTcpOutgoing
+     */
+    public boolean getTcpOutgoingStatus() {
+        return tcpConfig.getClientEnabled();
+    }
+
+    /**
      * Retrieves the Tcp interface address
      *
      * @return the current tcp interface address
@@ -2074,13 +2134,33 @@ public class NetworkConfigurator {
     }
 
     /**
-     * Retrieves the rendezvous seeds
+     * Retrieves the rendezvous seedings
      *
-     * @return the array of rendezvous seed URL
+     * @return the array of rendezvous seeding URL
      * @see #addRdvSeedingURI
      */
     public URI[] getRdvSeedingURIs() {
         return rdvConfig.getSeedingURIs();
+    }
+
+    /**
+     * Retrieves the rendezvous seeds
+     *
+     * @return the array of rendezvous seeds URL
+     * @see #addRdvSeedURI
+     */
+    public URI[] getRdvSeedURIs() {
+        return rdvConfig.getSeedRendezvous();
+    }
+
+    /**
+     * Retrieves the relay seeds
+     *
+     * @return the array of relay seeds URL
+     * @see #addRelaySeedURI
+     */
+    public URI[] getRelaySeedURIs() {
+        return relayConfig.getSeedRelayURIs();
     }
 
     /**

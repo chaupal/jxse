@@ -764,8 +764,9 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         ContentTransferEvent event = null;
         for (ContentTransferListener listener : getContentTransferListeners()) {
             if (event == null) {
-                event = new ContentTransferEvent(this);
-                event.setBytesReceived(received);
+                event = new ContentTransferEvent.Builder(this)
+                        .bytesReceived(received)
+                        .build();
             }
             listener.contentTransferProgress(event);
         }

@@ -55,6 +55,16 @@
  */
 package net.jxta.impl.endpoint.relay;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.NoSuchElementException;
+
+import java.util.logging.Level;
+
+import net.jxta.logging.Logging;
+
+import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -79,6 +89,12 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.id.IDFactory;
+
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.protocol.RelayConfigAdv;
+import net.jxta.peer.PeerID;
+import net.jxta.pipe.PipeService;
 
 /**
  * The Relay Server supports the following commands:
@@ -115,9 +131,7 @@ public final class RelayTransport implements EndpointListener, Module {
     static final String CONNECTED_RESPONSE = "connected";
     static final MessageElement CONNECTED_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, CONNECTED_RESPONSE, null);
     static final String DISCONNECTED_RESPONSE = "disconnected";
-    static final MessageElement DISCONNECTED_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, DISCONNECTED_RESPONSE
-            ,
-            null);
+    static final MessageElement DISCONNECTED_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, DISCONNECTED_RESPONSE, null);
     static final String PID_RESPONSE = "pid";
     static final MessageElement PID_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, PID_RESPONSE, null);
 
@@ -135,7 +149,7 @@ public final class RelayTransport implements EndpointListener, Module {
 
     static final long DEFAULT_BROADCAST_INTERVAL = 10 * TimeUtils.AMINUTE;
 
-    static final int DEFAULT_CLIENT_QUEUE_SIZE = 20;
+    static final int DEFAULT_CLIENT_QUEUE_SIZE = 200;
 
     private PeerGroup group = null;
 
@@ -359,10 +373,10 @@ public final class RelayTransport implements EndpointListener, Module {
         return message;
     }
 
-    static Message createPIDResponseMessage(String pidStr) {
+    static Message createPIDResponseMessage(PeerID newPeerID) {
         Message message = new Message();
         message.addMessageElement(RELAY_NS, PID_RESPONSE_ELEMENT);
-        setString(message, PEERID_ELEMENT, pidStr);
+        setString(message, PEERID_ELEMENT, newPeerID.toString());
 
         return message;
     }
@@ -424,7 +438,7 @@ public final class RelayTransport implements EndpointListener, Module {
     }
 
     /**
-     * Convinence function for setting a string element with the relay namespace
+     * Convenience function for setting a string element with the relay namespace
      *
      * @param message the message
      * @param elementName message element name
@@ -439,7 +453,7 @@ public final class RelayTransport implements EndpointListener, Module {
     }
 
     /**
-     * Convinence function for getting a String from the element with the given
+     * Convenience function for getting a String from the element with the given
      * tag and relay namespace
      *
      * @param message the message
@@ -455,5 +469,31 @@ public final class RelayTransport implements EndpointListener, Module {
             return null;
         }
         return element.toString();
+    }
+    
+        
+    /**
+     * Convert a Router EndpointAddress into a PeerID
+     *
+     * @param addr the address to extract peerAddress from
+     * @return the PeerID
+     */
+    static PeerID addr2pid(EndpointAddress addr) {
+        URI asURI = null;
+
+        try {
+            asURI = new URI(ID.URIEncodingName, ID.URNNamespace + ":" + addr.getProtocolAddress(), null);
+            return (PeerID) IDFactory.fromURI(asURI);
+        } catch (URISyntaxException ex) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Error converting a source address into a virtual address : " + addr, ex);
+}
+        } catch (ClassCastException cce) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Error converting a source address into a virtual address: " + addr, cce);
+            }
+        }
+
+        return null;
     }
 }

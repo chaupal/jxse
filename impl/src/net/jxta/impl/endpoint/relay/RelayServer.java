@@ -55,6 +55,26 @@
  */
 package net.jxta.impl.endpoint.relay;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.channels.IllegalSelectorException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.spi.AbstractSelectableChannel;
+import java.nio.channels.spi.AbstractSelector;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -103,6 +123,7 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.impl.peergroup.GenericPeerGroup;
 
 /**
  * Relay server that maintains outgoing message queues, leases, etc.
@@ -113,51 +134,54 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
      *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(RelayServer.class.getName());
-    
+    /**
+     * The maximum number of relay servers we will cache to provide as referrals.
+     */
     private final static int MAX_CACHED_SERVERS = 20;
-    
     /**
      * The EndpointService for the RelayService
      */
-    private EndpointService endpointService;
-    
+    EndpointService endpointService;
+    /**
+     * 
+     */
+    private MessengerEventListener messengerEventListener = null;
     /**
      * The DiscoveryService for the RelayService
      */
     private DiscoveryService discoveryService;
-    
     /**
      * The public address is of the form relay://peerId
      */
     private final EndpointAddress publicAddress;
-    
     /**
      *  Map of the current clients
      */
-    private final Map<String, RelayServerClient> relayedClients = new HashMap<String, RelayServerClient>();
-    
+    private final Map<PeerID, RelayServerClient> relayedClients = new ConcurrentHashMap<PeerID, RelayServerClient>();
     protected final PeerGroup group;
     protected final String serviceName;
-    private final int maxClients;
-    private final long maxLeaseDuration;
-    private final long stallTimeout;
-    private final int clientQueueSize;
+    private final int MAX_CLIENTS;
+    private final long MAX_LEASE_DURATION;
+    private final long MAX_QUEUE_STALL_DURATION;
+    private final int CLIENT_MESSAGE_QUEUE_SIZE;
     private final long minBroadcastInterval;
-    
     protected final String peerId;
-
     protected final AccessList acl;
     protected File aclFile;
     protected long refreshTime = 0;
-
     protected long aclFileLastModified = 0;
     private static final long ACL_REFRESH_PERIOD = 30 * TimeUtils.AMINUTE;
+    RelayServerCache relayServerCache;
     
-    protected RelayServerCache relayServerCache;
-    
-    private Thread gcThread = null;
-
-    private MessengerEventListener messengerEventListener = null;
+    /**
+     *  Services the selector thread and (incidentally) initiates the client GC
+     *  process.
+     */
+    private Thread selectorThread = null;
+    /**
+     *  Our selector for clients with pending sendable messages.
+     */
+    final ClientSelector selector = new ClientSelector();
     
     /**
      * constructor
@@ -170,19 +194,19 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         this.serviceName = serviceName;
         
-        this.maxClients = (-1 != relayConfigAdv.getMaxClients())
+        this.MAX_CLIENTS = (-1 != relayConfigAdv.getMaxClients())
                 ? relayConfigAdv.getMaxClients()
                 : RelayTransport.DEFAULT_MAX_CLIENTS;
-        this.clientQueueSize = (-1 != relayConfigAdv.getClientMessageQueueSize())
+        this.CLIENT_MESSAGE_QUEUE_SIZE = (-1 != relayConfigAdv.getClientMessageQueueSize())
                 ? relayConfigAdv.getClientMessageQueueSize()
                 : RelayTransport.DEFAULT_CLIENT_QUEUE_SIZE;
-        this.maxLeaseDuration = (-1 != relayConfigAdv.getServerLeaseDuration())
+        this.MAX_LEASE_DURATION = (-1 != relayConfigAdv.getServerLeaseDuration())
                 ? relayConfigAdv.getServerLeaseDuration()
                 : RelayTransport.DEFAULT_LEASE;
         this.minBroadcastInterval = (-1 != relayConfigAdv.getAnnounceInterval())
                 ? relayConfigAdv.getAnnounceInterval()
                 : RelayTransport.DEFAULT_BROADCAST_INTERVAL;
-        this.stallTimeout = (-1 != relayConfigAdv.getStallTimeout())
+        this.MAX_QUEUE_STALL_DURATION = (-1 != relayConfigAdv.getStallTimeout())
                 ? relayConfigAdv.getStallTimeout()
                 : RelayTransport.DEFAULT_STALL_TIMEOUT;
 
@@ -209,10 +233,10 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
             configInfo.append("\n\tConfiguration :");
             configInfo.append("\n\t\tService Name : ").append(serviceName);
-            configInfo.append("\n\t\tMax Relay Clients : ").append(maxClients);
-            configInfo.append("\n\t\tMax Lease Length : ").append(maxLeaseDuration).append("ms.");
+            configInfo.append("\n\t\tMax Relay Clients : ").append(MAX_CLIENTS);
+            configInfo.append("\n\t\tMax Lease Length : ").append(MAX_LEASE_DURATION).append("ms.");
             configInfo.append("\n\t\tBroadcast Interval : ").append(minBroadcastInterval).append("ms.");
-            configInfo.append("\n\t\tStall Timeout : ").append(stallTimeout).append("ms.");
+            configInfo.append("\n\t\tStall Timeout : ").append(MAX_QUEUE_STALL_DURATION).append("ms.");
             
             LOG.config(configInfo.toString());
         }
@@ -224,24 +248,25 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     public List<String> getRelayedClients() {
         List<String> res = new ArrayList<String>();
 
-        for (Object o : Arrays.asList(relayedClients.values().toArray())) {
-            String client = o.toString();
-
-            res.add(client);
+        for (RelayServerClient eachClient : relayedClients.values()) {
+            res.add(eachClient.toString());
         }
 
         return res;
     }
     
-    public boolean startServer() {
-        
+    boolean startServer() {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Starting " + publicAddress.toString());
+            LOG.info("Starting " + publicAddress);
         }
         
         endpointService = group.getEndpointService();
         discoveryService = group.getDiscoveryService();
         
+        selectorThread = new Thread(group.getHomeThreadGroup(), this, "Selector Thread for Relay Server : " + publicAddress);
+        selectorThread.setDaemon(true);
+        selectorThread.start();
+
         if ((messengerEventListener = endpointService.addMessageTransport(this)) == null) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.severe("Transport registration refused");
@@ -257,20 +282,19 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             }
         }
         
-        relayServerCache = new RelayServerCache(this);
-        
         // start cache relay servers
+        relayServerCache = new RelayServerCache(this);
         relayServerCache.startCache();
         
         endpointService.addMessengerEventListener(this, EndpointService.HighPrecedence);
         
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Relay Server started");
+            LOG.info("Relay Server started : " + publicAddress);
         }
         return true;
     }
 
-    public void stopServer() {
+    void stopServer() {
         // stop cache relay servers
         relayServerCache.stopCache();
         relayServerCache = null;
@@ -283,31 +307,44 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         // Close all clients.
-        // Get a list of the clients but leave them in the map;
-        // they remove themselves by calling removeClient(this).
-        // That's why we do not iterate through the real map to close them.
+        for (RelayServerClient aClient : relayedClients.values()) {
+            try {
+                aClient.close();
+            } catch (IOException ignored) {
         
-        RelayServerClient[] oldClients;
-        
-        synchronized (relayedClients) {
-            oldClients = relayedClients.values().toArray(new RelayServerClient[0]);
+        }
         }
         
-        int i = oldClients.length;
+        relayedClients.clear();
         
-        while (i-- > 0) {
-            oldClients[i].closeClient();
+        try {
+            selector.close();
+        } catch (IOException ignored) {
+
         }
         
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Stopped " + publicAddress);
+            LOG.info("Relay Server stopped : " + publicAddress);
         }        
     }
     
     /*
      * Methods inherited from MessageSender
      */
+    /**
+     * {@inheritDoc}
+     */
+    public String getProtocolName() {
+        return RelayTransport.protocolName;
+    }
     
+    /**
+     * {@inheritDoc}
+     */
+    public EndpointService getEndpointService() {
+        return endpointService;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -342,23 +379,16 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
         Messenger messenger = null;
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("getMessenger for dest " + destAddr);
+        if (!destAddr.getProtocolName().equalsIgnoreCase(getProtocolName())) {
+            throw new IllegalArgumentException("Only '" + getProtocolName() + "' URIs are supported.");
         }
         
-        if (!RelayTransport.protocolName.equals(destAddr.getProtocolName())) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("could not make messenger for protocol :" + destAddr.getProtocolName());
-            }
+        PeerID clientID = RelayTransport.addr2pid(destAddr);
             
-            return null;
-        }
-        
-        // check if we have a queue for this client
-        RelayServerClient handler = getClient(destAddr.getProtocolAddress());
+        RelayServerClient handler = relayedClients.get(clientID);
         
         if (handler != null) {
-            messenger = handler.getMessenger(publicAddress, destAddr, false);
+            messenger = handler.getMessenger(destAddr, false);
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -373,28 +403,11 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
      */
     @Deprecated
     public boolean ping(EndpointAddress addr) {
-        
-        synchronized (relayedClients) {
-            return (null != relayedClients.get(addr.getProtocolAddress()));
+        if (addr.getProtocolName().equalsIgnoreCase(getProtocolName())) {
+            throw new IllegalArgumentException("Only '" + getProtocolName() + "' URIs are supported.");
         }
-    }
     
-    /*
-     * Methods inherited from MessageTransport
-     */
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getProtocolName() {
-        return RelayTransport.protocolName;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public EndpointService getEndpointService() {
-        return endpointService;
+        return null != getClient(RelayTransport.addr2pid(addr));
     }
     
     /**
@@ -412,17 +425,16 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         // Sanity check, this should not happen
         if (newMessenger == null || source == null || connectionAddress == null) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("there was not a messenger or not enough information");
+                LOG.fine("there was no messenger or not enough information");
             }
             
             return false;
         }
         
-        // We do not grab just any messenger; that would replace the
-        // existing one and then we could have a fight between the
-        // front channel and the back channel from the same peer.
-        // We only grab back-channel messengers that where explicitly
-        // directed to the relay.
+        // We do not grab just any messenger; that would replace the existing
+        // one and then we could have a fight between the front channel and the
+        // back channel from the same peer.  We only grab back-channel
+        // messengers that where explicitly directed to the relay.
         if (!serviceName.equals(connectionAddress.getServiceName())) {
             return false;
         }
@@ -437,7 +449,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         // make sure that this is not one of our own.
-        if (source == this || newMessenger instanceof RelayServerClient.RelayMessenger) {
+        if (source == this) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("this is a relay messenger");
             }
@@ -466,26 +478,25 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         // we're going nowhere. In some cases, the client realy wants a
         // response because it believes it is an initial connection while
         // we still have it from a previous session. In that case, the client
-        // must try to send an explicit lease renewal message. (To which
-        // we do respond).
+        // must try to send an explicit lease renewal message. (To which we do
+        // respond).
+        PeerID clientPeerID = RelayTransport.addr2pid(destAddr);
         
-        String clientPeerId = destAddr.getProtocolAddress();
-        RelayServerClient handler = getClient(clientPeerId);
+        RelayServerClient handler = getClient(clientPeerID);
         
         if (handler != null) {
             return handler.addMessenger(newMessenger);
         }
         
-        // Non-existent client. We want to process the
-        // connection request and respond.
-        // handleRequest may do whatever, but we always keep the
+        // Non-existent client. We want to process the connection request and
+        // respond. handleRequest may do whatever, but we always keep the
         // messenger. It was meant for us anyway.
         handleRequest(newMessenger, connectionAddress);
+
         return true;
     }
 
     protected void handleRequest(Messenger messenger, EndpointAddress connectionAddress) {
-        
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("handleRequest from messenger");
         }
@@ -497,18 +508,26 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         EndpointAddress clientAddr = messenger.getLogicalDestinationAddress();
         
         if (clientAddr == null || !"jxta".equals(clientAddr.getProtocolName())) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("LogicalDestinationAddress is not a \"jxta\" protocol");
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("LogicalDestinationAddress is not a \"jxta\" protocol");
             }
             
             return;
         }
         
-        String clientPeerId = clientAddr.getProtocolAddress();
+        PeerID clientPeerID = RelayTransport.addr2pid(clientAddr);
         
-        handleRequest(request, clientPeerId, messenger);
+        if (null == clientPeerID) {
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Bad client address : " + clientAddr);
     }
     
+            return;
+        }
+
+        handleRequest(request, clientPeerID, messenger);
+    }
+
     protected void handleRequest(Message message, EndpointAddress dstAddr) {
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -516,12 +535,32 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         String request = RelayTransport.getString(message, RelayTransport.REQUEST_ELEMENT);
-        String clientPeerId = dstAddr.getServiceParameter();
         
-        handleRequest(request, clientPeerId, null);
+        PeerID clientPeerID;
+
+        // The only valid anonymous request is a request to obtain a real pid.
+        if (dstAddr.getServiceParameter().equals("unknown-unknown")) {
+            if (!request.startsWith(RelayTransport.PID_REQUEST)) {
+                return;
     }
     
-    void handleRequest(String request, String clientPeerId, Messenger messenger) {
+            clientPeerID = null;
+        } else {
+            try {
+                clientPeerID = PeerID.create(new URI(ID.URIEncodingName, ID.URNNamespace + ":" + dstAddr.getServiceParameter(), null));
+            } catch (URISyntaxException badURI) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("Bad client address : " + dstAddr.getServiceParameter());
+                }
+
+                return;
+            }
+        }
+
+        handleRequest(request, clientPeerID, null);
+    }
+
+    void handleRequest(String request, PeerID clientPeerID, Messenger messenger) {
         // This request may come along with a messenger (if it is a renewal
         // post-disconnection or an initial lease request).
         
@@ -535,20 +574,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             LOG.fine("request = " + request);
         }
         
-        // only process the request if a client peer id was sent
-        if (clientPeerId == null) {
-            return;
-        }
-        
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("clientPeerId = " + clientPeerId);
-        }
-        
-        // The only valid anonymous request is a request to obtain a real pid.
-        if ((clientPeerId.equals("unknown-unknown")) && (!request.startsWith(RelayTransport.PID_REQUEST))) {	
-            return;
-        }
-        
         Message responseMessage = null;
         
         RelayServerClient closingHandler = null;
@@ -558,11 +583,15 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         // Figure out which request it is
         if (request.startsWith(RelayTransport.CONNECT_REQUEST)) {
             // Connect Request
+            if (null == clientPeerID) {
+                return;
+            }
+
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("connect clientPeerId = " + clientPeerId);
+                LOG.fine("connect clientPeerId = " + clientPeerID);
             }
             
-            long requestedLease = maxLeaseDuration;
+            long requestedLease = MAX_LEASE_DURATION;
             boolean returnRelayAdv = false;
             boolean returnOtherRelayAdv = false;
             boolean flushQueue = false;
@@ -603,9 +632,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             }
             
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "request lease string = " + requestedLeaseString + "\treturn relay adv = " + returnRelayAdv
-                        + "\n\treturn other relay adv = " + returnOtherRelayAdv + "\tflush queue = " + flushQueue);
+                LOG.fine("request lease string = " + requestedLeaseString + "\treturn relay adv = " + returnRelayAdv + "\n\treturn other relay adv = " + returnOtherRelayAdv + "\tflush queue = " + flushQueue);
             }
             
             if (requestedLeaseString != null) {
@@ -617,13 +644,13 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     }
                 }
                 
-                if (requestedLease > maxLeaseDuration) {
-                    requestedLease = maxLeaseDuration;
+                if (requestedLease > MAX_LEASE_DURATION) {
+                    requestedLease = MAX_LEASE_DURATION;
                 }
             }
             
             // process the connect request
-            EndpointAddress clientAddr = new EndpointAddress("jxta", clientPeerId, serviceName, peerId);
+            EndpointAddress clientAddr = new EndpointAddress(clientPeerID, serviceName, peerId);
             
             // If we have a messenger, the clientHandler gets it.
             // If the client handler did not already exist, it will be
@@ -632,18 +659,17 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             // from the router but no-longer. Now initial lease requests must
             // come as part of the messenger creation.
             
-            RelayServerClient handler = addClient(clientPeerId, requestedLease, messenger, flushQueue);
+            RelayServerClient handler = addClient(clientPeerID, requestedLease, messenger, flushQueue);
             
             if (handler != null) {
-                
                 // the client was added, send a connected response
                 if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("added client " + clientPeerId);
+                    LOG.fine("added client " + clientPeerID);
                 }
                 
                 // Now get a messenger that goes through the handler and
-                // sends messages out-of-band (and internal perk).
-                // jice@jxta.org - 20021227 all this code is getting ridiculous
+                // sends messages out-of-band (an internal perk).
+                // FIXME jice - 20021227 all this code is getting ridiculous
                 // it has to be re-organized. Addind the outOfBand feature
                 // to all RelayMessengers just for that is overkill. This
                 // just a temporary patch. The real fix would be to respond
@@ -654,9 +680,9 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 // reconnect. We would need to change the protocol and add an
                 // "initial connection" request type to fix that.
                 
-                messenger = handler.getMessenger(publicAddress, clientAddr, true);
+                messenger = handler.getMessenger(clientAddr, true);
                 responseMessage = RelayTransport.createConnectedMessage(handler.getLeaseRemaining());
-                // For protocol compatibility reasons, returnRelayAdv realy
+                // For protocol compatibility reasons, returnRelayAdv really
                 // means "return your own because I do not know it".
                 // If returnOtherRelayAdv is true, then, we will return one
                 // selected among those we know, for the enlightenment of the
@@ -681,8 +707,8 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             } else {
                 // We can't keep the messenger.
                 // the client was not added, send a disconnected response
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("could not add client " + clientPeerId);
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("could not add client " + clientPeerID);
                 }
                 
                 // We do not get a messenger for ourselves here, so
@@ -696,9 +722,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     if (messenger != null) {
                         closeMessenger = true;
                     }
-                    
                 } else {
-                    
                     // This is the incoming messenger. We cannot use it
                     // synchronously. See, the use of BGSend, below.
                     
@@ -720,36 +744,34 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             }
         } else if (RelayTransport.DISCONNECT_REQUEST.equals(request)) {
             // Disconnect Request, don't send a response
-            if (clientPeerId != null) {
-                closingHandler = removeClient(clientPeerId);
+            if (clientPeerID != null) {
+                closingHandler = removeClient(clientPeerID);
                 if (closingHandler != null) {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("removed client " + clientPeerId);
+                        LOG.fine("removed client " + clientPeerID);
                     }
                 }
             }
         } else if (RelayTransport.PID_REQUEST.equals(request)) {
-            
             // Generate a PeerID in the same group as our PeerID.
             // The group which my peerID stems from is not necessarily
             // the group where I am running (more likely it is the net peer
             // group). Rather than guessing, get the group from our own PID.
-            
             PeerGroupID groupOfMyPid = (PeerGroupID) group.getPeerID().getPeerGroupID();
             
-            String pidStr = IDFactory.newPeerID(groupOfMyPid).toString();
+            PeerID newPeerID = IDFactory.newPeerID(groupOfMyPid);
             
-            responseMessage = RelayTransport.createPIDResponseMessage(pidStr);
+            responseMessage = RelayTransport.createPIDResponseMessage(newPeerID);
             
-            // If there is a raw incoming messenger, that's what we
-            // use. Else, we won't respond.
+            // If there is a raw incoming messenger, that's what we use. Else,
+            // we won't respond.
             rawMessenger = true;
         }
         
         // if there is a messenger and a response, send it
         if (messenger != null && responseMessage != null) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("sending response to client " + clientPeerId);
+                LOG.fine("sending response to client " + clientPeerID);
             }
             
             // If rawMessenger, then this is the incoming
@@ -757,14 +779,13 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             // be carefull. It is synchronous and it could block this
             // here thread until the message can be sent. Which could
             // possibly imply that this here method returns...dead lock.
-            // See HttpMessageServlet: messengerReady is called by
+            // See HttpReceiverAdapter: messengerReady is called by
             // the same thread that subsequently picks up messages from
             // the BCMessenger. So, spawn a thread to reply.
             // FIXME: eventualy we should start replacing some listener
             // based code with state machines and event queues.
             
             if (rawMessenger) {
-                
                 // BGSend will *not* close the messenger after use
                 // Because incoming messengers do not need to be closed.
                 new BGSend(messenger, responseMessage, serviceName, peerId);
@@ -773,7 +794,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     messenger.sendMessage(responseMessage, serviceName, peerId);
                 } catch (IOException e) {
                     if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Could not send response message to " + clientPeerId, e);
+                        LOG.log(Level.WARNING, "Could not send response message to " + clientPeerID, e);
                     }
                 }
             }
@@ -784,152 +805,134 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         if (closingHandler != null) {
-            closingHandler.closeClient();
-        }
+            try {
+                closingHandler.close();
+            } catch (IOException ignored) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("relayedClients.size()=" + relayedClients.size());
         }
     }
-    
-    private RelayServerClient getClient(String clientPeerId) {
-        RelayServerClient handler;
-        
-        synchronized (relayedClients) {
-            handler = relayedClients.get(clientPeerId);
-        }
-        
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("getClient(" + clientPeerId + ") = " + handler);
-        }
-        
-        return handler;
     }
     
-    // Add client is idempotent. It can be called for a client that already
-    // exists. The flushqueue option instructs to clear the queue if the client
-    // exists.
-    private RelayServerClient addClient(String clientPeerId, long requestedLease, Messenger messenger, boolean flushQueue) {
-        RelayServerClient handler;
+    /**
+     *  Returns the unexpired client object for the specified peer id or
+     *  {@code null} if the client is not known or expired.
+     *
+     *  @param clientPeerID The client peer to retrieve.
+     *  @return The unexpired client object for the specified peer id or
+     *  {@code null} if the client is not known or expired.
+     */
+    private RelayServerClient getClient(PeerID clientPeerID) {
+        RelayServerClient client = relayedClients.get(clientPeerID);
+        
+        if (null == client) {
+            return null;
+        }
+        
+        if (client.isExpired()) {
+            return null;
+        }
+
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("getClient(" + clientPeerID + ") = " + client);
+        }
+        
+        return client;
+    }
+    
+    /**
+     * Add client is idempotent. It can be called for a client that already
+     * exists.
+     *
+     * @param flushQueue instructs to clear the queue if the client exists.
+     */
+    private RelayServerClient addClient(PeerID clientPeerID, long requestedLease, Messenger messenger, boolean flushQueue) {
+        RelayServerClient client;
         boolean isNewClient = false;
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("addClient(" + clientPeerId + ")");
+            LOG.fine("addClient(" + clientPeerID + ")");
         }
         
         synchronized (relayedClients) {
             // check if this client is already registered
-            handler = relayedClients.get(clientPeerId);
-            if (handler == null) {
+            client = relayedClients.get(clientPeerID);
+            if (client == null) {
                 // make sure the maximum number of clients has not been reached
                 // and make sure that we have a messenger to give to the new
                 // clientHandler.
-                if ((relayedClients.size() < maxClients) && (messenger != null) && !messenger.isClosed()) {
+                if ((relayedClients.size() < MAX_CLIENTS) && (messenger != null) && !messenger.isClosed()) {
                     
-                    // create a new handler
-                    handler = new RelayServerClient(this, clientPeerId, requestedLease, stallTimeout, clientQueueSize);
+                    // create a new client
+                    client = new RelayServerClient(this, clientPeerID, requestedLease, MAX_QUEUE_STALL_DURATION, CLIENT_MESSAGE_QUEUE_SIZE);
                     
-                    // add the handler to the list
-                    relayedClients.put(clientPeerId, handler);
+                    // add the client to the list
+                    relayedClients.put(clientPeerID, client);
                     isNewClient = true;
-                    
-                    // check if this is the first client added
-                    if (relayedClients.size() == 1) {
-                        // start the gcThread if it is not already started
-                        if (gcThread == null) {
-                            gcThread = new Thread(group.getHomeThreadGroup(), this, "GC Thread for Relay at " + publicAddress);
-                            gcThread.setDaemon(true);
-                            gcThread.start();
-                        }
-                    }
                 } else {
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                "new client denied. nb clients: " + relayedClients.size() + "/" + maxClients + ", messenger: "
-                                + messenger);
+                        LOG.fine("new client denied. nb clients: " + relayedClients.size() + "/" + MAX_CLIENTS + ", messenger: " + messenger);
                     }
                 }
             }
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("added = " + (handler != null));
+            LOG.fine("added = " + (client != null));
         }
         
-        if (handler == null) {
+        if (client == null) {
             return null;
         }
         
-        // renew the lease on the old handler
-        // Watchout. The handler might have expired since we got it from the
+        // renew the lease on the old client
+        // Watchout. The client might have expired since we got it from the
         // map. RenewLease will tell us. In that case, tough luck. We don't
         // make a new one. FIXME: it's not nice to the client, but in no way
         // a disaster (and very rare).
         
-        if (!handler.renewLease()) {
+        if (!client.renewLease(requestedLease)) {
             return null;
         }
         
         if (flushQueue) {
-            handler.flushQueue();
+            client.flushQueue();
         }
         
         if (messenger != null) {
-            handler.addMessenger(messenger);
+            client.addMessenger(messenger);
             
-            // We must force the router to learn the new relay connection as
-            // a direct route, so that it replies to route queries even if we
+            // We must force the router to learn the new relay connection as a
+            // direct route, so that it replies to route queries even if we
             // never start talking to the client otherwise.
             // Here we do something rather acrobatic. We invoke messengerReady
-            // recursively with a new relay messenger that the router will
-            // catch as if it where an incoming messenger (which it is, sort
-            // of). The cleaner alternative: call getMessenger with a hint
-            // causes too much commotion: sometimes an unreachable tcp address
-            // is tried before the hint, which blocks getMessenger for long.
+            // recursively with a new relay messenger that the router will catch
+            // as if it where an incoming messenger (which it is, sort of). 
+            // The cleaner alternative: call getMessenger with a hint causes too
+            // much commotion: sometimes an unreachable tcp address is tried
+            // before the hint, which blocks getMessenger() for long.
             
             if (isNewClient) {
-                EndpointAddress ear = new EndpointAddress(RelayTransport.protocolName, clientPeerId, null, null);
+                EndpointAddress ear = new EndpointAddress(RelayTransport.protocolName, clientPeerID.getUniqueValue().toString(), null, null);
                 
-                MessengerEvent me = new MessengerEvent(this, handler.getMessenger(publicAddress, ear, false), null);
+                MessengerEvent me = new MessengerEvent(this, client.getMessenger(ear, false), null);
                 
                 messengerEventListener.messengerReady(me);
             }
         }
         
-        return handler;
+        return client;
     }
     
-    private RelayServerClient removeClient(String clientPeerId) {
-        RelayServerClient handler;
-        
+    private RelayServerClient removeClient(PeerID clientPeerId) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("removeClient(" + clientPeerId + ")");
         }
         
-        synchronized (relayedClients) {
-            handler = relayedClients.remove(clientPeerId);
-            
-            // check if there are any clients
-            if (relayedClients.size() == 0) {
-                // stop the gcThread
-                if (gcThread != null) {
-                    try {
-                        gcThread.interrupt();
-                    } catch (SecurityException e) {
-                        // ignore this exception
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine(e.toString());
+        return relayedClients.remove(clientPeerId);
                         }
-                    }
-                }
-            }
-        }
         
-        return handler;
-    }
-    
     // this is only used by the RelayServerClient when it is closing and needs to remove itself
-    protected void removeClient(String clientPeerId, RelayServerClient handler) {
+    protected void removeClient(PeerID clientPeerId, RelayServerClient handler) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("removeClient(" + clientPeerId + "," + handler + ")");
         }
@@ -944,8 +947,8 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             
             // check if there are any clients
             if (relayedClients.size() == 0) {
-                // stop the gcThread
-                Thread temp = gcThread;
+                // stop the selectorThread
+                Thread temp = selectorThread;
                 
                 if (temp != null) {
                     try {
@@ -966,33 +969,32 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
      */
     public void run() {
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Starting lease gc thread");
+            LOG.info("Starting client selector thread");
         }
         
+        long nextGC = TimeUtils.toAbsoluteTimeMillis(MAX_QUEUE_STALL_DURATION);
+
         try {
-            while (true) {
-                // check if there are any client handlers left
-                synchronized (relayedClients) {
-                    if (relayedClients.size() == 0) {
-                        break;
+            while (selector.isOpen()) {
+                if (nextGC <= TimeUtils.timeNow()) {
+                    // do the lease gc
+                    ((GenericPeerGroup) group).getExecutor().execute(new DoClientGC());
+                    nextGC = TimeUtils.toAbsoluteTimeMillis(MAX_QUEUE_STALL_DURATION);
                     }
-                }
                 
-                // do the lease gc
-                doClientGC();
-                
-                // check if there are any client handlers left
-                synchronized (relayedClients) {
-                    if (relayedClients.size() == 0) {
-                        break;
-                    }
-                }
-                
-                // sleep for a while.
                 try {
-                    Thread.sleep(stallTimeout);
-                } catch (InterruptedException e) {
-                    Thread.interrupted();
+                    int selected = selector.select((int) TimeUtils.ASECOND);
+                
+                    if (0 != selected) {
+                        for (SelectionKey aKey : selector.selectedKeys()) {
+                            selector.unregister(aKey);
+                            RelayServerClient aClient = (RelayServerClient) aKey.channel();
+
+                            ((GenericPeerGroup) group).getExecutor().execute(aClient);
+                    }
+                }
+                } catch (InterruptedIOException e) {
+                    continue;
                 }
             }
         } catch (Throwable all) {
@@ -1000,35 +1002,34 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
             }
         } finally {
-            gcThread = null;
+            selectorThread = null;
             
             if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("stopping lease gc thread");
+                LOG.info("Stopping client selector thread");
             }
         }
     }
     
-    // checks for expired client handlers
-    private void doClientGC() {
+    /**
+     *  Checks for expired Clients.
+     */
+    private class DoClientGC implements Runnable {
+
+        /**
+         *  {@inheritDoc}
+         */
+        public void run() {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("start: check for expired client handler. # clients = " + relayedClients.size());
+                LOG.fine("start: " + relayedClients.size() + " clients");
         }
         
-        // get a snapshot of the client handlers
-        RelayServerClient[] handlers;
-        
-        synchronized (relayedClients) {
-            handlers = relayedClients.values().toArray(new RelayServerClient[0]);
+            // run through the clients
+            for (RelayServerClient aClient : relayedClients.values()) {
+                try {
+                    if (aClient.isExpired()) {
+                        relayedClients.remove(aClient);
+                        aClient.close();
         }
-        
-        // run through the client handlers
-        int i = handlers.length;
-        
-        while (i-- > 0) {
-            try {
-                // simply calling isExpired will cause the handler to check
-                // if it is expired and remove itself if expired
-                handlers[i].isExpired();
             } catch (Exception e) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Exception during client gc", e);
@@ -1037,23 +1038,21 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("stop: check for expired client handler. # clients = " + relayedClients.size());
+                LOG.fine("finish: " + relayedClients.size() + " clients");
         }
+    }
     }
     
     private static class RelayServerCache implements PipeMsgListener, Runnable {
+
         final static ID pipeID = ID.create(
                 URI.create("urn:jxta:uuid-59616261646162614E50472050325033DEADBEEFDEAFBABAFEEDBABE0000000F04"));
-        
         final RelayServer server;
         final PipeAdvertisement pipeAdv;
         InputPipe inputPipe = null;
-        
         volatile boolean doRun = false;
         Thread cacheThread = null;
-        
         final Map<String, RdvAdvertisement> relayAdvCache = new HashMap<String, RdvAdvertisement>();
-        
         final Random rand = new Random();
         
         protected RelayServerCache(RelayServer server) {
@@ -1072,13 +1071,13 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         protected RdvAdvertisement getRandomCacheAdv() {
             synchronized (relayAdvCache) {
-                RdvAdvertisement[] items = relayAdvCache.values().toArray(new RdvAdvertisement[0]);
+                List<RdvAdvertisement> items = new ArrayList<RdvAdvertisement>(relayAdvCache.values());
                 
-                if (items.length == 0) {
+                if (items.isEmpty()) {
                     return null;
                 }
                 
-                return items[rand.nextInt(items.length)];
+                return items.get(rand.nextInt(items.size()));
             }
         }
         
@@ -1155,6 +1154,11 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     LOG.log(Level.WARNING, "Could not build relay advertisement", failed);
                 }
                 return;
+            } catch (ClassCastException failed) {
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Could not build relay advertisement", failed);
+            }
+                return;
             }
             
             if (!(adv instanceof RdvAdvertisement)) {
@@ -1191,7 +1195,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 long magic = server.peerId.hashCode() % i;
                 
                 if (rand.nextInt(i) == magic) {
-                    
                     // Our number came out. Respond.
                     
                     // See if we have amunition to respond anyway.
@@ -1358,8 +1361,10 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                         Message message = new Message();
                         
                         RelayTransport.setString(message, RelayTransport.PEERID_ELEMENT, server.peerId);
-                        RelayTransport.setString(message, RelayTransport.RELAY_ADV_ELEMENT, adv.toString());
                         
+                        message.addMessageElement(RelayTransport.RELAY_NS,
+                                new TextDocumentMessageElement(RelayTransport.RELAY_ADV_ELEMENT, (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8), null));
+
                         try {
                             outputPipe.send(message);
                         } catch (IOException e) {
@@ -1369,8 +1374,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                         }
                     }
                     
-                    long sleepTime = server.minBroadcastInterval
-                            + ((server.relayedClients.size() + 1) * 100 / (server.maxClients + 1)) * server.minBroadcastInterval;
+                    long sleepTime = server.minBroadcastInterval + ((server.relayedClients.size() + 1) * 100 / (server.MAX_CLIENTS + 1)) * server.minBroadcastInterval;
                     
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("sleepTime=" + sleepTime);
@@ -1420,7 +1424,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
     }
     
-
     /**
      *  Sends a message on an synchronous messenger.
      */
@@ -1457,7 +1460,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
                 }
             }
-            
         }
     }
     
@@ -1496,4 +1498,141 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
     }
         
+    /**
+     *  Our selector for determining what clients (channels) have work waiting.
+     */
+    static class ClientSelector extends AbstractSelector {
+
+        /**
+         *  The current clients.
+         */
+        private final Map<SelectionKey, Object> clientKeys = new ConcurrentHashMap<SelectionKey, Object>();
+        /**
+         *  The selected clients.
+         */
+        private final Map<SelectionKey, Object> selectedClientKeys = new ConcurrentHashMap<SelectionKey, Object>();
+
+        ClientSelector() {
+            super(null);
+}
+
+        /**
+         *  {@inheritDoc}
+         */
+        protected void implCloseSelector() throws IOException {
+            synchronized (selectedClientKeys) {
+                selectedClientKeys.notifyAll();
+            }
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        protected SelectionKey register(AbstractSelectableChannel ch, int ops, Object att) {
+            if (!(ch instanceof RelayServerClient)) {
+                throw new IllegalSelectorException();
+            }
+
+            RelayServerClient client = (RelayServerClient) ch;
+
+            RelayServerClient.ClientSelectionKey key = client.newSelectionKey(this, ops, att);
+
+            clientKeys.put(key, key);
+
+            return key;
+        }
+
+        protected void unregister(SelectionKey key) {
+            deregister((RelayServerClient.ClientSelectionKey) key);
+
+            clientKeys.remove(key);
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        public Set<SelectionKey> keys() {
+            return clientKeys.keySet();
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        public Set<SelectionKey> selectedKeys() {
+            return selectedClientKeys.keySet();
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        public int selectNow() throws IOException {
+            // Cleanup any cancelled keys.
+            Set<SelectionKey> cancelled = cancelledKeys();
+            synchronized (cancelled) {
+                clientKeys.keySet().removeAll(cancelled);
+                cancelled.clear();
+            }
+
+            selectedClientKeys.clear();
+            for (SelectionKey key : clientKeys.keySet()) {
+                RelayServerClient channel = (RelayServerClient) key.channel();
+
+                int ready = channel.readyOps() & key.interestOps();
+                if (ready != 0) {
+                    ((RelayServerClient.ClientSelectionKey) key).setReadyOps(ready);
+                    selectedClientKeys.put(key, key);
+                }
+            }
+            return selectedClientKeys.size();
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        public int select(long timeout) throws IOException {
+            synchronized (selectedClientKeys) {
+                int selectedKeys = selectNow();
+
+                if (0 == selectedKeys) {
+                    try {
+                        selectedClientKeys.wait(timeout);
+                    } catch (InterruptedException woken) {
+                        Thread.interrupted();
+                        throw new InterruptedIOException();
+                    }
+                }
+
+                return selectedClientKeys.size();
+            }
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        public int select() throws IOException {
+            return select(0);
+        }
+
+        /**
+         *  {@inheritDoc}
+         */
+        public Selector wakeup() {
+            synchronized (selectedClientKeys) {
+                selectedClientKeys.notifyAll();
+            }
+
+            return this;
+        }
+
+        void keyChanged(RelayServerClient.ClientSelectionKey key) {
+            synchronized (selectedClientKeys) {
+                RelayServerClient channel = key.channel();
+                int ready = channel.readyOps() & key.interestOps();
+                if ((ready != 0) && !selectedClientKeys.keySet().contains(key)) {
+                    selectedClientKeys.put(key, key);
+                    selectedClientKeys.notify();
+                }
+            }
+        }
+    }
 }

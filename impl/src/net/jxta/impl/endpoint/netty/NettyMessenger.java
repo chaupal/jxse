@@ -1,0 +1,153 @@
+package net.jxta.impl.endpoint.netty;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.impl.endpoint.BlockingMessenger;
+import net.jxta.impl.endpoint.EndpointServiceImpl;
+import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logging;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroupID;
+
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+
+/**
+ * Netty channel based messenger implementation. Unfortunately, this extends BlockingMessenger despite
+ * the elegant non-blocking, event driven architecture of Netty underneath. This was primarily done
+ * for haste rather than for any overriding architectural reason, though there are some areas of the
+ * endpoint service code that expect blocking messengers explicitly.
+ * 
+ * @author iain.mcginniss@onedrum.com
+ */
+public class NettyMessenger extends BlockingMessenger implements MessageArrivalListener {
+
+    private static final Logger LOG = Logger.getLogger(NettyMessenger.class.getName());
+
+    private Channel channel;
+    private EndpointAddress logicalDestinationAddr;
+    private EndpointService endpointService;
+	private PeerID localPeerId;
+
+	private EndpointAddress localAddress;
+    
+    public NettyMessenger(Channel channel, PeerGroupID homeGroupID, PeerID localPeerID, EndpointAddress localAddress, EndpointAddress logicalDestinationAddress, EndpointService endpointService) {
+        super(homeGroupID, localAddress, true);
+        this.channel = channel;
+        this.localPeerId = localPeerID;
+        this.localAddress = new EndpointAddress(localPeerId, null, null);
+        this.endpointService = endpointService;
+        this.logicalDestinationAddr = logicalDestinationAddress;
+        
+        attachMessageListener();
+    }
+
+    private void attachMessageListener() {
+        MessageDispatchHandler handler = (MessageDispatchHandler)channel.getPipeline().get(MessageDispatchHandler.NAME);
+        handler.setMessageArrivalListener(this);
+    }
+
+    @Override
+    protected void closeImpl() {
+        // TODO: do we need to wait for this?
+        channel.close();
+    }
+
+    @Override
+    protected EndpointAddress getLogicalDestinationImpl() {
+        return logicalDestinationAddr;
+    }
+
+    @Override
+    protected boolean isIdleImpl() {
+        // netty connections are low overhead, so idle isn't a bad thing
+        return false;
+    }
+
+    @Override
+    protected void sendMessageBImpl(Message message, String service, String param) throws IOException {
+        if (isClosed()) {
+            IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, failure.getMessage(), failure);
+            }
+            throw failure;
+        }
+        
+        ChannelFuture future = channel.write(retargetMessage(message, service, param));
+        future.awaitUninterruptibly();
+    }
+
+    private Message retargetMessage(Message message, String service, String param) {
+        MessageElement srcAddrElem = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, localAddress.toString(), null);
+        message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, srcAddrElem);
+        EndpointAddress destAddressToUse;
+        destAddressToUse = getDestAddressToUse(service, param);
+
+        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME, destAddressToUse.toString(), null);
+        message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
+        
+        return message;
+    }
+
+	public void messageArrived(final Message msg) {
+		// Extract the source and destination
+		final EndpointAddress srcAddr 
+			= extractEndpointAddress(msg, 
+									 EndpointServiceImpl.MESSAGE_SOURCE_NS, 
+									 EndpointServiceImpl.MESSAGE_SOURCE_NAME,
+									 "source");
+        
+		final EndpointAddress dstAddr 
+			= extractEndpointAddress(msg,
+									 EndpointServiceImpl.MESSAGE_DESTINATION_NS, 
+									 EndpointServiceImpl.MESSAGE_DESTINATION_NAME,
+									 "destination");
+		
+		if(srcAddr == null || isLoopback(srcAddr) || dstAddr == null) {
+			return;
+		}
+		
+		ExecutorService executorService = TaskManager.getTaskManager().getExecutorService();
+		executorService.execute(new Runnable() {
+		    public void run() {
+		        endpointService.processIncomingMessage(msg, srcAddr, dstAddr);
+		    }
+		});
+	}
+	
+	public void connectionDied() {
+	    close();
+	}
+	
+	private boolean isLoopback(EndpointAddress srcAddr) {
+		if (localAddress.equals(srcAddr)) {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Loopback message detected");
+            }
+            return true;
+        }
+		return false;
+	}
+
+	private EndpointAddress extractEndpointAddress(Message msg, String elementNamespace, String elementName, String addrType) {
+		MessageElement element = msg.getMessageElement(elementNamespace, elementName);
+		if(element == null) {
+			if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Message with no " + addrType + " address detected: " + msg);
+            }
+		} else {
+			msg.removeMessageElement(element);
+		}
+		
+		return new EndpointAddress(element.toString());
+	}
+}

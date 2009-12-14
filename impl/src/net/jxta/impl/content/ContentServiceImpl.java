@@ -558,7 +558,8 @@ public class ContentServiceImpl implements ContentService {
         for (ContentProviderListener listener : listeners) {
             try {
                 if (event == null) {
-                    event = new ContentProviderEvent(this, shares);
+                    event = new ContentProviderEvent.Builder(this, shares)
+                            .build();
                 }
                 listener.contentShared(event);
             } catch (Throwable thr) {
@@ -581,7 +582,8 @@ public class ContentServiceImpl implements ContentService {
         for (ContentProviderListener listener : listeners) {
             try {
                 if (event == null) {
-                    event = new ContentProviderEvent(this, id);
+                    event = new ContentProviderEvent.Builder(this, id)
+                            .build();
                 }
                 listener.contentUnshared(event);
             } catch (Throwable thr) {

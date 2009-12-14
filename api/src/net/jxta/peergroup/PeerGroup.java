@@ -401,6 +401,7 @@ public interface PeerGroup extends Service {
     /**
      * Well known module class identifier: ProxyService
      */
+    @Deprecated
     public final static ModuleClassID proxyClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000E05"));
 

@@ -58,6 +58,7 @@ package net.jxta.impl.content.defprovider;
 
 import net.jxta.content.Content;
 import net.jxta.content.ContentShareEvent;
+import net.jxta.content.ContentShareEvent.Builder;
 import net.jxta.content.ContentShareListener;
 import net.jxta.id.ID;
 import net.jxta.pipe.OutputPipe;
@@ -78,7 +79,9 @@ public class DefaultContentShare extends AbstractPipeContentShare<
      * Construct a new DefaultContentShare object, generating a new
      * PipeAdvertisement.
      *
+     * @param origin content provider sharing this content
      * @param content content object to share
+     * @param pipeAdv pipe used to contact the server
      */
     public DefaultContentShare(
             DefaultContentProvider origin, 
@@ -97,12 +100,14 @@ public class DefaultContentShare extends AbstractPipeContentShare<
     /**
      * Notify all listeners of this object of a new session being
      * created.
+     * 
+     * @param session new session being created
      */
     protected void fireShareSessionOpened(ActiveTransfer session) {
         ContentShareEvent event = null;
         for (ContentShareListener listener : getContentShareListeners()) {
             if (event == null) {
-                event = createEvent(session);
+                event = createEventBuilder(session).build();
             }
             listener.shareSessionOpened(event);
         }
@@ -111,29 +116,35 @@ public class DefaultContentShare extends AbstractPipeContentShare<
     /**
      * Notify all listeners of this object of an idle session being
      * garbage collected.
+     * 
+     * @param session session being closed
      */
     protected void fireShareSessionClosed(ActiveTransfer session) {
         ContentShareEvent event = null;
         for (ContentShareListener listener : getContentShareListeners()) {
             if (event == null) {
-                event = createEvent(session);
+                event = createEventBuilder(session).build();
             }
             listener.shareSessionClosed(event);
         }
     }
 
     /**
-     * Notify all listeners of this object that the chare is being
+     * Notify all listeners of this object that the share is being
      * accessed.
+     * 
+     * @param session share being accessed
+     * @param resp response to the share access
      */
     protected void fireShareAccessed(
             ActiveTransfer session, DataResponse resp) {
         ContentShareEvent event = null;
         for (ContentShareListener listener : getContentShareListeners()) {
             if (event == null) {
-                event = createEvent(session);
-                event.setDataStart(resp.getOffset());
-                event.setDataSize(resp.getLength());
+                Builder builder = createEventBuilder(session);
+                builder.dataStart(resp.getOffset());
+                builder.dataSize(resp.getLength());
+                event = builder.build();
             }
             listener.shareAccessed(event);
         }
@@ -149,15 +160,15 @@ public class DefaultContentShare extends AbstractPipeContentShare<
      * @param session session to create event for
      * @return event object
      */
-    private ContentShareEvent createEvent(ActiveTransfer session) {
-        ContentShareEvent result =  new ContentShareEvent(this, session);
+    private Builder createEventBuilder(ActiveTransfer session) {
+        Builder result = new Builder(this, session);
         
         // Name the remote peer by it's pipe ID
         OutputPipe pipe = session.getOutputPipe();
         ID pipeID = pipe.getPipeID();
-        result.setRemoteName(pipeID.toString());
+        result.remoteName(pipeID.toString());
         
-        return  result;
+        return result;
     }
 
 }

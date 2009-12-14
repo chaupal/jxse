@@ -135,7 +135,10 @@ public class NetworkManager implements RendezvousListener {
         RENDEZVOUS_RELAY,
         /**
          * JXME Proxy node
+         *
+         * @since 2.6 Will be removed in a future release
          */
+        @Deprecated
         PROXY,
         /**
          * A Rendezvous, Relay, and JXME Proxy node

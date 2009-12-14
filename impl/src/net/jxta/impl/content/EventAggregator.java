@@ -81,7 +81,7 @@ public class EventAggregator implements ContentProviderListener {
      * List of the providers who have not yet sent an end of record
      * event.
      */
-    private List<ContentProvider> desiredProviders =
+    private final List<ContentProvider> desiredProviders =
             new CopyOnWriteArrayList<ContentProvider>();
 
     /**
@@ -204,8 +204,10 @@ public class EventAggregator implements ContentProviderListener {
 
         ContentProviderEvent aggEvent;
         if (needsNewEvent) {
-            aggEvent = new ContentProviderEvent(
-                    provider, id, shares, isLastRecord);
+            aggEvent = new ContentProviderEvent.Builder(provider, shares)
+                    .contentID(id)
+                    .lastRecord(isLastRecord)
+                    .build();
         } else {
             aggEvent = event;
         }

@@ -1084,7 +1084,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         Thread.currentThread(),
                         msg, inetAddress.getHostAddress(), port));
             }
-            tcpTransport.endpoint.demux(msg);
+            tcpTransport.endpoint.processIncomingMessage(msg);
         }
     }
 

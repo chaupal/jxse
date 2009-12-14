@@ -69,6 +69,11 @@ import java.util.EventObject;
 public class ContentShareEvent extends EventObject {
     
     /**
+     * Serialized version.
+     */
+    private static final long serialVersionUID = 2009110500L;
+
+    /**
      * Identity object which uniquely identifies the remote peer.
      */
     private final Object ident;
@@ -76,36 +81,119 @@ public class ContentShareEvent extends EventObject {
     /**
      * Human readable form of the remote peer's identity.
      */
-    private String remoteName;
+    private final String remoteName;
     
     /**
      * The index of the first byte that this event's information
      * pertains to.
      */
-    private Long dataStart;
+    private final Long dataStart;
     
     /**
      * The number of bytes that this event's information pertains
      * to.
      */
-    private Integer dataSize;
+    private final Integer dataSize;
+    
+    /**
+     * Builder pattern.
+     */
+    public static class Builder {
+        // Required parameters:
+        private final ContentShare bSource;
+        private final Object bIdent;
+        
+        // Optional parameters:
+        private String bRemoteName;
+        private Long bDataStart;
+        private Integer bDataSize;
+        
+        /**
+         * Constructs a new builder, used to create and initialize the
+         * event instance.
+         * 
+         * @param sourceShare ContentShare issueing this event
+         * @param sourceIdent an object which is consistently unique in
+         *  referencing the remote party of this transaction.  The object
+         *  used here may be anything, but should be consistently used across
+         *  multiple events to identify the remote peer.
+         */
+        public Builder(
+                final ContentShare sourceShare,
+                final Object sourceIdent) {
+            if (sourceIdent == null) {
+                throw(new IllegalArgumentException(
+                        "sourceIdent argument cannot be null"));
+            }
+            bSource = sourceShare;
+            bIdent = sourceIdent;
+        }
+        
+        /**
+         * Sets the human-readable name that can be used to represent
+         * the remote peer's identity to the end user.
+         * 
+         * @param value remote peer name in human readable form
+         * @return builder instance
+         */
+        public Builder remoteName(final String value) {
+            bRemoteName = value;
+            return this;
+        }
+        
+        /**
+         * Sets the index of the first byte to which this event information
+         * pertains.  This method is intended to be called by ContentProvider
+         * implementations during event creation and should not be called by
+         * listeners of these events.
+         * 
+         * @param value byte index of the first byte
+         * @return builder instance
+         */
+        public Builder dataStart(final long value) {
+            bDataStart = Long.valueOf(value);
+            return this;
+        }
+        
+        /**
+         * Sets the number of bytes to which this event information
+         * pertains.  This method is intended to be called by ContentProvider
+         * implementations during event creation and should not be called by
+         * listeners of these events.
+         * 
+         * @param value total number of bytes of data
+         * @return builder instance
+         */
+        public Builder dataSize(final int value) {
+            bDataSize = Integer.valueOf(value);
+            return this;
+        }
+        
+        /**
+         * Build the event object.
+         * 
+         * @return event instance
+         */
+        public ContentShareEvent build() {
+            return new ContentShareEvent(this);
+        }
+    }
     
     /**
      * Creates a new instance of ContentShareEvent.
      *
-     * @param source ContentShare issueing this event
-     * @param remoteIdentity an object which is consistently unique in
-     *  referencing the remote party of this transaction.  The object
-     *  used here may be anything, but should be consistently used across
-     *  multiple events to identify the remote peer.
+     * @param builder builder instance to use to construct our event instance
      */
-    public ContentShareEvent(ContentShare source, Object remoteIdentity) {
-        super(source);
-        if (remoteIdentity == null) {
-            throw(new IllegalArgumentException(
-                    "remoteIdentity argument cannot be null"));
+    private ContentShareEvent(final Builder builder) {
+        super(builder.bSource);
+        ident = builder.bIdent;
+        if (builder.bRemoteName == null) {
+            remoteName = ident.toString();
+        } else {
+            remoteName = builder.bRemoteName;
         }
-        ident = remoteIdentity;
+        dataStart = builder.bDataStart;
+        dataSize = builder.bDataSize;
     }
 
     /**
@@ -140,20 +228,7 @@ public class ContentShareEvent extends EventObject {
      * @return remote peer name in human readable form
      */
     public String getRemoteName() {
-        if (remoteName == null) {
-            remoteName = ident.toString();
-        }
         return remoteName;
-    }
-    
-    /**
-     * Sets the human-readable name that can be used to represent
-     * the remote peer's identity to the end user.
-     * 
-     * @param name remote peer name in human readable form
-     */
-    public void setRemoteName(String name) {
-        remoteName = name;
     }
     
     /**
@@ -167,18 +242,6 @@ public class ContentShareEvent extends EventObject {
     }
     
     /**
-     * Sets the index of the first byte to which this event information
-     * pertains.  This method is intended to be called by ContentProvider
-     * implementations during event creation and should not be called by
-     * listeners of these events.
-     * 
-     * @param start byte index of the first byte
-     */
-    public void setDataStart(long start) {
-        dataStart = start;
-    }
-
-    /**
      * Gets the number of bytes to which this event information
      * pertains, if provided.
      * 
@@ -188,16 +251,4 @@ public class ContentShareEvent extends EventObject {
         return dataSize;
     }
     
-    /**
-     * Sets the number of bytes to which this event information
-     * pertains.  This method is intended to be called by ContentProvider
-     * implementations during event creation and should not be called by
-     * listeners of these events.
-     * 
-     * @param size total number of bytes of data
-     */
-    public void setDataSize(int size) {
-        dataSize = size;
-    }
-
 }

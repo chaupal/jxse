@@ -904,7 +904,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                 LOG.fine("Demuxing " + msg + " from " + senderURL);
             }
             
-            servletHttpTransport.getEndpointService().demux(msg);
+            servletHttpTransport.getEndpointService().processIncomingMessage(msg);
         }
     }
 }

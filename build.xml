@@ -152,8 +152,6 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     
     <target name="clean" description="Removes all files produced by build">
         <!-- Delete the ${build}, ${dist}, ${jnlp} -->
-        <delete dir="${build_meter}" />
-        <delete dir="${build_meter_generated}" />    
         <delete dir="${build}" />
         <delete dir="${build_test}" />    
         <delete dir="${dist}" />
@@ -202,7 +200,8 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         
         <path id="compile.classpath">
             <fileset refid="lib.files" />
-            <pathelement location="${tools}/h2/h2-1.1.117.jar" />
+            <pathelement location="${tools}/netty-3.1.5.GA.jar" />
+            <pathelement location="${tools}/h2/h2-1.1.118.jar" />
             <pathelement location="${tools}/derby/derby-10.5.1.1.jar" />
         </path>
         
@@ -220,6 +219,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             <pathelement location="${tools}/jmock-2.5.1/hamcrest-library-1.1.jar" />
             <pathelement location="${tools}/h2/h2-1.1.117.jar" />
             <pathelement location="${tools}/derby/derby-10.5.1.1.jar" />
+            <pathelement location="${tools}/netty-3.1.5.GA.jar" />
         </path>
     </target>
     
@@ -258,17 +258,17 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             </not>
         </condition>
     </target>
-    
+
     <!-- Checks if metering config files are up to date -->
     <target name="-meterCheck">
         <mkdir dir="${build_meter}" />
-        
+
         <property file="${build_meter}/last.meter.properties" />
-        
+
         <pathconvert targetos="${net.jxta.build.ospath}" property="net.jxta.build.meter.properties.file">
             <path path="${net.jxta.build.meter.properties}"/>
         </pathconvert>
-        
+
         <condition property="meter.uptodate">
             <and>
                 <uptodate targetfile="${build_meter}/net/jxta/build/ConditionalBuild.class" srcfile="${build_meter_source}/net/jxta/build/ConditionalBuild.java" />
@@ -277,9 +277,9 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             </and>
         </condition>
     </target>
-    
+
     <!-- Builds metering settings source files  -->
-    <target name="-meterConfig" depends="-meterCheck" unless="meter.uptodate">
+    <target name="meterConfig" depends="-meterCheck" unless="meter.uptodate">
         <echo file="${build_meter}/last.meter.properties">net.jxta.build.meter.lastfile = ${net.jxta.build.meter.properties.file}</echo>
         
         <!-- Recompile Condition Metering Code Generator -->
@@ -287,7 +287,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             <src path="${build_meter_source}" />
         </javac>
         <echo message="Generate Metering Settings from : ${net.jxta.build.meter.properties}" />
-        
+
         <!-- Generate Metering Settings source files based upon contents of ${net.jxta.build.meter.properties} -->
         <java classname="net.jxta.build.ConditionalBuild" fork="yes">
             <arg file="${net.jxta.build.meter.properties}" />
@@ -297,31 +297,50 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
                 <pathelement path="${java.class.path}" />
             </classpath>
         </java>
-        
+
         <!-- Delete all existing class files -->
         <delete dir="${build}" />
         <mkdir dir="${build}" />
     </target>
-	
+
 	<!-- This target requires java6 and ant 1.7, minimally, to set the condition -->
 	<target name="getjvm">
-		<condition property="jvm.is.6">
-			<equals arg1="${ant.java.version}" arg2="1.6" />
+		<condition property="jvm.is.6plus">
+			<or>
+				<equals arg1="${ant.java.version}" arg2="1.6" />
+				<equals arg1="${ant.java.version}" arg2="1.7" />
+			</or>
 		</condition>
 	</target>
+	
+	<target name="patchme-java5" unless="jvm.is.6plus">
+		<replace file="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java" >
+			<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+			<replacevalue><![CDATA[Collection<Callable<T>>]]></replacevalue>
+        </replace>
+	</target>
+	
+	<target name="patchme-java6plus" if="jvm.is.6plus">
+		<replace file="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java" >
+            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+            <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
+        </replace>
+	</target>
+	
 	<!-- 
 	If running java6, then we can patch ProxiedScheduledExecutor appropriately...
 	This is adapted directly from Apache Geronimo and discussed on the jxta-dev
 	mailing list 
 	-->
-    <target name="patchme" depends="getjvm" if="jvm.is.6">
-        <replace dir="${impl}/net/jxta/impl/util/threads" >
-            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
-            <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
-        </replace>
+    <target name="patchme" depends="getjvm">
+    	<copy file="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.template"
+    	      tofile="${impl}/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java"
+    		  failonerror="true"/>
+    	<antcall target="patchme-java5"/>
+        <antcall target="patchme-java6plus"/>
 	</target>
     	
-    <target name="-compile" depends="-prepare, -meterConfig, patchme" description="Compile the API and Implementation">   
+    <target name="-compile" depends="-prepare, patchme" description="Compile the API and Implementation">
         <javac compiler="${net.jxta.build.compiler}" destdir="${build}" source="${source}" target="${source}" debug="${debug}" deprecation="${deprecation}" optimize="${optimize}">
             <compilerarg compiler="modern" value="-Xlint:all,-deprecation,-serial,-unchecked"/>
             <classpath>
@@ -540,7 +559,7 @@ href="bcprov-ext.jnlp">
         </signjar>
     </target>
     
-    <target name="javadoc" depends="-prepare, -meterConfig" description="Creates HTML javadoc for JXTA APIs, References IMPL and Extensions">
+    <target name="javadoc" depends="-prepare" description="Creates HTML javadoc for JXTA APIs, References IMPL and Extensions">
         <mkdir dir="${apidoc}" />
         <javadoc source="${source}" destdir="${apidoc}" access="protected" use="true" overview="${api}/net/jxta/overview.html" windowtitle="JXSE API" additionalparam="-notimestamp -breakiterator -quiet">
             <link href="http://java.sun.com/j2se/1.5.0/docs/api" />

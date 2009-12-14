@@ -97,8 +97,13 @@ import java.util.NoSuchElementException;
 
 /**
  * The standard and much loved AWT Configuration dialog
+ *
+ * @since 2.6 This class is deprecated and should be removed in a later release and/or replaced with other
+ * configuration mechanisms. 
+ *
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class ConfigDialog extends Frame {
 
     static final GridBagConstraints stdConstr;

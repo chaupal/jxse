@@ -11,10 +11,17 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.FileSystemTest;
 
 import org.jmock.Expectations;
-import org.jmock.integration.junit3.MockObjectTestCase;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public abstract class AbstractSrdiIndexBackendConcurrencyTest extends MockObjectTestCase {
+
+public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	
+    private JUnit4Mockery mockContext = new JUnit4Mockery();
+    
 	private static final int NUM_INDICES = 8;
 	private static final int NUM_GROUPS = 8;
 	private static final int OPS_PER_INDEX = 1000;
@@ -22,16 +29,17 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest extends MockObject
 	
 	private File storeRoot;
 	
-	@Override
+	@Before
 	protected void setUp() throws Exception {
 		storeRoot = FileSystemTest.createTempDirectory("SrdiIndexBackendConcurrencyTest");
 	}
 	
-	@Override
+	@After
 	protected void tearDown() throws Exception {
 		FileSystemTest.deleteDir(storeRoot);
 	}
 	
+	@Test
 	public void testSeparateIndexConcurrentSafety() throws Exception {
 		PeerGroup group = createGroup(PeerGroupID.defaultNetPeerGroupID, "group1");
 		SrdiIndex[] indices = new SrdiIndex[NUM_INDICES];
@@ -52,10 +60,11 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest extends MockObject
 				testers[i] = new IndexRandomLoadTester(indices[i], OPS_PER_INDEX, completionLatch);
 				new Thread(testers[i]).start();
 			}
-			assertTrue("Timed out waiting for thread completion", completionLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS));
+			
+			Assert.assertTrue("Timed out waiting for thread completion", completionLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS));
 			
 			for(int i=0; i < indices.length; i++) {
-				assertTrue(testers[i].isSuccessful());
+				Assert.assertTrue(testers[i].isSuccessful());
 			}
 		} finally {
 			for(int i=0; i < indices.length; i++) {
@@ -66,6 +75,7 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest extends MockObject
 		}
 	}
 	
+	@Test
 	public void testSeparateGroupConcurrentSafety() throws Exception {
 		SrdiIndex[] indices = new SrdiIndex[NUM_INDICES * NUM_GROUPS];
 		for(int groupNum = 0; groupNum < NUM_GROUPS; groupNum++) {
@@ -79,8 +89,8 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest extends MockObject
 	}
 	
 	private PeerGroup createGroup(final PeerGroupID groupId, final String name) {
-		final PeerGroup group = mock(PeerGroup.class, name);
-		checking(new Expectations() {{
+		final PeerGroup group = mockContext.mock(PeerGroup.class, name);
+		mockContext.checking(new Expectations() {{
 			ignoring(group).getStoreHome(); will(returnValue(storeRoot.toURI()));
 			ignoring(group).getPeerGroupName(); will(returnValue(name));
 			ignoring(group).getPeerGroupID(); will(returnValue(groupId));
