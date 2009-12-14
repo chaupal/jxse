@@ -181,6 +181,10 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private SrdiIndex srdiIndex = null;
     private Srdi srdi = null;
     private long runInterval = 30 * TimeUtils.ASECOND;
+    /**
+     * the discovery interface object
+     */
+    private DiscoveryService discoveryInterface = null;
 
     /**
      * Encapsulates current Membership Service credential.
@@ -248,15 +252,12 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
     /**
      * {@inheritDoc}
-     *
-     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
-     * an instance of {@code DiscoveryServiceInterface}. It should be removed from the code
-     * in a future release.
      */
     public synchronized Service getInterface() {
-
-        return this;
-
+        if (discoveryInterface == null) {
+            discoveryInterface = new DiscoveryServiceInterface(this);
+        }
+        return discoveryInterface;
     }
 
     /**

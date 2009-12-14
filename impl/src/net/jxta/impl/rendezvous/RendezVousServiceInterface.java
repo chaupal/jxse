@@ -79,12 +79,7 @@ import java.util.Vector;
 
 /**
  * This class implements the RendezVousService interface.
- *
- * @since 2.6 This class has been deprecated and is not used in the code.
- * It will be removed in a future release.
- *
  */
-@Deprecated
 public class RendezVousServiceInterface implements RendezVousService {
 
     RendezVousServiceImpl impl = null;

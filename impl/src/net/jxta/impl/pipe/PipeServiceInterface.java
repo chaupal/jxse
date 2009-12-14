@@ -67,16 +67,12 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Set;
 
 /**
  * This class implements the Pipe interface.
- *
- * @since 2.6 This class has been deprecated and is not used in the code.
- * It will be removed in a future release.
- *
  */
-@Deprecated
 class PipeServiceInterface implements PipeService {
 
 	PipeServiceImpl impl;

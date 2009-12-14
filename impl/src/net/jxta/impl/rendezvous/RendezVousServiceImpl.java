@@ -177,6 +177,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
     private volatile RendezVousServiceProvider provider = null;
 
     /**
+     * Our interface object. We currently always return the same object.
+     */
+    private final RendezVousServiceInterface rendezvousInterface = new RendezVousServiceInterface(this);
+
+    /**
      * Constructor for the RendezVousServiceImpl object
      */
     public RendezVousServiceImpl() {
@@ -184,17 +189,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
-     *
-     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
-     * an instance of {@code RendezVousServiceInterface}. It should be removed from the code
-     * in a future release.
-     *
      */
-    @Deprecated
     public RendezVousService getInterface() {
-
-        return this;
-
+        return rendezvousInterface;
     }
 
     /**
@@ -505,33 +502,21 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * {@inheritDoc}
      */
     public Enumeration<ID> getConnectedRendezVous() {
-
-        Collection<ID> connectedPeers = getConnectedPeerIDs();
-
-        return Collections.enumeration(connectedPeers);
-
+        throw new UnsupportedOperationException("Deprecated opertaion. Use interface if you want to use this operation.");
     }
 
     /**
      * {@inheritDoc}
      */
     public Enumeration<ID> getDisconnectedRendezVous() {
-
-        Collection<ID> empty = Collections.emptyList();
-
-        return Collections.enumeration(empty);
-
+        throw new UnsupportedOperationException("Deprecated opertaion. Use interface if you want to use this operation.");
     }
 
     /**
      * {@inheritDoc}
      */
     public Enumeration<ID> getConnectedPeers() {
-
-        Collection<ID> connectedPeers = getConnectedPeerIDs();
-
-        return Collections.enumeration(connectedPeers);
-
+        throw new UnsupportedOperationException("Deprecated opertaion. Use interface if you want to use this operation.");
     }
 
     /**

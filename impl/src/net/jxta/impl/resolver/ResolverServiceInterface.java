@@ -72,12 +72,7 @@ import net.jxta.resolver.SrdiHandler;
 
 /**
  *  Provides a controlled interface to the Resolver Service.
- *
- * @since 2.6 This class has been deprecated and is not used in the code.
- * It will be removed in a future release.
- *
  **/
-@Deprecated
 public class ResolverServiceInterface implements ResolverService {
     
     private final ResolverServiceImpl impl;
@@ -169,14 +164,14 @@ public class ResolverServiceInterface implements ResolverService {
     /**
      *  {@inheritDoc}
      */
-    public void sendQuery(String rdvPeer, ResolverQueryMsg query) {
+    public void  sendQuery(String rdvPeer, ResolverQueryMsg query) {
         impl.sendQuery(rdvPeer, query);
     }
     
     /**
      *  {@inheritDoc}
      */
-    public void sendResponse(String destPeer, ResolverResponseMsg response) {
+    public void  sendResponse(String destPeer, ResolverResponseMsg response) {
         impl.sendResponse(destPeer, response);
     }
     

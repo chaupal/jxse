@@ -74,12 +74,7 @@ import java.util.WeakHashMap;
  * Provides an interface object appropriate for applications using the endpoint
  * service. The interface provides a number of convenience features and
  * implementation necessary for legacy features.
- *
- * @since 2.6 This class has been deprecated and is not used in the code.
- * It will be removed in a future release.
- *
  */
-@Deprecated
 class EndpointServiceInterface implements EndpointService {
 
     /**
@@ -123,16 +118,13 @@ class EndpointServiceInterface implements EndpointService {
      * @param endpointService the endpoint service that we will front.
      */
     public EndpointServiceInterface(EndpointServiceImpl endpointService) {
-
         theRealThing = endpointService;
-
         synchronized (this.getClass()) {
             activeInstanceCount++;
             if (1 == activeInstanceCount) {
                 listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) endpointService.getGroup()).getExecutor());
             }
         }
-
     }
 
     /**
@@ -143,7 +135,6 @@ class EndpointServiceInterface implements EndpointService {
      */
     @Override
     protected void finalize() throws Throwable {
-
         synchronized (this.getClass()) {
             activeInstanceCount--;
             if (0 == activeInstanceCount) {
@@ -151,9 +142,7 @@ class EndpointServiceInterface implements EndpointService {
                 listenerAdaptor = null;
             }
         }
-
         super.finalize();
-
     }
 
     /**
@@ -219,21 +208,17 @@ class EndpointServiceInterface implements EndpointService {
      * {@inheritDoc}
      */
     public Messenger getCanonicalMessenger(EndpointAddress addr, Object hint) {
-
         // XXX: maybe we should enforce the stripping of the address here.
         // That would prevent application from making canonical messengers with a variety of service names and
         // service params. On the other hand that would cost useless cloning of endp addrs and prevent future
         // flexibility regarding QOS params, possibly. Be liberal for now.
-
         return theRealThing.getCanonicalMessenger(addr, hint);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint) {
-
         // Note: for now, the hint is not used for canonicalization (hint != QOS).
         synchronized (channelCache) {
             Reference<Messenger> existing = channelCache.get(addr);
@@ -292,9 +277,7 @@ class EndpointServiceInterface implements EndpointService {
      * {@inheritDoc}
      */
     public Messenger getMessenger(EndpointAddress addr) {
-
         return getMessenger(addr, null);
-
     }
 
     /**
@@ -329,34 +312,27 @@ class EndpointServiceInterface implements EndpointService {
             return null;
         }
         return messenger;
-
     }
 
     /**
      * {@inheritDoc}
      */
     public void propagate(Message msg, String serviceName, String serviceParam) {
-
         theRealThing.propagate(msg, serviceName, serviceParam, Integer.MAX_VALUE);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public void propagate(Message msg, String serviceName, String serviceParam, int initialTTL) {
-
         theRealThing.propagate(msg, serviceName, serviceParam, initialTTL);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public void demux(Message msg) {
-
         theRealThing.demux(msg);
-
     }
 
     /**
@@ -370,9 +346,7 @@ class EndpointServiceInterface implements EndpointService {
      * {@inheritDoc}
      */
     public void processIncomingMessage(Message message, EndpointAddress source, EndpointAddress destination) {
-
         theRealThing.processIncomingMessage(message, source, destination);
-
     }
 
     /**
@@ -380,136 +354,106 @@ class EndpointServiceInterface implements EndpointService {
      */
     @Deprecated
     public boolean ping(EndpointAddress addr) {
-
         return null != getMessengerImmediate(addr, null);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public MessengerEventListener addMessageTransport(MessageTransport transpt) {
-
         // FIXME TOO: We should probably make the interface refuse to do it.
         // But that will have to wait until we have criteria to decide who
         // gets an interface object and who gets the real thing. In the
         // meantime just do it.
-
         return theRealThing.addMessageTransport(transpt);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeMessageTransport(MessageTransport transpt) {
-
         // FIXME TOO: We should probably make the interface refuse to do it.
         // But that will have to wait until we have criteria to decide who
         // gets an interface object and who gets the real thing. In the
         // meantime just do it.
-
         return theRealThing.removeMessageTransport(transpt);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public Iterator<MessageTransport> getAllMessageTransports() {
-
         return theRealThing.getAllMessageTransports();
-
     }
 
     /**
      * {@inheritDoc}
      */
     public MessageTransport getMessageTransport(String name) {
-
         return theRealThing.getMessageTransport(name);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean addIncomingMessageListener(EndpointListener listener, String serviceName, String serviceParam) {
-
         return theRealThing.addIncomingMessageListener(listener, serviceName, serviceParam);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public EndpointListener getIncomingMessageListener(String serviceName, String serviceParam) {
-
         return theRealThing.getIncomingMessageListener(serviceName, serviceParam);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public void addIncomingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
-
         theRealThing.addIncomingMessageFilterListener(listener, namespace, name);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public void addOutgoingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
-
         theRealThing.addOutgoingMessageFilterListener(listener, namespace, name);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public MessageFilterListener removeIncomingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
-
         return theRealThing.removeIncomingMessageFilterListener(listener, namespace, name);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public MessageFilterListener removeOutgoingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
-
         return theRealThing.removeOutgoingMessageFilterListener(listener, namespace, name);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public EndpointListener removeIncomingMessageListener(String serviceName, String serviceParam) {
-
         return theRealThing.removeIncomingMessageListener(serviceName, serviceParam);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean addMessengerEventListener(MessengerEventListener listener, int prio) {
-
         return theRealThing.addMessengerEventListener(listener, prio);
-
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeMessengerEventListener(MessengerEventListener listener, int prio) {
-
         return theRealThing.removeMessengerEventListener(listener, prio);
-
     }
 
     /**
@@ -519,9 +463,7 @@ class EndpointServiceInterface implements EndpointService {
      */
     @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint) {
-
         Messenger messenger = getMessengerImmediate(addr, hint);
-
         if (messenger == null) {
             return false;
         }
@@ -532,9 +474,7 @@ class EndpointServiceInterface implements EndpointService {
 
         // Make sure that resolution is being attempted if not already in progress.
         messenger.resolve();
-
         return true;
-
     }
 
     /**
@@ -551,8 +491,6 @@ class EndpointServiceInterface implements EndpointService {
      */
     @Deprecated
     public Messenger getDirectMessenger(EndpointAddress addr, Object hint, boolean exclusive) {
-
         return theRealThing.getDirectMessenger(addr, hint, exclusive);
-
     }
 }
