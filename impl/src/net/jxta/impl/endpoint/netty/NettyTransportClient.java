@@ -152,6 +152,13 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
             return null;
         }
         
+        if(!connectFuture.isSuccess()) {
+            if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+                String message = String.format("Netty transport for protocol %s Failed to connect to %s", addrTranslator.getProtocolName(), dest);
+                LOG.log(Level.INFO, message, connectFuture.getCause());
+            }
+            return null;
+        }
         
         boolean established = false;
         try {

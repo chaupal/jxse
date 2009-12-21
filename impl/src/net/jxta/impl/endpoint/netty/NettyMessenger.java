@@ -84,6 +84,22 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
         
         ChannelFuture future = channel.write(retargetMessage(message, service, param));
         future.awaitUninterruptibly();
+        if(!future.isSuccess()) {
+            IOException failure;
+            if(future.isCancelled()) {
+                failure = new IOException("Message send failed for " + message + ": send was cancelled");
+            } else {
+                failure = new IOException("Message send failed for " + message, future.getCause());
+            }
+            
+            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to send message to " + logicalDestinationAddr, failure);
+            }
+            
+            closeImpl();
+            
+            throw failure;
+        }
     }
 
     private Message retargetMessage(Message message, String service, String param) {
@@ -125,7 +141,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	}
 	
 	public void connectionDied() {
-	    close();
+	    closeImpl();
 	}
 	
 	private boolean isLoopback(EndpointAddress srcAddr) {

@@ -88,6 +88,8 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
         write(ctx, welcomeBytes, Channels.future(ctx.getChannel()));
         
         ctx.getPipeline().addBefore(NAME, WELCOME_TIMEOUT_HANDLER_NAME, new ReadTimeoutHandler(timeoutTimer, 5, TimeUnit.SECONDS));
+        
+        super.channelConnected(ctx, e);
     }
 
     private EndpointAddress getDestinationAddress(ChannelHandlerContext ctx) {
@@ -120,7 +122,6 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
             switch(state) {
             case AWAITING_WELCOME_MESSAGE:
                 if(readWelcomeMessage(ctx)) {
-                    Channels.fireChannelConnected(ctx, ctx.getChannel().getRemoteAddress());
                     state = JxtaProtocolState.READING_HEADER;
                     ctx.getPipeline().remove(WELCOME_TIMEOUT_HANDLER_NAME);
                 } else {

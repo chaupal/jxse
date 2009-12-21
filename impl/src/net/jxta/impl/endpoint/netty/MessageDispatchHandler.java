@@ -1,5 +1,7 @@
 package net.jxta.impl.endpoint.netty;
 
+import java.net.ConnectException;
+import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -61,7 +63,11 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+        if(e.getCause() instanceof ConnectException) {
+            LOG.log(Level.INFO, "Unable to connect to remote host {0}", new Object[] { ctx.getChannel().getRemoteAddress() });
+        } else if(e.getCause() instanceof ClosedChannelException) {
+            LOG.log(Level.INFO, "Channel to {0} has been closed", new Object[] { ctx.getChannel().getRemoteAddress() });
+        } else if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
             LOG.log(Level.WARNING, "Unhandled exception in netty channel pipeline - closing connection", e.getCause());
         }
         
