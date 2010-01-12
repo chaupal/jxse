@@ -437,6 +437,8 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         stoppedCheck(  );
 
         HashMap<Long, IndexItem> items = (HashMap<Long, IndexItem>) this.peerRemovalIndex.get( pid.getUniqueValue(  ).toString(  ) );
+        if(items == null)  // Nothing to do...
+        	return;
         Iterator<Long> it = items.keySet(  ).iterator(  );
         IndexItem iitem = null;
         ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>(  );
