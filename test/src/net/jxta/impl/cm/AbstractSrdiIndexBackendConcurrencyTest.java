@@ -30,12 +30,12 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	private File storeRoot;
 	
 	@Before
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		storeRoot = FileSystemTest.createTempDirectory("SrdiIndexBackendConcurrencyTest");
 	}
 	
 	@After
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		FileSystemTest.deleteDir(storeRoot);
 	}
 	
