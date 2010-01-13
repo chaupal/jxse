@@ -187,7 +187,6 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         this.peerRemovalIndex.deleteTree(  );
         this.peeridValueIndex.deleteTree(  );
 
-        counter = 0;
     }
 
     /* (non-Javadoc)
@@ -207,7 +206,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
             LOG.info( "gc... " );
         }
 
-        Long now = new Long( TimeUtils.timeNow(  ) );
+        Long now = Long.valueOf( TimeUtils.timeNow(  ) );
 
         NavigableSet<Long> exps = this.expiryIndex.navigableKeySet(  );
 
@@ -238,45 +237,48 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
                     ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>(  );
 
-                    for ( IndexItem item : items.values(  ) ) {
-
-                        List<PeerIDItem> pids = this.peeridValueIndex.find( item.getTreeKey(  ) );
-
-                        if ( !this.peeridValueIndex.delete( item.getTreeKey(  ) ) ) {
-
-                            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
-
-                                LOG.severe( "Failed deleting from PeerId Value Index using key: " + item.getTreeKey(  ) );
-                            }
-                        }
-
-                        if ( pids.size(  ) > 1 ) {
-
-                            // Other peer IDs sharing the same key
-                            for ( PeerIDItem pid : pids ) {
-
-                                if ( pid.getPeerid(  ).getUniqueValue(  ).toString(  )
-                                            .equals( item.getIpid(  ).getPeerid(  ).getUniqueValue(  ).toString(  ) ) ) {
-
-                                    pids.remove( pid );
-
-                                    break;
-                                }
-                            }
-
-                            this.peeridValueIndex.insert( item.getTreeKey(  ), pids );
-                        }
-
-                        if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
-
-                            LOG.fine( "TST size: " + this.peeridValueIndex.getSize(  ) );
-                        }
-
-                        removalKeys.add( item );
+                    if( null != items ){
+                    	
+	                    for ( IndexItem item : items.values(  ) ) {
+	
+	                        List<PeerIDItem> pids = this.peeridValueIndex.find( item.getTreeKey(  ) );
+	
+	                        if ( !this.peeridValueIndex.delete( item.getTreeKey(  ) ) ) {
+	
+	                            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+	
+	                                LOG.severe( "Failed deleting from PeerId Value Index using key: " + item.getTreeKey(  ) );
+	                            }
+	                        }
+	
+	                        if ( null != pids && pids.size(  ) > 1 ) {
+	
+	                            // Other peer IDs sharing the same key
+	                            for ( PeerIDItem pid : pids ) {
+	
+	                                if ( pid.getPeerid(  ).getUniqueValue(  ).toString(  )
+	                                            .equals( item.getIpid(  ).getPeerid(  ).getUniqueValue(  ).toString(  ) ) ) {
+	
+	                                    pids.remove( pid );
+	
+	                                    break;
+	                                }
+	                            }
+	
+	                            this.peeridValueIndex.insert( item.getTreeKey(  ), pids );
+	                        }
+	
+	                        if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+	
+	                            LOG.fine( "TST size: " + this.peeridValueIndex.getSize(  ) );
+	                        }
+	
+	                        removalKeys.add( item );
+	                    }
+	
+	                    items = null;
                     }
-
-                    items = null;
-
+                    
                     // Must delete via the iterator
                     it.remove(  );
 
@@ -330,34 +332,37 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
         int resultCount = 0;
 
-        for ( String key : keys ) {
-
-            if ( null != regex ) {
-
-                if ( !key.matches( regex ) ) {
-
-                    continue;
-                }
-            }
-
-            List<PeerIDItem> pids = this.peeridValueIndex.find( key );
-
-            if ( null != pids ) {
-
-                for ( PeerIDItem pid : pids ) {
-
-                    if ( !results.containsKey( pid.getPeerid(  ) ) && ( pid.getExpiry(  ) >= TimeUtils.timeNow(  ) ) ) {
-
-                        results.put( pid.getPeerid(  ), OBJ );
-                        resultCount++;
-
-                        if ( resultCount == threshold ) {
-
-                            return;
-                        }
-                    }
-                }
-            }
+        if( null != keys ){
+        	
+	        for ( String key : keys ) {
+	
+	            if ( null != regex ) {
+	
+	                if ( !key.matches( regex ) ) {
+	
+	                    continue;
+	                }
+	            }
+	
+	            List<PeerIDItem> pids = this.peeridValueIndex.find( key );
+	
+	            if ( null != pids ) {
+	
+	                for ( PeerIDItem pid : pids ) {
+	
+	                    if ( !results.containsKey( pid.getPeerid(  ) ) && ( pid.getExpiry(  ) >= TimeUtils.timeNow(  ) ) ) {
+	
+	                        results.put( pid.getPeerid(  ), OBJ );
+	                        resultCount++;
+	
+	                        if ( resultCount == threshold ) {
+	
+	                            return;
+	                        }
+	                    }
+	                }
+	            }
+	        }
         }
     }
 
@@ -467,7 +472,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
      * @see net.jxta.impl.cm.SrdiIndexBackend#stop()
      */
     @Override
-    public void stop(  ) {
+    public synchronized void stop(  ) {
 
         this.stopped = true;
     }
@@ -539,43 +544,46 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     private boolean removeGcItem( PeerIDItem piitem, String peerIDString ) {
 
         boolean ret = false;
-        Long oldExpiry = new Long( piitem.getExpiry(  ) );
+        Long oldExpiry = Long.valueOf( piitem.getExpiry(  ) );
 
         // Remove from current position in the expire index
         HashMap<Long, IndexItem> gcItems = this.expiryIndex.get( oldExpiry );
 
-        Long id = null;
+        if( null != gcItems ){
+        	
+            Long id = null;
 
-        for ( IndexItem iitem : gcItems.values(  ) ) {
-
-            if ( iitem.getIpid(  ).getPeerid(  ).getUniqueValue(  ).toString(  ).equals( peerIDString ) ) {
-
-                id = iitem.getId(  );
-
-                break;
-            }
+	        for ( IndexItem iitem : gcItems.values(  ) ) {
+	
+	            if ( iitem.getIpid(  ).getPeerid(  ).getUniqueValue(  ).toString(  ).equals( peerIDString ) ) {
+	
+	                id = iitem.getId(  );
+	
+	                break;
+	            }
+	        }
+	        
+	        if ( null != id ) {
+	
+	            if ( null != gcItems.remove( id ) ) {
+	
+	                ret = true;
+	            }
+	        }
+	
+	        if ( gcItems.isEmpty(  ) ) {
+	
+	            this.expiryIndex.remove( oldExpiry );
+	        }
         }
-
-        if ( null != id ) {
-
-            if ( null != gcItems.remove( id ) ) {
-
-                ret = true;
-            }
-        }
-
-        if ( gcItems.isEmpty(  ) ) {
-
-            this.expiryIndex.remove( oldExpiry );
-        }
-
+        
         return ret;
     }
 
     private boolean removeGcItem( IndexItem iitem ) {
 
         boolean ret = false;
-        Long oldExpiry = new Long( iitem.getIpid(  ).getExpiry(  ) );
+        Long oldExpiry = Long.valueOf( iitem.getIpid(  ).getExpiry(  ) );
 
         // Remove from current position in the expire index
         HashMap<Long, IndexItem> gcItems = this.expiryIndex.get( oldExpiry );
@@ -596,7 +604,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
     private HashMap<Long, IndexItem> addGcItem( IndexItem iitem ) {
 
-        Long expiryKey = new Long( iitem.getIpid(  ).getExpiry(  ) );
+        Long expiryKey = Long.valueOf( iitem.getIpid(  ).getExpiry(  ) );
         HashMap<Long, IndexItem> gcItems = this.expiryIndex.get( expiryKey );
 
         if ( null == gcItems ) {
@@ -610,7 +618,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         return gcItems;
     }
 
-    private class PeerIDItem {
+    private static class PeerIDItem {
 
         private PeerID peerid;
         private long expiry;
@@ -642,7 +650,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         }
     }
 
-    private class IndexItem {
+    private static class IndexItem {
 
         private Long id;
         private String treeKey;

@@ -97,7 +97,7 @@ public interface WildcardTernarySearchTree<T> {
      *
      * @param term The search term must contain one and only one wild card character: *.
      *        The wild card can be placed at the beginning, the end or any point within the search term.
-     *        The position of the wild card will dictate the nature of the search: prefix, suffix of union of both prefix and suffix
+     *        The position of the wild card will dictate the nature of the search: prefix, suffix or intersection of both prefix and suffix
      * @param threshhold The maximum number of keys to return
      * @return The list of keys that match the given search term
      * @throws IllegalArgumentException if the search term does not match the expected format
