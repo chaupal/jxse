@@ -765,7 +765,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * {@inheritDoc}
      */
     public EndpointService getEndpointService() {
-        return (EndpointService) endpoint.getInterface();
+        return endpoint;
     }
 
     /**

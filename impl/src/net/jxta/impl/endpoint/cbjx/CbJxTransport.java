@@ -291,7 +291,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
      * {@inheritDoc}
      */
     public EndpointService getEndpointService() {
-        return (EndpointService) endpoint.getInterface();
+        return endpoint;
     }
 
     /**

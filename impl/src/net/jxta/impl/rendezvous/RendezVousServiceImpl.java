@@ -177,11 +177,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
     private volatile RendezVousServiceProvider provider = null;
 
     /**
-     * Our interface object. We currently always return the same object.
-     */
-    private final RendezVousServiceInterface rendezvousInterface = new RendezVousServiceInterface(this);
-
-    /**
      * Constructor for the RendezVousServiceImpl object
      */
     public RendezVousServiceImpl() {
@@ -189,9 +184,17 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
     /**
      * {@inheritDoc}
+     *
+     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
+     * an instance of {@code RendezVousServiceInterface}. It should be removed from the code
+     * in a future release.
+     *
      */
+    @Deprecated
     public RendezVousService getInterface() {
-        return rendezvousInterface;
+
+        return this;
+
     }
 
     /**
@@ -502,21 +505,33 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * {@inheritDoc}
      */
     public Enumeration<ID> getConnectedRendezVous() {
-        throw new UnsupportedOperationException("Deprecated opertaion. Use interface if you want to use this operation.");
+
+        Collection<ID> connectedPeers = getConnectedPeerIDs();
+
+        return Collections.enumeration(connectedPeers);
+
     }
 
     /**
      * {@inheritDoc}
      */
     public Enumeration<ID> getDisconnectedRendezVous() {
-        throw new UnsupportedOperationException("Deprecated opertaion. Use interface if you want to use this operation.");
+
+        Collection<ID> empty = Collections.emptyList();
+
+        return Collections.enumeration(empty);
+
     }
 
     /**
      * {@inheritDoc}
      */
     public Enumeration<ID> getConnectedPeers() {
-        throw new UnsupportedOperationException("Deprecated opertaion. Use interface if you want to use this operation.");
+
+        Collection<ID> connectedPeers = getConnectedPeerIDs();
+
+        return Collections.enumeration(connectedPeers);
+
     }
 
     /**

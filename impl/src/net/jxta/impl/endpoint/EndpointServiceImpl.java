@@ -95,6 +95,8 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.util.TimeUtils;
 
 /**
  * This class implements the frontend for all the JXTA  endpoint protocols, as
@@ -235,6 +237,37 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * The set of shared transport messengers currently ready for use.
      */
     private final Map<EndpointAddress, Reference<Messenger>> directMessengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
+
+    /**
+     * The number of active instances of this class. We use this for deciding
+     * when to instantiate and shutdown the listener adaptor.
+     */
+    private static int activeInstanceCount = 0;
+
+    /**
+     * Provides emulation of the legacy send-message-with-listener and get-messenger-with-listener APIs.
+     */
+    private static ListenerAdaptor listenerAdaptor;
+
+    /**
+     * The cache of channels. If a given owner of this EndpointService interface
+     * object requests channels for the same exact destination multiple times,
+     * we will return the same channel object as much as possible.  We keep
+     * channels in a weak map, so that when channels are discarded, they
+     * eventually disappear.  Channels that have messages in them are always
+     * referenced. Therefore, this prevents the creation of more than one
+     * channel with messages in it for the same destination in the same context
+     * (owner of interface object - typically one module). This is required to
+     * properly support the common (and convenient) pattern:
+     * <p/>
+     * <code>m = endpointServiceInterface.getMessenger(); messenger.sendMessage(); m = null;</code>
+     * <p/>
+     * If that was not kept in check, it would be possible to inadvertently
+     * create an infinite number of channels with pending messages, thus an
+     * infinite number of messages too.
+     */
+    private final Map<EndpointAddress, Reference<Messenger>> channelCache = new WeakHashMap<EndpointAddress, Reference<Messenger>>();
+
 
     /**
      * The filter listeners.
@@ -443,6 +476,20 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * Create a new EndpointService.
      */
     public EndpointServiceImpl() {
+
+        /*
+         * The following code was imported from EndpointServiceInterface, but it
+         * causing the constructor to fail. It does not seem to serve any purpose.
+         * Disactivating it.
+         */
+
+//        synchronized (this.getClass()) {
+//            activeInstanceCount++;
+//            if (1 == activeInstanceCount) {
+//                listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) this.getGroup()).getExecutor());
+//            }
+//        }
+
     }
 
     /**
@@ -634,9 +681,17 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * <p/>
      * We create a new instance each time because our interface actually
      * has state (channel messengers and listener callback adaptor).
+     *
+     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
+     * an instance of {@code EndpointServiceInterface}. It should be removed from the code
+     * in a future release.
+     *
      */
+    @Deprecated
     public EndpointService getInterface() {
-        return new EndpointServiceInterface(this);
+
+        return this;
+
     }
 
     /**
@@ -1477,6 +1532,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
 
     public Messenger getCanonicalMessenger(EndpointAddress addr, Object hint) {
+
+        // XXX: maybe we should enforce the stripping of the address here.
+        // That would prevent application from making canonical messengers with a variety of service names and
+        // service params. On the other hand that would cost useless cloning of endp addrs and prevent future
+        // flexibility regarding QOS params, possibly. Be liberal for now.
+
         if (addr == null) {
             throw new IllegalArgumentException("null endpoint address not allowed.");
         }
@@ -1831,7 +1892,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     @Deprecated
     public boolean ping(EndpointAddress addr) {
-        throw new UnsupportedOperationException("Legacy method not implemented. Use an interface object.");
+
+        return null != getMessengerImmediate(addr, null);
+
     }
 
     /**
@@ -1841,7 +1904,20 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     @Deprecated
     public boolean getMessenger(MessengerEventListener listener, EndpointAddress addr, Object hint) {
-        throw new UnsupportedOperationException("Legacy method not implemented. Use an interface object.");
+
+        Messenger messenger = getMessengerImmediate(addr, hint);
+        if (messenger == null) {
+            return false;
+        }
+
+        if (!listenerAdaptor.watchMessenger(listener, messenger)) {
+            return false;
+        }
+
+        // Make sure that resolution is being attempted if not already in progress.
+        messenger.resolve();
+        return true;
+
     }
 
     /**
@@ -1850,7 +1926,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * convenience method not supported here.
      */
     public Messenger getMessenger(EndpointAddress addr) {
-        throw new UnsupportedOperationException("Convenience method not implemented. Use an interface object.");
+        return getMessenger(addr, null);
     }
 
     /**
@@ -1859,7 +1935,58 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * convenience method not supported here.
      */
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint) {
-        throw new UnsupportedOperationException("Convenience method not implemented. Use an interface object.");
+        // Note: for now, the hint is not used for canonicalization (hint != QOS).
+        synchronized (channelCache) {
+            Reference<Messenger> existing = channelCache.get(addr);
+
+            if (existing != null) {
+                Messenger messenger = existing.get();
+                if ((messenger != null) && ((messenger.getState() & Messenger.USABLE) != 0)) {
+                    return messenger;
+                }
+            }
+        }
+
+        // We do not have a good one at hand. Make a new one.
+
+        // Use the stripped address to get a canonical msngr; not doing so
+        // would reduce the sharing to almost nothing.
+        EndpointAddress plainAddr = new EndpointAddress(addr, null, null);
+
+        Messenger found = getCanonicalMessenger(plainAddr, hint);
+
+        // Address must not be a supported one.
+        if (found == null) {
+            return null;
+        }
+
+        // Get a channel for that servicename and serviceparam. redirect to this group.
+
+        // NOTE: This assumes that theRealThing.getGroup() is really the group where the application that obtained
+        // this interface object lives. This is the case today because all groups have their own endpoint service.
+        // In the future, interface objects may refer to a group context that is not necessarily the group where
+        // "therealThing" lives. When that happens, this interface object will have to know which group it works
+        // for without asking "theRealThing".
+
+        ChannelMessenger res = (ChannelMessenger) found.getChannelMessenger(this.getGroup().getPeerGroupID(),
+                addr.getServiceName(), addr.getServiceParameter());
+
+        synchronized (channelCache) {
+            // We have to check again. May be we did all that in parallel with some other thread and it beat
+            // us to the finish line. In which case, substitute the existing one and throw ours away.
+            Reference<Messenger> existing = channelCache.get(addr);
+
+            if (existing != null) {
+                Messenger messenger = existing.get();
+                if ((messenger != null) && ((messenger.getState() & Messenger.USABLE) != 0)) {
+                    return messenger;
+                }
+            }
+            // The listenerAdaptor of this interface obj is used to support the sendMessage-with-listener API.
+            res.setMessageWatcher(listenerAdaptor);
+            channelCache.put(res.getDestinationAddress(), new WeakReference<Messenger>(res));
+        }
+        return res;
     }
 
     /**
@@ -1868,7 +1995,34 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * convenience method not supported here.
      */
     public Messenger getMessenger(EndpointAddress addr, Object hint) {
-        throw new UnsupportedOperationException("Convenience method not implemented. Use an interface object.");
+
+        // Get an unresolved messenger (that's immediate).
+        Messenger messenger = getMessengerImmediate(addr, hint);
+
+        if (messenger == null) {
+            return null;
+        }
+
+        // Now ask the messenger to resolve: this legacy blocking API ensures
+        // that only successfully resolved messengers are ever returned.
+        messenger.resolve();
+        try {
+            messenger.waitState(Messenger.RESOLVED | Messenger.TERMINAL, TimeUtils.AMINUTE);
+        } catch (InterruptedException ie) {
+            Thread.interrupted();
+        }
+
+        // check the state
+        int state = messenger.getState();
+
+        if ((state & Messenger.TERMINAL) != 0) {
+            return null;
+        }
+        if ((state & Messenger.RESOLVED) == 0) {
+            // Not failed yet. But too late for us.
+            return null;
+        }
+        return messenger;
     }
 
     /**
@@ -1890,4 +2044,31 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          */
         return null;
     }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * This is rather heavy-weight if instances are frequently created and
+     * discarded since finalization significantly delays GC.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+
+        /*
+         * The following code was imported from EndpointServiceInterface, but it
+         * causing the constructor to fail. It does not seem to serve any purpose.
+         * Disactivating it.
+         */ 
+
+//        synchronized (this.getClass()) {
+//            activeInstanceCount--;
+//            if (0 == activeInstanceCount) {
+//                listenerAdaptor.shutdown();
+//                listenerAdaptor = null;
+//            }
+//        }
+
+        super.finalize();
+    }
+
 }
