@@ -62,6 +62,7 @@ import net.jxta.service.Service;
 
 import java.io.IOException;
 import java.util.Iterator;
+import net.jxta.peer.PeerID;
 
 
 /**
@@ -263,20 +264,21 @@ public interface EndpointService extends Service, EndpointListener {
     public void propagate(Message message, String serviceName, String serviceParam, int initialTTL);
 
     /**
-     * Verifies that the given address can be reached. The method, and accuracy
-     * of the verification depends upon each Message Transport. In some cases
-     * the address may be contacted to determine connectivity but this is not
-     * guaranteed.
+     * Indicates whether a peer is reachable.
+     * <p/>
+     * If {@code tryToConnect=false}, this method returns {@code true} if an active connection is already
+     * available to the target peer, else it returns {@code false}.
+     * <p/>
+     * If {@code tryToConnect=true}, this method returns {@code true} if an active connection is already
+     * available to the target peer, else it tries to establish a connection to the target peer. If
+     * this connection is successful, the method returns {@code true}, else it returns {@code false}.
      *
-     * @param addr is the Endpoint Address to ping.
-     * @return {@code true} if the address can be reached otherwise {@code false}.
-     * @deprecated The cost of performing this operation is generally the same
-     * as getting a Messenger for the destination. Using {@code getMessenger()}
-     * is a better approach because the resulting Messenger is generally needed
-     * soon after ping.
+     * @param pid is the ID of the peer to reach.
+     * @param tryToConnect indicates whether a connection should be attempted.
+     * @return {@code true} if the peer can be reached otherwise {@code false}.
+     *
      */
-    @Deprecated
-    public boolean ping(EndpointAddress addr);
+    public boolean isReachable(PeerID pid, boolean tryToConnect);
 
     /**
      * Add a listener for the specified address.

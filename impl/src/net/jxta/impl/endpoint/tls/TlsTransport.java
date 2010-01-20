@@ -507,14 +507,6 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
     
     /**
      *  {@inheritDoc}
-     */
-    public boolean ping(EndpointAddress addr) {
-        
-        return null != getMessenger(addr, null);
-    }
-    
-    /**
-     *  {@inheritDoc}
      *
      *  XXX bondolo 20040522 The hint could be used in request for the
      * underlying messenger.

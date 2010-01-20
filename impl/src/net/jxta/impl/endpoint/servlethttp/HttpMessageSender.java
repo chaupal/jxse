@@ -220,26 +220,6 @@ class HttpMessageSender implements MessageSender {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean ping(EndpointAddress addr) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Using http client sender to ping " + addr);
-        }
-        
-        Messenger messenger = getMessenger(addr, null);
-
-        // XXX pool this messenger.
-        // Ping obsolete. And do not announce an outgoing messenger
-
-        boolean pong = 0 != (Messenger.USABLE & messenger.getState());
-        
-        messenger.close();
-        
-        return pong;
-    }
-
-    /**
      *  {@inheritDoc}
      */
     public String getProtocolName() {

@@ -65,8 +65,10 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.*;
+import net.jxta.endpoint.EndpointAddress;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
+import net.jxta.peer.PeerID;
 import net.jxta.impl.endpoint.endpointMeter.EndpointMeter;
 import net.jxta.impl.endpoint.endpointMeter.EndpointMeterBuildSettings;
 import net.jxta.impl.endpoint.endpointMeter.EndpointServiceMonitor;
@@ -95,7 +97,7 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.endpoint.router.RouteControl;
 import net.jxta.impl.util.TimeUtils;
 
 /**
@@ -1887,13 +1889,40 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated legacy method.
      */
-    @Deprecated
-    public boolean ping(EndpointAddress addr) {
+    public boolean isReachable(PeerID pid, boolean tryToConnect) {
 
-        return null != getMessengerImmediate(addr, null);
+        if (pid == null) {
+            return false;
+        }
+
+        MessageTransport MT = this.getMessageTransport("jxta");
+
+        //
+        // Following code relies on not-so-deprecated code. transportControl()
+        // is an unstable interface and user applications should not write code 
+        // relying on calls to this method (only JXTA/JXSE code should).
+        //
+
+        RouteControl RC = (RouteControl) MT.transportControl(EndpointRouter.GET_ROUTE_CONTROL, null);
+
+        // Have we already established a connection?
+        if (RC.isConnected(pid)) {
+            return true;
+        }
+
+        // Should we try to establish a connection?
+        if (!tryToConnect) {
+            return false;
+        }
+
+        // Trying to establish a connection
+        EndpointAddress EA = new EndpointAddress(pid, null, null);
+
+        Messenger MSG = this.getMessenger(EA);
+
+        // If we got a Messenger, then the peer is reachable
+        return ( MSG != null );
 
     }
 

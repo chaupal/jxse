@@ -332,22 +332,6 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
     /**
      * {@inheritDoc}
      */
-    @Deprecated
-    public boolean ping(EndpointAddress addr) {
-        Messenger messenger = getMessenger(addr, null);
-
-        boolean reachable = (null != messenger);
-
-        if (messenger != null) {
-            messenger.close();
-        }
-
-        return reachable;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
             LOG.fine("processIncomingMessage : Received message from: " + srcAddr);

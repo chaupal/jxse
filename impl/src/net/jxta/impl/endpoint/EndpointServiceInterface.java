@@ -57,7 +57,9 @@ package net.jxta.impl.endpoint;
 
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.*;
+import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
+import net.jxta.peer.PeerID;
 import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.peergroup.PeerGroup;
@@ -232,6 +234,15 @@ class EndpointServiceInterface implements EndpointService {
     /**
      * {@inheritDoc}
      */
+    public boolean isReachable(PeerID pid, boolean tryToConnect) {
+
+        return this.theRealThing.isReachable(pid, tryToConnect);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Messenger getMessengerImmediate(EndpointAddress addr, Object hint) {
 
         // Note: for now, the hint is not used for canonicalization (hint != QOS).
@@ -375,15 +386,6 @@ class EndpointServiceInterface implements EndpointService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public boolean ping(EndpointAddress addr) {
-
-        return null != getMessengerImmediate(addr, null);
-
-    }
 
     /**
      * {@inheritDoc}

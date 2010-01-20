@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import net.jxta.peer.PeerID;
+
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
@@ -187,4 +189,9 @@ public class FakeEndpointService implements EndpointService {
 		// TODO Auto-generated method stub
 		
 	}
+
+    public boolean isReachable(PeerID pid, boolean tryToConnect) {
+        throw new RuntimeException("not implemented");
+    }
+
 }
