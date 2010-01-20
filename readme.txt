@@ -18,3 +18,24 @@ Once installed, you can view the build options as follows:
 You can build and run the JXTA Platform as follows:
 
   % ant run
+
+Maven
+-----
+
+A parent pom.xml file is available in this directory and two child pom.xml are available in /jxse and /jxse-tutorial.
+
+  % mvn -P import-from-ant generate-sources
+
+will generate/organize the sources in a proper Maven directory structure. Then, Maven can be used as usual:
+
+  % mvn package
+
+ or
+
+  % mvn site:site
+
+To clean the import-from-ant:
+
+  % mvn -P import-from-ant clean
+
+
