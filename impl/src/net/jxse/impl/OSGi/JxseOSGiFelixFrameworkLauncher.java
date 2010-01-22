@@ -67,6 +67,8 @@ import java.util.logging.Logger;
 import net.jxse.JxseInstantiator;
 import net.jxse.OSGi.JxseOSGiFrameworkLauncher;
 import net.jxta.configuration.JxtaConfiguration;
+import net.jxta.configuration.PropertiesUtil;
+
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.launch.Framework;
@@ -113,7 +115,7 @@ public class JxseOSGiFelixFrameworkLauncher implements JxseOSGiFrameworkLauncher
         List list = new ArrayList();
 
         // Preparing OSGi configuration
-        for (String Item : Configuration.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(Configuration)) {
 
             if (Item.startsWith(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP)) {
 

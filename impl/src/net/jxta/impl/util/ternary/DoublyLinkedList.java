@@ -256,7 +256,6 @@ public class DoublyLinkedList {
             currentPreviousNode = last;
         }
 
-        @Override
         public void remove(  ) {
         	// Not implemented
         }

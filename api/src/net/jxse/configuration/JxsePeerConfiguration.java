@@ -66,6 +66,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import net.jxta.configuration.JxtaPeerConfiguration;
+import net.jxta.configuration.PropertiesUtil;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 
@@ -739,7 +740,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
         HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEED_RELAY_URI)) {
 
@@ -759,7 +760,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void clearSeedRelays() {
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
             if ( Key.startsWith(JXSE_SEED_RELAY_URI)) {
                 this.remove(Key);
             }
@@ -825,7 +826,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
         HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEED_RDV_URI)) {
 
@@ -845,7 +846,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void clearSeedRendezvous() {
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
             if ( Key.startsWith(JXSE_SEED_RDV_URI)) {
                 this.remove(Key);
             }
@@ -911,7 +912,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
         HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEEDING_RELAY_URI)) {
 
@@ -931,7 +932,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void clearSeedingRelays() {
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
             if ( Key.startsWith(JXSE_SEEDING_RELAY_URI)) {
                 this.remove(Key);
             }
@@ -997,7 +998,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
         HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEEDING_RDV_URI)) {
 
@@ -1017,7 +1018,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void clearSeedingRendezvous() {
 
-        for (String Key : this.stringPropertyNames()) {
+        for (String Key : PropertiesUtil.stringPropertyNames(this)) {
             if ( Key.startsWith(JXSE_SEEDING_RDV_URI)) {
                 this.remove(Key);
             }
@@ -1036,7 +1037,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
     private void removeExistingTransportConfigurationEntries() {
 
         // Removing any existing sub-entries
-        for (String Item : this.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(this)) {
             if ( Item.startsWith(HttpPrefix) || Item.startsWith(TcpPrefix) || Item.startsWith(MulticastPrefix) ) {
                 this.remove(Item);
             }
@@ -1055,7 +1056,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
         // Processing HTTP config
         if ( this.HttpConfig != null ) {
 
-            for (String Item : HttpConfig.stringPropertyNames()) {
+            for (String Item : PropertiesUtil.stringPropertyNames(HttpConfig)) {
 
                 String TempSub = HttpPrefix + Item;
                 this.setProperty(TempSub, HttpConfig.getProperty(Item));
@@ -1067,7 +1068,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
         // Processing Multicasting config
         if ( this.MulticastConfig != null ) {
 
-            for (String Item : MulticastConfig.stringPropertyNames()) {
+            for (String Item : PropertiesUtil.stringPropertyNames(MulticastConfig)) {
 
                 String TempSub = MulticastPrefix + Item;
                 this.setProperty(TempSub, MulticastConfig.getProperty(Item));
@@ -1079,7 +1080,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
         // Processing TCP config
         if ( this.TcpConfig != null ) {
 
-            for (String Item : TcpConfig.stringPropertyNames()) {
+            for (String Item : PropertiesUtil.stringPropertyNames(TcpConfig)) {
 
                 String TempSub = TcpPrefix + Item;
                 this.setProperty(TempSub, TcpConfig.getProperty(Item));
@@ -1101,7 +1102,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
         this.TcpConfig = JxseTcpTransportConfiguration.getDefaultTcpTransportConfiguration();
 
         // Searching for sub-entries
-        for (String Item : this.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(this)) {
 
             if (Item.startsWith(HttpPrefix)) {
 

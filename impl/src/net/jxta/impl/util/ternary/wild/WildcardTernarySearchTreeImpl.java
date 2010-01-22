@@ -80,7 +80,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
      * @see net.jxta.impl.util.ternary.wild.WildcardTernaryTree#contains(java.lang.String)
      */
-    @Override
     public boolean contains( String key ) {
 
         prefix.setNumReturnValues( 1 );
@@ -91,7 +90,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
      * @see net.jxta.impl.util.ternary.wild.WildcardTernaryTree#delete(java.lang.String)
      */
-    @Override
     public boolean delete( String key ) {
 
         prefix.remove( key );
@@ -104,7 +102,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
          * @see net.jxta.impl.util.ternary.wild.WildcardTernarySearchTree#deleteTree()
          */
-    @Override
     public void deleteTree(  ) {
 
         prefix.deleteTree(  );
@@ -116,7 +113,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     * @see net.jxta.impl.util.ternary.wild.WildcardTernaryTree#find(java.lang.String)
     */
     @SuppressWarnings( "unchecked" )
-    @Override
     public T find( String key ) {
 
         return (T) prefix.get( key );
@@ -125,7 +121,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
      * @see net.jxta.impl.util.ternary.wild.WildcardTernaryTree#getSize()
      */
-    @Override
     public long getSize(  ) {
 
         return size;
@@ -134,7 +129,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
      * @see net.jxta.impl.util.ternary.wild.WildcardTernaryTree#insert(java.lang.String, java.lang.Object)
      */
-    @Override
     public void insert( String key, Object value ) throws IllegalStateException {
 
         prefix.put( key, value );
@@ -145,7 +139,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
      * @see net.jxta.impl.util.ternary.wild.WildcardTernaryTree#search(java.lang.String)
      */
-    @Override
     public List<String> search( String term, int threshold )
         throws IllegalArgumentException {
 
@@ -218,7 +211,6 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
      * @see net.jxta.impl.util.ternary.wild.WildcardTernarySearchTree#matchPrefix(java.lang.String)
      */
-    @Override
     public List<String> matchPrefix( String prefix, int threshold ) {
 
         this.prefix.setNumReturnValues( threshold );

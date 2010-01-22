@@ -172,7 +172,6 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiIndexBackend#clear()
      */
-    @Override
     public synchronized void clear(  ) throws IOException {
 
         if ( !stopped ) {
@@ -192,7 +191,6 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiIndexBackend#garbageCollect()
      */
-    @Override
     public synchronized void garbageCollect(  ) throws IOException {
 
         if ( this.stopped ) {
@@ -297,7 +295,6 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiIndexBackend#getRecord(java.lang.String, java.lang.String, java.lang.String)
      */
-    @Override
     public synchronized List<Entry> getRecord( String pkey, String skey, String value )
         throws IOException {
 
@@ -369,7 +366,6 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiIndexBackend#query(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    @Override
     public synchronized List<PeerID> query( String pkey, String skey, String value, int threshold )
         throws IOException {
 
@@ -436,7 +432,6 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
      * @see net.jxta.impl.cm.SrdiIndexBackend#remove(net.jxta.peer.PeerID)
      */
     @SuppressWarnings( "unchecked" )
-    @Override
     public synchronized void remove( PeerID pid ) throws IOException {
 
         stoppedCheck(  );
@@ -471,7 +466,6 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiIndexBackend#stop()
      */
-    @Override
     public synchronized void stop(  ) {
 
         this.stopped = true;

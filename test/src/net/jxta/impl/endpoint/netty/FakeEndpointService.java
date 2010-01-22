@@ -184,10 +184,8 @@ public class FakeEndpointService implements EndpointService {
         refuseRegistration = true;
     }
 
-	@Override
 	public void processIncomingMessage(Message msg) {
-		// TODO Auto-generated method stub
-		
+		// do nothing
 	}
 
     public boolean isReachable(PeerID pid, boolean tryToConnect) {

@@ -93,7 +93,7 @@ public abstract class JxtaTransportConfiguration extends JxtaConfiguration {
         super();
 
         // Copying entries
-        for (String Item : toCopy.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(toCopy)) {
             this.setProperty(Item, toCopy.getProperty(Item));
         }
 
@@ -101,7 +101,7 @@ public abstract class JxtaTransportConfiguration extends JxtaConfiguration {
         this.defaults = new Properties();
 
         // Copying defaults
-        for (String Item : toCopy.defaults.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(toCopy.defaults)) {
             this.defaults.setProperty(Item, toCopy.defaults.getProperty(Item));
         }
 
