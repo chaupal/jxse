@@ -89,7 +89,8 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
             if(future.isCancelled()) {
                 failure = new IOException("Message send failed for " + message + ": send was cancelled");
             } else {
-                failure = new IOException("Message send failed for " + message, future.getCause());
+            	failure = new IOException("Message send failed for " + message);
+            	failure.initCause(future.getCause());
             }
             
             if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
