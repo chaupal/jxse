@@ -1,0 +1,6 @@
+This "contrib" folder is intended to contain contributions which are either licensed under terms
+that are not compatible with the main JXSE license, or rely upon libraries which are not compatible
+with the JXSE license.
+
+Each subfolder contains a different contribution module. See the README file of each contribution
+module for the details on license and usage restrictions.
