@@ -294,6 +294,21 @@ public interface Messenger extends SimpleSelectable {
     int waitState(int wantedStates, long timeout) throws InterruptedException;
 
     /**
+     * Add a listener to this messenger, which will be notified when
+     * the state of the messenger changes. This can be used to detect
+     * when network errors occur asynchronously, rather than blocking
+     * in waitState
+     */
+    void addStateListener(MessengerStateListener listener);
+    
+    /**
+     * Remove a previously added listener. If the listener is already
+     * removed, this has no effect.
+     */
+    void removeStateListener(MessengerStateListener listener);
+    
+    
+    /**
      * Returns {@code true} if this messenger is closed and no longer
      * accepting messages to be sent. This is a shortcut for 
      * {@code (getState() & USABLE == 0)}. Once closed, a messenger should be 

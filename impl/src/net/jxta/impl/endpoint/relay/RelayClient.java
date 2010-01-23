@@ -72,6 +72,8 @@ import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.MessengerState;
+import net.jxta.endpoint.MessengerStateListener;
 import net.jxta.id.ID;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.util.SeedingManager;
@@ -885,6 +887,21 @@ public class RelayClient implements MessageReceiver, Runnable {
         boolean seeded = false;
         boolean flushNeeded = true; // true until we know it's been done
         
+        private final MessengerStateListener failureListener = new MessengerStateListener() {
+			
+			public boolean messengerStateChanged(int newState) {
+				if((newState & Messenger.TERMINAL) != 0) {
+					// wake up the relay client, so that it will attempt to
+					// re-establish the connection or switch to a different
+					// relay server.
+					synchronized(client) {
+						client.notifyAll();
+					}
+				}
+				return true;
+			}
+		};
+        
         protected RelayServerConnection(RelayClient client, EndpointAddress addr) {
             this.client = client;
             relayAddress = new EndpointAddress(addr, null, null);
@@ -985,6 +1002,8 @@ public class RelayClient implements MessageReceiver, Runnable {
                                     messenger.close();
                                     messenger = null;
                                     logicalAddress = null;
+                                } else {
+                                	messenger.addStateListener(failureListener);
                                 }
                                 // In case it was not given, set relayAddress
                                 // for toString purposes.

@@ -172,7 +172,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
     /**
      * State lock and engine.
      */
-    private final ThreadedMessengerState stateMachine = new ThreadedMessengerState();
+    private final ThreadedMessengerState stateMachine;
 
     /**
      * The implementation of channel messenger that getChannelMessenger returns:
@@ -251,8 +251,8 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      */
     private class ThreadedMessengerState extends MessengerState {
 
-        protected ThreadedMessengerState() {
-            super(false);
+        protected ThreadedMessengerState(MessengerStateListener listener) {
+            super(false, listener);
         }
 
         /*
@@ -347,11 +347,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         super(destination);
 
         this.homeGroupID = homeGroupID;
-
-        // We tell our super class that we synchronize our state on the stateMachine object. Logic would dictate
-        // that we pass it to super(), but it is not itself constructed until super() returns. No way around it.
-
-        setStateLock(stateMachine);
+        stateMachine = new ThreadedMessengerState(distributingListener);
 
         this.logicalDestination = logicalDestination;
         this.channelQueueSize = channelQueueSize;

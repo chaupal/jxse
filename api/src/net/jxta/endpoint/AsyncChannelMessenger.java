@@ -125,8 +125,8 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
      */
     private class AsyncChannelMessengerState extends MessengerState {
 
-        protected AsyncChannelMessengerState(boolean connected) {
-            super(connected);
+        protected AsyncChannelMessengerState(boolean connected, MessengerStateListener listener) {
+            super(connected, listener);
         }
 
         /*
@@ -245,18 +245,10 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
      * @param connected        true if the channel is created in the connected state.
      */
     public AsyncChannelMessenger(EndpointAddress baseAddress, PeerGroupID redirection, String origService, String origServiceParam, int queueSize, boolean connected) {
-
         super(baseAddress, redirection, origService, origServiceParam);
-
-        stateMachine = new AsyncChannelMessengerState(connected);
-
+        
+        stateMachine = new AsyncChannelMessengerState(connected, distributingListener);
         queue = new ArrayBlockingQueue<PendingMessage>(queueSize);
-
-        // We synchronize our state with the sharedMessenger's stateMachine.
-        // Logic would dictate that we pass it to super(), but it is not itself
-        // constructed until super() returns. No way around it.
-
-        setStateLock(stateMachine);
     }
 
     /**

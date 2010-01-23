@@ -298,6 +298,8 @@ public abstract class MessengerState {
      * The current state!
      */
     private volatile State state = null;
+    
+    private final MessengerStateListener listener;
 
     /**
      * Constructs a new messenger state machine.
@@ -308,9 +310,22 @@ public abstract class MessengerState {
      *
      * @param connected If <tt>true</tt>, the initial state is {@link Messenger#CONNECTED} otherwise {@link Messenger#UNRESOLVED}.
      */
-    protected MessengerState(boolean connected) {
-
+    protected MessengerState(boolean connected, MessengerStateListener listener) {
         state = connected ? TransitionMap.Connected : TransitionMap.Unresolved;
+        if(listener != null) {
+        	this.listener = listener;
+        } else {
+        	this.listener = new NullMessengerStateListener();
+        }
+    }
+    
+    private void changeState(State newState) {
+    	boolean stateChanged = (state.number != newState.number);
+    	state = newState;
+    	
+    	if(stateChanged) {
+    		listener.messengerStateChanged(state.number);
+    	}
     }
 
     /**
@@ -327,7 +342,7 @@ public abstract class MessengerState {
     public void resolveEvent() {
         Action action = state.acResolve;
 
-        state = state.stResolve;
+        changeState(state.stResolve);
         action.doIt(this);
     }
 
@@ -337,7 +352,7 @@ public abstract class MessengerState {
     public void msgsEvent() {
         Action action = state.acMsgs;
 
-        state = state.stMsgs;
+        changeState(state.stMsgs);
         action.doIt(this);
     }
 
@@ -347,7 +362,7 @@ public abstract class MessengerState {
     public void saturatedEvent() {
         Action action = state.acSaturated;
 
-        state = state.stSaturated;
+        changeState(state.stSaturated);
         action.doIt(this);
     }
 
@@ -357,7 +372,7 @@ public abstract class MessengerState {
     public void closeEvent() {
         Action action = state.acClose;
 
-        state = state.stClose;
+        changeState(state.stClose);
         action.doIt(this);
     }
 
@@ -367,7 +382,7 @@ public abstract class MessengerState {
     public void shutdownEvent() {
         Action action = state.acShutdown;
 
-        state = state.stShutdown;
+        changeState(state.stShutdown);
         action.doIt(this);
     }
 
@@ -377,7 +392,7 @@ public abstract class MessengerState {
     public void upEvent() {
         Action action = state.acUp;
 
-        state = state.stUp;
+        changeState(state.stUp);
         action.doIt(this);
     }
 
@@ -387,7 +402,7 @@ public abstract class MessengerState {
     public void downEvent() {
         Action action = state.acDown;
 
-        state = state.stDown;
+        changeState(state.stDown);
         action.doIt(this);
     }
 
@@ -397,7 +412,7 @@ public abstract class MessengerState {
     public void idleEvent() {
         Action action = state.acIdle;
 
-        state = state.stIdle;
+        changeState(state.stIdle);
         action.doIt(this);
     }
 
