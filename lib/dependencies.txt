@@ -1,0 +1,16 @@
+Mandatory runtime dependencies:
+bouncycastle/bcprov-jdk15-145.jar - used for encryption
+h2/h2-1.1.127.jar - used by the H2 implementation of the cache manager (Cm)
+jetty/javax.servlet.jar - required by Jetty
+jetty/org.mortbay.jetty.jar - required by the HTTP transport
+netty/netty-3.1.5.GA.jar - required by the TCP transport
+
+
+Optional runtime dependencies:
+derby/derby-10.5.1.1.jar - used by the derby based Cm implementation
+felix/felix.jar - used by the current in-progress refactor of JXSE to fit within the OSGi framework
+
+
+Compile time dependencies (includes all runtime dependencies, mandatory and optional):
+junit/junit-4.4.jar - unit testing framework
+jmock-2.5.1/*.jar - mock objects are used in a number of tests
