@@ -139,7 +139,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         try {
             if(!connectFuture.await(5000L, TimeUnit.MILLISECONDS)) {
                 if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.log(Level.INFO, "Netty transport for protocol {0} Failed to connect to {1} within acceptable time", 
+                    LOG.log(Level.INFO, "Netty transport for protocol {0} failed to connect to {1} within acceptable time", 
                             new Object[] { addrTranslator.getProtocolName(), dest });
                 }
                 return null;
@@ -154,8 +154,10 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         
         if(!connectFuture.isSuccess()) {
             if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                String message = String.format("Netty transport for protocol %s Failed to connect to %s", addrTranslator.getProtocolName(), dest);
-                LOG.log(Level.INFO, message, connectFuture.getCause());
+                Throwable cause = connectFuture.getCause();
+                String causeString = (cause != null) ? cause.getMessage() : "cause unknown";
+				String message = String.format("Netty transport for protocol %s failed to connect to %s - %s", addrTranslator.getProtocolName(), dest, causeString);
+                LOG.log(Level.INFO, message);
             }
             return null;
         }

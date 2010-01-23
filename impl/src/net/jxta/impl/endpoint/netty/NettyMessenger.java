@@ -58,7 +58,10 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
     @Override
     protected void closeImpl() {
         // TODO: do we need to wait for this?
-        channel.close();
+    	LOG.log(Level.FINE, "Closing netty channel for messenger to {0}", logicalDestinationAddr);
+    	if(channel.isOpen()) {
+    		channel.close();
+    	}
     }
 
     @Override
@@ -142,7 +145,8 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	}
 	
 	public void connectionDied() {
-	    closeImpl();
+		LOG.log(Level.INFO, "Underlying channel for messenger to {0} has died - closing messenger", logicalDestinationAddr);
+	    close();
 	}
 	
 	private boolean isLoopback(EndpointAddress srcAddr) {
