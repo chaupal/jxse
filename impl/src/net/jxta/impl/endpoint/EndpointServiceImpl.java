@@ -98,6 +98,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.impl.endpoint.router.RouteControl;
+import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 
 /**
@@ -479,25 +480,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     public EndpointServiceImpl() {
 
-        /*
-         * The following code was imported from EndpointServiceInterface, but it
-         * causing the constructor to fail. It does not seem to serve any purpose.
-         * Disactivating it.
-         */
-
-//        synchronized (this.getClass()) {
-//            activeInstanceCount++;
-//            if (1 == activeInstanceCount) {
-//                listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) this.getGroup()).getExecutor());
-//            }
-//        }
-
     }
 
     /**
      * {@inheritDoc}
      */
     public synchronized void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
+
         if (initialized) {
             throw new PeerGroupException("Cannot initialize service more than once");
         }
@@ -592,9 +581,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * {@inheritDoc}
      */
     public int startApp(String[] args) {
+
         if (!initialized) {
             return -1;
         }
+
+        // TODO: This listener should probably go at some stage (legacy stuff)
+        listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) this.getGroup()).getExecutor());
 
         // FIXME  when Load order Issue is resolved this should fail
         // until it is able to get a non-failing service Monitor (or
@@ -633,6 +626,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * they are, they will dereference us and we'll go into oblivion.
      */
     public void stopApp() {
+
         if (parentEndpoint != null) {
             parentEndpoint.removeMessengerEventListener(this, EndpointService.LowPrecedence);
         }
@@ -666,9 +660,21 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // The above is not really needed and until we have a very orderly
         // shutdown, it causes NPEs that are hard to prevent.
 
+
+        /*
+         * The following code was imported from EndpointServiceInterface, but it
+         * causing the constructor to fail. It does not seem to serve any purpose.
+         * Disactivating it.
+         */
+
+        // TODO: This is legacy stuff that should go at some stage
+        listenerAdaptor.shutdown();
+        listenerAdaptor = null;
+
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("Endpoint Service stopped.");
         }
+
     }
 
     /**
@@ -2083,21 +2089,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     @Override
     protected void finalize() throws Throwable {
 
-        /*
-         * The following code was imported from EndpointServiceInterface, but it
-         * causing the constructor to fail. It does not seem to serve any purpose.
-         * Disactivating it.
-         */ 
-
-//        synchronized (this.getClass()) {
-//            activeInstanceCount--;
-//            if (0 == activeInstanceCount) {
-//                listenerAdaptor.shutdown();
-//                listenerAdaptor = null;
-//            }
-//        }
-
         super.finalize();
+
     }
 
 }
