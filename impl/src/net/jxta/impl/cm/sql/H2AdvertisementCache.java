@@ -24,7 +24,6 @@ public class H2AdvertisementCache extends JdbcAdvertisementCache {
 		}
 		JdbcDataSource source = new JdbcDataSource();
 		source.setURL("jdbc:h2:" + dbDir.getAbsolutePath());
-		System.err.println("HEY CREATED h2 cache");
 		return source;
 	}
 	
