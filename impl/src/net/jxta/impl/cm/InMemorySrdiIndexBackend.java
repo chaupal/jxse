@@ -55,29 +55,25 @@
  */
 package net.jxta.impl.cm;
 
-import net.jxta.impl.cm.SrdiIndex.Entry;
-import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.ternary.TernarySearchTreeImpl;
-import net.jxta.impl.util.ternary.wild.WildcardTernarySearchTree;
-import net.jxta.impl.util.ternary.wild.WildcardTernarySearchTreeImpl;
-
-import net.jxta.logging.Logging;
-
-import net.jxta.peer.PeerID;
-
-import net.jxta.peergroup.PeerGroup;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NavigableSet;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.backport.java.util.NavigableSet;
+import net.jxta.impl.util.backport.java.util.TreeMap;
+import net.jxta.impl.util.ternary.TernarySearchTreeImpl;
+import net.jxta.impl.util.ternary.wild.WildcardTernarySearchTree;
+import net.jxta.impl.util.ternary.wild.WildcardTernarySearchTreeImpl;
+import net.jxta.logging.Logging;
+import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
 
 
 public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
@@ -99,7 +95,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     WildcardTernarySearchTree<List<PeerIDItem>> peeridValueIndex = new WildcardTernarySearchTreeImpl<List<PeerIDItem>>(  );
     
     // The GC Index
-    TreeMap<Long, HashMap<Long, IndexItem>> expiryIndex = new TreeMap<Long, HashMap<Long, IndexItem>>(  );
+    TreeMap expiryIndex = new TreeMap(  );
 
     // Used by removal to complete expire time for gc cleanup
     TernarySearchTreeImpl peerRemovalIndex = new TernarySearchTreeImpl(  );
@@ -206,19 +202,19 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
         Long now = Long.valueOf( TimeUtils.timeNow(  ) );
 
-        NavigableSet<Long> exps = this.expiryIndex.navigableKeySet(  );
+        NavigableSet exps = this.expiryIndex.navigableKeySet(  );
 
         // If we have some work to do...
         if ( !exps.isEmpty(  ) ) {
 
-            if ( exps.first(  ).compareTo( now ) < 0 ) {
+            if ( ((Long)exps.first(  )).compareTo( now ) < 0 ) {
 
-                Iterator<Long> it = exps.iterator(  );
+                Iterator it = exps.iterator(  );
                 Long exp;
 
                 while ( it.hasNext(  ) ) {
 
-                    exp = it.next(  );
+                    exp = (Long)it.next(  );
 
                     if ( exp.compareTo( now ) > 0 ) {
 
@@ -231,14 +227,14 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
                         LOG.fine( "Expired: " + exp + " is less than:" + now );
                     }
 
-                    HashMap<Long, IndexItem> items = this.expiryIndex.get( exp );
+                    HashMap items = (HashMap)this.expiryIndex.get( exp );
 
                     ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>(  );
 
                     if( null != items ){
                     	
-	                    for ( IndexItem item : items.values(  ) ) {
-	
+	                    for ( Object itemObj : items.values(  ) ) {
+	                    	IndexItem item = (IndexItem) itemObj;
 	                        List<PeerIDItem> pids = this.peeridValueIndex.find( item.getTreeKey(  ) );
 	
 	                        if ( !this.peeridValueIndex.delete( item.getTreeKey(  ) ) ) {
@@ -541,14 +537,14 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         Long oldExpiry = Long.valueOf( piitem.getExpiry(  ) );
 
         // Remove from current position in the expire index
-        HashMap<Long, IndexItem> gcItems = this.expiryIndex.get( oldExpiry );
+        HashMap gcItems = (HashMap) this.expiryIndex.get( oldExpiry );
 
         if( null != gcItems ){
         	
             Long id = null;
 
-	        for ( IndexItem iitem : gcItems.values(  ) ) {
-	
+	        for ( Object iitemObj : gcItems.values(  ) ) {
+	        	IndexItem iitem = (IndexItem) iitemObj;
 	            if ( iitem.getIpid(  ).getPeerid(  ).getUniqueValue(  ).toString(  ).equals( peerIDString ) ) {
 	
 	                id = iitem.getId(  );
@@ -580,7 +576,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         Long oldExpiry = Long.valueOf( iitem.getIpid(  ).getExpiry(  ) );
 
         // Remove from current position in the expire index
-        HashMap<Long, IndexItem> gcItems = this.expiryIndex.get( oldExpiry );
+        HashMap gcItems = (HashMap) this.expiryIndex.get( oldExpiry );
 
         if ( null != gcItems ) {
 
@@ -599,11 +595,11 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     private HashMap<Long, IndexItem> addGcItem( IndexItem iitem ) {
 
         Long expiryKey = Long.valueOf( iitem.getIpid(  ).getExpiry(  ) );
-        HashMap<Long, IndexItem> gcItems = this.expiryIndex.get( expiryKey );
+        HashMap gcItems = (HashMap) this.expiryIndex.get( expiryKey );
 
         if ( null == gcItems ) {
 
-            gcItems = new HashMap<Long, IndexItem>( 1 );
+            gcItems = new HashMap( 1 );
             this.expiryIndex.put( expiryKey, gcItems );
         }
 
