@@ -80,7 +80,7 @@
 
 				<configuration>
 
-					<skipTests>true</skipTests>
+					<skipTests>false</skipTests>
 
 					<includes>
 						<include>**/*Test.java</include>
