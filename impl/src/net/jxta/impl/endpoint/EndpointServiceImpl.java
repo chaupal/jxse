@@ -668,8 +668,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          */
 
         // TODO: This is legacy stuff that should go at some stage
-        listenerAdaptor.shutdown();
-        listenerAdaptor = null;
+        if(listenerAdaptor != null) {
+	        listenerAdaptor.shutdown();
+	        listenerAdaptor = null;
+        }
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.info("Endpoint Service stopped.");
