@@ -55,9 +55,9 @@ public class ProxiedScheduledExecutorService
      * @param targetExecutor executor service instance to use for task
      *  execution
      */
-    public ProxiedScheduledExecutorService(
+    public ProxiedScheduledExecutorService(final String name,
             final ExecutorService targetExecutor) {
-        this(Executors.newSingleThreadScheduledExecutor(),
+        this(Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(name + "-Local")),
                 targetExecutor, true);
     }
     

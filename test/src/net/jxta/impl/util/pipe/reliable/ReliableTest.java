@@ -271,7 +271,7 @@ public class ReliableTest extends TestCase implements
  
     @Override
     protected void setUp() {
-        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
+        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService("ReliableTest");
         loadElements = new ArrayList();
         for (int size = MIN_LOAD; size <= MAX_LOAD; size = size << 1) {
             byte[] le = new byte[size];
@@ -316,6 +316,8 @@ public class ReliableTest extends TestCase implements
                 reliableTestTaskHandle.cancel(false);
                 reliableTestTaskHandle = null;
             }
+            
+        scheduledExecutor.shutdownNow();
         System.exit(0);
     }
     

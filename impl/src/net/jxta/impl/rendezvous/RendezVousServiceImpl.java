@@ -327,7 +327,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         // }
         //
 
-        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
+        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService("RendezVousService");
 
         if (!rdvProviderSwitchStatus.compareAndSet(true, true)) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
@@ -383,7 +383,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             provider = null;
         }
 
-        // executors from TaskManager are now shutdown by the NetworkManager
+        scheduledExecutor.shutdownNow();
 
         msgIds.clear();
         eventListeners.clear();
