@@ -1015,7 +1015,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             for (RelayServerClient aClient : relayedClients.values()) {
                 try {
                     if (aClient.isExpired()) {
-                        relayedClients.remove(aClient);
+                        relayedClients.remove(aClient.getClientPeerId());
                         aClient.close();
         }
             } catch (Exception e) {
