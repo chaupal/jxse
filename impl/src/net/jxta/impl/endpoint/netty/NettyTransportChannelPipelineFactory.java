@@ -36,7 +36,7 @@ public class NettyTransportChannelPipelineFactory implements ChannelPipelineFact
 
 	public ChannelPipeline getPipeline() throws Exception {
 		ChannelPipeline pipeline = Channels.pipeline();
-		pipeline.addFirst("rejector", new ConnectionRejector(acceptConnectionFlag));
+		pipeline.addFirst(ConnectionRejector.NAME, new ConnectionRejector(acceptConnectionFlag));
 		pipeline.addLast(JxtaProtocolHandler.NAME, new JxtaProtocolHandler(addrTranslator, localPeerId, timeoutTimer, remoteAddress, returnAddress));
 		pipeline.addLast(JxtaMessageEncoder.NAME, new JxtaMessageEncoder());
 		pipeline.addLast(JxtaMessageDecoder.NAME, new JxtaMessageDecoder());

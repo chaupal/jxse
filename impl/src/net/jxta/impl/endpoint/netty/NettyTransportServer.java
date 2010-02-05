@@ -24,9 +24,7 @@ import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
-import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ChildChannelStateEvent;
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
@@ -71,9 +69,8 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         this.homeGroupID = group.getPeerGroupID();
         this.localPeerID = group.getPeerID();
         this.addrTranslator = addrTranslator;
-        ChannelPipeline serverChannelPipeline = Channels.pipeline();
-        serverChannelPipeline.addLast("channelGroupAdder", new ConnectionGroupAddHandler());
         serverBootstrap = new ServerBootstrap(factory);
+        serverBootstrap.setParentHandler(new ConnectionGroupAddHandler());
         timeoutTimer = new HashedWheelTimer();
     }
  
@@ -193,7 +190,15 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
     private final class ConnectionGroupAddHandler extends SimpleChannelUpstreamHandler {
         @Override
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-            channels.add(ctx.getChannel());
+            if(Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                String logMessage = String.format("Incoming connection for transport %s from %s to %s (handled by %s)",
+                                                  getProtocolName(),
+                                                  e.getChildChannel().getRemoteAddress(),
+                                                  e.getChildChannel().getLocalAddress(),
+                                                  ctx.getChannel().getLocalAddress());
+                LOG.log(Level.FINE, logMessage);
+            }
+            channels.add(e.getChildChannel());
             super.childChannelOpen(ctx, e);
         }
     }
