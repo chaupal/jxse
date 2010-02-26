@@ -63,6 +63,11 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
     		channel.close();
     	}
     }
+    
+    @Override
+    public boolean isClosed() {
+        return !channel.isOpen();
+    }
 
     @Override
     protected EndpointAddress getLogicalDestinationImpl() {
