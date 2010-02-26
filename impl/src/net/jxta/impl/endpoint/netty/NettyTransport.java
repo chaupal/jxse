@@ -263,6 +263,7 @@ public class NettyTransport implements Module {
 
     public int startApp(String[] args) {
         if(!serverEnabled && !clientEnabled) {
+            LOG.log(Level.INFO, "Both client and server of transport for {0} are disabled - module not starting", getProtocolName());
             return Module.START_DISABLED;
         }
         
