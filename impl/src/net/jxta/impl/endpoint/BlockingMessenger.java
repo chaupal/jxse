@@ -70,6 +70,7 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerState;
+import net.jxta.endpoint.MessengerStateListener;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.impl.util.threads.TaskManager;
@@ -181,7 +182,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     /**
      * State lock and engine.
      */
-    private final BlockingMessengerState stateMachine = new BlockingMessengerState();
+    private final BlockingMessengerState stateMachine;
 
     /**
      * legacy artefact: transports need to believe the messenger is not yet closed in order to actually close it.
@@ -196,8 +197,8 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      */
     private class BlockingMessengerState extends MessengerState {
 
-        protected BlockingMessengerState() {
-            super(true);
+        protected BlockingMessengerState(MessengerStateListener listener) {
+            super(true, listener);
         }
 
         /*
@@ -283,15 +284,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     private final class BlockingMessengerChannel extends ChannelMessenger {
 
         public BlockingMessengerChannel(EndpointAddress baseAddress, PeerGroupID redirection, String origService, String origServiceParam) {
-
             super(baseAddress, redirection, origService, origServiceParam);
-
-            // We tell our super class that we synchronize on the stateMachine object. Althoug it is not obvious, our getState()
-            // method calls the shared messenger getState() method, which synchronizes on the shared messenger's state machine
-            // object. So, that's what we must specify.  Logic would dictate that we pass it to super(), but it is not itself
-            // constructed until super() returns. No way around it.
-
-            setStateLock(stateMachine);
         }
 
         /**
@@ -409,15 +402,10 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      */
 
     public BlockingMessenger(PeerGroupID homeGroupID, EndpointAddress dest, boolean selfDestruct) {
-
         super(dest);
 
         this.homeGroupID = homeGroupID;
-
-        // We tell our superclass that we synchronize our state on the stateMachine object.  Logic would dictate that we pass it
-        // to super(), but it is not itself constructed until super() returns. No way around it.
-
-        setStateLock(stateMachine);
+        stateMachine = new BlockingMessengerState(distributingListener);
 
         /*
          * Sets up a timer task that will close this messenger if it says to have become idle. It will keep it referenced

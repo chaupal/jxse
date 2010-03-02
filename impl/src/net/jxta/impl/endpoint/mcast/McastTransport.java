@@ -575,7 +575,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      * {@inheritDoc}
      */
     public EndpointService getEndpointService() {
-        return (EndpointService) endpoint.getInterface();
+        return endpoint;
     }
 
     /**

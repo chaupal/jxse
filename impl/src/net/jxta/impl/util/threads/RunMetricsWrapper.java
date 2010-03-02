@@ -50,7 +50,7 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
         future.cancel(true);
         
         if(elapsedTime > 200 && Logging.SHOW_WARNING && SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
-            SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [{0}] took {1}ms to complete in the shared executor", new Object[] { wrappedRunnable.getClass(), elapsedTime });
+            SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [{0}] took {1}ms to complete in the shared executor", new Object[] { getWrappedType(), elapsedTime });
         }
         
         return returnVal;

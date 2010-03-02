@@ -106,11 +106,11 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     RemoteMonitorPeerInfoHandler(PeerGroup peerGroup, PeerInfoServiceImpl peerInfoServiceImpl) {
         this.peerGroup = peerGroup;
         this.peerInfoServiceImpl = peerInfoServiceImpl;
-        this.executor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
+        this.executor = TaskManager.getTaskManager().getLocalScheduledExecutorService("RemoteMonitorPeerInfoHandler");
     }
 
     public void stop() {
-    	// Previously we shut down the executor here, now done via NetworkManager.stopNetwork();
+    	this.executor.shutdownNow();
     }
 
     private int getNextLeaseId() {

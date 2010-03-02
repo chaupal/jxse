@@ -86,7 +86,7 @@ public class JxtaConfiguration extends Properties {
         super();
         
         // Copying entries
-        for (String Item : toCopy.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(toCopy)) {
             this.setProperty(Item, toCopy.getProperty(Item));
         }
 
@@ -94,7 +94,7 @@ public class JxtaConfiguration extends Properties {
         this.defaults = new Properties();
 
         // Copying defaults
-        for (String Item : toCopy.defaults.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(toCopy.defaults)) {
             this.defaults.setProperty(Item, toCopy.defaults.getProperty(Item));
         }
         
@@ -166,7 +166,7 @@ public class JxtaConfiguration extends Properties {
         // Preparing result
         Properties Result = new Properties();
 
-        for (String Items : this.defaults.stringPropertyNames()) {
+        for (String Items : PropertiesUtil.stringPropertyNames(this.defaults)) {
             Result.setProperty(Items, this.defaults.getProperty(Items));
         }
 
@@ -188,7 +188,7 @@ public class JxtaConfiguration extends Properties {
         // Removing any existing entries first
         removeExistingDefaultEntries();
 
-        for (String Item : this.defaults.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(this.defaults)) {
             super.setProperty(DEFAULT_PREFIX + Item, this.defaults.getProperty(Item));
         }
 
@@ -200,7 +200,7 @@ public class JxtaConfiguration extends Properties {
     private void removeExistingDefaultEntries() {
 
         // Removing any existing sub-entries
-        for (String Item : this.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(this)) {
             if ( Item.startsWith(DEFAULT_PREFIX) ) {
                 this.remove(Item);
             }
@@ -217,7 +217,7 @@ public class JxtaConfiguration extends Properties {
         this.defaults = new Properties();
 
         // Searching for sub-entries
-        for (String Item : this.stringPropertyNames()) {
+        for (String Item : PropertiesUtil.stringPropertyNames(this)) {
 
             if (Item.startsWith(DEFAULT_PREFIX)) {
 

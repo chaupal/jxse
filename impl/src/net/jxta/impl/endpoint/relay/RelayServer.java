@@ -397,18 +397,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         return messenger;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public boolean ping(EndpointAddress addr) {
-        if (addr.getProtocolName().equalsIgnoreCase(getProtocolName())) {
-            throw new IllegalArgumentException("Only '" + getProtocolName() + "' URIs are supported.");
-        }
-    
-        return null != getClient(RelayTransport.addr2pid(addr));
-    }
     
     /**
      * {@inheritDoc}
@@ -1027,7 +1015,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             for (RelayServerClient aClient : relayedClients.values()) {
                 try {
                     if (aClient.isExpired()) {
-                        relayedClients.remove(aClient);
+                        relayedClients.remove(aClient.getClientPeerId());
                         aClient.close();
         }
             } catch (Exception e) {

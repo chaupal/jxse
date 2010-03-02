@@ -70,7 +70,12 @@ import java.util.Enumeration;
 /**
  * Provides a pure interface object that permits interaction with the actual
  * Discovery Service implementation without giving access to the real object.
+ *
+ * @since 2.6 This class has been deprecated and is not used in the code anymore.
+ * It will be removed in a future release.
+ *
  */
+@Deprecated
 public final class DiscoveryServiceInterface implements DiscoveryService {
 
     private DiscoveryServiceImpl impl;

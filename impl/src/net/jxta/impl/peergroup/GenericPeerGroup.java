@@ -1631,7 +1631,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (endpoint == null) {
             return null;
         }
-        return (EndpointService) endpoint.getInterface();
+        return endpoint;
     }
 
     /**

@@ -765,7 +765,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * {@inheritDoc}
      */
     public EndpointService getEndpointService() {
-        return (EndpointService) endpoint.getInterface();
+        return endpoint;
     }
 
     /**
@@ -848,55 +848,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             }
             return null;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This implementation tries to open a connection, and after tests the
-     * result.
-     */
-    public boolean ping(EndpointAddress addr) {
-        boolean result = false;
-        EndpointAddress endpointAddress;
-        long pingStartTime = 0;
-
-        if (TransportMeterBuildSettings.TRANSPORT_METERING) {
-            pingStartTime = System.currentTimeMillis();
-        }
-
-        endpointAddress = new EndpointAddress(addr, null, null);
-
-        try {
-            // Too bad that this one will not get pooled. On the other hand ping is
-            // not here too stay.
-            TcpMessenger tcpMessenger = new TcpMessenger(endpointAddress, this);
-
-            if (TransportMeterBuildSettings.TRANSPORT_METERING) {
-                TransportBindingMeter transportBindingMeter = tcpMessenger.getTransportBindingMeter();
-
-                if (transportBindingMeter != null) {
-                    transportBindingMeter.ping(System.currentTimeMillis() - pingStartTime);
-                }
-            }
-            result = true;
-        } catch (Throwable e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failure pinging " + addr.toString(), e);
-            }
-            if (TransportMeterBuildSettings.TRANSPORT_METERING) {
-                TransportBindingMeter transportBindingMeter = getUnicastTransportBindingMeter(null, endpointAddress);
-
-                if (transportBindingMeter != null) {
-                    transportBindingMeter.pingFailed(System.currentTimeMillis() - pingStartTime);
-                }
-            }
-        }
-
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("ping to " + addr.toString() + " == " + result);
-        }
-        return result;
     }
 
     /**

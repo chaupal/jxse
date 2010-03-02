@@ -129,19 +129,5 @@ public interface MessageSender extends MessageTransport {
      *  @return a Messenger or {@code null} if the destination is not reachable.
      */
     public Messenger getMessenger(EndpointAddress dest, Object hint);
-    
-    /**
-     *  Returns {@code true} if the specified destination address is reachable 
-     *  via this Message Transport otherwise returns {@code false}.
-     *
-     *  @deprecated This operation is often very expensive and usually  
-     *  duplicates the work of {@link #getMessenger}. If you want to determine
-     *  the reachability of a destination, get a Messenger to the destination.
-     *
-     *  @param addr Address to ping
-     *  @return {@code true} if the specified destination address is reachable
-     *  via this Message Transport otherwise returns {@code false}.
-     */
-    @Deprecated
-    public boolean ping(EndpointAddress addr);
+
 }

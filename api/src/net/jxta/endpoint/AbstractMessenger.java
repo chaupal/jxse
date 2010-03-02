@@ -57,11 +57,11 @@
 package net.jxta.endpoint;
 
 
-import net.jxta.util.AbstractSimpleSelectable;
-import net.jxta.util.SimpleSelectable;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
+
+import net.jxta.util.AbstractSimpleSelectable;
+import net.jxta.util.SimpleSelectable;
 
 
 /**
@@ -85,21 +85,17 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * The destination address of messages sent on this messenger.
      */
     protected final EndpointAddress dstAddress;
-
-    /**
-     * The stateLock that we share with the implementation.
-     * This permits to implement waitState in a totally generic way: waitState depends only on the lock
-     * (provided at construction), and on getState(), supplied by the implementation.
-     */
-    private Object stateLock;
+    
+    private final MessengerStateListenerSet listeners = new MessengerStateListenerSet();
+    protected final MessengerStateListener distributingListener = new MessengerStateListener() {
+        public boolean messengerStateChanged(int newState) {
+        	listeners.notifyNewState(newState);
+            return true;
+        }
+    };
 
     /**
      * Create a new abstract messenger.
-     * <p/>
-     * Warning: This class needs to know the object on which to waitState must synchronize. It is generally impossible
-     * to pass it at construction because it is not yet constructed. Instead implementations MUST call {@link #setStateLock}
-     * from their constructor.
-     *
      * @param dest who messages should be addressed to
      */
     public AbstractMessenger(EndpointAddress dest) {
@@ -114,18 +110,6 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     @Override
     public String toString() {
         return super.toString() + " {" + dstAddress + "}";
-    }
-
-    /**
-     * Specifies the object on which waitState must synchronize.
-     *
-     * @param stateLock The object on which waitState must synchronize. This has to be the object that gets notified when the
-     *                  implementation changes its state. Changing state is defined as "any operation that causes the result of the
-     *                  <code>getState</code> method to change". Implementations that use the MessengerState state machine should typically use the
-     *                  MessengerState object as their state lock, but it is not assumed.
-     */
-    protected void setStateLock(Object stateLock) {
-        this.stateLock = stateLock;
     }
 
     /**
@@ -243,39 +227,37 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
 
     /**
      * {@inheritDoc}
-     * <p/>
-     * This method synchronizes on the lock object supplied at construction.
      */
     public final int waitState(int wantedStates, long timeout) throws InterruptedException {
-        synchronized (stateLock) {
-            if (timeout == 0) {
-                while ((wantedStates & getState()) == 0) {
-                    stateLock.wait();
-                }
-                return getState();
-            }
-
-            if (timeout < 0) {
-                stateLock.wait(timeout); // let it throw the appropriate error.
-            }
-
-            long start = System.currentTimeMillis();
-            long end = start + timeout;
-
-            if (end < start) {
-                end = Long.MAX_VALUE;
-            }
-            long left = end - start;
-
-            while ((left > 0) && (wantedStates & getState()) == 0) {
-
-                stateLock.wait(left);
-
-                left = end - System.currentTimeMillis();
-            }
-            
-            return getState();
+    	// register the barrier first, in case the state changes concurrently while we do
+    	// our initial interrogation
+    	MessengerStateBarrier barrier = new MessengerStateBarrier(wantedStates);
+    	addStateListener(barrier);
+    	
+    	int currentState = getState();
+    	if((currentState & wantedStates) != 0) {
+    		barrier.expire();
+    		return currentState;
+    	}
+    	
+    	// we are not currently in any of the states we want, so wait until we are
+    	// notified that we are
+        int matchingState = barrier.awaitMatch(timeout);
+        barrier.expire();
+        
+        if(matchingState != MessengerStateBarrier.NO_MATCH) {
+            return matchingState;
+        } else {
+        	return getState();
         }
+    }
+    
+    public void addStateListener(MessengerStateListener listener) {
+        listeners.addStateListener(listener);
+    }
+    
+    public void removeStateListener(MessengerStateListener listener) {
+        listeners.removeStateListener(listener);
     }
 
     /*

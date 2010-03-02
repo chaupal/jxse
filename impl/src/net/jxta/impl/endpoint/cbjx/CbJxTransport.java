@@ -291,7 +291,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
      * {@inheritDoc}
      */
     public EndpointService getEndpointService() {
-        return (EndpointService) endpoint.getInterface();
+        return endpoint;
     }
 
     /**
@@ -327,22 +327,6 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
             }
             return null;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public boolean ping(EndpointAddress addr) {
-        Messenger messenger = getMessenger(addr, null);
-
-        boolean reachable = (null != messenger);
-
-        if (messenger != null) {
-            messenger.close();
-        }
-
-        return reachable;
     }
 
     /**

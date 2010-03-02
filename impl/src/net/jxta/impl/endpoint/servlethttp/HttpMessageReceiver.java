@@ -161,10 +161,6 @@ class HttpMessageReceiver implements MessageReceiver {
             Log.instance().disableLog();
         }
         
-        org.mortbay.util.Code.setDebug(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER));
-        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)));
-        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)));
-
         // Setup the logger to match the rest of JXTA unless explicitly configured.
         // "LOG_CLASSES" is a Jetty thing.
         if (System.getProperty("LOG_CLASSES") == null) {
@@ -176,11 +172,17 @@ class HttpMessageReceiver implements MessageReceiver {
                 logSink.start();
                 Log.instance().add(logSink);
             } catch (Exception ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Could not configure LoggerLogSink");
+                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    LOG.severe("Could not configure LoggerLogSink");
                 }
             }
         }
+
+        // SPT - these methods call log internally.  If they are called before we add our JUL as a logSink (above)
+        //       then a default STDERR logSink will also be added as default: org.mortbay.util.OutputStreamLogSink
+        org.mortbay.util.Code.setDebug(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER));
+        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)));
+        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)));
         
         // Initialize the Jetty HttpServer
         server = new HttpServer();

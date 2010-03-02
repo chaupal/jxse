@@ -75,7 +75,12 @@ import net.jxta.service.Service;
  *  PeerInfoServiceInterface provides a pure interface object that permits
  *  interaction with the actual PeerInfoService implementation without giving
  *  access to the real object.
+ *
+ * @since 2.6 This class has been deprecated and is not used in the code anymore.
+ * It will be removed in a future release.
+ *
  */
+@Deprecated
 public class PeerInfoServiceInterface implements PeerInfoService {
 
     private PeerInfoService impl;

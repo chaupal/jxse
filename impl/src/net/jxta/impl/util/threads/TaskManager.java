@@ -1,10 +1,14 @@
 package net.jxta.impl.util.threads;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,6 +38,8 @@ public class TaskManager {
 	private static SharedScheduledThreadPoolExecutor scheduledExecutor;
 	private static ScheduledExecutorService monitoringExecutor;
 	
+	private static Map<String, ProxiedScheduledExecutorService> proxiedExecutors;
+	
 	private static boolean started;
 	
 	static int getScheduledPoolSize() {
@@ -56,6 +62,7 @@ public class TaskManager {
 			                                              new SynchronousQueue<Runnable>(), 
 			                                              new NamedThreadFactory("JxtaWorker"));
 			scheduledExecutor = new SharedScheduledThreadPoolExecutor(monitoringExecutor, getScheduledPoolSize(), new NamedThreadFactory("JxtaScheduledWorker"));
+			proxiedExecutors = Collections.synchronizedMap(new HashMap<String, ProxiedScheduledExecutorService>());
 			started=true;
 		}
 		return TaskManager.singleton;
@@ -90,9 +97,20 @@ public class TaskManager {
 	/**
 	 * Provides a ScheduledExecutorService which the client can safely shut down independently
 	 * of any other ScheduledExecutor provided by this class.
+	 * 
+	 * NOTE: the current implementation of local scheduled executors incurs a cost of an additional
+	 * thread per service. Please refrain from this unless you genuinely require your own
+	 * executor service.
 	 */
-	public ScheduledExecutorService getLocalScheduledExecutorService() {
-		return new ProxiedScheduledExecutorService(normalExecutor);
+	public ScheduledExecutorService getLocalScheduledExecutorService(String serviceName) {
+		synchronized(proxiedExecutors) {
+			ProxiedScheduledExecutorService service = proxiedExecutors.get(serviceName);
+			if(service == null) {
+				service = new ProxiedScheduledExecutorService(serviceName, normalExecutor);
+				proxiedExecutors.put(serviceName, service);
+			}
+			return service;
+		}
 	}
 	
 	
@@ -103,6 +121,18 @@ public class TaskManager {
 		normalExecutor.shutdownShared();
 		scheduledExecutor.shutdownShared();
 		monitoringExecutor.shutdownNow();
+		
+		synchronized (proxiedExecutors) {
+			for(String serviceName : proxiedExecutors.keySet()) {
+				ProxiedScheduledExecutorService service = proxiedExecutors.get(serviceName);
+				if(!service.isShutdown()) {
+					LOG.log(Level.WARNING, "Local executor for \"" + serviceName + "\" has not been locally shut down - forcing termination now");
+					service.shutdownNow();
+				}
+			}
+			
+			proxiedExecutors.clear();
+		}
 		
 		started = false;
 	}

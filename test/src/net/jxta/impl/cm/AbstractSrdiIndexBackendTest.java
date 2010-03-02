@@ -43,9 +43,9 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 	protected FakeSystemClock clock;
 	
 	protected EntryComparator comparator;
-	private PeerGroup group1;
-	private PeerGroup group2;
-	private SrdiIndex srdiIndexForGroup2;
+	protected PeerGroup group1;
+	protected PeerGroup group2;
+	protected SrdiIndex srdiIndexForGroup2;
 	private SrdiIndex alternativeIndexForGroup1;
 	
 	@Override

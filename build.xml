@@ -75,7 +75,6 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         jnlp - The destination directory for jnlp built objects.
         lib - The source directory for dependent libraries.
         rpm - The destination directory for rpm built objects.
-        tools - Directory containing libraries and executable tools used during build or test.
         tutorials - Directory containing the tutorials.
         tmp - Used for temporary items during build or test execution.
         
@@ -106,7 +105,6 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
     <!-- Directories -->
     <property name="tmp" value="${basedir}/tmp" />
     <property name="lib" value="${basedir}/lib" />
-    <property name="tools" value="${basedir}/tools" />
     <property name="api" value="${basedir}/api/src" />
     <property name="impl" value="${basedir}/impl/src" />
     <property name="test" value="${basedir}/test/src" />
@@ -194,32 +192,32 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             </not>
         </condition>
         
-        <fileset id="lib.files" dir="${lib}">
-            <include name="*.jar" />
-        </fileset>
-        
         <path id="compile.classpath">
-            <fileset refid="lib.files" />
-            <pathelement location="${tools}/netty-3.1.5.GA.jar" />
-            <pathelement location="${tools}/h2/h2-1.1.118.jar" />
-            <pathelement location="${tools}/derby/derby-10.5.1.1.jar" />
+            <pathelement location="${lib}/netty/netty-3.1.5.GA.jar" />
+            <pathelement location="${lib}/h2/h2-1.2.127.jar" />
+            <pathelement location="${lib}/derby/derby-10.5.1.1.jar" />
+        	<pathelement location="${lib}/jetty/javax.servlet.jar" />
+        	<pathelement location="${lib}/jetty/org.mortbay.jetty.jar" />
+        	<pathelement location="${lib}/felix/felix.jar" />
+        	<pathelement location="${lib}/bouncycastle/bcprov-jdk15-145.jar" />
         </path>
         
         <path id="test.classpath">
+        	<path refid="compile.classpath" />
             <pathelement location="${test_res}" />
             <pathelement location="${jxtajar}" />
             <pathelement path="${build_test}" />
-            <pathelement location="${tools}/junit-4.4.jar" />
-            <pathelement location="${tools}/jmock-2.5.1/cglib-nodep-2.1_3.jar" />
-            <pathelement location="${tools}/jmock-2.5.1/jmock-2.5.1.jar" />
-            <pathelement location="${tools}/jmock-2.5.1/jmock-legacy-2.5.1.jar" />
-            <pathelement location="${tools}/jmock-2.5.1/jmock-junit3-2.5.1.jar" />
-            <pathelement location="${tools}/jmock-2.5.1/jmock-junit4-2.5.1.jar" />
-            <pathelement location="${tools}/jmock-2.5.1/hamcrest-core-1.1.jar" />
-            <pathelement location="${tools}/jmock-2.5.1/hamcrest-library-1.1.jar" />
-            <pathelement location="${tools}/h2/h2-1.1.117.jar" />
-            <pathelement location="${tools}/derby/derby-10.5.1.1.jar" />
-            <pathelement location="${tools}/netty-3.1.5.GA.jar" />
+            <pathelement location="${lib}/junit/junit-4.4.jar" />
+            <pathelement location="${lib}/jmock-2.5.1/cglib-nodep-2.1_3.jar" />
+            <pathelement location="${lib}/jmock-2.5.1/jmock-2.5.1.jar" />
+            <pathelement location="${lib}/jmock-2.5.1/jmock-legacy-2.5.1.jar" />
+            <pathelement location="${lib}/jmock-2.5.1/jmock-junit3-2.5.1.jar" />
+            <pathelement location="${lib}/jmock-2.5.1/jmock-junit4-2.5.1.jar" />
+            <pathelement location="${lib}/jmock-2.5.1/hamcrest-core-1.1.jar" />
+            <pathelement location="${lib}/jmock-2.5.1/hamcrest-library-1.1.jar" />
+            <pathelement location="${lib}/jmock/h2/h2-1.1.117.jar" />
+            <pathelement location="${lib}/jmock/derby/derby-10.5.1.1.jar" />
+            <pathelement location="${lib}/netty/netty-3.1.5.GA.jar" />
         </path>
     </target>
     
@@ -491,7 +489,6 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             <fileset dir="${dist}">
                 <include name="*.jar" />
             </fileset>
-            <fileset refid="lib.files" />
         </copy>
         
         <!-- xxx: would be nice to derive the jar list -->
@@ -723,7 +720,7 @@ href="bcprov-ext.jnlp">
                 <pathelement location="${jxtashelljar}" />
                 <pathelement location="${jxtacmsjar}" />
                 <pathelement location="${jxtacmsshelljar}" />
-                <fileset refid="lib.files" />
+                <fileset refid="compile.classpath" />
             </classpath>
         </java>
     </target>
@@ -735,8 +732,7 @@ href="bcprov-ext.jnlp">
         <javac compiler="${net.jxta.build.compiler}" destdir="${build_test}" source="${source}" target="${source}" debug="${debug}" deprecation="off" optimize="${optimize}">
             <classpath>
                 <pathelement location="${build}" />
-                <fileset refid="lib.files" />
-		<path refid="test.classpath" />
+				<path refid="test.classpath" />
             </classpath>
             <src path="${test}" />
         </javac>
@@ -769,8 +765,7 @@ href="bcprov-ext.jnlp">
             <classpath>
                 <pathelement location="${build_test}" />
                 <pathelement location="${build}" />
-		<path refid="test.classpath" />
-                <fileset refid="lib.files" />
+				<path refid="test.classpath" />
                 <pathelement location="${api}" />
                 <pathelement location="${impl}" />
                 <pathelement location="${basedir}" />

@@ -58,7 +58,15 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
     @Override
     protected void closeImpl() {
         // TODO: do we need to wait for this?
-        channel.close();
+    	LOG.log(Level.FINE, "Closing netty channel for messenger to {0}", logicalDestinationAddr);
+    	if(channel.isOpen()) {
+    		channel.close();
+    	}
+    }
+    
+    @Override
+    public boolean isClosed() {
+        return !channel.isOpen();
     }
 
     @Override
@@ -84,6 +92,23 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
         
         ChannelFuture future = channel.write(retargetMessage(message, service, param));
         future.awaitUninterruptibly();
+        if(!future.isSuccess()) {
+            IOException failure;
+            if(future.isCancelled()) {
+                failure = new IOException("Message send failed for " + message + ": send was cancelled");
+            } else {
+            	failure = new IOException("Message send failed for " + message);
+            	failure.initCause(future.getCause());
+            }
+            
+            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to send message to " + logicalDestinationAddr, failure);
+            }
+            
+            closeImpl();
+            
+            throw failure;
+        }
     }
 
     private Message retargetMessage(Message message, String service, String param) {
@@ -125,6 +150,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	}
 	
 	public void connectionDied() {
+		LOG.log(Level.INFO, "Underlying channel for messenger to {0} has died - closing messenger", logicalDestinationAddr);
 	    close();
 	}
 	

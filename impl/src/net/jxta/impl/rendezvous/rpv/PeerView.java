@@ -416,7 +416,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         this.uniqueGroupId = group.getPeerGroupID().getUniqueValue().toString();
 
-        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService();
+        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService("PeerView");
 
         Advertisement adv = null;
         ConfigParams confAdv = group.getConfigAdvertisement();
@@ -902,9 +902,9 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             upPeer = null;
             localView.clear();
 
-            // executors from TaskManager are now shutdown by the NetworkManager
-
             rpvListeners.clear();
+            
+            scheduledExecutor.shutdownNow();
         }
     }
 

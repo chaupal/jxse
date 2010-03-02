@@ -101,5 +101,6 @@ public interface MessageTransport {
      */
     @Deprecated
     public Object transportControl(Object operation, Object value);
+
 }
 
