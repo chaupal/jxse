@@ -394,6 +394,14 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             if (socketChannel != null) {
                 socketChannel.close();
             }
+
+            // Logging message for restricted ports
+            if ( port < 1024 ) {
+                String Temp = "Failed to open TCP connection with port: " + port + "\n"
+                        + io.toString();
+                LOG.warning(Temp);
+            }
+
             throw io;
         }
 
