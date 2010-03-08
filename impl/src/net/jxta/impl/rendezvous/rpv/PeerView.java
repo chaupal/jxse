@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous.rpv;
 
 import java.io.IOException;
@@ -77,7 +78,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -456,23 +456,23 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             minHappyPeerView = rdvConfigAdv.getMinHappyPeerView();
         }
 
-        URISeedingManager seedingManager;
+        URISeedingManager seedingManager2;
 
         if ((null == advertisingGroup) && rdvConfigAdv.getProbeRelays()) {
-            seedingManager = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
+            seedingManager2 = new RelayReferralSeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
         } else {
-            seedingManager = new URISeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
+            seedingManager2 = new URISeedingManager(rdvConfigAdv.getAclUri(), useOnlySeeds, group, name);
         }
 
         for (URI aSeeder : Arrays.asList(rdvConfigAdv.getSeedingURIs())) {
-            seedingManager.addSeedingURI(aSeeder);
+            seedingManager2.addSeedingURI(aSeeder);
         }
 
         for (URI aSeed : Arrays.asList(rdvConfigAdv.getSeedRendezvous())) {
-            seedingManager.addSeed(aSeed);
+            seedingManager2.addSeed(aSeed);
         }
 
-        this.seedingManager = seedingManager;
+        this.seedingManager = seedingManager2;
 
         lastPeerAdv = group.getPeerAdvertisement();
         lastModCount = lastPeerAdv.getModCount();
@@ -481,8 +481,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         RdvAdvertisement radv = createRdvAdvertisement(lastPeerAdv, name);
 
         self = new PeerViewElement(endpoint, radv);
-
-        // addPeerViewElement( self );
 
         // setup endpoint listener
         endpoint.addIncomingMessageListener(this, SERVICE_NAME, uniqueGroupId);
@@ -1775,6 +1773,17 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         synchronized (localView) {
             return new TreeSet<PeerViewElement>((SortedSet)localView);
         }
+    }
+
+    /**
+     * Returns the size of the peerview.
+     *
+     * @return the size of the peerview.
+     */
+    public int getSize() {
+
+        return this.localView.size();
+
     }
 
     /**
