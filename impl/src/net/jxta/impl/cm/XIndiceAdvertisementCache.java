@@ -400,6 +400,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         try {
             Key key = new Key(dn + "/" + fn);
             Record record = cacheDB.readRecord(key);
+
+            // Retrieving amount of relative time record should stay in cache
             long expiration = calcExpiration(record);
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -427,10 +429,11 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     }
 
     /**
-     * Figures out expiration
+     * Figures out remaing amount of relative expiration time the record
+     * should stay in cache. If delay is expired, the method returns {@code -1}.
      *
      * @param record record
-     * @return expiration in ms
+     * @return expiration in ms or {@code -1} if expired
      */
     private static long calcExpiration(Record record) {
         if (record == null) {
@@ -439,9 +442,23 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             }
             return -1;
         }
-        Long exp = (Long) record.getMetaData(Record.EXPIRATION);
-        Long life = (Long) record.getMetaData(Record.LIFETIME);
-        
+
+        /*
+         * REMINDER:
+         * - We registered an absolute lifetime and a relative expiration
+         * AND:
+         * - lifetime is the maximum amount of relative time an advertisement remains valid
+         * - expiration is the maximum amount of relative time an advertisement lives in cache
+         */
+        Long life = (Long) record.getMetaData(Record.LIFETIME);  // Saved as absolute time
+        Long exp = (Long) record.getMetaData(Record.EXPIRATION); // Saved as relative time
+
+        /*
+         * We (re)compute relative lifetime: life - now();
+         *
+         * In other words, expiresin is the remaining amount of time the record should stay
+         * further in cache as of now in time.
+         */
         long expiresin = TimeUtils.toRelativeTimeMillis(life);
 
         if (expiresin <= 0) {
@@ -450,12 +467,15 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                         MessageFormat.format("Record expired lifetime   : {0} expiration: {1} expires in: {2}", life, exp, expiresin));
                 LOG.fine(MessageFormat.format("Record expired on :{0}", new Date(life)));
             }
+            // The record has spent more time in cache than required (as of now in time).
             return -1;
         } else {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine(MessageFormat.format("Record lifetime: {0} expiration: {1} expires in: {2}", life, exp, expiresin));
                 LOG.fine(MessageFormat.format("Record expires on :{0}", new Date(life)));
             }
+            // The record should stay in cache a little longer, but not more than
+            // the default maximum amount of relative time it should live in cache
             return Math.min(expiresin, exp);
         }
     }
@@ -522,7 +542,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                         Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), asDoc);
 
                         indexer.removeFromIndex(addKey(dn, indexables), removePos);
-                        // add it to deltas to expire it in srdi
+                        // add it to deltas to expire it in srdi (0 = remove)
                         addDelta(dn, indexables, 0);
                         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                             LOG.fine("removed " + record);
@@ -620,6 +640,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     public synchronized void save(String dn, String fn, Advertisement adv, long lifetime, long expiration) throws IOException {
 
         try {
+
             if (expiration < 0 || lifetime <= 0) {
                 throw new IllegalArgumentException("Bad expiration or lifetime.");
             }
@@ -633,12 +654,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 throw failure;
             }
 
-            Key key = new Key(dn + "/" + fn);
             // save the new version
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
             doc.sendToStream(baos);
             baos.close();
+
+            Key key = new Key(dn + "/" + fn);
             Value value = new Value(baos.toByteArray());
             Long oldLife = null;
             Record record = cacheDB.readRecord(key);
@@ -694,6 +715,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             failure.initCause(de);
             throw failure;
         }
+
     }
 
     /**
@@ -709,6 +731,13 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      */
     public synchronized void save(String dn, String fn, byte[] data, long lifetime, long expiration) throws IOException {
 
+        /*
+         * REMINDER:
+         *
+         * - lifetime is the maximum amount of relative time an advertisement remains valid
+         * - expiration is the maximum amount of relative time an advertisement lives in cache
+         */
+
         try {
             if (expiration < 0 || lifetime <= 0) {
                 throw new IllegalArgumentException("Bad expiration or lifetime.");
@@ -719,6 +748,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Long oldLife = null;
             Record record = cacheDB.readRecord(key);
 
+            // Checking for any existing absolutelife time
             if (record != null) {
                 // grab the old lifetime
                 oldLife = (Long) record.getMetaData(Record.LIFETIME);
@@ -726,6 +756,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             // save the new version
 
+            // Converting relative lifetime to absolute lifetime
             long absoluteLifetime = TimeUtils.toAbsoluteTimeMillis(lifetime);
 
             if (oldLife != null) {
@@ -735,15 +766,25 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                         LOG.fine(MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
                                 new Date(oldLife), new Date(absoluteLifetime)));
                     }
+                    // We make sure we don't shorten existing lifetime
                     absoluteLifetime = oldLife;
                 }
             }
 
-            // make sure expiration does not exceed lifetime
+            /*
+             * make sure expiration does not exceed lifetime
+             * (that is, an advertisement cannot stay longer in cache than its lifetime)
+             */
+
             if (expiration > lifetime) {
                 expiration = lifetime;
             }
+
+            /*
+             * We register an absolute lifetime and a relative expiration
+             */
             cacheDB.writeRecord(key, value, absoluteLifetime, expiration);
+
         } catch (DBException de) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Failed to write " + dn + "/" + fn + " " + lifetime + " " + expiration, de);
