@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.cm;
 
 import java.io.IOException;
@@ -72,7 +73,6 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.credential.Credential;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
@@ -143,11 +143,10 @@ public class Srdi implements RendezvousListener {
      */
     private final static Random random = new Random();
 
-    // This ought be to configurable/based on a function applied to the rpv size
     /**
      * Replication threshold (minimum number of rdv's in peer view before replication)
      */
-    public final static int RPV_REPLICATION_THRESHOLD = 3;
+    public final static int RPV_REPLICATION_THRESHOLD = 2;
 
     /**
      * Interface for pushing entries.
