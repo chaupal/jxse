@@ -56,19 +56,16 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.*;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
-
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Contains parameters for configuration of the Reference Implemenation
@@ -136,8 +133,14 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
     /**
      * Use only seeded relays.
+     *
+     * @since 2.6 The default value has been changed from {@code false} to
+     * {@code true}, because {@code false} most often leads to fecthing and
+     * using RendezVous advertisements as relay candidates. RendezVous are
+     * not necessarily Relays.
      */
-    private boolean useOnlySeeds = false;
+
+    private boolean useOnlySeeds = true;
 
     /**
      * Seed Relays
@@ -269,7 +272,6 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
             if (super.handleAttribute(aRelayAttr)) {
                 // nothing to do
-                ;
             } else if (RELAY_CLIENT_ATTR.equals(aRelayAttr.getName())) {
                 clientEnabled = Boolean.valueOf(aRelayAttr.getValue().trim());
             } else if (RELAY_SERVER_ATTR.equals(aRelayAttr.getName())) {
@@ -751,13 +753,25 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
     }
 
     /**
-     * Set whether this peer will use only seed rendezvous when configured as
-     * an edge peer.
+     * Set whether this peer will use only seed relays when configured as
+     * an edge peer. In other words, only registered endpoint address seeds
+     * and seeds fetched from seeding URIs will be used.
+     * </p>WARNING: Disabling 'use only relay seed' will cause this peer to
+     * search and fetch RdvAdvertisements for use as relay candidates. Rdvs
+     * are not necessarily relays.
      *
-     * @param onlySeeds If true then this peer will use only seed rendezvous when configured as
-     *                  an edge peer.
+     * @param onlySeeds If true then this peer will use only seed relays when
+     * configured as an edge peer.
      */
     public void setUseOnlySeeds(boolean onlySeeds) {
+
+        // Warning for hazardous configuration, while waiting for a better FIX
+        if ( !onlySeeds ) {
+            if ( Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) ) {
+                LOG.warning("Not using relay seeds ONLY will cause peer to search and use Rdv Advertisments as relay candidates");
+            }
+        }
+
         useOnlySeeds = onlySeeds;
     }
 
@@ -983,7 +997,11 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
      * Return ACL URI if set
      *
      * @return ACL URI if set, null otherwise
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public URI getAclUri() {
         return aclURI;
     }
@@ -992,7 +1010,11 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
      * Sets ACL URI
      *
      * @param uri URI if set, null otherwise
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public void setAclUri(URI uri) {
         aclURI = uri;
     }

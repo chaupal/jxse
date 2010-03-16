@@ -56,7 +56,6 @@
 
 package net.jxta.platform;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -83,7 +82,6 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.TransportAdvertisement;
-
 import javax.security.cert.CertificateException;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1079,7 +1077,11 @@ public class NetworkConfigurator {
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
      *
      * @param aclURI Rendezvous Access Control URI
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public void setRdvACLURI(URI aclURI) {
         rdvConfig.setAclUri(aclURI);
     }
@@ -1089,7 +1091,11 @@ public class NetworkConfigurator {
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
      *
      * @return aclURI Rendezvous Access Control URI
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public URI getRdvACLURI() {
         return rdvConfig.getAclUri();
     }
@@ -1099,7 +1105,11 @@ public class NetworkConfigurator {
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
      *
      * @param aclURI Relay Access Control URI
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public void setRelayACLURI(URI aclURI) {
         relayConfig.setAclUri(aclURI);
     }
@@ -1109,7 +1119,11 @@ public class NetworkConfigurator {
      * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
      *
      * @return aclURI Relay Access Control URI
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public URI getRelayACLURI() {
         return relayConfig.getAclUri();
     }
@@ -1264,7 +1278,11 @@ public class NetworkConfigurator {
 
     /**
      * Determines whether to restrict RelayService leases to those defined in
-     * the seed list
+     * the seed list. In other words, only registered endpoint address seeds
+     * and seeds fetched from seeding URIs will be used.
+     * </p>WARNING: Disabling 'use only relay seed' will cause this peer to
+     * search and fetch RdvAdvertisements for use as relay candidates. Rdvs
+     * are not necessarily relays.
      *
      * @param useOnlyRelaySeeds restrict RelayService lease to seed list
      */
@@ -1274,7 +1292,8 @@ public class NetworkConfigurator {
 
     /**
      * Determines whether to restrict RendezvousService leases to those defined in
-     * the seed list
+     * the seed list. In other words, only registered endpoint address seeds
+     * and seeds fetched from seeding URIs will be used.
      *
      * @param useOnlyRendezvouSeeds restrict RendezvousService lease to seed list
      */
@@ -1771,7 +1790,10 @@ public class NetworkConfigurator {
      */
     protected RelayConfigAdv createRelayConfigAdv() {
         relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType());
-        relayConfig.setUseOnlySeeds(false);
+
+        // Since 2.6 - We should only use seeds when it comes to relay (see Javadoc)
+        // relayConfig.setUseOnlySeeds(false);
+
         relayConfig.setClientEnabled((mode & RELAY_CLIENT) == RELAY_CLIENT || mode == EDGE_NODE);
         relayConfig.setServerEnabled((mode & RELAY_SERVER) == RELAY_SERVER);
         return relayConfig;

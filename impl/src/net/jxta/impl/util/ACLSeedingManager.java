@@ -56,13 +56,11 @@
 
 package net.jxta.impl.util;
 
-
 import net.jxta.impl.access.AccessList;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -75,7 +73,12 @@ import java.util.logging.Logger;
 /**
  * Provides support for the optional access control list which determines which
  * peers may be used.
+ *
+ * @deprecated Usage of ACL to check seeds has become functionally questionable
+ * now that 'use seed only' booleans are available to do the job too. Problem is:
+ * who is the authority on valid seeds?
  */
+@Deprecated
 public abstract class ACLSeedingManager implements SeedingManager {
     
     /**

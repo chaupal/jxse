@@ -74,7 +74,6 @@ import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -87,7 +86,12 @@ import java.util.logging.Logger;
 /**
  * A Seeding Manager which uses the peerview advertisement pipes in order to
  * locate seed peers for a given peer group.
+ * 
+ * @deprecated Behavior of this seed manager is very questionable and not strong
+ * enough from a booting perspective. It is only use by EDGE rdv objects in rare
+ * cases. This class will be removed in a future release.
  */
+@Deprecated
 public class PeerviewSeedingManager extends ACLSeedingManager implements EndpointListener {
 
     /**

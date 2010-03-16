@@ -62,7 +62,6 @@ import net.jxta.impl.util.URISeedingManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;

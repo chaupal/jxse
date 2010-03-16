@@ -56,18 +56,15 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
-
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Contains parameters for configuration of the Reference Implementation
@@ -664,7 +661,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * If true then rendezvous clients will probe relay servers for rendezvous.
      *
      * @return If true then rendezvous clients will probe relay servers for rendezvous.
+     *
+     * @deprecated This method is not exposed in the NetworkConfigurator. It should not
+     * be used elsewhere and will probably be removed in a future release.
      */
+    @Deprecated
     public boolean getProbeRelays() {
         return probeRelays;
     }
@@ -673,7 +674,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * Set whether rendezvous clients will probe relay servers for rendezvous.
      *
      * @param doProbe If true then rendezvous clients will probe relay servers for rendezvous.
+     *
+     * @deprecated This method is not exposed in the NetworkConfigurator. It should not
+     * be used elsewhere and will probably be removed in a future release.
      */
+    @Deprecated
     public void setProbeRelays(boolean doProbe) {
         probeRelays = doProbe;
     }
@@ -755,7 +760,8 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * Set whether this peer will use only seed rendezvous when configured as
-     * an edge peer.
+     * an edge peer. In other words, only registered endpoint address seeds
+     * and seeds fetched from seeding URIs will be used.
      *
      * @param onlySeeds If true then this peer will use only seed rendezvous
      *                  when configured as an edge peer.
@@ -923,7 +929,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * Return ACL URI if set
      *
      * @return ACL URI if set, null otherwise
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public URI getAclUri() {
         return aclURI;
     }
@@ -932,7 +942,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * Sets ACL URI
      *
      * @param uri URI if set, null otherwise
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public void setAclUri(URI uri) {
         aclURI = uri;
     }
