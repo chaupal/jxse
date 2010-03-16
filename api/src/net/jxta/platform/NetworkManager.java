@@ -56,15 +56,12 @@
 
 package net.jxta.platform;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.security.cert.CertificateException;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.exception.PeerGroupException;
@@ -83,7 +80,6 @@ import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 
-
 /**
  * NetworkManager provides a simplified JXTA platform configuration abstraction, and provides a JXTA platform life-cycle
  * management. The node configuration is created during construction of this object and can be obtained for fine tuning
@@ -98,6 +94,7 @@ import net.jxta.rendezvous.RendezvousListener;
  * PROXY: provide JXME JXTA for J2ME proxying services
  * SUPER: provide the functionality of a Rendezvous, Relay, Proxy node.
  */
+
 public class NetworkManager implements RendezvousListener {
 
     /**
@@ -526,6 +523,16 @@ public class NetworkManager implements RendezvousListener {
      * @return true if connected to a rendezvous, false otherwise
      */
     public boolean waitForRendezvousConnection(long timeout) {
+
+        // Are we an EDGE?
+        if (this.getMode().compareTo(ConfigMode.EDGE)!=0) {
+
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.INFO, "Trying to wait for RendezVous connection while not being an EDGE.");
+            }
+
+        }
+
         if (0 == timeout) {
             timeout = Long.MAX_VALUE;
         }

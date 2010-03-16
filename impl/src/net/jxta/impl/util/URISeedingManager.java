@@ -56,7 +56,6 @@
 
 package net.jxta.impl.util;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
 import net.jxta.document.MimeMediaType;
@@ -70,7 +69,6 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,7 +88,6 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  A seeding manager that supports both explicit seed peers and loading of

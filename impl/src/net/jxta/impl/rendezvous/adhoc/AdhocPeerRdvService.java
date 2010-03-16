@@ -56,7 +56,6 @@
 
 package net.jxta.impl.rendezvous.adhoc;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLDocument;
@@ -74,14 +73,12 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.rendezvous.RendezvousEvent;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -191,6 +188,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
     /**
      * {@inheritDoc}
+     * </p>By default an ADHOC peer is never connected to other peers.
      */
     @Override
     public Vector<ID> getConnectedPeerIDs() {
@@ -200,38 +198,50 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
     /**
      * {@inheritDoc}
+     * </p>By default, ADHOC peers are never connected to Rendezvous peers.
      */
     @Override
     public boolean isConnectedToRendezVous() {
-        // It's as connected as it's ever going to get....
-        return true;
+        return false;
     }
 
     /**
      * {@inheritDoc}
+     * </p>This method does nothing. It should not be called on ADHOC peers.
      */
     @Override
     public void connectToRendezVous(EndpointAddress addr, Object hint) throws IOException {
 
-        throw new UnsupportedOperationException("Not supported by ad hoc");
+        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Invalid call to connectToRendezVous() on ADHOC peer");
+        }
+
     }
 
     /**
      * {@inheritDoc}
+     * </p>This method does nothing. It should not be called on ADHOC peers.
      */
     @Override
     public void challengeRendezVous(ID peer, long delay) {
 
-        throw new UnsupportedOperationException("Not supported by ad hoc");
+        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Invalid call to challengeRendezVous() on ADHOC peer");
+        }
+
     }
 
     /**
      * {@inheritDoc}
+     * </p>This method does nothing. It should not be called on ADHOC peers.
      */
     @Override
     public void disconnectFromRendezVous(ID peerId) {
 
-        throw new UnsupportedOperationException("Not supported by ad hoc");
+        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Invalid call to disconnectFromRendezVous() on ADHOC peer");
+        }
+
     }
 
     /**

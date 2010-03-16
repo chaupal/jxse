@@ -53,8 +53,10 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.relay;
 
+import java.util.Collection;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -72,7 +74,6 @@ import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.MessengerState;
 import net.jxta.endpoint.MessengerStateListener;
 import net.jxta.id.ID;
 import net.jxta.impl.protocol.RelayConfigAdv;
@@ -86,13 +87,13 @@ import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -103,7 +104,6 @@ import java.util.logging.Logger;
 
 /**
  * RelayClient manages the relationship with the RelayServer(s)
- *
  */
 public class RelayClient implements MessageReceiver, Runnable {
     
@@ -214,6 +214,33 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
         
         return true;
+    }
+
+    /**
+     * Returns the list of currently connected relay peers.
+     *
+     * @return a map of peer ids and corresponding route advertisements
+     */
+    public Map<PeerID,RouteAdvertisement> getConnectedRelays() {
+
+        // Preparing result
+        Map<PeerID,RouteAdvertisement> Result = new HashMap<PeerID,RouteAdvertisement>();
+
+        Collection<RouteAdvertisement> Temp = this.activeRelays.values();
+        Iterator<RouteAdvertisement> TheIter = Temp.iterator();
+
+        while (TheIter.hasNext()) {
+
+            RouteAdvertisement TempRA = TheIter.next();
+
+            // Adding connected relay entries
+            Result.put(TempRA.getDestPeerID(), TempRA);
+            
+        }
+
+        // Return result
+        return Result;
+
     }
     
     public synchronized void stopClient() {
@@ -1345,4 +1372,5 @@ public class RelayClient implements MessageReceiver, Runnable {
 
         return hops;        
     }
-            }
+
+}

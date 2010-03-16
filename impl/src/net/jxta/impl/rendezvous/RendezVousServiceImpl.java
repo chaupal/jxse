@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous;
 
 import java.io.IOException;
@@ -74,7 +75,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLDocument;
@@ -99,6 +99,8 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
+import net.jxta.peer.PeerID;
+import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.Module;
@@ -742,6 +744,67 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         return result;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    public List<PeerID> getLocalRendezVousView() {
+
+        // Preparing result
+        ArrayList<PeerID> Result = new ArrayList<PeerID>();
+
+        if (provider instanceof RdvPeerRdvService) {
+
+            RdvPeerRdvService Temp = (RdvPeerRdvService) provider;
+
+            Iterator<PeerViewElement> Iter = Temp.rpv.getView().iterator();
+
+            while (Iter.hasNext()) {
+                Result.add((PeerID)Iter.next().getPeerID());
+            }
+
+        } else if (provider instanceof EdgePeerRdvService) {
+
+            EdgePeerRdvService Temp = (EdgePeerRdvService) provider;
+
+            Iterator<ID> Iter = Temp.getConnectedPeerIDs().iterator();
+
+            while (Iter.hasNext()) {
+                Result.add((PeerID)Iter.next());
+            }
+
+        }
+
+        // Returning result
+        return Result;
+
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    public List<PeerID> getLocalEdgeView() {
+
+        // Preparing result
+        ArrayList<PeerID> Result = new ArrayList<PeerID>();
+
+        if (provider instanceof RdvPeerRdvService) {
+
+            RdvPeerRdvService Temp = (RdvPeerRdvService) provider;
+
+            // Which EDGE is connected to us RDV?
+            Iterator<ID> TheIter = Temp.getConnectedPeerIDs().iterator();
+            
+            while (TheIter.hasNext()) {
+                Result.add((PeerID)TheIter.next());
+            }
+
+        }
+
+        // Returning result
+        return Result;
+
     }
 
     /**

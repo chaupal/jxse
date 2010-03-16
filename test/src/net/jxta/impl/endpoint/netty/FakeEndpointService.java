@@ -1,15 +1,14 @@
 package net.jxta.impl.endpoint.netty;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import net.jxta.peer.PeerID;
-
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
@@ -61,6 +60,14 @@ public class FakeEndpointService implements EndpointService {
     
     /* UNIMPLEMENTED, IRRELEVANT METHODS BEYOND THIS POINT */
     
+    public boolean isConnectedToRelayPeer() {
+        throw new RuntimeException("not implemented");
+    }
+
+    public Collection<PeerID> getConnectedRelayPeers() {
+        throw new RuntimeException("not implemented");
+    }
+
     public void addIncomingMessageFilterListener(MessageFilterListener listener, String namespace, String name) {
         throw new RuntimeException("not implemented");
     }

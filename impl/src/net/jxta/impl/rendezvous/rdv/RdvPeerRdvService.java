@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous.rdv;
 
 import net.jxta.discovery.DiscoveryService;
@@ -90,14 +91,12 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.rendezvous.RendezvousEvent;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -340,24 +339,37 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     @Override
     public void connectToRendezVous(EndpointAddress addr, Object hint) {
-        throw new UnsupportedOperationException("Not supported by rendezvous");
+
+        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Invalid call to connectToRendezVous() on RDV peer");
+        }
+
     }
 
     /**
-     * {@inheritDoc}
+     * By default a RendezVous is never connected to another RendezVous through
+     * a lease. This method does nothing.
      */
     @Override
     public void challengeRendezVous(ID peer, long delay) {
-        throw new UnsupportedOperationException("Not supported by rendezvous");
+
+        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Invalid call to challengeRendezVous() on RDV peer");
+        }
+
     }
 
     /**
-     * {@inheritDoc}
+     * By default a RendezVous is never connected to another RendezVous through
+     * a lease. This method does nothing.
      */
     @Override
     public void disconnectFromRendezVous(ID peerId) {
 
-        throw new UnsupportedOperationException("Not supported by rendezvous");
+        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+            LOG.warning("Invalid call to disconnectFromRendezVous() on RDV peer");
+        }
+
     }
 
     /**
@@ -365,11 +377,14 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     @Override
     public boolean isConnectedToRendezVous() {
-        return false;
+
+        return this.rpv.getSize() > 0;
+
     }
 
     /**
      * {@inheritDoc}
+     * </p>For Rendezvous peers, this is the list of EDGE peers connected to this Rendezvous.
      */
     @Override
     public Vector<ID> getConnectedPeerIDs() {

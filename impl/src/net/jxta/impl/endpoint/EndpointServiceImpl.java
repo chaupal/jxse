@@ -77,7 +77,6 @@ import net.jxta.impl.endpoint.endpointMeter.OutboundMeter;
 import net.jxta.impl.endpoint.endpointMeter.PropagationMeter;
 import net.jxta.impl.endpoint.relay.RelayClient;
 import net.jxta.impl.endpoint.router.EndpointRouter;
-import net.jxta.impl.endpoint.tcp.TcpTransport;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.util.SequenceIterator;
 import net.jxta.logging.Logging;
@@ -89,7 +88,6 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -2080,6 +2078,86 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          * to suit the user's needs rather than just the general case.
          */
         return null;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    public boolean isConnectedToRelayPeer() {
+
+        Iterator<MessageTransport> it = this.getAllMessageTransports();
+
+        while (it.hasNext()) {
+
+            MessageTransport mt =  it.next();
+
+            // Not sure this test is necessary, but it is no harm
+            if (!mt.getEndpointService().getGroup().getPeerGroupID().equals(group.getPeerGroupID())) {
+                // We only want relay services in this peer group.
+                continue;
+            }
+
+            if (mt instanceof RelayClient) {
+
+                RelayClient TempRC = (RelayClient) mt;
+
+                Map<PeerID, RouteAdvertisement> TempCR = TempRC.getConnectedRelays();
+
+                if ( TempCR.size() > 0 ) return true;
+
+            }
+
+        }
+
+        // No we are not
+        return false;
+
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    public Collection<PeerID> getConnectedRelayPeers() {
+
+        // Preparing result
+        Collection<PeerID> Result = new ArrayList<PeerID>();
+
+        Iterator<MessageTransport> it = this.getAllMessageTransports();
+
+        while (it.hasNext()) {
+
+            MessageTransport mt =  it.next();
+
+            // Not sure this test is necessary, but it is no harm
+            if (!mt.getEndpointService().getGroup().getPeerGroupID().equals(group.getPeerGroupID())) {
+                // We only want relay services in this peer group.
+                continue;
+            }
+
+            if (mt instanceof RelayClient) {
+
+                RelayClient TempRC = (RelayClient) mt;
+
+                Map<PeerID, RouteAdvertisement> TempCR = TempRC.getConnectedRelays();
+                Iterator<PeerID> TheIter = TempCR.keySet().iterator();
+
+                while (TheIter.hasNext()) {
+
+                    PeerID TempPID = TheIter.next();
+
+                    if ( !Result.contains(TempPID) ) {
+                        Result.add(TempPID);
+                    }
+
+                }
+
+            }
+
+        }
+
+        // Returning result
+        return Result;
+
     }
 
     /**

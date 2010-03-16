@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous.edge;
 
 import java.io.IOException;
@@ -69,7 +70,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -314,7 +314,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
     public Vector<ID> getConnectedPeerIDs() {
         return new Vector<ID>(rendezVous.keySet());
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -863,7 +863,6 @@ public class EdgePeerRdvService extends StdRendezVousService {
                                 sentLeaseRequests++;
                             } catch (Exception failed) {
                                 // ignored
-                                ;
                             }
                         }
                     }

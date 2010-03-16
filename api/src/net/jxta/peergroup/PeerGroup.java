@@ -62,7 +62,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -115,6 +114,7 @@ import net.jxta.service.Service;
  * @see net.jxta.platform.ModuleSpecID
  * @see net.jxta.platform.ModuleClassID
  */
+
 public interface PeerGroup extends Service {
 
     /**
