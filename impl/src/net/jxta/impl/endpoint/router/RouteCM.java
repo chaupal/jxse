@@ -54,10 +54,6 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-/**
- * This class is used to manage a persistent CM cache  of route
- * for the router
- */
 package net.jxta.impl.endpoint.router;
 
 import net.jxta.discovery.DiscoveryService;
@@ -78,17 +74,20 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This class is used to manage a persistent CM cache  of route
+ * for the router
+ */
 class RouteCM implements Module {
     
     /**
@@ -231,17 +230,17 @@ class RouteCM implements Module {
      * @param peerID the target peer's ID.
      * @return Route Advertisements for the specified peer.
      */
-    protected Iterator<RouteAdvertisement> getRouteAdv(ID peerID) {
+    protected Collection<RouteAdvertisement> getRouteAdv(ID peerID) {
         DiscoveryService discovery;
         
         // check if we use the CM, if not then nothing
         // to retrieve
         if (!useCM) {
-            return Collections.<RouteAdvertisement>emptyList().iterator();
+            return Collections.<RouteAdvertisement>emptyList();
         } else {
             discovery = group.getDiscoveryService();
             if (null == discovery) {
-                return Collections.<RouteAdvertisement>emptyList().iterator();
+                return Collections.<RouteAdvertisement>emptyList();
             }
         }
         
@@ -249,7 +248,7 @@ class RouteCM implements Module {
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(2);
         if (lruCache.contains(peerID)) {
             result.add(lruCache.get(peerID));
-            return result.iterator();
+            return result;
         }
         // check first if we have a route advertisement
         Enumeration<Advertisement> advs = null;
@@ -314,7 +313,7 @@ class RouteCM implements Module {
                 result.add(route);
             }
         }
-        return result.iterator();
+        return result;
     }
     
     /**

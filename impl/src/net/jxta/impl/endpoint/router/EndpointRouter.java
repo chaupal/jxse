@@ -1212,7 +1212,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         // No known route and we're allowed to search for one
 
         // check if there is route advertisement available
-        Iterator<RouteAdvertisement> allRadvs = routeCM.getRouteAdv(peerID);
+        Iterator<RouteAdvertisement> allRadvs = routeCM.getRouteAdv(peerID).iterator();
 
         while (allRadvs.hasNext()) {
             route = allRadvs.next();
@@ -2176,13 +2176,17 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         Iterator<RouteAdvertisement> advs;
 
         try {
+
+            // Extract routes from the CM
+            Collection<RouteAdvertisement> TempAL = routeCM.getRouteAdv(destPeerID);
+
             // try to use the hint that was given to us
             if (hint != null) {
-                advs = Collections.singletonList(hint).iterator();
-            } else {
-                // Ok extract from the CM
-                advs = routeCM.getRouteAdv(destPeerID);
+                TempAL.add(hint);
             }
+
+            // Looping through all available route advertisement
+            advs = TempAL.iterator();
 
             // Check if we got any advertisements
             List<EndpointAddress> addrs = new ArrayList<EndpointAddress>();
