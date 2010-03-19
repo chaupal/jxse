@@ -509,7 +509,12 @@ public interface RendezVousService extends Service {
      *
      * @param  peer     The peer to be challenged
      * @param  timeout  The delay
+     * 
+     * @deprecated Since 2.6, this method is deprecated, since connection to
+     * RDVs is handled by core code itself. This method will be removed in
+     * a future release.
      */
+    @Deprecated
     public void challengeRendezVous(ID peer, long timeout);
 
 }
