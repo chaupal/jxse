@@ -56,10 +56,8 @@
 
 package net.jxta.logging;
 
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class defines constants for JXTA JSE's logging facilities. In this
@@ -198,13 +196,125 @@ public final class Logging {
         SHOW_WARNING = MIN_SHOW_LEVEL.intValue() <= Level.WARNING.intValue();
         SHOW_SEVERE = MIN_SHOW_LEVEL.intValue() <= Level.SEVERE.intValue();
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("Logging enabled for level : " + MIN_SHOW_LEVEL);
-        }
+        logCheckedConfig(LOG, "Logging enabled for level : " + MIN_SHOW_LEVEL);
+
     }
 
     /**
      * This class is not meant be instantiated.
      */
     private Logging() {}
+
+    /**
+     * This method checks whether {@code SHOW_CONFIG} is set to {@code true),
+     * and whether the provided logger allows config messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     */
+    public static void logCheckedConfig(Logger inLog, String inMsg) {
+
+        if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
+            inLog.config(inMsg);
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_FINE} is set to {@code true),
+     * and whether the provided logger allows fine messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     */
+    public static void logCheckedFine(Logger inLog, String inMsg) {
+
+        if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
+            inLog.fine(inMsg);
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_FINER} is set to {@code true),
+     * and whether the provided logger allows finer messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     */
+    public static void logCheckedFiner(Logger inLog, String inMsg) {
+
+        if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
+            inLog.finer(inMsg);
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_FINEST} is set to {@code true),
+     * and whether the provided logger allows finest messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     */
+    public static void logCheckedFinest(Logger inLog, String inMsg) {
+
+        if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
+            inLog.finest(inMsg);
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_INFO} is set to {@code true),
+     * and whether the provided logger allows info messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     */
+    public static void logCheckedInfo(Logger inLog, String inMsg) {
+
+        if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
+            inLog.info(inMsg);
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_SEVERE} is set to {@code true),
+     * and whether the provided logger allows severe messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     */
+    public static void logCheckedSevere(Logger inLog, String inMsg) {
+
+        if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
+            inLog.severe(inMsg);
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_WARNING} is set to {@code true),
+     * and whether the provided logger allows warnings messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     */
+    public static void logCheckedWarning(Logger inLog, String inMsg) {
+
+        if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
+            inLog.warning(inMsg);
+        }
+
+    }
+
 }
