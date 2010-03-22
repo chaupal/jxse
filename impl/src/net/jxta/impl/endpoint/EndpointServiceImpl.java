@@ -95,7 +95,8 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.impl.endpoint.router.RouteControl;
+import net.jxta.endpoint.router.EndpointRoutingTransport;
+import net.jxta.endpoint.router.RouteController;
 import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 
@@ -1894,6 +1895,18 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
 
     /**
+     * Provides the EndpointRouter attached to this EndpointService.
+     * 
+     * @return the endpoint router object.
+     */
+    public EndpointRoutingTransport getEndpointRouter() {
+
+        // Preparing result
+        return (EndpointRoutingTransport) this.getMessageTransport("jxta");
+
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean isReachable(PeerID pid, boolean tryToConnect) {
@@ -1902,15 +1915,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             return false;
         }
 
-        MessageTransport MT = this.getMessageTransport("jxta");
-
-        //
-        // Following code relies on not-so-deprecated code. transportControl()
-        // is an unstable interface and user applications should not write code 
-        // relying on calls to this method (only JXTA/JXSE code should).
-        //
-
-        RouteControl RC = (RouteControl) MT.transportControl(EndpointRouter.GET_ROUTE_CONTROL, null);
+        RouteController RC = this.getEndpointRouter().getRouteController();
 
         // Have we already established a connection?
         if (RC.isConnected(pid)) {

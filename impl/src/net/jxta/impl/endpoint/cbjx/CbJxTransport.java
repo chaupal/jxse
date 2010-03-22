@@ -297,13 +297,6 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
     /**
      * {@inheritDoc}
      */
-    public Object transportControl(Object operation, Object value) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Iterator getPublicAddresses() {
         return Collections.singletonList(getPublicAddress()).iterator();
     }

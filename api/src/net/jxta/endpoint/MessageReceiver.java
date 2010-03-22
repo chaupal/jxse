@@ -56,9 +56,7 @@
 
 package net.jxta.endpoint;
 
-
 import java.util.Iterator;
-
 
 /**
  * A MessageReceiver is a MessageTransport that is capable of receiving messages.
@@ -82,4 +80,5 @@ public interface MessageReceiver extends MessageTransport {
      * @return an Iterator of EndpointAddresses.
      */
     public Iterator<EndpointAddress> getPublicAddresses();
+
 }

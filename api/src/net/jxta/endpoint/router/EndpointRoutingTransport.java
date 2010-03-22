@@ -54,39 +54,21 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.endpoint;
+package net.jxta.endpoint.router;
+
+import net.jxta.endpoint.MessageReceiver;
+import net.jxta.endpoint.MessageSender;
 
 /**
- *  A MessageTransport is responsible for sending and/or receiving JXTA
- *  messages from an external network. A MessageTransport may use whatever
- *  protocol it wishes in transporting messages. Messages passed to
- *  MessageTransports are required to pass the messages cleanly (unaltered).
- *
- * @see net.jxta.endpoint.EndpointService
- * @see net.jxta.endpoint.EndpointAddress
- * @see net.jxta.endpoint.MessageSender
- * @see net.jxta.endpoint.MessageReceiver
+ * Objects implementing this interface fulfill the endpoint routing protocol
+ * duties as specified in the JXTA protocols.
  */
-public interface MessageTransport {
+public interface EndpointRoutingTransport extends MessageSender, MessageReceiver {
     
     /**
-     * Returns a String containing the name of the protocol used by this
-     * MessageTransport. The value will match the "protocol" portion of all
-     * {@link EndpointAddress}.
-     *
-     * @return a String containing the name of the protocol used by this
-     * MessageTransport.
+     * Provides the route controller attached to this endpoint routing object.
      */
-    public String getProtocolName();
-    
-    /**
-     *  Returns the endpoint service with which this MessageTransport is
-     *  registered. If it is unregistered then null will be returned.
-     *
-     *  @return the EndpointService with which this MessageTransport is
-     *  registered.
-     */
-    public EndpointService getEndpointService();
+    public RouteController getRouteController();
 
 }
 

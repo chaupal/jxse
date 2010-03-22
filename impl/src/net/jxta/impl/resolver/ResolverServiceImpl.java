@@ -108,6 +108,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import net.jxta.endpoint.router.RouteController;
 
 /**
  * Implements the {@link net.jxta.resolver.ResolverService} using the standard
@@ -153,7 +154,7 @@ public class ResolverServiceImpl implements ResolverService {
     private EndpointService endpoint = null;
     private MembershipService membership = null;
 
-    private RouteControl routeControl = null;
+    private RouteController routeControl = null;
 
     private final Map<String, QueryHandler> handlers = Collections.synchronizedMap(new HashMap<String, QueryHandler>(5));
     private final Map<String, SrdiHandler> srdiHandlers = Collections.synchronizedMap(new HashMap<String, SrdiHandler>(5));
@@ -497,9 +498,8 @@ public class ResolverServiceImpl implements ResolverService {
         // route information.
         if (query.getSrcPeerRoute() == null) {
             if (getRouteControl() != null) {
-                // FIXME tra 20031102 Until the new subscription service
-                // is implemented, we use the Router Control IOCTL
-                RouteAdvertisement route = routeControl.getMyLocalRoute();
+
+                RouteAdvertisement route = routeControl.getLocalPeerRoute();
 
                 if (route != null) {
                     query.setSrcPeerRoute(route.clone());
@@ -1077,18 +1077,9 @@ public class ResolverServiceImpl implements ResolverService {
         return true;
     }
 
-    private RouteControl getRouteControl() {
-        // Obtain the route control object to manipulate route information when sending and receiving resolver queries.
+    private RouteController getRouteControl() {
         if (routeControl == null) {
-            // insignificant race condition here
-            MessageTransport endpointRouter = endpoint.getMessageTransport("jxta");
-            if (endpointRouter != null) {
-                routeControl = (RouteControl) endpointRouter.transportControl(EndpointRouter.GET_ROUTE_CONTROL, null);
-            } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Failed to get RouteControl object. Resolver will not set route hints.");
-                }
-            }
+            routeControl = endpoint.getEndpointRouter().getRouteController();
         }
         return routeControl;
     }

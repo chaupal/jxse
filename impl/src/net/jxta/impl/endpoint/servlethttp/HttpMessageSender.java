@@ -134,13 +134,6 @@ class HttpMessageSender implements MessageSender {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-
-    /**
      * shut down all client connections.
      */
     public synchronized void start() throws PeerGroupException {

@@ -1326,6 +1326,10 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
             // We don't want to update the SRDI cache on every route update.
             // The SRDI cache will be flushed when the peer disconnect from
             // the rendezvous.
+
+            // FIXME: Very questionable strategy, because the replica peer may keep
+            // outdated information longer than necessary.
+
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("sending a router SRDI message add route " + id);
             }

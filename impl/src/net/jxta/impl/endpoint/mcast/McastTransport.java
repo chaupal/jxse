@@ -580,13 +580,6 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
     /**
      * {@inheritDoc}
-     */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
      * <p/>
      * Handles incoming multicasts and enqueues them with the datagram processor.
      */

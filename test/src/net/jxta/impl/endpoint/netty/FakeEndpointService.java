@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.peer.PeerID;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
@@ -44,6 +45,10 @@ public class FakeEndpointService implements EndpointService {
     
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
         received.offer(new ReceivedMessage(message, srcAddr, dstAddr));
+    }
+
+    public EndpointRoutingTransport getEndpointRouter() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public class ReceivedMessage {

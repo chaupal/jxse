@@ -369,13 +369,6 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
     public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
         Messenger messenger = null;
         

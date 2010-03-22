@@ -69,7 +69,6 @@ import java.util.List;
 import java.util.Vector;
 import net.jxta.peer.PeerID;
 
-
 /**
  * The RendezVous Service provides propagation of messages within a JXTA
  * PeerGroup.

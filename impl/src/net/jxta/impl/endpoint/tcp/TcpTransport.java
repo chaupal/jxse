@@ -771,13 +771,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Iterator<EndpointAddress> getPublicAddresses() {
         return Collections.unmodifiableList(publicAddresses).iterator();
     }

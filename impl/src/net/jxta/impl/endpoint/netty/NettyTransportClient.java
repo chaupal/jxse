@@ -212,8 +212,4 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         return addrTranslator.getProtocolName();
     }
 
-    @Deprecated
-    public Object transportControl(Object operation, Object value) {
-        throw new RuntimeException("transportControl is deprecated, do not use!");
-    }
 }

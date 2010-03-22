@@ -473,13 +473,6 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
     public EndpointAddress getPublicAddress() {
         return localTlsPeerAddr;
     }

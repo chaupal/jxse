@@ -304,13 +304,6 @@ class HttpMessageReceiver implements MessageReceiver {
         return servletHttpTransport.getEndpointService();
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-
     ServletHttpTransport getServletHttpTransport() {
         return servletHttpTransport;
     }

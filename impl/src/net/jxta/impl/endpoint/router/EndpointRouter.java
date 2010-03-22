@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.router;
 
 import java.io.IOException;
@@ -73,7 +74,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLElement;
@@ -81,12 +81,13 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerEvent;
 import net.jxta.endpoint.MessengerEventListener;
+import net.jxta.endpoint.router.EndpointRoutingTransport;
+import net.jxta.endpoint.router.RouteController;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
@@ -104,7 +105,8 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.service.Service;
 
-public class EndpointRouter implements EndpointListener, MessageReceiver, MessageSender, MessengerEventListener, Module {
+public class EndpointRouter implements EndpointListener, EndpointRoutingTransport,
+   MessengerEventListener, Module {
 
     /**
      * Logger
@@ -265,6 +267,11 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      * Route Resolver
      */
     private RouteResolver routeResolver;
+
+    /**
+     * Route controller
+     */
+    private RouteController theRouteController = null;
 
     class ClearPendingQuery extends SelfCancellingTask {
         final PeerID peerID;
@@ -573,6 +580,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             return null; // No way.
         }
 
+        // Yes, we do know about an outgoing messenger to the destination
         destinations.addOutgoingMessenger(peerAddress, messenger);
 
         // We realy did bring something new. Give relief to those that have been
@@ -669,6 +677,9 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
 
         localPeerId = group.getPeerID();
         localPeerAddr = pid2addr(group.getPeerID());
+
+        // Creating the route controller
+        theRouteController = new RouteControl(this, localPeerId);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
             StringBuilder configInfo = new StringBuilder("Configuring Router Transport : " + assignedID);
@@ -1408,6 +1419,11 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 }
 
                 // check if we can reach the first hop in the route
+
+                // FIXME: Again, what about second hops, etc... What if this peer
+                // needs to go through several hops to reach its target? This is
+                // sub-optimal...
+
                 // We only do a shallow test of the first hop. Whether more effort
                 // is worth doing or not is decided (and done) by the invoker.
                 if (!isLocalRoute(pid2addr(route.getFirstHop().getPeerID()))) {
@@ -1448,6 +1464,10 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 if (!routedRoutes.containsKey(peerID)) {
                     routeCM.createRoute(route);
                     newDestinations.add(peerAddress);
+
+                    // FIXME: Yeah, but what if this route is more direct/optimal
+                    // than routed routes? Why don't we take care of this?
+
                 }
 
                 // Remove any endpoint addresses from the route
@@ -2211,6 +2231,9 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
 
             // ok let's go and try all these addresses
             if (!addrs.isEmpty()) {
+
+                // If we get a messenger, we know it is one for a direct ('live') connection
+                // to the target peer.
                 Messenger bestMessenger = findBestReachableEndpoint(destPeerAddress, addrs, exist);
 
                 if (bestMessenger != null) {
@@ -2238,6 +2261,10 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         // There is a small chance that another thread did find
         // something in parallel, but that's very unlikely and
         // if it is rare enough then the damage is small.
+
+        // FIXEME: That can be even dirtier in the case of a bad hint.
+        // We should really not register the peer in tried and failed.
+
         synchronized (this) {
             triedAndFailed.put(destPeerID, TimeUtils.toAbsoluteTimeMillis(MAX_ASYNC_GETMESSENGER_RETRY));
         }
@@ -2264,9 +2291,17 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
         }
 
         try {
+
             // try and add that hint to our cache of routes (that may be our only route).
             if (hint != null && hint instanceof RouteAdvertisement) {
+
                 routeHint = ((RouteAdvertisement) hint).clone();
+
+                /*
+                 * REMINDER: a route to a destination peers can contains hops, that is,
+                 * a set of ordered step peers through which the message can be used to
+                 * reach destination.
+                 */
                 AccessPointAdvertisement firstHop = routeHint.getFirstHop();
                 PeerID firstHopPid;
                 EndpointAddress firstHopAddr = null;
@@ -2281,36 +2316,59 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                     firstHopAddr = pid2addr(firstHopPid);
 
                     if (firstHopAddr.equals(addr)) {
+
+                        // The first hop is the destination itself.
+                        // We don't need to go via the destination to reach the destination.
+                        // It does not make sense.
                         routeHint.removeHop(firstHopPid);
                         firstHop = null;
+
                     } else if (firstHopPid.equals(localPeerId)) {
+
+                        // The hop is this peer.
+                        // We don't need to go via this peer to reach the destination.
+                        // It does not make sense, we are already there.
                         firstHop = null;
+
                     }
 
                 }
 
                 if (firstHop == null) {
-                    // The hint is a direct route. Make sure that we have the
-                    // route adv so that we can actually connect.
 
-                    // we only need to publish this route if we don't know about
-                    // it yet.
+                    // We only need to publish this route if we don't know about
+                    // another one yet (no matter if it is direct or if we have
+                    // a long route via hops).
+
                     EndpointAddress da = pid2addr(routeHint.getDestPeerID());
 
+                    // If we don't already have a direct route or a long route to the target peer...
                     if (!isLocalRoute(da) && !routedRoutes.containsKey(routeHint.getDestPeerID())) {
+
+                        // We publish this one
                         routeCM.publishRoute(routeHint);
+
                     }
 
+                    // FIXME: What if we only have a long route and the hint is a shorter one?
+                    // We should replace the existing one with the hint.
+
                 } else {
+
                     // For the hint to be useful, we must actively try the first
-                    // hop. It is possible that we do not know it yet and that's
+                    // hop.
+                    
+                    // FIXME: If we can't reach it, then we should try to reach the second
+                    // hop. It is a longer route, but worth trying.
+                    
+                    // It is possible that we do not know the first hop yet and that's
                     // not a reason to ignore the hint (would ruin the purpose
                     // in most cases).
                     RouteAdvertisement routeFirstHop = null;
 
-                    // Manufacture a RA just that as just the routerPeer as a
-                    // destination. We only need to publish this route if we
-                    // don't know about it yet.
+                    // Manufacture a temporary RouteAdv to the first hop.
+                    // We only need to publish this route if we don't know about
+                    // a direct or long route to it yet.
                     if (!isLocalRoute(firstHopAddr) && !routedRoutes.containsKey(firstHop.getPeerID())) {
 
                         routeFirstHop = (RouteAdvertisement)
@@ -2335,6 +2393,10 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                     // if we constructed the route hint then passes it in the
                     // past we were just relying on the CM now that the CM can
                     // be disabled, we have to pass the argument.
+
+                    // Checking whether we can get a Messenger directly connected
+                    // to the first hop. We pass the hint (FIXME: but this is really
+                    // bad coding and should be fixed)
                     if (ensureLocalRoute(firstHopAddr, routeFirstHop) != null) {
                         setRoute(routeHint.clone(), false);
                     }
@@ -2354,6 +2416,12 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             // if it is not the the right one. In that mode it is the
             // responsibility of the application to make sure that a correct
             // hint was passed.
+
+            // FIXME: ...and how can the application know that when we have a policy
+            // of not having user read impl code? Where are the functionalities to
+            // achieve that? The user has no way to be sure its hint is correct...
+            // This check has to be performed by core code.
+
             return new RouterMessenger(addr, this, routeHint);
         } catch (IOException caught) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -2471,29 +2539,6 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public Object transportControl(Object operation, Object value) {
-        if (!(operation instanceof Integer)) {
-            return null;
-        }
-
-        int op = (Integer) operation;
-
-        switch (op) {
-            case RouteControlOp: // Get a Router Control Object
-                return new RouteControl(this, localPeerId);
-
-            default:
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Invalid Transport Control operation argument");
-                }
-
-                return null;
-        }
-    }
-
-    /**
      * Convert a Router EndpointAddress into a PeerID
      *
      * @param addr the address to extract peerAddress from
@@ -2542,7 +2587,11 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      *
      * @param route route advertisement
      * @param force enforce the route
+     *
+     * @deprecated Since 2.6, though this method has only been used
+     * with force=false since 2.5. It is about time to clean the code.
      */
+    @Deprecated
     void updateRouteAdv(RouteAdvertisement route, boolean force) {
         try {
             PeerID pID = route.getDestPeerID();
@@ -2712,4 +2761,12 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
     synchronized BadRoute getBadRoute(EndpointAddress addr) {
         return badRoutes.get(addr);
     }
+
+    /**
+     * {@inheritDoc }
+     */
+    public RouteController getRouteController() {
+        return this.theRouteController;
+    }
+
 }

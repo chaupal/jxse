@@ -61,6 +61,7 @@ import net.jxta.service.Service;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.peer.PeerID;
 
 /**
@@ -561,5 +562,10 @@ public interface EndpointService extends Service, EndpointListener {
      * @return a collection of peer ids.
      */
     public Collection<PeerID> getConnectedRelayPeers();
+
+    /**
+     * {@inheritDoc }
+     */
+    public EndpointRoutingTransport getEndpointRouter();
     
 }

@@ -181,11 +181,6 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         return addrTranslator.getProtocolName();
     }
 
-    @Deprecated
-    public Object transportControl(Object operation, Object value) {
-        throw new RuntimeException("transportControl is deprecated - do not use");
-    }
-    
     @ChannelPipelineCoverage("all")
     private final class ConnectionGroupAddHandler extends SimpleChannelUpstreamHandler {
         @Override

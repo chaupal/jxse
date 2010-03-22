@@ -59,6 +59,7 @@ import java.util.Collection;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.*;
 import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
 import net.jxta.impl.peergroup.StdPeerGroup;
@@ -567,6 +568,12 @@ class EndpointServiceInterface implements EndpointService {
     public Collection<PeerID> getConnectedRelayPeers() {
 
         return theRealThing.getConnectedRelayPeers();
+
+    }
+
+    public EndpointRoutingTransport getEndpointRouter() {
+
+        return theRealThing.getEndpointRouter();
 
     }
 }

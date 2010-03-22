@@ -781,7 +781,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
                 }
                 
                 if (!PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
-                    MessageTransport router = rdvService.endpoint.getMessageTransport("jxta");
+                    MessageTransport router = rdvService.endpoint.getEndpointRouter();
                     
                     if (null == router) {
                         if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {

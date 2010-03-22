@@ -289,13 +289,6 @@ public class RelayClient implements MessageReceiver, Runnable {
     }
     
     /**
-     * {@inheritDoc}
-     */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-    
-    /**
      *  Logic for the relay client
      *
      *  <ol>
