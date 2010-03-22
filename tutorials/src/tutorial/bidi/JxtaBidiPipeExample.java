@@ -152,13 +152,15 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
             response.addMessageElement(JxtaServerPipeExample.MESSAGE_NAMESPACE_NAME, respElement);
 
             try {
+
                 pipe.sendMessage(response);
                 responses_sent++;
+
             } catch (IOException failure) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "[" + Thread.currentThread().getName() + "] Failed sending a response message", failure);
-                }
+
+                Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Failed sending a response message", failure);
                 return;
+                
             }
         }
     }
@@ -172,36 +174,36 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
      * @param event message event
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
+        
         Message msg = event.getMessage();
+
         if (msg == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("[" + Thread.currentThread().getName() + "] Received an empty message, returning");
-            }
+
+            Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Received an empty message, returning");
             return;
+
         }
 
         try {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("[" + Thread.currentThread().getName() + "] Received a message");
-            }
+
+            Logging.logCheckedFiner(LOG, "[" + Thread.currentThread().getName() + "] Received a message");
 
             // Get the message element.
             MessageElement msgElement = msg.getMessageElement(JxtaServerPipeExample.MESSAGE_NAMESPACE_NAME, JxtaServerPipeExample.MESSAGE_ELEMENT_NAME);
 
-
             if (null == msgElement) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Missing message element");
-                }
+
+                Logging.logCheckedWarning(LOG, "Missing message element");
                 return;
+
             }
 
             // Get message
             if (msgElement.toString() == null) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("[" + Thread.currentThread().getName() + "] null message received.");
-                }
+
+                Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] null message received.");
                 return;
+
             }
 
             // Note that we received a message
@@ -210,9 +212,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
                 received_count.notify();
             }
         } catch (Exception failure) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "[" + Thread.currentThread().getName() + "] Failure receiving event", failure);
-            }
+            Logging.logCheckedSevere(LOG, "[" + Thread.currentThread().getName() + "] Failure receiving event", failure);
         }
     }
 
@@ -234,11 +234,13 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
             pipe.close();
 
             System.out.println("[" + Thread.currentThread().getName() + "] Done!");
+
         } catch (IOException failure) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "[" + Thread.currentThread().getName() + "] Failure opening pipe", failure);
-            }
+
+            Logging.logCheckedSevere(LOG, "[" + Thread.currentThread().getName() + "] Failure opening pipe", failure);
+            
         } finally {
+
             synchronized (connections) {
                 connections.remove(Thread.currentThread());
                 connections.notify();

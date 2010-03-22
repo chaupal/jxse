@@ -178,6 +178,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         publicAddress = new EndpointAddress(RelayTransport.protocolName, peerId, null, null);
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Relay Client");
             
             configInfo.append("\n\tGroup Params :");
@@ -190,18 +191,20 @@ public class RelayClient implements MessageReceiver, Runnable {
             configInfo.append("\n\t\tMax Relay Servers : ").append(maxServers);
             configInfo.append("\n\t\tMax Lease Length : ").append(leaseLengthToRequest).append("ms.");
             configInfo.append("\n\t\tMessenger Poll Interval : ").append(messengerPollInterval).append("ms.");
+
             LOG.config(configInfo.toString());
         }
     }
     
     public synchronized boolean startClient() {
+
         endpoint = group.getEndpointService();
         
         if (endpoint.addMessageTransport(this) == null) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Transport registration refused");
-            }
+
+            Logging.logCheckedSevere(LOG, "Transport registration refused");
             return false;
+
         }
         
         // start the client thread
@@ -209,9 +212,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         thread.setDaemon(true);
         thread.start();
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Started client : " + publicAddress.toString());
-        }
+        Logging.logCheckedInfo(LOG, "Started client : " + publicAddress.toString());
         
         return true;
     }
@@ -260,9 +261,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             tempThread.interrupt();
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Stopped client : " + publicAddress.toString());
-        }
+        Logging.logCheckedInfo(LOG, "Stopped client : " + publicAddress.toString());
         
     }
     
@@ -311,9 +310,8 @@ public class RelayClient implements MessageReceiver, Runnable {
      *  if <code>connectToRelay()</code> takes a long time. bizarre.
      */
     public void run() {
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Start relay client thread");
-        }
+
+        Logging.logCheckedInfo(LOG, "Start relay client thread");
         
         try {
             long nextConnectAttemptAt = 0;
@@ -368,33 +366,26 @@ public class RelayClient implements MessageReceiver, Runnable {
                         
                         if (!seed_eas.isEmpty()) {
                             EndpointAddress aSeedHost = new EndpointAddress(seed_eas.get(0));
-                            
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("Attempting relay connect to : " + aSeedHost);
-                            }
-                            
+                            Logging.logCheckedFine(LOG, "Attempting relay connect to : " + aSeedHost);
                             referral = connectToRelay(new RelayServerConnection(this, aSeedHost));
                         }
                     } else {
                         // We have a full route, send it to the virtual address of the route!
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Attempting relay connect to : " + aSeed.getDestPeerID());
-                        }
-                        
+                        Logging.logCheckedFine(LOG, "Attempting relay connect to : " + aSeed.getDestPeerID());
                         referral = connectToRelay(new RelayServerConnection(this, aSeed));
                     }
                 }
             }
-        } catch (Throwable all) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-            }
-        } finally {
-            thread = null;
             
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("stop client thread");
-            }
+        } catch (Throwable all) {
+
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            
+        } finally {
+
+            thread = null;
+            Logging.logCheckedInfo(LOG, "stop client thread");
+            
         }
     }
     
@@ -407,9 +398,8 @@ public class RelayClient implements MessageReceiver, Runnable {
      *  @return The advertisement of an alternate relay server to try.
      */
     RdvAdvertisement connectToRelay(RelayServerConnection server) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Connecting to " + server);
-        }
+        
+        Logging.logCheckedFine(LOG, "Connecting to " + server);
         
         RdvAdvertisement referral = null;
         
@@ -417,13 +407,9 @@ public class RelayClient implements MessageReceiver, Runnable {
         currentServer = server;
         
         // try getting a messenger to the relay peer
-        if (!server.createMessenger(leaseLengthToRequest)) {
-            return referral;
-        }
+        if (!server.createMessenger(leaseLengthToRequest)) return referral;
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("got messenger " + server);
-        }
+        Logging.logCheckedFine(LOG, "got messenger " + server);
         
         // check the peerId of the relay peer
         if (server.logicalAddress != null && "jxta".equals(server.logicalAddress.getProtocolName())) {
@@ -439,11 +425,10 @@ public class RelayClient implements MessageReceiver, Runnable {
             return referral;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("got peerId " + server);
-        }
+        Logging.logCheckedFine(LOG, "got peerId " + server);
         
         synchronized (this) {
+
             // wait for a response from the server
             // There is no real damage other than bandwidth usage in sending
             // a message on top of the connection request, so we realy do not
@@ -462,14 +447,11 @@ public class RelayClient implements MessageReceiver, Runnable {
                     wait(waitTimeout);
                 } catch (InterruptedException e) {
                     // ignore interrupt
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "wait got interrupted early ", e);
-                    }
+                    Logging.logCheckedFine(LOG, "wait got interrupted early\n" + e.toString());
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("wait done");
-                }
+                Logging.logCheckedFine(LOG, "wait done");
+                
             }
         }
         
@@ -510,14 +492,11 @@ public class RelayClient implements MessageReceiver, Runnable {
                         wait(waitTimeout);
                     } catch (InterruptedException e) {
                         // ignore interrupt
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.log(Level.FINE, "wait got interrupted early ", e);
-                        }
+                        Logging.logCheckedFine(LOG, "wait got interrupted early\n" + e.toString());
                     }
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("wait done");
-                    }
+                    Logging.logCheckedFine(LOG, "wait done");
+                    
                 }
             }
         }
@@ -525,17 +504,18 @@ public class RelayClient implements MessageReceiver, Runnable {
         // If we had a messenger but are going to give up that relay server because it is
         // not responsive or rejected us. Make sure that the messenger is closed.
         if (currentServer == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("did not get connect from " + server);
-            }
+            
+            Logging.logCheckedFine(LOG, "did not get connect from " + server);
+            
             // return any alternate relay advertisements
             return server.alternateRelayAdv;
+            
         }
         
         if (currentServer.relayAdv == null || currentServer.leaseLength == 0 || isRelayConnectDone()) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("did not get connect from " + server);
-            }
+            
+            Logging.logCheckedFine(LOG, "did not get connect from " + server);
+            
             if (currentServer.messenger != null) {
                 currentServer.sendDisconnectMessage();
                 currentServer.messenger.close();
@@ -546,9 +526,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             return server.alternateRelayAdv;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Connected to " + server);
-        }
+        Logging.logCheckedFine(LOG, "Connected to " + server);
         
         RouteAdvertisement holdAdv = server.relayAdv;
         EndpointAddress holdDest = server.logicalAddress;
@@ -569,14 +547,11 @@ public class RelayClient implements MessageReceiver, Runnable {
     // method of RelayServerConnection and at least not refer to currentServer
     // other than to assign the reference.
     protected RdvAdvertisement maintainRelayConnection(RelayServerConnection server) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("maintainRelayConnection() start " + currentServer);
-        }
+        
+        Logging.logCheckedFine(LOG, "maintainRelayConnection() start " + currentServer);
         
         if (server == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("RelayConnection() failed at start " + currentServer);
-            }
+            Logging.logCheckedFine(LOG, "RelayConnection() failed at start " + currentServer);
             return null;
         }
         
@@ -613,9 +588,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                     waitTimeout = messengerPollInterval;
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("waitTimeout=" + waitTimeout + " server=" + currentServer);
-                }
+                Logging.logCheckedFine(LOG, "waitTimeout=" + waitTimeout + " server=" + currentServer);
                 
                 try {
                     wait(waitTimeout);
@@ -623,9 +596,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                     Thread.interrupted();
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("wait done, server=" + currentServer);
-                }
+                Logging.logCheckedFine(LOG, "wait done, server=" + currentServer);
                 
                 // make sure the server did not disconnect while waiting
                 if (currentServer == null) {
@@ -635,16 +606,12 @@ public class RelayClient implements MessageReceiver, Runnable {
                 // get the current time
                 currentTime = System.currentTimeMillis();
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("check messenger " + currentServer);
-                }
+                Logging.logCheckedFine(LOG, "check messenger " + currentServer);
                 
                 // check if the messenger is still open
                 if (currentServer.messenger.isClosed()) {
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Server connection broken");
-                    }
+                    Logging.logCheckedFine(LOG, "Server connection broken");
                     
                     // See if we can re-open, that happens often.
                     // That's a reason to renew the connection,
@@ -655,17 +622,16 @@ public class RelayClient implements MessageReceiver, Runnable {
                     // getting a response, since in some cases http connections
                     // close after each received message.
                     if (!currentServer.createMessenger(currentServer.leaseLength)) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Server connection NOT re-established");
-                        }
+                        
+                        Logging.logCheckedFine(LOG, "Server connection NOT re-established");
+                        
                         // lost connection to relay server
                         currentServer = null;
                         break;
+                        
                     }
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Server connection re-established");
-                    }
+                    Logging.logCheckedFine(LOG, "Server connection re-established");
                     
                     // getMessenger asks for a new lease.
                     // In the meantime, we'll just assume our old lease is
@@ -684,13 +650,12 @@ public class RelayClient implements MessageReceiver, Runnable {
                 
                 // check if the lease needs to be renewed
                 renewLeaseAt = currentServer.leaseObtainedAt + currentServer.leaseLength / 3;
+                
                 if (currentTime >= renewLeaseAt || earlyRenew) {
                     
                     earlyRenew = false;
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("renew lease " + currentServer);
-                    }
+                    Logging.logCheckedFine(LOG, "renew lease " + currentServer);
                     
                     // If we do not receive any response to our lease renewals
                     // (that is the response is overdue badly), then we give
@@ -702,19 +667,21 @@ public class RelayClient implements MessageReceiver, Runnable {
                     if ((currentTime > currentServer.leaseObtainedAt + currentServer.leaseLength / 3 + 4 * TimeUtils.AMINUTE)
                             || (!currentServer.sendConnectMessage(leaseLengthToRequest))) {
                         
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("renew lease failed" + currentServer);
-                        }
+                        Logging.logCheckedInfo(LOG, "renew lease failed" + currentServer);
+                        
                         if (currentServer.messenger != null) {
                             currentServer.messenger.close();
                         }
+
                         currentServer.messenger = null;
                         currentServer.peerId = null;
                         currentServer.leaseLength = 0;
                         currentServer.leaseObtainedAt = 0;
                         currentServer.relayAdv = null;
                         currentServer = null;
+
                         break;
+
                     }
                 }
             }
@@ -737,18 +704,14 @@ public class RelayClient implements MessageReceiver, Runnable {
             currentServer = null;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("maintainRelayConnection() terminated " + currentServer);
-        }
+        Logging.logCheckedFine(LOG, "maintainRelayConnection() terminated " + currentServer);
         
         return server.alternateRelayAdv;
     }
     
     protected synchronized void handleResponse(Message message, EndpointAddress dstAddr) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("handleResponse " + currentServer);
-        }
+        Logging.logCheckedFine(LOG, "handleResponse " + currentServer);
         
         // ignore all responses if there is not a current server
         if (currentServer == null) {
@@ -763,9 +726,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
         response = response.toLowerCase();
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("response = " + response);
-        }
+        Logging.logCheckedFine(LOG, "response = " + response);
         
         // check if a relay advertisement was included
         RdvAdvertisement relayAdv = null;
@@ -780,10 +741,9 @@ public class RelayClient implements MessageReceiver, Runnable {
                 if (adv instanceof RdvAdvertisement) {
                     relayAdv = (RdvAdvertisement) adv;
                 }
+                
             } catch (IOException e) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Could not read Relay RdvAdvertisement", e);
-                }
+                Logging.logCheckedFine(LOG, "Could not read Relay RdvAdvertisement\n" + e.toString());
             }
         }
         
@@ -800,29 +760,26 @@ public class RelayClient implements MessageReceiver, Runnable {
             return;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("serverPeerId = " + serverPeerId);
-        }
+        Logging.logCheckedFine(LOG, "serverPeerId = " + serverPeerId);
         
         // Figure out which response it is
         if (RelayTransport.CONNECTED_RESPONSE.equals(response)) {
+
             // Connect Response
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("connected response for " + currentServer);
-            }
+            Logging.logCheckedFine(LOG, "connected response for " + currentServer);
             
             String responseLeaseString = RelayTransport.getString(message, RelayTransport.LEASE_ELEMENT);
             
             long responseLease = 0;
             
             if (responseLeaseString != null) {
+
                 try {
                     responseLease = Long.parseLong(responseLeaseString);
                 } catch (NumberFormatException e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "could not parse response lease string", e);
-                    }
+                    Logging.logCheckedWarning(LOG, "could not parse response lease string", e);
                 }
+                
             }
             
             // make sure the lease is valid
@@ -863,10 +820,9 @@ public class RelayClient implements MessageReceiver, Runnable {
             notifyAll();
             
         } else if (RelayTransport.DISCONNECTED_RESPONSE.equals(response)) {
+
             // Disconnect Response
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("disconnected from " + currentServer);
-            }
+            Logging.logCheckedFine(LOG, "disconnected from " + currentServer);
             
             // If our request was denied, the adv that came back is
             // always an alternate one.
@@ -884,9 +840,8 @@ public class RelayClient implements MessageReceiver, Runnable {
             notifyAll();
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("response handled for " + currentServer);
-        }
+        Logging.logCheckedFine(LOG, "response handled for " + currentServer);
+
     }
     
     static class RelayServerConnection {
@@ -958,9 +913,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 endpointAddresses.add(relayAddress.toString());
             }
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("createMessenger to " + endpointAddresses);
-            }
+            Logging.logCheckedFine(LOG, "createMessenger to " + endpointAddresses);
             
             // make sure we found some endpoint addresses to try
             if (endpointAddresses == null) {
@@ -969,25 +922,25 @@ public class RelayClient implements MessageReceiver, Runnable {
             
             // try each endpoint address until one is successful
             for (String s : endpointAddresses) {
-                if (s == null) {
-                    continue;
-                }
+
+                if (s == null) continue;
+                
                 EndpointAddress addr = new EndpointAddress(s);
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("find transport for " + addr);
-                }
+                Logging.logCheckedFine(LOG, "find transport for " + addr);
+                
                 // get the list of messengers on this endpoint
                 Iterator transports = client.endpoint.getAllMessageTransports();
 
                 while (transports.hasNext() && messenger == null) {
+
                     MessageTransport transport = (MessageTransport) transports.next();
 
                     // only try transports that are senders and allow routing
                     if (transport instanceof MessageSender && ((MessageSender) transport).allowsRouting()) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("try transport " + transport);
-                        }
+
+                        Logging.logCheckedFine(LOG, "try transport " + transport);
+                        
                         if (addr.getProtocolName().equals(transport.getProtocolName())) {
                             // NOTE: here we're creating a messenger.
                             // For risk management reason, we refrain from
@@ -1034,9 +987,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 }
             }
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("messenger=" + messenger);
-            }
+            Logging.logCheckedFine(LOG, "messenger=" + messenger);
             
             return (messenger != null);
         }
@@ -1049,14 +1000,16 @@ public class RelayClient implements MessageReceiver, Runnable {
             Message message = RelayTransport.createConnectMessage(leaseLengthToRequest, (relayAdv == null), flushNeeded);
             
             try {
+
                 messenger.sendMessage(message, "EndpointService:" + client.groupName, client.serviceName + "/" + client.peerId);
+
             } catch (IOException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "could not send connect message", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "could not send connect message", e);
                 
                 // connection attempt failed
                 return false;
+
             }
             
             return true;
@@ -1070,14 +1023,16 @@ public class RelayClient implements MessageReceiver, Runnable {
             Message message = RelayTransport.createDisconnectMessage();
             
             try {
+
                 messenger.sendMessage(message, "EndpointService:" + client.groupName, client.serviceName + "/" + client.peerId);
+
             } catch (IOException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "could not send disconnect message", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "could not send disconnect message", e);
                 
                 // connection attempt failed
                 return false;
+
             }
             
             return true;
@@ -1105,10 +1060,8 @@ public class RelayClient implements MessageReceiver, Runnable {
         boolean added = false;
         
         if (!activeRelayListeners.contains(service)) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Register group to relay connection " + service.getPeerGroupName());
-            }
-            
+
+            Logging.logCheckedFine(LOG, "Register group to relay connection " + service.getPeerGroupName());
             activeRelayListeners.add(service);
             
             added = true;
@@ -1134,12 +1087,9 @@ public class RelayClient implements MessageReceiver, Runnable {
      */
     public synchronized boolean addActiveRelay(EndpointAddress address, RouteAdvertisement relayRoute) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("notify add relay connection for " + address);
-        }
+        Logging.logCheckedFine(LOG, "notify add relay connection for " + address);
         
         // need to notify all our listeners
-
         for (PeerGroup pg : activeRelayListeners) {
             addRelay(pg, relayRoute);
         }
@@ -1188,35 +1138,29 @@ public class RelayClient implements MessageReceiver, Runnable {
             RouteAdvertisement route;
             
             if (myParam == null) {
+
                 // we should have found a route here. This is not good
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("no route found in peer adv");
-                }
+                Logging.logCheckedWarning(LOG, "no route found in peer adv");
                 return;
+
             } else {
+
                 Enumeration<XMLElement> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
                 XMLElement param = null;
                 
-                if (paramChilds.hasMoreElements()) {
-                    param = paramChilds.nextElement();
-                }
+                if (paramChilds.hasMoreElements()) param = paramChilds.nextElement();
                 
                 route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
+
             }
             
-            if (route == null) { // we should have a route here
-                return;
-            }
+            if (route == null) return; // we should have a route here
             
             // ready to stich the Relay route in our route advertisement
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("found route info for local peer \n" + route.display());
-            }
+            Logging.logCheckedFine(LOG, "found route info for local peer \n" + route.display());
             
             // update the new hops info
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("OLD route info to local peer \n" + route.display());
-            }
+            Logging.logCheckedFine(LOG, "OLD route info to local peer \n" + route.display());
             
             // If we already have the relay in our list of hops, remove it.
             // The new version can only be more accurate.
@@ -1230,9 +1174,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             hops.add(relayRoute.getDest());
             
             // update the new hops info
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("NEW route info to local peer" + route.display());
-            }
+            Logging.logCheckedFine(LOG, "NEW route info to local peer" + route.display());
             
             // create the new param route
             myParam = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
@@ -1249,10 +1191,11 @@ public class RelayClient implements MessageReceiver, Runnable {
             if (discovery != null) {
                 discovery.publish(padv, DiscoveryService.DEFAULT_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
             }
+
         } catch (Exception ex) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "exception adding relay route ", ex);
-            }
+            
+            Logging.logCheckedFine(LOG, "exception adding relay route\n" + ex.toString());
+            
         }
     }
     
@@ -1282,12 +1225,13 @@ public class RelayClient implements MessageReceiver, Runnable {
             RouteAdvertisement route = null;
             
             if (myParam == null) {
+
                 // no route found we should really have one
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("no route found in peer adv");
-                    return;
-                }
+                Logging.logCheckedWarning(LOG, "no route found in peer adv");
+                return;
+
             } else {
+
                 Enumeration<XMLElement> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
                 XMLElement param = null;
                 
@@ -1305,9 +1249,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             // update the new hops info
             route.removeHop(relayPid);
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("new route info to the peer" + route.display());
-            }
+            Logging.logCheckedFine(LOG, "new route info to the peer" + route.display());
             
             // create the new param route
             myParam = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
@@ -1320,13 +1262,13 @@ public class RelayClient implements MessageReceiver, Runnable {
             // publish the new advertisement
             DiscoveryService discovery = group.getDiscoveryService();
             
-            if (discovery != null) {
+            if (discovery != null) 
                 discovery.publish(padv, DiscoveryService.DEFAULT_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
-            }
+            
         } catch (Throwable theMatter) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed adding relay route", theMatter);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed adding relay route", theMatter);
+            
         }
     }
     
@@ -1334,30 +1276,32 @@ public class RelayClient implements MessageReceiver, Runnable {
      * return the list of connected relays
      */
     public Vector<AccessPointAdvertisement> getActiveRelays(PeerGroup pg) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("get active Relays list");
-        }
+
+        Logging.logCheckedFine(LOG, "get active Relays list");
         
         Vector<AccessPointAdvertisement> hops = new Vector<AccessPointAdvertisement>();
 
         for (RouteAdvertisement route : activeRelays.values()) {
+            
             try {
+
                 // publish our route if pg is not null
                 if (pg != null) {
+
                     DiscoveryService discovery = pg.getDiscoveryService();
 
                     if (discovery != null) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("publishing route to active relay " + route.display());
-                        }
+                        Logging.logCheckedFine(LOG, "publishing route to active relay " + route.display());
                         discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
                     }
+
                 }
+
             } catch (Exception ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "error publishing active relay", ex);
-                }
+
+                Logging.logCheckedWarning(LOG, "error publishing active relay", ex);
                 continue;
+                
             }
 
             hops.add(route.getDest());

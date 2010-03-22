@@ -128,9 +128,7 @@ public class BerkeleyDbSrdiIndexBackend implements SrdiIndexBackend {
 			BerkeleyDbSrdiIndexBackend backend = new BerkeleyDbSrdiIndexBackend(group, "CLEARALL");
 			backend.clearAllIndices(group);
 		} catch (IOException e) {
-			if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Error occurred while clearing Srdi indices for group [" + group + "]", e);
-			}
+			Logging.logCheckedWarning(LOG, "Error occurred while clearing Srdi indices for group [" + group + "]", e);
 		}
 	}
 	
@@ -333,13 +331,11 @@ public class BerkeleyDbSrdiIndexBackend implements SrdiIndexBackend {
 		closeDatabase(db, DB_NAME);
 		
 		if(dbEnvironment != null) {
-			try {
-				dbEnvironment.close();
-			} catch(DatabaseException e) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to close SRDI index environment when stopping SRDI index " + indexName, e);
-				}
-			}
+		    try {
+		        dbEnvironment.close();
+		    } catch(DatabaseException e) {
+                        Logging.logCheckedSevere(LOG, "Failed to close SRDI index environment when stopping SRDI index " + indexName, e);
+                    }
 		}
 		
 		open = false;
@@ -350,9 +346,7 @@ public class BerkeleyDbSrdiIndexBackend implements SrdiIndexBackend {
 			try {
 				c.close();
 			} catch(DatabaseException e) {
-				if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-					LOG.log(Level.WARNING, failMessage);
-				}
+				Logging.logCheckedWarning(LOG, failMessage, e);
 			}
 		}
 	}
@@ -362,9 +356,8 @@ public class BerkeleyDbSrdiIndexBackend implements SrdiIndexBackend {
 			try {
 				db.close();
 			} catch(DatabaseException e) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to close BDB " + name + " when stopping SRDI index " + indexName, e);
-				}
+				Logging.logCheckedSevere(LOG, "Failed to close BDB " + name
+                                        + " when stopping SRDI index " + indexName, e);
 			}
 		}
 	}

@@ -226,13 +226,14 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
             net.jxta.peergroup.PeerGroupID peerGroupID = (net.jxta.peergroup.PeerGroupID) net.jxta.id.IDFactory.fromURI(url);
 
             result = (net.jxta.peergroup.PeerGroupID) IDFormat.translateToWellKnown(peerGroupID);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("cannot convert sub group. ID value = " + id);
-            }
+
+            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = " + id);
             result = null;
 
         }
+
         // LOG.error("getParentPeerGroupID():"+result);
         return result;
     }

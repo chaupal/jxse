@@ -94,9 +94,7 @@ public class TlsMessenger extends BlockingMessenger {
         super(tp.getPeerGroup().getPeerGroupID(), destAddress, false);
         
         if (conn == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("null TLS connection!");
-            }
+            Logging.logCheckedFine(LOG, "null TLS connection!");
             throw new IllegalArgumentException("null TLS connection!");
         }
         
@@ -158,9 +156,7 @@ public class TlsMessenger extends BlockingMessenger {
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Starting send for " + message);
-        }
+        Logging.logCheckedFine(LOG, "Starting send for " + message);
         
         // check if the connection has died.
         if (HandshakeState.CONNECTIONDEAD == conn.getHandshakeState()) {
@@ -174,13 +170,11 @@ public class TlsMessenger extends BlockingMessenger {
         }
         
         if (isClosed()) {
+
             IOException failure = new IOException("Messenger is closed, it cannot be used to send messages.");
-            
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, failure.getMessage(), failure);
-            }
-            
+            Logging.logCheckedWarning(LOG, failure.getMessage());
             throw failure;
+
         }
         
         // Set the message with the appropriate src and dest address
@@ -194,17 +188,18 @@ public class TlsMessenger extends BlockingMessenger {
         
         // Give the message to the TLS connection
         try {
+
             conn.sendMessage(message);
+
         } catch (IOException caught) {
+
             close();
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Message send to \'" + dstAddress + "\' failed for " + message, caught);
-            }
+            Logging.logCheckedSevere(LOG, "Message send to \'" + dstAddress + "\' failed for " + message, caught);
             throw caught;
+
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Message send to \'" + dstAddress + "\' succeeded for " + message);
-        }
+        Logging.logCheckedFine(LOG, "Message send to \'" + dstAddress + "\' succeeded for " + message);
+
     }    
 }

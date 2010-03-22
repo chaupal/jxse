@@ -321,13 +321,12 @@ public class NoneMembershipService implements MembershipService {
             Enumeration elements = doc.getChildren();
             
             while (elements.hasMoreElements()) {
+
                 TextElement elem = (TextElement) elements.nextElement();
 
-                if (!handleElement(elem)) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
-                    }
-                }
+                if (!handleElement(elem)) 
+                    Logging.logCheckedWarning(LOG, "Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
+                
             }
             
             // sanity check time!
@@ -533,10 +532,10 @@ public class NoneMembershipService implements MembershipService {
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         
         implAdvertisement = (ModuleImplAdvertisement) impl;
-        
         peergroup = group;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring None Membership Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
@@ -548,12 +547,13 @@ public class NoneMembershipService implements MembershipService {
             configInfo.append("\n\t\tGroup: ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID: ").append(group.getPeerGroupID());
             configInfo.append("\n\t\tPeer ID: ").append(group.getPeerID());
+
             LOG.config(configInfo.toString());
         }
         
         defaultCredential = new NoneCredential(this, "nobody");
-        
         resign();
+
     }
     
     /**

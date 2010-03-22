@@ -215,10 +215,11 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
             String advType = instantiator.getAdvertisementType();
             
             registeredSomething = registerAdvertisementInstance(advType, instantiator);
+
         } catch (Exception all) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Failed to register \'" + className + "\'", all);
-            }
+
+            Logging.logCheckedFine(LOG, "Failed to register \'" + className + "\'\n" + all.toString());
+
         }
         
         return registeredSomething;

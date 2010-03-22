@@ -288,19 +288,25 @@ public class EndpointRouterMessage {
 
         e = doc.createElement(GatewayForwardTag);
         doc.appendChild(e);
+
         if ((forwardGateways != null) && (!forwardGateways.isEmpty())) {
             if (forwardCache != null) {
+
                 for (XMLElement xptDoc : forwardCache) {
+                    
                     try {
+
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
+
                     } catch (Exception e1) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Forward cache failed");
-                        }
+                        
+                        Logging.logCheckedWarning(LOG, "Forward cache failed");
                         forwardCache = null;
                         break;
+
                     }
                 }
+
             } else {
                 for (AccessPointAdvertisement gateway : forwardGateways) {
                     try {
@@ -315,24 +321,36 @@ public class EndpointRouterMessage {
 
         e = doc.createElement(GatewayReverseTag);
         doc.appendChild(e);
+
         if ((reverseGateways != null) && (!reverseGateways.isEmpty())) {
+
             if (reverseCache != null) {
+
                 for (XMLElement xptDoc : reverseCache) {
+                    
                     try {
+
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
+
                     } catch (Exception e1) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Reverse cache failed");
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Reverse cache failed");
                         reverseCache = null;
                         break;
+
                     }
+
                 }
+
             } else {
+
                  for (AccessPointAdvertisement gateway : reverseGateways) {
+
                     try {
+
                         XMLDocument xptDoc = (XMLDocument) gateway.getDocument(MimeMediaType.XMLUTF8);
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
+
                     } catch (Exception e1) {
                         // ignored
                     }
@@ -341,14 +359,16 @@ public class EndpointRouterMessage {
         }
 
         if (radv != null) {
-            try {
-                XMLDocument radvDoc = (XMLDocument) radv.getDocument(MimeMediaType.XMLUTF8);
 
+            try {
+
+                XMLDocument radvDoc = (XMLDocument) radv.getDocument(MimeMediaType.XMLUTF8);
                 StructuredDocumentUtils.copyElements(doc, doc, radvDoc);
+
             } catch (Exception e1) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Cannot add route advertisement");
-                }
+
+                Logging.logCheckedWarning(LOG, "Cannot add route advertisement");
+                
             }
         }
 

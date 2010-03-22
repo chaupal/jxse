@@ -136,16 +136,15 @@ class PeerGroupInterface implements PeerGroup {
      * @param theRealThing the real PeerGroup
      */
     PeerGroupInterface(PeerGroup theRealThing) {
+
         groupImpl = theRealThing;
         requestor = new Throwable("Requestor Stack Trace : " + theRealThing.getPeerGroupID());
         instance = interfaceInstanceCount.incrementAndGet();
         
+        Logging.logCheckedFiner(LOG, "Peer Group Interface Constructed {" + instance + "}\n" + requestor.toString());
+
+        Logging.logCheckedInfo(LOG, "Peer Group Interface Constructed {" + instance + "}");
         
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.log(Level.INFO, "Peer Group Interface Constructed {" + instance + "}", requestor);
-        } else if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Peer Group Interface Constructed {" + instance + "}");
-        } 
     }
 
     /**
@@ -263,24 +262,27 @@ class PeerGroupInterface implements PeerGroup {
      * {@inheritDoc}
      */
     public boolean unref() {
+
         boolean unref = unrefed.compareAndSet(false, true);
 
         if (unref) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                Throwable unrefer = new Throwable("Unrefer Stack Trace", requestor);
 
-                LOG.log(Level.FINER, "Peer Group Interface Unreference {" + instance + "}", unrefer);
-            } else if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Peer Group Interface Unreference {" + instance + "}");
+            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+
+                Throwable unrefer = new Throwable("Unrefer Stack Trace", requestor);
+                Logging.logCheckedFiner(LOG, "Peer Group Interface Unreference {" + instance + "}\n"
+                        + unrefer.toString());
+
+            } else {
+                Logging.logCheckedInfo(LOG, "Peer Group Interface Unreference {" + instance + "}");
             }
 
             groupImpl = null;
-        } else {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                Throwable unrefer = new Throwable("Unrefer Stack Trace", requestor);
 
-                LOG.log(Level.WARNING, "Duplicate dereference of Peer Group Interface {" + instance + "}", unrefer);
-            }
+        } else {
+
+            Logging.logCheckedWarning(LOG, "Duplicate dereference of Peer Group Interface {" + instance + "}", new Throwable("Unrefer Stack Trace", requestor));
+
         }
 
         return unref;

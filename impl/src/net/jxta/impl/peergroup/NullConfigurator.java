@@ -122,11 +122,10 @@ public class NullConfigurator implements PlatformConfigurator {
 
         jxtaHome = homeRoot;
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("JXTA_HOME = " + jxtaHome.toASCIIString());
-        }
+        Logging.logCheckedConfig(LOG, "JXTA_HOME = " + jxtaHome.toASCIIString());
 
         if ("file".equalsIgnoreCase(jxtaHome.getScheme())) {
+
             File jxtaHomeDir = new File(jxtaHome);
 
             if (jxtaHomeDir.exists() && !jxtaHomeDir.isDirectory()) {
@@ -140,8 +139,11 @@ public class NullConfigurator implements PlatformConfigurator {
             }
 
             configFile = new File(jxtaHomeDir, "PlatformConfig").toURI();
+
         } else {
+
             configFile = jxtaHome.resolve("PlatformConfig");
+
         }
     }
 
@@ -213,42 +215,42 @@ public class NullConfigurator implements PlatformConfigurator {
      */
     @Deprecated
     protected PlatformConfig load(URI loadFile) throws ConfiguratorException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Reading Platform Config from : " + loadFile);
-        }
+
+        Logging.logCheckedFine(LOG, "Reading Platform Config from : " + loadFile);
 
         InputStream advStream = null;
 
         try {
+
             advStream = loadFile.toURL().openStream();
 
             XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, advStream);
             PlatformConfig result = (PlatformConfig) AdvertisementFactory.newAdvertisement(xmlDoc);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Recovered Platform Config from : " + loadFile);
-            }
-
+            Logging.logCheckedFine(LOG, "Recovered Platform Config from : " + loadFile);
+            
             return result;
+
         } catch (FileNotFoundException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Platform Config not found : " + loadFile);
-            }
 
+            Logging.logCheckedWarning(LOG, "Platform Config not found : " + loadFile);
             return null;
-        } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to Recover \'" + loadFile + "\' due to : ", e);
-            }
 
+        } catch (Exception e) {
+
+            Logging.logCheckedWarning(LOG, "Failed to Recover \'" + loadFile + "\' due to : ", e);
             throw new ConfiguratorException("Failed to recover PlatformConfig", e);
+
         } finally {
+
             try {
-                if (advStream != null) {
-                    advStream.close();
-                }
+
+                if (advStream != null) advStream.close();
+                
                 advStream = null;
-            } catch (Exception ignored) {// ignored
+
+            } catch (Exception ignored) {
+                // ignored
             }
         }
     }
@@ -290,12 +292,12 @@ public class NullConfigurator implements PlatformConfigurator {
 
             aDoc.sendToWriter(os);
             os.flush();
-        } catch (IOException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Could not save to : " + saveFile, e);
-            }
 
+        } catch (IOException e) {
+
+            Logging.logCheckedWarning(LOG, "Could not save to : " + saveFile, e);
             throw new ConfiguratorException("Could not save to : " + saveFile, e);
+
         } finally {
             try {
                 if (null != out) {

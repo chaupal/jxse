@@ -189,10 +189,10 @@ public class OutgoingFaultyMsgrAdaptor implements Outgoing {
      *@param  time  The new lastAccessed in milliseconds
      */
     public void setLastAccessed(long time) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Setting lastAccessed to :" + lastAccessed);
-        }
+
+        Logging.logCheckedFine(LOG, "Setting lastAccessed to :" + lastAccessed);
         lastAccessed = time;
+
     }
     
     /**
@@ -203,32 +203,27 @@ public class OutgoingFaultyMsgrAdaptor implements Outgoing {
      *@exception  IOException  if an io error occurs
      */
     public synchronized boolean send(Message msg) throws IOException {
-        if (closed) {
-            throw new IOException("broken connection");
-        }
+
+        if (closed) throw new IOException("broken connection");
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending a Message");
-        }
+        Logging.logCheckedFine(LOG, "Sending a Message");
         
         if (rand.nextDouble() < MESSAGE_LOSS_PROBABILITY) {
+
             // we sent it. Really! we sent it!....
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Losing " + msg);
-            }
+            Logging.logCheckedFine(LOG, "Losing " + msg);
             return true;
+
         }
         
         long delay = (long) (Math.abs(rand.nextGaussian()) * MESSAGE_DELAY_RATIO * timeout);
         
         if (delay > 50) {
+
             delayMessageTimer.schedule(new DelayTask(msg), delay);
-            
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Delaying " + msg + " for " + delay + "ms.");
-            }
-            
+            Logging.logCheckedFine(LOG, "Delaying " + msg + " for " + delay + "ms.");
             return true;
+
         } else {        
             return msgr.sendMessage(msg, null, null);
         }

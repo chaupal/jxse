@@ -207,17 +207,17 @@ public class MessagePackageHeader {
         } while (!sawEmpty);
         
         if (!sawLength) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Content Length header was missing");
-            }
+
+            Logging.logCheckedWarning(LOG, "Content Length header was missing");
             throw new IOException("Content Length header was missing");
+
         }
         
         if (!sawType) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Content Type header was missing");
-            }
+
+            Logging.logCheckedWarning(LOG, "Content Type header was missing");
             throw new IOException("Content Type header was missing");
+
         }
     }
     
@@ -301,9 +301,8 @@ public class MessagePackageHeader {
      * @throws IOException if an io error is encountered
      */
     public boolean readHeader(ByteBuffer buffer) throws IOException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("Parsing Package Header from byte buffer :{0}", buffer.toString()));
-        }
+
+        Logging.logCheckedFine(LOG, MessageFormat.format("Parsing Package Header from byte buffer :{0}", buffer.toString()));
         
         int count = getHeaderCount(buffer);
 
@@ -320,18 +319,17 @@ public class MessagePackageHeader {
             byte[] headerValueBytes = new byte[headerValueLength];
             
             buffer.get(headerValueBytes);
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
-            }
+
+            Logging.logCheckedFiner(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
+
             headers.add(new Header(headerNameString, headerValueBytes));
+
         }
         
         // get the end-of-pkg
         buffer.get();
-        
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer(MessageFormat.format("Parsed {0} header elements, buffer stats :{1}", count, buffer.toString()));
-        }
+        Logging.logCheckedFiner(LOG, MessageFormat.format("Parsed {0} header elements, buffer stats :{1}", count, buffer.toString()));
+
         return true;
     }
     
@@ -352,11 +350,10 @@ public class MessagePackageHeader {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
         
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Add header :" + name + "(" + name.length() + ") with " + value.length + " bytes of value");
-        }
+        Logging.logCheckedFiner(LOG, "Add header :" + name + "(" + name.length() + ") with " + value.length + " bytes of value");
         
         headers.add(new Header(name, value));
+
     }
     
     /**
@@ -367,10 +364,9 @@ public class MessagePackageHeader {
      * @param value The value for the header. May not exceed 65535 bytes in
      * length.
      */
-    public void addHeader(String name, String value) {        
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Add header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
-        }
+    public void addHeader(String name, String value) {
+        
+        Logging.logCheckedFiner(LOG, "Add header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
         
         try {
             addHeader(name, value.getBytes("UTF-8"));
@@ -397,9 +393,7 @@ public class MessagePackageHeader {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
         
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Replace header :" + name + "(" + name.length() + ") with " + value.length + " bytes of value");
-        }
+        Logging.logCheckedFiner(LOG, "Replace header :" + name + "(" + name.length() + ") with " + value.length + " bytes of value");
         
         Header newHeader = new Header(name, value);
         ListIterator<Header> eachHeader = getHeaders();
@@ -428,9 +422,8 @@ public class MessagePackageHeader {
      * length.
      */
     public void replaceHeader(String name, String value) {
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Replace header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
-        }
+
+        Logging.logCheckedFiner(LOG, "Replace header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
         
         try {
             replaceHeader(name, value.getBytes("UTF-8"));

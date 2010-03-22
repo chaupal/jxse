@@ -377,9 +377,7 @@ public final class AuthenticationCredential implements Credential {
             TextElement elem = (TextElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
-                }
+                Logging.logCheckedWarning(LOG, "Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
             }
         }
 

@@ -308,57 +308,88 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
         Enumeration eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
+
             Attribute aRdvAttr = (Attribute) eachAttr.nextElement();
 
-            if (super.handleAttribute(aRdvAttr)) {// nothing to do
+            if (super.handleAttribute(aRdvAttr)) {
+                
+                // nothing to do
+
             } else if (RDV_CONFIG_ATTR.equals(aRdvAttr.getName())) {
+
                 String config = aRdvAttr.getValue().trim();
 
                 if ("adhoc".equals(config)) {
-                    configuration = RendezVousConfiguration.AD_HOC;
-                } else if ("client".equals(config)) {
-                    configuration = RendezVousConfiguration.EDGE;
-                } else if ("rendezvous".equals(config)) {
-                    configuration = RendezVousConfiguration.RENDEZVOUS;
-                } else {
-                    throw new IllegalArgumentException("Unrecognized Rendezvous configuration :" + config);
-                }
-            } else if (MAX_TTL_ATTR.equals(aRdvAttr.getName())) {
-                maximumTTL = Integer.parseInt(aRdvAttr.getValue().trim());
-            } else if (AUTO_RDV_INTERVAL_ATTR.equals(aRdvAttr.getName())) {
-                autoRendezvousCheckInterval = Long.parseLong(aRdvAttr.getValue().trim());
-            } else if (PROBE_RELAYS_ATTR.equals(aRdvAttr.getName())) {
-                probeRelays = Boolean.valueOf(aRdvAttr.getValue().trim());
-            } else if (MAX_CLIENTS_ATTR.equals(aRdvAttr.getName())) {
-                maxClients = Integer.parseInt(aRdvAttr.getValue().trim());
-            } else if (LEASE_DURATION_ATTR.equals(aRdvAttr.getName())) {
-                leaseDuration = Long.parseLong(aRdvAttr.getValue().trim());
-            } else if (LEASE_MARGIN_ATTR.equals(aRdvAttr.getName())) {
-                leaseMargin = Long.parseLong(aRdvAttr.getValue().trim());
-            } else if (MIN_HAPPY_PEERVIEW_ATTR.equals(aRdvAttr.getName())) {
-                minHappyPeerView = Integer.parseInt(aRdvAttr.getValue().trim());
-            } else if (PROPAGATE_RESPOND_ATTR.equals(aRdvAttr.getName())) {// Ignored; deprecated.
-            } else if ("Flags".equals(aRdvAttr.getName())) { // deprecated
-                boolean onlySeeds = (aRdvAttr.getValue().indexOf("UseOnlySeeds") != -1);
 
-                setUseOnlySeeds(onlySeeds);
-            } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + aRdvAttr.getName());
+                    configuration = RendezVousConfiguration.AD_HOC;
+
+                } else if ("client".equals(config)) {
+
+                    configuration = RendezVousConfiguration.EDGE;
+
+                } else if ("rendezvous".equals(config)) {
+
+                    configuration = RendezVousConfiguration.RENDEZVOUS;
+
+                } else {
+
+                    throw new IllegalArgumentException("Unrecognized Rendezvous configuration :" + config);
+
                 }
+
+            } else if (MAX_TTL_ATTR.equals(aRdvAttr.getName())) {
+
+                maximumTTL = Integer.parseInt(aRdvAttr.getValue().trim());
+
+            } else if (AUTO_RDV_INTERVAL_ATTR.equals(aRdvAttr.getName())) {
+
+                autoRendezvousCheckInterval = Long.parseLong(aRdvAttr.getValue().trim());
+
+            } else if (PROBE_RELAYS_ATTR.equals(aRdvAttr.getName())) {
+
+                probeRelays = Boolean.valueOf(aRdvAttr.getValue().trim());
+
+            } else if (MAX_CLIENTS_ATTR.equals(aRdvAttr.getName())) {
+
+                maxClients = Integer.parseInt(aRdvAttr.getValue().trim());
+
+            } else if (LEASE_DURATION_ATTR.equals(aRdvAttr.getName())) {
+
+                leaseDuration = Long.parseLong(aRdvAttr.getValue().trim());
+
+            } else if (LEASE_MARGIN_ATTR.equals(aRdvAttr.getName())) {
+
+                leaseMargin = Long.parseLong(aRdvAttr.getValue().trim());
+
+            } else if (MIN_HAPPY_PEERVIEW_ATTR.equals(aRdvAttr.getName())) {
+
+                minHappyPeerView = Integer.parseInt(aRdvAttr.getValue().trim());
+
+            } else if (PROPAGATE_RESPOND_ATTR.equals(aRdvAttr.getName())) {
+
+                // Ignored; deprecated.
+
+            } else if ("Flags".equals(aRdvAttr.getName())) { // deprecated
+
+                boolean onlySeeds = (aRdvAttr.getValue().indexOf("UseOnlySeeds") != -1);
+                setUseOnlySeeds(onlySeeds);
+
+            } else {
+
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRdvAttr.getName());
+                
             }
         }
 
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
-            if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem.toString());
-                }
-            }
+            if (!handleElement(elem))
+                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                
         }
 
         // Sanity Check!!!
@@ -441,38 +472,45 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
                             seedRendezvous.add(endpAddr);
                         }
                     }
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Element: " + aSeedElem.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Element: " + aSeedElem.getName());
+                    
                 }
             }
 
             Enumeration eachAttr = elem.getAttributes();
 
             while (eachAttr.hasMoreElements()) {
+
                 Attribute aSeedAttr = (Attribute) eachAttr.nextElement();
 
                 if (USE_ONLY_SEEDS_ATTR.equals(aSeedAttr.getName())) {
+
                     useOnlySeeds = Boolean.valueOf(aSeedAttr.getValue().trim());
+
                 } else if (CONNECT_DELAY_ATTR.equals(aSeedAttr.getName())) {
+
                     seedRendezvousConnectDelay = Long.parseLong(aSeedAttr.getValue().trim());
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Attribute: " + aSeedAttr.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aSeedAttr.getName());
+                    
                 }
             }
 
             return true;
+
         } else if (ACL_URI.equals(elem.getName())) {
+
             String addrElement = elem.getTextValue();
 
-            if (null != addrElement) {
-                aclURI = URI.create(addrElement.trim());
-            }
+            if (null != addrElement) aclURI = URI.create(addrElement.trim());
 
             return true;
+
         }
 
         return false;

@@ -302,6 +302,28 @@ public final class Logging {
     }
 
     /**
+     * This method checks whether {@code SHOW_SEVERE} is set to {@code true),
+     * and whether the provided logger allows severe messages. If yes, the
+     * message is logged. If the throwable is not null, is it printed after the
+     * message.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     * @param inThrow a throwable
+     */
+    public static void logCheckedSevere(Logger inLog, String inMsg, Throwable inThrow) {
+
+        if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
+
+            if (inThrow != null ) inMsg = inMsg + "\n" + inThrow.toString();
+
+            inLog.severe(inMsg);
+
+        }
+
+    }
+
+    /**
      * This method checks whether {@code SHOW_WARNING} is set to {@code true),
      * and whether the provided logger allows warnings messages. If yes, the
      * message is logged.
@@ -315,6 +337,28 @@ public final class Logging {
             inLog.warning(inMsg);
         }
 
+    }
+
+    /**
+     * This method checks whether {@code SHOW_WARNING} is set to {@code true),
+     * and whether the provided logger allows warning messages. If yes, the
+     * message is logged. If the throwable is not null, is it printed after the
+     * message.
+     *
+     * @param inLog a logger
+     * @param inMsg the message to log
+     * @param inThrow a throwable
+     */
+    public static void logCheckedWarning(Logger inLog, String inMsg, Throwable inThrow) {
+
+        if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
+
+            if (inThrow != null ) inMsg = inMsg + "\n" + inThrow.toString();
+
+            inLog.warning(inMsg);
+
+        }
+ 
     }
 
 }

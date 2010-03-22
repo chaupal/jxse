@@ -484,9 +484,8 @@ public class NetworkConfigurator {
      * @see #setMode
      */
     public NetworkConfigurator(int mode, URI storeHome) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Creating a default configuration");
-        }
+
+        Logging.logCheckedFine(LOG, "Creating a default configuration");
 
         setStoreHome(storeHome);
 
@@ -1477,12 +1476,10 @@ public class NetworkConfigurator {
      * @throws CertificateException if the MemebershipService is invalid
      */
     public ConfigParams load(URI uri) throws IOException, CertificateException {
-        if (uri == null) {
-            throw new IllegalArgumentException("URI can not be null");
-        }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Loading configuration : " + uri);
-        }
+
+        if (uri == null) throw new IllegalArgumentException("URI can not be null");
+        
+        Logging.logCheckedFine(LOG, "Loading configuration : " + uri);
 
         PlatformConfig platformConfig = read(uri);
 
@@ -1889,9 +1886,7 @@ public class NetworkConfigurator {
                 if (keyStoreLocation.isAbsolute()) {
                     pseConf.setKeyStoreLocation(keyStoreLocation);
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Keystore location set, but is not absolute: " + keyStoreLocation);
-                    }
+                    Logging.logCheckedWarning(LOG, "Keystore location set, but is not absolute: " + keyStoreLocation);
                 }
             }
             XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
@@ -2250,21 +2245,22 @@ public class NetworkConfigurator {
                 idTmp = IDFactory.fromURI(new URI(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + idTmpStr));
                 nameTmp = rsrcs.getString("NetPeerGroupName").trim();
                 descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", rsrcs.getString("NetPeerGroupDesc").trim());
+
             } catch (Exception failed) {
+
                 if (null != defaults) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.", failed);
-                    }
+
+                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n" + failed.toString());
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;
                     descTmp = defaults.desc;
-                } else {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "NetPeerGroup tunables not defined or could not be loaded.", failed);
-                    }
 
+                } else {
+
+                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
+
                 }
             }
 

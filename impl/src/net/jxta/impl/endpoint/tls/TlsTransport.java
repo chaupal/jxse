@@ -203,36 +203,41 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 String override_str = jxtaRsrcs.getString("impl.endpoint.tls.connection.idletimeout");
                 
                 if (null != override_str) {
+
                     long override_long = Long.parseLong(override_str.trim());
                     
                     if (override_long >= 1) {
+
                         CONNECTION_IDLE_TIMEOUT = override_long * TimeUtils.AMINUTE;
+                        Logging.logCheckedInfo(LOG, "Adjusting TLS connection idle timeout to " + CONNECTION_IDLE_TIMEOUT + " millis.");
                         
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("Adjusting TLS connection idle timeout to " + CONNECTION_IDLE_TIMEOUT + " millis.");
-                        }
                     }
                 }
+
             } catch (NumberFormatException badvalue) {
-                ;
+                
             }
             
             try {
+
                 String override_str = jxtaRsrcs.getString("impl.endpoint.tls.connection.minidlereconnect");
                 
                 if (null != override_str) {
+
                     long override_long = Long.parseLong(override_str.trim());
                     
                     if (override_long >= 1) {
+
                         MIN_IDLE_RECONNECT = override_long * TimeUtils.AMINUTE;
                         
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("Adjusting TLS min reconnection idle to " + MIN_IDLE_RECONNECT + " millis.");
-                        }
+                        Logging.logCheckedInfo(LOG, "Adjusting TLS min reconnection idle to " + MIN_IDLE_RECONNECT + " millis.");
+                        
                     }
+
                 }
+
             } catch (NumberFormatException badvalue) {
-                ;
+                
             }
             
             try {
@@ -242,15 +247,15 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     long override_long = Long.parseLong(override_str.trim());
                     
                     if (override_long >= 1) {
+
                         RETRMAXAGE = override_long * TimeUtils.AMINUTE;
+                        Logging.logCheckedInfo(LOG, "Adjusting TLS maximum retry queue age to " + RETRMAXAGE + " millis.");
                         
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("Adjusting TLS maximum retry queue age to " + RETRMAXAGE + " millis.");
-                        }
                     }
                 }
+
             } catch (NumberFormatException badvalue) {
-                ;
+                
             }
             
             // reconnect must be less the idle interval.
@@ -318,6 +323,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         myThreadGroup = new ThreadGroup(group.getHomeThreadGroup(), "TLSTransport " + localTlsPeerAddr);
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring TLS Transport : " + assignedID);
 
             if (null != implAdvertisement) {
@@ -327,6 +333,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             }
+
             configInfo.append("\n\tGroup Params:");
             configInfo.append("\n\t\tGroup: ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID: ").append(group.getPeerGroupID());
@@ -343,7 +350,9 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             configInfo.append("\n\t\tPublic Address : ").append(localTlsPeerAddr);
             
             LOG.config(configInfo.toString());
+
         }
+
     }
     
     /**
@@ -354,35 +363,33 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         endpoint = group.getEndpointService();
         
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
-            
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return START_AGAIN_STALLED;
+
         }
         
         MembershipService groupMembership = group.getMembershipService();
         
         if (null == groupMembership) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a membership service");
-            }
-            
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return START_AGAIN_STALLED;
+
         }
         
         if (!(groupMembership instanceof PSEMembershipService)) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("TLS Transport requires PSE Membership Service");
-            }
+
+            Logging.logCheckedSevere(LOG, "TLS Transport requires PSE Membership Service");
             return -1;
+
         }
         
         if (endpoint.addMessageTransport(this) == null) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Transport registration refused");
-            }
+
+            Logging.logCheckedSevere(LOG, "Transport registration refused");
             return -1;
+
         }
         
         membership = (PSEMembershipService) groupMembership;
@@ -413,12 +420,14 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         
         // Connect ourself to the EndpointService
         try {
+
             endpoint.addIncomingMessageListener(manager, JTlsDefs.ServiceName, null);
+
         } catch (Throwable e2) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "TLS could not register listener...as good as dead", e2);
-            }
+
+            Logging.logCheckedSevere(LOG, "TLS could not register listener...as good as dead", e2);
             return -1;
+
         }
         
         return 0;
@@ -506,40 +515,37 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      */
     public Messenger getMessenger(EndpointAddress addr, Object hintIgnored) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("getMessenger for " + addr);
-        }
+        Logging.logCheckedFine(LOG, "getMessenger for " + addr);
         
         EndpointAddress plainAddress = new EndpointAddress(addr, null, null);
         
         // If the dest is the local peer, just loop it back without going
         // through the TLS. Local communication do not use TLS.
         if (plainAddress.equals(localTlsPeerAddr)) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("returning LoopbackMessenger");
-            }
+
+            Logging.logCheckedFine(LOG, "returning TlsLoopbackMessenger");
             return new TlsLoopbackMessenger(endpoint, plainAddress, addr, localPeerAddr);
+
         }
         
         // Create a Peer EndpointAddress
-        EndpointAddress dstPAddr = mkAddress(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + addr.getProtocolAddress(), null
-                ,
+        EndpointAddress dstPAddr = mkAddress(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + addr.getProtocolAddress(),
+                null,
                 null);
         
         TlsConn conn = manager.getTlsConn(dstPAddr);
         
         if (conn == null) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Cannot get a TLS connection for " + dstPAddr);
-            }
+
+            Logging.logCheckedSevere(LOG, "Cannot get a TLS connection for " + dstPAddr);
+            
             // No connection was either available or created. Cannot do TLS
             // with the destination address.
             return null;
+
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("TlsMessanger with TlsConn DONE");
-        }
+        Logging.logCheckedFine(LOG, "TlsMessanger with TlsConn DONE");
         
         // Build a TlsMessenger around it that will add our header.
         // Right now we do not want to "announce" outgoing messengers because they get pooled and so must
@@ -553,30 +559,35 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      * completely received and is ready to be delivered to the service/application
      */
     void processReceivedMessage(final Message msg) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("processReceivedMessage starts");
-        }
+
+        Logging.logCheckedFine(LOG, "processReceivedMessage starts");
         
         // add a property to the message to indicate it came from us.
         msg.setMessageProperty(TlsTransport.class, this);
         
         // let the message continue to its final destination.
         try {
+
             ((GenericPeerGroup)group).getExecutor().execute( new Runnable() {
+
                 public void run() {
+
                     try {
+
                         endpoint.processIncomingMessage(msg);
+
                     } catch(Throwable uncaught) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Failure demuxing an incoming message", uncaught);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message", uncaught);
+                        
                     }
                 }
-            });            
+            });
+            
         } catch (Throwable e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure demuxing an incoming message", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message", e);
+            
         }
     }
     
@@ -630,14 +641,15 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             
             if (credential == evt.getSource()) {
                 if (!credential.isValid()) {
-                    if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                        LOG.info("Clearing credential/certfile ");
-                    }
+
+                    Logging.logCheckedInfo(LOG, "Clearing credential/certfile ");
                     
                     credential.removePropertyChangeListener(this);
                     credential = null;
+
                 }
             }
+
         }
     }
     
@@ -670,22 +682,19 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 Exception failure = null;
                 
                 try {
+
                     X509Certificate peerCert = membership.getPSEConfig().getTrustedCertificate(group.getPeerID());
                     
                     X500Principal credSubjectDN = cred.getCertificate().getSubjectX500Principal();
                     X500Principal peerCertSubjectDN = peerCert.getSubjectX500Principal();
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                "Checking credential cert for match to peer cert" + "\n\tcred subject=" + credSubjectDN
-                                + "\n\tpeer subject=" + peerCertSubjectDN);
-                    }
+                    Logging.logCheckedFine(LOG, "Checking credential cert for match to peer cert"
+                        + "\n\tcred subject=" + credSubjectDN + "\n\tpeer subject=" + peerCertSubjectDN);
                     
                     if (peerCertSubjectDN.equals(credSubjectDN)) {
-                        
                         serviceCert = cred.generateServiceCertificate(assignedID);
-                        
                     }
+
                 } catch (IOException failed) {
                     failure = failed;
                 } catch (KeyStoreException failed) {
@@ -697,10 +706,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
                 
                 if (null != failure) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "Failure building service certificate", failure);
-                    }
-                    
+                    Logging.logCheckedSevere(LOG, "Failure building service certificate", failure);
                     return;
                 }
             }
@@ -709,21 +715,18 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 Exception failure = null;
                 
                 try {
+
                     X509Certificate credCert = cred.getCertificate();
                     
                     X500Principal credSubjectDN = credCert.getSubjectX500Principal();
                     X500Principal serviceIssuerDN = serviceCert[0].getIssuerX500Principal();
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                "Checking credential cert for match to service issuer cert" + "\n\tcred subject=" + credSubjectDN
-                                + "\n\t  svc issuer=" + serviceIssuerDN);
-                    }
+                    Logging.logCheckedFine(LOG, "Checking credential cert for match to service issuer cert" + "\n\tcred subject=" + credSubjectDN
+                        + "\n\t  svc issuer=" + serviceIssuerDN);
                     
                     if (credSubjectDN.equals(serviceIssuerDN)) {
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("Setting credential/certfile ");
-                        }
+
+                        Logging.logCheckedInfo(LOG, "Setting credential/certfile ");
                         
                         credential = cred.getServiceCredential(assignedID);
                         
@@ -743,10 +746,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
                 
                 if (null != failure) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "Failure building service credential", failure);
-                    }
-
+                    Logging.logCheckedSevere(LOG, "Failure building service credential", failure);
                 }
             }
         }

@@ -356,22 +356,29 @@ public class StdPeerGroupParamAdv {
         Enumeration<XMLElement> modules = doc.getChildren();
 
         while (modules.hasMoreElements()) {
+
             XMLElement module = modules.nextElement();
             String tagName = module.getName();
 
             Map<ModuleClassID, Object> theTable;
 
             if (SVC_TAG.equals(tagName)) {
+
                 theTable = services;
+
             } else if (APP_TAG.equals(tagName)) {
+
                 theTable = apps;
+
             } else if (PROTO_TAG.equals(tagName)) {
+
                 theTable = transports;
+
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Unhandled top-level tag : " + tagName);
-                }
+
+                Logging.logCheckedWarning(LOG, "Unhandled top-level tag : " + tagName);
                 continue;
+
             }
 
             ModuleSpecID specID = null;
@@ -379,6 +386,7 @@ public class StdPeerGroupParamAdv {
             ModuleImplAdvertisement inLineAdv = null;
 
             try {
+
                 if (module.getTextValue() != null) {
                     specID = (ModuleSpecID) IDFactory.fromURI(new URI(module.getTextValue()));
                 }
@@ -387,34 +395,41 @@ public class StdPeerGroupParamAdv {
                 Enumeration<XMLElement> fields = module.getChildren();
 
                 while (fields.hasMoreElements()) {
+
                     XMLElement field = fields.nextElement();
 
                     String fieldName = field.getName();
 
                     if (MCID_TAG.equals(fieldName)) {
+
                         classID = (ModuleClassID) IDFactory.fromURI(new URI(field.getTextValue()));
+
                     } else if (MSID_TAG.equals(field.getName())) {
+
                         specID = (ModuleSpecID) IDFactory.fromURI(new URI(field.getTextValue()));
+
                     } else if (MIA_TAG.equals(field.getName())) {
+
                         inLineAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(field);
+
                     } else {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Unhandled field : " + fieldName);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Unhandled field : " + fieldName);
+                        
                     }
                 }
             } catch (Exception any) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Broken entry; skipping", any);
-                }
+
+                Logging.logCheckedWarning(LOG, "Broken entry; skipping", any);
                 continue;
+
             }
 
             if (inLineAdv == null && specID == null) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Insufficent entry; skipping");
-                }
+
+                Logging.logCheckedWarning(LOG, "Insufficent entry; skipping");
                 continue;
+
             }
 
             Object theValue;
@@ -509,11 +524,12 @@ public class StdPeerGroupParamAdv {
                     i = doc.createElement(MSID_TAG, val.toString());
                     m.appendChild(i);
                 }
+
             } else {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe("unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
-                }
+
+                Logging.logCheckedSevere(LOG, "unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
                 throw new IllegalStateException("unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
+
             }
         }
     }

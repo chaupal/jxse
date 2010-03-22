@@ -57,14 +57,6 @@ package net.jxta.impl.endpoint.relay;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.NoSuchElementException;
-
-import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-
-import java.util.logging.Logger;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -77,20 +69,15 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.impl.protocol.RelayConfigAdv;
-import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.pipe.PipeService;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.id.IDFactory;
-
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.peer.PeerID;
@@ -179,17 +166,17 @@ public final class RelayTransport implements EndpointListener, Module {
             try {
                 XMLDocument configDoc = (XMLDocument) confAdv.getServiceParam(assignedID);
 
-                if (null != configDoc) {
-                    adv = AdvertisementFactory.newAdvertisement(configDoc);
-                }
+                if (null != configDoc) adv = AdvertisementFactory.newAdvertisement(configDoc);
+                
             } catch (NoSuchElementException failed) {
-                //ignored
-            } catch (IllegalArgumentException failed) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Error in relay advertisement", failed);
-                }
 
+                //ignored
+
+            } catch (IllegalArgumentException failed) {
+
+                Logging.logCheckedSevere(LOG, "Error in relay advertisement", failed);
                 throw failed;
+
             }
 
             if (adv instanceof RelayConfigAdv) {
@@ -210,6 +197,7 @@ public final class RelayTransport implements EndpointListener, Module {
         }
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Relay Message Transport : " + assignedID);
 
             if (implAdvertisement != null) {
@@ -237,43 +225,39 @@ public final class RelayTransport implements EndpointListener, Module {
      * {@inheritDoc}
      */
     public int startApp(String[] args) {
+
         EndpointService endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return START_AGAIN_STALLED;
+
         }
 
         // XXX bondolo 20041025 Server depends upon discovery and its non-optional.
         DiscoveryService discovery = group.getDiscoveryService();
 
         if (null == discovery) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a discovery service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a discovery service");
             return START_AGAIN_STALLED;
+
         }
 
         // XXX bondolo 20041025 Server depends upon pipes and its non-optional.
         PipeService pipeService = group.getPipeService();
 
         if (null == pipeService) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a pipe service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a pipe service");
             return START_AGAIN_STALLED;
+
         }
 
         endpoint.addIncomingMessageListener(this, serviceName, null);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Message Listener added " + serviceName);
-        }
+        Logging.logCheckedFine(LOG, "Message Listener added " + serviceName);
 
         if (relayServer != null) {
             if (!relayServer.startServer()) {
@@ -287,10 +271,8 @@ public final class RelayTransport implements EndpointListener, Module {
             }
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Relay Message Transport started");
-        }
-
+        Logging.logCheckedInfo(LOG, "Relay Message Transport started");
+        
         return 0;
     }
 
@@ -298,41 +280,35 @@ public final class RelayTransport implements EndpointListener, Module {
      * {@inheritDoc}
      */
     public void stopApp() {
+
         // remove listener
         EndpointService endpoint = group.getEndpointService();
 
         if (endpoint == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("could not get EndpointService");
-            }
+
+            Logging.logCheckedWarning(LOG, "could not get EndpointService");
+            
         } else {
+
             endpoint.removeIncomingMessageListener(serviceName, null);
+            Logging.logCheckedFine(LOG, "Message Listener removed " + serviceName);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Message Listener removed " + serviceName);
-            }
         }
 
-        if (relayServer != null) {
-            relayServer.stopServer();
-        }
-
-        if (relayClient != null) {
-            relayClient.stopClient();
-        }
-
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Relay Message Transport stopped");
-        }
+        if (relayServer != null) relayServer.stopServer();
+        
+        if (relayClient != null) relayClient.stopClient();
+        
+        Logging.logCheckedInfo(LOG, "Relay Message Transport stopped");
+        
     }
 
     /**
      * {@inheritDoc}
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Started for " + message + "\tsrc=" + srcAddr);
-        }
+
+        Logging.logCheckedFine(LOG, "Started for " + message + "\tsrc=" + srcAddr);
 
         MessageElement element;
 
@@ -482,18 +458,21 @@ public final class RelayTransport implements EndpointListener, Module {
         URI asURI = null;
 
         try {
+
             asURI = new URI(ID.URIEncodingName, ID.URNNamespace + ":" + addr.getProtocolAddress(), null);
             return (PeerID) IDFactory.fromURI(asURI);
+
         } catch (URISyntaxException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Error converting a source address into a virtual address : " + addr, ex);
-}
+
+            Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address : " + addr, ex);
+
         } catch (ClassCastException cce) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Error converting a source address into a virtual address: " + addr, cce);
-            }
+
+            Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address: " + addr, cce);
+            
         }
 
         return null;
+        
     }
 }

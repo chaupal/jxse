@@ -193,10 +193,10 @@ public final class PeerBinaryID extends net.jxta.peer.PeerID {
             net.jxta.peergroup.PeerGroupID peerGroupID = (net.jxta.peergroup.PeerGroupID) net.jxta.id.IDFactory.fromURI(url);
 
             return peerGroupID;
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("cannot convert sub group. ID value = " + id);
-            }
+
+            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = " + id);
             return null;
 
         }

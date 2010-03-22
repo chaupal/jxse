@@ -162,68 +162,56 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          * {@inheritDoc}
          */
         public Message fromWire(InputStream is, MimeMediaType type, MimeMediaType contentEncoding) throws IOException {
+
             // FIXME 20020504 bondolo@jxta.org  Ignores type and contentEncoding completely.
             Message msg = new Message();
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Reading " + msg + " from " + is);
-            }
+            Logging.logCheckedFine(LOG, "Reading " + msg + " from " + is);
 
             DataInputStream dis = new DataInputStream(is);
-
             HashMap idToNamespace = readHeader(dis);
-
             int elementCnt = dis.readShort();
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Message element count " + elementCnt + " from " + is);
-            }
+            Logging.logCheckedFiner(LOG, "Message element count " + elementCnt + " from " + is);
 
             int eachElement = 0;
 
             do {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Read element " + eachElement + " of " + elementCnt + " from " + is + " for " + msg);
-                }
+
+                Logging.logCheckedFiner(LOG, "Read element " + eachElement + " of " + elementCnt + " from " + is + " for " + msg);
 
                 Object[] anElement;
 
                 try {
+
                     anElement = readMessageElement(dis, is);
+
                 } catch (IOException failed) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE
-                                ,
-                                "Failure reading element " + eachElement + " of " + elementCnt + " from " + is + " for " + msg
-                                ,
-                                failed);
-                    }
 
+                    Logging.logCheckedSevere(LOG, "Failure reading element " + eachElement
+                        + " of " + elementCnt + " from " + is + " for " + msg, failed);
                     throw failed;
+
                 }
 
-                if (null == anElement) {
-                    break;
-                }
+                if (null == anElement) break;
 
                 String namespace = (String) idToNamespace.get(anElement[0]);
 
                 if (null == namespace) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("Element identified a namespace which was not defined for this message.");
-                    }
 
+                    Logging.logCheckedSevere(LOG, "Element identified a namespace which was not defined for this message.");
                     throw new IOException("Element identified a namespace which was not defined for this message.");
+
                 }
 
                 msg.addMessageElement(namespace, (MessageElement) anElement[1]);
                 eachElement++;
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer(
-                            "Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement
-                            + " of #" + elementCnt + " elements from " + dis.toString());
-                }
+                Logging.logCheckedFine(LOG,
+                    "Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement
+                    + " of #" + elementCnt + " elements from " + dis.toString());
+                
             } while (((0 == elementCnt) || (eachElement < elementCnt)));
 
             if ((elementCnt != 0) && (eachElement != elementCnt)) {
@@ -234,44 +222,39 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         }
 
         public Message fromBuffer(ByteBuffer buffer, MimeMediaType type, MimeMediaType contentEncoding) throws IOException {
+
             // FIXME 20020504 bondolo@jxta.org  Ignores type and contentEncoding completely.
             Message msg = new Message();
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Reading " + msg + " from " + buffer);
-            }
+            Logging.logCheckedFine(LOG, "Reading " + msg + " from " + buffer);
 
             HashMap idToNamespace = readHeader(buffer);
 
             int elementCnt = buffer.getShort();
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Message element count " + elementCnt + " from " + buffer);
-            }
+            Logging.logCheckedFiner(LOG, "Message element count " + elementCnt + " from " + buffer);
 
             int eachElement = 0;
 
             do {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Read element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg);
-                }
+
+                Logging.logCheckedFiner(LOG, "Read element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg);
 
                 Object[] anElement;
 
                 try {
+
                     anElement = readMessageElement(buffer);
 
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(MessageFormat.format("Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString(),
+                    Logging.logCheckedFiner(LOG, MessageFormat.format("Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString(),
                                 buffer.toString()));
-                    }
+
                 } catch (IOException failed) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE,
-                                "Failure reading element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg,
-                                failed);
-                    }
+
+                    Logging.logCheckedSevere(LOG, "Failure reading element " + eachElement + " of "
+                            + elementCnt + " from " + buffer + " for " + msg, failed);
                     throw failed;
+                    
                 }
 
                 if (null == anElement) {
@@ -281,19 +264,18 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 String namespace = (String) idToNamespace.get(anElement[0]);
 
                 if (null == namespace) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("Element identified a namespace which was not defined for this message.");
-                    }
+
+                    Logging.logCheckedSevere(LOG, "Element identified a namespace which was not defined for this message.");
                     throw new IOException("Element identified a namespace which was not defined for this message.");
+
                 }
 
                 msg.addMessageElement(namespace, (MessageElement) anElement[1]);
                 eachElement++;
 
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement
+                Logging.logCheckedFiner(LOG, "Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement
                             + " of #" + elementCnt + " elements from " + buffer.toString());
-                }
+                
             } while (((0 == elementCnt) || (eachElement < elementCnt)));
 
             if ((elementCnt != 0) && (eachElement != elementCnt)) {
@@ -327,14 +309,16 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             char[] msgsig = new char[4];
 
             try {
-                msgsig[0] = (char) dis.readByte();
-            } catch (EOFException failed) {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.log(Level.FINER, "EOF reading message at first byte of header.", failed);
-                }
 
+                msgsig[0] = (char) dis.readByte();
+
+            } catch (EOFException failed) {
+
+                Logging.logCheckedFiner(LOG, "EOF reading message at first byte of header.\n" + failed.toString());
                 throw failed;
+
             }
+
             msgsig[1] = (char) dis.readByte();
             msgsig[2] = (char) dis.readByte();
             msgsig[3] = (char) dis.readByte();
@@ -343,34 +327,28 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 IOException failure = new IOException(
                         "Not a message (incorrect signature '" + msgsig[0] + msgsig[1] + msgsig[2] + msgsig[3] + "') ");
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe(failure.toString());
-                }
-
+                Logging.logCheckedSevere(LOG, failure.toString());
                 throw failure;
+
             }
 
             // Message version
             if (dis.readByte() != MESSAGE_VERSION) {
+
                 IOException failure = new IOException("Message not version " + MESSAGE_VERSION);
-
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, failure.getMessage(), failure);
-                }
-
+                Logging.logCheckedSevere(LOG, failure.getMessage(), failure);
                 throw failure;
+
             }
 
             int namespaceCnt = dis.readShort();
 
             if (namespaceCnt > 253) {
+
                 IOException failure = new IOException("Message contains too many namespaces (>253)");
-
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, failure.getMessage(), failure);
-                }
-
+                Logging.logCheckedSevere(LOG, failure.getMessage());
                 throw failure;
+
             }
 
             HashMap<Integer, String> id2namespace = new HashMap<Integer, String>(2 + namespaceCnt);
@@ -381,21 +359,21 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int id = 2;
 
             for (int i = 0; i < namespaceCnt; ++i) {
+                
                 try {
-                    String namespace = readString(dis);
 
+                    String namespace = readString(dis);
                     id2namespace.put(id++, namespace);
+
                 } catch (IOException caught) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Error Processing namespace", caught);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Error Processing namespace", caught);
                     throw caught;
+
                 }
             }
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Read Message Header with " + (namespaceCnt + 2) + " namespaces from " + dis.toString());
-            }
+            Logging.logCheckedFiner(LOG, "Read Message Header with " + (namespaceCnt + 2) + " namespaces from " + dis.toString());
 
             return id2namespace;
         }
@@ -421,37 +399,30 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 IOException failure = new IOException(
                         "Not a message (incorrect signature '" + msgsig[0] + msgsig[1] + msgsig[2] + msgsig[3] + "') ");
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe(failure.toString());
-                }
+                Logging.logCheckedSevere(LOG, failure.toString());
                 throw failure;
+
             }
 
             // Message version
             if (buffer.get() != MESSAGE_VERSION) {
-                IOException failure = new IOException("Message not version " + MESSAGE_VERSION);
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, failure.getMessage(), failure);
-                }
+                IOException failure = new IOException("Message not version " + MESSAGE_VERSION);
+                Logging.logCheckedSevere(LOG, failure.getMessage(), failure);
                 throw failure;
+
             }
 
             int namespaceCnt = buffer.getShort();
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(MessageFormat.format("Message defines {0} namespaces buffer stats{1}", namespaceCnt, buffer.toString()));
-            }
+            Logging.logCheckedFiner(LOG, MessageFormat.format("Message defines {0} namespaces buffer stats{1}", namespaceCnt, buffer.toString()));
 
             if (namespaceCnt > 253) {
-                IOException failure = new IOException(
-                        MessageFormat.format("Message contains too many namespaces ({0} >253)", namespaceCnt));
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, failure.getMessage(), failure);
-                }
-
+                IOException failure = new IOException(MessageFormat.format("Message contains too many namespaces ({0} >253)", namespaceCnt));
+                Logging.logCheckedSevere(LOG, failure.getMessage(), failure);
                 throw failure;
+
             }
 
             HashMap<Integer, String> id2namespace = new HashMap<Integer, String>(2 + namespaceCnt);
@@ -462,21 +433,21 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int id = 2;
 
             for (int i = 0; i < namespaceCnt; ++i) {
-                try {
-                    String namespace = readString(buffer);
 
+                try {
+
+                    String namespace = readString(buffer);
                     id2namespace.put(id++, namespace);
+
                 } catch (IOException caught) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Error Processing namespace", caught);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Error Processing namespace", caught);
                     throw caught;
+
                 }
             }
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Read Message Header with " + (namespaceCnt + 2) + " namespaces from " + buffer.toString());
-            }
+            Logging.logCheckedFiner(LOG, "Read Message Header with " + (namespaceCnt + 2) + " namespaces from " + buffer.toString());
 
             return id2namespace;
         }
@@ -511,14 +482,11 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             elsig[3] = (char) dis.readByte();
 
             if (elsig[0] != 'j' || elsig[1] != 'x' || elsig[2] != 'e' || elsig[3] != 'l') {
-                IOException failure = new IOException(
-                        "Not a message element (incorrect signature '" + elsig[0] + elsig[1] + elsig[2] + elsig[3] + "') ");
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, failure.getMessage(), failure);
-                }
-
+                IOException failure = new IOException("Not a message element (incorrect signature '" + elsig[0] + elsig[1] + elsig[2] + elsig[3] + "') ");
+                Logging.logCheckedSevere(LOG, failure.getMessage());
                 throw failure;
+
             }
 
             // Namespace id
@@ -547,11 +515,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             int dataLen = dis.readInt();
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(
-                        "element : nsid = " + nsid + " name = \'" + name + "\' type = \'" + type + "\' flags = "
+            Logging.logCheckedFiner(LOG, "element : nsid = " + nsid + " name = \'" + name + "\' type = \'" + type + "\' flags = "
                         + Integer.toBinaryString(flags) + " datalen = " + dataLen);
-            }
 
             Object[] res = new Object[2];
 
@@ -565,7 +530,9 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 InputStream subis = new LimitInputStream(is, dataLen);
 
                 submsg = WireFormatMessageFactory.fromWire(subis, type, null);
+
             } else {
+
                 value = new byte[dataLen];
                 String mayFail = null;
 
@@ -574,13 +541,16 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 }
 
                 try {
+
                     dis.readFully(value);
+
                 } catch (EOFException failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("had tried to read " + dataLen + " from " + mayFail + " which is now " + is);
-                    }
+                    
+                    Logging.logCheckedWarning(LOG, "had tried to read " + dataLen + " from " + mayFail + " which is now " + is);
                     throw failed;
+
                 }
+
             }
 
             MessageElement sig = null;
@@ -624,14 +594,11 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             elsig[3] = (char) buffer.get();
 
             if (elsig[0] != 'j' || elsig[1] != 'x' || elsig[2] != 'e' || elsig[3] != 'l') {
-                IOException failure = new IOException(
-                        "Not a message element (incorrect signature '" + elsig[0] + elsig[1] + elsig[2] + elsig[3] + "') ");
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, failure.getMessage(), failure);
-                }
-
+                IOException failure = new IOException("Not a message element (incorrect signature '" + elsig[0] + elsig[1] + elsig[2] + elsig[3] + "') ");
+                Logging.logCheckedSevere(LOG, failure.getMessage());
                 throw failure;
+                
             }
 
             // Namespace id
@@ -660,12 +627,9 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             int dataLen = buffer.getInt();
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(
-                        "element : nsid = " + nsid + " name = \'" + name + "\' type = \'" + type + "\' flags = "
+            Logging.logCheckedFiner(LOG, "element : nsid = " + nsid + " name = \'" + name + "\' type = \'" + type + "\' flags = "
                         + Integer.toBinaryString(flags) + " datalen = " + dataLen);
-            }
-
+            
             Object[] res = new Object[2];
 
             res[0] = nsid & 0x000000FF;
@@ -679,13 +643,13 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                 submsg = WireFormatMessageFactory.fromWire(subis, type, null);
                 // buffer.position(buffer.position() + dataLen);
-            } else {
-                value = new byte[dataLen];
 
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer(MessageFormat.format("expecting {0} bytes, Buffer stats {1}", dataLen, buffer.toString()));
-                }
+            } else {
+
+                value = new byte[dataLen];
+                Logging.logCheckedFiner(LOG, MessageFormat.format("expecting {0} bytes, Buffer stats {1}", dataLen, buffer.toString()));
                 buffer.get(value);
+
             }
 
             MessageElement sig = null;
@@ -813,11 +777,10 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 partBuffers.addAll(Arrays.asList(anElement.getByteBuffers()));
             }
             
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(MessageFormat.format("Returning {0} buffers for {1}", partBuffers.size(), message));
-            }
+            Logging.logCheckedFiner(LOG, MessageFormat.format("Returning {0} buffers for {1}", partBuffers.size(), message));
 
             return partBuffers.toArray(new ByteBuffer[partBuffers.size()]);
+
         }
         
         /**
@@ -825,9 +788,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          */
         public InputStream getStream() throws IOException {
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Getting stream for " + message);
-            }
+            Logging.logCheckedFine(LOG, "Getting stream for " + message);
 
             List<InputStream> streamParts = new ArrayList<InputStream>();
 
@@ -839,14 +800,11 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             InputStream theStream = new SequenceInputStream(Collections.enumeration(streamParts));
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(
-                        MessageFormat.format("Returning {0}@{1} for {2}", theStream.getClass().getName()
-                        ,
+            Logging.logCheckedFiner(LOG, MessageFormat.format("Returning {0}@{1} for {2}", theStream.getClass().getName(),
                         System.identityHashCode(theStream), message));
-            }
 
             return theStream;
+            
         }
 
         /**
@@ -854,9 +812,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          */
         public void sendToStream(OutputStream sendTo) throws IOException {
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Sending " + message + " to " + sendTo.getClass().getName() + "@" + System.identityHashCode(sendTo));
-            }
+            Logging.logCheckedFine(LOG, "Sending " + message + " to " + sendTo.getClass().getName() + "@" + System.identityHashCode(sendTo));
 
             sendTo.write(header);
 
@@ -1159,7 +1115,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
      * Below is the reason why finalize is not needed here.
      *
      * No critical non-memory resource held.
-     protected void finalize( ) {
+     protected void finalize() {
      }
 
      */

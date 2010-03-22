@@ -387,30 +387,28 @@ public class PasswdMembershipService implements MembershipService {
             Enumeration elements = doc.getChildren();
             
             while (elements.hasMoreElements()) {
+
                 XMLElement elem = (XMLElement) elements.nextElement();
 
                 if (!handleElement(elem)) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
-                    }
+                    Logging.logCheckedWarning(LOG, "Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
                 }
+
             }
             
             // sanity check time!
             
-            if (null == getSubject()) {
+            if (null == getSubject()) 
                 throw new IllegalArgumentException("subject was never initialized.");
-            }
             
-            if (null == getPeerID()) {
+            if (null == getPeerID()) 
                 throw new IllegalArgumentException("peer id was never initialized.");
-            }
             
-            if (null == signedPeerID) {
+            if (null == signedPeerID) 
                 throw new IllegalArgumentException("signed peer id was never initialized.");
-            }
             
             // FIXME bondolo@jxta.org 20030409 should check for duplicate elements and for peergroup element
+
         }
     }
     
@@ -603,6 +601,7 @@ public class PasswdMembershipService implements MembershipService {
         implAdvertisement = (ModuleImplAdvertisement) impl;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Password Membership Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
@@ -614,6 +613,7 @@ public class PasswdMembershipService implements MembershipService {
             configInfo.append("\n\t\tGroup: ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID: ").append(group.getPeerGroupID());
             configInfo.append("\n\t\tPeer ID: ").append(group.getPeerID());
+
             LOG.config(configInfo.toString());
         }
         
@@ -641,10 +641,9 @@ public class PasswdMembershipService implements MembershipService {
                 int lastDelim = etcPasswd.indexOf(':', nextDelim + 1);
                 String passwd = etcPasswd.substring(nextDelim + 1, lastDelim);
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Adding login : \'" + login + "\' with encoded password : \'" + passwd + "\'");
-                }
+                Logging.logCheckedFine(LOG, "Adding login : \'" + login + "\' with encoded password : \'" + passwd + "\'");
                 logins.put(login, passwd);
+
             }
         }
         
@@ -652,6 +651,7 @@ public class PasswdMembershipService implements MembershipService {
         
         // We initialise our set of principals to the resigned state.
         resign();
+
     }
     
     /**
@@ -816,10 +816,7 @@ public class PasswdMembershipService implements MembershipService {
         }
         
         String encodedPW = makePsswd(passwd);
-        
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Password \'" + passwd + "\' encodes as: \'" + encodedPW + "\'");
-        }
+        Logging.logCheckedFine(LOG, "Password \'" + passwd + "\' encodes as: \'" + encodedPW + "\'");
         
         String mustMatch = (String) logins.get(identity);
         

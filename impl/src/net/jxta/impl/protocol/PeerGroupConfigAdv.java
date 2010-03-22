@@ -206,19 +206,19 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
             }
+
         }
 
         // Validate group id
-        if (null == getPeerGroupID()) {
+        if (null == getPeerGroupID()) 
             throw new IllegalArgumentException("Peer Group Config Advertisement does not contain a peer group id.");
-        }
+        
     }
 
     /**

@@ -132,36 +132,33 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
-        }
+        Logging.logCheckedFine(LOG, "creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
 
         StringBuilder theString = new StringBuilder();
 
         try {
+
             Reader asString = getReader();
             char[] characters = new char[256];
 
             do {
+
                 int res = asString.read(characters);
-
-                if (res < 0) {
-                    break;
-                }
-
+                if (res < 0) break;
                 theString.append(characters, 0, res);
+
             } while (true);
 
             result = theString.toString();
 
             cachedToString = new SoftReference<String>(result);
             return result;
-        } catch (IOException caught) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not generate string for element. ", caught);
-            }
 
+        } catch (IOException caught) {
+
+            Logging.logCheckedSevere(LOG, "Could not generate string for element. ", caught);
             throw new IllegalStateException("Could not generate string for element. " + caught);
+            
         }
     }
 
@@ -221,9 +218,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("creating getChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
-        }
+        Logging.logCheckedFine(LOG, "creating getChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
 
         long len = getCharLength();
 
@@ -251,21 +246,19 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             } while (toRead < len);
 
             if (toRead != 0) {
+
                 IOException failure = new IOException("Unexpected EOF");
-
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, failure.getMessage(), failure);
-                }
-
+                Logging.logCheckedWarning(LOG, failure.getMessage(), failure);
                 throw failure;
-            }
-        } catch (IOException caught) {
-            IllegalStateException failure = new IllegalStateException("Failed to get bytes of Message Element");
 
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, failure.getMessage(), caught);
             }
+
+        } catch (IOException caught) {
+
+            IllegalStateException failure = new IllegalStateException("Failed to get bytes of Message Element");
+            Logging.logCheckedWarning(LOG, failure.getMessage(), caught);
             throw failure;
+
         }
 
         // if this is supposed to be a shared buffer then we can cache it.

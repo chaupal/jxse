@@ -1,3 +1,4 @@
+
 package net.jxta.impl.endpoint.netty;
 
 import java.io.StringWriter;
@@ -10,7 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.StructuredDocument;
@@ -29,7 +29,6 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
-
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
@@ -76,13 +75,14 @@ public class NettyTransport implements Module {
         initServer(instanceConfiguration);
         initClient(instanceConfiguration, getPreferredReturnAddress(instanceConfiguration));
         
-        if(Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config(buildConfigurationState(assignedID, (ModuleImplAdvertisement)implAdv));
-        }
+        Logging.logCheckedConfig(LOG, buildConfigurationState(assignedID, (ModuleImplAdvertisement)implAdv));
+
     }
 
     private void initServer(TCPAdv instanceConfiguration) throws PeerGroupException {
+        
         this.serverEnabled = instanceConfiguration.isServerEnabled();
+
         if(!serverEnabled) {
             this.server = new NullTransportServerComponent();
             return;
@@ -247,15 +247,23 @@ public class NettyTransport implements Module {
      * </ol>
      */
     private int correctPort(int port, int min, int max, int defaultPort, int anyPort, String portName) {
+        
         if(port == -1) {
+
             return defaultPort;
+
         } else if(port == 0) {
+
             return anyPort;
+
         } else if(port < min || port > max) {
+
             port = Math.max(min, Math.min(port, max));
+
             if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "{0} port was outside legal range ({1}-{2}), changed to {3}", new Object[] { portName, min, max, port });
             }
+            
         }
         
         return port;

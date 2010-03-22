@@ -224,12 +224,15 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                     } catch (URISyntaxException badID) {
                         throw new IllegalArgumentException("Bad ID in advertisement: " + e.getTextValue());
                     }
+
                 } else if (PARAM_TAG.equals(e.getName())) {
+
                     param = e;
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unrecognized <Svc> tag : " + e.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unrecognized <Svc> tag : " + e.getName());
+                    
                 }
             }
             
@@ -245,13 +248,14 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 if(isDisabled) {
                     disabled.add(key);
                 }
+
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Incomplete Service Param : id=" + key + " param=" + param);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "Incomplete Service Param : id=" + key + " param=" + param);
                 return false;
+
             }
+
             return true;
         }
         return false;
@@ -420,13 +424,14 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         }
         
         try {
+
             ads.put(key, adv.clone());
+
         } catch (CloneNotSupportedException failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unclonable Advertisements may not be used : " + adv.getClass().getName(), failed);
-            }
-                
+
+            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : " + adv.getClass().getName(), failed);
             throw new IllegalArgumentException("Unclonable Advertisements may not be used : " + adv.getClass().getName());
+
         }        
     }
     
@@ -463,14 +468,16 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
         }
         
         try {
-            return adv.clone();
-        } catch (CloneNotSupportedException failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unclonable Advertisements may not be used : " + adv.getClass().getName(), failed);
-            }
 
+            return adv.clone();
+
+        } catch (CloneNotSupportedException failed) {
+
+            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : " + adv.getClass().getName(), failed);
             throw new IllegalArgumentException("Unclonable Advertisements may not be used : " + adv.getClass().getName());
+
         }
+
     }
     
     /**

@@ -108,7 +108,7 @@ public interface WildcardTernarySearchTree<T> {
      * Return the size of the tree
      * @return the size of the tree
      */
-    public long getSize(  );
+    public long getSize();
 
     /** Returns alphabetical list of all keys in the tree that begin with prefix. Only keys for nodes having non-null data
      *   are included in the list.

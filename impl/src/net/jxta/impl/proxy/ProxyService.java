@@ -213,6 +213,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         resolvedPipes = new Cache(200, this);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring JXME Proxy Service : " + assignedID);
 
             configInfo.append("\n\tImplementation :");
@@ -224,8 +225,11 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
             configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
+            
             LOG.config(configInfo.toString());
+
         }
+
     }
 
     /**
@@ -236,43 +240,37 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         Service needed = group.getEndpointService();
 
         if (null == needed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a endpoint service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a endpoint service");
             return START_AGAIN_STALLED;
+
         }
 
         needed = group.getDiscoveryService();
         if (null == needed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a discovery service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a discovery service");
             return START_AGAIN_STALLED;
+
         }
 
         needed = group.getPipeService();
         if (null == needed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a pipe service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a pipe service");
             return START_AGAIN_STALLED;
+
         }
 
         endpoint = group.getEndpointService();
         discovery = group.getDiscoveryService();
         pipe = group.getPipeService();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("addListener " + serviceName + serviceParameter);
-        }
-
+        Logging.logCheckedFine(LOG, "addListener " + serviceName + serviceParameter);
         endpoint.addIncomingMessageListener(this, serviceName, serviceParameter);
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("JXME Proxy Service started.");
-        }
+
+        Logging.logCheckedInfo(LOG, "JXME Proxy Service started.");
+        
         return Module.START_OK;
     }
 
@@ -280,15 +278,12 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      * {@inheritDoc}
      */
     public void stopApp() {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("removeListener " + serviceName + serviceParameter);
-        }
 
+        Logging.logCheckedFine(LOG, "removeListener " + serviceName + serviceParameter);
         endpoint.removeIncomingMessageListener(serviceName, serviceParameter);
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("JXME Proxy Service stopped.");
-        }
+        Logging.logCheckedInfo(LOG, "JXME Proxy Service stopped.");
+        
     }
 
     /**
@@ -327,17 +322,15 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                     srcAddr.getServiceParameter());
 
             requestor = Requestor.createRequestor(group, message, relayAddr, 0);
+
         } catch (IOException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "could not create requestor", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "could not create requestor", e);
+            
         }
 
         String request = popString(REQUEST_TAG, message);
-
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("request = " + request + " requestor " + requestor);
-        }
+        Logging.logCheckedFine(LOG, "request = " + request + " requestor " + requestor);
 
         if (request != null && requestor != null) {
             if (REQUEST_JOIN.equals(request)) {
@@ -406,24 +399,23 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleCreateRequest(Requestor requestor, String type, String name, String id, String arg) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("handleCreateRequest type=" + type + " name=" + name + " id=" + id + " arg=" + arg);
-        }
+        Logging.logCheckedFine(LOG, "handleCreateRequest type=" + type + " name=" + name + " id=" + id + " arg=" + arg);
 
-        if (name == null) {
-            name = ""; // default name
-        }
+        if (name == null) name = ""; // default name
 
         if (TYPE_PEER.equals(type)) {
             PeerAdvertisement adv = createPeerAdvertisement(name, id);
 
             if (adv != null) {
+
                 try {
+
                     discovery.publish(adv);
+
                 } catch (Exception e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Could not publish peer advertisement", e);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Could not publish peer advertisement", e);
+                    
                 }
                 requestor.send(adv, RESPONSE_SUCCESS);
             } else {
@@ -445,12 +437,15 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             PipeAdvertisement adv = createPipeAdvertisement(name, id, arg);
 
             if (adv != null) {
+
                 try {
+
                     discovery.publish(adv);
+
                 } catch (Exception e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Could not publish pipe advertisement", e);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement", e);
+                    
                 }
 
                 requestor.send(adv, RESPONSE_SUCCESS);
@@ -464,18 +459,19 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleSearchRequest(Requestor requestor, String type, String attribute, String value, String threshold) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("handleSearchRequest type=" + type + " attribute=" + attribute + " value=" + value + " threshold=" + threshold);
-        }
-
+        Logging.logCheckedFine(LOG, "handleSearchRequest type=" + type + " attribute=" + attribute + " value=" + value + " threshold=" + threshold);
+        
         int discoveryType;
         int thr = DEFAULT_THRESHOLD;
+
         try {
+
             thr = Integer.parseInt(threshold);
+
         } catch (NumberFormatException nex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("handleSearchRequest failed to parse threshold " + threshold + ", using default " + DEFAULT_THRESHOLD);
-            }
+
+            Logging.logCheckedWarning(LOG, "handleSearchRequest failed to parse threshold " + threshold + ", using default " + DEFAULT_THRESHOLD);
+            
         }
         requestor.setThreshold(thr);
 
@@ -520,9 +516,8 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      * @param id        the id of the Pipe.
      */
     private void handleListenRequest(Requestor requestor, String id) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("handleListenRequest id=" + id);
-        }
+
+        Logging.logCheckedFine(LOG, "handleListenRequest id=" + id);
 
         if (id == null) {
             requestor.notifyError("Pipe ID not specified");
@@ -538,65 +533,62 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String pipeId = pipeAdv.getPipeID().toString();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("listen to pipe name=" + pipeAdv.getName() + " id=" + pipeAdv.getPipeID() + " type=" + pipeAdv.getType());
-        }
-
+        Logging.logCheckedFine(LOG, "listen to pipe name=" + pipeAdv.getName() + " id=" + pipeAdv.getPipeID() + " type=" + pipeAdv.getType());
+        
         // check to see if the input pipe already exist
         PipeListenerList list = pipeListeners.get(pipeId);
 
         if (list == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("first listener, create input pipe");
-            }
+
+            Logging.logCheckedFine(LOG, "first listener, create input pipe");
 
             // create an input pipe
             try {
+
                 list = new PipeListenerList(pipe.createInputPipe(pipeAdv, this), pipeListeners, pipeId);
+
             } catch (IOException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "could not listen to pipe", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "could not listen to pipe", e);
                 requestor.notifyError("could not listen to pipe");
                 return;
+
             }
+
             pipeListeners.put(pipeId, list);
+
         }
 
         // add requestor to list
         list.add(requestor);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("add requestor=" + requestor + " id=" + pipeId + " list=" + list);
-            LOG.fine("publish PipeAdvertisement");
-        }
+        Logging.logCheckedFine(LOG, "add requestor=" + requestor + " id=" + pipeId + " list=" + list);
+        Logging.logCheckedFine(LOG, "publish PipeAdvertisement");
+        
         // advertise the pipe locally
         try {
+
             discovery.publish(pipeAdv);
+
         } catch (IOException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Could not publish pipe advertisement", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement", e);
+            
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("done with listen request");
-        }
+        Logging.logCheckedFine(LOG, "done with listen request");
 
         // notify requestor of success
         requestor.notifySuccess();
     }
 
     private void handleCloseRequest(Requestor requestor, String id) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("handleCloseRequest id=" + id);
-        }
+
+        Logging.logCheckedFine(LOG, "handleCloseRequest id=" + id);
 
         PipeListenerList list = pipeListeners.get(id);
-
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("handleCloseRequest list = " + list);
-        }
+        Logging.logCheckedFine(LOG, "handleCloseRequest list = " + list);
+        
         if (list != null) {
             list.remove(requestor);
             if (list.size() == 0) {
@@ -610,18 +602,20 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     // Send the given message to the given pipe.
     private void sendToPipe(Requestor req, Message mess, OutputPipe out) {
+        
         try {
+
             out.send(mess);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("output pipe send end");
-            }
+            Logging.logCheckedFine(LOG, "output pipe send end");
+
             // notify requestor of success
             req.notifySuccess();
+
         } catch (IOException e) {
+
             req.notifyError("could not send to pipe");
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "could not send to pipe", e);
-            }
+            Logging.logCheckedFine(LOG, "could not send to pipe\n" + e.toString());
+
         }
     }
 
@@ -667,9 +661,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleSendRequest(Requestor requestor, String id, Message message) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("handleSendRequest id=" + id);
-        }
+        Logging.logCheckedFine(LOG, "handleSendRequest id=" + id);
 
         PipeAdvertisement pipeAdv = findPipeAdvertisement(null, id, null);
 
@@ -680,29 +672,21 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String pipeId = pipeAdv.getPipeID().toString();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(
-                    "send to pipe name=" + pipeAdv.getName() + " id=" + pipeAdv.getPipeID().toString() + " arg="
-                    + pipeAdv.getType());
-        }
+        Logging.logCheckedFine(LOG, "send to pipe name=" + pipeAdv.getName() + " id="
+                + pipeAdv.getPipeID().toString() + " arg=" + pipeAdv.getType());
 
         // check if there are local listeners
 
         PipeListenerList list = pipeListeners.get(pipeId);
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("local listener list " + list);
-        }
+        Logging.logCheckedFine(LOG, "local listener list " + list);
 
         if (list != null && PipeService.UnicastType.equals(pipeAdv.getType())) {
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("start sending to each requestor");
-            }
+            Logging.logCheckedFine(LOG, "start sending to each requestor");
 
             list.send(message, pipeId);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("end sending to each requestor");
-            }
+            Logging.logCheckedFine(LOG, "end sending to each requestor");
+            
             // notify requestor of success
             requestor.notifySuccess();
             return;
@@ -718,9 +702,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         // Carefull that the resolution can occur synchronously by this
         // very thread, and java lock will not prevent re-entry.
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("output pipe creation begin");
-        }
+        Logging.logCheckedFine(LOG, "output pipe creation begin");
 
         // Look for the pipe in the resolved list. If not found
         // look in the pending list or add it there.
@@ -755,30 +737,29 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         PeerID pid = null;
 
         if (id != null) {
-            try {
-                ID tempId = IDFactory.fromURI(new URI(id));
 
+            try {
+
+                ID tempId = IDFactory.fromURI(new URI(id));
                 pid = (PeerID) tempId;
+
             } catch (URISyntaxException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not parse peerId from url", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not parse peerId from url", e);
+                
             } catch (ClassCastException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "id was not a peerid", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "id was not a peerid", e);
+                
             }
         }
 
-        if (pid == null) {
-            pid = IDFactory.newPeerID(group.getPeerGroupID());
-        }
+        if (pid == null) pid = IDFactory.newPeerID(group.getPeerGroupID());
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("newPeerAdvertisement name=" + name + " id=" + pid.toString());
-        }
+        Logging.logCheckedFine(LOG, "newPeerAdvertisement name=" + name + " id=" + pid.toString());
 
         try {
+
             // Create a pipe advertisement for this pipe.
             adv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(PeerAdvertisement.getAdvertisementType());
 
@@ -786,10 +767,11 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             adv.setPeerGroupID(group.getPeerGroupID());
             adv.setName(name);
             adv.setDescription("Peer Advertisement created for a jxme device");
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "newPeerAdvertisement Exception", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "newPeerAdvertisement Exception", e);
+            
         }
 
         return adv;
@@ -801,28 +783,26 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         PeerGroupID gid = null;
 
         if (id != null) {
-            try {
-                ID tempId = IDFactory.fromURI(new URI(id));
 
+            try {
+
+                ID tempId = IDFactory.fromURI(new URI(id));
                 gid = (PeerGroupID) tempId;
+
             } catch (URISyntaxException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Invalid peergroupId", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Invalid peergroupId", e);
+                
             } catch (ClassCastException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "id was not a peergroup id", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "id was not a peergroup id", e);
+                
             }
         }
 
-        if (gid == null) {
-            gid = IDFactory.newPeerGroupID();
-        }
+        if (gid == null) gid = IDFactory.newPeerGroupID();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("newPeerGroupAdvertisement name=" + name + " id=" + gid.toString());
-        }
+        Logging.logCheckedFine(LOG, "newPeerGroupAdvertisement name=" + name + " id=" + gid.toString());
 
         adv = group.getPeerGroupAdvertisement().clone();
 
@@ -837,21 +817,21 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             discovery.publish(groupImplAdv);
             discovery.publish(adv);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "newPeerGroupAdvertisement Exception", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "newPeerGroupAdvertisement Exception", e);
+            
         }
 
         return adv;
     }
 
     private PipeAdvertisement createPipeAdvertisement(String pipeName, String pipeId, String pipeType) {
+
         PipeAdvertisement adv = null;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("newPipeAdvertisement name=" + pipeName + " pipeId=" + pipeId + " pipeType=" + pipeType);
-        }
+        Logging.logCheckedFine(LOG, "newPipeAdvertisement name=" + pipeName + " pipeId=" + pipeId + " pipeType=" + pipeType);
 
         if (pipeType == null || pipeType.length() == 0) {
             pipeType = PipeService.UnicastType;
@@ -868,21 +848,21 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             adv.setName(pipeName);
             adv.setPipeID(IDFactory.fromURI(new URI(pipeId)));
             adv.setType(pipeType);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "newPipeAdvertisement Exception", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "newPipeAdvertisement Exception", e);
+            
         }
 
         return adv;
     }
 
     private PipeAdvertisement findPipeAdvertisement(String name, String id, String arg) {
+
         String attribute, value;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("findPipeAdvertisement name=" + name + " id=" + id + " arg=" + arg);
-        }
+        Logging.logCheckedFine(LOG, "findPipeAdvertisement name=" + name + " id=" + id + " arg=" + arg);
 
         if (id != null) {
             attribute = PipeAdvertisement.IdTag;
@@ -898,12 +878,14 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         Enumeration<Advertisement> each;
 
         try {
+
             each = discovery.getLocalAdvertisements(DiscoveryService.ADV, attribute, value);
+
         } catch (IOException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "IOException in getLocalAdvertisements()", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "IOException in getLocalAdvertisements()", e);
             return null;
+
         }
 
         PipeAdvertisement pipeAdv = null;
@@ -913,11 +895,11 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             // take the first match
             if (adv instanceof PipeAdvertisement) {
+
                 pipeAdv = (PipeAdvertisement) adv;
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("found PipeAdvertisement = " + pipeAdv);
-                }
+                Logging.logCheckedFine(LOG, "found PipeAdvertisement = " + pipeAdv);
                 break;
+
             }
         }
 
@@ -926,9 +908,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     public synchronized void discoveryEvent(DiscoveryEvent event) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("discoveryEvent " + event);
-        }
+        Logging.logCheckedFine(LOG, "discoveryEvent " + event);
 
         Requestor requestor = searchRequests.get(event.getQueryID());
         if (requestor == null) {
@@ -949,13 +929,16 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         int i = 0;
 
         while (each.hasMoreElements() && i < requestor.getThreshold()) {
+            
             try {
+
                 requestor.send(each.nextElement(), RESPONSE_RESULT);
+
             } catch (Exception e) {
+
                 // this should not happen unless a bad result is returned
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Bad result returned by DiscoveryService", e);
-                }
+                Logging.logCheckedWarning(LOG, "Bad result returned by DiscoveryService", e);
+                
             }
         }
     }
@@ -964,30 +947,27 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      * {@inheritDoc}
      */
     public synchronized void pipeMsgEvent(PipeMsgEvent event) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("pipeMsgEvent " + event.getPipeID());
-        }
+
+        Logging.logCheckedFine(LOG, "pipeMsgEvent " + event.getPipeID());
 
         String id = event.getPipeID().toString();
 
         PipeListenerList list = pipeListeners.get(id);
 
         if (list != null) {
+
             Message message = event.getMessage();
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("pipeMsgEvent: start sending to each requestor");
-            }
+            Logging.logCheckedFine(LOG, "pipeMsgEvent: start sending to each requestor");
             list.send(message.clone(), id);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("pipeMsgEvent: end sending to each requestor");
-            }
+            Logging.logCheckedFine(LOG, "pipeMsgEvent: end sending to each requestor");
+            
         } else {
+
             // there are no listeners, close the input pipe
             ((InputPipe) event.getSource()).close();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("close pipe id=" + id);
-            }
+            Logging.logCheckedFine(LOG, "close pipe id=" + id);
+
         }
     }
 
@@ -996,9 +976,8 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     public synchronized void outputPipeEvent(OutputPipeEvent event) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("outputPipeEvent " + event);
-        }
+        Logging.logCheckedFine(LOG, "outputPipeEvent " + event);
+
         PendingPipe p = (PendingPipe) pendingPipes.remove(event.getPipeID());
 
         // No one cares (anylonger). TBD should it be removed then??
@@ -1028,42 +1007,35 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         String id = null;
 
         PipeListenerList(InputPipe inputPipe, Map<String, PipeListenerList> pipeListeners, String id) {
+
             this.inputPipe = inputPipe;
             this.pipeListeners = pipeListeners;
             this.id = id;
 
             if (pipeListeners != null) {
-                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                    LOG.config("number of pipeListeners = " + pipeListeners.size());
-                }
+                Logging.logCheckedConfig(LOG, "number of pipeListeners = " + pipeListeners.size());
             }
+
         }
 
         void add(Requestor requestor) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("add " + requestor + " from " + toString());
-            }
 
+            Logging.logCheckedInfo(LOG, "add " + requestor + " from " + toString());
+            
             if (!list.contains(requestor)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("requestor add");
-                }
+                Logging.logCheckedFine(LOG, "requestor add");
                 list.add(requestor);
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("requestor exits already");
-                }
+                Logging.logCheckedFine(LOG, "requestor exits already");
             }
+            
         }
 
         void remove(Requestor requestor) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("remove " + requestor + " from " + toString());
-            }
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("removed = " + list.remove(requestor));
-            }
+            Logging.logCheckedInfo(LOG, "remove " + requestor + " from " + toString());
+            
+            Logging.logCheckedFine(LOG, "removed = " + list.remove(requestor));
 
             if (list.size() == 0) {
                 // close the pipe and remove from the listenerList
@@ -1078,10 +1050,10 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
         int size() {
+
             int size = list.size();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("size " + size);
-            }
+            Logging.logCheckedFine(LOG, "size " + size);
+
             return size;
         }
 
@@ -1101,35 +1073,35 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                 String name = el.getElementName();
 
                 if (name.startsWith("RendezVousPropagate")) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("removeMessageElement " + name);
-                    }
+
+                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
                     elements.remove();
+
                 } else if (name.startsWith("JxtaWireHeader")) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("removeMessageElement " + name);
-                    }
+
+                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
                     elements.remove();
+
                 } else if (name.startsWith("RdvIncarnjxta")) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("removeMessageElement " + name);
-                    }
+
+                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
                     elements.remove();
+
                 } else if (name.startsWith("JxtaEndpointRouter")) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("removeMessageElement " + name);
-                    }
+
+                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
                     elements.remove();
+
                 } else if (name.startsWith("EndpointRouterMsg")) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("removeMessageElement " + name);
-                    }
+
+                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
                     elements.remove();
+
                 } else if (name.startsWith("EndpointHeaderSrcPeer")) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("removeMessageElement " + name);
-                    }
+
+                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
                     elements.remove();
+
                 }
             }
 
@@ -1144,9 +1116,9 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                     }
                 }
             } catch (Exception ex) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Error sending" + ex);
-                }
+
+                Logging.logCheckedFine(LOG, "Error sending" + ex);
+
             }
         }
 
@@ -1160,6 +1132,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
     }
 
     protected static void logMessage(Message message, Logger log) {
+
         if (!Logging.SHOW_FINER || !log.isLoggable(Level.FINER)) {
             return;
         }

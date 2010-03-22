@@ -139,9 +139,8 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             MAX_TTL = DEFAULT_MAX_TTL;
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("RendezVous Service is initialized for " + g.getPeerGroupID() + " as an ad hoc peer. ");
-        }
+        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for " + g.getPeerGroupID() + " as an ad hoc peer. ");
+        
     }
 
     /**
@@ -212,9 +211,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
     @Override
     public void connectToRendezVous(EndpointAddress addr, Object hint) throws IOException {
 
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Invalid call to connectToRendezVous() on ADHOC peer");
-        }
+        Logging.logCheckedWarning(LOG, "Invalid call to connectToRendezVous() on ADHOC peer");
 
     }
 
@@ -225,9 +222,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
     @Override
     public void challengeRendezVous(ID peer, long delay) {
 
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Invalid call to challengeRendezVous() on ADHOC peer");
-        }
+        Logging.logCheckedWarning(LOG, "Invalid call to challengeRendezVous() on ADHOC peer");
 
     }
 
@@ -238,9 +233,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
     @Override
     public void disconnectFromRendezVous(ID peerId) {
 
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Invalid call to disconnectFromRendezVous() on ADHOC peer");
-        }
+        Logging.logCheckedWarning(LOG, "Invalid call to disconnectFromRendezVous() on ADHOC peer");
 
     }
 
@@ -296,12 +289,12 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             int numPeers = 0;
 
             try {
+
                 while (destPeerIDs.hasMoreElements()) {
+
                     ID dest = destPeerIDs.nextElement();
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Sending " + msg + " to client " + dest);
-                    }
+                    Logging.logCheckedFine(LOG, "Sending " + msg + " to client " + dest);
 
                     EndpointAddress addr = mkAddress(dest, PropSName, PropPName);
 
@@ -381,9 +374,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
     @Override
     protected void repropagate(Message msg, RendezVousPropagateMessage propHdr, String serviceName, String serviceParam) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Repropagating " + msg + " (" + propHdr.getMsgId() + ")");
-        }
+        Logging.logCheckedFine(LOG, "Repropagating " + msg + " (" + propHdr.getMsgId() + ")");
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.receivedMessageRepropagatedInGroup();
@@ -395,19 +386,18 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             if (null != propHdr) {
                 sendToNetwork(msg, propHdr);
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("No propagate header, declining to repropagate " + msg + ")");
-                }
+                Logging.logCheckedFine(LOG, "No propagate header, declining to repropagate " + msg + ")");
             }
+
         } catch (Exception ez1) {
+
             // Not much we can do
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                if (propHdr != null) {
-                    LOG.log(Level.WARNING, "Failed to repropagate " + msg + " (" + propHdr.getMsgId() + ")", ez1);
-                } else {
-                    LOG.log(Level.WARNING, "Could to repropagate " + msg, ez1);
-                }
+            if (propHdr != null) {
+                Logging.logCheckedWarning(LOG, "Failed to repropagate " + msg + " (" + propHdr.getMsgId() + ")", ez1);
+            } else {
+                Logging.logCheckedWarning(LOG, "Could to repropagate " + msg, ez1);
             }
+
         }
     }
 }

@@ -301,11 +301,10 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         /*  Register our listener for gossip messages. The registered address is
@@ -315,9 +314,7 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
         boolean registered = endpoint.addIncomingMessageListener(this, getAssignedID().toString(), null);
 
         if (!registered) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Failed to regiser endpoint listener.");
-            }
+            Logging.logCheckedSevere(LOG, "Failed to regiser endpoint listener.");
             return -1;
         }
 
@@ -335,11 +332,10 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
         // Register the timer task.
         SHARED_TIMER.schedule(sendTask, gossip_interval, gossip_interval);
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("[" + group + "] Gossip Serivce (" + getAssignedID() + ") started");
-        }
-
+        Logging.logCheckedInfo(LOG, "[" + group + "] Gossip Serivce (" + getAssignedID() + ") started");
+        
         return Module.START_OK;
+
     }
 
     /**
@@ -358,14 +354,13 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
 
         // Cancel our sending timer task.
         TimerTask currentTask = sendTask;
-        if (null != currentTask) {
-            currentTask.cancel();
-        }
+
+        if (null != currentTask) currentTask.cancel();
+
         sendTask = null;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("[" + group + "] Gossip Serivce (" + getAssignedID() + ") stopped.");
-        }
+        Logging.logCheckedInfo(LOG, "[" + group + "] Gossip Serivce (" + getAssignedID() + ") stopped.");
+
     }
 
     /**

@@ -137,13 +137,13 @@ public final class NetPeerGroupFactory {
 
                 if (null != storeHome) {
                     try {
+
                         File configProperties = new File(new File(storeHome), "config.properties");
                         ResourceBundle rsrcs = new PropertyResourceBundle(new FileInputStream(configProperties));
 
                         tunables = new NetGroupTunables(rsrcs, tunables);
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Loaded defaults from " + rsrcs);
-                        }
+                        Logging.logCheckedFine(LOG, "Loaded defaults from " + rsrcs);
+                        
                     } catch (MissingResourceException ignored) {
                         // ingnored
                     } catch (IOException ignored) {
@@ -446,13 +446,11 @@ public final class NetPeerGroupFactory {
                 throw new PeerGroupException("Only a single instance of a Peer Group may be instantiated at a single time.");
             }
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info( "Instantiating net peer group : " + id + 
+            Logging.logCheckedInfo(LOG, "Instantiating net peer group : " + id +
                         "\n\tParent : " + parentGroup + 
                         "\n\tID : " + id + 
                         "\n\tName : " + name + 
                         "\n\timpl : " + implAdv);
-            }
 
             try {
                 if (null == implAdv) {
@@ -475,25 +473,28 @@ public final class NetPeerGroupFactory {
 
                 return result;
             } catch (PeerGroupException failed) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "newNetPeerGroup failed", failed);
-                }
+                
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", failed);
+                
                 // rethrow
                 throw failed;
+
             } catch (RuntimeException e) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "newNetPeerGroup failed", e);
-                }
+
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+                
                 // rethrow
                 throw e;
+
             } catch (Exception e) {
+
                 // should be all other checked exceptions
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "newNetPeerGroup failed", e);
-                }
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+                
                 // Simplify exception scheme for caller: every sort of problem 
                 // wrapped in a PeerGroupException.
                 throw new PeerGroupException("newNetPeerGroup failed", e);
+
             }
         }
     }
@@ -555,21 +556,22 @@ public final class NetPeerGroupFactory {
                 descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc",
                         rsrcs.getString("NetPeerGroupDesc").trim());
             } catch (Exception failed) {
+
                 if (null != defaults) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.", failed);
-                    }
+
+                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n" + failed.toString());
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;
                     descTmp = defaults.desc;
-                } else {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "NetPeerGroup tunables not defined or could not be loaded.", failed);
-                    }
 
+                } else {
+
+                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
+                
                 }
+
             }
 
             id = idTmp;

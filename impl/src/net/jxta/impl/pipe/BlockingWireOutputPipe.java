@@ -153,23 +153,19 @@ public class BlockingWireOutputPipe implements OutputPipe {
 
         checkMessenger();
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Created output pipe for " + getPipeID());
-        }
+        Logging.logCheckedInfo(LOG, "Created output pipe for " + getPipeID());
+        
     }
 
     /**
      * {@inheritDoc}
      */
     public synchronized void close() {
-        if (closed) {
-            return;
-        }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Closing " + getPipeID());
-        }
-
+        if (closed) return;
+        
+        Logging.logCheckedInfo(LOG, "Closing " + getPipeID());
+        
         closed = true;
     }
 

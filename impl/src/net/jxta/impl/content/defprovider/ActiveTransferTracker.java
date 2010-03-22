@@ -188,25 +188,19 @@ public class ActiveTransferTracker {
                     result = new ActiveTransfer(group, share, destination);
                     newSession = true;
                     clients.put(key, result);
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Added client node: " + key);
-                    }
+                    Logging.logCheckedFine(LOG, "Added client node: " + key);
                 }
             }
         }
 
         // Too many clients to serve this request.
         if (result == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Cound not add client node.  Too many clients.");
-            }
+            Logging.logCheckedFine(LOG, "Cound not add client node.  Too many clients.");
             throw(new TooManyClientsException());
         }
         
         // Notify listners
-        if (newSession) {
-            fireSessionCreated(result);
-        }
+        if (newSession) fireSessionCreated(result);
 
         return result;
     }
@@ -215,10 +209,11 @@ public class ActiveTransferTracker {
      * Start tracking and serving.
      */
     public synchronized void start() {
+
         if (gcTask == null || gcTask.isDone()) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Starting GC task");
-            }
+            
+            Logging.logCheckedFine(LOG, "Starting GC task");
+
             gcTask = schedExec.scheduleAtFixedRate(new Runnable() {
                 public void run() {
                     clientGC();
@@ -231,17 +226,20 @@ public class ActiveTransferTracker {
      * Stop tracking and serving, freeing any resources held.
      */
     public void stop() {
+
         List<ActiveTransfer> toNotify = new ArrayList<ActiveTransfer>();
+
         synchronized(this) {
+
             for (Map.Entry<Object, ActiveTransfer> entry : clients.entrySet()) {
+
                 ActiveTransfer session = entry.getValue();
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Closing client session: " + entry.getKey());
-                }
+                Logging.logCheckedFine(LOG, "Closing client session: " + entry.getKey());
+                
                 try {
                     session.close();
                 } catch (IOException iox) {
-                    LOG.log(Level.FINEST, "Ignoring exception", iox);
+                    Logging.logCheckedFinest(LOG, "Ignoring exception\n" + iox.toString());
                 }
                 toNotify.add(session);
             }
@@ -249,18 +247,15 @@ public class ActiveTransferTracker {
 
             try {
                 if (gcTask != null) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Stopping GC task");
-                    }
+                    Logging.logCheckedFine(LOG, "Stopping GC task");
                     gcTask.cancel(false);
                 }
             } catch (IllegalStateException isx) {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.log(Level.FINEST, "Ignoring exception", isx);
-                }
+                Logging.logCheckedFinest(LOG, "Ignoring exception\n" + isx.toString());
             } finally {
                 gcTask = null;
             }
+
         }
         
         // Notify listeners
@@ -276,30 +271,31 @@ public class ActiveTransferTracker {
      * Periodic cleanup task to remove any inactive clients.
      */
     private void clientGC() {
+
         Iterator<Map.Entry<Object, ActiveTransfer>> it;
         Map.Entry<Object, ActiveTransfer> entry;
         List<ActiveTransfer> toNotify = null;
         ActiveTransfer session;
 
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("clientGC");
-        }
+        Logging.logCheckedFinest(LOG, "clientGC");
+
         synchronized(this) {
+
             it = clients.entrySet().iterator();
+
             while (it.hasNext()) {
+
                 entry = it.next();
                 session = entry.getValue();
+
                 if (session.isIdle()) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Closing client session: " + entry.getKey());
-                    }
+
+                    Logging.logCheckedFine(LOG, "Closing client session: " + entry.getKey());
+
                     try {
                         session.close();
                     } catch (IOException iox) {
-                        if (Logging.SHOW_FINEST
-                                && LOG.isLoggable(Level.FINEST)) {
-                            LOG.log(Level.FINEST, "Ignoring exception", iox);
-                        }
+                        Logging.logCheckedFinest(LOG, "Ignoring exception\n" + iox.toString());
                     }
 
                     if (toNotify == null) {

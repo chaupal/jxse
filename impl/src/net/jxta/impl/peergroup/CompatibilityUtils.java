@@ -231,20 +231,24 @@ public final class CompatibilityUtils {
                     }
 
                     formatOk = specMatches && javaLangPackage.isCompatibleWith(version);
+
                 } else if (STD_COMPAT_BINDING.equals(key) && STD_COMPAT_BINDING_VALUE.equals(val)) {
+
                     bindingOk = true;
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Bad element in compatibility statement : " + key);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Bad element in compatibility statement : " + key);
                     return false; // Might as well stop right now.
+
                 }
             }
+
         } catch (Exception any) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure handling compatibility statement", any);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failure handling compatibility statement", any);
             return false;
+
         }
         
         return formatOk && bindingOk;

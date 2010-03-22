@@ -179,10 +179,11 @@ public class BTree extends Paged {
                 }
                 close();
                 return true;
+
             } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to create BTree, return false", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to create BTree, return false", e);
+                
             }
         }
         return false;
@@ -461,11 +462,12 @@ public class BTree extends Paged {
 
             node.read();
             return node;
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Ignored exception", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Ignored exception", e);
             return null;
+
         }
     }
 

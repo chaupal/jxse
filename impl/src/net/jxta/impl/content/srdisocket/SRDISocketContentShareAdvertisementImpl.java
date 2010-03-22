@@ -98,14 +98,14 @@ public class SRDISocketContentShareAdvertisementImpl
         /**
          *  {@inheritDoc}
          */
-        public String getAdvertisementType( ) {
+        public String getAdvertisementType() {
             return SRDISocketContentShareAdvertisementImpl.getAdvertisementType();
         }
 
         /**
          *  {@inheritDoc}
          */
-        public Advertisement newInstance( ) {
+        public Advertisement newInstance() {
             return new SRDISocketContentShareAdvertisementImpl();
         }
 

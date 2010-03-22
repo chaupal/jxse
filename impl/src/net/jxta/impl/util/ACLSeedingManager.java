@@ -66,9 +66,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Provides support for the optional access control list which determines which
@@ -156,11 +154,9 @@ public abstract class ACLSeedingManager implements SeedingManager {
     public synchronized boolean isAcceptablePeer(RouteAdvertisement radv) {
                 
         // Refresh the ACL?
-        
         if (TimeUtils.timeNow() > nextACLrefreshTime) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Updating ACL");
-            }
+
+            Logging.logCheckedFine(LOG, "Updating ACL");
 
             try {
                 URL asURL = aclLocation.toURL();
@@ -177,11 +173,11 @@ public abstract class ACLSeedingManager implements SeedingManager {
                 }
                 
                 nextACLrefreshTime = TimeUtils.toAbsoluteTimeMillis(ACL_REFRESH_INTERVAL);
+
             } catch (IOException failed) {
+
                 // be lenient in response to failures.
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "ACL update failed. GRANTING ALL PERMISSIONS.", failed);
-                }
+                Logging.logCheckedWarning(LOG, "ACL update failed. GRANTING ALL PERMISSIONS.", failed);
 
                 acl.setGrantAll(true);
                 

@@ -53,6 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.cm;
 
 import java.io.IOException;
@@ -66,7 +67,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.impl.xindice.core.data.Key;
@@ -115,14 +115,15 @@ public class SrdiIndex implements SrdiIndexBackend {
      */
     
     public SrdiIndex(PeerGroup group, String indexName, long interval) {
-    	String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
+
+        String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
     	createBackend(backendClassName, group, indexName);
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
-        }
+        Logging.logCheckedInfo(LOG, "[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
+        
     	startGC(interval);
     	// FIXME?  The scheduledexecutor doesn't give the ability to name threads...
+
     }
 
     private void startGC(long interval) {
@@ -140,16 +141,18 @@ public class SrdiIndex implements SrdiIndexBackend {
     }
 
     private void createBackend(String backendClassName, PeerGroup group, String indexName) {
+        
         try {
+
             Class<? extends SrdiIndexBackend> backendClass = getBackendClass();
-            Constructor<? extends SrdiIndexBackend> constructor = backendClass.getConstructor(PeerGroup.class,
-                    String.class);
+            Constructor<? extends SrdiIndexBackend> constructor = backendClass.getConstructor(PeerGroup.class, String.class);
             backend = (SrdiIndexBackend) constructor.newInstance(group, indexName);
+
         } catch (Exception e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unable to construct SRDI Index backend [" + backendClassName + "] specified by system property, constructing default", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Unable to construct SRDI Index backend [" + backendClassName + "] specified by system property, constructing default", e);
             backend = new XIndiceSrdiIndexBackend(group, indexName);
+
         }
     }
     
@@ -178,13 +181,13 @@ public class SrdiIndex implements SrdiIndexBackend {
      * @throws IOException if an error occurred storing the entry
      */
     public synchronized void add(String primaryKey, String attribute, String value, PeerID pid, long expiration) {
-    	try {
-    		backend.add(primaryKey, attribute, value, pid, expiration);
+    	
+        try {
+            backend.add(primaryKey, attribute, value, pid, expiration);
     	} catch(IOException e) {
-    		if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-    			LOG.log(Level.WARNING, "Failed to write entry to backend", e);
-    		}
+    	    Logging.logCheckedWarning(LOG, "Failed to write entry to backend", e);
     	}
+
     }
     
     /**
@@ -196,14 +199,18 @@ public class SrdiIndex implements SrdiIndexBackend {
      * @return List of Entry objects
      */
     public List<Entry> getRecord(String pkey, String skey, String value) {
-    	try {
-    		return backend.getRecord(pkey, skey, value);
+    	
+        try {
+
+    	    return backend.getRecord(pkey, skey, value);
+
     	} catch(IOException e) {
-    		if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-    			LOG.log(Level.WARNING, "Failed to retrieve record from backend", e);
-    		}
-    		return new LinkedList<Entry>();
+
+    	    Logging.logCheckedWarning(LOG, "Failed to retrieve record from backend", e);
+    	    return new LinkedList<Entry>();
+
     	}
+        
     }
     
     /**
@@ -212,13 +219,17 @@ public class SrdiIndex implements SrdiIndexBackend {
      * @param pid peer id to remove
      */
     public synchronized void remove(PeerID pid) {
-    	try {
-    		backend.remove(pid);
+    	
+        try {
+
+            backend.remove(pid);
+
     	} catch(IOException e) {
-    		if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-    			LOG.log(Level.WARNING, "Failed to remove record from backend", e);
-    		}
+
+    	    Logging.logCheckedWarning(LOG, "Failed to remove record from backend", e);
+
     	}
+
     }
     
     /**
@@ -231,36 +242,47 @@ public class SrdiIndex implements SrdiIndexBackend {
      * @param threshold max number of results
      */
     public synchronized List<PeerID> query(String primaryKey, String attribute, String value, int threshold) {
-    	try {
-    		return backend.query(primaryKey, attribute, value, threshold);
+
+        try {
+            
+            return backend.query(primaryKey, attribute, value, threshold);
+
     	} catch(IOException e) {
-    		if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-    			LOG.log(Level.WARNING, "Failed to query backend for pk=[" + primaryKey + "], attr=[" + attribute + "], val=[" + value + "], thresh=[" + threshold + "]", e);
-    		}
-    		return new LinkedList<PeerID>();
+
+    	    Logging.logCheckedWarning(LOG, "Failed to query backend for pk=[" + primaryKey + "], attr=[" + attribute + "], val=[" + value + "], thresh=[" + threshold + "]", e);
+  	    return new LinkedList<PeerID>();
+
     	}
+
     }
     
     /**
      * Garbage Collect expired entries
      */
     public void garbageCollect() {
-    	try {
-    		backend.garbageCollect();
+    	
+        try {
+
+    	    backend.garbageCollect();
+
     	} catch(IOException e) {
-     		if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-     			LOG.log(Level.WARNING, "Failed to garbage collect backend", e);
-     		}
+
+     	    Logging.logCheckedWarning(LOG, "Failed to garbage collect backend", e);
+     		
      	}
+
     }
     
     public void clear() {
-    	try {
-    		backend.clear();
+
+        try {
+    		
+            backend.clear();
+
     	} catch(IOException e) {
-     		if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-     			LOG.log(Level.WARNING, "Failed to clear backend", e);
-     		}
+
+     	    Logging.logCheckedWarning(LOG, "Failed to clear backend", e);
+     		
      	}
     }
     
@@ -284,19 +306,20 @@ public class SrdiIndex implements SrdiIndexBackend {
      */
     public static void clearSrdi(PeerGroup group) {
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Clearing SRDI for " + group.getPeerGroupName());
-        }
-        
+        Logging.logCheckedInfo(LOG, "Clearing SRDI for " + group.getPeerGroupName());
         
         Class<? extends SrdiIndexBackend> backendClass = getBackendClass();
+        
         try {
-			backendClass.getMethod("clearSrdi", PeerGroup.class).invoke(null, group);
-		} catch (Exception e) {
-			if(Logging.SHOW_WARNING && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.WARNING, "Failed to clear Srdi cache for peer group " + group.getPeerGroupName(), e);
-			}
-		}
+
+	    backendClass.getMethod("clearSrdi", PeerGroup.class).invoke(null, group);
+
+        } catch (Exception e) {
+
+            Logging.logCheckedWarning(LOG, "Failed to clear Srdi cache for peer group " + group.getPeerGroupName(), e);
+
+	}
+
     }
     
     /**
@@ -304,65 +327,80 @@ public class SrdiIndex implements SrdiIndexBackend {
      * the specification of SrdiIndex, and provides the appropriate constructors and static methods.
      */
     private static Class<? extends SrdiIndexBackend> getBackendClass() {
-    	String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
-    	
+
+        String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
     	Class<?> backendClass;
+
     	try {
-    		backendClass = Class.forName(backendClassName);
+
+    	    backendClass = Class.forName(backendClassName);
+
     	} catch(ClassNotFoundException e) {
-    		if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Class specified for use as backend could not be found", e);
-			}
-    		return getDefaultBackendClass();
+
+    	    Logging.logCheckedSevere(LOG, "Class specified for use as backend could not be found", e);
+  	    return getDefaultBackendClass();
+
     	}
     	
     	Class<? extends SrdiIndexBackend> backendClassChecked;
-		try {
-			backendClassChecked = backendClass.asSubclass(SrdiIndexBackend.class);
-		} catch (ClassCastException e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Class specified for use as backend does not implement SrdiIndexBackend", e);
-			}
-			return getDefaultBackendClass();
-		}
-		
-		try {
-			backendClassChecked.getConstructor(PeerGroup.class, String.class);
-		} catch (Exception e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup and String as parameters", e);
-			}
-			return getDefaultBackendClass();
-		}
-		
-		try {
-			Method method = backendClassChecked.getMethod("clearSrdi", PeerGroup.class);
-			if((method.getModifiers() & Modifier.STATIC) == 0) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Class specified for use as backend does not provide method clearSrdi as a static");
-				}
-				return getDefaultBackendClass();
-			}
-		} catch(Exception e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Class specified for use as backend does not provide accessible method clearSrdi which takes a PeerGroup", e);
-			}
-			return getDefaultBackendClass();
-		}
-		
-		return backendClassChecked;
+
+            try {
+
+                backendClassChecked = backendClass.asSubclass(SrdiIndexBackend.class);
+
+            } catch (ClassCastException e) {
+
+                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not implement SrdiIndexBackend", e);
+                 return getDefaultBackendClass();
+
+            }
+
+            try {
+
+                backendClassChecked.getConstructor(PeerGroup.class, String.class);
+
+            } catch (Exception e) {
+
+                Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup and String as parameters", e);
+                return getDefaultBackendClass();
+
+            }
+
+            try {
+
+                Method method = backendClassChecked.getMethod("clearSrdi", PeerGroup.class);
+
+                if((method.getModifiers() & Modifier.STATIC) == 0) {
+
+                    Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide method clearSrdi as a static");
+
+                    return getDefaultBackendClass();
+
+                }
+
+            } catch(Exception e) {
+
+                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible method clearSrdi which takes a PeerGroup", e);
+                 return getDefaultBackendClass();
+
+            }
+
+            return backendClassChecked;
     }
     
     private static Class<? extends SrdiIndexBackend> getDefaultBackendClass() {
-    	try {
-			return Class.forName(DEFAULT_SRDI_INDEX_BACKEND).asSubclass(SrdiIndexBackend.class);
-		} catch (ClassNotFoundException e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Could not load default backend for SrdiIndex", e);
-			}
+    	
+        try {
 
-			throw new RuntimeException("Could not load default backend for SrdiIndex", e);
-		}
+	    return Class.forName(DEFAULT_SRDI_INDEX_BACKEND).asSubclass(SrdiIndexBackend.class);
+
+	} catch (ClassNotFoundException e) {
+
+	    Logging.logCheckedSevere(LOG, "Could not load default backend for SrdiIndex", e);
+	    throw new RuntimeException("Could not load default backend for SrdiIndex", e);
+
+        }
+
     }
     
     /**

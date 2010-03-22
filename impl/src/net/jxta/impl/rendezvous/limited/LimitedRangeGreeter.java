@@ -107,9 +107,8 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
             throw new IllegalStateException("Could not register endpoint listener for greeter.");
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Listening on " + walk.getWalkServiceName() + "/" + walk.getWalkServiceParam());
-        }
+        Logging.logCheckedInfo(LOG, "Listening on " + walk.getWalkServiceName() + "/" + walk.getWalkServiceParam());
+        
     }
 
     /**
@@ -128,39 +127,34 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Processing " + message + " from " + srcAddr);
-        }
+        Logging.logCheckedFine(LOG, "Processing " + message + " from " + srcAddr);
 
         LimitedRangeRdvMsg rdvMsg = LimitedRangeWalk.getRdvMessage(message);
 
         // Check and update the Limited Range Rdv Message
         if (null == rdvMsg) {
+
             // Message is invalid, drop it
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Limited Range Greeter received invalid " + message + ". Dropping it.");
-            }
+            Logging.logCheckedWarning(LOG, "Limited Range Greeter received invalid " + message + ". Dropping it.");
             return;
+
         }
 
         if (rdvMsg.getTTL() <= 0) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("No TTL remaining for " + message + ". Dropping it.");
-            }
+
+            Logging.logCheckedWarning(LOG, "No TTL remaining for " + message + ". Dropping it.");
             return;
+
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Limited Range Greeter calling listener");
-        }
+        Logging.logCheckedFine(LOG, "Limited Range Greeter calling listener");
 
         try {
             walk.getListener().processIncomingMessage(message, srcAddr, dstAddr);
         } catch (Throwable ignored) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in listener (" + walk.getListener() + ")", ignored);
-            }
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener (" + walk.getListener() + ")", ignored);
         }
+
     }
 
     /**

@@ -280,9 +280,8 @@ public class StringMessageElement extends TextMessageElement {
         }
 
         if (null == cachedBytes) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer( "Creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(this)));
-            }
+
+            Logging.logCheckedFiner(LOG, "Creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(this)));
 
             String charset = type.getParameter("charset");
 
@@ -295,14 +294,14 @@ public class StringMessageElement extends TextMessageElement {
                 sendToStream(bos);
                 bos.close();
                 cachedBytes = bos.toByteArray();
-            } catch (IOException caught) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "MessageElement Data could not be generated", caught);
-                }
-                IllegalStateException failure = new IllegalStateException("MessageElement Data could not be generated");
 
+            } catch (IOException caught) {
+
+                Logging.logCheckedWarning(LOG, "MessageElement Data could not be generated", caught);
+                IllegalStateException failure = new IllegalStateException("MessageElement Data could not be generated");
                 failure.initCause(caught);
                 throw failure;
+
             }
 
             cachedGetBytes = new SoftReference<byte[]>(cachedBytes);
@@ -337,9 +336,8 @@ public class StringMessageElement extends TextMessageElement {
         }
 
         if (null == cachedChars) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("creating cachedGetChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
-            }
+
+            Logging.logCheckedFiner(LOG, "creating cachedGetChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
 
             if ((data instanceof CharBuffer) && ((CharBuffer) data).hasArray()) {
                 cachedChars = ((CharBuffer) data).array();
@@ -347,10 +345,9 @@ public class StringMessageElement extends TextMessageElement {
                 cachedChars = data.toString().toCharArray();
             }
 
-
             // if this is supposed to be a shared buffer then we can cache it.
-
             cachedGetChars = new SoftReference<char[]>(cachedChars);
+
         }
 
         if (!copy) {
@@ -358,8 +355,8 @@ public class StringMessageElement extends TextMessageElement {
         }
 
         char[] copyChars = cachedChars.clone();
-
         return copyChars;
+
     }
 
     /**

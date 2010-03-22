@@ -89,9 +89,7 @@ public class JxtaHash {
         try {
             dig = MessageDigest.getInstance(SHA1);
         } catch (NoSuchAlgorithmException ex) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(ex.toString());
-            }
+            Logging.logCheckedFine(LOG, ex.toString());
         }
     }
 
@@ -131,9 +129,7 @@ public class JxtaHash {
                 dig.update(expression);
             }
         } catch (NoSuchAlgorithmException ex) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(ex.toString());
-            }
+            Logging.logCheckedFine(LOG, ex.toString());
         }
     }
 

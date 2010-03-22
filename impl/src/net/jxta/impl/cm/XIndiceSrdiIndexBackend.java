@@ -53,6 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.cm;
 
 import java.io.ByteArrayOutputStream;
@@ -75,7 +76,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.id.IDFactory;
 import net.jxta.impl.cm.SrdiIndex.Entry;
 import net.jxta.impl.util.TimeUtils;
@@ -115,10 +115,11 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param indexName the index name
      */
     public XIndiceSrdiIndexBackend(PeerGroup group, String indexName) {
+        
         this(getRootDir(group), indexName);
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("[" + ((group == null) ? "none" : group.toString()) + "] : Initialized " + indexName);
-        }
+
+        Logging.logCheckedInfo(LOG, "[" + ((group == null) ? "none" : group.toString()) + "] : Initialized " + indexName);
+        
     }
     
     
@@ -173,15 +174,13 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
 	            srdiIndexer.open();
 	        }
 		} catch (DBException de) {
-	        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-	            LOG.log(Level.SEVERE, "Unable to Initialize databases", de);
-	        }
-	        
+
+	        Logging.logCheckedSevere(LOG, "Unable to Initialize databases", de);
 	        throw new UndeclaredThrowableException(de, "Unable to Initialize databases");
+
 	    } catch (Throwable e) {
-	        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-	            LOG.log(Level.SEVERE, "Unable to create Cm", e);
-	        }
+
+	        Logging.logCheckedSevere(LOG, "Unable to create Cm", e);
 	        
 	        if (e instanceof Error) {
 	            throw (Error) e;
@@ -190,6 +189,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
 	        } else {
 	            throw new UndeclaredThrowableException(e, "Unable to create Cm");
 	        }
+
 	    }
     }
     
@@ -205,9 +205,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      */
     public synchronized void add(String primaryKey, String attribute, String value, PeerID pid, long expiration) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("[" + indexName + "] Adding " + primaryKey + "/" + attribute + " = \'" + value + "\' for " + pid);
-        }
+        Logging.logCheckedFine(LOG, "[" + indexName + "] Adding " + primaryKey + "/" + attribute + " = \'" + value + "\' for " + pid);
         
         try {
             Key key = new Key(primaryKey + attribute + value);
@@ -245,25 +243,25 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                 // LOG.fine("Serialized result in : " + (TimeUtils.timeNow() - t0) + "ms.");
                 // }
                 if (data == null) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("Failed to serialize data");
-                    }
+                    Logging.logCheckedSevere(LOG, "Failed to serialize data");
                     return;
                 }
+
                 Value recordValue = new Value(data);
                 long pos = cacheDB.writeRecord(key, recordValue);
                 Map<String, String> indexables = getIndexMap(primaryKey + attribute, value);
                 
                 srdiIndexer.addToIndex(indexables, pos);
             }
+
         } catch (IOException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to add SRDI", de);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to add SRDI", de);
+            
         } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to add SRDI", de);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to add SRDI", de);
+            
         }
     }
     
@@ -279,16 +277,19 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
         Record record = null;
         
         try {
+
             Key key = new Key(pkey + skey + value);
             
             synchronized (cacheDB) {
                 record = cacheDB.readRecord(key);
             }
+
         } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to retrieve SrdiIndex record", de);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to retrieve SrdiIndex record", de);
+            
         }
+
         // if record is null, readRecord returns an empty list
         return readRecord(record).list;
         
@@ -321,10 +322,10 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param pid peer id to remove
      */
     public synchronized void remove(PeerID pid) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(" Adding " + pid + " to peer GC table");
-        }
+
+        Logging.logCheckedFine(LOG, " Adding " + pid + " to peer GC table");
         gcPeerTBL.add(pid);
+        
     }
     
     /**
@@ -338,14 +339,10 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      */
     public synchronized List<PeerID> query(String primaryKey, String attribute, String value, int threshold) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("[" + indexName + "] Querying for " + threshold + " " + primaryKey + "/" + attribute + " = \'" + value + "\'");
-        }
+        Logging.logCheckedFine(LOG, "[" + indexName + "] Querying for " + threshold + " " + primaryKey + "/" + attribute + " = \'" + value + "\'");
         
         // return nothing
-        if (primaryKey == null) {
-            return Collections.emptyList();
-        }
+        if (primaryKey == null) return Collections.emptyList();
         
         List<PeerID> res;
         
@@ -358,19 +355,20 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
             IndexQuery iq = Cm.getIndexQuery(value);
             
             try {
+
                 srdiIndexer.search(iq, primaryKey + attribute, new SearchCallback(cacheDB, res, threshold, gcPeerTBL));
+
             } catch (Exception ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure while searching in index", ex);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failure while searching in index", ex);
+                
             }
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine( "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'" + value + "\'");
-        }
-        
+        Logging.logCheckedFine(LOG, "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'" + value + "\'");
+
         return res;
+
     }
     
     /**
@@ -380,13 +378,13 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @return A list of Peer IDs.
      */
     protected synchronized List<PeerID> query(String primaryKey) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("[" + indexName + "] Querying for " + primaryKey);
-        }
+
+        Logging.logCheckedFine(LOG, "[" + indexName + "] Querying for " + primaryKey);
         
         List<PeerID> res = new ArrayList<PeerID>();
         
         try {
+
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
             
             for (Map.Entry<String, NameIndexer> index : map.entrySet()) {
@@ -398,14 +396,12 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                 }
             }
         } catch (Exception ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception while searching in index", ex);
-            }
+
+            Logging.logCheckedWarning(LOG, "Exception while searching in index", ex);
+            
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("[" + indexName + "] Returning " + res.size() + " results for " + primaryKey);
-        }
+        Logging.logCheckedFine(LOG, "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey);
         
         return res;
     }
@@ -429,34 +425,36 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
         public boolean indexInfo(Value val, long pos) {
             
             if (results.size() >= threshold) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("SearchCallback.indexInfo reached Threshold :" + threshold);
-                }
+
+                Logging.logCheckedFine(LOG, "SearchCallback.indexInfo reached Threshold :" + threshold);
                 return false;
+
             }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Found " + val);
-            }
+
+            Logging.logCheckedFine(LOG, "Found " + val);
+
             Record record = null;
             
             try {
+
                 record = cacheDB.readRecord(pos);
+
             } catch (DBException ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                }
+
+                Logging.logCheckedWarning(LOG, "Exception while reading indexed", ex);
                 return false;
+
             }
             
             if (record != null) {
+                
                 long t0 = TimeUtils.timeNow();
+
                 SrdiIndex.SrdiIndexRecord rec = readRecord(record);
-
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
-                }
-
+                Logging.logCheckedFinest(LOG, "Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
+                
                 copyIntoList(results, rec.list, excludeTable, threshold);
+
             }
             
             return results.size() < threshold;
@@ -481,18 +479,22 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
         public boolean indexInfo(Value val, long pos) {
             
             Record record = null;
+
             synchronized (cacheDB) {
+
                 try {
+
                     record = cacheDB.readRecord(pos);
+
                 } catch (DBException ex) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Exception while reading indexed", ex);
                     return false;
+
                 }
-                if (record == null) {
-                    return true;
-                }
+
+                if (record == null) return true;
+                
                 SrdiIndex.SrdiIndexRecord rec = readRecord(record);
                 List<SrdiIndex.Entry> res = rec.list;
                 boolean changed = false;
@@ -507,26 +509,33 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                     }
                 }
                 if (changed) {
+
                     if (res.isEmpty()) {
+
                         try {
+
                             cacheDB.deleteRecord(rec.key);
                             list.add(pos);
+
                         } catch (DBException e) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING, "Exception while deleting empty record", e);
-                            }
-                        }                        
+
+                            Logging.logCheckedWarning(LOG, "Exception while deleting empty record", e);
+                            
+                        }
+
                     } else {
                         // write it back
                         byte[] data = getData(rec.key, res);
                         Value recordValue = new Value(data);
                         
                         try {
+
                             cacheDB.writeRecord(pos, recordValue);
+
                         } catch (DBException ex) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING, "Exception while writing back record", ex);
-                            }
+
+                            Logging.logCheckedWarning(LOG, "Exception while writing back record", ex);
+                            
                         }
                     }
                 }
@@ -536,18 +545,23 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
     }
     
     public void clear() {
+
     	Map<String, NameIndexer> map = srdiIndexer.getIndexers();
         
         for(NameIndexer idxr : map.values()) {
+
             synchronized(this) {
+
                 try {
-					ClearCallback callback = new ClearCallback();
-					idxr.query(null, callback);
-				} catch (Exception e) {
-					if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-						LOG.log(Level.WARNING, "Query to clear index failed", e);
-					}
-				}
+
+                    ClearCallback callback = new ClearCallback();
+                    idxr.query(null, callback);
+
+                } catch (Exception e) {
+
+                    Logging.logCheckedWarning(LOG, "Query to clear index failed", e);
+
+                }
             }
         }
     }
@@ -560,29 +574,36 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
     	public boolean indexInfo(Value value, long position) {
 
             Record record = null;
+
             synchronized (cacheDB) {
+
                 try {
+
                     record = cacheDB.readRecord(position);
+
                 } catch (DBException ex) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Exception while reading indexed", ex);
                     return false;
+
                 }
-                if (record == null) {
-                    return true;
-                }
+
+                if (record == null) return true;
+                
                 SrdiIndex.SrdiIndexRecord rec = readRecord(record);
                 
                 try {
+
                     cacheDB.deleteRecord(rec.key);
                     srdiIndexer.purge(position);
+
                 } catch (Exception e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Exception while deleting empty record", e);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Exception while deleting empty record", e);
+
                 }
             }
+
             return true;
     	}
     }
@@ -597,31 +618,30 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param threshold maximum number of values permitted in the "to" list
      */
     private static void copyIntoList(List<PeerID> to, List<SrdiIndex.Entry> from, Set<PeerID> table, int threshold) {
+
         for (SrdiIndex.Entry entry : from) {
             boolean expired = entry.isExpired();
             
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Entry peerid : " + entry.peerid + (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
-            }
+            Logging.logCheckedFiner(LOG, "Entry peerid : " + entry.peerid + (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
             
             if (!to.contains(entry.peerid) && !expired) {
                 if (!table.contains(entry.peerid)) {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("adding Entry :" + entry.peerid + " to list");
-                    }
+
+                    Logging.logCheckedFiner(LOG, "adding Entry :" + entry.peerid + " to list");
+
                     to.add(entry.peerid);
-                    if(to.size() >= threshold) {
-                    	return;
-                    }
+                    if(to.size() >= threshold) return;
+                    
                 } else {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Skipping gc marked entry :" + entry.peerid);
-                    }
+
+                    Logging.logCheckedFiner(LOG, "Skipping gc marked entry :" + entry.peerid);
+
                 }
+
             } else {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Skipping expired Entry :" + entry.peerid);
-                }
+
+                Logging.logCheckedFiner(LOG, "Skipping expired Entry :" + entry.peerid);
+
             }
         }
     }
@@ -647,9 +667,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
             dos.close();
             return bos.toByteArray();
         } catch (IOException ie) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Exception while reading Entry", ie);
-            }
+            Logging.logCheckedFine(LOG, "Exception while reading Entry\n" + ie.toString());
         }
         return null;
     }
@@ -690,17 +708,21 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                     // ignored
                 }
             }
+
             ois.close();
+
         } catch (EOFException eofe) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Empty record", eofe);
-            }
+
+            Logging.logCheckedFine(LOG, "Empty record\n" + eofe.toString());
+
         } catch (IOException ie) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception while reading Entry", ie);
-            }
+
+            Logging.logCheckedWarning(LOG, "Exception while reading Entry", ie);
+            
         }
+
         return new SrdiIndex.SrdiIndexRecord(key, result);
+
     }
     
     /**
@@ -708,10 +730,11 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      */
 
     public void garbageCollect() {
+        
         try {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Garbage collection started");
-            }
+
+            Logging.logCheckedFine(LOG, "Garbage collection started");
+            
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
             
             for(NameIndexer idxr : map.values()) {
@@ -726,15 +749,17 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                     srdiIndexer.purge(list);
                 }
             }
+
             gcPeerTBL.clear();
+
         } catch (Exception ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure during SRDI Garbage Collect", ex);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failure during SRDI Garbage Collect", ex);
+            
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Garbage collection completed");
-        }
+
+        Logging.logCheckedFine(LOG, "Garbage collection completed");
+        
     }
     
     /**
@@ -747,15 +772,16 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
         Iterator<SrdiIndex.Entry> eachEntry = list.iterator();
         
         while(eachEntry.hasNext()) {
+
             SrdiIndex.Entry entry = eachEntry.next();
             
             if (entry.isExpired()) {
                 eachEntry.remove();
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Removing expired Entry peerid :" + entry.peerid + " Expires at :" + entry.expiration);
-                }
+                Logging.logCheckedFine(LOG, "Removing expired Entry peerid :" + entry.peerid + " Expires at :" + entry.expiration);
             }
+
         }
+
         return list;
     }
     
@@ -772,13 +798,15 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
         // Stop the database
         
         try {
+
             srdiIndexer.close();
             cacheDB.close();
             gcPeerTBL.clear();
+
         } catch (Exception ex) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unable to stop the Srdi Indexer", ex);
-            }
+
+            Logging.logCheckedSevere(LOG, "Unable to stop the Srdi Indexer", ex);
+            
         }
     }
     
@@ -791,11 +819,10 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      */
     public static void clearSrdi(PeerGroup group) {
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Clearing SRDI for " + group.getPeerGroupName());
-        }
+        Logging.logCheckedInfo(LOG, "Clearing SRDI for " + group.getPeerGroupName());
         
         try {
+
             String pgdir = null;
             
             if (group == null) {
@@ -803,35 +830,36 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
             } else {
                 pgdir = group.getPeerGroupID().getUniqueValue().toString();
             }
+
             File rootDir = null;
             
-            if (group != null) {
-                rootDir = new File(new File(new File(group.getStoreHome()), "cm"), pgdir);
-            }
+            if (group != null) rootDir = new File(new File(new File(group.getStoreHome()), "cm"), pgdir);
             
             rootDir = new File(rootDir, "srdi");
             if (rootDir.exists()) {
+
                 // remove it along with it's content
                 String[] list = rootDir.list();
                 
                 for (String aList : list) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Removing : " + aList);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Removing : " + aList);
+                    
                     File file = new File(rootDir, aList);
                     
                     if (!file.delete()) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Unable to delete the file");
-                        }
+                        Logging.logCheckedWarning(LOG, "Unable to delete the file");
                     }
+
                 }
+
                 rootDir.delete();
             }
+
         } catch (Throwable t) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Unable to clear Srdi", t);
-            }
+
+            Logging.logCheckedWarning(LOG, "Unable to clear Srdi", t);
+            
         }
     }
 }

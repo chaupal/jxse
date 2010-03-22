@@ -171,7 +171,7 @@ public final class CodatBinaryID extends net.jxta.codat.CodatID {
      in.close();
 
      try {
-     byte [] result = dig.digest( );
+     byte [] result = dig.digest();
      for( int eachByte = 0; eachByte < CodatID.hashSize; eachByte++ )
      id.bytes[eachByte + CodatID.codatHashOffset] = result[eachByte];
      } catch( Throwable e ) {
@@ -244,10 +244,10 @@ public final class CodatBinaryID extends net.jxta.codat.CodatID {
             net.jxta.peergroup.PeerGroupID peerGroupID = (net.jxta.peergroup.PeerGroupID) net.jxta.id.IDFactory.fromURI(url);
 
             return peerGroupID;
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("cannot convert sub group. ID value = " + id);
-            }
+
+            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = " + id);
             return null;
 
         }

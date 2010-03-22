@@ -244,16 +244,23 @@ public final class ServletHttpTransport implements Module {
         boolean publicAddressOnly = httpAdv.getPublicAddressOnly();
 
         if (interfaceAddressStr != null) {
+            
             try {
+
                 usingInterface = InetAddress.getByName(interfaceAddressStr);
+
             } catch (UnknownHostException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Invalid address for local interface address, using default");
-                }
+
+                Logging.logCheckedWarning(LOG, "Invalid address for local interface address, using default");
+
                 usingInterface = IPUtils.ANYADDRESS;
+
             }
+
         } else {
+
             usingInterface = IPUtils.ANYADDRESS;
+
         }
 
         usingPort = httpAdv.getPort();
@@ -272,6 +279,7 @@ public final class ServletHttpTransport implements Module {
 
         // Tell tell the world about our configuration.
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring HTTP Message Transport : " + assignedID);
 
             if (implAdvertisement != null) {
@@ -281,6 +289,7 @@ public final class ServletHttpTransport implements Module {
                 configInfo.append("\n\t\tImpl URI: ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code: ").append(implAdvertisement.getCode());
             }
+
             configInfo.append("\n\tGroup Params:");
             configInfo.append("\n\t\tGroup: ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID: ").append(group.getPeerGroupID());
@@ -294,25 +303,29 @@ public final class ServletHttpTransport implements Module {
             configInfo.append("\n\t\tUnicast Server Bind Addr: ").append(IPUtils.getHostAddress(usingInterface)).append(":").append(usingPort);
             configInfo.append("\n\t\tPublic Addresses: ");
             configInfo.append("\n\t\t\tDefault Endpoint Addr : ").append(publicAddress);
+
             for (EndpointAddress anAddr : publicAddresses) {
                 configInfo.append("\n\t\t\tEndpoint Addr : ").append(anAddr);
             }
+
             LOG.config(configInfo.toString());
+
         }
+
     }
 
     /**
      * {@inheritDoc}
      */
     public synchronized int startApp(String[] args) {
+
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return START_AGAIN_STALLED;
+
         }
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING) {
@@ -327,16 +340,18 @@ public final class ServletHttpTransport implements Module {
         }
 
         if (configServer) {
-            // Start the http server that runs the receiver.
 
+            // Start the http server that runs the receiver.
             try {
+
                 receiver = new HttpMessageReceiver(this, publicAddresses, usingInterface, usingPort);
                 receiver.start();
+
             } catch (PeerGroupException e) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Could not start http message receiver", e);
-                }
+
+                Logging.logCheckedSevere(LOG, "Could not start http message receiver", e);
                 return -1; // Can't go on; if we were configured to be a server we must make the failure obvious.
+
             }
         }
 
@@ -344,14 +359,16 @@ public final class ServletHttpTransport implements Module {
             // create the MessageSender
 
             try {
+
                 sender = new HttpMessageSender(this,
                         new EndpointAddress("jxta", group.getPeerID().getUniqueValue().toString(), null, null));
                 sender.start();
+
             } catch (PeerGroupException e) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Could not start http message sender", e);
-                }
+
+                Logging.logCheckedSevere(LOG, "Could not start http message sender", e);
                 return -1; // Can't go on; if we were configured to be a server we must make the failure obvious.
+
             }
         }
 

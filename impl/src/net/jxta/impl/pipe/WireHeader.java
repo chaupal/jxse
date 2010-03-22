@@ -201,13 +201,12 @@ public class WireHeader {
 
         Enumeration elements = doc.getChildren();
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
-            if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.getName());
-                }
-            }
+            if (!handleElement(elem)) 
+                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.getName());
+
         }
 
         // Sanity Check!

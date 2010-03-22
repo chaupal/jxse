@@ -359,9 +359,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             retrQ.notifyAll();
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Closed.");
-        }
+        Logging.logCheckedInfo(LOG, "Closed.");
+        
     }
     
     public long getLingerDelay() {
@@ -427,9 +426,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             writeBuffer = null;
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Hard closed.");
-        }
+        Logging.logCheckedInfo(LOG, "Hard closed.");
+        
     }
     
     /**
@@ -569,23 +567,21 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             jmsg.addMessageElement(Defs.NAMESPACE, element);
             RetrQElt retrQel = new RetrQElt(sequenceToUse, jmsg.clone());
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Reliable WRITE : seqn#" + sequenceNumber + " length=" + len);
-            }
+            Logging.logCheckedFine(LOG, "Reliable WRITE : seqn#" + sequenceNumber + " length=" + len);
             
             // place copy on retransmission queue
             retrQ.add(retrQel);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Retrans Enqueue added seqn#" + sequenceNumber + " retrQ.size()=" + retrQ.size());
-            }
+
+            Logging.logCheckedFine(LOG, "Retrans Enqueue added seqn#" + sequenceNumber + " retrQ.size()=" + retrQ.size());
+
         }
         
         outgoing.send(jmsg);
         mrrIQFreeSpace--;
+
         // assume we have now taken a slot
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("SENT : seqn#" + sequenceNumber + " length=" + len);
-        }
+        Logging.logCheckedFine(LOG, "SENT : seqn#" + sequenceNumber + " length=" + len);
+
     }
     
     /**
@@ -745,9 +741,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             RTO = Math.min(RTO, outgoing.getMaxRetryAge());
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms" + " maxRTO = " + outgoing.getMaxRetryAge() + "ms");
-        }
+        Logging.logCheckedFine(LOG, "RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms" + " maxRTO = " + outgoing.getMaxRetryAge() + "ms");
+
     }
     
     /**
@@ -786,12 +781,14 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     sacs[eachSac] = dis.readInt();
                 }
                 Arrays.sort(sacs);
+
                 // take care of the ACK here;
                 ackReceived(seqack, sacs);
+
             } catch (IOException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure processing ACK", failed);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failure processing ACK", failed);
+                
             }
         }
     }
@@ -834,37 +831,29 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             
             // dump the current Retry queue and the SACK list
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+
                 StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
-                
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append('\n');
-                }
+                dumpRETRQ.append('\n');
                 dumpRETRQ.append("\tRETRQ (size=").append(retrQ.size()).append(")");
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append(" : ");
-                    for (int y = 0; y < retrQ.size(); y++) {
-                        if (0 != y) {
-                            dumpRETRQ.append(", ");
-                        }
-                        RetrQElt r = retrQ.get(y);
-                        
-                        dumpRETRQ.append(r.seqnum);
-                    }
+                dumpRETRQ.append(" : ");
+
+                for (int y = 0; y < retrQ.size(); y++) {
+                    if (0 != y) dumpRETRQ.append(", ");
+                    RetrQElt r = retrQ.get(y);
+                    dumpRETRQ.append(r.seqnum);
                 }
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append('\n');
-                }
+
+                dumpRETRQ.append('\n');
                 dumpRETRQ.append("\tSACKLIST (size=").append(sackList.length).append(")");
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append(" : ");
-                    for (int y = 0; y < sackList.length; y++) {
-                        if (0 != y) {
-                            dumpRETRQ.append(", ");
-                        }
-                        dumpRETRQ.append(sackList[y]);
-                    }
+                dumpRETRQ.append(" : ");
+
+                for (int y = 0; y < sackList.length; y++) {
+                    if (0 != y) dumpRETRQ.append(", ");
+                    dumpRETRQ.append(sackList[y]);
                 }
-                LOG.fine(dumpRETRQ.toString());
+
+                Logging.logCheckedFine(LOG, dumpRETRQ.toString());
+
             }
             
             Iterator<RetrQElt> eachRetryQueueEntry = retrQ.iterator();
@@ -913,13 +902,14 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 retrQElt = null;
                 numberACKed++;
             }
+
             // Update last accessed time in response to getting seq acks.
             if (numberACKed > 0) {
                 outgoing.setLastAccessed(TimeUtils.timeNow());
             }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("SEQUENTIALLY ACKD SEQN = " + seqnum + ", (" + numberACKed + " acked)");
-            }
+
+            Logging.logCheckedFine(LOG, "SEQUENTIALLY ACKD SEQN = " + seqnum + ", (" + numberACKed + " acked)");
+            
             // most recent remote IQ free space
             mrrIQFreeSpace = rmaxQSize - sackList.length;
             // let's look at average sacs.size(). If it is big, then this
@@ -929,9 +919,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             // We will keep the rwin <= ave real input queue size.
             int aveIQ = calcAVEIQ(sackList.length);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("remote IQ free space = " + mrrIQFreeSpace + " remote avg IQ occupancy = " + aveIQ);
-            }
+            Logging.logCheckedFine(LOG, "remote IQ free space = " + mrrIQFreeSpace + " remote avg IQ occupancy = " + aveIQ);
             
             int retrans = 0;
 
@@ -980,9 +968,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                                 fallBackSeqnum = retrQElt.seqnum;
                             }
                         }
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("SACKD SEQN = " + retrQElt.seqnum);
-                        }
+
+                        Logging.logCheckedFine(LOG, "SACKD SEQN = " + retrQElt.seqnum);
                         
                         // GC this stuff
                         retrQElt = null;
@@ -998,18 +985,19 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         // receiver. EG: sacklist == 10,11,13 seqnum == 11
                         // We retransmit 12.
                         if (seqnum < retrQElt.seqnum) {
+
                             fc.packetMissing(retrQElt.seqnum);
                             retrans++;
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("RETR: Fill hole, SACK, seqn#" + retrQElt.seqnum + ", Window =" + retrans);
-                            }
+
+                            Logging.logCheckedFine(LOG, "RETR: Fill hole, SACK, seqn#" + retrQElt.seqnum + ", Window =" + retrans);
+
                         }
+
                     }
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("SELECTIVE ACKD (" + numberACKed + ") " + retrans + " retrans wanted");
-                }
+                Logging.logCheckedFine(LOG, "SELECTIVE ACKD (" + numberACKed + ") " + retrans + " retrans wanted");
+                
             }
             
             // Compute aveRTT on the most representative message,
@@ -1046,11 +1034,13 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         // build a list of retries.
         synchronized (retrQ) {
+
             numberToRetrans = Math.min(retrQ.size(), rwin);
-            if (numberToRetrans > 0 && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Number of messages pending retransmit =" + numberToRetrans);
-            }
+
+            Logging.logCheckedFine(LOG, "Number of messages pending retransmit =" + numberToRetrans);
+            
             for (int j = 0; j < numberToRetrans; j++) {
+
                 RetrQElt r = retrQ.get(j);
 
                 // Mark message as retransmission
@@ -1093,10 +1083,11 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             RetrQElt r = eachRetrans.next();
 
             eachRetrans.remove();
+            
             try {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("RETRANSMIT seqn#" + r.seqnum);
-                }
+
+                Logging.logCheckedFine(LOG, "RETRANSMIT seqn#" + r.seqnum);
+                
                 Message sending = r.msg;
 
                 // its possible that the message was
@@ -1116,19 +1107,18 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     }
                 }
             } catch (IOException e) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "FAILED RETRANS seqn#" + r.seqnum, e);
-                }
+
+                Logging.logCheckedFine(LOG, "FAILED RETRANS seqn#" + r.seqnum + "\n" + e.toString());
                 break;
                 // don't bother continuing.
+                
             }
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("RETRANSMITED " + retransmitted + " of " + numberToRetrans);
-        }
+        Logging.logCheckedFine(LOG, "RETRANSMITED " + retransmitted + " of " + numberToRetrans);
         
         return retransmitted;
+
     }
     
     /**
@@ -1143,9 +1133,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
          * Constructor for the Retransmitter object
          */
         public Retransmitter() {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("STARTED Reliable Retransmitter, RTO = " + RTO);
-            }
+
+            Logging.logCheckedInfo(LOG, "STARTED Reliable Retransmitter, RTO = " + RTO);
+            
         }
         
         /**
@@ -1163,23 +1153,23 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
          *  <p/>Main processing method for the Retransmitter object
          */
         public void run() {
+            
             try {
+
                 int idleCounter = 0;
                 
                 while (TimeUtils.toRelativeTimeMillis(closedAt) > 0) {
+
                     long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), outgoing.getLastAccessed());
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(outgoing + " idle for " + conn_idle);
-                    }
+                    Logging.logCheckedFine(LOG, outgoing + " idle for " + conn_idle);
                     
                     // check to see if we have not idled out.
                     if (outgoing.getIdleTimeout() < conn_idle) {
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("Shutting down idle " + "connection " + outgoing);
-                        }
-                        
+
+                        Logging.logCheckedInfo(LOG, "Shutting down idle " + "connection " + outgoing);
                         break;
+
                     }
                     
                     long sinceLastACK;
@@ -1203,11 +1193,10 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         long sinceLastSACKRetr = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), sackRetransTime);
 
                         if (sinceLastSACKRetr < RTO) {
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("SACK retrans " + sinceLastSACKRetr + "ms ago");
-                            }
+                            Logging.logCheckedFine(LOG, "SACK retrans " + sinceLastSACKRetr + "ms ago");
                             continue;
                         }
+
                         // See how long we've waited since RTO was set
                         sinceLastACK = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), lastACKTime);
                         
@@ -1220,17 +1209,14 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         }
                     }
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Last ACK " + sinceLastACK + "ms ago. Age of oldest in Queue " + oldestInQueueWait + "ms.");
-                    }
+                    Logging.logCheckedFine(LOG, "Last ACK " + sinceLastACK + "ms ago. Age of oldest in Queue " + oldestInQueueWait + "ms.");
                     
                     // see if the queue has gone dead
                     if (oldestInQueueWait > outgoing.getMaxRetryAge()) {
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("Shutting down stale connection " + outgoing);
-                        }
-                        
+
+                        Logging.logCheckedInfo(LOG, "Shutting down stale connection " + outgoing);
                         break;
+
                     }
                     
                     // get real wait as max of age of oldest in retrQ and
@@ -1246,9 +1232,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     // do not want to restransmit a message that
                     // has not been idle for the RTO.
                     if ((realWait >= RTO) && (oldestInQueueWait >= RTO)) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("RTO RETRANSMISSION [" + rwindow + "]");
-                        }
+
+                        Logging.logCheckedFine(LOG, "RTO RETRANSMISSION [" + rwindow + "]");
+                        
                         // retransmit
                         int retransed = retransmit(rwindow, TimeUtils.timeNow());
 
@@ -1265,34 +1251,35 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                             RTO = (realWait > outgoing.getMaxRetryAge() ? outgoing.getMaxRetryAge() : 2 * RTO);
                             nAtThisRTO = 0;
                         }
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine(
-                                    "RETRANSMISSION " + retransed + " retrans " + nAtThisRTO + " at this RTO (" + RTO + ") "
-                                    + nretransmitted + " total retrans");
-                        }
+
+                        Logging.logCheckedFine(LOG, "RETRANSMISSION " + retransed + " retrans " + nAtThisRTO + " at this RTO (" + RTO + ") "
+                            + nretransmitted + " total retrans");
+                        
                     } else {
                         idleCounter += 1;
+
                         // reset RTO to min if we are idle
                         if (idleCounter == 2) {
                         	RTO = minRTO;
                             idleCounter = 0;
                             nAtThisRTO = 0;
                         }
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("IDLE : RTO=" + RTO + " WAIT=" + realWait);
-                        }
+
+                        Logging.logCheckedFine(LOG, "IDLE : RTO=" + RTO + " WAIT=" + realWait);
+                        
                     }
                 }
+
             } catch (Throwable all) {
+
                 LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+
             } finally {
+
                 hardClose();
-                
                 retrThread = null;
+                Logging.logCheckedInfo(LOG, "STOPPED Retransmit thread");
                 
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("STOPPED Retransmit thread");
-                }
             }
         }
     }

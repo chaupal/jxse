@@ -202,13 +202,13 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("creating toString of " + getClass().getName() + "@" + super.hashCode());
-        }
-
+        Logging.logCheckedFiner(LOG, "creating toString of " + getClass().getName() + "@" + super.hashCode());
+        
         result = doc.toString();
         cachedToString = new SoftReference<String>(result);
+        
         return result;
+
     }
 
     /**
@@ -284,22 +284,23 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
-        }
+        Logging.logCheckedFiner(LOG, "creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
 
         String charset = type.getParameter("charset");
 
         if (null == charset) {
             result = toString().getBytes();
         } else {
+
             try {
+
                 result = toString().getBytes(charset);
+
             } catch (UnsupportedEncodingException caught) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "MessageElement Data could not be generated", caught);
-                }
+
+                Logging.logCheckedWarning(LOG, "MessageElement Data could not be generated", caught);
                 throw new IllegalStateException("MessageElement Data could not be generated due to " + caught.getMessage());
+
             }
         }
 
@@ -340,9 +341,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("creating getChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
-        }
+        Logging.logCheckedFiner(LOG, "creating getChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
 
         String asString = toString();
 

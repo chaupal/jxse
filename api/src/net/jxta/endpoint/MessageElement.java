@@ -278,9 +278,7 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
-        }
+        Logging.logCheckedFine(LOG, "creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
 
         String charset = type.getParameter("charset");
 
@@ -315,12 +313,12 @@ public abstract class MessageElement implements Document {
 
             cachedToString = new SoftReference<String>(result);
             return result;
-        } catch (IOException caught) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not generate string for element. ", caught);
-            }
 
+        } catch (IOException caught) {
+
+            Logging.logCheckedSevere(LOG, "Could not generate string for element. ", caught);
             throw new IllegalStateException("Could not generate string for element. " + caught);
+
         }
     }
 
@@ -400,18 +398,15 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
-        }
+        Logging.logCheckedFine(LOG, "creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
 
         long len = getByteLength();
 
         if (len > Integer.MAX_VALUE) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("MessageElement is too large to be stored in a byte array.");
-            }
 
+            Logging.logCheckedSevere(LOG, "MessageElement is too large to be stored in a byte array.");
             throw new IllegalStateException("MessageElement is too large to be stored in a byte array.");
+
         }
 
         result = new byte[(int) len];
@@ -420,11 +415,12 @@ public abstract class MessageElement implements Document {
             DataInput di = new DataInputStream(getStream());
 
             di.readFully(result);
+
         } catch (IOException caught) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed to get bytes of Message Element. ", caught);
-            }
+
+            Logging.logCheckedSevere(LOG, "Failed to get bytes of Message Element. ", caught);
             throw new IllegalStateException("Failed to get bytes of Message Element. " + caught);
+
         }
 
         // if this is supposed to be a shared buffer then we can cache it.

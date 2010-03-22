@@ -162,10 +162,10 @@ public class OutgoingMsgrAdaptor implements Outgoing {
      *@param  time  The new lastAccessed in milliseconds
      */
     public void setLastAccessed(long time) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Setting lastAccessed to :" + lastAccessed);
-        }
+        
+        Logging.logCheckedFine(LOG, "Setting lastAccessed to :" + lastAccessed);
         lastAccessed = time;
+
     }
 
     /**
@@ -176,16 +176,14 @@ public class OutgoingMsgrAdaptor implements Outgoing {
      *@exception  IOException  if an io error occurs
      */
     public boolean send(Message msg) throws IOException {
-        if (closed) {
-            throw new IOException("broken connection");
-        }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending a Message");
-        }
+        if (closed) throw new IOException("broken connection");
         
+        Logging.logCheckedFine(LOG, "Sending a Message");
         msgr.sendMessageB(msg, null, null);
+        
         return true;
+
     }
 }
 

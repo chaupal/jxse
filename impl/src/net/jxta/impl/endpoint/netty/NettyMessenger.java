@@ -82,12 +82,13 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 
     @Override
     protected void sendMessageBImpl(Message message, String service, String param) throws IOException {
+        
         if (isClosed()) {
+
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, failure.getMessage(), failure);
-            }
+            Logging.logCheckedWarning(LOG, failure.getMessage());
             throw failure;
+
         }
         
         ChannelFuture future = channel.write(retargetMessage(message, service, param));
@@ -101,13 +102,12 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
             	failure.initCause(future.getCause());
             }
             
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to send message to " + logicalDestinationAddr, failure);
-            }
+            Logging.logCheckedWarning(LOG, "Failed to send message to " + logicalDestinationAddr, failure);
             
             closeImpl();
             
             throw failure;
+
         }
     }
 
@@ -155,25 +155,27 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	}
 	
 	private boolean isLoopback(EndpointAddress srcAddr) {
-		if (localAddress.equals(srcAddr)) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Loopback message detected");
+
+            if (localAddress.equals(srcAddr)) {
+                Logging.logCheckedFine(LOG, "Loopback message detected");
+                return true;
             }
-            return true;
-        }
-		return false;
+
+            return false;
+
 	}
 
 	private EndpointAddress extractEndpointAddress(Message msg, String elementNamespace, String elementName, String addrType) {
-		MessageElement element = msg.getMessageElement(elementNamespace, elementName);
-		if(element == null) {
-			if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Message with no " + addrType + " address detected: " + msg);
+
+            MessageElement element = msg.getMessageElement(elementNamespace, elementName);
+	
+            if(element == null) {
+		Logging.logCheckedFine(LOG, "Message with no " + addrType + " address detected: " + msg);
+            } else {
+	        msg.removeMessageElement(element);
             }
-		} else {
-			msg.removeMessageElement(element);
-		}
 		
-		return new EndpointAddress(element.toString());
+            return new EndpointAddress(element.toString());
+
 	}
 }

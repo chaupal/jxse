@@ -139,12 +139,15 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      * Increments the modification count for this peer advertisement.
      */
     protected int incModCount() {
+
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+
             Throwable trace = new Throwable("Stack Trace");
             StackTraceElement elements[] = trace.getStackTrace();
 
             LOG.finer("Modification #" + (getModCount() + 1) + " to PeerAdv@" + Integer.toHexString(System.identityHashCode(this))
                     + " caused by : " + "\n\t" + elements[1] + "\n\t" + elements[2]);
+
         }
 
         return modCount.incrementAndGet();

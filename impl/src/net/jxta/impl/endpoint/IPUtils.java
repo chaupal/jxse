@@ -121,25 +121,23 @@ public final class IPUtils {
     private static ServerSocketFactory serverSocketFactory;
 
     static {
+
         InetAddress GET_ADDRESS = null;
 
         try {
             GET_ADDRESS = InetAddress.getByName(IPV4ANYADDRESS);
         } catch (Exception ignored) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("failed to intialize ANYADDRESSV4. Not fatal");
-            }
+            Logging.logCheckedWarning(LOG, "failed to intialize ANYADDRESSV4. Not fatal");
         }
 
         ANYADDRESSV4 = GET_ADDRESS;
 
         GET_ADDRESS = null;
+        
         try {
             GET_ADDRESS = InetAddress.getByName(IPV6ANYADDRESS);
         } catch (Exception ignored) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("failed to intialize IPV6ANYADDRESS. Not fatal");
-            }
+            Logging.logCheckedWarning(LOG, "failed to intialize IPV6ANYADDRESS. Not fatal");
         }
 
         ANYADDRESSV6 = GET_ADDRESS;
@@ -147,12 +145,12 @@ public final class IPUtils {
         ANYADDRESS = (ANYADDRESSV4 == null) ? ANYADDRESSV6 : ANYADDRESSV4;
 
         GET_ADDRESS = null;
+
         try {
             GET_ADDRESS = InetAddress.getByName(IPV4LOOPBACK);
         } catch (Exception ignored) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("failed to intialize IPV4LOOPBACK. Not fatal");
-            }
+            Logging.logCheckedWarning(LOG, "failed to intialize IPV4LOOPBACK. Not fatal");
+           
         }
 
         LOOPBACKV4 = GET_ADDRESS;
@@ -161,9 +159,7 @@ public final class IPUtils {
         try {
             GET_ADDRESS = InetAddress.getByName(IPV6LOOPBACK);
         } catch (Exception ignored) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("failed to intialize ANYADDRESSV4. Not fatal");
-            }
+            Logging.logCheckedWarning(LOG, "failed to intialize ANYADDRESSV4. Not fatal");
         }
 
         LOOPBACKV6 = GET_ADDRESS;
@@ -171,11 +167,10 @@ public final class IPUtils {
         LOOPBACK = (LOOPBACKV4 == null) ? LOOPBACKV6 : LOOPBACKV4;
 
         if (LOOPBACK == null || ANYADDRESS == null) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
-            }
 
+            Logging.logCheckedSevere(LOG, "failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
             throw new IllegalStateException("failure initializing statics. Neither IPV4 nor IPV6 seem to work.");
+
         }
     }
 
@@ -203,15 +198,12 @@ public final class IPUtils {
         try {
             allInterfaces = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException caught) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Could not get local interfaces list", caught);
-            }
+            Logging.logCheckedWarning(LOG, "Could not get local interfaces list", caught);
         }
 
-        if (null == allInterfaces) {
+        if (null == allInterfaces) 
             allInterfaces = Collections.enumeration(Collections.<NetworkInterface>emptyList());
-        }
-
+        
         while (allInterfaces.hasMoreElements()) {
             NetworkInterface anInterface = allInterfaces.nextElement();
 
@@ -221,26 +213,24 @@ public final class IPUtils {
                 while (allIntfAddr.hasMoreElements()) {
                     InetAddress anAddr = allIntfAddr.nextElement();
 
-                    if (anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress()) {
+                    if (anAddr.isLoopbackAddress() || anAddr.isAnyLocalAddress()) 
                         continue;
-                    }
+                    
+                    if (!allAddr.contains(anAddr)) allAddr.add(anAddr);
+                    
+                }
 
-                    if (!allAddr.contains(anAddr)) {
-                        allAddr.add(anAddr);
-                    }
-                }
             } catch (Throwable caught) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not get addresses for " + anInterface, caught);
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not get addresses for " + anInterface, caught);
+                
             }
         }
 
         // if nothing suitable was found then return loopback address.
         if (allAddr.isEmpty() || Boolean.getBoolean("net.jxta.impl.IPUtils.localOnly")) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Adding loopback interfaces");
-            }
+
+            Logging.logCheckedFiner(LOG, "Adding loopback interfaces");
 
             if (null != LOOPBACKV4) {
                 allAddr.add(LOOPBACKV4);
@@ -251,9 +241,7 @@ public final class IPUtils {
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Returning " + allAddr.size() + " addresses.");
-        }
+        Logging.logCheckedFine(LOG, "Returning " + allAddr.size() + " addresses.");
 
         return allAddr;
     }

@@ -492,46 +492,47 @@ public class EndpointAddress {
      * @param addr endpoint address to parse
      */
     private void parseURN(String addr) {
+
         int protocolEnd = addr.indexOf(':');
 
         if (-1 == protocolEnd) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Address is not a valid URI: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Address is not a valid URI: " + addr);
             throw new IllegalArgumentException("Address is not a valid URI: " + addr);
+
         }
 
         if (!"urn".equalsIgnoreCase(addr.substring(0, protocolEnd))) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Address is unrecognized URI form: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Address is unrecognized URI form: " + addr);
             throw new IllegalArgumentException("Address is unrecognized URI form: " + addr);
+
         }
 
         if ((addr.length() - 1) == protocolEnd) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Address URN does not have a namespace: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Address URN does not have a namespace: " + addr);
             throw new IllegalArgumentException("Address URN does not have a namespace: " + addr);
+
         }
 
         // gather the namespace as well.
         int namespaceEnd = addr.indexOf(':', protocolEnd + 1);
 
         if (-1 == namespaceEnd) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Address URN does not have a namespace: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Address URN does not have a namespace: " + addr);
             throw new IllegalArgumentException("Address URN does not have a namespace: " + addr);
+
         }
 
         setProtocolName(addr.substring(0, namespaceEnd));
 
         if ((addr.length() - 1) == namespaceEnd) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Address URN does not have a NSS portion: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Address URN does not have a NSS portion: " + addr);
             throw new IllegalArgumentException("Address URN does not have a NSS portion: " + addr);
+
         }
 
         // check for service and param
@@ -565,29 +566,33 @@ public class EndpointAddress {
         int index = addr.indexOf("://");
 
         if (index == -1) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Address is not in absolute form: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Address is not in absolute form: " + addr);
             throw new IllegalArgumentException("Address is not in absolute form: " + addr);
+
         }
 
         if (0 == index) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Protocol is missing: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Protocol is missing: " + addr);
             throw new IllegalArgumentException("Protocol is missing: " + addr);
+
         }
 
         try {
+
             setProtocolName(addr.substring(0, index));
             remainder = addr.substring(index + 3);
+
         } catch (Exception e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Protocol address is missing: " + addr);
-            }
+
+            Logging.logCheckedFine(LOG, "Protocol address is missing: " + addr);
             throw new IllegalArgumentException("Protocol address is missing: " + addr);
+
         }
+
         index = remainder.indexOf("/");
+
         if (index == -1) {
             setProtocolAddress(remainder);
             return;

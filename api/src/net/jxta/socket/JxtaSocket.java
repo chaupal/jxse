@@ -353,9 +353,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         Message connectResponse = createConnectMessage(group, localEphemeralPipeAdv, localCredential, isReliable, initiator);
 
         remoteEphemeralPipeMsgr.sendMessage(connectResponse);
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("New socket : " + this);
-        }
+        
+        Logging.logCheckedInfo(LOG, "New socket : " + this);
+        
     }
 
     /**
@@ -489,13 +489,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     @Override
     protected void finalize() throws Throwable {
-        if (!closed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("JxtaSocket is being finalized without being previously closed. This is likely a users bug.");
-            }
-        }
+        
+        if (!closed) Logging.logCheckedWarning(LOG, "JxtaSocket is being finalized without being previously closed. This is likely a users bug.");
         close();
         super.finalize();
+
     }
 
     /**
@@ -612,9 +610,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             pipeSvc.createOutputPipe(pipeAdv, Collections.singleton(peerid), this);
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Beginning Output Pipe Resolution. " + this);
-        }
+        Logging.logCheckedFine(LOG, "Beginning Output Pipe Resolution. " + this);
 
         // Wait for the pipe resolution.
         synchronized (pipeResolveLock) {
@@ -631,62 +627,68 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         pipeResolveLock.wait(waitFor);
                     }
                 } catch (InterruptedException ie) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Interrupted", ie);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Interrupted\n" + ie.toString());
+                    
                     Thread.interrupted();
                     SocketException exp = new SocketException("Connect Interrupted");
                     exp.initCause(ie);
                     throw exp;
+
                 }
             }
         }
 
-        if (connectOutpipe == null) {
+        if (connectOutpipe == null) 
             throw new SocketTimeoutException("Connection (resolution) timeout");
-        }
 
         try {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Sending connect message. " + this);
-            }
+
+            Logging.logCheckedFine(LOG, "Sending connect message. " + this);
 
             // send connect message
             connectOutpipe.send(openMsg);
 
             // wait for the connect response.
             synchronized (socketConnectLock) {
+
                 while (!isConnected()) {
+
                     try {
+
                         long waitFor = connectTimeoutAt - System.currentTimeMillis();
+
                         if (waitFor <= 0) {
                             // too late
                             break;
                         }
+
                         socketConnectLock.wait(waitFor);
+
                     } catch (InterruptedException ie) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.log(Level.FINE, "Interrupted", ie);
-                        }
+
+                        Logging.logCheckedFine(LOG, "Interrupted\n" + ie.toString());
+                        
                         Thread.interrupted();
                         SocketException exp = new SocketException("Connect Interrupted");
                         exp.initCause(ie);
                         throw exp;
+
                     }
                 }
             }
+
         } finally {
+
             connectOutpipe.close();
             connectOutpipe = null;
+
         }
 
-        if (!isConnected()) {
-            throw new SocketTimeoutException("Connection timeout (connect)");
-        }
+        if (!isConnected()) throw new SocketTimeoutException("Connection timeout (connect)");
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("New socket connection : " + this);
-        }
+        Logging.logCheckedInfo(LOG, "New socket connection : " + this);
+        
         // The socket is bound now.
         setBound(true);
 
@@ -699,13 +701,16 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @return The <code>Credential</code> value
      */
     protected static Credential getDefaultCredential(PeerGroup group) {
+        
         try {
+
             MembershipService membership = group.getMembershipService();
             return membership.getDefaultCredential();
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to get credential", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to get credential", e);
+            
         }
         return null;
     }
@@ -716,13 +721,16 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @return Credential StructuredDocument
      */
     public Credential getCredentialDoc() {
+        
         try {
+
             return remoteCredential;
+
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to generate credential document ", failure);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to generate credential document ", failure);
             return null;
+
         }
     }
 
@@ -960,15 +968,12 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             	int to = (int)Math.max(DEFAULT_TIMEOUT, timeout);
             	
                 long closeEndsAt = System.currentTimeMillis() + to;
-                if (closeEndsAt < to) {
-                    closeEndsAt = Long.MAX_VALUE;
-                }
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Closing " + this + " timeout=" + to + "ms.");
-                }
-                if (closed) {
-                    return;
-                }
+
+                if (closeEndsAt < to) closeEndsAt = Long.MAX_VALUE;
+
+                Logging.logCheckedInfo(LOG, "Closing " + this + " timeout=" + to + "ms.");
+                
+                if (closed) return;
 
                 closed = true;
                 while (isConnected()) {
@@ -996,9 +1001,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         sendClose();
                     }
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Sent close, awaiting ACK for " + this);
-                    }
+                    Logging.logCheckedFine(LOG, "Sent close, awaiting ACK for " + this);
 
                     // Don't send our close too many times.
                     try {
@@ -1014,12 +1017,12 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 }
 
                 if (isConnected()) {
+
                     // Last ditch close attempt
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Still connected at end of timeout. Forcing closed." + this);
-                    }
+                    Logging.logCheckedFine(LOG, "Still connected at end of timeout. Forcing closed." + this);
                     sendClose();
                     throw new SocketTimeoutException("Failed to receive close ack from remote connection.");
+
                 }
             }
         } finally {
@@ -1031,9 +1034,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             // longer connected and no longer bound.
             setConnected(false);
             unbind();
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Socket closed : " + this);
-            }
+
+            Logging.logCheckedInfo(LOG, "Socket closed : " + this);
+
         }
     }
 
@@ -1053,10 +1056,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @throws IOException if an I/O error occurs
      */
     protected void closeFromRemote() throws IOException {
+
         synchronized (closeLock) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Received a remote close request." + this);
-            }
+
+            Logging.logCheckedFine(LOG, "Received a remote close request." + this);
 
             // If we are still bound then send them a close ACK.
             if (isBound() && (ros != null && ros.isQueueEmpty())) {
@@ -1106,15 +1109,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         setBound(false);
 
         // close pipe and messenger
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Closing ephemeral input pipe");
-        }
+        Logging.logCheckedFine(LOG, "Closing ephemeral input pipe");
 
         localEphemeralPipeIn.close();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Closing remote ephemeral pipe messenger");
-        }
+        Logging.logCheckedFine(LOG, "Closing remote ephemeral pipe messenger");
 
         if(null != outgoing) {
             outgoing.close();
@@ -1126,9 +1125,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * {@inheritDoc}
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.log(Level.FINER, "Pipe Message Event for " + this + "\n\t" + event.getMessage() + " for " + event.getPipeID());
-        }
+
+        Logging.logCheckedFiner(LOG, "Pipe Message Event for " + this + "\n\t" + event.getMessage() + " for " + event.getPipeID());
 
         Message message = event.getMessage();
         if (message == null) {
@@ -1139,38 +1137,41 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         MessageElement element = message.getMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE, JxtaServerSocket.closeTag);
 
         if (element != null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Handling a close message " + this + " : " + element.toString());
-            }
+
+            Logging.logCheckedFine(LOG, "Handling a close message " + this + " : " + element.toString());
+            
             if (JxtaServerSocket.closeReqValue.equals(element.toString())) {
+
                 try {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Received a close request");
-                    }
+
+                    Logging.logCheckedFine(LOG, "Received a close request");
                     closeFromRemote();
+
                 } catch (IOException ie) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "failed during closeFromRemote", ie);
-                    }
+                    
+                    Logging.logCheckedSevere(LOG, "failed during closeFromRemote", ie);
+                    
                 }
+
             } else if (JxtaServerSocket.closeAckValue.equals(element.toString())) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Received a close acknowledgement");
-                }
+
+                Logging.logCheckedFine(LOG, "Received a close acknowledgement");
+                
                 synchronized (closeLock) {
                     closeAckReceived = true;
                     setConnected(false);
                     closeLock.notifyAll();
                 }
+
             }
+
             return;
         }
 
         if (!isConnected()) {
+
             // connect response
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Processing connect response : " + message);
-            }
+            Logging.logCheckedFine(LOG, "Processing connect response : " + message);
 
             // look for a remote pipe answer
             element = message.getMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE, JxtaServerSocket.remPipeTag);
@@ -1200,13 +1201,16 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             Credential incomingCredential = null;
 
             if (element != null) {
+                
                 try {
+
                     StructuredDocument incomingCredentialDoc = StructuredDocumentFactory.newStructuredDocument(element);
                     incomingCredential = group.getMembershipService().makeCredential(incomingCredentialDoc);
+
                 } catch (Exception failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Unable to generate credential for " + this, failed);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unable to generate credential for " + this, failed);
+                    
                 }
             }
 
@@ -1219,13 +1223,13 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
             if ((null != incomingPipeAdv) && (null != incomingRemotePeerAdv)) {
                 if ((null != remotePeerID) && (remotePeerID != incomingRemotePeerAdv.getPeerID())) {
+
                     // let the connection attempt timeout
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning(
-                                "Connection response from wrong peer! " + remotePeerID + " != "
-                                + incomingRemotePeerAdv.getPeerID());
-                    }
+                    Logging.logCheckedWarning(LOG, "Connection response from wrong peer! " + remotePeerID + " != "
+                        + incomingRemotePeerAdv.getPeerID());
+
                     return;
+
                 }
 
                 synchronized (socketConnectLock) {
@@ -1244,17 +1248,20 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         // that would force us to have the MsrgAdaptor block
                         // until we can give it the real pipe or msgr... later.
                         try {
+
                             connect();
+                            
                         } catch (IOException failed) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING, "Connection failed : " + this, failed);
-                            }
+
+                            Logging.logCheckedWarning(LOG, "Connection failed : " + this, failed);
                             return;
+
                         }
+
                         socketConnectLock.notify();
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.log(Level.INFO, "New Socket Connection : " + this);
-                        }
+
+                        Logging.logCheckedInfo(LOG, "New Socket Connection : " + this);
+
                     }
                 }
                 return;
@@ -1269,21 +1276,19 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             }
 
             while (!isClosed() && !isConnected()) {
+
                 long waitFor = timeoutAt - System.currentTimeMillis();
 
-                if (waitFor <= 0) {
-                    break;
-                }
+                if (waitFor <= 0) break;
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Holding " + message + " for " + timeout);
-                }
+                Logging.logCheckedFine(LOG, "Holding " + message + " for " + timeout);
 
                 try {
                     socketConnectLock.wait(timeout);
                 } catch (InterruptedException woken) {
                     return;
                 }
+
             }
         }
 
@@ -1315,11 +1320,12 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         OutputPipe op = event.getOutputPipe();
 
         if (op.getAdvertisement() == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("The output pipe has no internal pipe advertisement. discarding event");
-            }
+            
+            Logging.logCheckedWarning(LOG, "The output pipe has no internal pipe advertisement. discarding event");
             return;
+
         }
+
         // name can be different, therefore check the id + type
         if (pipeAdv.getID().equals(op.getAdvertisement().getID()) && pipeAdv.getType().equals(op.getAdvertisement().getType())) {
             synchronized (pipeResolveLock) {
@@ -1332,13 +1338,12 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 pipeResolveLock.notify();
             }
             // Ooops one too many, we were too fast re-trying.
-            if (op != null) {
-                op.close();
-            }
+            if (op != null) op.close();
+            
         } else {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Unexpected OutputPipe :" + op);
-            }
+
+            Logging.logCheckedWarning(LOG, "Unexpected OutputPipe :" + op);
+            
         }
     }
 
@@ -1368,9 +1373,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             // not a supported type
             throw new IllegalArgumentException(pipeAdv.getType() + " is not a supported pipe type");
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("New pipe lightweight messenger for " + addr);
-        }
+
+        Logging.logCheckedFine(LOG, "New pipe lightweight messenger for " + addr);
+        
         return endpoint.getMessenger(addr, routeHint);
     }
 
@@ -1379,19 +1384,19 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @throws IOException if an io error occurs
      */
     private void sendClose() throws IOException {
+
         Message msg = new Message();
 
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE
                 ,
                 new StringMessageElement(JxtaServerSocket.closeTag, JxtaServerSocket.closeReqValue, null));
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending a close request " + this + " : " + msg);
-        }
+        Logging.logCheckedFine(LOG, "Sending a close request " + this + " : " + msg);
+        
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Failed to send a close request " + this + " : " + msg);
-            }
+            
+            Logging.logCheckedSevere(LOG, "Failed to send a close request " + this + " : " + msg);
+            
         }
     }
 
@@ -1400,16 +1405,17 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @throws IOException if an io error occurs
      */
     private void sendCloseACK() throws IOException {
+
         Message msg = new Message();
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new StringMessageElement(JxtaServerSocket.closeTag, JxtaServerSocket.closeAckValue, null));
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending a close ACK " + this + " : " + msg);
-        }
+
+        Logging.logCheckedFine(LOG, "Sending a close ACK " + this + " : " + msg);
+        
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Failed to send a close ACK " + this + " : " + msg);
-            }
+            
+            Logging.logCheckedSevere(LOG, "Failed to send a close ACK " + this + " : " + msg);
+            
         }
     }
 

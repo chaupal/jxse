@@ -241,6 +241,7 @@ public final class PSEMembershipService implements MembershipService {
         pseStore = new PSEConfig(storeManager, null);
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring PSE Membership Service : " + assignedID);
 
             configInfo.append("\n\tImplementation :");
@@ -259,6 +260,7 @@ public final class PSEMembershipService implements MembershipService {
                     : assignedID.toString());
             configInfo.append("\n\t\tPSE KeyStore type : ").append((null != config.getKeyStoreType()) ? config.getKeyStoreType() : "<default>");
             configInfo.append("\n\t\tPSE KeyStore provider : ").append((null != config.getKeyStoreProvider()) ? config.getKeyStoreProvider() : "<default>");
+
             LOG.config(configInfo.toString());
         }
         
@@ -287,22 +289,21 @@ public final class PSEMembershipService implements MembershipService {
      */
     public int startApp(String[] arg) {
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("PSE Membmership Service started.");
-        }
-        
+        Logging.logCheckedInfo(LOG, "PSE Membmership Service started.");
+
         return 0;
+
     }
     
     /**
      * {@inheritDoc}
      **/
     public void stopApp() {
+
         resign();
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("PSE Membmership Service stopped.");
-        }
+        Logging.logCheckedInfo(LOG, "PSE Membmership Service stopped.");
+        
     }
     
     public PeerGroup getGroup() {
@@ -413,11 +414,10 @@ public final class PSEMembershipService implements MembershipService {
             defaultCredential = newDefault;
         }
         
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("New Default credential : " + newDefault);
-        }
+        Logging.logCheckedConfig(LOG, "New Default credential : " + newDefault);
         
         try {
+
             // include the root cert in the peer advertisement
             PeerAdvertisement peeradv = group.getPeerAdvertisement();
             
@@ -437,8 +437,8 @@ public final class PSEMembershipService implements MembershipService {
             } else {
                 peeradv.removeServiceParam(PeerGroup.peerGroupClassID);
             }
+
         } catch (Exception ignored) {
-            ;
         }
         
         support.firePropertyChange("defaultCredential", oldDefault, newDefault);
@@ -485,30 +485,34 @@ public final class PSEMembershipService implements MembershipService {
                 store_password = auth.getAuth1_KeyStorePassword();
                 identity = auth.getAuth2Identity();
                 key_password = auth.getAuth3_IdentityPassword();
+
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("I dont know how to deal with this authenticator " + authenticated);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "I dont know how to deal with this authenticator " + authenticated);
                 throw new PeerGroupException("I dont know how to deal with this authenticator");
+
             }
             
-            if (null != store_password) {
-                pseStore.setKeyStorePassword(store_password);
-            }
+            if (null != store_password) pseStore.setKeyStorePassword(store_password);
             
             if (!pseStore.isInitialized()) {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Initializing the PSE key store.");
-                }
+
+                Logging.logCheckedInfo(LOG, "Initializing the PSE key store.");
                 
                 try {
+
                     pseStore.initialize();
+
                 } catch (KeyStoreException bad) {
+
                     throw new PeerGroupException("Could not initialize new PSE keystore.", bad);
+
                 } catch (IOException bad) {
+
                     throw new PeerGroupException("Could not initialize new PSE keystore.", bad);
+
                 }
+
             }
             
             try {
@@ -529,22 +533,23 @@ public final class PSEMembershipService implements MembershipService {
                     }
                     
                     pseStore.setKey(identity, seed_cert, seedPrivKey, key_password);
+
                 }
+
             } catch (IOException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not save new key pair.", failed);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "Could not save new key pair.", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
+
             } catch (KeyStoreException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not save new key pair.", failed);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "Could not save new key pair.", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
+
             }
             
             try {
+
                 X509Certificate certList[] = pseStore.getTrustedCertificateChain(identity);
                 
                 if (null == certList) {
@@ -552,9 +557,9 @@ public final class PSEMembershipService implements MembershipService {
                     
                     certList[0] = pseStore.getTrustedCertificate(identity);
                     
-                    if (certList[0] == null && authenticatorEngine != null) {
+                    if (certList[0] == null && authenticatorEngine != null) 
                         certList[0] = authenticatorEngine.getX509Certificate();
-                    }
+                    
                 }
                 
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -566,29 +571,28 @@ public final class PSEMembershipService implements MembershipService {
                 newCred = new PSECredential(this, identity, certs, privateKey);
                 
                 synchronized (this) {
+
                     principals.add(newCred);
-                    
                     authCredentials.add(authenticated.getAuthenticationCredential());
+
                 }
             } catch (IOException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not create credential.", failed);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "Could not create credential.", failed);
                 throw new PeerGroupException("Could not create credential.", failed);
+
             } catch (KeyStoreException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not create credential.", failed);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "Could not create credential.", failed);
                 throw new PeerGroupException("Could not create credential.", failed);
+
             } catch (CertificateException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not create credential.", failed);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "Could not create credential.", failed);
                 throw new PeerGroupException("Could not create credential.", failed);
+
             }
+
         } finally {
             if (null != store_password) {
                 Arrays.fill(store_password, '\0');
@@ -659,9 +663,7 @@ public final class PSEMembershipService implements MembershipService {
      **/
     X509Certificate[] generateServiceCertificate(ID assignedID, PSECredential credential) throws  IOException, KeyStoreException, InvalidKeyException, SignatureException {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Generating new service cert for " + assignedID);
-        }
+        Logging.logCheckedFine(LOG, "Generating new service cert for " + assignedID);
         
         IssuerInfo serviceinfo = peerSecurityEngine.generateCertificate(credential);
         
@@ -681,9 +683,7 @@ public final class PSEMembershipService implements MembershipService {
         
         getPSEConfig().setKey(assignedID, serviceChain, serviceinfo.subjectPkey, keyPass);
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Generated new service cert");
-        }
+        Logging.logCheckedFine(LOG, "Generated new service cert");
         
         return serviceChain;
     }
@@ -698,9 +698,7 @@ public final class PSEMembershipService implements MembershipService {
         
         PSECredential pseCredential = null;
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Getting service redential for " + assignedID);
-        }
+        Logging.logCheckedFine(LOG, "Getting service redential for " + assignedID);
         
         Authenticator authenticate = null;
         
@@ -750,11 +748,13 @@ public final class PSEMembershipService implements MembershipService {
         }
         
         if (authenticate.isReadyForJoin()) {
+
             pseCredential = (PSECredential) join(authenticate);
+
         } else {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Could not authenticate service credential");
-            }
+
+            Logging.logCheckedWarning(LOG, "Could not authenticate service credential");
+
         }
         
         return pseCredential;

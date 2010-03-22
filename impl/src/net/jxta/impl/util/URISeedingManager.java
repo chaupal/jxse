@@ -86,7 +86,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -242,21 +241,25 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                 List<String> eas = aRA.getDest().getVectorEndpointAddresses();
                 
                 if (eaIndex < eas.size()) {
+
                     String anEndpointAddress = eas.get(eaIndex);
                     
                     try {
+
                         result.add(new URI(anEndpointAddress));
                         addedEA = true;
+
                     } catch (URISyntaxException failed) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "bad address in route : " + anEndpointAddress, failed);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "bad address in route : " + anEndpointAddress, failed);
+                        
                     }
                 }
             }
             
             // Next loop we use the next most preferred address.
             eaIndex++;
+
         } while (addedEA);
         
         // Add more primordial seeds.
@@ -331,13 +334,12 @@ public class URISeedingManager extends RdvAdvSeedingManager {
     }
     
     private void refreshActiveSeeds() {
+
         if (TimeUtils.timeNow() < nextSeedingURIrefreshTime) {
             return;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Regenerating active seeds list.");
-        }
+        Logging.logCheckedFine(LOG, "Regenerating active seeds list.");
         
         activeSeeds.clear();
         
@@ -348,10 +350,10 @@ public class URISeedingManager extends RdvAdvSeedingManager {
             Collections.shuffle(allSeedingURIs);
             
             for (URI aSeedingURI : allSeedingURIs) {
+
                 try {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Loading seeding list from : " + aSeedingURI);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Loading seeding list from : " + aSeedingURI);
                     
                     RouteAdvertisement ras[] = loadSeeds(aSeedingURI);
                     
@@ -362,11 +364,13 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                             allLoadsFailed = false;
                         }
                     }
+
                 } catch (IOException failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Failed loading seeding list from : " + aSeedingURI);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Failed loading seeding list from : " + aSeedingURI);
+                    
                 }
+
             }
             
             if (allLoadsFailed) {
@@ -531,20 +535,20 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                     
                     // Add the world's most pathetic RouteAdvertisement to the result.
                     result.add(ra);
+
                 } catch (IllegalArgumentException badURI) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "bad URI in seeding list : " + aSeed, badURI);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "bad URI in seeding list : " + aSeed, badURI);
+                    
                 }
             }
         }
         
         is.close();
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
-        }
+        Logging.logCheckedFine(LOG, MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
         
         return result.toArray(new RouteAdvertisement[result.size()]);
+
     }
 }

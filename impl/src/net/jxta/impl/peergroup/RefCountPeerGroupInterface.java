@@ -116,17 +116,20 @@ class RefCountPeerGroupInterface extends PeerGroupInterface {
      */
     @Override
     protected void finalize() throws Throwable {
+        
         try {
-            if (!unrefed.get()) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "[" + getPeerGroupID() + "] Referenced Group has been GCed. This is an application error. Please call stopApp() before releasing Peer Group references. {" + instance + "}");
-                }
 
+            if (!unrefed.get()) {
+
+                Logging.logCheckedSevere(LOG, "[" + getPeerGroupID() + "] Referenced Group has been GCed. This is an application error. Please call stopApp() before releasing Peer Group references. {" + instance + "}");
                 unref();
+
             }
+
         } finally {
             super.finalize();
         }
+
     }
 
     /**

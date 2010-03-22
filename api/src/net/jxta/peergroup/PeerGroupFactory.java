@@ -56,19 +56,14 @@
 
 package net.jxta.peergroup;
 
-
-import net.jxta.document.Advertisement;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
-import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -80,7 +75,6 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A factory for instantiating the JXTA core peer groups.
@@ -262,11 +256,9 @@ public final class PeerGroupFactory {
     @Deprecated
     public static void setConfiguratorClass(Class c) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Setting configurator class to : " + c);
-        }
-
+        Logging.logCheckedFine(LOG, "Setting configurator class to : " + c);
         configurator = c;
+
     }
 
     /**
@@ -423,27 +415,30 @@ public final class PeerGroupFactory {
             configurator = null;
 
             return wpgf.getInterface();
+
         } catch (RuntimeException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "newPlatform failed", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "newPlatform failed", e);
+            
             // rethrow
             throw e;
-        } catch (Exception e) {
-            // should be all other checked exceptions
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "newPlatform failed", e);
-            }
 
+        } catch (Exception e) {
+
+            // should be all other checked exceptions
+            Logging.logCheckedSevere(LOG, "newPlatform failed", e);
+            
             // Simplify exception scheme for caller: any sort of problem wrapped
             // in a PeerGroupException.
             throw new JxtaError("newPlatform failed", e);
+
         } catch (Error e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "newPlatform failed", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "newPlatform failed", e);
+            
             // rethrow
             throw e;
+
         }
     }
 
@@ -474,26 +469,28 @@ public final class PeerGroupFactory {
                 URI configPropertiesLocation = getStoreHome().resolve("config.properties");
 
                 try {
+
                     URLConnection configProperties = configPropertiesLocation.toURL().openConnection();
 
                     ResourceBundle rsrcs = new PropertyResourceBundle(configProperties.getInputStream());
 
                     tunables = new NetPeerGroupFactory.NetGroupTunables(rsrcs, tunables);
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Loaded defaults from " + rsrcs);
-                    }
+                    Logging.logCheckedFine(LOG, "Loaded defaults from " + rsrcs);
+                    
                 } catch (MissingResourceException ignored) {
-                    ;
+                    
                 } catch (IOException ignored) {
-                    ;
+                    
                 } catch (Exception ignored) {
-                    ;
+                    
                 }
+
             } else {
-                tunables = new NetPeerGroupFactory.NetGroupTunables(netPGID, netPGName
-                        ,
-                        (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", netPGDesc));
+
+                tunables = new NetPeerGroupFactory.NetGroupTunables(netPGID, netPGName,
+                    (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc", netPGDesc));
+
             }
 
             npgf = new NetPeerGroupFactory(ppg, tunables.id, tunables.name, tunables.desc);
@@ -501,33 +498,37 @@ public final class PeerGroupFactory {
             PeerGroup newPg = npgf.getInterface();
 
             return newPg;
+
         } catch (PeerGroupException failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "newNetPeerGroup failed", failed);
-            }
+
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", failed);
+            
             // rethrow
             throw failed;
+
         } catch (RuntimeException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "newNetPeerGroup failed", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+            
             // rethrow
             throw e;
+
         } catch (Exception e) {
+
             // should be all other checked exceptions
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "newNetPeerGroup failed", e);
-            }
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+            
             // Simplify exception scheme for caller: any sort of problem wrapped
             // in a PeerGroupException.
             throw new PeerGroupException("newNetPeerGroup failed", e);
-        } catch (Error e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "newNetPeerGroup failed", e);
-            }
 
+        } catch (Error e) {
+
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+            
             // rethrow
             throw e;
+
         }
     }
 

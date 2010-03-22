@@ -22,12 +22,16 @@ public class QueueTimeRunMetricsWrapper<T> extends RunMetricsWrapper<T> {
 	
 	@Override
 	public T call() throws Exception {
-		long queuedTime = System.currentTimeMillis() - scheduleTime;
+
+            long queuedTime = System.currentTimeMillis() - scheduleTime;
+
+            if(queuedTime > 2000 && Logging.SHOW_WARNING && SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
+            
+                SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [{0}] queued for {1}ms!", new Object[] { getWrappedType(), queuedTime });
+                
+            }
 		
-		if(queuedTime > 2000 && Logging.SHOW_WARNING && SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
-            SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [{0}] queued for {1}ms!", new Object[] { getWrappedType(), queuedTime });
-        }
-		
-		return super.call();
+            return super.call();
 	}
+
 }

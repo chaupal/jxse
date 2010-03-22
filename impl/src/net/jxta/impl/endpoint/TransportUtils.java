@@ -27,18 +27,26 @@ public class TransportUtils {
      * will be returned.
      */
     public static InetAddress resolveInterfaceAddress(String interfaceAddressStr) {
+        
         InetAddress interfaceAddress;
+
         if (interfaceAddressStr != null) {
+
             try {
+
                 interfaceAddress = InetAddress.getByName(interfaceAddressStr);
+
             } catch (UnknownHostException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Invalid address for local interface address, using {0} instead", IPUtils.ANYADDRESS);
-                }
+
+                Logging.logCheckedWarning(LOG, "Invalid address for local interface address, using " +  IPUtils.ANYADDRESS + " instead" );
                 interfaceAddress = IPUtils.ANYADDRESS;
+
             }
+
         } else {
+
             interfaceAddress = IPUtils.ANYADDRESS;
+
         }
         
         return interfaceAddress;

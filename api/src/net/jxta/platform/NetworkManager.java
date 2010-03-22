@@ -350,23 +350,24 @@ public class NetworkManager implements RendezvousListener {
             default:
                 config = NetworkConfigurator.newAdHocConfiguration(instanceHome);
         }
+
         if (!config.exists()) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Created new configuration. mode = " + mode.toString());
-            }
+
+            Logging.logCheckedInfo(LOG, "Created new configuration. mode = " + mode.toString());
 
             config.setDescription("Created by NetworkManager");
             config.setPeerID(peerID);
             config.setInfrastructureID(infrastructureID);
             config.setName(instanceName);
+
             if (useDefaultSeeds) {
                 config.addRdvSeedingURI(publicSeedingRdvURI);
                 config.addRelaySeedingURI(publicSeedingRelayURI);
             }
+
         } else {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Loading existing configuration. mode = " + mode.toString());
-            }
+
+            Logging.logCheckedInfo(LOG, "Loading existing configuration. mode = " + mode.toString());
 
             File pc = new File(config.getHome(), "PlatformConfig");
 
@@ -399,13 +400,9 @@ public class NetworkManager implements RendezvousListener {
             return netPeerGroup;
         }
 
-        if (config == null) {
-            configure(mode);
-        }
-
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Starting JXTA Network! MODE = " + mode.toString() + ",  HOME = " + instanceHome);
-        }
+        if (config == null) configure(mode);
+        
+        Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = " + mode.toString() + ",  HOME = " + instanceHome);
         
 // Not needed since the TM is completely static now (at least temporarily) -- Bill
 //        TaskManager.getTaskManager().startup();
@@ -424,9 +421,7 @@ public class NetworkManager implements RendezvousListener {
         started = true;
         stopped = false;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Started JXTA Network!");
-        }
+        Logging.logCheckedInfo(LOG, "Started JXTA Network!");
 
         return netPeerGroup;
     }
@@ -479,13 +474,12 @@ public class NetworkManager implements RendezvousListener {
      * Stops and unreferences the NetPeerGroup
      */
     public synchronized void stopNetwork() {
+
         if (stopped || !started) {
             return;
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Stopping JXTA Network!");
-        }
+        Logging.logCheckedInfo(LOG, "Stopping JXTA Network!");
 
         stopped = true;
         synchronized (networkConnectLock) {
@@ -502,9 +496,8 @@ public class NetworkManager implements RendezvousListener {
         // permit restart.
         started = false;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Stopped JXTA Network!");
-        }
+        Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
+
     }
 
     /**
@@ -527,15 +520,11 @@ public class NetworkManager implements RendezvousListener {
         // Are we an EDGE?
         if (this.getMode().compareTo(ConfigMode.EDGE)!=0) {
 
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.INFO, "Trying to wait for RendezVous connection while not being an EDGE.");
-            }
+            Logging.logCheckedWarning(LOG, "Trying to wait for RendezVous connection while not being an EDGE.");
 
         }
 
-        if (0 == timeout) {
-            timeout = Long.MAX_VALUE;
-        }
+        if (0 == timeout) timeout = Long.MAX_VALUE;
 
         long timeoutAt = System.currentTimeMillis() + timeout;
 

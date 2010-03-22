@@ -193,13 +193,16 @@ public class Platform extends StdPeerGroup {
         }
 
         if (null != jxtaHome) {
+
             try {
+
                 URL downloadablesURL = jxtaHome.resolve("Downloaded/").toURL();
                 loader.addURL(downloadablesURL);
+
             } catch (MalformedURLException badPath) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Could not install path for downloadables into JXTA Class Loader.");
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not install path for downloadables into JXTA Class Loader.");
+                
             }
         }
 

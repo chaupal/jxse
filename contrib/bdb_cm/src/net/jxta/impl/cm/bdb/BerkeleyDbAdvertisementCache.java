@@ -87,9 +87,9 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 	}
 	
 	public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName, boolean enablePeriodicClean) throws IOException {
-		if(Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-			LOG.log(Level.FINE, "Creating BDB cache within [" + storeRoot.toString() + "], areaName = [" + areaName + "]");
-		}
+
+		Logging.logCheckedFine(LOG, "Creating BDB cache within [" + storeRoot.toString() + "], areaName = [" + areaName + "]");
+		
 		this.areaName = areaName;
 
 		File dbHome = createStoreRoot(storeRoot);
@@ -159,9 +159,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				expiryTimeDb.close();
 			} catch (DatabaseException e1) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to close expiry time secondary db when recovering from failed construction", e1);
-				}
+				Logging.logCheckedSevere(LOG, "Failed to close expiry time secondary db when recovering from failed construction", e1);
 			}
 		}
 		
@@ -169,9 +167,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				attrSearchDb.close();
 			} catch (DatabaseException e1) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to close attribute index secondary db when recovering from failed construction", e1);
-				}
+				Logging.logCheckedSevere(LOG, "Failed to close attribute index secondary db when recovering from failed construction", e1);
 			}
 		}
 		
@@ -179,9 +175,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				db.close();
 			} catch (DatabaseException e1) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to close main db when recovering from failed construction", e1);
-				}
+				Logging.logCheckedSevere(LOG, "Failed to close main db when recovering from failed construction", e1);
 			}
 		}
 		
@@ -189,9 +183,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				dbEnvironment.close();
 			} catch (DatabaseException e1) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to close environment when recovering from failed construction", e1);
-				}
+				Logging.logCheckedSevere(LOG, "Failed to close environment when recovering from failed construction", e1);
 			}
 		}
 	}
@@ -512,9 +504,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
             try {
                 c.close();
             } catch(DatabaseException e) {
-                if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    
-                }
+                Logging.logCheckedWarning(LOG, e.toString());
             }
         }
     }

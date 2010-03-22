@@ -232,10 +232,11 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
             }
 
             nextPeerViewRefresh = TimeUtils.toAbsoluteTimeMillis(untilNextRefresh);
+
         } catch (IOException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed sending " + message + ".", failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed sending " + message + ".", failed);
+            
         }
     }
 
@@ -273,63 +274,72 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         MessageElement me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.MESSAGE_ELEMENT_NAME);
 
         if (me == null) {
+
             me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.RESPONSE_ELEMENT_NAME);
+
             if (me == null) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Discarding damaged " + msg + ".");
-                }
+
+                Logging.logCheckedWarning(LOG, "Discarding damaged " + msg + ".");
                 return;
+
             } else {
+
                 isResponse = true;
+
             }
         }
 
         Advertisement adv;
 
         try {
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
 
+            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
             adv = AdvertisementFactory.newAdvertisement(asDoc);
+
         } catch (RuntimeException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed building rdv advertisement from message element", failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element", failed);
             return;
+
         } catch (IOException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed building rdv advertisement from message element", failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element", failed);
             return;
+
         }
 
         if (!(adv instanceof RdvAdvertisement)) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Response does not contain radv (" + adv.getAdvertisementType() + ")");
-            }
+
+            Logging.logCheckedWarning(LOG, "Response does not contain radv (" + adv.getAdvertisementType() + ")");
             return;
+            
         }
 
         RdvAdvertisement radv = (RdvAdvertisement) adv;
 
         if (null == radv.getRouteAdv()) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Radv does not contain route");
-            }
+
+            Logging.logCheckedWarning(LOG, "Radv does not contain route");
             return;
+
         }
 
         // See if we can find a src route adv in the message.s
         me = msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.SRCROUTEADV_ELEMENT_NAME);
+
         if (me != null) {
+
             try {
+
                 XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(me);
                 Advertisement routeAdv = AdvertisementFactory.newAdvertisement(asDoc);
 
                 if (!(routeAdv instanceof RouteAdvertisement)) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Advertisement is not a RouteAdvertisement");
-                    }
+                    
+                    Logging.logCheckedWarning(LOG, "Advertisement is not a RouteAdvertisement");
+                    
                 } else {
+                    
                     RouteAdvertisement rdvRouteAdv = radv.getRouteAdv().clone();
 
                     // XXX we stich them together even if in the end it gets optimized away
@@ -337,23 +347,20 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
                     radv.setRouteAdv(rdvRouteAdv);
                 }
             } catch (RuntimeException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed building route adv from message element", failed);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed building route adv from message element", failed);
+                
             } catch (IOException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed building route adv from message element", failed);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed building route adv from message element", failed);
+                
             }
         }
         me = null;
 
         // Is this a message about ourself?
         if (group.getPeerID().equals(radv.getPeerID())) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Received a PeerView message about self. Discard.");
-            }
-
+            Logging.logCheckedFine(LOG, "Received a PeerView message about self. Discard.");
             return;
         }
 
@@ -363,12 +370,9 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         boolean isCached = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.CACHED_RADV_ELEMENT_NAME) != null);
         boolean isFromEdge = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.EDGE_ELEMENT_NAME) != null);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            String srcPeer = srcAddr.toString();
-            LOG.fine("[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
-                    + (isFailure ? " failure" : "") + " message (" + msg.toString() + ")" + (isFromEdge ? " from edge" : "")
-                    + " regarding \"" + radv.getName() + "\" from " + srcPeer);
-        }
+        Logging.logCheckedFine(LOG, "[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
+            + (isFailure ? " failure" : "") + " message (" + msg.toString() + ")" + (isFromEdge ? " from edge" : "")
+            + " regarding \"" + radv.getName() + "\" from " + srcAddr.toString());
 
         if (!isResponse || isFailure || isCached || isFromEdge) {
             // We don't care about anything except responses from active rdvs.

@@ -201,9 +201,9 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
             } else if (LOCAL_ONLY.equals(name)) {
                 localOnly = flag;
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + name);
-                }
+
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + name);
+                
             }
         }
     }

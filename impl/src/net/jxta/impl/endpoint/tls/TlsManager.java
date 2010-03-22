@@ -119,22 +119,20 @@ class TlsManager implements EndpointListener {
      **/
     void close() {
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Shutting down all connections");
-        }
+        Logging.logCheckedInfo(LOG, "Shutting down all connections");
         
         synchronized (connections) {
+            
             Iterator<TlsConn> eachConnection = connections.values().iterator();
             
             while (eachConnection.hasNext()) {
+                
                 TlsConn aConnection = eachConnection.next();
                 
                 try {
                     aConnection.close(HandshakeState.CONNECTIONDEAD);
                 } catch (IOException ignored) {
-                    if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                        LOG.info("Non-fatal problem shutting down connection to " + aConnection);
-                    }
+                    Logging.logCheckedInfo(LOG, "Non-fatal problem shutting down connection to " + aConnection);
                 }
                 
                 eachConnection.remove();
@@ -152,11 +150,10 @@ class TlsManager implements EndpointListener {
     TlsConn getTlsConn(EndpointAddress dstAddr) {
         
         if (null == transport.credential) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Not authenticated. Cannot open connections.");
-            }
-            
+
+            Logging.logCheckedWarning(LOG, "Not authenticated. Cannot open connections.");
             return null;
+            
         }
         
         boolean startHandshake = false;
@@ -168,37 +165,41 @@ class TlsManager implements EndpointListener {
         TlsConn conn = null;
         
         synchronized (connections) {
+
             conn = connections.get(paddr);
             
             // remove it if it is dead
             if (null != conn) {
+
                 if ((HandshakeState.CONNECTIONDEAD == conn.getHandshakeState())
                         || (HandshakeState.HANDSHAKEFAILED == conn.getHandshakeState())) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Removing connection for: " + paddr);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Removing connection for: " + paddr);
                     connections.remove(paddr);
                     conn = null;
+
                 }
+
             }
             
             // create the connection info entry as needed
             if (null == conn) {
+
                 try {
+
                     conn = new TlsConn(transport, dstAddr, true); // true means client
+
                 } catch (Exception failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Failed making connection to " + paddr, failed);
-                    }
-                    
+
+                    Logging.logCheckedWarning(LOG, "Failed making connection to " + paddr, failed);
                     return null;
+
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Adding connection for: " + paddr);
-                }
+                Logging.logCheckedFine(LOG, "Adding connection for: " + paddr);
                 connections.put(paddr, conn);
                 startHandshake = true;
+
             }
         }
         
@@ -206,25 +207,25 @@ class TlsManager implements EndpointListener {
         // We do this outside of the synchro block so that others can enter the
         // state machine.
         if (startHandshake) {
+
             try {
+
                 // OK. We are originating the connection:
-                // Open the connection (returns when handshake is completed)
+                // Open theSHOW_INFO connection (returns when handshake is completed)
                 // or throws an IOException if a TLS internal error occurs.
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Start of client handshake for " + paddr);
-                }
+                Logging.logCheckedInfo(LOG, "Start of client handshake for " + paddr);
                 
                 conn.finishHandshake();
+
             } catch (Throwable e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed making connection to " + paddr, e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed making connection to " + paddr, e);
                 
                 synchronized (connections) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Removing connection for: " + paddr);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Removing connection for: " + paddr);
                     connections.remove(paddr);
+
                 }
                 try {
                     conn.close(HandshakeState.HANDSHAKEFAILED);
@@ -237,18 +238,17 @@ class TlsManager implements EndpointListener {
         }
         
         do {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("getting " + conn);
-            }
+
+            Logging.logCheckedFine(LOG, "getting " + conn);
             
             synchronized (conn) {
+
                 HandshakeState currentState = conn.getHandshakeState();
                 
                 if ((HandshakeState.SERVERSTART == currentState) || (HandshakeState.CLIENTSTART == currentState)) {
+
                     // wait for the handshake to get going on another thread.
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Sleeping until handshake starts for " + paddr);
-                    }
+                    Logging.logCheckedFine(LOG, "Sleeping until handshake starts for " + paddr);
                     
                     try {
                         conn.wait(TimeUtils.ASECOND);
@@ -256,9 +256,8 @@ class TlsManager implements EndpointListener {
                         Thread.interrupted();
                     }
                 } else if (HandshakeState.HANDSHAKESTARTED == currentState) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Handshake in progress for " + paddr);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Handshake in progress for " + paddr);
                     
                     try {
                         // sleep forever waiting for the state to change.
@@ -266,39 +265,35 @@ class TlsManager implements EndpointListener {
                     } catch (InterruptedException woken) {
                         Thread.interrupted();
                     }
+
                 } else if (HandshakeState.HANDSHAKEFINISHED == currentState) {
                     
-                    if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                        LOG.info("Returning active connection to " + paddr);
-                    }
-                    
+                    Logging.logCheckedInfo(LOG, "Returning active connection to " + paddr);
                     conn.lastAccessed = TimeUtils.timeNow(); // update idle timer
-                    
                     return conn;
+
                 } else if (HandshakeState.HANDSHAKEFAILED == currentState) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Handshake failed. " + paddr + " unreachable");
-                    }
-                    
+
+                    Logging.logCheckedWarning(LOG, "Handshake failed. " + paddr + " unreachable");
                     return null;
+
                 } else if (HandshakeState.CONNECTIONDEAD == currentState) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Connection dead for " + paddr);
-                    }
-                    
+
+                    Logging.logCheckedWarning(LOG, "Connection dead for " + paddr);
                     return null;
+
                 } else if (HandshakeState.CONNECTIONCLOSING == currentState) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Connection closing for " + paddr);
-                    }
-                    
+
+                    Logging.logCheckedWarning(LOG, "Connection closing for " + paddr);
                     return null;
+
                 } else {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("Unhandled Handshake state: " + currentState);
-                    }
+
+                    Logging.logCheckedSevere(LOG, "Unhandled Handshake state: " + currentState);
+                    
                 }
             }
+
         } while (true);
     }
     
@@ -319,18 +314,16 @@ class TlsManager implements EndpointListener {
      **/
     public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Starts for " + msg);
-        }
+        Logging.logCheckedFine(LOG, "Starts for " + msg);
         
         if (null == transport.credential) {
+
             // ignore ALL messages until we are authenticated.
             if (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), lastNonAuthenticatedWarning) > TimeUtils.AMINUTE) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("NOT AUTHENTICATED--Discarding all incoming messages");
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "NOT AUTHENTICATED--Discarding all incoming messages");
                 lastNonAuthenticatedWarning = TimeUtils.timeNow();
+
             }
             
             return;
@@ -362,17 +355,19 @@ class TlsManager implements EndpointListener {
             if (null != conn) {
                 // check if the connection has idled out and remote is asking for a restart.
                 if (TlsTransport.ACT_AS_SERVER && (1 == seqN)) {
+
                     synchronized (conn) {
+
                         long idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), conn.lastAccessed);
                         
                         if (idle > transport.MIN_IDLE_RECONNECT) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.warning("Restarting : " + conn + " which has been idle for " + idle + " millis");
-                            }
+
+                            Logging.logCheckedWarning(LOG, "Restarting : " + conn + " which has been idle for " + idle + " millis");
+                            
                             try {
                                 conn.close(HandshakeState.CONNECTIONDEAD);
                             } catch (IOException ignored) {
-                                ;
+                                
                             }
                         }
                     }
@@ -381,50 +376,52 @@ class TlsManager implements EndpointListener {
                 // remove it if it is dead
                 if ((HandshakeState.CONNECTIONDEAD == conn.getHandshakeState())
                         || (HandshakeState.HANDSHAKEFAILED == conn.getHandshakeState())) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Removing connection for: " + paddr);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Removing connection for: " + paddr);
                     connections.remove(paddr);
                     conn = null;
+
                 }
+
             }
             
             // we don't have a connection to this destination, make a new connection if seqn#1
             if (null == conn) {
+
                 if (TlsTransport.ACT_AS_SERVER && (1 == seqN)) {
+
                     try {
+
                         conn = new TlsConn(transport, srcAddr, false); // false means Server
+
                     } catch (Exception failed) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Failed making connection for" + paddr, failed);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Failed making connection for" + paddr, failed);
                         return;
+
                     }
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Adding connection for: " + paddr);
-                    }
+                    Logging.logCheckedFine(LOG, "Adding connection for: " + paddr);
                     connections.put(paddr, conn);
                     serverStart = true;
+
                 } else {
+
                     // Garbage from an old connection. discard it
-                    
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning(msg + " is not start of handshake (seqn#" + seqN + ") for " + paddr);
-                    }
-                    
+                    Logging.logCheckedWarning(LOG, msg + " is not start of handshake (seqn#" + seqN + ") for " + paddr);
                     msg.clear();
                     return;
+
                 }
             }
         }
         
         // if this is a new connection, get it started.
         if (serverStart) {
+
             try {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Start of SERVER handshake for " + paddr);
-                }
+
+                Logging.logCheckedInfo(LOG, "Start of SERVER handshake for " + paddr);
                 
                 // Queue message up for TlsInputStream on that connection
                 conn.tlsSocket.input.queueIncomingMessage(msg);
@@ -434,23 +431,20 @@ class TlsManager implements EndpointListener {
                 
                 conn.lastAccessed = TimeUtils.timeNow();
                 
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Handshake complete for SERVER TLS for: " + paddr);
-                }
+                Logging.logCheckedInfo(LOG, "Handshake complete for SERVER TLS for: " + paddr);
                 
                 return;
+
             } catch (Throwable e) {
+
                 // Handshake failure or IOException
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "TLS Handshake failure for connection: " + paddr, e);
-                }
+                Logging.logCheckedWarning(LOG, "TLS Handshake failure for connection: " + paddr, e);
                 
                 synchronized (connections) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Removing connection for: " + paddr);
-                    }
+                    Logging.logCheckedFine(LOG, "Removing connection for: " + paddr);
                     connections.remove(paddr);
                 }
+
                 try {
                     conn.close(HandshakeState.HANDSHAKEFAILED);
                 } catch (IOException ignored) {
@@ -463,56 +457,55 @@ class TlsManager implements EndpointListener {
         
         // handle an ongoing connection.
         do {
+
             HandshakeState currentState;
             
             synchronized (conn) {
+
                 if (retrans) {
                     conn.retrans++;
-                    
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("retrans received, " + conn.retrans + " total.");
-                    }
+                    Logging.logCheckedFine(LOG, "retrans received, " + conn.retrans + " total.");
                     retrans = false;
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Process incoming message for " + conn);
-                }
+                Logging.logCheckedFine(LOG, "Process incoming message for " + conn);
                 
                 currentState = conn.getHandshakeState();
                 
                 if ((HandshakeState.HANDSHAKESTARTED == currentState) || (HandshakeState.HANDSHAKEFINISHED == currentState)
-                        || (HandshakeState.CONNECTIONCLOSING == currentState)) {// we will process the message once we get out of sync.
+                        || (HandshakeState.CONNECTIONCLOSING == currentState)) {
+                    // we will process the message once we get out of sync.
                 } else if (HandshakeState.CONNECTIONDEAD == currentState) {
+
                     // wait for the handshake to get going on another thread.
-                    if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                        LOG.info("Connection failed, discarding msg with seqn#" + seqN + " for " + paddr);
-                    }
+                    Logging.logCheckedInfo(LOG, "Connection failed, discarding msg with seqn#" + seqN + " for " + paddr);
                     
                     return;
+
                 } else if ((HandshakeState.SERVERSTART == currentState) || (HandshakeState.CLIENTSTART == currentState)) {
+
                     // wait for the handshake to get going on another thread.
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Sleeping msg with seqn#" + seqN + " until handshake starts for " + paddr);
-                    }
+                    Logging.logCheckedFine(LOG, "Sleeping msg with seqn#" + seqN + " until handshake starts for " + paddr);
                     
                     try {
                         conn.wait(TimeUtils.AMINUTE);
                     } catch (InterruptedException woken) {
                         Thread.interrupted();
                     }
+
                     continue;
+
                 } else if (HandshakeState.HANDSHAKEFAILED == currentState) {
+
                     // wait for the handshake to get going on another thread.
-                    if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                        LOG.info("Handshake failed, discarding msg with seqn#" + seqN + " for " + paddr);
-                    }
+                    Logging.logCheckedInfo(LOG, "Handshake failed, discarding msg with seqn#" + seqN + " for " + paddr);
                     
                     return;
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unexpected state : " + currentState);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unexpected state : " + currentState);
+                    
                 }
             }
             
@@ -544,10 +537,11 @@ class TlsManager implements EndpointListener {
                         
                         // take care of the ACK here;
                         conn.tlsSocket.output.ackReceived(seqack, sacs);
+
                     } catch (IOException failed) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Failure processing ACK", failed);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Failure processing ACK", failed);
+                        
                     }
                 }
                 
@@ -555,9 +549,7 @@ class TlsManager implements EndpointListener {
                     return;
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Queue " + msg + " seqn#" + seqN + " for " + conn);
-                }
+                Logging.logCheckedFine(LOG, "Queue " + msg + " seqn#" + seqN + " for " + conn);
                 
                 // Queue message up for TlsInputStream on that connection
                 TlsSocket bound = conn.tlsSocket;
@@ -584,18 +576,21 @@ class TlsManager implements EndpointListener {
         Iterator<MessageElement> eachElement = msg.getMessageElements(JTlsDefs.TLSNameSpace, JTlsDefs.BLOCKS);
         
         while (eachElement.hasNext()) {
+
             MessageElement elt = eachElement.next();
             
             try {
+
                 seqN = Integer.parseInt(elt.getElementName());
+
             } catch (NumberFormatException e) {
+
                 // This element was not a TLS element. Get the next one
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Bad tls record name=" + elt.getElementName());
-                }
+                Logging.logCheckedWarning(LOG, "Bad tls record name=" + elt.getElementName());
                 
                 eachElement.remove();
                 continue;
+
             }
             
             break;

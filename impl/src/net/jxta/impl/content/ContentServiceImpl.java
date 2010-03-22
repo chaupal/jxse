@@ -170,11 +170,10 @@ public class ContentServiceImpl implements ContentService {
             /**
              * {@inheritDoc}
              */
-            public void unhandledPeerGroupException(
-                    ModuleLifecycleTracker subject, PeerGroupException mlcx) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Uncaught exception", mlcx);
-                }
+            public void unhandledPeerGroupException(ModuleLifecycleTracker subject, PeerGroupException mlcx) {
+
+                Logging.logCheckedWarning(LOG, "Uncaught exception", mlcx);
+                
             }
 
             /**
@@ -219,11 +218,13 @@ public class ContentServiceImpl implements ContentService {
 
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder();
 
             configInfo.append("Configuring Content Service : ").append(assignedID);
 
             configInfo.append( "\n\tImplementation :" );
+
             if (implAdv != null) {
                 configInfo.append("\n\t\tModule Spec ID: ").append(implAdv.getModuleSpecID());
                 configInfo.append("\n\t\tImpl Description : ").append(implAdv.getDescription());
@@ -237,17 +238,20 @@ public class ContentServiceImpl implements ContentService {
             configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
 
             configInfo.append( "\n\tProviders: ");
+
             for (ContentProviderSPI provider : toAdd) {
                 configInfo.append("\n\t\tProvider: ").append(provider);
             }
             
             LOG.config( configInfo.toString() );
+
         }
         
         // Provider initialization
         for (ContentProviderSPI provider : toAdd) {
             addContentProvider(provider);
         }
+
         manager.init();
     }
 
@@ -262,10 +266,8 @@ public class ContentServiceImpl implements ContentService {
             started = true;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine( "Content Service started.");
-        }
-
+        Logging.logCheckedFine(LOG, "Content Service started.");
+        
         return START_OK;
     }
 
@@ -281,9 +283,9 @@ public class ContentServiceImpl implements ContentService {
         }
 
         manager.stop();
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine( "Content Service stopped.");
-        }
+
+        Logging.logCheckedFine(LOG, "Content Service stopped.");
+        
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -348,19 +350,20 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public void removeContentProvider(ContentProvider provider) {
+
         if (!(provider instanceof ContentProviderSPI)) {
+
             /*
              * Can't cast so we can't use.  Note that the add/remove
              * asymmetry is intentional since getContentProviders()
              * returns the ContentProvider sub-interface to prevent
              * user access to SPI methods.
              */
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.finer("Cannot remove provider which is not a full SPI: "
-                        + provider);
-            }
+            Logging.logCheckedFine(LOG, "Cannot remove provider which is not a full SPI: " + provider);
             return;
+
         }
+
         providers.remove(provider);
         ContentProviderSPI spi = (ContentProviderSPI) provider;
         boolean removeFromManager = false;
@@ -426,29 +429,29 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
+
         checkStart();
         
         try {
             return new TransferAggregator(this, active, contentID);
         } catch (TransferException transx) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Returning null due to exception", transx);
-            }
+            Logging.logCheckedFine(LOG, "Returning null due to exception\n" + transx.toString());
             return null;
         }
+
     }
 
     /**
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
+        
         checkStart();
+
         try {
             return new TransferAggregator(this, active, adv);
         } catch (TransferException transx) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Returning null due to exception", transx);
-            }
+            Logging.logCheckedFine(LOG, "Returning null due to exception\n" + transx.toString());
             return null;
         }
     }
@@ -462,28 +465,27 @@ public class ContentServiceImpl implements ContentService {
         List<ContentShare> result = null;
         List<ContentShare> subShares;
         for (ContentProvider provider : active) {
+
             try {
+
                 subShares = provider.shareContent(content);
-                if (subShares == null) {
-                    continue;
-                }
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Content with ID '" + content.getContentID() +
-                            "' being shared by provider: " + provider);
-                }
+                if (subShares == null) continue;
 
-                if (result == null) {
-                    result = new ArrayList<ContentShare>();
-                }
+                Logging.logCheckedFine(LOG, "Content with ID '" + content.getContentID() +
+                    "' being shared by provider: " + provider);
+
+                if (result == null) result = new ArrayList<ContentShare>();
 
                 result.addAll(subShares);
+
             } catch (UnsupportedOperationException uox) {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Ignoring provider which doesn't support "
+
+                Logging.logCheckedFinest(LOG, "Ignoring provider which doesn't support "
                             + "share operation: " + provider);
-                }
+                
             }
+            
         }
 
         if (result != null) {
@@ -557,16 +559,18 @@ public class ContentServiceImpl implements ContentService {
 
         for (ContentProviderListener listener : listeners) {
             try {
+
                 if (event == null) {
                     event = new ContentProviderEvent.Builder(this, shares)
                             .build();
                 }
+
                 listener.contentShared(event);
+
             } catch (Throwable thr) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING,
-                            "Uncaught throwable from listener", thr);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", thr);
+                
             }
         }
     }
@@ -581,16 +585,18 @@ public class ContentServiceImpl implements ContentService {
 
         for (ContentProviderListener listener : listeners) {
             try {
+
                 if (event == null) {
                     event = new ContentProviderEvent.Builder(this, id)
                             .build();
                 }
+
                 listener.contentUnshared(event);
+
             } catch (Throwable thr) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING,
-                            "Uncaught throwable from listener", thr);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", thr);
+                
             }
         }
     }
@@ -602,37 +608,39 @@ public class ContentServiceImpl implements ContentService {
      * @return list of content provider implementations
      */
     private List<ContentProviderSPI> locateProviders() {
+        
         ContentProviderSPI provider;
-        List<ContentProviderSPI> result =
-                new CopyOnWriteArrayList<ContentProviderSPI>();
+
+        List<ContentProviderSPI> result = new CopyOnWriteArrayList<ContentProviderSPI>();
+
         ClassLoader loader = getClass().getClassLoader();
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Locating providers");
-        }
+
+        Logging.logCheckedFine(LOG, "Locating providers");
         
         Enumeration resources;
         try {
             resources = loader.getResources(
                     "META-INF/services/" + ContentProviderSPI.class.getName());
+        
         } catch (IOException iox) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING,
-                        "Unable to enumerate ContentProviders", iox);
-            }
+
+            Logging.logCheckedWarning(LOG, "Unable to enumerate ContentProviders", iox);
+            
             // Early-out.
             return result;
+
         }
         
         // Create a Set of all unique class names
         Set<String> provClassNames = new HashSet<String>();
         while (resources.hasMoreElements()) {
+
             URL resURL = (URL) resources.nextElement();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("   Provider services resource: " + resURL);
-            }
+            Logging.logCheckedFine(LOG, "   Provider services resource: " + resURL);
+            
             try {
-                InputStreamReader inReader =
-                        new InputStreamReader(resURL.openStream());
+
+                InputStreamReader inReader = new InputStreamReader(resURL.openStream());
                 BufferedReader reader = new BufferedReader(inReader);
                 String str;
 
@@ -646,44 +654,44 @@ public class ContentServiceImpl implements ContentService {
                         // Probably a commented line
                         continue;
                     }
+
                     provClassNames.add(str);
+
                 }
+
             } catch (IOException iox) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING,
-                            "Could not parse ContentProvider services from: "
-                            + resURL, iox);
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not parse ContentProvider services from: "
+                    + resURL, iox);
+
             }
         }
          
         // Now attempt to instantiate all the providers we've found
         for (String str : provClassNames) {
+
             try {
+
                 Class cl = loader.loadClass(str);
                 provider = (ContentProviderSPI) cl.newInstance();
                 result.add(provider);
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Added provider: " + str);
-                }
+                Logging.logCheckedFine(LOG, "Added provider: " + str);
+
             } catch (ClassNotFoundException cnfx) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            "Could not load service provider", cnfx);
-                }
+
+                Logging.logCheckedSevere(LOG, "Could not load service provider", cnfx);
                 // Continue to next provider class name
+
             } catch (InstantiationException instx) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            "Could not load service provider", instx);
-                }
+
+                Logging.logCheckedSevere(LOG, "Could not load service provider", instx);
                 // Continue to next provider class name
+
             } catch (IllegalAccessException iaccx) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            "Could not load service provider", iaccx);
-                }
+
+                Logging.logCheckedSevere(LOG, "Could not load service provider", iaccx);
                 // Continue to next provider class name
+
             }
         }            
 

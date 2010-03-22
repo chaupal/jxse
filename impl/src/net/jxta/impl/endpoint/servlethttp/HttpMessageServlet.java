@@ -163,15 +163,11 @@ public class HttpMessageServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("GET " + req.getRequestURI() + " thread = " + Thread.currentThread());
-        }
-
+        Logging.logCheckedFine(LOG, "GET " + req.getRequestURI() + " thread = " + Thread.currentThread());
         processRequest(req, res);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("GET done for thread = " + Thread.currentThread());
-        }
+        Logging.logCheckedFine(LOG, "GET done for thread = " + Thread.currentThread());
+
     }
 
     /**
@@ -180,15 +176,10 @@ public class HttpMessageServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("POST " + req.getRequestURI() + " thread = " + Thread.currentThread());
-        }
-
+        Logging.logCheckedFine(LOG, "POST " + req.getRequestURI() + " thread = " + Thread.currentThread());
         processRequest(req, res);
+        Logging.logCheckedFine(LOG, "POST done for thread = " + Thread.currentThread());
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("POST done for thread = " + Thread.currentThread());
-        }
     }
 
     /**
@@ -196,6 +187,7 @@ public class HttpMessageServlet extends HttpServlet {
      */
     @Override
     public synchronized void destroy() {
+
         // All we need to do is wakeup the threads that are waiting. (In truth
         // we'll miss those that are waiting on a messenger, but that'll do for
         // now, because we do that only when shutting down the group and then
@@ -203,6 +195,7 @@ public class HttpMessageServlet extends HttpServlet {
         // messengers.
         destroyed = true;
         notifyAll();
+
     }
 
     /**
@@ -240,6 +233,7 @@ public class HttpMessageServlet extends HttpServlet {
 
         // check if this is a ping request, no requestor peerId or incoming message
         if (null == currentRequest.requestorAddr && !currentRequest.messageContent) {
+
             // this is only a ping request
             pingResponse(res);
 
@@ -281,10 +275,9 @@ public class HttpMessageServlet extends HttpServlet {
         HttpServletMessenger messenger = null;
 
         if ((null != currentRequest.requestorAddr) && (currentRequest.responseTimeout >= 0) && (null != currentRequest.destAddr)) {
+
             // create the back channel messenger
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine( "Creating back channel messenger for " + currentRequest.requestorAddr + " (" + currentRequest.destAddr + ")");
-            }
+            Logging.logCheckedFine(LOG, "Creating back channel messenger for " + currentRequest.requestorAddr + " (" + currentRequest.destAddr + ")");
 
             long messengerAliveFor;
 
@@ -298,9 +291,7 @@ public class HttpMessageServlet extends HttpServlet {
                     currentRequest.requestorAddr, messengerAliveFor);
             boolean taken = owner.messengerReadyEvent(messenger, currentRequest.destAddr);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Incoming messenger to: " + currentRequest.requestorAddr + " taken=" + taken);
-            }
+            Logging.logCheckedFine(LOG, "Incoming messenger to: " + currentRequest.requestorAddr + " taken=" + taken);
 
             if (!taken) {
                 // nobody cares. Just destroy it.
@@ -327,12 +318,11 @@ public class HttpMessageServlet extends HttpServlet {
                 // construct the message. Send BAD_REQUEST if the message construction
                 // fails
                 try {
+
                     String contentType = req.getContentType();
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Reading message from request : " + contentType);
-                    }
-
+                    Logging.logCheckedFine(LOG, "Reading message from request : " + contentType);
+                    
                     MimeMediaType contentMimeType = EndpointServiceImpl.DEFAULT_MESSAGE_TYPE;
 
                     if (null != contentType) {
@@ -355,10 +345,10 @@ public class HttpMessageServlet extends HttpServlet {
 
                         transportBindingMeter.messageReceived(false, incomingMessage, receiveTime, 0); // size=0 since it was already incorporated in the request size
                     }
+
                 } catch (IOException e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Malformed JXTA message, responding with BAD_REQUEST", e);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Malformed JXTA message, responding with BAD_REQUEST", e);
 
                     res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message was not a valid JXTA message");
 
@@ -370,16 +360,16 @@ public class HttpMessageServlet extends HttpServlet {
                 }
 
                 // post the incoming message to the endpoint demux
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Handing " + incomingMessage + " to the endpoint.");
-                }
+                Logging.logCheckedFine(LOG, "Handing " + incomingMessage + " to the endpoint.");
 
                 try {
+
                     endpoint.processIncomingMessage(incomingMessage);
+
                 } catch (Throwable e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Failure demuxing an incoming message", e);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message", e);
+                    
                 }
             }
 
@@ -387,9 +377,8 @@ public class HttpMessageServlet extends HttpServlet {
 
             // Check if the back channel is to be used for sending messages.
             if ((currentRequest.responseTimeout >= 0) && (null != messenger)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Wait for message from the messenger. timeout = " + currentRequest.responseTimeout);
-                }
+
+                Logging.logCheckedFine(LOG, "Wait for message from the messenger. timeout = " + currentRequest.responseTimeout);
 
                 long quitAt = (currentRequest.responseTimeout == 0)
                         ? Long.MAX_VALUE
@@ -399,10 +388,9 @@ public class HttpMessageServlet extends HttpServlet {
                     long remaining = TimeUtils.toRelativeTimeMillis(quitAt);
 
                     if ((remaining <= 0)) {
+
                         // done processing the request
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Terminating expired request.");
-                        }
+                        Logging.logCheckedFine(LOG, "Terminating expired request.");
 
                         // We know we did not respond anything.
                         // In general it's better if jetty closes the connection
@@ -426,10 +414,9 @@ public class HttpMessageServlet extends HttpServlet {
                     }
 
                     if (outMsg == null) {
+
                         // done processing the request
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Terminating request with no message to send.");
-                        }
+                        Logging.logCheckedFine(LOG, "Terminating request with no message to send.");
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                             transportBindingMeter.connectionClosed(false,
@@ -448,19 +435,17 @@ public class HttpMessageServlet extends HttpServlet {
 
                     long startMessageSend = TimeUtils.timeNow();
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Sending " + outMsg + " on back channel to " + req.getRemoteHost());
-                    }
+                    Logging.logCheckedFine(LOG, "Sending " + outMsg + " on back channel to " + req.getRemoteHost());
 
                     if (!beganResponse) {
+
                         // valid request, send back OK response
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Sending OK in response to request");
-                        }
+                        Logging.logCheckedFine(LOG, "Sending OK in response to request");
 
                         beganResponse = true;
                         res.setStatus(HttpServletResponse.SC_OK);
                         res.setContentType(EndpointServiceImpl.DEFAULT_MESSAGE_TYPE.toString());
+
                     }
 
                     // send the message
@@ -480,14 +465,13 @@ public class HttpMessageServlet extends HttpServlet {
 
                     // send the message
                     try {
+
                         serialed.sendToStream(out);
                         out.flush();
 
                         messenger.messageSent(true);
 
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Successfully sent " + outMsg + " on back channel to " + req.getRemoteHost());
-                        }
+                        Logging.logCheckedFine(LOG, "Successfully sent " + outMsg + " on back channel to " + req.getRemoteHost());
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                             lastReadWriteTime = TimeUtils.timeNow();
@@ -496,11 +480,10 @@ public class HttpMessageServlet extends HttpServlet {
 
                             transportBindingMeter.messageSent(false, outMsg, sendTime, bytesSent);
                         }
-                    } catch (IOException ex) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Failed sending Message on back channel to " + req.getRemoteHost());
-                        }
 
+                    } catch (IOException ex) {
+
+                        Logging.logCheckedFine(LOG, "Failed sending Message on back channel to " + req.getRemoteHost());
                         messenger.messageSent(false);
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
@@ -522,41 +505,41 @@ public class HttpMessageServlet extends HttpServlet {
                     }
 
                     // If we never generated a response then make it clear we gave up waiting.
-                    if (!beganResponse) {
-                        res.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                    }
+                    if (!beganResponse) res.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    
                 }
+
             } else {
+
                 // No response was desired.
                 res.setStatus(HttpServletResponse.SC_OK);
+
             }
+
         } finally {
+
             // close the messenger
-            if (null != messenger) {
-                messenger.close();
-            }
+            if (null != messenger) messenger.close();
+
         }
 
         // If contentLength was never set and we have not decided *not* to set
         // it, then we must set it to 0 (that's the truth in that case). This
         // allows Jetty to keep to keep the connection open unless what's on the
         // other side is a 1.0 proxy.
-        if (mustSetContentLength) {
-            res.setContentLength(0);
-        }
-
+        if (mustSetContentLength) res.setContentLength(0);
+        
         // make sure the response is pushed out
         res.flushBuffer();
 
         // done processing the request
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Finished processing the request from " + req.getRemoteHost());
-        }
+        Logging.logCheckedFine(LOG, "Finished processing the request from " + req.getRemoteHost());
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
             transportBindingMeter.connectionClosed(false,
                     TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), currentRequest.requestStartTime));
         }
+
     }
 
     /**
@@ -566,12 +549,10 @@ public class HttpMessageServlet extends HttpServlet {
      *  @param res The response to which the ping result should be sent.
      */
     private void pingResponse(HttpServletResponse res) throws IOException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Responding to \'ping\' request with 200 and peerID");
-        }
+
+        Logging.logCheckedFine(LOG, "Responding to \'ping\' request with 200 and peerID");
 
         res.setStatus(HttpServletResponse.SC_OK);
-
         res.setContentLength(pingResponseBytes.length);
         res.setContentType(MimeMediaType.TEXTUTF8.toString());
 
@@ -580,13 +561,16 @@ public class HttpMessageServlet extends HttpServlet {
         out.write(pingResponseBytes);
         out.flush();
         out.close();
+
     }
 
     /**
      *  Debugging output.
      */
     private static void printRequest(HttpServletRequest req) {
+        
         final char nl = '\n';
+
         StringBuilder builder = new StringBuilder();
 
         builder.append("HTTP request:" + nl);
@@ -607,6 +591,7 @@ public class HttpMessageServlet extends HttpServlet {
                 builder.append("    value: ").append(cookies[i].getValue()).append(nl);
                 builder.append("    version: ").append(cookies[i].getVersion()).append(nl);
             }
+
         }
 
         for (Enumeration headers = req.getHeaderNames(); headers.hasMoreElements();) {
@@ -754,12 +739,11 @@ public class HttpMessageServlet extends HttpServlet {
             // check for incoming message
             messageContent = hasMessageContent(req);
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(
+            Logging.logCheckedFiner(LOG,
                         "New JXTA Request for Requestor=" + requestorAddr + "\n\tResponse Timeout=" + responseTimeout
                         + "\tAdditional Response Timeout=" + extraResponsesTimeout + "\tRequest Destination Address=" + destAddr
                         + "\tHas Message Content=" + Boolean.toString(messageContent));
-            }
+        
         }
 
         /**
@@ -792,9 +776,7 @@ public class HttpMessageServlet extends HttpServlet {
                 }
             }
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("requestorPeerId = " + requestorPeerId);
-            }
+            Logging.logCheckedFiner(LOG, "requestorPeerId = " + requestorPeerId);
 
             return requestorPeerId;
         }
@@ -813,18 +795,16 @@ public class HttpMessageServlet extends HttpServlet {
                 // connections for ever. If they re-establish all the time it's
                 // fine, but until we have a more sophisticated mechanism, we
                 // want to make sure we quit timely if the client's gone.
-                if (timeout > MAXIMUM_RESPONSE_DURATION || timeout == 0) {
+                if (timeout > MAXIMUM_RESPONSE_DURATION || timeout == 0) 
                     timeout = MAXIMUM_RESPONSE_DURATION;
-                }
+                
             } catch (NumberFormatException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("The requestTimeout does not contain a decimal number " + requestTimeoutString);
-                }
+
+                Logging.logCheckedWarning(LOG, "The requestTimeout does not contain a decimal number " + requestTimeoutString);
+                
             }
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("requestTimeout = " + timeout);
-            }
+            Logging.logCheckedFiner(LOG, "requestTimeout = " + timeout);
 
             return timeout;
         }
@@ -843,18 +823,16 @@ public class HttpMessageServlet extends HttpServlet {
                 // connections for ever. If they re-establish all the time it's
                 // fine, but until we have a more sophisticated mechanism, we
                 // want to make sure we quit timely if the client's gone.
-                if (timeout > (2 * TimeUtils.AMINUTE) || timeout == 0) {
+                if (timeout > (2 * TimeUtils.AMINUTE) || timeout == 0) 
                     timeout = (2 * TimeUtils.AMINUTE);
-                }
+                
             } catch (NumberFormatException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("The extraResponseTimeoutString does not contain a decimal number " + extraResponseTimeoutString);
-                }
+
+                Logging.logCheckedWarning(LOG, "The extraResponseTimeoutString does not contain a decimal number " + extraResponseTimeoutString);
+                
             }
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("extraResponseTimeout = " + timeout);
-            }
+            Logging.logCheckedFine(LOG, "extraResponseTimeout = " + timeout);
 
             return timeout;
         }
@@ -866,6 +844,7 @@ public class HttpMessageServlet extends HttpServlet {
          *  @return <tt>true</tt> if there is content to be read from this request.
          */
         private static boolean hasMessageContent(HttpServletRequest req) {
+
             boolean hasContent = false;
 
             int contentLength = req.getContentLength();
@@ -873,17 +852,19 @@ public class HttpMessageServlet extends HttpServlet {
             // if the content length is not zero, there is an incoming message
             // Either the message length is given or it is a chunked message
             if (contentLength > 0) {
+
                 hasContent = true;
+
             } else if (contentLength == -1) {
+
                 // check if the transfer encoding is chunked
                 String transferEncoding = req.getHeader("Transfer-Encoding");
 
                 hasContent = "chunked".equals(transferEncoding);
+
             }
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("hasMessageContent = " + hasContent);
-            }
+            Logging.logCheckedFiner(LOG, "hasMessageContent = " + hasContent);
 
             return hasContent;
         }

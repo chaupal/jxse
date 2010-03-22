@@ -187,9 +187,7 @@ public class IncomingUnicastServer implements Runnable {
         try {
             acceptSelector.close();
         } catch (IOException io) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "IO error occured while closing Selectors", io);
-            }
+            Logging.logCheckedSevere(LOG, "IO error occured while closing Selectors", io);
         }
     }
 
@@ -232,25 +230,28 @@ public class IncomingUnicastServer implements Runnable {
     public void run() {
 
         try {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Server is ready to accept connections. " + transport.getPublicAddress());
-            }
+
+            Logging.logCheckedInfo(LOG, "Server is ready to accept connections. " + transport.getPublicAddress());
 
             while (acceptSelector.isOpen()) {
                 try {
+
                     // Open the channel if not already open.
                     if ((null == serverSocChannel) || !serverSocChannel.isOpen()) {
+
                         serverSocChannel = null;
                         serverSocket = null;
 
                         if (null == (serverSocChannel = openServerSocket(acceptSelector))) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.warning("Failed to open Server Channel");
-                            }
+                            
+                            Logging.logCheckedWarning(LOG, "Failed to open Server Channel");
                             break;
+
                         }
+
                         serverSocket = serverSocChannel.socket();
                         serverBindPreferredLocalPort = serverSocket.getLocalPort();
+
                     }
 
                     // select() waiting for connections.
@@ -276,36 +277,40 @@ public class IncomingUnicastServer implements Runnable {
                                 transport.executor.execute(builder);
                                 transport.incrementConnectionsAccepted();
                             } catch (RejectedExecutionException re) {
-                                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                    LOG.log(Level.FINE, MessageFormat.format("Executor rejected task : {0}", builder.toString()), re);
-                                }
+                                Logging.logCheckedFine(LOG, MessageFormat.format("Executor rejected task : {0}", builder.toString())
+                                    + "\n" + re.toString());
                             }
                         }
                     }
+
                 } catch (ClosedSelectorException cse) {
-                    break;
-                } catch (InterruptedIOException woken) {
-                    Thread.interrupted();
-                } catch (IOException e1) {
-                    if (!acceptSelector.isOpen()) {
-                        break;
-                    }
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "[1] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e1);
-                    }
-                } catch (SecurityException e2) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "[2] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e2);
-                    }
 
                     break;
+
+                } catch (InterruptedIOException woken) {
+                    
+                    Thread.interrupted();
+
+                } catch (IOException e1) {
+
+                    if (!acceptSelector.isOpen()) break;
+
+                    Logging.logCheckedWarning(LOG, "[1] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e1);
+                    
+                } catch (SecurityException e2) {
+
+                    Logging.logCheckedWarning(LOG, "[2] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e2);
+                    break;
+
                 }
             }
+
         } catch (Throwable all) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-            }
+
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            
         } finally {
+
             synchronized (this) {
                 ServerSocketChannel temp = serverSocChannel;
                 serverSocChannel = null;
@@ -314,17 +319,14 @@ public class IncomingUnicastServer implements Runnable {
                     try {
                         temp.close();
                     } catch (IOException ignored) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.log(Level.FINE, "Exception occurred while closing server socket", ignored);
-                        }
+                        Logging.logCheckedFine(LOG, "Exception occurred while closing server socket\n" + ignored.toString());
                     }
                 }
                 acceptThread = null;
             }
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Server has been shut down. " + transport.getPublicAddress());
-            }
+            Logging.logCheckedInfo(LOG, "Server has been shut down. " + transport.getPublicAddress());
+            
         }
     }
 
@@ -344,18 +346,20 @@ public class IncomingUnicastServer implements Runnable {
                     newSocket.setReceiveBufferSize(useBufferSize);
                     newSocket.bind(bindAddress, TcpTransport.MaxAcceptCnxBacklog);
                 } catch (SocketException failed) {
+
                     if (-1 != serverBindStartLocalPort) {
+
                         // If there is a port range then forget our preferred port and rest
                         serverBindPreferredLocalPort = (0 == serverBindStartLocalPort) ? 0 : -1;
                         continue;
+                        
                     }
 
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "Cannot bind ServerSocket on " + serverBindLocalInterface + ":" + serverBindPreferredLocalPort, failed);
-                    }
-
+                    Logging.logCheckedSevere(LOG, "Cannot bind ServerSocket on " + serverBindLocalInterface + ":" + serverBindPreferredLocalPort, failed);
                     return null;
+
                 }
+
             } else {
                 // No preference or we already tried and failed to bind the preferred port.
                 ServerSocket newSocket = newChannel.socket();
@@ -377,11 +381,10 @@ public class IncomingUnicastServer implements Runnable {
             break;
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Server will accept connections at " + newChannel.socket().getLocalSocketAddress());
-        }
-
+        Logging.logCheckedInfo(LOG, "Server will accept connections at " + newChannel.socket().getLocalSocketAddress());
+        
         return newChannel;
+
     }
 
     /**
@@ -412,21 +415,24 @@ public class IncomingUnicastServer implements Runnable {
                         if (transportBindingMeter != null) {
                             transportBindingMeter.connectionEstablished(false, 0);
                         }
+
                     }
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, socketChannel + " not connected.");
-                    }
+
+                    Logging.logCheckedWarning(LOG, socketChannel + " not connected.");
+                    
                 }
+
             } catch (IOException io) {
+
                 // protect against invalid connections
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Messenger creation failure", io);
-                }
+                Logging.logCheckedFine(LOG, "Messenger creation failure\n" + io.toString());
+
             } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable", all);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable", all);
+                
             }
         }
     }

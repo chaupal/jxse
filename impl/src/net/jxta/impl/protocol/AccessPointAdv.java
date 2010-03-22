@@ -191,13 +191,13 @@ public class AccessPointAdv extends AccessPointAdvertisement implements Cloneabl
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
             }
+
         }
     }
 

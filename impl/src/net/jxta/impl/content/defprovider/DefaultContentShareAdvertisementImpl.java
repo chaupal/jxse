@@ -98,14 +98,14 @@ public class DefaultContentShareAdvertisementImpl
         /**
          *  {@inheritDoc}
          */
-        public String getAdvertisementType( ) {
+        public String getAdvertisementType() {
             return DefaultContentShareAdvertisementImpl.getAdvertisementType();
         }
 
         /**
          *  {@inheritDoc}
          */
-        public Advertisement newInstance( ) {
+        public Advertisement newInstance() {
             return new DefaultContentShareAdvertisementImpl();
         }
 

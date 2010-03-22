@@ -53,16 +53,13 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.id.binaryID;
 
+package net.jxta.impl.id.binaryID;
 
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
-
 import java.net.URI;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements a Pipe ID. Each pipe is assigned a unique id.
@@ -192,11 +189,12 @@ public final class PipeBinaryID extends net.jxta.pipe.PipeID {
             net.jxta.peergroup.PeerGroupID peerGroupID = (net.jxta.peergroup.PeerGroupID) net.jxta.id.IDFactory.fromURI(url);
 
             return peerGroupID;
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "cannot convert sub group. ID value = " + id, e);
-            }
+
+            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = " + id, e);
             return null;
+
         }
     }
 

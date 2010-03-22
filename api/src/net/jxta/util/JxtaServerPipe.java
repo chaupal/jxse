@@ -212,23 +212,24 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @throws IOException if an I/O error occurs
      */
     public JxtaBiDiPipe accept() throws IOException {
-        if (isClosed()) {
-            throw new SocketException("JxtaServerPipe is closed");
-        }
-        if (!isBound()) {
-            throw new SocketException("JxtaServerPipe is not bound yet");
-        }
+
+        if (isClosed()) throw new SocketException("JxtaServerPipe is closed");
+        
+        if (!isBound()) throw new SocketException("JxtaServerPipe is not bound yet");
+        
         try {
+
             JxtaBiDiPipe bidi = connectionQueue.poll(timeout, TimeUnit.MILLISECONDS);
-            if (bidi == null) {
-                throw new SocketTimeoutException("Timeout reached");
-            }
+
+            if (bidi == null) throw new SocketTimeoutException("Timeout reached");
+
             return bidi;
+
         } catch (InterruptedException ie) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Interrupted", ie);
-            }
+
+            Logging.logCheckedFine(LOG, "Interrupted\n" + ie.toString());
             throw new SocketException("interrupted");
+
         }
     }
 
@@ -386,33 +387,35 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             el = msg.getMessageElement(nameSpace, reliableTag);
             boolean isReliable = false;
+
             if (el != null) {
+
                 isReliable = Boolean.valueOf((el.toString()));
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Connection request [isReliable] :" + isReliable);
-                }
+                Logging.logCheckedFine(LOG, "Connection request [isReliable] :" + isReliable);
+                
             }
 
             el = msg.getMessageElement(nameSpace, directSupportedTag);
             boolean directSupported = false;
+
             if (el != null) {
+
                 directSupported = Boolean.valueOf((el.toString()));
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Connection request [directSupported] :" + directSupported);
-                }
+                Logging.logCheckedFine(LOG, "Connection request [directSupported] :" + directSupported);
+                
             }
             
             el = msg.getMessageElement(nameSpace, connectionPropertiesTag);
             byte[] connectionPropertiesBytes = null;
+
             if (el != null) {
+
                 connectionPropertiesBytes = el.getBytes(false);
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Connection request [connectionPropertiesBytes] :" + connectionPropertiesBytes);
-                }
-                if (connectionPropertiesBytes != null) {
-                    connectionProperties
-                            = bytesToProperties(connectionPropertiesBytes);
-                }
+                Logging.logCheckedFine(LOG, "Connection request [connectionPropertiesBytes] :" + connectionPropertiesBytes);
+
+                if (connectionPropertiesBytes != null) 
+                    connectionProperties = bytesToProperties(connectionPropertiesBytes);
+                
             }
 
             Messenger msgr;
@@ -429,11 +432,12 @@ public class JxtaServerPipe implements PipeMsgListener {
             }
 
             if (msgr != null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Reliability set to :" + isReliable);
-                }
+
+                Logging.logCheckedFine(LOG, "Reliability set to :" + isReliable);
+                
                 PipeAdvertisement newpipe = newInputPipe(group, outputPipeAdv);
                 JxtaBiDiPipe pipe = null;
+
                 if (connectionProperties != null) {
                     pipe = new JxtaBiDiPipe(group, msgr, newpipe, credDoc, isReliable, direct, connectionProperties);
                 } else {
@@ -443,14 +447,17 @@ public class JxtaServerPipe implements PipeMsgListener {
                 pipe.setRemotePeerAdvertisement(peerAdv);
                 pipe.setRemotePipeAdvertisement(outputPipeAdv);
                 sendResponseMessage(group, msgr, newpipe);
+
                 return pipe;
             }
+
         } catch (IOException e) {
+
             // deal with the error
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "IOException occured", e);
-            }
+            Logging.logCheckedFine(LOG, "IOException occured\n" + e.toString());
+            
         }
+        
         return null;
     }
 
@@ -548,9 +555,7 @@ public class JxtaServerPipe implements PipeMsgListener {
     protected void finalize() throws Throwable {
         try {
             if (!closed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("JxtaServerPipe is being finalized without being previously closed. This is likely a user's bug.");
-                }
+                Logging.logCheckedWarning(LOG, "JxtaServerPipe is being finalized without being previously closed. This is likely a user's bug.");
             }
             close();
         } finally {

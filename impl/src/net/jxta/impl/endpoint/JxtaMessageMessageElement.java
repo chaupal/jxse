@@ -154,16 +154,14 @@ public class JxtaMessageMessageElement extends MessageElement {
                     } while (-1 != mine);
                     
                     return true;
-                } catch (IOException fatal) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "MessageElements could not be compared.", fatal);
-                    }
-                    
-                    IllegalStateException failure = new IllegalStateException("MessageElements could not be compared.");
 
+                } catch (IOException fatal) {
+
+                    Logging.logCheckedSevere(LOG, "MessageElements could not be compared.", fatal);
+                    IllegalStateException failure = new IllegalStateException("MessageElements could not be compared.");
                     failure.initCause(fatal);
-                    
                     throw failure;
+
                 }
             }
         }

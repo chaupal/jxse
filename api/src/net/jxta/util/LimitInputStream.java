@@ -305,16 +305,19 @@ public class LimitInputStream extends FilterInputStream {
         
         if (!alreadycounting) {
             if (-1 != result) {
+
                 read++;
+
             } else {
+
                 if (fatalUnderflow && (read != limit)) {
+
                     IOException failed = new IOException(
                             "Underflow in read, stream EOFed at " + read + " before limit of " + limit);
 
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, failed.getMessage(), failed);
-                    }
+                    Logging.logCheckedWarning(LOG, failed.getMessage(), failed);
                     throw failed;
+
                 }
             }
         }
@@ -363,12 +366,11 @@ public class LimitInputStream extends FilterInputStream {
                 read += result;
             } else {
                 if (fatalUnderflow && (read != limit)) {
+
                     IOException failed = new IOException(
                             "Underflow while tring to read " + readLen + ", stream EOFed at " + read + " before limit of " + limit);
 
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, failed.getMessage(), failed);
-                    }
+                    Logging.logCheckedWarning(LOG, failed.getMessage(), failed);
                     throw failed;
 
                 }

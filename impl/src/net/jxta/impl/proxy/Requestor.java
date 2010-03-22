@@ -87,15 +87,17 @@ public class Requestor {
     private int threshold = 1;
 
     public boolean send(Message message) {
+
         int count;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("send to " + address.toString());
-        }
+        Logging.logCheckedFine(LOG, "send to " + address.toString());
 
         try {
+
             synchronized (this) {
+
                 if ((null == messenger) || messenger.isClosed()) {
+
                     messenger = null;
                     count = 0;
                     // Add a retry in case we did not obtain a new messenger.
@@ -111,9 +113,7 @@ public class Requestor {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
                             Thread.interrupted();
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("Retry getting a messenger" + e);
-                            }
+                            Logging.logCheckedFine(LOG, "Retry getting a messenger\n" + e.toString());
                         }
                         count++;
                     }
@@ -136,9 +136,8 @@ public class Requestor {
     }
 
     public boolean send(Advertisement adv, String resultType) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("send " + adv);
-        }
+
+        Logging.logCheckedFine(LOG, "send " + adv);
 
         Message message = new Message();
 
@@ -166,11 +165,10 @@ public class Requestor {
                     ,
                     new StringMessageElement(ProxyService.ID_TAG, peerAdv.getPeerID().toString(), null));
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("send PeerAdvertisement name=" + peerAdv.getName() + " id=" + peerAdv.getPeerID().toString());
-            }
+            Logging.logCheckedFine(LOG, "send PeerAdvertisement name=" + peerAdv.getName() + " id=" + peerAdv.getPeerID().toString());
 
         } else if (adv instanceof PeerGroupAdvertisement) {
+
             PeerGroupAdvertisement groupAdv = (PeerGroupAdvertisement) adv;
 
             message.addMessageElement(ProxyService.PROXYNS
@@ -206,11 +204,8 @@ public class Requestor {
                     ,
                     new StringMessageElement(ProxyService.ARG_TAG, pipeAdv.getType(), null));
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "send PipeAdvertisement name=" + pipeAdv.getName() + " id=" + pipeAdv.getPipeID().toString() + " arg="
-                        + pipeAdv.getType());
-            }
+            Logging.logCheckedFine(LOG, "send PipeAdvertisement name=" + pipeAdv.getName() + " id="
+                + pipeAdv.getPipeID().toString() + " arg=" + pipeAdv.getType());
 
         } else {
             return false;
@@ -236,9 +231,8 @@ public class Requestor {
     }
 
     public boolean notifyError(String errorString) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("notifyError " + errorString);
-        }
+
+        Logging.logCheckedFine(LOG, "notifyError " + errorString);
 
         Message message = new Message();
 
@@ -260,9 +254,8 @@ public class Requestor {
      */
     @Override
     public boolean equals(Object obj) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(this + " equals " + obj);
-        }
+
+        Logging.logCheckedFine(LOG, this + " equals " + obj);
 
         if (obj instanceof Requestor) {
             Requestor dest = (Requestor) obj;
@@ -304,9 +297,7 @@ public class Requestor {
     public static Requestor createRequestor(PeerGroup group, Message message, EndpointAddress address, int threshold) throws IOException {
         Requestor requestor;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("create new Requestor - " + address.toString());
-        }
+        Logging.logCheckedFine(LOG, "create new Requestor - " + address.toString());
 
         MessageElement elem = message.getMessageElement(ProxyService.REQUESTID_TAG);
 

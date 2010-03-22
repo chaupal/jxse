@@ -108,24 +108,23 @@ public class DefaultConfigurator extends AutomaticConfigurator {
         }
 
         File jxtaHomeDir = new File(jxtaHome);
+        
         try {
+
             boolean forceReconfig;
             File file = new File(jxtaHomeDir, "reconf");
             forceReconfig = file.exists();
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("force reconfig : " + forceReconfig);
-            }
+            Logging.logCheckedFine(LOG, "force reconfig : " + forceReconfig);
 
             return forceReconfig;
+
         } catch (Exception ex1) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not check \'reconf\' file. Assuming it exists.", ex1);
-            }
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                LOG.config("Reconfig required - error getting \'reconf\' file");
-            }
+
+            Logging.logCheckedSevere(LOG, "Could not check \'reconf\' file. Assuming it exists.", ex1);
+            Logging.logCheckedSevere(LOG, "Reconfig required - error getting \'reconf\' file");
             return true;
+
         }
     }
 
@@ -142,22 +141,29 @@ public class DefaultConfigurator extends AutomaticConfigurator {
         File f = new File(jxtaHomeDir, "reconf");
 
         if (reconfigure) {
+
             try {
+
                 f.createNewFile();
+
             } catch (IOException ex1) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Could not create \'reconf\' file", ex1);
-                    LOG.severe("Create the file \'reconf\' by hand before retrying.");
-                }
+
+                Logging.logCheckedSevere(LOG, "Could not create \'reconf\' file", ex1);
+                Logging.logCheckedSevere(LOG, "Create the file \'reconf\' by hand before retrying.");
+                
             }
+
         } else {
+
             try {
+
                 f.delete();
+
             } catch (Exception ex1) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Could not remove \'reconf\' file", ex1);
-                    LOG.severe("Delete the file \'reconf\' by hand before retrying.");
-                }
+                
+                Logging.logCheckedSevere(LOG, "Could not remove \'reconf\' file", ex1);
+                Logging.logCheckedSevere(LOG, "Delete the file \'reconf\' by hand before retrying.");
+                
             }
         }
     }
@@ -222,9 +228,9 @@ public class DefaultConfigurator extends AutomaticConfigurator {
                 configUI.untilDone();
                 setReconfigure(false);
             } catch (Throwable t) {
-                if (t instanceof JxtaError) {
-                    throw (JxtaError) t;
-                }
+
+                if (t instanceof JxtaError) throw (JxtaError) t;
+                
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "Could not initialize graphical config dialog", t);
                 }

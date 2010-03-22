@@ -56,7 +56,6 @@
 
 package net.jxta.impl.peergroup;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
@@ -74,14 +73,12 @@ import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.TransportAdvertisement;
-
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A simple platform configurator. This implementation provides reasonable
@@ -122,13 +119,14 @@ public class AutomaticConfigurator extends NullConfigurator {
         boolean reconf;
 
         try {
-            reconf = buildPlatformConfig();
-        } catch (RuntimeException serious) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Trouble while fixing PlatformConfig. Hope for the best.", serious);
-            }
 
+            reconf = buildPlatformConfig();
+
+        } catch (RuntimeException serious) {
+
+            Logging.logCheckedSevere(LOG, "Trouble while fixing PlatformConfig. Hope for the best.", serious);
             reconf = true;
+
         }
 
         // See if we need a reconf
@@ -208,6 +206,7 @@ public class AutomaticConfigurator extends NullConfigurator {
                     }
                 }
             } catch (RuntimeException advTrouble) {
+
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "HTTP advertisement corrupted", advTrouble);
                 }

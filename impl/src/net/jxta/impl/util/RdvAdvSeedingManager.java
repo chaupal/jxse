@@ -133,14 +133,16 @@ public class RdvAdvSeedingManager extends ACLSeedingManager {
             discovery.getRemoteAdvertisements(null, DiscoveryService.ADV, RdvAdvertisement.ServiceNameTag, serviceName, 3);
             
             Enumeration<Advertisement> advs;
+
             try {
+
                 advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RdvAdvertisement.ServiceNameTag, serviceName);
+
             } catch( IOException failed ) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure retrieving advertisements" , failed);
-                }
-                
+
+                Logging.logCheckedWarning(LOG, "Failure retrieving advertisements" , failed);
                 return;
+
             }
             
             synchronized(this) {

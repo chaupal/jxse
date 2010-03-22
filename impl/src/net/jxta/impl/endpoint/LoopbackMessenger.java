@@ -184,12 +184,11 @@ public class LoopbackMessenger extends BlockingMessenger {
     public void sendMessageBImpl(final Message message, final String service, final String serviceParam) throws IOException {
         
         if (isClosed()) {
+
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, failure.getMessage(), failure);
-            }
+            Logging.logCheckedWarning(LOG, failure.getMessage());
             throw failure;
+
         }
         
         orderingLock.lock();
@@ -197,15 +196,19 @@ public class LoopbackMessenger extends BlockingMessenger {
             // Process the message with the appropriate src and dest address
             ((GenericPeerGroup)group).getExecutor().execute( new Runnable() {
                 public void run() {
+                    
                     try {
+
                         endpoint.processIncomingMessage(message, srcAddress, getDestAddressToUse(service, serviceParam));
+
                     } catch(Throwable uncaught) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Uncaught Throwable in Loopback Messenger ", uncaught);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Uncaught Throwable in Loopback Messenger ", uncaught);
+                        
                     }
                 }
             });
+
         } finally {
             orderingLock.unlock();
         }

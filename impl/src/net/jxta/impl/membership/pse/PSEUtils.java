@@ -128,22 +128,18 @@ public final class PSEUtils {
 
             Security.addProvider(provider);
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Loaded Security Providers into system class loader");
-            }
+            Logging.logCheckedInfo(LOG, "Loaded Security Providers into system class loader");
+            
         } catch (Exception disallowed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING,
-                        "Failed loading Security Providers into System Class Loader. Will try local class loader (which may not work)",
-                        disallowed);
-            }
 
+            Logging.logCheckedWarning(LOG, "Failed loading Security Providers into System Class Loader. Will try local class loader (which may not work)",
+                disallowed);
+  
             // Add the providers we use.
             Security.addProvider(new BouncyCastleProvider());
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Loaded Security Providers into local class loader");
-            }
+            Logging.logCheckedInfo(LOG, "Loaded Security Providers into local class loader");
+            
         }
 
         // Provider [] providers = Security.getProviders();
@@ -184,25 +180,26 @@ public final class PSEUtils {
      * @throws SecurityException if the cert could not be generated.
      */
     public static IssuerInfo genCert(String cn, IssuerInfo issuerinfo) throws SecurityException {
+        
         try {
+
             String useCN;
 
             if (null == issuerinfo) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Generating Self Signed Cert ...");
-                }
+
+                Logging.logCheckedFine(LOG, "Generating Self Signed Cert ...");
 
                 if (!cn.endsWith("-CA")) {
                     useCN = cn + "-CA";
                 } else {
                     useCN = cn;
                 }
-            } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Generating Client Cert ...");
-                }
 
+            } else {
+
+                Logging.logCheckedFine(LOG, "Generating Client Cert ...");
                 useCN = cn;
+
             }
 
             // set name attribute
@@ -229,14 +226,15 @@ public final class PSEUtils {
             KeyPair keypair = g.generateKeyPair();
 
             return genCert(samesubject, keypair, issuerinfo);
-        } catch (NoSuchAlgorithmException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not generate certificate", e);
-            }
-            SecurityException failure = new SecurityException("Could not generate certificate");
 
+        } catch (NoSuchAlgorithmException e) {
+
+            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
+            
+            SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
             throw failure;
+
         }
     }
 
@@ -302,42 +300,38 @@ public final class PSEUtils {
             info.issuerPkey = signer;
 
             // dump the certificate?
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                if (null == issuer) {
-                    LOG.fine("Root Cert : \n" + info.cert.toString());
-                } else {
-                    LOG.fine("Client Cert : \n" + info.cert.toString());
-                }
+            if (null == issuer) {
+                Logging.logCheckedFine(LOG, "Root Cert : \n" + info.cert.toString());
+            } else {
+                Logging.logCheckedFine(LOG, "Client Cert : \n" + info.cert.toString());
             }
 
             return info;
+
         } catch (SignatureException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.FINE, "Could not generate certificate", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
-
             failure.initCause(e);
             throw failure;
+
         } catch (InvalidKeyException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.FINE, "Could not generate certificate", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
-
             failure.initCause(e);
             throw failure;
+
         } catch (IOException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.FINE, "Could not generate certificate", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
-
             failure.initCause(e);
             throw failure;
+
         }
     }
 
@@ -502,9 +496,8 @@ public final class PSEUtils {
      *         encrypted.
      */
     public static EncryptedPrivateKeyInfo pkcs5_Encrypt_pbePrivateKey(char[] password, PrivateKey privkey, int iterations) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Encrypting " + privkey + " with \'" + new String(password) + "\'");
-        }
+
+        Logging.logCheckedFine(LOG, "Encrypting " + privkey + " with \'" + new String(password) + "\'");
 
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
         byte[] salt = new byte[8];
@@ -533,11 +526,12 @@ public final class PSEUtils {
             EncryptedPrivateKeyInfo result = new EncryptedPrivateKeyInfo(algo, encryptedPrivKey);
 
             return result;
+
         } catch (Exception failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Encrypt failed", failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Encrypt failed", failed);
             return null;
+
         }
     }
 
@@ -550,27 +544,27 @@ public final class PSEUtils {
      * @return The decrypted private key or null if the key could not be decrpyted.
      */
     public static PrivateKey pkcs5_Decrypt_pbePrivateKey(char[] password, String algorithm, EncryptedPrivateKeyInfo encryptedPrivKey) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Decrypting " + encryptedPrivKey + "/" + algorithm + " with \'" + new String(password) + "\'");
-        }
+
+        Logging.logCheckedFine(LOG, "Decrypting " + encryptedPrivKey + "/" + algorithm + " with \'" + new String(password) + "\'");
 
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
 
         try {
+
             AlgorithmParameters algo = encryptedPrivKey.getAlgParameters();
 
             if (null == algo) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Could not get algo parameters from " + encryptedPrivKey);
-                }
 
+                Logging.logCheckedWarning(LOG, "Could not get algo parameters from " + encryptedPrivKey);
                 throw new IllegalStateException("Could not get algo parameters from " + encryptedPrivKey);
+
             }
 
             PBEParameterSpec pbeParamSpec = algo.getParameterSpec(PBEParameterSpec.class);
 
             // convert password into a SecretKey object, using a PBE key factory.
             try {
+
                 SecretKeyFactory keyFac = SecretKeyFactory.getInstance(PKCS5_PBSE1_ALGO);
                 SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
 
@@ -587,17 +581,18 @@ public final class PSEUtils {
                 KeyFactory kf = KeyFactory.getInstance(algorithm);
 
                 return kf.generatePrivate(key_spec);
+
             } catch (InvalidKeySpecException failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Incorrect key for " + encryptedPrivKey + " : " + failed);
-                }
+
+                Logging.logCheckedWarning(LOG, "Incorrect key for " + encryptedPrivKey + " : " + failed);
                 return null;
+
             }
         } catch (Exception failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Decrypt failed", failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Decrypt failed", failed);
             return null;
+
         }
     }
 
@@ -797,10 +792,8 @@ public final class PSEUtils {
 
         String encoded = base64.toString();
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Encoded " + in.length + " bytes -> " + encoded.length() + " characters.");
-        }
-
+        Logging.logCheckedFiner(LOG, "Encoded " + in.length + " bytes -> " + encoded.length() + " characters.");
+        
         return encoded;
     }
 
@@ -826,9 +819,7 @@ public final class PSEUtils {
 
         byte[] result = bos.toByteArray();
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Decoded " + result.length + " bytes.");
-        }
+        Logging.logCheckedFiner(LOG, "Decoded " + result.length + " bytes.");
 
         return result;
     }

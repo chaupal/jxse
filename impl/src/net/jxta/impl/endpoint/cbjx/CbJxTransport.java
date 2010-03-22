@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint.cbjx;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.TextDocument;
@@ -74,7 +73,6 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 import java.io.IOException;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
@@ -82,7 +80,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A JXTA {@link net.jxta.endpoint.MessageTransport} implementation which
@@ -172,6 +169,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
                 null);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring CBJX Message Transport : " + assignedID);
 
             if (implAdvertisement != null) {
@@ -201,35 +199,35 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return START_AGAIN_STALLED;
+
         }
 
         MembershipService groupMembership = group.getMembershipService();
 
         if (null == groupMembership) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a membership service");
-            }
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return START_AGAIN_STALLED;
+
         }
 
         if (!(groupMembership instanceof PSEMembershipService)) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("CBJX Transport requires PSE Membership Service");
-            }
+
+            Logging.logCheckedSevere(LOG, "CBJX Transport requires PSE Membership Service");
             return -1;
+
         }
 
         membership = (PSEMembershipService) groupMembership;
 
         if (endpoint.addMessageTransport(this) == null) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Transport registration refused");
-            }
+
+            Logging.logCheckedSevere(LOG, "Transport registration refused");
             return -1;
+            
         }
 
         // XXX bondolo@jxta.org 20030526 check for errors
@@ -239,9 +237,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         endpoint.addIncomingMessageFilterListener(new CbJxInputFilter(), null, null);
         // endpoint.addOutgoingMessageFilterListener( new CbJxOutputFilter(), null, null );
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("CbJxTransport started");
-        }
+        Logging.logCheckedInfo(LOG, "CbJxTransport started");
 
         return 0;
     }
@@ -258,9 +254,8 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
             endpoint = null;
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("CbJxTransport stopped");
-        }
+        Logging.logCheckedInfo(LOG, "CbJxTransport stopped");
+        
     }
 
     /**
@@ -312,70 +307,72 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
      * {@inheritDoc}
      */
     public Messenger getMessenger(EndpointAddress dest, Object hintIgnored) {
+        
         try {
+
             return new CbJxMessenger(this, dest, hintIgnored);
+
         } catch (IOException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to create cbjx messenger", failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to create cbjx messenger", failed);
             return null;
+
         }
+
     }
 
     /**
      * {@inheritDoc}
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("processIncomingMessage : Received message from: " + srcAddr);
-        }
+
+        Logging.logCheckedFine(LOG, "processIncomingMessage : Received message from: " + srcAddr);
 
         // extract the Crypto info from the message
         MessageElement cryptoElement = message.getMessageElement(CBJX_MSG_NS, CBJX_MSG_INFO);
 
         if (cryptoElement == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("processIncomingMessage : No \'" + CBJX_MSG_INFO + "\' in the message");
-            }
+            Logging.logCheckedFine(LOG, "processIncomingMessage : No \'" + CBJX_MSG_INFO + "\' in the message");
             return;
         }
+
         message.removeMessageElement(cryptoElement);
 
         // the cbjx message info
         CbJxMessageInfo cryptoInfo = null;
 
         try {
+
             cryptoInfo = new CbJxMessageInfo(cryptoElement.getStream(), cryptoElement.getMimeType());
+
         } catch (Throwable e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING
-                        ,
-                        "processIncomingMessage : Couldn\'t retrieve CbJxMessageInfo from \'" + CBJX_MSG_INFO + "\' element", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "processIncomingMessage : Couldn\'t retrieve CbJxMessageInfo from \'" + CBJX_MSG_INFO + "\' element", e);
             return;
+
         }
 
         Message submessage = checkCryptoInfo(message, cryptoElement, cryptoInfo);
 
         if (null == submessage) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("processIncomingMessage : discarding message from " + srcAddr);
-            }
+
+            Logging.logCheckedWarning(LOG, "processIncomingMessage : discarding message from " + srcAddr);
             return;
+
         }
 
         // give back the message to the endpoint
         try {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("processIncomingMessage: delivering " + submessage + " to: " + cryptoInfo.getDestinationAddress());
-            }
 
+            Logging.logCheckedFine(LOG, "processIncomingMessage: delivering " + submessage + " to: " + cryptoInfo.getDestinationAddress());
             endpoint.processIncomingMessage(submessage, cryptoInfo.getSourceAddress(), cryptoInfo.getDestinationAddress());
+
         } catch (Throwable all) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "processIncomingMessage: endpoint failed to demux message", all);
-            }
+
+            Logging.logCheckedWarning(LOG, "processIncomingMessage: endpoint failed to demux message", all);
+            
         }
+
     }
 
     /**
@@ -386,9 +383,8 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
      * @return Message the message with the CbJxMessageInfo added
      */
     public Message addCryptoInfo(Message submessage, EndpointAddress destAddress) throws IOException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Building CBJX wrapper for " + submessage);
-        }
+
+        Logging.logCheckedFine(LOG, "Building CBJX wrapper for " + submessage);
 
         // Remove all existing CbJx Elements from source
         Iterator eachCbJxElement = submessage.getMessageElementsOfNamespace(CbJxTransport.CBJX_MSG_NS);
@@ -424,12 +420,14 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         byte[] infoSignature = null;
 
         try {
+
             infoSignature = PSEUtils.computeSignature(CbJxDefs.signAlgoName, cred.getPrivateKey(), infoDoc.getStream());
+
         } catch (Throwable e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "failed to sign " + submessage, e);
-            }
+
+            Logging.logCheckedFine(LOG, "failed to sign " + submessage + "\n" + e.toString());
             return null;
+
         }
 
         // add the cbjx:CryptoInfo into the message
@@ -450,12 +448,14 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         byte[] bodySignature = null;
 
         try {
+
             bodySignature = PSEUtils.computeSignature(CbJxDefs.signAlgoName, cred.getPrivateKey(), subserial.getStream());
+
         } catch (Throwable e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "failed to sign" + submessage, e);
-            }
+
+            Logging.logCheckedFine(LOG, "failed to sign" + submessage + "\n" + e.toString());
             return null;
+
         }
 
         subserial = null;
@@ -479,11 +479,12 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         JxtaMessageMessageElement bodyElement = (JxtaMessageMessageElement) message.getMessageElement(CBJX_MSG_NS, CBJX_MSG_BODY);
 
         if (null == bodyElement) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("No \'" + CBJX_MSG_BODY + "\' in " + message);
-            }
+
+            Logging.logCheckedWarning(LOG, "No \'" + CBJX_MSG_BODY + "\' in " + message);
             return null;
+
         }
+
         message.removeMessageElement(bodyElement);
 
         // extract the peer certificate
@@ -495,12 +496,14 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
 
         // check the cert validity
         try {
+
             peerCert.verify(publicKey);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Invalid peer cert", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Invalid peer cert", e);
             return null;
+
         }
 
         // check the cbid
@@ -513,64 +516,65 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
                     pub_der);
 
             if (!srcPeerID.getUUID().equals(genID.getUUID())) {
+
                 // the cbid is not valid. Discard the message
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("CBID of " + message + " is not valid : " + srcPeerID + " != " + genID);
-                }
+                Logging.logCheckedWarning(LOG, "CBID of " + message + " is not valid : " + srcPeerID + " != " + genID);
                 return null;
+
             }
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("CBID of the message is valid");
-            }
+            Logging.logCheckedFine(LOG, "CBID of the message is valid");
+            
         } catch (Throwable e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to verify cbid", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to verify cbid", e);
             return null;
+
         }
 
         // verify the signature of the cryptinfo message
         try {
-            boolean valid = PSEUtils.verifySignature(CbJxDefs.signAlgoName, peerCert, cryptoElement.getSignature().getBytes(false)
-                    ,
+
+            boolean valid = PSEUtils.verifySignature(CbJxDefs.signAlgoName, peerCert,
+                    cryptoElement.getSignature().getBytes(false),
                     cryptoElement.getStream());
 
             if (!valid) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Failed to verify the signature of cryptinfo for " + message);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to verify the signature of cryptinfo for " + message);
                 return null;
+
             }
+
         } catch (Throwable e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to verify the signature of cryptinfo for " + message, e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to verify the signature of cryptinfo for " + message, e);
             return null;
+
         }
 
         // then verify the signature
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("verifying signature");
-        }
-
+        Logging.logCheckedWarning(LOG, "verifying signature");
+        
         // verify the signature of the message
         try {
-            boolean valid = PSEUtils.verifySignature(CbJxDefs.signAlgoName, peerCert, bodyElement.getSignature().getBytes(false)
-                    ,
-                    bodyElement.getStream());
+
+            boolean valid = PSEUtils.verifySignature(CbJxDefs.signAlgoName, peerCert,
+                bodyElement.getSignature().getBytes(false),
+                bodyElement.getStream());
 
             if (!valid) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("failed to verify the signature of " + message);
-                }
+
+                Logging.logCheckedWarning(LOG, "failed to verify the signature of " + message);
                 return null;
+
             }
+
         } catch (Throwable e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to verify the signature of " + message, e);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to verify the signature of " + message, e);
             return null;
+
         }
 
         // the message is valid
@@ -592,27 +596,29 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         public Message filterMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
             if (dstAddr.getProtocolAddress().equals(getProtocolName())) {
+
                 // extract the Crypto info from the message
                 MessageElement cryptoElement = message.getMessageElement(CBJX_MSG_NS, CBJX_MSG_INFO);
 
                 if (cryptoElement == null) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("No \'" + CBJX_MSG_INFO + "\' in the message");
-                    }
+                    Logging.logCheckedFine(LOG, "No \'" + CBJX_MSG_INFO + "\' in the message");
                     return null;
                 }
+
                 message.removeMessageElement(cryptoElement);
 
                 // the cbjx message info
                 CbJxMessageInfo cryptoInfo = null;
 
                 try {
+
                     cryptoInfo = new CbJxMessageInfo(cryptoElement.getStream(), cryptoElement.getMimeType());
+
                 } catch (Throwable e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Couldn\'t retrieve CbJxMessageInfo from \'" + CBJX_MSG_INFO + "\' element", e);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Couldn\'t retrieve CbJxMessageInfo from \'" + CBJX_MSG_INFO + "\' element", e);
                     return null;
+
                 }
 
                 return checkCryptoInfo(message, cryptoElement, cryptoInfo);

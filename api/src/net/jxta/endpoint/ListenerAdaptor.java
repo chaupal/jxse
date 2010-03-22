@@ -296,28 +296,32 @@ public class ListenerAdaptor implements Runnable {
                 event = new OutgoingMessageEvent(message, null);
 
                 for (OutgoingMessageEventListener eachListener : this) {
+                    
                     try {
                         eachListener.messageSendSucceeded(event);
                     } catch (Throwable any) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Uncaught throwable from listener", any);
-                        }
+                        Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", any);
                     }
+
                 }
+
             } else {
+
                 if (event == OutgoingMessageEvent.OVERFLOW) {
+
                     // Replace it with a msg-specific one.
                     event = new OutgoingMessageEvent(message, null);
+
                 }
 
                 for (OutgoingMessageEventListener eachListener : this) {
+
                     try {
                         eachListener.messageSendFailed(event);
                     } catch (Throwable any) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
-                        }
+                        Logging.logCheckedWarning(LOG, "Uncaught throwable in listener", any);
                     }
+
                 }
             }
         }
@@ -363,13 +367,13 @@ public class ListenerAdaptor implements Runnable {
             MessengerEvent event = new MessengerEvent(ListenerAdaptor.this, messenger, null);
 
             for (MessengerEventListener eachListener : this) {
+
                 try {
                     eachListener.messengerReady(event);
                 } catch (Throwable any) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Uncaught throwable in listener", any);
-                    }
+                    Logging.logCheckedWarning(LOG, "Uncaught throwable in listener", any);
                 }
+
             }
         }
 
@@ -430,10 +434,9 @@ public class ListenerAdaptor implements Runnable {
                 }
             }
         } catch (Throwable anyOther) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in background thread", anyOther);
-            }
 
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in background thread", anyOther);
+            
             // There won't be any other thread. This thing is dead if that
             // happens. And it really shouldn't.
             synchronized (this) {
@@ -452,12 +455,15 @@ public class ListenerAdaptor implements Runnable {
                         listeners.giveUp(simpleSelectable, failed);
                     }
                 }
+
                 inprogress.clear();
+
             } catch (Throwable anyOther) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable while shutting down background thread", anyOther);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable while shutting down background thread", anyOther);
+                
             }
+
             bgThread = null;
         }
     }

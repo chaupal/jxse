@@ -268,69 +268,68 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
         Enumeration eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
+
             Attribute aRelayAttr = (Attribute) eachAttr.nextElement();
 
             if (super.handleAttribute(aRelayAttr)) {
+                
                 // nothing to do
+
             } else if (RELAY_CLIENT_ATTR.equals(aRelayAttr.getName())) {
+                
                 clientEnabled = Boolean.valueOf(aRelayAttr.getValue().trim());
+
             } else if (RELAY_SERVER_ATTR.equals(aRelayAttr.getName())) {
+                
                 serverEnabled = Boolean.valueOf(aRelayAttr.getValue().trim());
+
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + aRelayAttr.getName());
-                }
+
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
+                
             }
         }
 
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
             }
+
         }
 
         // Sanity Check!!!
-        if ((-1 != maxRelays) && (maxRelays <= 0)) {
+        if ((-1 != maxRelays) && (maxRelays <= 0)) 
             throw new IllegalArgumentException("Max relays must not be negative or zero.");
-        }
 
-        if ((-1 != maxClientLeaseDuration) && (maxClientLeaseDuration <= 0)) {
+        if ((-1 != maxClientLeaseDuration) && (maxClientLeaseDuration <= 0)) 
             throw new IllegalArgumentException("Max lease duration must not be negative or zero.");
-        }
 
-        if ((-1 != messengerPollInterval) && (messengerPollInterval <= 0)) {
+        if ((-1 != messengerPollInterval) && (messengerPollInterval <= 0)) 
             throw new IllegalArgumentException("Messenger poll interval must not be negative or zero.");
-        }
-
-        if (useOnlySeeds && clientEnabled && seedRelays.isEmpty() && seedingURIs.isEmpty()) {
+        
+        if (useOnlySeeds && clientEnabled && seedRelays.isEmpty() && seedingURIs.isEmpty()) 
             throw new IllegalArgumentException("Cannot specify 'useOnlySeeds' and no seed relays");
-        }
-
-        if ((-1 != maxClients) && (maxClients <= 0)) {
+        
+        if ((-1 != maxClients) && (maxClients <= 0)) 
             throw new IllegalArgumentException("Max clients must not be negative or zero.");
-        }
-
-        if ((-1 != maxClientMessageQueue) && (maxClientMessageQueue <= 0)) {
+        
+        if ((-1 != maxClientMessageQueue) && (maxClientMessageQueue <= 0)) 
             throw new IllegalArgumentException("Max client queue must not be negative or zero.");
-        }
-
-        if ((-1 != maxServerLeaseDuration) && (maxServerLeaseDuration <= 0)) {
+        
+        if ((-1 != maxServerLeaseDuration) && (maxServerLeaseDuration <= 0)) 
             throw new IllegalArgumentException("Max lease duration must not be negative or zero.");
-        }
-
-        if ((-1 != stallTimeout) && (stallTimeout <= 0)) {
+        
+        if ((-1 != stallTimeout) && (stallTimeout <= 0)) 
             throw new IllegalArgumentException("Client stall timeout duration must not be negative or zero.");
-        }
-
-        if ((-1 != announceInterval) && (announceInterval <= 0)) {
+        
+        if ((-1 != announceInterval) && (announceInterval <= 0)) 
             throw new IllegalArgumentException("Announce interval must not be negative or zero.");
-        }
+        
     }
 
     /**
@@ -399,42 +398,53 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
         XMLElement elem = (XMLElement) raw;
 
         if (RELAY_CLIENT_ELEMENT.equals(elem.getName())) {
+
             Enumeration eachAttr = elem.getAttributes();
 
             while (eachAttr.hasMoreElements()) {
+
                 Attribute aRelayAttr = (Attribute) eachAttr.nextElement();
 
                 if (RELAY_CLIENT_SERVERS_ATTR.equals(aRelayAttr.getName())) {
+
                     maxRelays = Integer.parseInt(aRelayAttr.getValue().trim());
+
                 } else if (RELAY_CLIENT_LEASE_ATTR.equals(aRelayAttr.getName())) {
+
                     maxClientLeaseDuration = Long.parseLong(aRelayAttr.getValue().trim());
+
                 } else if (RELAY_CLIENT_POLL_ATTR.equals(aRelayAttr.getName())) {
+
                     messengerPollInterval = Long.parseLong(aRelayAttr.getValue().trim());
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Attribute: " + aRelayAttr.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
+                    
                 }
+
             }
 
             Enumeration elements = elem.getChildren();
 
             while (elements.hasMoreElements()) {
+
                 XMLElement seedsElem = (XMLElement) elements.nextElement();
 
                 if (RELAY_CLIENT_SEEDS_ELEMENT.equals(seedsElem.getName())) {
+
                     Enumeration eachSeedsAttr = seedsElem.getAttributes();
 
                     while (eachSeedsAttr.hasMoreElements()) {
+
                         Attribute aRelayAttr = (Attribute) eachSeedsAttr.nextElement();
 
                         if (USE_ONLY_SEEDS_ATTR.equals(aRelayAttr.getName())) {
                             useOnlySeeds = Boolean.valueOf(aRelayAttr.getValue().trim());
                         } else {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.warning("Unhandled Attribute: " + aRelayAttr.getName());
-                            }
+                            Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
                         }
+
                     }
 
                     Enumeration addrElements = seedsElem.getChildren();
@@ -456,50 +466,66 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
                                     seedRelays.add(new EndpointAddress(endpURI));
                                 }
                             }
+
                         } else {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.warning("Unhandled Element: " + elem.toString());
-                            }
+
+                            Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                            
                         }
+
                     }
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Element: " + elem.toString());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                    
                 }
             }
 
             return true;
+
         } else if (RELAY_SERVER_ELEMENT.equals(elem.getName())) {
+
             Enumeration eachAttr = elem.getAttributes();
 
             while (eachAttr.hasMoreElements()) {
+
                 Attribute aRelayAttr = (Attribute) eachAttr.nextElement();
 
                 if (RELAY_SERVER_CLIENTS_ATTR.equals(aRelayAttr.getName())) {
+
                     maxClients = Integer.parseInt(aRelayAttr.getValue().trim());
+
                 } else if (RELAY_SERVER_QUEUE_ATTR.equals(aRelayAttr.getName())) {
+
                     maxClientMessageQueue = Integer.parseInt(aRelayAttr.getValue().trim());
+
                 } else if (RELAY_SERVER_LEASE_ATTR.equals(aRelayAttr.getName())) {
+
                     maxServerLeaseDuration = Long.parseLong(aRelayAttr.getValue().trim());
+
                 } else if (RELAY_SERVER_STALL_ATTR.equals(aRelayAttr.getName())) {
+
                     stallTimeout = Long.parseLong(aRelayAttr.getValue().trim());
+
                 } else if (RELAY_SERVER_ANNOUNCE_ATTR.equals(aRelayAttr.getName())) {
+
                     announceInterval = Long.parseLong(aRelayAttr.getValue().trim());
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Attribute: " + aRelayAttr.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
+                    
                 }
             }
 
             return true;
+
         } else if (ACL_URI.equals(elem.getName())) {
+
             String addrElement = elem.getTextValue();
 
-            if (null != addrElement) {
-                aclURI = URI.create(addrElement.trim());
-            }
+            if (null != addrElement) aclURI = URI.create(addrElement.trim());
 
             return true;
         }
@@ -766,13 +792,11 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
     public void setUseOnlySeeds(boolean onlySeeds) {
 
         // Warning for hazardous configuration, while waiting for a better FIX
-        if ( !onlySeeds ) {
-            if ( Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) ) {
-                LOG.warning("Not using relay seeds ONLY will cause peer to search and use Rdv Advertisments as relay candidates");
-            }
-        }
+        if ( !onlySeeds )
+            Logging.logCheckedWarning(LOG, "Not using relay seeds ONLY will cause peer to search and use Rdv Advertisments as relay candidates");
 
         useOnlySeeds = onlySeeds;
+
     }
 
     public EndpointAddress[] getSeedRelays() {

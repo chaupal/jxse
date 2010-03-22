@@ -490,11 +490,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
                 // snooze waiting for responses to come in.
                 Thread.sleep(1000);
+
             } while (TimeUtils.timeNow() < discoverUntil);
+
         } catch (Exception whatever) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure during discovery", whatever);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failure during discovery", whatever);
+            
         }
 
         return results;
@@ -704,16 +706,14 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         Element compat = implAdv.getCompat();
 
-        if (null == compat) {
+        if (null == compat) 
             throw new IllegalArgumentException("No compatibility statement for : " + assigned);
-        }
-
+        
         if (!compatible(compat)) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Incompatible Module : " + assigned);
-            }
 
+            Logging.logCheckedWarning(LOG, "Incompatible Module : " + assigned);
             throw new ProtocolNotSupportedException("Incompatible Module : " + assigned);
+
         }
 
         Module newMod = null;
@@ -733,13 +733,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 }
 
                 newMod = clazz.newInstance();
-
                 newMod.init(privileged ? this : getInterface(), assigned, implAdv);
 
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Loaded" + (privileged ? " privileged" : "") +
-                            " module : " + implAdv.getDescription() + " (" + implAdv.getCode() + ")");
-                }
+                Logging.logCheckedInfo(LOG, "Loaded" + (privileged ? " privileged" : "") +
+                    " module : " + implAdv.getDescription() + " (" + implAdv.getCode() + ")");
+                
             } catch (Exception ex) {
                 try {
                     newMod.stopApp();
@@ -841,44 +839,47 @@ public abstract class GenericPeerGroup implements PeerGroup {
     	Throwable recentFailure = null;
 
     	for (Advertisement eachAdv : allModuleImplAdvs) {
-    		if (!(eachAdv instanceof ModuleImplAdvertisement)) {
-    			continue;
-    		}
+            if (!(eachAdv instanceof ModuleImplAdvertisement)) {
+                    continue;
+            }
 
-    		ModuleImplAdvertisement foundImpl = (ModuleImplAdvertisement) eachAdv;
+            ModuleImplAdvertisement foundImpl = (ModuleImplAdvertisement) eachAdv;
 
-    		try {
-    			// First check that the MSID is really the one we're looking for.
-    			// It could have appeared somewhere else in the adv than where
-    			// we're looking, and discovery doesn't know the difference.
-    			if (!specID.equals(foundImpl.getModuleSpecID())) {
-    				continue;
-    			}
+            try {
 
-    			Module newMod = loadModule(assignedID, foundImpl, privileged);
+                // First check that the MSID is really the one we're looking for.
+                // It could have appeared somewhere else in the adv than where
+                // we're looking, and discovery doesn't know the difference.
+                if (!specID.equals(foundImpl.getModuleSpecID())) {
+                        continue;
+                }
 
-    			// If we reach that point, the module is good.
-    			return newMod;
-    		} catch (ProtocolNotSupportedException failed) {
-    			// Incompatible implementation.
-    			if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-    				LOG.log(Level.FINE, "Incompatbile impl adv");
-    			}
-    		} catch (PeerGroupException failed) {
-    			// Initialization failure.
-    			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-    				LOG.log(Level.WARNING, "Initialization failed", failed);
-    			}
-    		} catch (Throwable e) {
-    			recentFailure = e;
-    			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-    				LOG.log(Level.WARNING, "Not a usable impl adv: ", e);
-    			}
-    		}
+                Module newMod = loadModule(assignedID, foundImpl, privileged);
+
+                // If we reach that point, the module is good.
+                return newMod;
+
+            } catch (ProtocolNotSupportedException failed) {
+
+                // Incompatible implementation.
+                Logging.logCheckedFine(LOG, "Incompatbile impl adv");
+
+            } catch (PeerGroupException failed) {
+
+                // Initialization failure.
+                Logging.logCheckedWarning(LOG, "Initialization failed", failed);
+                
+            } catch (Throwable e) {
+
+                recentFailure = e;
+                Logging.logCheckedWarning(LOG, "Not a usable impl adv: ", e);
+                
+            }
     	}
 
     	// Throw an exception if there was a recent failure.
     	if (null != recentFailure) {
+
     		if (recentFailure instanceof Error) {
     			throw (Error) recentFailure;
     		} else if (recentFailure instanceof RuntimeException) {
@@ -888,10 +889,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
     		}
     	}
 
-    	if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-    		LOG.warning("Could not find a loadable implementation for SpecID: " + specID);
-    	}
-
+    	Logging.logCheckedWarning(LOG, "Could not find a loadable implementation for SpecID: " + specID);
+    	
     	return null;
     }
 
@@ -1101,10 +1100,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
             // Now that we have our PeerGroupAdvertisement, we can pull out
             // the config to see if we have any PeerGroupConfigAdv params
             if (null == parentGroup) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Setting up group loader -> static loader");
-                }
+
+                Logging.logCheckedFine(LOG, "Setting up group loader -> static loader");
                 loader = new RefJxtaLoader(new URL[0], staticLoader, COMP_EQ, this);
+
             } else {
                 ClassLoader upLoader = parentGroup.getLoader();
                 StructuredDocument cfgDoc =
@@ -1122,10 +1121,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
                         upLoader = getClass().getClassLoader();
                     }
                 }
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Setting up group loader -> " + upLoader);
-                }
+
+                Logging.logCheckedFine(LOG, "Setting up group loader -> " + upLoader);
                 loader = new RefJxtaLoader(new URL[0], upLoader, COMP_EQ, this);
+
             }
 
             // If we still do not have a config adv, make one with the minimal info in it.
@@ -1165,13 +1164,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
              * damage to the legitimate instance. There should be a synchro on
              * on the get<service>() and lookupService() routines.
              */
-            if (!globalRegistry.registerInstance((PeerGroupID) assignedID, this)) {
+            if (!globalRegistry.registerInstance((PeerGroupID) assignedID, this)) 
                 throw new PeerGroupException("Group already instantiated");
-            }
+            
         } catch (Throwable any) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Group init failed", any);
-            }
+
+            Logging.logCheckedSevere(LOG, "Group init failed", any);
 
             if (any instanceof Error) {
                 throw (Error) any;
@@ -1205,14 +1203,15 @@ public abstract class GenericPeerGroup implements PeerGroup {
         
         // Try to allow core threads to idle out. (Requires a 1.6 method)
         try {
-            Method allowCoreThreadTimeOut = threadPool.getClass().getMethod("allowCoreThreadTimeOut", boolean.class);
 
+            Method allowCoreThreadTimeOut = threadPool.getClass().getMethod("allowCoreThreadTimeOut", boolean.class);
             allowCoreThreadTimeOut.invoke(threadPool, Boolean.TRUE);
+
         } catch (Throwable ohWell) {
+
             // Our attempt failed.
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, "Failed to enable 'allowCoreThreadTimeOut'", ohWell);
-            }
+            Logging.logCheckedFinest(LOG, "Failed to enable 'allowCoreThreadTimeOut'\n" + ohWell.toString());
+
         }
 
     /*
@@ -1235,7 +1234,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * @throws PeerGroupException if a group initialization error occurs
      */
     protected void initLast() throws PeerGroupException {
+
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
 
             if (implAdvertisement != null) {
@@ -1244,6 +1245,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
                 configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
+
             }
             configInfo.append("\n\tGroup Params :");
             configInfo.append("\n\t\tModule Spec ID : ").append(implAdvertisement.getModuleSpecID());
@@ -1251,18 +1253,22 @@ public abstract class GenericPeerGroup implements PeerGroup {
             configInfo.append("\n\t\tGroup Name : ").append(getPeerGroupName());
             configInfo.append("\n\t\tPeer ID in Group : ").append(getPeerID());
             configInfo.append("\n\tConfiguration :");
+
             if (null == parentGroup) {
                 configInfo.append("\n\t\tHome Group : (none)");
             } else {
                 configInfo.append("\n\t\tHome Group : \"").append(parentGroup.getPeerGroupName()).append("\" / ").append(parentGroup.getPeerGroupID());
             }
+
             configInfo.append("\n\t\tServices :");
+
             for (Map.Entry<ModuleClassID, Service> anEntry : services.entrySet()) {
                 ModuleClassID aMCID = anEntry.getKey();
                 ModuleImplAdvertisement anImplAdv = (ModuleImplAdvertisement) anEntry.getValue().getImplAdvertisement();
 
                 configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(anImplAdv.getDescription());
             }
+
             LOG.config(configInfo.toString());
         }
     }
@@ -1332,6 +1338,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * invoked explicitly.
      */
     protected void decRefCount() {
+
         int new_count = masterRefCount.decrementAndGet();
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -1354,9 +1361,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             return;
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("[" + getPeerGroupID() + "] STOPPING UNREFERENCED GROUP");
-        }
+        Logging.logCheckedInfo(LOG, "[" + getPeerGroupID() + "] STOPPING UNREFERENCED GROUP");
 
         stopApp();
     }
@@ -1462,11 +1467,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
         // parameters specific to a certain types of module.
 
         try {
+
             discovery.publish(adv, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
+
         } catch (Exception any) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Could not publish the group advertisement: ", any);
-            }
+
+            Logging.logCheckedWarning(LOG, "Could not publish the group advertisement: ", any);
+
         }
 
         theNewGroup = (PeerGroup) loadModule(adv.getPeerGroupID(), adv.getModuleSpecID(), Here, false);
@@ -1488,29 +1495,32 @@ public abstract class GenericPeerGroup implements PeerGroup {
             theNewGroup = globalRegistry.lookupInstance(gid);
         }
 
-        if (theNewGroup != null) {
-            return theNewGroup;
-        }
+        if (theNewGroup != null) return theNewGroup;
 
         try {
+
             theNewGroup = (PeerGroup) loadModule(gid, (ModuleImplAdvertisement) impl, false);
-        } catch (Throwable any) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not load group implementation", any);
-            }
 
+        } catch (Throwable any) {
+
+            Logging.logCheckedSevere(LOG, "Could not load group implementation", any);
             throw new PeerGroupException("Could not load group implementation", any);
+
         }
 
         try {
+
             // The group adv definitely needs to be published.
             theNewGroup.publishGroup(name, description);
+
         } catch (Exception any) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Could not publish group or implementation:", any);
-            }
+
+            Logging.logCheckedWarning(LOG, "Could not publish group or implementation:", any);
+            
         }
+
         return theNewGroup.getInterface();
+
     }
 
     /**
@@ -1613,12 +1623,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public boolean isRendezvous() {
-        if (rendezvous == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Rendezvous service null");
-            }
-        }
+        
+        if (rendezvous == null) Logging.logCheckedFine(LOG, "Rendezvous service null");
+        
         return (rendezvous != null) && rendezvous.isRendezVous();
+
     }
 
     /*

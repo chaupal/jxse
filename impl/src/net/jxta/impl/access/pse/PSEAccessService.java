@@ -268,13 +268,15 @@ public class PSEAccessService implements AccessService {
             Enumeration elements = doc.getChildren();
             
             while (elements.hasMoreElements()) {
+
                 TextElement elem = (TextElement) elements.nextElement();
 
                 if (!handleElement(elem)) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled element \'" + elem.getName() + "\' in " + doc.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled element \'" + elem.getName() + "\' in " + doc.getName());
+                    
                 }
+
             }
             
             // sanity check time!
@@ -314,6 +316,7 @@ public class PSEAccessService implements AccessService {
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
+
         this.group = group;
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
         
@@ -333,33 +336,35 @@ public class PSEAccessService implements AccessService {
             
             LOG.config(configInfo.toString());
         }
+
     }
     
     /**
      * {@inheritDoc}
      */
     public int startApp(String[] args) {
+
         MembershipService membership = group.getMembershipService();
         
         if (null == membership) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a membership service");
-            }
-            
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return Module.START_AGAIN_STALLED;
+
         }
         
         ModuleImplAdvertisement membershipImplAdv = (ModuleImplAdvertisement) membership.getImplAdvertisement();
         
         if ((null != membershipImplAdv) && PSEMembershipService.pseMembershipSpecID.equals(membershipImplAdv.getModuleSpecID())
                 && (membership instanceof PSEMembershipService)) {
+
             pseMembership = (PSEMembershipService) membership;
+
         } else {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("PSE Access Service requires a PSE Membership Service.");
-            }
-            
+
+            Logging.logCheckedSevere(LOG, "PSE Access Service requires a PSE Membership Service.");
             return -1;
+
         }
         
         return 0;

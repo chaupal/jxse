@@ -429,26 +429,30 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         if (selfDestruct) {
         	
             SelfCancellingTask selfDestructTask = new SelfCancellingTask() {
-            	public void execute() {
-        		    try {
-        		        if (isIdleImpl()) {
-        		            close();
-        		        } else {
-        		            return;
-        		        }
-        		    } catch (Throwable uncaught) {
-        		        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-        		            LOG.log(Level.SEVERE, "Uncaught Throwable in selfDescructTask. ", uncaught);
-        		        }
-        		    }
-        		}
+
+                public void execute() {
+        		    
+                    try {
+
+                        if (isIdleImpl()) close();
+                        return;
+
+                    } catch (Throwable uncaught) {
+
+                        Logging.logCheckedSevere(LOG, "Uncaught Throwable in selfDescructTask. ", uncaught);
+
+                    }
+                }
             };
 
             ScheduledExecutorService scheduledExecutorService = TaskManager.getTaskManager().getScheduledExecutorService();
             selfDestructTaskHandle = scheduledExecutorService.scheduleAtFixedRate(selfDestructTask, 60, 60, TimeUnit.SECONDS);
             selfDestructTask.setHandle(selfDestructTaskHandle);
+
         } else {
+
             selfDestructTaskHandle = null;
+
         }
     }
 
@@ -773,10 +777,10 @@ public abstract class BlockingMessenger extends AbstractMessenger {
     private void sendIt() {
 
         if (currentMessage == null) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Internal error. Asked to send with no message.");
-            }
+
+            Logging.logCheckedSevere(LOG, "Internal error. Asked to send with no message.");
             return;
+
         }
 
         DeferredAction action;

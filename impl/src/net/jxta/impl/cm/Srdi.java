@@ -238,12 +238,11 @@ public class Srdi implements RendezvousListener {
         }
 
         for (PeerID destPeer : bins.keySet()) {
-            SrdiMessageImpl msg = bins.get(destPeer);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("[" + group.getPeerGroupName() + " / " + handlername + "] Forwarding replica Srdi to " + destPeer);
-            }
+            SrdiMessageImpl msg = bins.get(destPeer);
+            Logging.logCheckedFine(LOG, "[" + group.getPeerGroupName() + " / " + handlername + "] Forwarding replica Srdi to " + destPeer);
             pushSrdi(destPeer, msg);
+
         }
     }
 
@@ -265,10 +264,11 @@ public class Srdi implements RendezvousListener {
             } else {
                 resolver.sendSrdi(peer.toString(), resSrdi);
             }
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to send srdi message", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to send srdi message", e);
+            
         }
     }
 
@@ -282,17 +282,19 @@ public class Srdi implements RendezvousListener {
     public void forwardQuery(PeerID peer, ResolverQueryMsg query) {
 
         query.incrementHopCount();
+
         if (query.getHopCount() > 2) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("hopCount exceeded. Not forwarding query " + query.getHopCount());
-            }
+
+            Logging.logCheckedFine(LOG, "hopCount exceeded. Not forwarding query " + query.getHopCount());
+            
             // query has been forwarded too many times
             return;
+
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
-                    group.getPeerGroupName(), handlername, peer));
-        }
+
+        Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
+            group.getPeerGroupName(), handlername, peer));
+        
         resolver.sendQuery(peer.toString(), query);
     }
 
@@ -306,21 +308,26 @@ public class Srdi implements RendezvousListener {
     public void forwardQuery(List<PeerID> peers, ResolverQueryMsg query) {
 
         query.incrementHopCount();
+
+        // FIXME: hardcoded constant
         if (query.getHopCount() > 2) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("hopCount exceeded not forwarding query {0}", query.getHopCount()));
-            }
+
+            Logging.logCheckedFine(LOG, MessageFormat.format("hopCount exceeded not forwarding query {0}", query.getHopCount()));
+            
             // query has been forwarded too many times
             return;
+
         }
 
         for (PeerID destPeer : peers) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
-                        group.getPeerGroupName(), handlername, destPeer));
-            }
+
+            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
+                group.getPeerGroupName(), handlername, destPeer));
+            
             resolver.sendQuery(destPeer.toString(), query);
+
         }
+
     }
 
     /**
@@ -335,14 +342,17 @@ public class Srdi implements RendezvousListener {
      */
     public void forwardQuery(List<PeerID> peers, ResolverQueryMsg query, int threshold) {
 
+        // FIXME: hardcoded constant
         if (query.getHopCount() > 2) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("[{0} / {1}] hopCount exceeded ({2}) not forwarding query.",
-                        group.getPeerGroupName(), handlername, query.getHopCount()));
-            }
+
+            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] hopCount exceeded ({2}) not forwarding query.",
+                group.getPeerGroupName(), handlername, query.getHopCount()));
+
             // query has been forwarded too many times
             return;
+
         }
+
         if (peers.size() <= threshold) {
             forwardQuery(peers, query);
         } else {
@@ -350,6 +360,7 @@ public class Srdi implements RendezvousListener {
             List<PeerID> newPeers = randomResult(peers, threshold);
             forwardQuery(newPeers, query);
         }
+
     }
 
     /**
@@ -396,12 +407,14 @@ public class Srdi implements RendezvousListener {
             int pos = (digest.multiply(sizeOfSpace)).divide(sizeOfHashSpace).intValue();
 
             pid = rpv.get(pos);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("[{0} / {1}] Found a direct peer {2}", group.getPeerGroupName(), handlername, pid));
-            }
+            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Found a direct peer {2}", group.getPeerGroupName(), handlername, pid));
+            
             return pid;
+
         } else {
+
             return null;
+
         }
     }
 
@@ -418,20 +431,21 @@ public class Srdi implements RendezvousListener {
     public void forwardSrdiMessage(PeerID peerid, PeerID srcPid, String primaryKey, String secondarykey, String value, long expiration) {
 
         try {
+
             SrdiMessageImpl srdi = new SrdiMessageImpl(srcPid, // ttl of 0, avoids additional replication
                     0, primaryKey, secondarykey, value, expiration);
 
             ResolverSrdiMsgImpl resSrdi = new ResolverSrdiMsgImpl(handlername, credential, srdi.toString());
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName(),
-                                handlername, primaryKey, peerid));
-            }
+            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName(),
+                handlername, primaryKey, peerid));
+            
             resolver.sendSrdi(peerid.toString(), resSrdi);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed forwarding SRDI Message", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed forwarding SRDI Message", e);
+            
         }
     }
 
@@ -442,9 +456,7 @@ public class Srdi implements RendezvousListener {
 
         int theEventType = event.getType();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("[{0} / {1}] Processing {2}", group.getPeerGroupName(), handlername, event));
-        }
+        Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Processing {2}", group.getPeerGroupName(), handlername, event));
 
         switch (theEventType) {
 
@@ -472,24 +484,31 @@ public class Srdi implements RendezvousListener {
                 break;
 
             case RendezvousEvent.CLIENTFAILED:
+
             case RendezvousEvent.CLIENTDISCONNECT:
+
                 // we should flush the cache for the peer
                 if (group.isRendezvous() && (srdiIndex != null)) {
+
                     try {
+
                         srdiIndex.remove((PeerID) event.getPeerID());
+
                     } catch(IOException e) {
-                        if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "IOException occurred when attempting to remove peer from SRDI index", e);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "IOException occurred when attempting to remove peer from SRDI index", e);
+                        
                     }
+
                 }
+
                 break;
 
             default:
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning(MessageFormat.format("[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event));
-                }
+
+                Logging.logCheckedWarning(LOG, MessageFormat.format("[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event));
                 break;
+
         }
     }
     
@@ -558,11 +577,13 @@ public class Srdi implements RendezvousListener {
                     throw new IllegalArgumentException("ID was not a peerID");
                 }
             }
+
         } catch (Exception ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure generating the global view", ex);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failure generating the global view", ex);
+            
         }
+
         return global;
     }
 }

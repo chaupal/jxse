@@ -56,22 +56,18 @@
 
 package net.jxta.test.util;
 
-
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
@@ -80,17 +76,12 @@ import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
 import net.jxta.util.LimitInputStream;
-import net.jxta.test.util.WatchedInputStream;
-import net.jxta.test.util.WatchedOutputStream;
-
 import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
 import net.jxta.impl.endpoint.IPUtils;
 
-
 /**
  *  Low-level TcpMessenger
- *
  */
 public class TcpConnection implements Runnable {
     
@@ -142,14 +133,14 @@ public class TcpConnection implements Runnable {
      *@throws  IOException     for failures in creating the connection.
      */
     public TcpConnection(EndpointAddress destaddr, InetAddress from, PeerID id, MessageListener listener) throws IOException {
+        
         initiator = true;
+
         this.listener = listener;
         this.fullDstAddress = destaddr;
         this.dstAddress = new EndpointAddress(destaddr, null, null);
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("New TCP Connection to : " + dstAddress);
-        }
+        Logging.logCheckedInfo(LOG, "New TCP Connection to : " + dstAddress);
         
         String tmp = destaddr.getProtocolAddress();
         int portIndex = tmp.lastIndexOf(":");
@@ -191,10 +182,10 @@ public class TcpConnection implements Runnable {
      *@throws  IOException     for failures in creating the connection.
      */
     public TcpConnection(Socket incSocket, PeerID id, MessageListener listener) throws IOException {
+        
         try {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Connection from " + incSocket.getInetAddress().getHostAddress() + ":" + incSocket.getPort());
-            }
+
+            Logging.logCheckedInfo(LOG, "Connection from " + incSocket.getInetAddress().getHostAddress() + ":" + incSocket.getPort());
             
             initiator = false;
             this.listener = listener;
@@ -241,13 +232,17 @@ public class TcpConnection implements Runnable {
     private synchronized void setThreadName() {
         
         if (recvThread != null) {
+
             try {
+
                 recvThread.setName("TCP receive : " + itsWelcome.getPeerID() + " on address " + dstAddress);
+
             } catch (Exception ez1) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Cannot change thread name", ez1);
-                }
+
+                Logging.logCheckedWarning(LOG, "Cannot change thread name", ez1);
+
             }
+
         }
     }
     
@@ -256,6 +251,7 @@ public class TcpConnection implements Runnable {
      *
      *@return    The connectionAddress value
      */
+
     public EndpointAddress getConnectionAddress() {
         // Somewhat confusing but destinationAddress is the name of that thing
         // for the welcome message.
@@ -304,13 +300,12 @@ public class TcpConnection implements Runnable {
      *  the queue will be flushed.
      */
     public synchronized void close() {
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info(
-                    (closingDueToFailure ? "Failure" : "Normal") + " close of socket to : " + dstAddress + " / "
-                    + inetAddress.getHostAddress() + ":" + port);
-            if (closingDueToFailure) {
-                LOG.log(Level.INFO, "Failure stack trace", new Throwable("stack trace"));
-            }
+
+        Logging.logCheckedInfo(LOG, (closingDueToFailure ? "Failure" : "Normal") + " close of socket to : "
+            + dstAddress + " / " + inetAddress.getHostAddress() + ":" + port);
+
+        if (closingDueToFailure) {
+            Logging.logCheckedInfo(LOG, "Failure stack trace\n" + new Throwable("stack trace").toString());
         }
         
         if (!closed) {
@@ -328,35 +323,37 @@ public class TcpConnection implements Runnable {
      *  Description of the Method
      */
     private void closeIOs() {
+        
         if (inputStream != null) {
+
             try {
                 inputStream.close();
                 inputStream = null;
             } catch (Exception ez1) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "could not close inputStream ", ez1);
-                }
+                Logging.logCheckedWarning(LOG, "could not close inputStream ", ez1);
             }
+
         }
+        
         if (outputStream != null) {
+
             try {
                 outputStream.close();
                 outputStream = null;
             } catch (Exception ez1) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Error : could not close outputStream ", ez1);
-                }
+                Logging.logCheckedWarning(LOG, "Error : could not close outputStream ", ez1);
             }
+
         }
         if (sharedSocket != null) {
+
             try {
                 sharedSocket.close();
                 sharedSocket = null;
             } catch (Exception ez1) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Error : could not close socket ", ez1);
-                }
+                Logging.logCheckedWarning(LOG, "Error : could not close socket ", ez1);
             }
+
         }
     }
     
@@ -427,19 +424,18 @@ public class TcpConnection implements Runnable {
      * messages from the queue and send it.
      */
     public void run() {
+        
         try {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("tcp receive - starts for " + inetAddress.getHostAddress() + ":" + port);
-            }
+
+            Logging.logCheckedInfo(LOG, "tcp receive - starts for " + inetAddress.getHostAddress() + ":" + port);
             
             try {
+
                 while (isConnected()) {
-                    if (closed) {
-                        break;
-                    }
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("tcp receive - message starts for " + inetAddress.getHostAddress() + ":" + port);
-                    }
+
+                    if (closed) break;
+                    
+                    Logging.logCheckedFine(LOG, "tcp receive - message starts for " + inetAddress.getHostAddress() + ":" + port);
                     
                     // We can stay blocked here for a long time, it's ok.
                     MessagePackageHeader header = new MessagePackageHeader(inputStream);
@@ -448,9 +444,7 @@ public class TcpConnection implements Runnable {
                     
                     // FIXME 20020730 bondolo@jxta.org Do something with content-coding here.
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Message body (" + msglength + ") starts for " + inetAddress.getHostAddress() + ":" + port);
-                    }
+                    Logging.logCheckedFine(LOG, "Message body (" + msglength + ") starts for " + inetAddress.getHostAddress() + ":" + port);
                     
                     // read the message!
                     // We have received the header, so, the rest had better
@@ -460,35 +454,36 @@ public class TcpConnection implements Runnable {
                     Message msg = null;
 
                     try {
-                        InputStream msgStream = new LimitInputStream(inputStream, msglength, true);
 
+                        InputStream msgStream = new LimitInputStream(inputStream, msglength, true);
                         msg = WireFormatMessageFactory.fromWire(msgStream, msgMime, (MimeMediaType) null);
+
                     } catch (IOException failed) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Failed reading msg from " + inetAddress.getHostAddress() + ":" + port);
-                        }
-                        
+
+                        Logging.logCheckedWarning(LOG, "Failed reading msg from " + inetAddress.getHostAddress() + ":" + port);
                         throw failed;
+
                     } finally {
                         // We can relax again.
                         inputActive(false);
                     }
                     
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(
-                                "Handing incoming message from " + inetAddress.getHostAddress() + ":" + port
-                                + " to EndpointService");
-                    }
+                    Logging.logCheckedFine(LOG, "Handing incoming message from "
+                        + inetAddress.getHostAddress() + ":" + port + " to EndpointService");
+                    
                     try {
+
                         // Demux the message for the upper layers
                         if (listener != null) {
                             listener.demux(msg);
                         }
+
                     } catch (Throwable t) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Failure while endpoint demuxing " + msg, t);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Failure while endpoint demuxing " + msg, t);
+
                     }
+
                     setLastUsed(System.currentTimeMillis());
                 }
             } catch (InterruptedIOException woken) {
@@ -497,21 +492,19 @@ public class TcpConnection implements Runnable {
                 
                 closingDueToFailure = true;
                 
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning(
-                            "Error : read() timeout after " + woken.bytesTransferred + " on connection "
+                Logging.logCheckedWarning(LOG, "Error : read() timeout after " + woken.bytesTransferred + " on connection "
                             + inetAddress.getHostAddress() + ":" + port);
-                }
+                
             } catch (EOFException finished) {
+
                 // The other side has closed the connection
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Connection was closed by " + inetAddress.getHostAddress() + ":" + port);
-                }
+                Logging.logCheckedInfo(LOG, "Connection was closed by " + inetAddress.getHostAddress() + ":" + port);
+                
             } catch (Throwable e) {
+
                 closingDueToFailure = true;
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Error on connection " + inetAddress.getHostAddress() + ":" + port, e);
-                }
+                Logging.logCheckedWarning(LOG, "Error on connection " + inetAddress.getHostAddress() + ":" + port, e);
+                
             } finally {
                 synchronized (this) {
                     if (!closed) {
@@ -522,10 +515,11 @@ public class TcpConnection implements Runnable {
                     recvThread = null;
                 }
             }
+
         } catch (Throwable all) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-            }
+
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+
         }
     }
     
@@ -539,10 +533,9 @@ public class TcpConnection implements Runnable {
         
         // socket is a stream, only one writer at a time...
         synchronized (writeLock) {
+
             if (closed) {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Connection was closed to : " + dstAddress);
-                }
+                Logging.logCheckedInfo(LOG, "Connection was closed to : " + dstAddress);
                 throw new IOException("Connection was closed to : " + dstAddress);
             }
             
@@ -562,11 +555,8 @@ public class TcpConnection implements Runnable {
                 size = serialed.getByteLength();
                 header.setContentLengthHeader(size);
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine(
-                            "sendMessage (" + serialed.getByteLength() + ") to " + dstAddress + " via "
-                            + inetAddress.getHostAddress() + ":" + port);
-                }
+                Logging.logCheckedFine(LOG, "sendMessage (" + serialed.getByteLength() + ") to " + dstAddress + " via "
+                    + inetAddress.getHostAddress() + ":" + port);
                 
                 // Write the header and the message.
                 header.sendToStream(outputStream);
@@ -578,13 +568,14 @@ public class TcpConnection implements Runnable {
                 // all done!
                 success = true;
                 setLastUsed(System.currentTimeMillis());
+
             } catch (Throwable failure) {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.log(Level.INFO, "tcp send - message send failed for " + inetAddress.getHostAddress() + ":" + port, failure);
-                }
-                
+
+                Logging.logCheckedInfo(LOG, "tcp send - message send failed for "
+                    + inetAddress.getHostAddress() + ":" + port + "\n" + failure.toString());
                 closingDueToFailure = true;
                 close();
+
             }
         }
     }
@@ -619,11 +610,10 @@ public class TcpConnection implements Runnable {
         outputStream.setWatchList(LongCycle);
         
         if ((inputStream == null) || (outputStream == null)) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("   failed getting streams.");
-            }
+            Logging.logCheckedSevere(LOG, "   failed getting streams.");
             throw new IOException("Could not get streams");
         }
+        
         myWelcome = new WelcomeMessage(fullDstAddress, fullDstAddress, id, false);
         myWelcome.sendToStream(outputStream);
         outputStream.flush();
@@ -633,9 +623,9 @@ public class TcpConnection implements Runnable {
         
         // Ok, we can wait for messages now.
         inputActive(false);
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Hello from " + itsWelcome.getPublicAddress() + " [" + itsWelcome.getPeerID() + "]");
-        }
+
+        Logging.logCheckedFine(LOG, "Hello from " + itsWelcome.getPublicAddress() + " [" + itsWelcome.getPeerID() + "]");
+        
         recvThread = new Thread(this);
         setThreadName();
         recvThread.setDaemon(true);

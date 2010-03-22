@@ -232,31 +232,33 @@ public class TransferAggregator
                             (ContentID) obj);
                 }
                 if (transfer == null) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(hashHex() +
+
+                    Logging.logCheckedFine(LOG, hashHex() +
                                 ": Provider returned null transfer: " + prov);
-                    }
+                    
                 } else {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(hashHex() +
+
+                    Logging.logCheckedFiner(LOG, hashHex() +
                                 ": Provider '" + prov + "' returned transfer: "
                                 + transfer);
-                    }
                     idle.add(transfer);
+
                 }
+
                 if (content != null) {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(hashHex() + ": Provider '" + prov
+
+                    Logging.logCheckedFiner(LOG, hashHex() + ": Provider '" + prov
                                 + "' found the Content.  Skipping remaining "
                                 + "providers.");
-                    }
                     break;
+
                 }
+
             } catch (UnsupportedOperationException unsupx) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine(hashHex() +
+
+                Logging.logCheckedFine(LOG, hashHex() +
                             ": Provider does not support operation: " + prov);
-                }
+                
             }
         }
 
@@ -361,12 +363,14 @@ public class TransferAggregator
 
         // Make sure we load up the selected and standby transfers
         try {
+
             populateSelected();
             populateStandby();
+
         } catch (TransferException transx) {
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, hashHex() + ": Ignoring exception", transx);
-            }
+
+            Logging.logCheckedFinest(LOG, hashHex() + ": Ignoring exception\n" + transx.toString());
+            
         }
 
         // This indirectly provides event notification
@@ -552,14 +556,16 @@ public class TransferAggregator
 
                 // Try to send events only when useful
                 if (oldState != locationState || locationCount != null) {
+
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(hashHex()
+                        Logging.logCheckedFiner(LOG, hashHex()
                                 + ": Location update (location count: "
                                 + locationCount + ")");
-                        LOG.finer("    Was  : " + oldState);
-                        LOG.finer("    Is   : " + locationState);
-                        LOG.finer("    Cause: " + state);
+                        Logging.logCheckedFiner(LOG, "    Was  : " + oldState);
+                        Logging.logCheckedFiner(LOG, "    Is   : " + locationState);
+                        Logging.logCheckedFiner(LOG, "    Cause: " + state);
                     }
+
                     toFire = new ContentTransferEvent.Builder(this)
                             .locationCount(locationCount)
                             .locationState(locationState)
@@ -591,16 +597,15 @@ public class TransferAggregator
      */
     private void contentTransferStateUpdated(
             ContentTransfer transfer, ContentTransferState state) {
+
         ContentTransferEvent toFire = null;
         TransferException exception;
         boolean terminateTransfer = false;
         boolean doTransferStart = false;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(hashHex() + ": Transfer state updated: " + transfer
+        Logging.logCheckedFine(LOG, hashHex() + ": Transfer state updated: " + transfer
                     + " (" + state + ")");
-        }
-
+        
         if (state.isSuccessful()) {
             /* NOTE mcumings 20061229: This is a bit odd in that
              * theoretically an idle transfer can declare that it is
@@ -644,16 +649,21 @@ public class TransferAggregator
 
                 // Only go crazy if this is the first provider to succeed
                 if (eureka) {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(hashHex() + ": Eureka!");
-                    }
+
+                    Logging.logCheckedFiner(LOG, hashHex() + ": Eureka!");
+
                     if (newSelected) {
                         fireSelectedContentTransfer(transfer);
                     }
+
                     cancelAll(null, true);
+
                 } else {
+
                     terminateTransfer = true;
+
                 }
+
             } catch (InterruptedException intx) {
                 // Bad timing?
                 terminateTransfer = true;
@@ -685,11 +695,12 @@ public class TransferAggregator
              * uninitiated transfer instances.
              */
             synchronized(this) {
+
                 if (transferState.isFinished()) {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(hashHex() + " Ignoring event due to being "
+
+                    Logging.logCheckedFiner(LOG, hashHex() + " Ignoring event due to being "
                                 + "in a finished state");
-                    }
+
                 } else if (transfer == selected) {
                     if (destFile != null) {
                         doTransferStart = true;
@@ -697,12 +708,14 @@ public class TransferAggregator
                 }
             }
         } else {
+
             synchronized(this) {
+
                 if (transferState.isFinished()) {
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(hashHex() + " Ignoring event due to being "
+
+                    Logging.logCheckedFiner(LOG, hashHex() + " Ignoring event due to being "
                                 + "in a finished state");
-                    }
+
                 } else if (transfer == selected && transferState != state) {
                     /*
                      * We need to absorb or transform events which would
@@ -759,10 +772,10 @@ public class TransferAggregator
         }
 
         if (doTransferStart) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(hashHex() + ": Starting transfer: " + transfer);
-            }
+
+            Logging.logCheckedFiner(LOG, hashHex() + ": Starting transfer: " + transfer);
             transfer.startTransfer(destFile);
+
         }
     }
 
@@ -906,17 +919,19 @@ public class TransferAggregator
          * may cause events to be thrown downstream.
          */
         if (doStart) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(hashHex() + ": Starting source location for transfer: "
+
+            Logging.logCheckedFine(LOG, hashHex() + ": Starting source location for transfer: "
                         + transfer);
-            }
+            
             transfer.startSourceLocation();
+
         } else if (doStop) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(hashHex() + ": Stopping source location for transfer: "
+
+            Logging.logCheckedFine(LOG, hashHex() + ": Stopping source location for transfer: "
                         + transfer);
-            }
+            
             transfer.stopSourceLocation();
+
         }
     }
 
@@ -956,11 +971,11 @@ public class TransferAggregator
                     throw(new TransferException("Transfer failed"));
                 }
             } else if (!transferState.isRetrieving() && selected != null) {
+
                 // Make sure the transfer has started
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer(hashHex() + ": Starting transfer: " + selected);
-                }
+                Logging.logCheckedFiner(LOG, hashHex() + ": Starting transfer: " + selected);
                 selected.startTransfer(destFile);
+
             }
         }
     }
@@ -997,18 +1012,17 @@ public class TransferAggregator
      * @param event event information to send to listeners
      */
     private void fireLocationStateUpdated(ContentTransferEvent event) {
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer(hashHex() + ": Firing event: " + event);
-        }
+
+        Logging.logCheckedFiner(LOG, hashHex() + ": Firing event: " + event);
+
         for (ContentTransferListener listener : ctListeners) {
+            
             try {
                 listener.contentLocationStateUpdated(event);
             } catch (Throwable t) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING,
-                            "Uncaught throwable from listener", t);
-                }
+                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", t);
             }
+
         }
     }
 
@@ -1018,17 +1032,19 @@ public class TransferAggregator
      * @param event event information to send to listeners
      */
     private void fireTransferStateUpdated(ContentTransferEvent event) {
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer(hashHex() + ": Firing event: " + event);
-        }
+
+        Logging.logCheckedFiner(LOG, hashHex() + ": Firing event: " + event);
+
         for (ContentTransferListener listener : ctListeners) {
+            
             try {
+
                 listener.contentTransferStateUpdated(event);
+
             } catch (Throwable t) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING,
-                            "Uncaught throwable from listener", t);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", t);
+                
             }
         }
     }
@@ -1040,10 +1056,10 @@ public class TransferAggregator
      * @param newSelected the newly selected primary transfer instance
      */
     private void fireSelectedContentTransfer(ContentTransfer newSelected) {
+
         ContentTransferAggregatorEvent event = null;
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer(hashHex() + ": Firing new selected: " + newSelected);
-        }
+
+        Logging.logCheckedFiner(LOG, hashHex() + ": Firing new selected: " + newSelected);
 
         for (ContentTransferAggregatorListener listener : ctaListeners) {
             try {
@@ -1052,12 +1068,13 @@ public class TransferAggregator
                             .contentTransfer(newSelected)
                             .build();
                 }
+
                 listener.selectedContentTransfer(event);
+
             } catch (Throwable t) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING,
-                            "Uncaught throwable from listener", t);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", t);
+                
             }
         }
     }

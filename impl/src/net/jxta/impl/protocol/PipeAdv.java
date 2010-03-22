@@ -169,13 +169,13 @@ public class PipeAdv extends PipeAdvertisement {
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem);
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem);
             }
+
         }
 
         // Sanity Check!!!
@@ -265,13 +265,13 @@ public class PipeAdv extends PipeAdvertisement {
         adv.appendChild(e);
 
         if ((null == getType()) || (0 == getType().length())) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Pipe type not set. Defaulting to " + PipeService.UnicastType + "."
-                        + "\n This default is deprecated. Please set the pipe type in your code.");
-            }
 
+            Logging.logCheckedWarning(LOG, "Pipe type not set. Defaulting to " + PipeService.UnicastType + "."
+                + "\n This default is deprecated. Please set the pipe type in your code.");
+           
             setType(PipeService.UnicastType);
             // throw new IllegalArgumentException("Pipe type missing in advertisement");
+
         }
 
         e = adv.createElement(PipeAdvertisement.TypeTag, getType());

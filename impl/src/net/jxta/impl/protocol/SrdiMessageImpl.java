@@ -270,13 +270,14 @@ public class SrdiMessageImpl extends SrdiMessage {
                     } else {
                         expiration = -1;
                     }
-                    SrdiMessage.Entry entry = new SrdiMessage.Entry(key, value, expiration);
 
+                    SrdiMessage.Entry entry = new SrdiMessage.Entry(key, value, expiration);
                     addEntry(entry);
+
                 } else {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("SrdiMessage Entry with a Null value");
-                    }
+                    
+                    Logging.logCheckedFine(LOG, "SrdiMessage Entry with a Null value");
+                    
                 }
             }
         }

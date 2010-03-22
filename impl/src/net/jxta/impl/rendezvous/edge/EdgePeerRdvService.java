@@ -177,13 +177,14 @@ public class EdgePeerRdvService extends StdRendezVousService {
         RdvConfigAdv rdvConfigAdv;
         
         if (!(adv instanceof RdvConfigAdv)) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Creating new RdvConfigAdv for defaults.");
-            }
 
+            Logging.logCheckedFine(LOG, "Creating new RdvConfigAdv for defaults.");
             rdvConfigAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
+
         } else {
+
             rdvConfigAdv = (RdvConfigAdv) adv;
+
         }
         
         if (-1 != rdvConfigAdv.getMaxTTL()) {
@@ -213,13 +214,15 @@ public class EdgePeerRdvService extends StdRendezVousService {
             }
             
             this.seedingManager = uriSeedingManager;
+
         } else {
+
             this.seedingManager = new PeerviewSeedingManager(rdvConfigAdv.getAclUri(), group, group.getParentGroup(), serviceName);
+
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("RendezVous Service is initialized for " + group.getPeerGroupID() + " as an Edge peer.");
-        }
+        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for " + group.getPeerGroupID() + " as an Edge peer.");
+        
     }
     
     /**
@@ -234,9 +237,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
          */
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("[" + group.getPeerGroupID() + "] processing " + msg);
-            }
+            Logging.logCheckedFine(LOG, "[" + group.getPeerGroupID() + "] processing " + msg);
             
             if ((msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply) != null)
                     || (msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRdvAdvReply) != null)) {
@@ -384,12 +385,11 @@ public class EdgePeerRdvService extends StdRendezVousService {
      */
     @Override
     public void propagate(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
+
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"+ serviceParam);
-        }
+        Logging.logCheckedFine(LOG, "Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"+ serviceParam);
         
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
         
@@ -400,10 +400,11 @@ public class EdgePeerRdvService extends StdRendezVousService {
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
                 rendezvousMeter.propagateToGroup();
             }
+
         } else {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Declining to propagate " + msg + " (No prop header)");
-            }
+
+            Logging.logCheckedFine(LOG, "Declining to propagate " + msg + " (No prop header)");
+
         }
     }
     
@@ -412,13 +413,12 @@ public class EdgePeerRdvService extends StdRendezVousService {
      */
     @Override
     public void propagateInGroup(Message msg, String serviceName, String serviceParam, int initialTTL) throws IOException {
+
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Propagating " + msg + "(TTL=" + useTTL + ") in group to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-                    + serviceParam);
-        }
+        Logging.logCheckedFine(LOG, "Propagating " + msg + "(TTL=" + useTTL + ") in group to :"
+            + "\n\tsvc name:" + serviceName + "\tsvc params:" + serviceParam);
         
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
         
@@ -429,9 +429,9 @@ public class EdgePeerRdvService extends StdRendezVousService {
                 rendezvousMeter.propagateToGroup();
             }
         } else {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Declining to propagate " + msg + " (No prop header)");
-            }
+
+            Logging.logCheckedFine(LOG, "Declining to propagate " + msg + " (No prop header)");
+
         }
     }
     
@@ -473,14 +473,15 @@ public class EdgePeerRdvService extends StdRendezVousService {
     private void disconnectFromAllRendezVous() {
         
         for (RdvConnection pConn : new ArrayList<RdvConnection>(rendezVous.values())) {
+
             try {
                 disconnectFromRendezVous(pConn.getPeerID());
             } catch (Exception failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "disconnectFromRendezVous failed for " + pConn, failed);
-                }
+                Logging.logCheckedWarning(LOG, "disconnectFromRendezVous failed for " + pConn, failed);
             }
+
         }
+
     }
     
     /**
@@ -504,15 +505,14 @@ public class EdgePeerRdvService extends StdRendezVousService {
                     rdvConnection.setConnected(false);
                     removeRdv(adv.getPeerID(), true);
                 } else {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Ignoring disconnect request from " + adv.getPeerID());
-                    }
+                    Logging.logCheckedFine(LOG, "Ignoring disconnect request from " + adv.getPeerID());
                 }
             }
+
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure processing disconnect request", failure);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failure processing disconnect request", failure);
+
         }
     }
     
@@ -542,9 +542,8 @@ public class EdgePeerRdvService extends StdRendezVousService {
         
         // Check if the peer is already registered.
         if (RendezvousEvent.RDVRECONNECT == eventType) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Renewed RDV lease from " + rdvConnection);
-            }
+
+            Logging.logCheckedInfo(LOG, "Renewed RDV lease from " + rdvConnection);
             
             // Already connected, just upgrade the lease
             
@@ -554,10 +553,10 @@ public class EdgePeerRdvService extends StdRendezVousService {
                 
                 rendezvousConnectionMeter.leaseRenewed(lease);
             }
+
         } else {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("New RDV lease from " + rdvConnection);
-            }
+
+            Logging.logCheckedInfo(LOG, "New RDV lease from " + rdvConnection);
             
             if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousServiceMonitor != null)) {
                 RendezvousConnectionMeter rendezvousConnectionMeter = rendezvousServiceMonitor.getRendezvousConnectionMeter(
@@ -565,6 +564,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
                 
                 rendezvousConnectionMeter.connectionEstablished(lease);
             }
+
         }
         
         rdvConnection.connect(padv, lease, Math.min(LEASE_MARGIN, (lease / 2)));
@@ -580,9 +580,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
      */
     private void removeRdv(ID rdvid, boolean requested) {
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Disconnect from RDV " + rdvid);
-        }
+        Logging.logCheckedInfo(LOG, "Disconnect from RDV " + rdvid);
         
         PeerConnection rdvConnection;
         
@@ -614,9 +612,8 @@ public class EdgePeerRdvService extends StdRendezVousService {
      *  @throws IOException Thrown for errors sending the lease request.
      */
     private void sendLeaseRequest(RdvConnection pConn) throws IOException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending Lease request to " + pConn);
-        }
+
+        Logging.logCheckedFine(LOG, "Sending Lease request to " + pConn);
         
         RendezvousConnectionMeter rendezvousConnectionMeter = null;
         
@@ -649,11 +646,10 @@ public class EdgePeerRdvService extends StdRendezVousService {
         MessageElement peerElem = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedRdvAdvReply);
         
         if (null == peerElem) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Missing rendezvous peer advertisement");
-            }
-            
+
+            Logging.logCheckedFine(LOG, "Missing rendezvous peer advertisement");
             return;
+
         }
         
         long lease;
@@ -662,36 +658,40 @@ public class EdgePeerRdvService extends StdRendezVousService {
             MessageElement el = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedLeaseReply);
             
             if (el == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("missing lease");
-                }
+
+                Logging.logCheckedFine(LOG, "missing lease");
                 return;
+
             }
+
             lease = Long.parseLong(el.toString());
+
         } catch (Exception e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Parse lease failed with ", e);
-            }
+
+            Logging.logCheckedFine(LOG, "Parse lease failed with\n" + e.toString());
             return;
+
         }
         
         ID pId;
         MessageElement el = msg.getMessageElement(RendezVousServiceProvider.RDV_MSG_NAMESPACE_NAME, ConnectedPeerReply);
         
         if (el == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("missing rdv peer");
-            }
+
+            Logging.logCheckedFine(LOG, "missing rdv peer");
             return;
+
         }
         
         try {
+
             pId = IDFactory.fromURI(new URI(el.toString()));
+
         } catch (URISyntaxException badID) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Bad RDV peer ID");
-            }
+
+            Logging.logCheckedFine(LOG, "Bad RDV peer ID");
             return;
+
         }
         
         if (lease <= 0) {
@@ -701,30 +701,28 @@ public class EdgePeerRdvService extends StdRendezVousService {
                 PeerAdvertisement padv = null;
                 
                 try {
+
                     XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(peerElem);
-                    
                     padv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(asDoc);
+                
                 } catch (Exception failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Failed processing peer advertisement");
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Failed processing peer advertisement");
+
                 }
                 
                 if (null == padv) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Missing rendezvous peer advertisement");
-                    }
+                    Logging.logCheckedFine(LOG, "Missing rendezvous peer advertisement");
                     return;
                 }
                 
                 if (!seedingManager.isAcceptablePeer(padv)) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Rejecting lease offer from unacceptable peer : " + padv.getPeerID());
-                    }
+
+                    Logging.logCheckedFine(LOG, "Rejecting lease offer from unacceptable peer : " + padv.getPeerID());
                     
                     // XXX bondolo 20061123 perhaps we should send a disconnect here.
-                    
                     return;
+                    
                 }
                 
                 addRdv(padv, lease);
@@ -736,10 +734,11 @@ public class EdgePeerRdvService extends StdRendezVousService {
                         // This is not our own peer adv so we choose not to share it and keep it for only a short time.
                         discovery.publish(padv, lease * 2, 0);
                     }
+
                 } catch (IOException e) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "failed to publish Rendezvous Advertisement", e);
-                    }
+
+                    Logging.logCheckedFine(LOG, "failed to publish Rendezvous Advertisement\n" + e.toString());
+                    
                 }
                 
                 String rdvName = padv.getName();
@@ -748,14 +747,13 @@ public class EdgePeerRdvService extends StdRendezVousService {
                     rdvName = pId.toString();
                 }
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("RDV Connect Response : peer=" + rdvName + " lease=" + lease + "ms");
-                }
+                Logging.logCheckedFine(LOG, "RDV Connect Response : peer=" + rdvName + " lease=" + lease + "ms");
+                
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Ignoring lease offer from " + pId);
-                }
+
+                Logging.logCheckedFine(LOG, "Ignoring lease offer from " + pId);
                 // XXX bondolo 20040423 perhaps we should send a disconnect here.
+
             }
         }
     }
@@ -771,22 +769,19 @@ public class EdgePeerRdvService extends StdRendezVousService {
          * @inheritDoc
          */
         public void execute() {
+            
             try {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("[" + group + "] Periodic rendezvous check");
-                }
+
+                Logging.logCheckedFine(LOG, "[" + group + "] Periodic rendezvous check");
                 
-                if (closed) {
-                    return;
-                }
+                if (closed) return;
                 
                 if (!PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
                     MessageTransport router = rdvService.endpoint.getEndpointRouter();
                     
                     if (null == router) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Rendezvous connection stalled until router is started!");
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Rendezvous connection stalled until router is started!");
                         
                         // Reschedule another run very soon.
                         this.cancel();
@@ -798,26 +793,24 @@ public class EdgePeerRdvService extends StdRendezVousService {
                 List<RdvConnection> currentRdvs = new ArrayList<RdvConnection>(rendezVous.values());
                 
                 for (RdvConnection pConn : currentRdvs) {
+
                     try {
+
                         if (!pConn.isConnected()) {
-                            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                                LOG.fine("[" + group.getPeerGroupID() + "] Lease expired. Disconnected from " + pConn);
-                            }
+                            Logging.logCheckedInfo(LOG, "[" + group.getPeerGroupID() + "] Lease expired. Disconnected from " + pConn);
                             removeRdv(pConn.getPeerID(), false);
                             continue;
                         }
                         
                         if (TimeUtils.toRelativeTimeMillis(pConn.getRenewal()) <= 0) {
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("[" + group.getPeerGroupID() + "] Attempting lease renewal for " + pConn);
-                            }
-                            
+                            Logging.logCheckedFine(LOG, "[" + group.getPeerGroupID() + "] Attempting lease renewal for " + pConn);
                             sendLeaseRequest(pConn);
                         }
+
                     } catch (Exception e) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "[" + group.getPeerGroupID() + "] Failure while checking " + pConn, e);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "[" + group.getPeerGroupID() + "] Failure while checking " + pConn, e);
+
                     }
                 }
                 
@@ -867,13 +860,15 @@ public class EdgePeerRdvService extends StdRendezVousService {
                         }
                     }
                 } else {
+
                     // We don't need any of the current seeds. Get new ones when we need them.
                     seeds.clear();
                 }
+
             } catch (Throwable t) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Uncaught throwable in thread :" + Thread.currentThread().getName(), t);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught throwable in thread :" + Thread.currentThread().getName(), t);
+                
             }
         }
     }

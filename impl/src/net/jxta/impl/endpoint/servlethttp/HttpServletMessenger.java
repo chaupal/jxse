@@ -153,26 +153,23 @@ final class HttpServletMessenger extends BlockingMessenger {
          */
         @Override
         public void execute() {
+
             try {
+
                 HttpServletMessenger temp = messenger;
 
                 while( ( null != temp ) &&  ( null != temp.outgoingMessage || temp.sendResult == SEND_INPROGRESS  ) ){
                 	
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                       	LOG.log(Level.FINE, "Waiting for outgoingMessage to clear before we close..." + temp);
-                    }
+                    Logging.logCheckedFine(LOG, "Waiting for outgoingMessage to clear before we close..." + temp);
 
                     // Wait a while
                     try {
-						Thread.sleep(250);
-					} catch (InterruptedException ignore) {
-						;
-					}
+                        Thread.sleep(250);
+                    } catch (InterruptedException ignore) {
+                    }
                     
                     if( temp.isClosed() || null == this.messenger ){
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                           	LOG.log(Level.FINE, "Messenger closed while waiting for send to complete.  Operation cancelled: " + temp);
-                        }
+                        Logging.logCheckedFine(LOG, "Messenger closed while waiting for send to complete.  Operation cancelled: " + temp);
                     	return;
                     }
                     
@@ -180,17 +177,16 @@ final class HttpServletMessenger extends BlockingMessenger {
                 
                 messenger = null;
                 
-                if (null != temp) {
-                    temp.close();
-                }
+                if (null != temp) temp.close();
+                
             } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in timer task :" + Thread.currentThread().getName(), all);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in timer task :" + Thread.currentThread().getName(), all);
+                
             } finally {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                   	LOG.log(Level.FINE, "Messenger self destruct complete.");
-                }
+
+                Logging.logCheckedFine(LOG, "Messenger self destruct complete.");
+                
             }
         }
     }
@@ -217,9 +213,8 @@ final class HttpServletMessenger extends BlockingMessenger {
             expirationTaskHandle = scheduledExecutorService.schedule(new ScheduledExpiry(this), validFor, TimeUnit.MILLISECONDS);
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("HttpServletMessenger\n\t" + toString());
-        }
+        Logging.logCheckedFine(LOG, "HttpServletMessenger\n\t" + toString());
+        
     }
     
     /**
@@ -227,9 +222,8 @@ final class HttpServletMessenger extends BlockingMessenger {
      */
     @Override
     public synchronized void closeImpl() {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("close\n\t" + toString());
-        }
+
+        Logging.logCheckedFine(LOG, "close\n\t" + toString());
         
         ScheduledFuture<?> cancelExpire = expirationTaskHandle;
 
@@ -267,16 +261,12 @@ final class HttpServletMessenger extends BlockingMessenger {
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Send " + message + " to " + dstAddress.toString() + "\n\t" + toString());
-        }
+        Logging.logCheckedFine(LOG, "Send " + message + " to " + dstAddress.toString() + "\n\t" + toString());
         
         if (isClosed()) {
+
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, failure.getMessage(), failure);
-            }
+            Logging.logCheckedFine(LOG, failure.getMessage());
             
             throw failure;
         }
@@ -293,19 +283,16 @@ final class HttpServletMessenger extends BlockingMessenger {
         
         // doSend returns false only when this messenger is closed.
         if (!doSend(message)) {
+
             // send message failed
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "sendMessage failed (messenger closed).\n\t" + toString(), failure);
-            }
-            
+            Logging.logCheckedFine(LOG, "sendMessage failed (messenger closed).\n\t" + toString() + "\n" + failure);
             throw failure;
+
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("sendMessage successful for " + message + "\n\t" + toString());
-        }
+        Logging.logCheckedFine(LOG, "sendMessage successful for " + message + "\n\t" + toString());
+
     }
     
     // Must be called from synchronized context only.
@@ -340,9 +327,7 @@ final class HttpServletMessenger extends BlockingMessenger {
         sendResult = SEND_INPROGRESS;
         sendingSince = now;
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Queued " + message);
-        }
+        Logging.logCheckedFine(LOG, "Queued " + message);
         
         // notify the servlet if it was waiting for a message
         notifyAll();
@@ -373,16 +358,12 @@ final class HttpServletMessenger extends BlockingMessenger {
                 wait(waitfor);
             } catch (InterruptedException e) {
                 Thread.interrupted();
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "InterruptedException timeout = " + MAX_SENDING_WAIT + "\n\t" + toString(), e);
-                }
+                Logging.logCheckedFine(LOG, "InterruptedException timeout = " + MAX_SENDING_WAIT + "\n\t" + toString() + "\n" + e.toString());
                 break;
             }
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Got result\n\t" + toString());
-        }
+        Logging.logCheckedFine(LOG, "Got result\n\t" + toString());
         
         if (isClosed() && (SEND_INPROGRESS == sendResult)) {
             return false;
@@ -419,9 +400,8 @@ final class HttpServletMessenger extends BlockingMessenger {
      *  @throws InterruptedException If the thread is interrupted while waiting.
      */
     protected synchronized Message waitForMessage(long timeout) throws InterruptedException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Waiting (" + (0 == timeout ? "forever" : Long.toString(timeout)) + ") for message\n\t" + toString());
-        }
+
+        Logging.logCheckedFine(LOG, "Waiting (" + (0 == timeout ? "forever" : Long.toString(timeout)) + ") for message\n\t" + toString());
         
         if (0 == timeout) {
             // it's forever
@@ -456,17 +436,14 @@ final class HttpServletMessenger extends BlockingMessenger {
             notifyAll();
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Returning " + result + "\n\t" + toString());
-        }
+        Logging.logCheckedFine(LOG, "Returning " + result + "\n\t" + toString());
         
         return result;
     }
     
     protected synchronized void messageSent(boolean wasSuccessful) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("messageSent(" + wasSuccessful + ")\n\t" + toString());
-        }
+
+        Logging.logCheckedFine(LOG, "messageSent(" + wasSuccessful + ")\n\t" + toString());
         
         if (SEND_TOOLONG == sendResult) {
             // No-one cares for the result any more. Let the next send go.

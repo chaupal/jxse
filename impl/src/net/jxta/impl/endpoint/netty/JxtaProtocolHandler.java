@@ -148,14 +148,17 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        
         if(e.getCause() instanceof TimeoutException && state == JxtaProtocolState.AWAITING_WELCOME_MESSAGE) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to receive welcome message from client " + ctx.getChannel().getRemoteAddress() + " in timely manner - disconnecting");
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to receive welcome message from client " + ctx.getChannel().getRemoteAddress() + " in timely manner - disconnecting");
             Channels.close(ctx, ctx.getChannel().getCloseFuture());
             return;
+
         }
+
         super.exceptionCaught(ctx, e);
+
     }
     
     @Override
@@ -195,21 +198,29 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
     }
     
     private void write(ChannelHandlerContext ctx, Object message, ChannelFuture future) {
+        
         shutdownLock.lock();
+
         try {
+
             if(closing) {
-                if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Attempt to write made after the channel shutdown process has started");
-                }
+
+                Logging.logCheckedWarning(LOG, "Attempt to write made after the channel shutdown process has started");
                 future.setFailure(new IllegalStateException("Attempt to write made after the channel shutdown process has started"));
                 return;
+
             }
+
             pendingWrites.add(future);
             future.addListener(this);
             Channels.write(ctx, future, message);
+
         } finally {
+
             shutdownLock.unlock();
+
         }
+
     }
 
     private boolean readWelcomeMessage(ChannelHandlerContext ctx) {
@@ -222,14 +233,17 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
                 Channels.fireMessageReceived(ctx, receivedWelcomeMessage);
                 resetReadIndex(buffer);
                 return true;
+
             } else {
+
                 receivedBytes.readerIndex(0);
+
                 if(receivedBytes.readableBytes() > MAX_WELCOME_MESSAGE_SIZE) {
+
                     // TODO: notify outside world?
-                    if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Received a welcome message bigger than the maximum size (" + MAX_WELCOME_MESSAGE_SIZE + ") from client " + ctx.getChannel().getRemoteAddress() + "- disconnecting");
-                    }
+                    Logging.logCheckedWarning(LOG, "Received a welcome message bigger than the maximum size (" + MAX_WELCOME_MESSAGE_SIZE + ") from client " + ctx.getChannel().getRemoteAddress() + "- disconnecting");
                     Channels.close(ctx, ctx.getChannel().getCloseFuture());
+
                 }
                 
                 return false;
@@ -264,14 +278,15 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
             }
             
             return false;
+
         } catch(IOException e) {
+
             // invalid / corrupt welcome message received, disconnect
             // TODO: flag this to controller
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Corrupt / invalid message header received from client " + ctx.getChannel().getRemoteAddress() + " - disconnecting");
-            }
+            Logging.logCheckedWarning(LOG, "Corrupt / invalid message header received from client " + ctx.getChannel().getRemoteAddress() + " - disconnecting");
             ctx.getChannel().close();
             return false;
+
         }
     }
     

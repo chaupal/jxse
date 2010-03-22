@@ -147,9 +147,8 @@ public class CMKeyStoreManager implements KeyStoreManager {
             KeyStore.getInstance(keystore_type, keystore_provider);
         }
         
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("pse location = " + keystore_location + " in " + keystore_cm);
-        }
+        Logging.logCheckedConfig(LOG, "pse location = " + keystore_location + " in " + keystore_cm);
+
     }
     
     /**
@@ -225,11 +224,10 @@ public class CMKeyStoreManager implements KeyStoreManager {
      **/
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Loading (" + keystore_type + "," + keystore_provider + ") store from " + keystore_location);
-        }
+        Logging.logCheckedFine(LOG, "Loading (" + keystore_type + "," + keystore_provider + ") store from " + keystore_location);
         
         try {
+
             KeyStore store;
 
             if (null == keystore_provider) {
@@ -266,23 +264,26 @@ public class CMKeyStoreManager implements KeyStoreManager {
      **/
     public void saveKeyStore(KeyStore store, char[] password) throws IOException, KeyStoreException {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Writing " + store + " to " + keystore_location);
-        }
+        Logging.logCheckedFine(LOG, "Writing " + store + " to " + keystore_location);
         
         try {
+
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             
             store.store(bos, password);
             bos.close();
             
             keystore_cm.save("Raw", keystore_location.toString(), bos.toByteArray(), Long.MAX_VALUE, 0);
+        
         } catch (NoSuchAlgorithmException failed) {
+
             KeyStoreException failure = new KeyStoreException("NoSuchAlgorithmException during keystore processing");
 
             failure.initCause(failed);
             throw failure;
+
         } catch (CertificateException failed) {
+
             KeyStoreException failure = new KeyStoreException("CertificateException during keystore processing");
 
             failure.initCause(failed);

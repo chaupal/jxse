@@ -296,24 +296,23 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * {@inheritDoc}
      */
     public int startApp(String[] arg) {
+
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return START_AGAIN_STALLED;
+
         }
 
         Service needed = group.getMembershipService();
 
         if (null == needed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a membership service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return START_AGAIN_STALLED;
+
         }
 
         // if( !PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
@@ -332,11 +331,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
         scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService("RendezVousService");
 
         if (!rdvProviderSwitchStatus.compareAndSet(true, true)) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Unable to start rendezvous provider.");
-            }
 
+            Logging.logCheckedSevere(LOG, "Unable to start rendezvous provider.");
             return -1;
+
         }
 
         if (RdvConfigAdv.RendezVousConfiguration.AD_HOC == config) {
@@ -364,9 +362,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             startWatchDogTimer();
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Rendezvous Service started");
-        }
+        Logging.logCheckedInfo(LOG, "Rendezvous Service started");
 
         return Module.START_OK;
     }
@@ -390,9 +386,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
         msgIds.clear();
         eventListeners.clear();
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Rendezvous Serivce stopped");
-        }
+        Logging.logCheckedInfo(LOG, "Rendezvous Serivce stopped");
+
     }
 
     /**
@@ -568,12 +563,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
             }
 
             if (!rdvProviderSwitchStatus.compareAndSet(false, true)) {
-                IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Failed to start rendezvous", failed);
-                }
+                IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
+                Logging.logCheckedSevere(LOG, "Failed to start rendezvous", failed);
                 throw failed;
+
             }
 
             // We are at this moment an Edge Peer. First, the current implementation
@@ -595,10 +589,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
             provider.startApp(savedArgs);
 
             rdvProviderSwitchStatus.set(false);
+
         } catch (IOException failure) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to start rendezvous", failure);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to start rendezvous", failure);
+            
         }
     }
 
@@ -612,11 +607,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         if (!rdvProviderSwitchStatus.compareAndSet(false, true)) {
-            IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
 
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed to stop rendezvous", failed);
-            }
+            IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
+            Logging.logCheckedSevere(LOG, "Failed to stop rendezvous", failed);
+            
         }
 
         // If the service was already started, then it needs to be stopped,
@@ -870,20 +864,18 @@ public final class RendezVousServiceImpl implements RendezVousService {
         Iterator eachListener = Arrays.asList(eventListeners.toArray()).iterator();
         RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Calling listeners for " + event);
-        }
+        Logging.logCheckedFine(LOG, "Calling listeners for " + event);
 
         while (eachListener.hasNext()) {
+
             RendezvousListener aListener = (RendezvousListener) eachListener.next();
 
             try {
                 aListener.rendezvousEvent(event);
             } catch (Throwable ignored) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Uncaught Throwable in listener (" + aListener + ")", ignored);
-                }
+                Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener (" + aListener + ")", ignored);
             }
+
         }
     }
 
@@ -942,10 +934,11 @@ public final class RendezVousServiceImpl implements RendezVousService {
                         }
                     }
                 }
+
             } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in Timer : " + Thread.currentThread().getName(), all);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in Timer : " + Thread.currentThread().getName(), all);
+                
             }
         }
     }
@@ -958,11 +951,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
             found = msgIds.contains(id);
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer(id + " = " + found);
-        }
-
+        Logging.logCheckedFiner(LOG, id + " = " + found);
+        
         return found;
+
     }
 
     /**
@@ -989,9 +981,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             messagesReceived++;
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Added Message ID : " + id);
-        }
+        Logging.logCheckedFiner(LOG, "Added Message ID : " + id);
 
         return true;
     }

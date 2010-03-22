@@ -212,24 +212,27 @@ public class ResolverServiceImpl implements ResolverService {
          * {@inheritDoc}
          */
         public void propertyChange(PropertyChangeEvent evt) {
+
             if (MembershipService.DEFAULT_CREDENTIAL_PROPERTY.equals(evt.getPropertyName())) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("New default credential event");
-                }
+
+                Logging.logCheckedFine(LOG, "New default credential event");
 
                 synchronized (ResolverServiceImpl.this) {
                     Credential cred = (Credential) evt.getNewValue();
                     XMLDocument credentialDoc;
 
                     if (null != cred) {
+
                         try {
+
                             credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
+
                         } catch (Exception all) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING, "Could not generate credential document", all);
-                            }
+
+                            Logging.logCheckedWarning(LOG, "Could not generate credential document", all);
                             currentCredential = null;
+
                         }
                     } else {
                         currentCredential = null;
@@ -277,6 +280,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         // Tell tell the world about our configuration.
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Resolver Service : " + assignedID);
 
             if (implAdvertisement != null) {
@@ -297,61 +301,63 @@ public class ResolverServiceImpl implements ResolverService {
             configInfo.append("\n\t\tSRDI Queue name: ").append(srdiQueName);
 
             LOG.config(configInfo.toString());
+
         }
+
     }
 
     /**
      * {@inheritDoc}
      */
     public int startApp(String[] arg) {
+
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         membership = group.getMembershipService();
 
         if (null == membership) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a membership service");
-            }
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         // Register Listeners
         try {
+
             // Register Query Listener
             queryListener = new DemuxQuery();
+
             if (!endpoint.addIncomingMessageListener(queryListener, handlerName, outQueName)) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe("Cannot register listener (already registered)");
-                }
+                Logging.logCheckedSevere(LOG, "Cannot register listener (already registered)");
             }
 
             // Register Response Listener
             responseListener = new DemuxResponse();
+
             if (!endpoint.addIncomingMessageListener(responseListener, handlerName, inQueName)) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe("Cannot register listener (already registered)");
-                }
+                Logging.logCheckedSevere(LOG, "Cannot register listener (already registered)");
             }
 
             // Register SRDI Listener
             srdiListener = new DemuxSrdi();
+
             if (!endpoint.addIncomingMessageListener(srdiListener, handlerName, srdiQueName)) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe("Cannot register listener (already registered)");
-                }
+                Logging.logCheckedSevere(LOG, "Cannot register listener (already registered)");
             }
+
         } catch (Exception e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "failed to add listeners", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "failed to add listeners", e);
             return -1;
+
         }
 
         synchronized (this) {
@@ -362,14 +368,16 @@ public class ResolverServiceImpl implements ResolverService {
                 currentCredential = null;
                 Credential credential = membership.getDefaultCredential();
                 XMLDocument credentialDoc;
+
                 if (null != credential) {
                     credentialDoc = (XMLDocument) credential.getDocument(MimeMediaType.XMLUTF8);
                     currentCredential = new CurrentCredential(credential, credentialDoc);
                 }
+
             } catch (Exception all) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "could not get default credential", all);
-                }
+
+                Logging.logCheckedWarning(LOG, "could not get default credential", all);
+                
             }
         }
         return Module.START_OK;
@@ -480,10 +488,8 @@ public class ResolverServiceImpl implements ResolverService {
      */
     public void sendQuery(String destPeer, ResolverQueryMsg query) {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("sending query to resolver handler: " + query.getHandlerName());
-        }
-
+        Logging.logCheckedFine(LOG, "sending query to resolver handler: " + query.getHandlerName());
+        
         // NOTE: Add route information about the issuing peer, so the
         // resolver query responding peer can respond to the issuer without
         // requiring any route discovery. In most case the responding peer
@@ -505,13 +511,12 @@ public class ResolverServiceImpl implements ResolverService {
                     query.setSrcPeerRoute(route.clone());
                 }
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Sending query with route info to " + destPeer);
-                }
+                Logging.logCheckedFine(LOG, "Sending query with route info to " + destPeer);
+                
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("No route control--could not set local route on query");
-                }
+
+                Logging.logCheckedFine(LOG, "No route control--could not set local route on query");
+                
             }
         }
 
@@ -544,15 +549,19 @@ public class ResolverServiceImpl implements ResolverService {
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     queryHandlerMeter.querySentInGroup(query);
                 }
+
             } catch (IOException e) {
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     queryHandlerMeter.queryPropagateError();
                 }
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure during propagate", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failure during propagate", e);
+                
             }
+
         } else {
+
             // unicast instead
             boolean success = sendMessage(destPeer, null, handlerName, outQueName, outQueName,
                     (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8), false);
@@ -593,14 +602,15 @@ public class ResolverServiceImpl implements ResolverService {
                         queryHandlerMeter.responseSendError();
                     }
                 }
-            } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Error in sending response", e);
-                }
 
+            } catch (Exception e) {
+
+                Logging.logCheckedWarning(LOG, "Error in sending response", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     queryHandlerMeter.responseSendError();
                 }
+
             }
         }
     }
@@ -649,13 +659,13 @@ public class ResolverServiceImpl implements ResolverService {
                     srdiHandlerMeter.messageSentViaWalker(srdi);
                 }
             } catch (IOException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure sending srdi message", e);
-                }
 
+                Logging.logCheckedWarning(LOG, "Failure sending srdi message", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorPropagatingMessage();
                 }
+
             }
         } else {
             try {
@@ -671,13 +681,15 @@ public class ResolverServiceImpl implements ResolverService {
                         srdiHandlerMeter.errorSendingMessage();
                     }
                 }
+
             } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Error in sending srdi message", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Error in sending srdi message", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorSendingMessage();
                 }
+
             }
         }
     }
@@ -693,14 +705,15 @@ public class ResolverServiceImpl implements ResolverService {
         // just in case an excessive of attempt to forward a query
         // hopCount is used to determine forward counts independent of any other TTL
         if (query.getHopCount() > 3) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("discarding ResolverQuery. HopCount exceeded : " + query.getHopCount());
-            }
+
+            Logging.logCheckedFine(LOG, "discarding ResolverQuery. HopCount exceeded : " + query.getHopCount());
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.propagationQueryDropped(query);
             }
+
             return;
+
         }
 
         XMLDocument asDoc = (XMLDocument) query.getDocument(MimeMediaType.XMLUTF8);
@@ -726,7 +739,9 @@ public class ResolverServiceImpl implements ResolverService {
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.queryPropagatedViaWalker(query);
             }
+
         } catch (IOException e) {
+
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, "Failure propagating query", e);
 
@@ -746,13 +761,13 @@ public class ResolverServiceImpl implements ResolverService {
      * @return the query id assigned to the query
      */
     private int processQuery(ResolverQueryMsg query, EndpointAddress srcAddr) {
+
         String queryHandlerName = query.getHandlerName();
         QueryHandler theHandler = getHandler(queryHandlerName);
 
         if (query.getHopCount() > 2) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Discarding query #" + query.getQueryId() + " hopCount > 2 : " + query.getHopCount());
-            }
+
+            Logging.logCheckedFine(LOG, "Discarding query #" + query.getQueryId() + " hopCount > 2 : " + query.getHopCount());
 
             // query has been forwarded too many times stop
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
@@ -767,9 +782,9 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         if (theHandler == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Discarding query #" + query.getQueryId() + ", no handler for :" + queryHandlerName);
-            }
+
+            Logging.logCheckedFine(LOG, "Discarding query #" + query.getQueryId() + ", no handler for :" + queryHandlerName);
+            
             // If this peer is a rendezvous peer, it needs to repropagate the query to other rendezvous peer that
             // may have a handler.
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
@@ -778,9 +793,7 @@ public class ResolverServiceImpl implements ResolverService {
             return ResolverService.Repropagate;
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Handing query #" + query.getQueryId() + " to : " + queryHandlerName);
-        }
+        Logging.logCheckedFine(LOG, "Handing query #" + query.getQueryId() + " to : " + queryHandlerName);
 
         QueryHandlerMeter queryHandlerMeter = null;
         long startTime = 0;
@@ -800,16 +813,20 @@ public class ResolverServiceImpl implements ResolverService {
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.queryProcessed(query, result, System.currentTimeMillis() - startTime);
             }
+
             return result;
+
         } catch (Throwable any) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Uncaught Throwable from handler for : " + queryHandlerName, any);
-            }
+
+            Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for : " + queryHandlerName, any);
+            
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.errorWhileProcessingQuery(query);
             }
+
             // stop repropagation
             return ResolverService.OK;
+
         }
     }
 
@@ -821,33 +838,36 @@ public class ResolverServiceImpl implements ResolverService {
      *                originator response.
      */
     private void processResponse(ResolverResponseMsg resp, EndpointAddress srcAddr) {
+
         String handlerName = resp.getHandlerName();
 
         if (handlerName == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Missing handlername in response");
-            }
+
+            Logging.logCheckedWarning(LOG, "Missing handlername in response");
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.invalidResponseDiscarded(srcAddr);
             }
+
             return;
+
         }
 
         QueryHandler theHandler = getHandler(handlerName);
+        
         if (theHandler == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("No handler for :" + handlerName);
-            }
+
+            Logging.logCheckedWarning(LOG, "No handler for :" + handlerName);
+            
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.unknownHandlerForResponse(srcAddr, resp);
             }
+
             return;
+
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Process response to query #" + resp.getQueryId() + " with " + handlerName);
-        }
+        Logging.logCheckedFine(LOG, "Process response to query #" + resp.getQueryId() + " with " + handlerName);
 
         QueryHandlerMeter queryHandlerMeter = null;
         long startTime = 0;
@@ -867,14 +887,15 @@ public class ResolverServiceImpl implements ResolverService {
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.responseProcessed(resp, System.currentTimeMillis() - startTime, srcAddr);
             }
+
         } catch (Throwable all) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Uncaught Throwable from handler for: " + handlerName, all);
-            }
+
+            Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for: " + handlerName, all);
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.errorWhileProcessingResponse(srcAddr);
             }
+
         }
     }
 
@@ -912,13 +933,15 @@ public class ResolverServiceImpl implements ResolverService {
                     queryHandlerMeter.responseSentViaWalker(response);
                 }
             }
+
         } catch (IOException e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failure during propagateResponse", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "failure during propagateResponse", e);
+            
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.responsePropagateError();
             }
+
         }
     }
 
@@ -930,22 +953,22 @@ public class ResolverServiceImpl implements ResolverService {
      *                originator of the message.
      */
     private void processSrdi(ResolverSrdiMsgImpl srdimsg, EndpointAddress srcAddr) {
+
         String handlerName = srdimsg.getHandlerName();
 
         if (handlerName == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Missing handlername in response");
-            }
+
+            Logging.logCheckedWarning(LOG, "Missing handlername in response");
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.invalidSrdiMessageDiscarded(srcAddr);
             }
+
             return;
+
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Processing an SRDI msg for : " + handlerName + " in Group ID:" + group.getPeerGroupID());
-        }
+        Logging.logCheckedFine(LOG, "Processing an SRDI msg for : " + handlerName + " in Group ID:" + group.getPeerGroupID());
 
         SrdiHandler theHandler = getSrdiHandler(handlerName);
         if (theHandler != null) {
@@ -959,27 +982,33 @@ public class ResolverServiceImpl implements ResolverService {
                 }
 
                 theHandler.processSrdi(srdimsg);
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.messageProcessed(srdimsg, System.currentTimeMillis() - startTime, srcAddr);
                 }
+
             } catch (Throwable all) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Uncaught Throwable from handler for: " + handlerName, all);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for: " + handlerName, all);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorWhileProcessing(srcAddr);
                 }
+
             }
+
         } else {
+
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) && group.isRendezvous()) {
                 LOG.warning("No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
-            } else if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
+            } else {
+                Logging.logCheckedFine(LOG, "No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
             }
+
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.unknownHandlerForSrdiMessage(srcAddr, handlerName);
             }
+
         }
     }
 
@@ -996,48 +1025,50 @@ public class ResolverServiceImpl implements ResolverService {
      * @return {@code true} if successful
      */
     private boolean sendMessage(String destPeer, RouteAdvertisement route, String pName, String pParam, String tagName, XMLDocument body, boolean gzip) {
+
         // Get the messenger ready
         ID dest;
+
         try {
+
             dest = IDFactory.fromURI(new URI(destPeer));
+
         } catch (URISyntaxException badpeer) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "bad destination peerid : " + destPeer, badpeer);
-            }
-            
+
+            Logging.logCheckedWarning(LOG, "bad destination peerid : " + destPeer, badpeer);
             return false;
+
         }
 
         EndpointAddress destAddress = mkAddress(dest, pName, pParam);
 
         // FIXME add route to responses as well
         Messenger messenger = null;
+
         if (route == null) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("No route info available for " + destPeer);
-            }
+
+            Logging.logCheckedFiner(LOG, "No route info available for " + destPeer);
+
         } else {
+
             // ok we have a route let's pass it to the router
             if ((null == getRouteControl()) || (routeControl.addRoute(route) == RouteControl.FAILED)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Failed to add route for " + route.getDestPeerID());
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to add route for " + route.getDestPeerID());
+                
             } else {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Added route for " + route.getDestPeerID());
-                }
+
+                Logging.logCheckedFiner(LOG, "Added route for " + route.getDestPeerID());
+
             }
         }
         
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Creating a messenger immediate for :" + destAddress);
-        }
+        Logging.logCheckedFiner(LOG, "Creating a messenger immediate for :" + destAddress);
 
         messenger = endpoint.getMessengerImmediate(destAddress, route);
-        if (null == messenger) {        
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Failed creating messenger for " + destAddress);
-            }
+
+        if (null == messenger) {
+            Logging.logCheckedFine(LOG, "Failed creating messenger for " + destAddress);
             return false;
         }
 
@@ -1057,24 +1088,25 @@ public class ResolverServiceImpl implements ResolverService {
             } else {
                 msgEl = new TextDocumentMessageElement(tagName, body, null);
             }
+
             msg.addMessageElement("jxta", msgEl);
+
         } catch (Exception ez1) {
+
             // Not much we can do
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed building message", ez1);
-            }
+            Logging.logCheckedWarning(LOG, "Failed building message", ez1);
             return false;
+
         }
 
         // Send the message
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending " + msg + " to " + destAddress + " " + tagName);
-        }
+        Logging.logCheckedFine(LOG, "Sending " + msg + " to " + destAddress + " " + tagName);
 
         // XXX 20040924 bondolo Convert this to ListenerAdaptor
         messenger.sendMessage(msg, null, null, new FailureListener(dest));
         
         return true;
+
     }
 
     private RouteController getRouteControl() {
@@ -1094,51 +1126,60 @@ public class ResolverServiceImpl implements ResolverService {
          */
         public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Demuxing a query message from " + srcAddr);
-            }
+            Logging.logCheckedFine(LOG, "Demuxing a query message from " + srcAddr);
 
             MessageElement element = message.getMessageElement("jxta", outQueName);
+            
             if (element == null) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Message does not contain a query. Discarding message");
-                }
+
+                Logging.logCheckedWarning(LOG, "Message does not contain a query. Discarding message");
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
                 }
+
                 return;
+
             }
 
             ResolverQueryMsg query;
+
             try {
+
                 StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
                 query = new ResolverQuery(asDoc);
+
             } catch (IOException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Ill formatted resolver query, ignoring.", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
                 }
+
                 return;
+
             } catch (IllegalArgumentException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Ill formatted resolver query, ignoring.", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
                 }
+
                 return;
+
             }
 
             int res = processQuery(query, srcAddr);
+
             if (ResolverService.Repropagate == res) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Repropagating query " + message + " from " + srcAddr);
-                }
+
+                Logging.logCheckedFine(LOG, "Repropagating query " + message + " from " + srcAddr);
                 repropagateQuery(message, query);
+
             }
+
         }
     }
 
@@ -1152,44 +1193,52 @@ public class ResolverServiceImpl implements ResolverService {
          */
         public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Demuxing a response from " + srcAddr);
-            }
+            Logging.logCheckedFine(LOG, "Demuxing a response from " + srcAddr);
 
             MessageElement element = message.getMessageElement("jxta", inQueName);
+
             if (null == element) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Message does not contain a response. Discarding message");
-                }
+
+                Logging.logCheckedFine(LOG, "Message does not contain a response. Discarding message");
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
                 }
+
                 return;
             }
 
             ResolverResponse resolverResponse;
+
             try {
+
                 StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
                 resolverResponse = new ResolverResponse(asDoc);
+
             } catch (IOException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Ill formatted resolver response, ignoring.", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
                 }
+
                 return;
+
             } catch (IllegalArgumentException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Ill formatted resolver response, ignoring.", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
                 }
+
                 return;
+
             }
+
             processResponse(resolverResponse, srcAddr);
+
         }
     }
 
@@ -1203,19 +1252,20 @@ public class ResolverServiceImpl implements ResolverService {
          */
         public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Demuxing an SRDI message from : " + srcAddr);
-            }
+            Logging.logCheckedFine(LOG, "Demuxing an SRDI message from : " + srcAddr);
 
             MessageElement element = message.getMessageElement("jxta", srdiQueName);
+
             if (element == null) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Message does not contain a SRDI element. Discarding message");
-                }
+
+                Logging.logCheckedWarning(LOG, "Message does not contain a SRDI element. Discarding message");
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidSrdiMessageDiscarded(srcAddr);
                 }
+
                 return;
+
             }
 
             ResolverSrdiMsgImpl srdimsg;
@@ -1228,16 +1278,21 @@ public class ResolverServiceImpl implements ResolverService {
                     StructuredDocument asDoc = StructuredDocumentFactory.newStructuredDocument(element);
                     srdimsg = new ResolverSrdiMsgImpl(asDoc, membership);
                 }
+
             } catch (IOException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Ill formatted SRDI message, ignoring.", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Ill formatted SRDI message, ignoring.", e);
+                
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidSrdiMessageDiscarded(srcAddr);
                 }
+
                 return;
+
             }
+
             processSrdi(srdimsg, srcAddr);
+
         }
     }
 
@@ -1255,24 +1310,24 @@ public class ResolverServiceImpl implements ResolverService {
          * {@inheritDoc}
          */
         public void messageSendFailed(OutgoingMessageEvent event) {
-            // Ignore the failure if it's a case of queue overflow.
-            if (event.getFailure() == null) {
-                return;
-            }
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Clearing SRDI tables for failed peer : " + dest);
-            }
 
+            // Ignore the failure if it's a case of queue overflow.
+            if (event.getFailure() == null) return;
+            
+            Logging.logCheckedWarning(LOG, "Clearing SRDI tables for failed peer : " + dest);
+            
             for (Object o : Arrays.asList(srdiHandlers.values().toArray())) {
+
                 SrdiHandler theHandler = (SrdiHandler) o;
+
                 try {
                     theHandler.messageSendFailed((PeerID) dest, event);
                 } catch (Throwable all) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Uncaught Throwable from handler : " + theHandler, all);
-                    }
+                    Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler : " + theHandler, all);
                 }
+
             }
+
         }
 
         /**

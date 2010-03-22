@@ -203,13 +203,12 @@ class JTlsInputStream extends InputStream {
         while (true) {
             int len = local_read(a, 0, 1);
             
-            if (len < 0) {
-                break;
-            }
+            if (len < 0) break;
             
             if (len > 0) {
-                if (DEBUGIO && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Read() : " + (a[0] & 255));
+
+                if (DEBUGIO) {
+                    Logging.logCheckedFine(LOG, "Read() : " + (a[0] & 255));
                 }
                 
                 return (a[0] & 0xFF); // The byte
@@ -226,24 +225,20 @@ class JTlsInputStream extends InputStream {
      */
     @Override
     public int read(byte[] a, int offset, int length) throws IOException {
-        if (closed) {
-            return -1;
-        }
+
+        if (closed) return -1;
         
-        if (0 == length) {
-            return 0;
-        }
+        if (0 == length) return 0;
         
         int i = local_read(a, offset, length);
         
-        if (DEBUGIO && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Read(byte[], int, " + length + "), bytes read = " + i);
+        if (DEBUGIO) {
+            Logging.logCheckedFine(LOG, "Read(byte[], int, " + length + "), bytes read = " + i);
         }
         
         // If we've reached EOF; there's nothing to do but close().
-        if (i == -1) {
-            close();
-        }
+        if (i == -1) close();
+        
         return i;
     }
     
@@ -313,13 +308,12 @@ class JTlsInputStream extends InputStream {
             
             conn.sendToRemoteTls(ACKMsg);
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("SENT ACK, seqn#" + seqnAck + " and " + sackList.size() + " SACKs ");
-            }
+            Logging.logCheckedFine(LOG, "SENT ACK, seqn#" + seqnAck + " and " + sackList.size() + " SACKs ");
+            
         } catch (IOException e) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "sendACK caught IOException:", e);
-            }
+
+            Logging.logCheckedInfo(LOG, "sendACK caught IOException:\n" + e.toString());
+            
         }
     }
     
@@ -328,9 +322,7 @@ class JTlsInputStream extends InputStream {
      */
     public void queueIncomingMessage(Message msg) {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Queue Incoming Message begins for " + msg);
-        }
+        Logging.logCheckedFine(LOG, "Queue Incoming Message begins for " + msg);
         
         long startEnqueue = TimeUtils.timeNow();
         
@@ -345,12 +337,14 @@ class JTlsInputStream extends InputStream {
             int msgSeqn = 0;
             
             try {
+
                 msgSeqn = Integer.parseInt(elt.getElementName());
+
             } catch (NumberFormatException n) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Discarding element (" + elt.getElementName() + ") Not one of ours.");
-                }
+
+                Logging.logCheckedWarning(LOG, "Discarding element (" + elt.getElementName() + ") Not one of ours.");
                 continue;
+
             }
             
             IQElt newElt = new IQElt();
@@ -363,11 +357,10 @@ class JTlsInputStream extends InputStream {
             // Wait until someone dequeues if we are at the size limit
             // see if this is a duplicate
             if (newElt.seqnum <= sequenceNumber) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("RCVD OLD MESSAGE : Discard seqn#" + newElt.seqnum + " now at seqn#" + sequenceNumber);
-                }
+                Logging.logCheckedFine(LOG, "RCVD OLD MESSAGE : Discard seqn#" + newElt.seqnum + " now at seqn#" + sequenceNumber);
                 break;
             }
+
             synchronized (inputQueue) {
                 // dbl check with the lock held.
                 if (closing || closed) {
@@ -393,28 +386,26 @@ class JTlsInputStream extends InputStream {
                 }
                 
                 if (duplicate) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("RCVD OLD MESSAGE : Discard duplicate msg, seqn#" + newElt.seqnum);
-                    }
+
+                    Logging.logCheckedFine(LOG, "RCVD OLD MESSAGE : Discard duplicate msg, seqn#" + newElt.seqnum);
                     newElt = null;
                     break;
+
                 }
                 
                 inputQueue.add(insertIndex, newElt);
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Enqueued msg with seqn#" + newElt.seqnum + " at index " + insertIndex);
-                }
-                
+                Logging.logCheckedFine(LOG, "Enqueued msg with seqn#" + newElt.seqnum + " at index " + insertIndex);
                 inputQueue.notifyAll();
                 newElt = null;
+
             }
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            long waited = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startEnqueue);
-            
-            LOG.fine("Queue Incoming Message for " + msg + " completed in " + waited + " msec.");
-        }
+
+        long waited = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startEnqueue);
+
+        Logging.logCheckedFine(LOG, "Queue Incoming Message for " + msg + " completed in " + waited + " msec.");
+
     }
     
     /**
@@ -470,11 +461,11 @@ class JTlsInputStream extends InputStream {
                     // triggering a broken pipe exception
                     sendACK(iQ.seqnum);
                     continue;
+
                 } else if (iQ.seqnum != desiredSeqn) {
+
                     if (TimeUtils.toRelativeTimeMillis(nextRetransRequest) < 0) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Trigger retransmission. Wanted seqn#" + desiredSeqn + " found seqn#" + iQ.seqnum);
-                        }
+                        Logging.logCheckedFine(LOG, "Trigger retransmission. Wanted seqn#" + desiredSeqn + " found seqn#" + iQ.seqnum);
                         sendACK(desiredSeqn - 1);
                         nextRetransRequest = TimeUtils.toAbsoluteTimeMillis(TimeUtils.ASECOND);
                     }
@@ -498,20 +489,16 @@ class JTlsInputStream extends InputStream {
         
         nextRetransRequest = 0;
         sendACK(desiredSeqn);
+
         // if we are closed then we return null
-        if (null == iQ) {
-            return null;
-        }
+        if (null == iQ) return null;
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            long waited = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startDequeue);
-            
-            LOG.info("DEQUEUED seqn#" + iQ.seqnum + " in " + waited + " msec on input queue");
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                if (wct > 0) {
-                    LOG.fine("DEQUEUE waited " + wct + " times on input queue");
-                }
-            }
+        long waited = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startDequeue);
+
+        Logging.logCheckedInfo(LOG, "DEQUEUED seqn#" + iQ.seqnum + " in " + waited + " msec on input queue");
+
+        if (wct > 0) {
+           Logging.logCheckedFine(LOG, "DEQUEUE waited " + wct + " times on input queue");
         }
         
         return iQ.elt;
@@ -528,9 +515,7 @@ class JTlsInputStream extends InputStream {
                 // reset the record
                 jtrec.resetRecord(); // GC as necessary(tlsRecord byte[])
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("local_read: getting next data block at seqn#" + (sequenceNumber + 1));
-                }
+                Logging.logCheckedFine(LOG, "local_read: getting next data block at seqn#" + (sequenceNumber + 1));
                 
                 MessageElement elt = null;
 
@@ -552,9 +537,8 @@ class JTlsInputStream extends InputStream {
                 jtrec.size = elt.getByteLength();
                 jtrec.tlsRecord = elt.getStream();
                 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("local_read: new seqn#" + sequenceNumber + ", bytes = " + jtrec.size);
-                }
+                Logging.logCheckedFine(LOG, "local_read: new seqn#" + sequenceNumber + ", bytes = " + jtrec.size);
+
             }
             
             // return the requested TLS Record data
@@ -578,9 +562,7 @@ class JTlsInputStream extends InputStream {
             jtrec.nextByte += copied;
             
             if (DEBUGIO) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("local_read: Requested " + length + ", Read " + copied + " bytes");
-                }
+                Logging.logCheckedFine(LOG, "local_read: Requested " + length + ", Read " + copied + " bytes");
             }
             
             return copied;
