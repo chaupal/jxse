@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.peergroup;
 
 import java.io.IOException;
@@ -962,12 +963,22 @@ public interface PeerGroup extends Service {
      * 
      * @return If {@code true} then interface was unreferenced. If {@code false}
      * then the interface had previously been unreferenced.
+     *
+     * @deprecated Since 2.6. The interface mechanisms is being removed from core 
+     * code. Users are ultimately responsible for using service methods appropriately.
+     * The corresponding issue should be solved via OSGi (for example).
      */
+    @Deprecated
     public boolean unref();
 
     /**
     *   {@inheritDoc}
+     *
+     * @deprecated Since 2.6. The interface mechanisms is being removed from core
+     * code. Users are ultimately responsible for using service methods appropriately.
+     * The corresponding issue should be solved via OSGi (for example).
     */
+    @Deprecated
     public PeerGroup getInterface();
 
     /**
@@ -999,7 +1010,12 @@ public interface PeerGroup extends Service {
      *
      * @return A weak interface object that represents this PeerGroup object.
      * @since JXTA 2.2
+     *
+     * @deprecated Since 2.6. The interface mechanisms is being removed from core
+     * code. Users are ultimately responsible for using service methods appropriately.
+     * The corresponding issue should be solved via OSGi (for example).
      */
+    @Deprecated
     public PeerGroup getWeakInterface();
 
     /**

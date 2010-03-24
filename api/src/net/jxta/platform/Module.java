@@ -56,12 +56,10 @@
 
 package net.jxta.platform;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
-
 
 /**
  * Defines the interface for modules loaded by PeerGroups. Message transports,
@@ -209,4 +207,5 @@ public interface Module {
      *  we might be able to deny it access to anything after some timeout.
      **/
     public void stopApp();
+    
 }
