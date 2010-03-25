@@ -741,6 +741,10 @@ public interface PeerGroup extends Service {
      * again).</li>
      * </ul>
      *
+     * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
+     * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
+     * instanced object are copied from this peer group.
+     *
      * @param pgAdv The advertisement for the group to be instantiated.
      * @return PeerGroup the initialized (but not started) peergroup.
      * @throws PeerGroupException For problems instantiating the peer group.
@@ -773,6 +777,10 @@ public interface PeerGroup extends Service {
      * newPGAdv.setDescription(description);
      * newGrp = thisGroup.newGroup(newPGAdv);
      * </pre>
+     *
+     * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
+     * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
+     * instanced object are copied from this peer group.
      *
      * @param gid         The ID of that group. If <code>null</code> then a new group ID
      *                    will be chosen.
@@ -808,6 +816,10 @@ public interface PeerGroup extends Service {
      * </code>
      * <p/>
      * then, <strong>REMEMBER TO PUBLISH THE GROUP IF IT IS ALL NEW.</strong>
+     *
+     * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
+     * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
+     * instanced object are copied from this peer group.
      *
      * @param gid the groupID.
      * @return PeerGroup the initialized (but not started) peergroup.

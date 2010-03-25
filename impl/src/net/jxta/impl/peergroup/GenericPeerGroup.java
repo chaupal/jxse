@@ -1,58 +1,59 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
- *  Redistribution and use in source and binary forms, with or without 
+ *
+ *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
- *  2. Redistributions in binary form must reproduce the above copyright notice, 
- *     this list of conditions and the following disclaimer in the documentation 
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
- *  
- *  3. The end-user documentation included with the redistribution, if any, must 
- *     include the following acknowledgment: "This product includes software 
- *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
- *     Alternately, this acknowledgment may appear in the software itself, if 
+ *
+ *  3. The end-user documentation included with the redistribution, if any, must
+ *     include the following acknowledgment: "This product includes software
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology."
+ *     Alternately, this acknowledgment may appear in the software itself, if
  *     and wherever such third-party acknowledgments normally appear.
- *  
- *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
- *     not be used to endorse or promote products derived from this software 
- *     without prior written permission. For written permission, please contact 
+ *
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must
+ *     not be used to endorse or promote products derived from this software
+ *     without prior written permission. For written permission, please contact
  *     Project JXTA at http://www.jxta.org.
- *  
- *  5. Products derived from this software may not be called "JXTA", nor may 
+ *
+ *  5. Products derived from this software may not be called "JXTA", nor may
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
- *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
- *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
+ *
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
- *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
- *  This software consists of voluntary contributions made by many individuals 
- *  on behalf of Project JXTA. For more information on Project JXTA, please see 
+ *
+ *  This software consists of voluntary contributions made by many individuals
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see
  *  http://www.jxta.org.
- *  
- *  This license is based on the BSD license adopted by the Apache Foundation. 
+ *
+ *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.peergroup;
 
 import java.io.IOException;
@@ -83,7 +84,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -138,7 +138,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *  Holder for configuration parameters for groups in the process of being created.
      */
     private final static Map<ID, ConfigParams> group_configs = Collections.synchronizedMap(new HashMap<ID, ConfigParams>());
-    
+
     /**
      * Default compatibility equater instance.
      */
@@ -233,7 +233,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
     /**
      * Counts the number of times an interface to this group has been given out.
-     * This is decremented every time an interface object is GCed or its owner 
+     * This is decremented every time an interface object is GCed or its owner
      * calls {@link unref()}.
      * <p/
      * >When it reaches zero, if it is time to tear-down the group instance;
@@ -243,7 +243,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     private AtomicInteger masterRefCount = new AtomicInteger(0);
 
     /**
-     * Is {@code true} when at least one interface object has been generated 
+     * Is {@code true} when at least one interface object has been generated
      * AFTER initComplete has become true. If true, the group stops when its ref
      * count reaches zero.
      */
@@ -280,7 +280,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     private final long KEEPALIVETIME = 15;
 
     /**
-     * The intended upper bound on the number of threads we will allow our 
+     * The intended upper bound on the number of threads we will allow our
      * Executor to create. We will allow the pool to grow to twice this size if
      * we run out of threads.
      *
@@ -308,7 +308,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * <p/>
      * We do not want to count on the invoker to properly unreference the group
      * object that we return; this call is often used in a loop and it is silly
-     * to increment and decrement ref-counts for references that are sure to 
+     * to increment and decrement ref-counts for references that are sure to
      * live shorter than the referee.
      * <p/>
      * On the other hand it is dangerous for us to share our reference object to
@@ -343,7 +343,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * Get a JxtaLoader instance which can be used to load modules
      * irrespective of the PeerGroup.
-     * 
+     *
      * @return JxtaLoader instance
      * @deprecated this statically scoped JxtaLoader instance should be phased
      *  out of use in favor of the group-scoped JxtaLoaders available via the
@@ -404,7 +404,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
-     * An implementation suitable for debugging. <b>Don't try to parse this 
+     * An implementation suitable for debugging. <b>Don't try to parse this
      * string!</b> All of the information is available from other sources.
      */
     @Override
@@ -496,7 +496,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         } catch (Exception whatever) {
 
             Logging.logCheckedWarning(LOG, "Failure during discovery", whatever);
-            
+
         }
 
         return results;
@@ -589,6 +589,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     synchronized public Service lookupService(ID mcid) throws ServiceNotFoundException {
+
         Service p = services.get(mcid);
 
         if (p == null) {
@@ -668,7 +669,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         //
         // FIXME 20011013 jice To make sure the service is no-longer referenced
         // we should always return interfaces, and have a way to cut the
-        // reference to the real service in the interfaces. One way of doing 
+        // reference to the real service in the interfaces. One way of doing
         // that would be to have to levels of indirection: we should keep one
         // and return references to it.
         // When we want to cut the service loose, we should clear the reference
@@ -706,9 +707,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         Element compat = implAdv.getCompat();
 
-        if (null == compat) 
+        if (null == compat)
             throw new IllegalArgumentException("No compatibility statement for : " + assigned);
-        
+
         if (!compatible(compat)) {
 
             Logging.logCheckedWarning(LOG, "Incompatible Module : " + assigned);
@@ -737,7 +738,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
                 Logging.logCheckedInfo(LOG, "Loaded" + (privileged ? " privileged" : "") +
                     " module : " + implAdv.getDescription() + " (" + implAdv.getCode() + ")");
-                
+
             } catch (Exception ex) {
                 try {
                     newMod.stopApp();
@@ -785,7 +786,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Advertisement is sought, compatibility is checked on all candidates and
      * load is attempted. The first one that is compatible and loads
      * successfully is initialized and returned.
-     * 
+     *
      * @param assignedID Id to be assigned to that module (usually its ClassID).
      * @param specID     The specID of this module.
      * @param where      May be one of: {@code Here}, {@code FromParent}, or
@@ -868,12 +869,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
                 // Initialization failure.
                 Logging.logCheckedWarning(LOG, "Initialization failed", failed);
-                
+
             } catch (Throwable e) {
 
                 recentFailure = e;
                 Logging.logCheckedWarning(LOG, "Not a usable impl adv: ", e);
-                
+
             }
     	}
 
@@ -890,7 +891,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     	}
 
     	Logging.logCheckedWarning(LOG, "Could not find a loadable implementation for SpecID: " + specID);
-    	
+
     	return null;
     }
 
@@ -916,7 +917,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *  Adds configuration parameters for the specified group. The configuration
      *  parameters remain cached until either the specified group is started or
      *  the parameters are replaced.
-     *  
+     *
      *  @param groupid The group for who's params are being provided.
      *  @param params The parameters to be provided to the peer group when it is
      *  created.
@@ -1127,18 +1128,32 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             }
 
-            // If we still do not have a config adv, make one with the minimal info in it.
-            // All groups but the Platform and the netPG are in that case.
-            // In theory a plain ConfigParams would be enough for subgroups. But for now
-            // GenericPeerGroup always has a full Platformconfig and there is no other concrete
-            // ConfigParams subclass.
+            // If we still do not have a config adv, make one with the parent group, or
+            // a minimal one with minimal info in it.
             if (configAdvertisement == null) {
-                PlatformConfig conf = (PlatformConfig) AdvertisementFactory.newAdvertisement(PlatformConfig.getAdvertisementType());
 
-                conf.setPeerID(peerAdvertisement.getPeerID());
-                conf.setName(peerAdvertisement.getName());
-                conf.setDesc(peerAdvertisement.getDesc());
-                configAdvertisement = conf;
+                ConfigParams superConfig = null;
+
+                if ( homeGroup !=null )
+                    superConfig = homeGroup.getConfigAdvertisement();
+
+                if ( superConfig == null ) {
+
+                    // We can't rely on the parent group
+                    PlatformConfig conf = (PlatformConfig) AdvertisementFactory.newAdvertisement(PlatformConfig.getAdvertisementType());
+
+                    conf.setPeerID(peerAdvertisement.getPeerID());
+                    conf.setName(peerAdvertisement.getName());
+                    conf.setDesc(peerAdvertisement.getDesc());
+                    configAdvertisement = conf;
+
+                } else {
+
+                    // Copying the parent group
+                    configAdvertisement = superConfig.clone();
+
+                }
+
             }
 
             // Merge service params with those specified by the group (if any). The only
@@ -1164,9 +1179,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
              * damage to the legitimate instance. There should be a synchro on
              * on the get<service>() and lookupService() routines.
              */
-            if (!globalRegistry.registerInstance((PeerGroupID) assignedID, this)) 
+            if (!globalRegistry.registerInstance((PeerGroupID) assignedID, this))
                 throw new PeerGroupException("Group already instantiated");
-            
+
         } catch (Throwable any) {
 
             Logging.logCheckedSevere(LOG, "Group init failed", any);
@@ -1187,10 +1202,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 : Thread.currentThread().getThreadGroup();
 
         threadGroup = new ThreadGroup(parentThreadGroup, "Group " + peerGroupAdvertisement.getPeerGroupID());
-        
+
         threadPool = TaskManager.getTaskManager().getExecutorService();
         scheduledExecutor = TaskManager.getTaskManager().getScheduledExecutorService();
-        
+
 // This was the older form, before TaskManager...
 //        taskQueue = new ArrayBlockingQueue<Runnable>(COREPOOLSIZE * 2);
 //        threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE,
@@ -1200,7 +1215,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 //                new CallerBlocksPolicy());
 //      scheduledExecutor = new ScheduledThreadPoolExecutor(1,
 //      new PeerGroupThreadFactory("Scheduled Executor", getHomeThreadGroup()));
-        
+
         // Try to allow core threads to idle out. (Requires a 1.6 method)
         try {
 
@@ -1379,7 +1394,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
 
         if (initComplete) {
-            // If init is complete the group can become sensitive to its ref 
+            // If init is complete the group can become sensitive to its ref
             // count reaching zero. Before there could be transient references
             // before there is a chance to give a permanent reference to the
             // invoker of newGroup.
@@ -1387,7 +1402,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
 
         int new_count = masterRefCount.incrementAndGet();
-        
+
         PeerGroupInterface pgInterface = new RefCountPeerGroupInterface(this);
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -1516,7 +1531,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         } catch (Exception any) {
 
             Logging.logCheckedWarning(LOG, "Could not publish group or implementation:", any);
-            
+
         }
 
         return theNewGroup.getInterface();
@@ -1623,9 +1638,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public boolean isRendezvous() {
-        
+
         if (rendezvous == null) Logging.logCheckedFine(LOG, "Rendezvous service null");
-        
+
         return (rendezvous != null) && rendezvous.isRendezVous();
 
     }
