@@ -141,10 +141,8 @@ class PeerGroupInterface implements PeerGroup {
         requestor = new Throwable("Requestor Stack Trace : " + theRealThing.getPeerGroupID());
         instance = interfaceInstanceCount.incrementAndGet();
         
-        Logging.logCheckedFiner(LOG, "Peer Group Interface Constructed {" + instance + "}\n" + requestor.toString());
+        Logging.logCheckedFine(LOG, "Peer Group Interface Constructed {" + instance + "}\n" + requestor.toString());
 
-        Logging.logCheckedInfo(LOG, "Peer Group Interface Constructed {" + instance + "}");
-        
     }
 
     /**

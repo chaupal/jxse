@@ -77,7 +77,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -160,6 +159,7 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             rendezvousMeter.startEdge();
         }
 
+        // FIXME: Declaring this peer as an EDGE is really questionable and misleading
         // we are nominally an edge peer
         rdvService.generateEvent(RendezvousEvent.BECAMEEDGE, group.getPeerID());
 

@@ -64,7 +64,6 @@ import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -245,6 +244,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
     private RelayConfigAdv() {}
 
     private RelayConfigAdv(Element root) {
+
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
@@ -303,33 +303,96 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
         }
 
         // Sanity Check!!!
-        if ((-1 != maxRelays) && (maxRelays <= 0)) 
-            throw new IllegalArgumentException("Max relays must not be negative or zero.");
+        if ( !sanityCheck() ) Logging.logCheckedWarning(LOG,
+            "Creating a corrupted relay config advertisement");
+        
+    }
 
-        if ((-1 != maxClientLeaseDuration) && (maxClientLeaseDuration <= 0)) 
-            throw new IllegalArgumentException("Max lease duration must not be negative or zero.");
+    private boolean sanityCheck()  {
 
-        if ((-1 != messengerPollInterval) && (messengerPollInterval <= 0)) 
-            throw new IllegalArgumentException("Messenger poll interval must not be negative or zero.");
-        
-        if (useOnlySeeds && clientEnabled && seedRelays.isEmpty() && seedingURIs.isEmpty()) 
-            throw new IllegalArgumentException("Cannot specify 'useOnlySeeds' and no seed relays");
-        
-        if ((-1 != maxClients) && (maxClients <= 0)) 
-            throw new IllegalArgumentException("Max clients must not be negative or zero.");
-        
-        if ((-1 != maxClientMessageQueue) && (maxClientMessageQueue <= 0)) 
-            throw new IllegalArgumentException("Max client queue must not be negative or zero.");
-        
-        if ((-1 != maxServerLeaseDuration) && (maxServerLeaseDuration <= 0)) 
-            throw new IllegalArgumentException("Max lease duration must not be negative or zero.");
-        
-        if ((-1 != stallTimeout) && (stallTimeout <= 0)) 
-            throw new IllegalArgumentException("Client stall timeout duration must not be negative or zero.");
-        
-        if ((-1 != announceInterval) && (announceInterval <= 0)) 
-            throw new IllegalArgumentException("Announce interval must not be negative or zero.");
-        
+        boolean OK = true;
+
+        if ((-1 != maxRelays) && (maxRelays <= 0)) {
+
+            String Tmp = "Max relays must not be negative or zero, config value : " + maxRelays;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        if ((-1 != maxClientLeaseDuration) && (maxClientLeaseDuration <= 0)) {
+
+            String Tmp = "Max lease duration must not be negative or zero, config value : " + maxClientLeaseDuration;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        if ((-1 != messengerPollInterval) && (messengerPollInterval <= 0)) {
+
+            String Tmp = "Messenger poll interval must not be negative or zero, config value : " + messengerPollInterval;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        if (useOnlySeeds && clientEnabled && seedRelays.isEmpty() && seedingURIs.isEmpty()) {
+            
+            Logging.logCheckedWarning(LOG, "'useOnlySeeds' is true and no seed relay is set!");
+
+        }
+
+        if ((-1 != maxClients) && (maxClients <= 0)) {
+
+            String Tmp = "Max clients must not be negative or zero, config value : " + maxClients;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        if ((-1 != maxClientMessageQueue) && (maxClientMessageQueue <= 0)) {
+
+            String Tmp = "Max client queue must not be negative or zero, config value : " + maxClientMessageQueue;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        if ((-1 != maxServerLeaseDuration) && (maxServerLeaseDuration <= 0)) {
+
+            String Tmp = "Max lease duration must not be negative or zero, config value : " + maxServerLeaseDuration;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        if ((-1 != stallTimeout) && (stallTimeout <= 0)) {
+
+            String Tmp = "Client stall timeout duration must not be negative or zero, config value : " + stallTimeout;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        if ((-1 != announceInterval) && (announceInterval <= 0)) {
+            
+            String Tmp = "Announce interval must not be negative or zero, config value : " + announceInterval;
+            OK =false;
+
+            Logging.logCheckedConfig(LOG, Tmp);
+
+        }
+
+        // Returning result
+        return OK;
+
     }
 
     /**
@@ -538,46 +601,11 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
+
         StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
 
         if (!(adv instanceof Attributable)) {
             throw new IllegalStateException("Only Attributable documents are supported.");
-        }
-
-        if ((-1 != maxRelays) && (maxRelays <= 0)) {
-            throw new IllegalStateException("Max relays must not be negative or zero.");
-        }
-
-        if ((-1 != maxClientLeaseDuration) && (maxClientLeaseDuration <= 0)) {
-            throw new IllegalStateException("Max lease duration must not be negative or zero.");
-        }
-
-        if ((-1 != messengerPollInterval) && (messengerPollInterval <= 0)) {
-            throw new IllegalStateException("Messenger poll interval must not be negative or zero.");
-        }
-
-        if (useOnlySeeds && clientEnabled && seedRelays.isEmpty() && seedingURIs.isEmpty()) {
-            throw new IllegalStateException("Cannot specify 'useOnlySeeds' and no seed relays");
-        }
-
-        if ((-1 != maxClients) && (maxClients <= 0)) {
-            throw new IllegalStateException("Max clients must not be negative or zero.");
-        }
-
-        if ((-1 != maxClientMessageQueue) && (maxClientMessageQueue <= 0)) {
-            throw new IllegalStateException("Max client queue must not be negative or zero.");
-        }
-
-        if ((-1 != maxServerLeaseDuration) && (maxServerLeaseDuration <= 0)) {
-            throw new IllegalStateException("Max lease duration must not be negative or zero.");
-        }
-
-        if ((-1 != stallTimeout) && (stallTimeout <= 0)) {
-            throw new IllegalStateException("Client stall timeout duration must not be negative or zero.");
-        }
-
-        if ((-1 != announceInterval) && (announceInterval <= 0)) {
-            throw new IllegalStateException("Announce interval must not be negative or zero.");
         }
 
         Attributable attrDoc = (Attributable) adv;

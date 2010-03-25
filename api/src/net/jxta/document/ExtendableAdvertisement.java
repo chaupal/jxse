@@ -56,7 +56,6 @@
 
 package net.jxta.document;
 
-
 /**
  * Extendable advertisements provide features for allowing inheritance of
  * advertisement types. The core and standard JXTA advertisements all allow

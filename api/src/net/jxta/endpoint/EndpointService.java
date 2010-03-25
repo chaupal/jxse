@@ -564,7 +564,7 @@ public interface EndpointService extends Service, EndpointListener {
     public Collection<PeerID> getConnectedRelayPeers();
 
     /**
-     * {@inheritDoc }
+     * This method provides the object implementing the endpoint routing protocol.
      */
     public EndpointRoutingTransport getEndpointRouter();
     
