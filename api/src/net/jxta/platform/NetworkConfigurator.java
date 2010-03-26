@@ -101,7 +101,6 @@ import java.util.NoSuchElementException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -1624,6 +1623,7 @@ public class NetworkConfigurator {
      * @see #load
      */
     public void save() throws IOException {
+
         httpEnabled = (httpConfig.isClientEnabled() || httpConfig.isServerEnabled());
         tcpEnabled = (tcpConfig.isClientEnabled() || tcpConfig.isServerEnabled());
         ConfigParams advertisement = getPlatformConfig();

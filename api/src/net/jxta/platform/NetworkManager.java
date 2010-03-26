@@ -59,7 +59,6 @@ package net.jxta.platform;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.cert.CertificateException;
 import net.jxta.credential.AuthenticationCredential;
@@ -412,6 +411,7 @@ public class NetworkManager implements RendezvousListener {
 
         netPeerGroup = factory.getInterface();
 
+        // Saving if config is persistent
         if (configPersistent) {
             config.save();
         }
@@ -424,6 +424,7 @@ public class NetworkManager implements RendezvousListener {
         Logging.logCheckedInfo(LOG, "Started JXTA Network!");
 
         return netPeerGroup;
+
     }
 
     /**
@@ -492,6 +493,7 @@ public class NetworkManager implements RendezvousListener {
         netPeerGroup.unref();
         netPeerGroup = null;
         
+        // Shutting down task manager
         TaskManager.getTaskManager().shutdown();
         // permit restart.
         started = false;
@@ -519,9 +521,7 @@ public class NetworkManager implements RendezvousListener {
 
         // Are we an EDGE?
         if (this.getMode().compareTo(ConfigMode.EDGE)!=0) {
-
             Logging.logCheckedWarning(LOG, "Trying to wait for RendezVous connection while not being an EDGE.");
-
         }
 
         if (0 == timeout) timeout = Long.MAX_VALUE;
@@ -552,6 +552,7 @@ public class NetworkManager implements RendezvousListener {
         }
 
         return rendezvous.isConnectedToRendezVous() || rendezvous.isRendezVous();
+
     }
 
     /**
@@ -628,6 +629,32 @@ public class NetworkManager implements RendezvousListener {
      */
     public boolean isStarted() {
         return (started && (!stopped));
+    }
+
+    /**
+     * Recursively deletes the content of a directory directory. This can be usefull
+     * to clean-up persisted cache content.
+     *
+     * @param TheFile the directory to delete
+     */
+    public static void RecursiveDelete(File TheFile) {
+
+        // Checking parameter
+        if ( TheFile == null )
+            Logging.logCheckedSevere(LOG, "Attempting to recursively delete a NULL directoy");
+
+        File[] SubFiles = TheFile.listFiles();
+
+        if (SubFiles!=null) {
+            for(int i=0;i<SubFiles.length;i++) {
+                if (SubFiles[i].isDirectory()) {
+                    RecursiveDelete(SubFiles[i]);
+                }
+                SubFiles[i].delete();
+            }
+        TheFile.delete();
+        }
+
     }
 
 }
