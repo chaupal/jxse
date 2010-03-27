@@ -109,6 +109,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.impl.protocol.MulticastAdv;
 
 /**
  * This class implements the IP Multicast Message Transport.
@@ -274,6 +275,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
+
         this.group = group;
         this.assignedID = assignedID;
         this.implAdvertisement = (ModuleImplAdvertisement) impl;
@@ -292,7 +294,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         // Get our peer-defined parameters in the configAdv
-        param = (XMLElement) configAdv.getServiceParam(PeerGroup.tcpProtoClassID);
+        param = (XMLElement) configAdv.getServiceParam(PeerGroup.multicastProtoClassID);
+
         if (null == param) {
             throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
         }
@@ -322,11 +325,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             Logging.logCheckedFine(LOG, "Could not find parameter document\n" + notThere.toString());
         }
 
-        if (!(paramsAdv instanceof TCPAdv)) {
-            throw new IllegalArgumentException("Provided Advertisement was not a " + TCPAdv.getAdvertisementType());
+        if (!(paramsAdv instanceof MulticastAdv)) {
+            throw new IllegalArgumentException("Provided Advertisement was not a " + MulticastAdv.getAdvertisementType());
         }
 
-        TCPAdv adv = (TCPAdv) paramsAdv;
+        MulticastAdv adv = (MulticastAdv) paramsAdv;
 
         poolSize = adv.getMulticastPoolSize();
 

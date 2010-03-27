@@ -62,6 +62,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.protocol.MulticastAdv;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.peer.PeerID;
@@ -96,13 +97,14 @@ public class AdvUtil {
             peerAdvertisement.setName(name);
             peerAdvertisement.setPeerGroupID(PeerGroupID.defaultNetPeerGroupID);
             TCPAdv tcpAdv = (TCPAdv) AdvertisementFactory.newAdvertisement(TCPAdv.getAdvertisementType());
+            MulticastAdv multicastAdv = (MulticastAdv) AdvertisementFactory.newAdvertisement(MulticastAdv.getAdvertisementType());
 
             tcpAdv.setProtocol("TCP");
             tcpAdv.setPort(port);
-            tcpAdv.setMulticastAddr("224.0.1.85");
-            tcpAdv.setMulticastPort(1234);
-            tcpAdv.setMulticastSize(16384);
-            tcpAdv.setMulticastState(true);
+            multicastAdv.setMulticastAddr("224.0.1.85");
+            multicastAdv.setMulticastPort(1234);
+            multicastAdv.setMulticastSize(16384);
+            multicastAdv.setMulticastState(true);
             if (incoming) {
                 tcpAdv.setServer(inetAddress + ":" + port);
             }

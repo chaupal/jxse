@@ -102,6 +102,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
+import net.jxta.impl.protocol.MulticastAdv;
 
 /**
  * NetworkConfigurator provides a simple programmatic interface for JXTA configuration.
@@ -370,9 +371,19 @@ public class NetworkConfigurator {
     protected transient TCPAdv tcpConfig;
 
     /**
+     * Multicating Config Advertisement
+     */
+    protected transient MulticastAdv multicastConfig;
+
+    /**
      * Default TCP transport state
      */
     protected transient boolean tcpEnabled = true;
+
+    /**
+     * Default Multicast transport state
+     */
+    protected transient boolean multicastEnabled = true;
 
     /**
      * HTTP Config Advertisement
@@ -493,6 +504,7 @@ public class NetworkConfigurator {
         relayConfig = createRelayConfigAdv();
         proxyConfig = createProxyAdv();
         tcpConfig = createTcpAdv();
+        multicastConfig = createMulticastAdv();
         infraPeerGroupConfig = createInfraConfigAdv();
 
         setMode(mode);
@@ -814,7 +826,7 @@ public class NetworkConfigurator {
         httpConfig.setServerEnabled((mode & HTTP_SERVER) == HTTP_SERVER);
 
         // Multicast
-        tcpConfig.setMulticastState((mode & IP_MULTICAST) == IP_MULTICAST);
+        multicastConfig.setMulticastState((mode & IP_MULTICAST) == IP_MULTICAST);
 
         // EDGE
         if (mode == EDGE_NODE) {
@@ -843,7 +855,7 @@ public class NetworkConfigurator {
      * @param size the new multicast packet
      */
     public void setMulticastSize(int size) {
-        tcpConfig.setMulticastSize(size);
+        multicastConfig.setMulticastSize(size);
     }
 
     /**
@@ -852,7 +864,7 @@ public class NetworkConfigurator {
      * @return the multicast packet
      */
     public int getMulticastSize() {
-        return tcpConfig.getMulticastSize();
+        return multicastConfig.getMulticastSize();
     }
 
     /**
@@ -862,7 +874,7 @@ public class NetworkConfigurator {
      * @see #setMulticastPort
      */
     public void setMulticastAddress(String mcastAddress) {
-        tcpConfig.setMulticastAddr(mcastAddress);
+        multicastConfig.setMulticastAddr(mcastAddress);
     }
 
     /**
@@ -871,7 +883,7 @@ public class NetworkConfigurator {
      * @return the multicast network interface, null if none specified
      */
     public String getMulticastInterface() {
-        return tcpConfig.getMulticastInterface();
+        return multicastConfig.getMulticastInterface();
     }
 
     /**
@@ -880,7 +892,7 @@ public class NetworkConfigurator {
      * @param interfaceAddress multicast network interface
      */
     public void setMulticastInterface(String interfaceAddress) {
-        tcpConfig.setMulticastInterface(interfaceAddress);
+        multicastConfig.setMulticastInterface(interfaceAddress);
     }
 
     /**
@@ -890,7 +902,7 @@ public class NetworkConfigurator {
      * @see #setMulticastAddress
      */
     public void setMulticastPort(int port) {
-        tcpConfig.setMulticastPort(port);
+        multicastConfig.setMulticastPort(port);
     }
 
     /**
@@ -899,7 +911,7 @@ public class NetworkConfigurator {
      * @param size the new multicast thread pool size
      */
     public void setMulticastPoolSize(int size) {
-        tcpConfig.setMulticastPoolSize(size);
+        multicastConfig.setMulticastPoolSize(size);
     }
 
     /**
@@ -1271,7 +1283,7 @@ public class NetworkConfigurator {
      * @param multicastOn the new useMulticast value
      */
     public void setUseMulticast(boolean multicastOn) {
-        tcpConfig.setMulticastState(multicastOn);
+        multicastConfig.setMulticastState(multicastOn);
     }
 
     /**
@@ -1498,6 +1510,19 @@ public class NetworkConfigurator {
             throw new IllegalStateException("Missing TCP Advertisment");
         }
         tcpConfig = (TCPAdv) AdvertisementFactory.newAdvertisement(param);
+
+        // Multicast
+        XMLElement param2 = (XMLElement) platformConfig.getServiceParam(PeerGroup.multicastProtoClassID);
+        multicastEnabled = platformConfig.isSvcEnabled(PeerGroup.multicastProtoClassID);
+        Enumeration tcpChilds2 = param.getChildren(TransportAdvertisement.getAdvertisementType());
+
+        // get the TransportAdv from either TransportAdv or multicastConfig
+        if (tcpChilds2.hasMoreElements()) {
+            param2 = (XMLElement) tcpChilds.nextElement();
+        } else {
+            throw new IllegalStateException("Missing Multicast Advertisment");
+        }
+        multicastConfig = (MulticastAdv) AdvertisementFactory.newAdvertisement(param2);
 
         // HTTP
         try {
@@ -1809,14 +1834,26 @@ public class NetworkConfigurator {
         tcpConfig.setPort(9701);
         //tcpConfig.setStartPort(9701);
         //tcpConfig.setEndPort(9799);
-        tcpConfig.setMulticastAddr("224.0.1.85");
-        tcpConfig.setMulticastPort(1234);
-        tcpConfig.setMulticastSize(16384);
-        tcpConfig.setMulticastState((mode & IP_MULTICAST) == IP_MULTICAST);
         tcpConfig.setServer(null);
         tcpConfig.setClientEnabled((mode & TCP_CLIENT) == TCP_CLIENT);
         tcpConfig.setServerEnabled((mode & TCP_SERVER) == TCP_SERVER);
         return tcpConfig;
+    }
+
+    /**
+     * Creates an multicast transport advertisement with the platform default values.
+     * Multicast on, 224.0.1.85:1234, with a max packet size of 16K.
+     *
+     * @return a TCP transport advertisement
+     */
+    protected MulticastAdv createMulticastAdv() {
+        multicastConfig = (MulticastAdv) AdvertisementFactory.newAdvertisement(MulticastAdv.getAdvertisementType());
+        multicastConfig.setProtocol("tcp");
+        multicastConfig.setMulticastAddr("224.0.1.85");
+        multicastConfig.setMulticastPort(1234);
+        multicastConfig.setMulticastSize(16384);
+        multicastConfig.setMulticastState((mode & IP_MULTICAST) == IP_MULTICAST);
+        return multicastConfig;
     }
 
     protected PeerGroupConfigAdv createInfraConfigAdv() {
@@ -1853,6 +1890,11 @@ public class NetworkConfigurator {
         if (tcpConfig != null) {
             boolean enabled = tcpEnabled && (tcpConfig.isServerEnabled() || tcpConfig.isClientEnabled());
             advertisement.putServiceParam(PeerGroup.tcpProtoClassID, getParmDoc(enabled, tcpConfig));
+        }
+
+        if (multicastConfig != null) {
+            boolean enabled = multicastConfig.getMulticastState();
+            advertisement.putServiceParam(PeerGroup.multicastProtoClassID, getParmDoc(enabled, multicastConfig));
         }
 
         if (httpConfig != null) {
@@ -1988,7 +2030,7 @@ public class NetworkConfigurator {
      * @see #setMulticastAddress
      */
     public String getMulticastAddress() {
-        return tcpConfig.getMulticastAddr();
+        return multicastConfig.getMulticastAddr();
     }
 
     /**
@@ -1998,7 +2040,7 @@ public class NetworkConfigurator {
      * @see #setMulticastPort
      */
     public int getMulticastPort() {
-        return tcpConfig.getMulticastPort();
+        return multicastConfig.getMulticastPort();
     }
 
     /**
@@ -2007,7 +2049,7 @@ public class NetworkConfigurator {
      * @return multicast thread pool size
      */
     public int getMulticastPoolSize() {
-        return tcpConfig.getMulticastPoolSize();
+        return multicastConfig.getMulticastPoolSize();
     }
 
     /**
@@ -2107,7 +2149,7 @@ public class NetworkConfigurator {
      * @see #setUseMulticast
      */
     public boolean getMulticastStatus() {
-        return tcpConfig.getMulticastState();
+        return multicastConfig.getMulticastState();
     }
 
     /**

@@ -307,8 +307,8 @@ public class NetworkManager implements RendezvousListener {
     }
 
     /**
-     * Setter for property 'configPersistent'. if disabled a PlatformConfig is not persisted. It assumed that
-     * the PeerID is will be set, or a new PeerID will always be generated.
+     * Setter for property 'configPersistent'. If enabled, the PlatformConfig is persisted
+     * when {@code startNetwork()} is called.
      *
      * @param persisted Value to set for property 'configPersistent'.
      */

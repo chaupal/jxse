@@ -331,10 +331,7 @@ public class AutomaticConfigurator extends NullConfigurator {
 
             tcpAdv.setProtocol("tcp");
             tcpAdv.setPort(port);
-            tcpAdv.setMulticastAddr("224.0.1.85");
-            tcpAdv.setMulticastPort(1234);
-            tcpAdv.setMulticastSize(16384);
-            tcpAdv.setMulticastState(true);
+
         }
 
         tcp = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
