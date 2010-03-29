@@ -2,13 +2,13 @@ package net.jxta.impl.cm;
 
 import java.util.List;
 
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.peer.PeerID;
 
 /**
- * Null object implementation of SrdiIndexBackend
+ * Null object implementation of SrdiAPI
  */
-public class NullSrdiIndexBackend implements SrdiIndexBackend {
+public class NullSrdiIndexBackend implements SrdiAPI {
 
 	public void add(String primaryKey, String attribute, String value,
 			PeerID pid, long expiration) {

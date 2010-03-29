@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.router;
 
 import net.jxta.credential.Credential;
@@ -61,9 +62,9 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
+import net.jxta.impl.cm.SrdiManager;
+import net.jxta.impl.cm.SrdiManager.SrdiPushEntriesInterface;
 import net.jxta.impl.cm.Srdi;
-import net.jxta.impl.cm.Srdi.SrdiInterface;
-import net.jxta.impl.cm.SrdiIndex;
 import net.jxta.impl.protocol.*;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.membership.MembershipService;
@@ -77,7 +78,6 @@ import net.jxta.resolver.SrdiHandler;
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -89,7 +89,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Handles dynamic route resolution.
  */
-class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface {
+class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntriesInterface {
 
     /**
      * Logger
@@ -169,12 +169,12 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
     /**
      * SRDI route index
      */
-    private SrdiIndex srdiIndex = null;
+    private Srdi srdiIndex = null;
 
     /**
      * SRDI Index
      */
-    private Srdi srdi = null;
+    private SrdiManager srdi = null;
 
     /**
      *  Encapsulates current Membership Service credential.
@@ -336,11 +336,11 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiInterface 
         resolver.registerHandler(routerSName, this);
 
         // create and register the srdi service
-        srdiIndex = new SrdiIndex(group, srdiIndexerFileName);
+        srdiIndex = new Srdi(group, srdiIndexerFileName);
 
-        // Srdi is a thread but we are not going to start,
+        // SrdiManager is a thread but we are not going to start,
         // since the service is reactive.
-        srdi = new Srdi(group, routerSName, this, srdiIndex);
+        srdi = new SrdiManager(group, routerSName, this, srdiIndex);
 
         resolver.registerSrdiHandler(routerSName, this);
 

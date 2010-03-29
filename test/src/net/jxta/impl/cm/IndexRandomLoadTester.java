@@ -8,9 +8,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-
 import net.jxta.id.IDFactory;
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 
@@ -29,7 +28,7 @@ public class IndexRandomLoadTester implements Runnable {
 		"foxtrot"
 	};
 	
-	private final SrdiIndex index;
+	private final Srdi index;
 	private final int numOps;
 	private boolean successful = false;
 	
@@ -37,7 +36,7 @@ public class IndexRandomLoadTester implements Runnable {
 	private Queue<PeerID> peerIds;
 	private CountDownLatch completionLatch;
 	
-	public IndexRandomLoadTester(SrdiIndex index, int numOps, CountDownLatch completionLatch) {
+	public IndexRandomLoadTester(Srdi index, int numOps, CountDownLatch completionLatch) {
 		this.index = index;
 		this.numOps = numOps;
 		this.completionLatch = completionLatch;

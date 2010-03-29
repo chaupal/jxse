@@ -62,9 +62,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.backport.java.util.NavigableSet;
 import net.jxta.impl.util.backport.java.util.TreeMap;
@@ -75,14 +74,14 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 
-public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
+public class InMemorySrdi implements SrdiAPI {
 
-    private final static transient Logger LOG = Logger.getLogger( InMemorySrdiIndexBackend.class.getName() );
+    private final static transient Logger LOG = Logger.getLogger( InMemorySrdi.class.getName() );
     private static final String WILDCARD = "*";
     private static final String REGEX_WILDCARD = ".*";
 
     // Store of back end objects in use so we can support the static clear functionality
-    private static Hashtable<PeerGroup, List<SrdiIndexBackend>> backends = new Hashtable<PeerGroup, List<SrdiIndexBackend>>();
+    private static Hashtable<PeerGroup, List<SrdiAPI>> backends = new Hashtable<PeerGroup, List<SrdiAPI>>();
 
     // Dummy object used in HashMaps
     private static final Object OBJ = new Object();
@@ -105,15 +104,15 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     // Usage name for this index
     private final String indexName;
 
-    public InMemorySrdiIndexBackend( PeerGroup group, String indexName ) {
+    public InMemorySrdi( PeerGroup group, String indexName ) {
 
         this.indexName = indexName;
 
-        List<SrdiIndexBackend> idxs = backends.get( group );
+        List<SrdiAPI> idxs = backends.get( group );
 
         if ( null == idxs ) {
 
-            idxs = new ArrayList<SrdiIndexBackend>( 1 );
+            idxs = new ArrayList<SrdiAPI>( 1 );
             backends.put( group, idxs );
         }
 
@@ -129,11 +128,11 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
         Logging.logCheckedInfo(LOG, "Clearing SRDIs for " + group );
 
-        List<SrdiIndexBackend> idxs = backends.get( group );
+        List<SrdiAPI> idxs = backends.get( group );
 
         if ( null != idxs ) {
 
-            for ( SrdiIndexBackend idx : idxs ) {
+            for ( SrdiAPI idx : idxs ) {
 
                 try {
                     idx.clear();
@@ -156,7 +155,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#clear()
+     * @see net.jxta.impl.cm.SrdiAPI#clear()
      */
     public synchronized void clear() throws IOException {
 
@@ -171,7 +170,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#garbageCollect()
+     * @see net.jxta.impl.cm.SrdiAPI#garbageCollect()
      */
     public synchronized void garbageCollect() throws IOException {
 
@@ -266,7 +265,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#getRecord(java.lang.String, java.lang.String, java.lang.String)
+     * @see net.jxta.impl.cm.SrdiAPI#getRecord(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized List<Entry> getRecord( String pkey, String skey, String value )
         throws IOException {
@@ -337,7 +336,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#query(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see net.jxta.impl.cm.SrdiAPI#query(java.lang.String, java.lang.String, java.lang.String, int)
      */
     public synchronized List<PeerID> query( String pkey, String skey, String value, int threshold )
         throws IOException {
@@ -402,7 +401,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#remove(net.jxta.peer.PeerID)
+     * @see net.jxta.impl.cm.SrdiAPI#remove(net.jxta.peer.PeerID)
      */
     @SuppressWarnings( "unchecked" )
     public synchronized void remove( PeerID pid ) throws IOException {
@@ -438,14 +437,14 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#stop()
+     * @see net.jxta.impl.cm.SrdiAPI#stop()
      */
     public synchronized void stop() {
         this.stopped = true;
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#add(java.lang.String, java.lang.String, java.lang.String, net.jxta.peer.PeerID, long)
+     * @see net.jxta.impl.cm.SrdiAPI#add(java.lang.String, java.lang.String, java.lang.String, net.jxta.peer.PeerID, long)
      */
     @SuppressWarnings( "unchecked" )
     public synchronized void add( String pkey, String skey, String value, PeerID pid, long expiry ) {
@@ -623,7 +622,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         public IndexItem( PeerIDItem ipid, String treeKey ) {
 
             this.ipid = ipid;
-            this.id = InMemorySrdiIndexBackend.counter++;
+            this.id = InMemorySrdi.counter++;
             this.treeKey = treeKey;
         }
 

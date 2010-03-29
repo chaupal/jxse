@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Queue;
 
 import net.jxta.id.IDFactory;
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.impl.util.FakeSystemClock;
 import net.jxta.impl.util.JavaSystemClock;
 import net.jxta.impl.util.TimeUtils;
@@ -39,44 +39,44 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 	public abstract String getBackendClassname();
 	
 	private String oldBackendValue;
-	protected SrdiIndex srdiIndex;
+	protected Srdi srdiIndex;
 	protected FakeSystemClock clock;
 	
 	protected EntryComparator comparator;
 	protected PeerGroup group1;
 	protected PeerGroup group2;
-	protected SrdiIndex srdiIndexForGroup2;
-	private SrdiIndex alternativeIndexForGroup1;
+	protected Srdi srdiIndexForGroup2;
+	private Srdi alternativeIndexForGroup1;
 	
 	@Override
 	protected void setUp() throws Exception {
-		oldBackendValue = System.getProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
-		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
+		oldBackendValue = System.getProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
+		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
 		
 		group1 = mock(PeerGroup.class, "group1");
 		group2 = mock(PeerGroup.class, "group2");
 		checking(createExpectationsForConstruction_withPeerGroup_IndexName(group1, GROUP_ID_1, "group1"));
 		checking(createExpectationsForConstruction_withPeerGroup_IndexName(group2, GROUP_ID_2, "group2"));
 		
-		srdiIndex = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC);
-		srdiIndexForGroup2 = new SrdiIndex(createBackend(group2, "testIndex"), SrdiIndex.NO_AUTO_GC);
-		alternativeIndexForGroup1 = new SrdiIndex(createBackend(group1, "testIndex2"), SrdiIndex.NO_AUTO_GC);
+		srdiIndex = new Srdi(createBackend(group1, "testIndex"), Srdi.NO_AUTO_GC);
+		srdiIndexForGroup2 = new Srdi(createBackend(group2, "testIndex"), Srdi.NO_AUTO_GC);
+		alternativeIndexForGroup1 = new Srdi(createBackend(group1, "testIndex2"), Srdi.NO_AUTO_GC);
 		clock = new FakeSystemClock();
 		comparator = new EntryComparator();
 		TimeUtils.setClock(clock);
 		super.setUp();
 	}
 	
-	protected abstract SrdiIndexBackend createBackend(PeerGroup group, String indexName) throws Exception;
+	protected abstract SrdiAPI createBackend(PeerGroup group, String indexName) throws Exception;
 
 	@Override
 	protected void tearDown() throws Exception {
 		srdiIndex.stop();
 		TimeUtils.resetClock();
 		if(oldBackendValue == null) {
-			System.clearProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
+			System.clearProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
 		} else {
-			System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, oldBackendValue);
+			System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, oldBackendValue);
 		}
 		super.tearDown();
 	}
@@ -295,7 +295,7 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 	
 	public void testGarbageCollect_automatic() throws Exception {
 	    TimeUtils.setClock(new JavaSystemClock());
-	    SrdiIndex srdiIndexWithAutoGC = new SrdiIndex(createBackend(group1, "gcIndex"), 500L);
+	    Srdi srdiIndexWithAutoGC = new Srdi(createBackend(group1, "gcIndex"), 500L);
 	    srdiIndexWithAutoGC.add("a", "b", "c", PEER_ID, 500L);
 	    assertEquals(1, srdiIndexWithAutoGC.query("a", "b", "c", NO_THRESHOLD).size());
 	    
@@ -320,28 +320,28 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		srdiIndex.add("a", "b", "c", PEER_ID, 1000L);
 		srdiIndex.stop();
 		
-		SrdiIndex restarted = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC);
+		Srdi restarted = new Srdi(createBackend(group1, "testIndex"), Srdi.NO_AUTO_GC);
 		
 		assertEquals(1, restarted.query("a", "b", "c", NO_THRESHOLD).size());
 		assertEquals(PEER_ID, restarted.query("a", "b", "c", NO_THRESHOLD).get(0));
 	}
 	
 	public void testClearViaStatic() throws Exception {
-		SrdiIndex index = srdiIndex;
+		Srdi index = srdiIndex;
 		index.add("a", "b", "c", PEER_ID, 1000L);
 		index.stop();
 		
-		SrdiIndex index2 = alternativeIndexForGroup1;
+		Srdi index2 = alternativeIndexForGroup1;
 		index2.add("a", "b", "c", PEER_ID_2, 1000L);
 		index2.stop();
 		
-		SrdiIndex.clearSrdi(group1);
+		Srdi.clearSrdi(group1);
 		
-		SrdiIndex restarted = new SrdiIndex(group1, "testIndex");
+		Srdi restarted = new Srdi(group1, "testIndex");
 		assertEquals(0, restarted.query("a", "b", "c", NO_THRESHOLD).size());
 		restarted.stop();
 		
-		SrdiIndex restarted2 = new SrdiIndex(group1, "testIndex2");
+		Srdi restarted2 = new Srdi(group1, "testIndex2");
 		assertEquals(0, restarted2.query("a", "b", "c", NO_THRESHOLD).size());
 		restarted.stop();
 	}
@@ -354,10 +354,10 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		srdiIndex.stop();
 		srdiIndexForGroup2.stop();
 		
-		SrdiIndex.clearSrdi(group1);
+		Srdi.clearSrdi(group1);
 		
-		SrdiIndex group1IndexRestarted = new SrdiIndex(group1, "testIndex");
-		SrdiIndex group2IndexRestarted = new SrdiIndex(group2, "testIndex");
+		Srdi group1IndexRestarted = new Srdi(group1, "testIndex");
+		Srdi group2IndexRestarted = new Srdi(group2, "testIndex");
 		
 		assertTrue(group1IndexRestarted.query("a", "b", "c", NO_THRESHOLD).isEmpty());
 		assertContains(group2IndexRestarted.query("a", "b", "c", NO_THRESHOLD), PEER_ID);
@@ -367,7 +367,7 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		checkAddIsolation(srdiIndex, srdiIndexForGroup2);
 	}
 	
-	protected void checkAddIsolation(SrdiIndex a, SrdiIndex b) {
+	protected void checkAddIsolation(Srdi a, Srdi b) {
 		// sanity check: there should be no results on a newly created index
 		assertEquals(0, srdiIndex.query("a", "b", "c", NO_THRESHOLD).size());
 		assertEquals(0, srdiIndexForGroup2.query("a", "b", "c", NO_THRESHOLD).size());
@@ -391,7 +391,7 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		checkClearIsolation(srdiIndex, srdiIndexForGroup2);
 	}
 	
-	protected void checkClearIsolation(SrdiIndex a, SrdiIndex b) {
+	protected void checkClearIsolation(Srdi a, Srdi b) {
 		a.add("a", "b", "c", PEER_ID, 1000L);
 		b.add("a", "b", "c", PEER_ID, 1000L);
 		a.clear();
@@ -405,7 +405,7 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		checkRemoveIsolation(srdiIndex, srdiIndexForGroup2);
 	}
 	
-	protected void checkRemoveIsolation(SrdiIndex a, SrdiIndex b) {
+	protected void checkRemoveIsolation(Srdi a, Srdi b) {
 		a.add("a", "b", "c", PEER_ID, 1000L);
 		b.add("a", "b", "c", PEER_ID, 1000L);
 		
@@ -428,12 +428,12 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 	}
 
 	public void testConstruction_withGroup_IndexName() {
-		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
+		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
 		final PeerGroup group = mock(PeerGroup.class);
 		
 		checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 		
-		SrdiIndex srdiIndex = new SrdiIndex(group, "testIndex");
+		Srdi srdiIndex = new Srdi(group, "testIndex");
 		assertEquals(getBackendClassname(), srdiIndex.getBackendClassName());
 		srdiIndex.stop();
 	}

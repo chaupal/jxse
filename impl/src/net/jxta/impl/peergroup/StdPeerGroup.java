@@ -75,7 +75,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.impl.cm.Cm;
-import net.jxta.impl.cm.SrdiIndex;
+import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.content.ContentServiceImpl;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.logging.Logging;
@@ -594,7 +594,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         }
         
         // flush srdi for this group
-        SrdiIndex.clearSrdi(this);
+        Srdi.clearSrdi(this);
         
         // Load the list of peer group services from the impl advertisement params.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdvertisement.getParam());

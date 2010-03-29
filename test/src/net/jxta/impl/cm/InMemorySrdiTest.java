@@ -1,6 +1,6 @@
 package net.jxta.impl.cm;
 
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -10,7 +10,7 @@ import org.jmock.Expectations;
 import java.util.List;
 
 
-public class InMemorySrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
+public class InMemorySrdiTest extends AbstractSrdiIndexBackendTest {
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.AbstractSrdiIndexBackendTest#createExpectationsForConstruction_withPeerGroup_IndexName(net.jxta.peergroup.PeerGroup, net.jxta.peergroup.PeerGroupID, java.lang.String)
@@ -44,13 +44,13 @@ public class InMemorySrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
     @Override
     public String getBackendClassname() {
 
-        return InMemorySrdiIndexBackend.class.getName();
+        return InMemorySrdi.class.getName();
     }
 
     @Override
-    protected SrdiIndexBackend createBackend( PeerGroup group, String indexName ) {
+    protected SrdiAPI createBackend( PeerGroup group, String indexName ) {
 
-        return new InMemorySrdiIndexBackend( group, indexName );
+        return new InMemorySrdi( group, indexName );
     }
 
     /**
@@ -97,11 +97,11 @@ public class InMemorySrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 
         srdiIndex.stop();
         //srdiIndexForGroup2.stop();
-        SrdiIndex.clearSrdi( group1 );
+        Srdi.clearSrdi( group1 );
 
-        SrdiIndex group1IndexRestarted = new SrdiIndex( group1, "testIndex" );
+        Srdi group1IndexRestarted = new Srdi( group1, "testIndex" );
 
-        //SrdiIndex group2IndexRestarted = new SrdiIndex(group2, "testIndex");
+        //Srdi group2IndexRestarted = new Srdi(group2, "testIndex");
         assertTrue( group1IndexRestarted.query( "a", "b", "c", -1 ).isEmpty() );
         // assertContains(group2IndexRestarted.query("a", "b", "c", NO_THRESHOLD), PEER_ID);
         assertContains( srdiIndexForGroup2.query( "a", "b", "c", -1 ), PEER_ID );

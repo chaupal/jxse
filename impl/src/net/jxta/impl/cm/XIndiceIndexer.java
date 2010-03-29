@@ -85,12 +85,12 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class Indexer {
+public final class XIndiceIndexer {
 
     /**
      * The logger
      */
-    private final static transient Logger LOG = Logger.getLogger(Indexer.class.getName());
+    private final static transient Logger LOG = Logger.getLogger(XIndiceIndexer.class.getName());
 
     private final static String listFileName = "offsets";
 
@@ -101,7 +101,7 @@ public final class Indexer {
     private boolean sync = true;
 
     /*
-     *      Indexer manages indexes to various advertisement types,
+     *      XIndiceIndexer manages indexes to various advertisement types,
      *      and maintains a listDB which holds records that hold references
      *      to records in advertisments.tbl
      *
@@ -110,7 +110,7 @@ public final class Indexer {
      *       -------          -------               \    ------- 
      *
      */
-    public Indexer() {}
+    public XIndiceIndexer() {}
 
     /**
      * Creates an indexer
@@ -118,7 +118,7 @@ public final class Indexer {
      * @param sync passed through to xindice to determine a lazy checkpoint or not
      *             false == lazy checkpoint
      */
-    public Indexer(boolean sync) {
+    public XIndiceIndexer(boolean sync) {
         this.sync = sync;
     }
 

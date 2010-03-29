@@ -62,7 +62,6 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;

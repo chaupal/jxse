@@ -52,6 +52,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.discovery;
 
 import net.jxta.credential.Credential;
@@ -68,8 +69,8 @@ import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.impl.cm.Cm;
+import net.jxta.impl.cm.SrdiManager;
 import net.jxta.impl.cm.Srdi;
-import net.jxta.impl.cm.SrdiIndex;
 import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.protocol.DiscoveryConfigAdv;
 import net.jxta.impl.protocol.DiscoveryQuery;
@@ -92,7 +93,6 @@ import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
 import net.jxta.service.Service;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -125,7 +125,7 @@ import java.util.logging.Logger;
  * @see net.jxta.resolver.ResolverService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-pdp" target="_blank">JXTA Protocols Specification : Peer Discovery Protocol</a>
  */
-public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHandler, RendezvousListener, SrdiHandler, Srdi.SrdiInterface {
+public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHandler, RendezvousListener, SrdiHandler, SrdiManager.SrdiPushEntriesInterface {
 
     /**
      * Logger
@@ -178,8 +178,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private PeerAdvertisement lastPeerAdv = null;
     private int lastModCount = -1;
     private boolean isRdv = false;
-    private SrdiIndex srdiIndex = null;
-    private Srdi srdi = null;
+    private Srdi srdiIndex = null;
+    private SrdiManager srdi = null;
     private long runInterval = 30 * TimeUtils.ASECOND;
 
     /**
@@ -1582,7 +1582,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         if (srdiIndex == null) {
 
-            srdiIndex = new SrdiIndex(group, srdiIndexerFileName);
+            srdiIndex = new Srdi(group, srdiIndexerFileName);
             Logging.logCheckedFine(LOG, "srdiIndex created");
 
         }
@@ -1595,7 +1595,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         if (!localonly) {
 
-            srdi = new Srdi(group, handlerName, this, srdiIndex);
+            srdi = new SrdiManager(group, handlerName, this, srdiIndex);
             resolver.registerSrdiHandler(handlerName, this);
             Logging.logCheckedFine(LOG, "srdi created, and registered as an srdi handler ");
 
@@ -1640,7 +1640,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         if (!localonly) {
             // Create a new SRDI
-            srdi = new Srdi(group, handlerName, this, null);
+            srdi = new SrdiManager(group, handlerName, this, null);
             srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
         }
 

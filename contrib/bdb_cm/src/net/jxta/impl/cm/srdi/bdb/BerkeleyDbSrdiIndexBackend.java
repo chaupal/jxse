@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.impl.cm.CacheUtils;
-import net.jxta.impl.cm.SrdiIndexBackend;
+import net.jxta.impl.cm.SrdiAPI;
 import net.jxta.impl.cm.SrdiIndex.Entry;
 import net.jxta.impl.cm.bdb.BerkeleyDbUtil;
 import net.jxta.impl.util.TimeUtils;
@@ -36,7 +36,7 @@ import com.sleepycat.je.SecondaryConfig;
 import com.sleepycat.je.SecondaryDatabase;
 import com.sleepycat.util.IOExceptionWrapper;
 
-public class BerkeleyDbSrdiIndexBackend implements SrdiIndexBackend {
+public class BerkeleyDbSrdiIndexBackend implements SrdiAPI {
 
 	private static final String DB_NAME = "mainIndex";
 	private static final String PEER_SEARCH_DB_NAME = "peerSearch";

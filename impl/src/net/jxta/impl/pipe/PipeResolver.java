@@ -66,9 +66,9 @@ import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.id.ID;
+import net.jxta.impl.cm.SrdiManager;
+import net.jxta.impl.cm.SrdiManager.SrdiPushEntriesInterface;
 import net.jxta.impl.cm.Srdi;
-import net.jxta.impl.cm.Srdi.SrdiInterface;
-import net.jxta.impl.cm.SrdiIndex;
 import net.jxta.impl.protocol.PipeResolverMsg;
 import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.SrdiMessageImpl;
@@ -109,13 +109,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * This class implements the Resolver interfaces for a PipeServiceImpl.
  */
-class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, PipeRegistrar {
+class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, SrdiHandler, PipeRegistrar {
 
     /**
      * Logger
@@ -165,9 +164,9 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
      */
     private MembershipService membership = null;
 
-    private Srdi srdi = null;
+    private SrdiManager srdi = null;
     private Thread srdiThread = null;
-    private SrdiIndex srdiIndex = null;
+    private Srdi srdiIndex = null;
     private RendezVousService rendezvous = null;
 
     /**
@@ -371,9 +370,9 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
         resolver.registerHandler(PipeResolverName, this);
 
         // start srdi
-        srdiIndex = new SrdiIndex(myGroup, srdiIndexerFileName, GcDelay);
+        srdiIndex = new Srdi(myGroup, srdiIndexerFileName, GcDelay);
 
-        srdi = new Srdi(myGroup, PipeResolverName, this, srdiIndex);
+        srdi = new SrdiManager(myGroup, PipeResolverName, this, srdiIndex);
         srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), 1 * TimeUtils.AYEAR);
 
         resolver.registerSrdiHandler(PipeResolverName, this);
@@ -730,9 +729,9 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
     }
 
     private long getEntryExp(String pkey, String skey, String value, PeerID peerid) {
-        List<SrdiIndex.Entry> list = srdiIndex.getRecord(pkey, skey, value);
+        List<Srdi.Entry> list = srdiIndex.getRecord(pkey, skey, value);
 
-        for (SrdiIndex.Entry entry : list) {
+        for (Srdi.Entry entry : list) {
             if (entry.peerid.equals(peerid)) {
                 // exp in millis
                 return TimeUtils.toRelativeTimeMillis(entry.expiration);
@@ -1159,7 +1158,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
     /**
      * {@inheritDoc}
      */
-    SrdiIndex getSrdiIndex() {
+    Srdi getSrdiIndex() {
         return srdiIndex;
     }
 

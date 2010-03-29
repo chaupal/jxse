@@ -74,10 +74,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.data.Key;
@@ -92,29 +91,29 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 
 /**
- * SrdiIndex
+ * Srdi
  */
-public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
+public class XIndiceSrdi implements SrdiAPI {
     
     /**
      * Logger
      */
-    private final static transient Logger LOG = Logger.getLogger(XIndiceSrdiIndexBackend.class.getName());
+    private final static transient Logger LOG = Logger.getLogger(XIndiceSrdi.class.getName());
     
     private volatile boolean stop = false;
-    private final Indexer srdiIndexer;
+    private final XIndiceIndexer srdiIndexer;
     private final BTreeFiler cacheDB;
     private final Set<PeerID> gcPeerTBL = new HashSet<PeerID>();
     
     private final String indexName;
     
     /**
-     * Constructor for the SrdiIndex
+     * Constructor for the Srdi
      *
      * @param group     group
      * @param indexName the index name
      */
-    public XIndiceSrdiIndexBackend(PeerGroup group, String indexName) {
+    public XIndiceSrdi(PeerGroup group, String indexName) {
         
         this(getRootDir(group), indexName);
 
@@ -148,7 +147,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
         return rootDir;
 	}
     
-	public XIndiceSrdiIndexBackend(File storageDir, String indexName) {
+	public XIndiceSrdi(File storageDir, String indexName) {
 		this.indexName = indexName;
 		
 		try {
@@ -166,7 +165,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
 	        }
 	        
 	        // index
-	        srdiIndexer = new Indexer(false);
+	        srdiIndexer = new XIndiceIndexer(false);
 	        srdiIndexer.setLocation(storageDir.getCanonicalPath(), indexName);
 	        if (!srdiIndexer.open()) {
 	            srdiIndexer.create();
@@ -219,14 +218,14 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                 gcPeerTBL.remove(pid);
                 
                 Record record = cacheDB.readRecord(key);
-                List<SrdiIndex.Entry> old;
+                List<Srdi.Entry> old;
                 
                 if (record != null) {
                     old = readRecord(record).list;
                 } else {
-                    old = new ArrayList<SrdiIndex.Entry>();
+                    old = new ArrayList<Srdi.Entry>();
                 }
-                SrdiIndex.Entry entry = new SrdiIndex.Entry(pid, expiresin);
+                Srdi.Entry entry = new Srdi.Entry(pid, expiresin);
                 
                 if (!old.contains(entry)) {
                     old.add(entry);
@@ -273,7 +272,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param value value
      * @return List of Entry objects
      */
-    public List<SrdiIndex.Entry> getRecord(String pkey, String skey, String value) {
+    public List<Srdi.Entry> getRecord(String pkey, String skey, String value) {
         Record record = null;
         
         try {
@@ -329,7 +328,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
     }
     
     /**
-     * Query SrdiIndex
+     * Query Srdi
      *
      * @param attribute Attribute String to query on
      * @param value     value of the attribute string
@@ -372,7 +371,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
     }
     
     /**
-     * Query SrdiIndex
+     * Query Srdi
      *
      * @param primaryKey primary key
      * @return A list of Peer IDs.
@@ -450,7 +449,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                 
                 long t0 = TimeUtils.timeNow();
 
-                SrdiIndex.SrdiIndexRecord rec = readRecord(record);
+                Srdi.SrdiIndexRecord rec = readRecord(record);
                 Logging.logCheckedFinest(LOG, "Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
                 
                 copyIntoList(results, rec.list, excludeTable, threshold);
@@ -467,7 +466,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
         private final List<Long> list;
         private final Set<PeerID> table;
         
-        GcCallback(BTreeFiler cacheDB, Indexer idxr, List<Long> list, Set<PeerID> table) {
+        GcCallback(BTreeFiler cacheDB, XIndiceIndexer idxr, List<Long> list, Set<PeerID> table) {
             this.cacheDB = cacheDB;
             this.list = list;
             this.table = table;
@@ -495,13 +494,13 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
 
                 if (record == null) return true;
                 
-                SrdiIndex.SrdiIndexRecord rec = readRecord(record);
-                List<SrdiIndex.Entry> res = rec.list;
+                Srdi.SrdiIndexRecord rec = readRecord(record);
+                List<Srdi.Entry> res = rec.list;
                 boolean changed = false;
                 
-                Iterator<SrdiIndex.Entry> eachEntry = res.iterator();
+                Iterator<Srdi.Entry> eachEntry = res.iterator();
                 while(eachEntry.hasNext()) {
-                    SrdiIndex.Entry entry = eachEntry.next();
+                    Srdi.Entry entry = eachEntry.next();
                     
                     if (entry.isExpired() || table.contains(entry.peerid)) {
                         changed = true;
@@ -590,7 +589,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
 
                 if (record == null) return true;
                 
-                SrdiIndex.SrdiIndexRecord rec = readRecord(record);
+                Srdi.SrdiIndexRecord rec = readRecord(record);
                 
                 try {
 
@@ -617,9 +616,9 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param table table of PeerID's
      * @param threshold maximum number of values permitted in the "to" list
      */
-    private static void copyIntoList(List<PeerID> to, List<SrdiIndex.Entry> from, Set<PeerID> table, int threshold) {
+    private static void copyIntoList(List<PeerID> to, List<Srdi.Entry> from, Set<PeerID> table, int threshold) {
 
-        for (SrdiIndex.Entry entry : from) {
+        for (Srdi.Entry entry : from) {
             boolean expired = entry.isExpired();
             
             Logging.logCheckedFiner(LOG, "Entry peerid : " + entry.peerid + (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
@@ -653,14 +652,14 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param list List to convert
      * @return byte []
      */
-    private static byte[] getData(Key key, List<SrdiIndex.Entry> list) {
+    private static byte[] getData(Key key, List<Srdi.Entry> list) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(bos);
             
             dos.writeUTF(key.toString());
             dos.writeInt(list.size());
-            for (SrdiIndex.Entry anEntry : list) {
+            for (Srdi.Entry anEntry : list) {
                 dos.writeUTF(anEntry.peerid.toString());
                 dos.writeLong(anEntry.expiration);
             }
@@ -678,15 +677,15 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param record Btree Record
      * @return List of entries
      */
-    protected static SrdiIndex.SrdiIndexRecord readRecord(Record record) {
-        List<SrdiIndex.Entry> result = new ArrayList<SrdiIndex.Entry>();
+    protected static Srdi.SrdiIndexRecord readRecord(Record record) {
+        List<Srdi.Entry> result = new ArrayList<Srdi.Entry>();
         Key key = null;
         
         if (record == null) {
-            return new SrdiIndex.SrdiIndexRecord(null, result);
+            return new Srdi.SrdiIndexRecord(null, result);
         }
         if (record.getValue().getLength() <= 0) {
-            return new SrdiIndex.SrdiIndexRecord(null, result);
+            return new Srdi.SrdiIndexRecord(null, result);
         }
         InputStream is = record.getValue().getInputStream();
         
@@ -701,7 +700,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
                     String idstr = ois.readUTF();
                     PeerID pid = (PeerID) IDFactory.fromURI(new URI(idstr));
                     long exp = ois.readLong();
-                    SrdiIndex.Entry entry = new SrdiIndex.Entry(pid, exp);
+                    Srdi.Entry entry = new Srdi.Entry(pid, exp);
                     
                     result.add(entry);
                 } catch (URISyntaxException badID) {
@@ -721,7 +720,7 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
             
         }
 
-        return new SrdiIndex.SrdiIndexRecord(key, result);
+        return new Srdi.SrdiIndexRecord(key, result);
 
     }
     
@@ -768,12 +767,12 @@ public class XIndiceSrdiIndexBackend implements SrdiIndexBackend {
      * @param list A list of entries.
      * @return The same list with the expired entries removed.
      */
-    private static List<SrdiIndex.Entry> removeExpired(List<SrdiIndex.Entry> list) {
-        Iterator<SrdiIndex.Entry> eachEntry = list.iterator();
+    private static List<Srdi.Entry> removeExpired(List<Srdi.Entry> list) {
+        Iterator<Srdi.Entry> eachEntry = list.iterator();
         
         while(eachEntry.hasNext()) {
 
-            SrdiIndex.Entry entry = eachEntry.next();
+            Srdi.Entry entry = eachEntry.next();
             
             if (entry.isExpired()) {
                 eachEntry.remove();

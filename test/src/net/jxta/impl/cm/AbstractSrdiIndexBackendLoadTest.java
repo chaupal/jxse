@@ -31,17 +31,17 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	@Before
 	public void setUp() throws Exception {
 		storeRoot = FileSystemTest.createTempDirectory("SrdiIndexBackendConcurrencyTest");
-		oldSrdiImplName = System.getProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
-		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, getSrdiIndexBackendClassname());
+		oldSrdiImplName = System.getProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
+		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, getSrdiIndexBackendClassname());
 	}
 	
 	@After
 	public void tearDown() throws Exception {
 		FileSystemTest.deleteDir(storeRoot);
 		if(oldSrdiImplName != null) {
-			System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, oldSrdiImplName);
+			System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, oldSrdiImplName);
 		} else {
-			System.clearProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
+			System.clearProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
 		}
 	}
 	
@@ -49,7 +49,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	
 	@Test
 	public void testAddPerformance() throws IOException {
-		SrdiIndex index = new SrdiIndex(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "testIndex");
+		Srdi index = new Srdi(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "testIndex");
 		File resultsFile = File.createTempFile("perftest_" + index.getBackendClassName(), ".csv", new File("."));
 		FileWriter writer = null;
 		try {
@@ -70,7 +70,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	 * Adds 100 records for a new random peer ID, then removes that peer ID, recording the time taken per
 	 * operation. Repeats this for 1000 peers.
 	 */
-	private void measureAddRemoveTime(SrdiIndex index, FileWriter writer) throws IOException {
+	private void measureAddRemoveTime(Srdi index, FileWriter writer) throws IOException {
 		List<Long> addTimes = new LinkedList<Long>();
 		List<Long> removeTimes = new LinkedList<Long>();
 		StatsTracker addTracker = new StatsTracker();
@@ -116,7 +116,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	 * Adds 10000 entirely random records to the index to warm it up, recording the overall
 	 * time taken, though this is not likely to be a conclusive statistic to rely on.
 	 */
-	private void add10000Records(SrdiIndex index, FileWriter writer) throws IOException {
+	private void add10000Records(Srdi index, FileWriter writer) throws IOException {
 		long phase1Start = System.nanoTime();
 		for(int pk=0; pk < 10; pk++) {
 			for(int attr=0; attr < 10; attr++) {

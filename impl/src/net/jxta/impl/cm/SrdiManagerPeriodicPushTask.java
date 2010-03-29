@@ -60,14 +60,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import net.jxta.impl.cm.Srdi.SrdiInterface;
+import net.jxta.impl.cm.SrdiManager.SrdiPushEntriesInterface;
 import net.jxta.logging.Logging;
 
-public class SrdiPeriodicPushTask implements Runnable {
+public class SrdiManagerPeriodicPushTask implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(SrdiPeriodicPushTask.class.getName());
+    private static final Logger LOG = Logger.getLogger(SrdiManagerPeriodicPushTask.class.getName());
     
-    private SrdiInterface pushNotifier;
+    private SrdiPushEntriesInterface pushNotifier;
     
     private boolean stopped = true;
     private boolean publishAll = true;
@@ -79,7 +79,7 @@ public class SrdiPeriodicPushTask implements Runnable {
 
     private String handlerName;
 
-    public SrdiPeriodicPushTask(String handlerName, SrdiInterface pushNotifier, ScheduledExecutorService executorService, long pushIntervalInMs) {
+    public SrdiManagerPeriodicPushTask(String handlerName, SrdiPushEntriesInterface pushNotifier, ScheduledExecutorService executorService, long pushIntervalInMs) {
         this.handlerName = handlerName;
         this.pushNotifier = pushNotifier;
         this.executorService = executorService;

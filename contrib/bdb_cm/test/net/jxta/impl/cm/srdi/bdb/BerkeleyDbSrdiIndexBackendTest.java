@@ -3,7 +3,7 @@ package net.jxta.impl.cm.srdi.bdb;
 import java.io.File;
 
 import net.jxta.impl.cm.AbstractSrdiIndexBackendTest;
-import net.jxta.impl.cm.SrdiIndexBackend;
+import net.jxta.impl.cm.SrdiAPI;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.FileSystemTest;
@@ -27,7 +27,7 @@ public class BerkeleyDbSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest
 	}
 	
 	@Override
-	protected SrdiIndexBackend createBackend(PeerGroup group, String indexName) throws Exception {
+	protected SrdiAPI createBackend(PeerGroup group, String indexName) throws Exception {
 		return new BerkeleyDbSrdiIndexBackend(group, indexName);
 	}
 

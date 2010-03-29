@@ -64,7 +64,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.ID;
-import net.jxta.impl.cm.SrdiIndex;
+import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
 import net.jxta.logging.Logging;
@@ -487,7 +487,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
         if (peers.isEmpty()) {
             if (peerGroup.isRendezvous()) {
                 // propagate to my clients
-                SrdiIndex srdiIndex = pipeResolver.getSrdiIndex();
+                Srdi srdiIndex = pipeResolver.getSrdiIndex();
                 List<PeerID> peerids = srdiIndex.query(PipeService.PropagateType, PipeAdvertisement.IdTag, getPipeID().toString(),
                         Integer.MAX_VALUE);
 

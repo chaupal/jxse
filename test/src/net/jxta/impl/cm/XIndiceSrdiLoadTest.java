@@ -1,11 +1,11 @@
 package net.jxta.impl.cm;
 
-public class XIndiceSrdiIndexBackendLoadTest extends
+public class XIndiceSrdiLoadTest extends
 		AbstractSrdiIndexBackendLoadTest {
 
 	@Override
 	protected String getSrdiIndexBackendClassname() {
-		return XIndiceSrdiIndexBackend.class.getName();
+		return XIndiceSrdi.class.getName();
 	}
 
 }

@@ -78,7 +78,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -107,7 +106,7 @@ import net.jxta.protocol.SrdiMessage;
 /**
  * This is the original Cm implementation.
  */
-public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implements  AdvertisementCache {
+public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implements AdvertisementCache {
 
     /**
      * Logger.
@@ -147,10 +146,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      *  record db
      */
     private final BTreeFiler cacheDB;
+
     /**
      * Record indexer.
      */
-    private final Indexer indexer;
+    private final XIndiceIndexer indexer;
+    
     /**
      * If {@code true} then we will track changes to the indexes.
      */
@@ -257,7 +258,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             }
 
             // Index
-            indexer = new Indexer(chkPoint);
+            indexer = new XIndiceIndexer(chkPoint);
             indexer.setLocation(rootDir.getAbsolutePath(), DATABASE_FILE_NAME);
 
             if (!indexer.open()) {
@@ -936,16 +937,16 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     private final class SearchCallback implements BTreeCallback {
 
         private final BTreeFiler cacheDB;
-        private final Indexer indexer;
+        private final XIndiceIndexer indexer;
         private final int threshold;
         private final Collection<SearchResult> results;
         private final boolean purge;
 
-        SearchCallback(BTreeFiler cacheDB, Indexer indexer, int threshold) {
+        SearchCallback(BTreeFiler cacheDB, XIndiceIndexer indexer, int threshold) {
             this(cacheDB, indexer, threshold, false);
         }
 
-        SearchCallback(BTreeFiler cacheDB, Indexer indexer, int threshold, boolean purge) {
+        SearchCallback(BTreeFiler cacheDB, XIndiceIndexer indexer, int threshold, boolean purge) {
             this.cacheDB = cacheDB;
             this.indexer = indexer;
 //            this.results = results;
@@ -1105,7 +1106,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                     String attr = indexName.substring(dn.length());
                     NameIndexer idxr = map.get(indexName);
                 	System.err.println("Checking indexname " + indexName + " with dn " + dn + " with attr " + attr );
-                    idxr.query(null, new Indexer.SearchCallback(listDB, new EntriesCallback(cacheDB, res, attr, Integer.MAX_VALUE)));
+                    idxr.query(null, new XIndiceIndexer.SearchCallback(listDB, new EntriesCallback(cacheDB, res, attr, Integer.MAX_VALUE)));
                 }
             }
 
@@ -1293,9 +1294,9 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     private static final class RebuildIndexCallback implements BTreeCallback {
 
         private BTreeFiler database = null;
-        private Indexer index = null;
+        private XIndiceIndexer index = null;
 
-        RebuildIndexCallback(BTreeFiler database, Indexer index) {
+        RebuildIndexCallback(BTreeFiler database, XIndiceIndexer index) {
             this.database = database;
             this.index = index;
         }
