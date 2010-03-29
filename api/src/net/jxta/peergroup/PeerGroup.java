@@ -379,7 +379,7 @@ public interface PeerGroup extends Service {
      * Well known module class identifier: mutlicast protocol
      */
     public final static ModuleClassID multicastProtoClassID =
-            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000955"));
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000001105"));
 
     /**
      * Well known module class identifier: http protocol
