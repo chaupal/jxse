@@ -39,7 +39,7 @@ public class NettyTransportTest {
         group.configAdv = groupConfig;
         
         TCPAdv instanceConfig = (TCPAdv) new TCPAdv.Instantiator().newInstance();
-        instanceConfig.setMulticastState(false);
+        // instanceConfig.setMulticastState(false);
         instanceConfig.setClientEnabled(true);
         instanceConfig.setServerEnabled(true);
         instanceConfig.setStartPort(7901);
