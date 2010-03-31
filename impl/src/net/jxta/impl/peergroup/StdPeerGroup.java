@@ -74,7 +74,7 @@ import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
-import net.jxta.impl.cm.Cm;
+import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.content.ContentServiceImpl;
 import net.jxta.impl.membership.pse.PSEMembershipService;
@@ -179,7 +179,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * Cache for this group.
      */
-    private Cm cm = null;
+    private CacheManager cm = null;
     
     /**
      *  Create and populate the default module impl Advertisement for this class.
@@ -584,7 +584,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         // initialize cm before starting services.
         try {
 
-            cm = new Cm(getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
+            cm = new CacheManager(getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
 
         } catch (Exception e) {
 
@@ -773,7 +773,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      *
      * @return the cache manager associated with this group.
      */
-    public Cm getCacheManager() {
+    public CacheManager getCacheManager() {
         return cm;
     }
     

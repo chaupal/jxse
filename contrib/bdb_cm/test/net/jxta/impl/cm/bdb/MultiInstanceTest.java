@@ -3,7 +3,7 @@ package net.jxta.impl.cm.bdb;
 import java.io.File;
 import java.io.IOException;
 
-import net.jxta.impl.cm.Cm;
+import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.bdb.BerkeleyDbAdvertisementCache;
 
 public class MultiInstanceTest {

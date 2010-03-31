@@ -164,7 +164,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      */
     private MembershipService membership = null;
 
-    private SrdiManager srdi = null;
+    private SrdiManager srdiManager = null;
     private Thread srdiThread = null;
     private Srdi srdiIndex = null;
     private RendezVousService rendezvous = null;
@@ -369,11 +369,11 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         // Register to the Generic ResolverServiceImpl
         resolver.registerHandler(PipeResolverName, this);
 
-        // start srdi
+        // start srdiManager
         srdiIndex = new Srdi(myGroup, srdiIndexerFileName, GcDelay);
 
-        srdi = new SrdiManager(myGroup, PipeResolverName, this, srdiIndex);
-        srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), 1 * TimeUtils.AYEAR);
+        srdiManager = new SrdiManager(myGroup, PipeResolverName, this, srdiIndex);
+        srdiManager.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), 1 * TimeUtils.AYEAR);
 
         resolver.registerSrdiHandler(PipeResolverName, this);
         synchronized (this) {
@@ -544,7 +544,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
                 if (!results.isEmpty()) {
 
                     Logging.logCheckedFine(LOG, "forwarding query to " + results.size() + " peers");
-                    srdi.forwardQuery(results, query);
+                    srdiManager.forwardQuery(results, query);
 
                     // tell the resolver no further action is needed.
                     return ResolverService.OK;
@@ -788,7 +788,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
             // pipes the replica is useful in finding pipe instances. Since
             // walking rather than searching is done for propagate pipes this
             // appropriate.
-            srdi.replicateEntries(srdiMsg);
+            srdiManager.replicateEntries(srdiMsg);
         }
         return true;
     }
@@ -830,12 +830,12 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         
         srdiIndex.stop();
         srdiIndex = null;
-        // stop the srdi thread
+        // stop the srdiManager thread
         if (srdiThread != null) {
-            srdi.stop();
+            srdiManager.stop();
         }
         srdiThread = null;
-        srdi = null;
+        srdiManager = null;
 
         membership.removePropertyChangeListener("defaultCredential", membershipCredListener);
         currentCredential = null;
@@ -1084,7 +1084,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         
         Collection<? extends ID> targetPeers = new ArrayList<ID>(acceptablePeers);
 
-        // check local srdi to see if we have a potential answer
+        // check local srdiManager to see if we have a potential answer
         List<? extends ID> knownLocations = srdiIndex.query(adv.getType(), PipeAdvertisement.IdTag, adv.getPipeID().toString(), 100);
 
         if (!knownLocations.isEmpty()) {
@@ -1137,9 +1137,9 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
             if (myGroup.isRendezvous()) {
                 // We are a rdv, then send it to the replica peer.
 
-                PeerID peer = srdi.getReplicaPeer(pipeQry.getPipeType() + PipeAdvertisement.IdTag + pipeQry.getPipeID().toString());
+                PeerID peer = srdiManager.getReplicaPeer(pipeQry.getPipeType() + PipeAdvertisement.IdTag + pipeQry.getPipeID().toString());
                 if (null != peer) {
-                    srdi.forwardQuery(peer, query);
+                    srdiManager.forwardQuery(peer, query);
                     return queryID;
                 }
             }
@@ -1196,9 +1196,9 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
             SrdiMessage srdiMsg = new SrdiMessageImpl(myGroup.getPeerID(), 1, type, entries);
 
             if (null == peer) {
-                srdi.pushSrdi(null, srdiMsg);
+                srdiManager.pushSrdi(null, srdiMsg);
             } else {
-                srdi.pushSrdi(peer, srdiMsg);
+                srdiManager.pushSrdi(peer, srdiMsg);
             }
         }
     }
@@ -1226,14 +1226,14 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
                 Logging.logCheckedFine(LOG, "Replicating a" + (adding ? "n add" : " remove") +
                         " Pipe SRDI entry for pipe [" + ip.getPipeID() + "] of type " + ip.getType());
 
-                srdi.replicateEntries(srdiMsg);
+                srdiManager.replicateEntries(srdiMsg);
 
             } else {
 
                 Logging.logCheckedFine(LOG, "Sending a" + (adding ? "n add" : " remove")
                     + " Pipe SRDI messsage for pipe [" + ip.getPipeID() + "] of type " + ip.getType());
 
-                srdi.pushSrdi(null, srdiMsg);
+                srdiManager.pushSrdi(null, srdiMsg);
 
             }
 

@@ -68,7 +68,7 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.impl.cm.Cm;
+import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.SrdiManager;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.peergroup.StdPeerGroup;
@@ -131,28 +131,34 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * Logger
      */
     private final static Logger LOG = Logger.getLogger(DiscoveryServiceImpl.class.getName());
+
     /**
      * adv types
      */
     final static String[] dirname = {"Peers", "Groups", "Adv"};
+
     /**
      * The Query ID which will be associated with remote publish operations.
      */
     private final static int REMOTE_PUBLISH_QUERYID = 0;
     private final static String srdiIndexerFileName = "discoverySrdi";
+
     /**
      * The current discovery query ID. static to make debugging easier.
      */
     private final static AtomicInteger qid = new AtomicInteger(0);
+
     /**
      * The maximum number of responses we will return for ANY query.
      */
     private final static int MAX_RESPONSES = 50;
+
     /**
      * The cache manager we're going to use to cache jxta advertisements
      */
-    protected Cm cm;
+    protected CacheManager cm;
     private PeerGroup group = null;
+
     /**
      * assignedID as a String.
      */
@@ -166,10 +172,12 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private boolean alwaysUseReplicaPeer = false;
     private boolean forwardBelowThreshold = false;
     private boolean stopped = true;
+
     /**
      * The table of global discovery listeners.
      */
     private final Set<DiscoveryListener> listeners = new HashSet<DiscoveryListener>();
+
     /**
      * The table of discovery query listeners.
      */
@@ -179,7 +187,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private int lastModCount = -1;
     private boolean isRdv = false;
     private Srdi srdiIndex = null;
-    private SrdiManager srdi = null;
+    private SrdiManager srdiManager = null;
     private long runInterval = 30 * TimeUtils.ASECOND;
 
     /**
@@ -201,6 +209,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             this.credentialDoc = credentialDoc;
         }
     }
+
     /**
      * The current Membership service default credential.
      */
@@ -247,6 +256,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             }
         }
     }
+
     /** 
      * Our listener for membership credential change events.
      */
@@ -340,19 +350,19 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         query.setQuery(dquery.getDocument(MimeMediaType.XMLUTF8).toString());
         query.setQueryId(myQueryID);
 
-        // check srdi
+        // check srdiManager
         if (peer == null && srdiIndex != null) {
             List<PeerID> res = srdiIndex.query(dirname[type], attribute, value, threshold);
 
             if (!res.isEmpty()) {
 
-                srdi.forwardQuery(res, query, threshold);
+                srdiManager.forwardQuery(res, query, threshold);
                 Logging.logCheckedFine(LOG, "Srdi forward a query #" + myQueryID + " in " + (System.currentTimeMillis() - t0) + "ms.");
                 return myQueryID;
 
-            // nothing in srdi, get a starting point in rpv
+            // nothing in srdiManager, get a starting point in rpv
             } else if (group.isRendezvous() && attribute != null && value != null) {
-                PeerID destPeer = srdi.getReplicaPeer(dirname[type] + attribute + value);
+                PeerID destPeer = srdiManager.getReplicaPeer(dirname[type] + attribute + value);
 
                 if (destPeer != null) {
 
@@ -360,7 +370,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
                         // forward query increments the hopcount to indicate getReplica
                         // has been invoked once
-                        srdi.forwardQuery(destPeer, query);
+                        srdiManager.forwardQuery(destPeer, query);
                         Logging.logCheckedFine(LOG, "Srdi forward query #" + myQueryID + " to " + destPeer + " in " + (System.currentTimeMillis() - t0) + "ms.");
                         return myQueryID;
 
@@ -369,7 +379,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             }
         }
 
-        // no srdi, not a rendezvous, start the walk
+        // no srdiManager, not a rendezvous, start the walk
         resolver.sendQuery(peer, query);
 
         if (peer == null) {
@@ -567,7 +577,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         Logging.logCheckedWarning(LOG, "failed to unregister discovery from resolver.");
 
         // stop SRDI
-        if (srdi != null) srdi.stop();
+        if (srdiManager != null) srdiManager.stop();
         
         srdiIndex = null;
 
@@ -648,7 +658,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 failure.initCause(everything);
                 throw failure;
             }
-            advName = Cm.createTmpName(doc);
+            advName = CacheManager.createTmpName(doc);
         }
 
         if (advName != null) {
@@ -707,7 +717,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             try {
 
-                advName = Cm.createTmpName(doc);
+                advName = CacheManager.createTmpName(doc);
             } catch (IllegalStateException ise) {
                 IOException failure = new IOException("Failed to generate tempname from advertisement");
 
@@ -970,7 +980,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             return ResolverService.OK;
         }
 
-        PeerID replicaPeer = srdi.getReplicaPeer(dirname[dq.getDiscoveryType()] + dq.getAttr() + dq.getValue());
+        PeerID replicaPeer = srdiManager.getReplicaPeer(dirname[dq.getDiscoveryType()] + dq.getAttr() + dq.getValue());
 
         if ((null != replicaPeer) && !localPeerId.equals(replicaPeer)) {
 
@@ -979,7 +989,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 Logging.logCheckedFine(LOG, "Forwarding query #" + query.getQueryId() + " to replica peer " + replicaPeer);
 
                 // forward to SRDI replica.
-                srdi.forwardQuery(replicaPeer, query);
+                srdiManager.forwardQuery(replicaPeer, query);
 
             }
 
@@ -997,7 +1007,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             List<PeerID> res = srdiIndex.query(dirname[dq.getDiscoveryType()], dq.getAttr(), dq.getValue(), thresh);
 
             if (!res.isEmpty()) {
-                srdi.forwardQuery(res, query, thresh);
+                srdiManager.forwardQuery(res, query, thresh);
             } else {
                 // start the walk since this peer is this the starting peer
                 query.incrementHopCount();
@@ -1330,7 +1340,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             }
 
-            advName = Cm.createTmpName(doc);
+            advName = CacheManager.createTmpName(doc);
         }
 
         return cm.getExpirationtime(dirname[type], advName);
@@ -1376,7 +1386,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             }
 
-            advName = Cm.createTmpName(doc);
+            advName = CacheManager.createTmpName(doc);
         }
         return cm.getLifetime(dirname[type], advName);
     }
@@ -1414,7 +1424,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             
         }
 
-        srdi.replicateEntries(srdiMsg);
+        srdiManager.replicateEntries(srdiMsg);
         return true;
     }
 
@@ -1438,7 +1448,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     }
 
     /**
-     * push srdi entries
+     * push srdiManager entries
      *
      * @param all  if true push all entries, otherwise just deltas
      * @param peer peer id
@@ -1466,7 +1476,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                         dirname[type], entries);
 
                 Logging.logCheckedFiner(LOG, "Pushing " + entries.size() + (all ? " entries" : " deltas") + " of type " + dirname[type]);
-                srdi.pushSrdi(peer, srdiMsg);
+                srdiManager.pushSrdi(peer, srdiMsg);
 
             } catch (Exception e) {
 
@@ -1570,7 +1580,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      */
     private synchronized void beRendezvous() {
 
-        if (isRdv && (srdi != null || srdiIndex != null)) {
+        if (isRdv && (srdiManager != null || srdiIndex != null)) {
             Logging.logCheckedInfo(LOG, "Already a rendezvous -- No Switch is needed");
             return;
         }
@@ -1588,14 +1598,14 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
 
         // Kill SRDI, create a new one.
-        if (srdi != null) {
-            srdi.stop();
-            srdi = null;
+        if (srdiManager != null) {
+            srdiManager.stop();
+            srdiManager = null;
         }
 
         if (!localonly) {
 
-            srdi = new SrdiManager(group, handlerName, this, srdiIndex);
+            srdiManager = new SrdiManager(group, handlerName, this, srdiIndex);
             resolver.registerSrdiHandler(handlerName, this);
             Logging.logCheckedFine(LOG, "srdi created, and registered as an srdi handler ");
 
@@ -1633,15 +1643,15 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
 
         // Kill SRDI
-        if (srdi != null) {
-            srdi.stop();
-            srdi = null;
+        if (srdiManager != null) {
+            srdiManager.stop();
+            srdiManager = null;
         }
 
         if (!localonly) {
-            // Create a new SRDI
-            srdi = new SrdiManager(group, handlerName, this, null);
-            srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
+            // Create a new SRDI manager
+            srdiManager = new SrdiManager(group, handlerName, this, null);
+            srdiManager.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
         }
 
         Logging.logCheckedInfo(LOG, "Switched to a Edge peer role.");

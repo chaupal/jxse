@@ -25,7 +25,7 @@ public class SrdiTest extends MockObjectTestCase {
     private ScheduledFuture<?> srdiPeriodicPushTaskHandle;
     
     private static final long PUSH_INTERVAL = 10000L;
-    private SrdiManager srdi;
+    private SrdiManager srdiManager;
     
     @Override
     protected void setUp() throws Exception {
@@ -42,7 +42,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(rendezvousServiceMock).addListener(with(any(SrdiManager.class)));
         }});
         
-        srdi = new SrdiManager(groupMock, "testHandler", srdiInterfaceMock, srdiIndex);
+        srdiManager = new SrdiManager(groupMock, "testHandler", srdiInterfaceMock, srdiIndex);
     }
     
     public void testStartPush() {
@@ -54,7 +54,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
     }
     
     public void testStartPushIgnoredIfPeerIsRdvInGroup() {
@@ -63,7 +63,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
     }
     
     public void testStartPushIgnoredIfRdvConnectionNotEstablished() {
@@ -73,7 +73,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
     }
     
     public void testStartPushIgnoredIfRdvServiceIsInAdHocMode() {
@@ -84,7 +84,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
     }
     
     public void testStartPushSchedulesSrdiPeriodicPushTask() {
@@ -96,7 +96,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
     }
     
     public void testRendezvousConnectEventRestartsPush() {
@@ -105,7 +105,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(groupMock).isRendezvous(); will(returnValue(false));
@@ -114,7 +114,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVCONNECT, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVCONNECT, null));
     }
     
     public void testRendezvousConnectEventIgnoredIfModeIsAdHoc() {
@@ -123,7 +123,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(rendezvousServiceMock).isConnectedToRendezVous(); will(returnValue(false));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(groupMock).isRendezvous(); will(returnValue(false));
@@ -132,7 +132,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVCONNECT, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVCONNECT, null));
     }
     
     public void testRendezvousConnectIgnoredIfPushNotStarted() {
@@ -140,7 +140,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVCONNECT, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVCONNECT, null));
     }
     
     public void testRendezvousDisconnectEventStopsPush() {
@@ -152,13 +152,13 @@ public class SrdiTest extends MockObjectTestCase {
             will(returnValue(srdiPeriodicPushTaskHandle));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(srdiPeriodicPushTaskHandle).cancel(false);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVDISCONNECT, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVDISCONNECT, null));
     }
     
     public void testBecameRendezvousEventStopsPush() {
@@ -170,13 +170,13 @@ public class SrdiTest extends MockObjectTestCase {
             will(returnValue(srdiPeriodicPushTaskHandle));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(srdiPeriodicPushTaskHandle).cancel(false);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMERDV, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMERDV, null));
     }
     
     public void testBecameRendezvousEventIgnoredIfNoPushNotStarted() {
@@ -184,7 +184,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMERDV, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMERDV, null));
     }
     
     public void testBecameEdgeEventStartsPush() {
@@ -192,7 +192,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(groupMock).isRendezvous(); will(returnValue(true));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(groupMock).isRendezvous(); will(returnValue(false));
@@ -201,7 +201,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(executorServiceMock).scheduleWithFixedDelay(with(any(SrdiManagerPeriodicPushTask.class)), with(equal(0L)), with(equal(PUSH_INTERVAL)), with(equal(TimeUnit.MILLISECONDS)));
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
     }
     
     public void testBecameEdgeEventIgnoredIfNotConnectedToRendezvous() {
@@ -209,7 +209,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(groupMock).isRendezvous(); will(returnValue(true));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(groupMock).isRendezvous(); will(returnValue(false));
@@ -217,7 +217,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
     }
     
     public void testBecameEdgeEventIgnoredIfRendezvousIsInAdHocMode() {
@@ -225,7 +225,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(groupMock).isRendezvous(); will(returnValue(true));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(groupMock).isRendezvous(); will(returnValue(false));
@@ -234,7 +234,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
     }
     
     public void testBecameEdgeEventIgnoredIfPushNotStarted() {
@@ -242,7 +242,7 @@ public class SrdiTest extends MockObjectTestCase {
             never(executorServiceMock);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.BECAMEEDGE, null));
     }
     
     public void testRdvFailedEventStopsPush() {
@@ -254,13 +254,13 @@ public class SrdiTest extends MockObjectTestCase {
             will(returnValue(srdiPeriodicPushTaskHandle));
         }});
         
-        srdi.startPush(executorServiceMock, PUSH_INTERVAL);
+        srdiManager.startPush(executorServiceMock, PUSH_INTERVAL);
         
         checking(new Expectations() {{
             one(srdiPeriodicPushTaskHandle).cancel(false);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVFAILED, null));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.RDVFAILED, null));
     }
     
     public void testClientFailedEventRemovesPeerFromSrdiIndexIfCurrentlyARendezvous() throws IOException {
@@ -271,7 +271,7 @@ public class SrdiTest extends MockObjectTestCase {
             one(srdiIndex).remove(peerId);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.CLIENTFAILED, peerId));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.CLIENTFAILED, peerId));
     }
     
     public void testClientFailedEventIgnoredIfNotARendezvous() throws IOException {
@@ -282,6 +282,6 @@ public class SrdiTest extends MockObjectTestCase {
             never(srdiIndex).remove(peerId);
         }});
         
-        srdi.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.CLIENTFAILED, peerId));
+        srdiManager.rendezvousEvent(new RendezvousEvent(new Object(), RendezvousEvent.CLIENTFAILED, peerId));
     }
 }

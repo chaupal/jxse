@@ -111,7 +111,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     /**
      * Logger.
      */
-    final static Logger LOG = Logger.getLogger(Cm.class.getName());
+    final static Logger LOG = Logger.getLogger(XIndiceAdvertisementCache.class.getName());
     /**
      * adv types
      */

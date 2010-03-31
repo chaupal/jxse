@@ -95,12 +95,12 @@ import net.jxta.protocol.SrdiMessage.Entry;
  * {@link AdvertisementCache}.
  * </p>
  */
-public final class Cm {
+public final class CacheManager {
 
     public static final int NO_THRESHOLD = Integer.MAX_VALUE;
 	public static final String CACHE_IMPL_SYSPROP = "net.jxta.impl.cm.cache.impl";
 
-	private final static Logger LOG = Logger.getLogger(Cm.class.getName());
+	private final static Logger LOG = Logger.getLogger(CacheManager.class.getName());
 	
     /**
      * @deprecated use {@link XIndiceAdvertisementCache#DEFAULT_GC_MAX_INTERVAL } instead
@@ -110,7 +110,7 @@ public final class Cm {
 
     private AdvertisementCache wrappedImpl;
 
-    public Cm(AdvertisementCache wrappedImpl) {
+    public CacheManager(AdvertisementCache wrappedImpl) {
         this.wrappedImpl = wrappedImpl;
     }
 
@@ -123,7 +123,7 @@ public final class Cm {
 	 * XXX yet another pool floating around.  SingleThreadExecutor is used in the default impl.
      * @throws IOException 
      */
-    public Cm(URI storeRoot, String areaName) throws IOException {
+    public CacheManager(URI storeRoot, String areaName) throws IOException {
 
     	String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
     	
@@ -155,7 +155,7 @@ public final class Cm {
      * @throws IOException 
      */
     
-    public Cm(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
+    public CacheManager(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
     	
         String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
 

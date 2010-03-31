@@ -264,7 +264,7 @@ public class CmTest extends TestCase {
 
             advID = adv.getID();
             if (advID == null || advID.equals(ID.nullID)) {
-                advName = Cm.createTmpName(doc);
+                advName = CacheManager.createTmpName(doc);
             } else {
                 advName = advID.getUniqueValue().toString();
             }

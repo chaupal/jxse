@@ -53,12 +53,12 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.cm;
 
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.id.IDFactory;
 import net.jxta.id.ID;
-
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Arrays;
@@ -70,7 +70,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
@@ -242,7 +241,7 @@ public class CmXIndiceImplTest extends TestCase {
 
             advID = adv.getID();
             if (advID == null || advID.equals(ID.nullID)) {
-                advName = Cm.createTmpName(doc);
+                advName = CacheManager.createTmpName(doc);
             } else {
                 advName = advID.getUniqueValue().toString();
             }

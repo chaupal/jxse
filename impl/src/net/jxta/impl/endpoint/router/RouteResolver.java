@@ -174,7 +174,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
     /**
      * SRDI Index
      */
-    private SrdiManager srdi = null;
+    private SrdiManager srdiManager = null;
 
     /**
      *  Encapsulates current Membership Service credential.
@@ -335,12 +335,12 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
         resolver.registerHandler(routerSName, this);
 
-        // create and register the srdi service
+        // create and register the srdiManager service
         srdiIndex = new Srdi(group, srdiIndexerFileName);
 
         // SrdiManager is a thread but we are not going to start,
         // since the service is reactive.
-        srdi = new SrdiManager(group, routerSName, this, srdiIndex);
+        srdiManager = new SrdiManager(group, routerSName, this, srdiIndex);
 
         resolver.registerSrdiHandler(routerSName, this);
 
@@ -389,7 +389,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         currentCredential = null;
 
         resolver = null;
-        srdi = null;
+        srdiManager = null;
         membership = null;
     }
 
@@ -503,7 +503,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                             // within a walk.
                             query.incrementHopCount();
 
-                            srdi.forwardQuery(clean, query, 1);
+                            srdiManager.forwardQuery(clean, query, 1);
                             Logging.logCheckedFine(LOG, "found an srdi entry forwarding query to SRDI peer");
                             return;
                             
@@ -511,14 +511,14 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                     } else {
                         // it is not in our cache, look for the replica peer
                         // we need to send the query
-                        PeerID destPeer = srdi.getReplicaPeer(EndpointRouter.addr2pid(peer).toString());
+                        PeerID destPeer = srdiManager.getReplicaPeer(EndpointRouter.addr2pid(peer).toString());
 
                         if (destPeer != null && !destPeer.equals(localPeerId)) {
 
                             // don't push anywhere if we do not have a replica
                             // or we are trying to push to ourself
                             Logging.logCheckedFine(LOG, "processQuery srdiIndex DHT forward :" + destPeer);
-                            srdi.forwardQuery(destPeer, query);
+                            srdiManager.forwardQuery(destPeer, query);
                             return;
 
                         } else {
@@ -957,11 +957,11 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                 return ResolverService.OK;
             }
 
-            // did not find a route, check our srdi cache
+            // did not find a route, check our srdiManager cache
             // make sure we protect against out of sync
             // SRDI index
 
-            // srdi forwarding is only involved once the Index entry has
+            // srdiManager forwarding is only involved once the Index entry has
             // been found and we forwarded the resolver query. Afterward a
             // normal walk proceeds from the initial SRDI index pointing
             // rdv. This is done to protect against potential loopback
@@ -999,7 +999,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
                         // Note: this forwards the query to 1 peer randomly
                         // selected from the result
-                        srdi.forwardQuery(clean, query, 1);
+                        srdiManager.forwardQuery(clean, query, 1);
 
                         // tell the resolver no further action is needed.
                         return ResolverService.OK;
@@ -1214,7 +1214,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
     }
 
     /*
-     * push all srdi entries to the rednezvous SRDI cache (new connection)
+     * push all srdiManager entries to the rednezvous SRDI cache (new connection)
      *
      *@param all if true push all entries, otherwise just deltas
      */
@@ -1255,7 +1255,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
             Logging.logCheckedFine(LOG, "Sending a SRDI messsage of [All=" + all + "] routes");
 
             // this will replicate entry to the  SRDI replica peers
-            srdi.replicateEntries(srdiMsg);
+            srdiManager.replicateEntries(srdiMsg);
 
         } catch (Exception e) {
 
@@ -1265,7 +1265,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
     }
 
     /*
-     * push srdi entries to the SRDI rendezvous cache
+     * push srdiManager entries to the SRDI rendezvous cache
      * @param all if true push all entries, otherwise just deltas
      */
     protected void pushSrdi(ID peer, PeerID id) {
@@ -1292,12 +1292,12 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                 LOG.fine("sending a router SRDI message add route " + id);
             }
             if (peer == null) {
-                peer = srdi.getReplicaPeer(id.toString());
+                peer = srdiManager.getReplicaPeer(id.toString());
             }
 
             // don't push anywhere if we do not have a replica
             // or we are trying to send the query to ourself
-            if (!localPeerId.equals(peer)) srdi.pushSrdi(peer, srdiMsg);
+            if (!localPeerId.equals(peer)) srdiManager.pushSrdi(peer, srdiMsg);
             
         } catch (Exception e) {
 
@@ -1323,16 +1323,16 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                     "route", id.toString(), null, // 0 means remove
                     0);
 
-            srdi.getReplicaPeer(id.toString());
+            srdiManager.getReplicaPeer(id.toString());
             Logging.logCheckedFine(LOG, "sending a router SRDI message delete route " + id);
             
             if (peer == null) {
-                PeerID destPeer = srdi.getReplicaPeer(id.toString());
+                PeerID destPeer = srdiManager.getReplicaPeer(id.toString());
 
                 // don't push anywhere if we do not have replica
                 // or we are trying to push to ouself
                 if (destPeer != null && (!destPeer.equals(localPeerId))) {
-                    srdi.pushSrdi(destPeer, srdiMsg);
+                    srdiManager.pushSrdi(destPeer, srdiMsg);
                 }
             }
         } catch (Exception e) {
@@ -1363,7 +1363,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         List<PeerID> clean = new ArrayList<PeerID>(results.size());
 
         // put the peerview as a vector of PIDs
-        List<PeerID> rpvId = srdi.getGlobalPeerView();
+        List<PeerID> rpvId = srdiManager.getGlobalPeerView();
 
         // remove any peers not in the current peerview
         // these peers may be gone or have become edges

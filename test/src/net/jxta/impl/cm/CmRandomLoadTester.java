@@ -42,7 +42,7 @@ public class CmRandomLoadTester implements Runnable {
 	    "sierra"
 	};
 	
-	private final Cm advCache;
+	private final CacheManager advCache;
 	private final int numOps;
 	private boolean successful = false;
 	
@@ -53,7 +53,7 @@ public class CmRandomLoadTester implements Runnable {
 	private Map<String, Map<String, Integer>> expectedPeersInDirectory;
 	private Map<String, String> peerNameForDnAndFn;
 	
-	public CmRandomLoadTester(Cm advCache, int numOps, CountDownLatch completionLatch) {
+	public CmRandomLoadTester(CacheManager advCache, int numOps, CountDownLatch completionLatch) {
 		this.advCache = advCache;
 		this.numOps = numOps;
 		this.completionLatch = completionLatch;
@@ -105,7 +105,7 @@ public class CmRandomLoadTester implements Runnable {
 				 * still matches what we expect
 				 */
 				for(String directoryName : DIRECTORIES) {
-				    List<InputStream> records = advCache.getRecords(directoryName, Cm.NO_THRESHOLD, null);
+				    List<InputStream> records = advCache.getRecords(directoryName, CacheManager.NO_THRESHOLD, null);
                     if(records.size() != expectedCounts.get(directoryName)) {
                         System.err.println("Number of records turned for directory query did not match expected");
 				        complete(false);
@@ -124,7 +124,7 @@ public class CmRandomLoadTester implements Runnable {
 				String searchDn = randomDirectory();
 				String searchPeerName = randomPeerName();
 				
-				if(advCache.search(searchDn, "Name", searchPeerName, Cm.NO_THRESHOLD, null).size() != getExpectedPeerCount(searchDn, searchPeerName)) {
+				if(advCache.search(searchDn, "Name", searchPeerName, CacheManager.NO_THRESHOLD, null).size() != getExpectedPeerCount(searchDn, searchPeerName)) {
 				    System.err.println("Did not get expected number of results for name query");
 				    complete(false);
 				    return;
