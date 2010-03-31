@@ -186,6 +186,19 @@
 									<fileset dir="${project.build.directory}/site" />
 								</copy>
 
+								<!-- Tar-gz & zip dependencies -->
+								<tar destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar"
+									basedir="${project.basedir}/../lib"/>
+							
+								<gzip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar.gz"
+									src="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar"/>
+
+								<delete file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
+
+								<zip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip"
+									basedir="${project.basedir}/../lib"/>
+
+
 								<!-- Tar-gz & zip Javadoc -->
 								<tar destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar"
 									basedir="${project.build.directory}/kenai/site/apidocs"/>
