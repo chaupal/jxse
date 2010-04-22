@@ -120,13 +120,13 @@ public class InMemorySrdi implements SrdiAPI {
 
         peerRemovalIndex.setNumReturnValues( -1 );
 
-        Logging.logCheckedInfo(LOG, "[" + ( ( group == null ) ? "none" : group.toString() ) + "] : Initialized " + indexName );
+        Logging.logCheckedInfo(LOG, "[", ( ( group == null ) ? "none" : group.toString() ), "] : Initialized ", indexName);
 
     }
 
     public static void clearSrdi( PeerGroup group ) {
 
-        Logging.logCheckedInfo(LOG, "Clearing SRDIs for " + group );
+        Logging.logCheckedInfo(LOG, "Clearing SRDIs for ", group );
 
         List<SrdiAPI> idxs = backends.get( group );
 
@@ -137,7 +137,7 @@ public class InMemorySrdi implements SrdiAPI {
                 try {
                     idx.clear();
                 } catch ( IOException e ) {
-                    Logging.logCheckedSevere(LOG, "Failed clearing index for group: " + group.getPeerGroupName(), e );
+                    Logging.logCheckedSevere(LOG, "Failed clearing index for group: ", group.getPeerGroupName(), e );
                 }
 
             }
@@ -204,7 +204,7 @@ public class InMemorySrdi implements SrdiAPI {
                         break;
                     }
 
-                    Logging.logCheckedFine(LOG, "Expired: " + exp + " is less than:" + now );
+                    Logging.logCheckedFine(LOG, "Expired: ", exp, " is less than:", now );
                     
                     HashMap items = (HashMap)this.expiryIndex.get( exp );
 
@@ -219,7 +219,7 @@ public class InMemorySrdi implements SrdiAPI {
 	
 	                        if ( !this.peeridValueIndex.delete( item.getTreeKey() ) ) {
 	
-	                            Logging.logCheckedSevere(LOG, "Failed deleting from PeerId Value Index using key: " + item.getTreeKey() );
+	                            Logging.logCheckedSevere(LOG, "Failed deleting from PeerId Value Index using key: ", item.getTreeKey() );
 	                            
 	                        }
 	
@@ -240,7 +240,7 @@ public class InMemorySrdi implements SrdiAPI {
 	                            this.peeridValueIndex.insert( item.getTreeKey(), pids );
 	                        }
 	
-	                        Logging.logCheckedFine(LOG, "TST size: " + this.peeridValueIndex.getSize() );
+	                        Logging.logCheckedFine(LOG, "TST size: ", this.peeridValueIndex.getSize());
 	                        
                                 removalKeys.add( item );
 
@@ -451,7 +451,7 @@ public class InMemorySrdi implements SrdiAPI {
 
         stoppedCheck();
 
-        Logging.logCheckedFine(LOG, "[" + indexName + "] Adding " + pkey + "/" + skey + " = \'" + value + "\' for " + pid );
+        Logging.logCheckedFine(LOG, "[", indexName, "] Adding ", pkey, "/", skey, " = \'", value, "\' for ", pid );
 
         String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 

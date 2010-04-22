@@ -193,8 +193,8 @@ public class SRDISocketContentProvider
 
         public void uncaughtException(Thread thread, Throwable throwable) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught throwable in pool thread: "
-                + thread, throwable);
+            Logging.logCheckedSevere(LOG, "Uncaught throwable in pool thread: ",
+                thread, "\n", throwable);
             
         }
     }
@@ -239,7 +239,7 @@ public class SRDISocketContentProvider
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
 
-        Logging.logCheckedFine(LOG, "initProvider(): group=" + group);
+        Logging.logCheckedFine(LOG, "initProvider(): group=", group);
         
         peerGroup = group;
         executor = Executors.newScheduledThreadPool(
@@ -399,7 +399,7 @@ public class SRDISocketContentProvider
      */
     public List<ContentShare> shareContent(Content content) {
 
-        Logging.logCheckedFine(LOG, "shareContent(): Content=" + content);
+        Logging.logCheckedFine(LOG, "shareContent(): Content=", content);
         
         PipeAdvertisement pAdv;
         synchronized (this) {
@@ -439,7 +439,7 @@ public class SRDISocketContentProvider
      */
     public boolean unshareContent(ContentID contentID) {
 
-        Logging.logCheckedFine(LOG, "unhareContent(): ContentID=" + contentID);
+        Logging.logCheckedFine(LOG, "unhareContent(): ContentID=", contentID);
         
         ContentShare oldShare;
         synchronized (shares) {
@@ -529,13 +529,13 @@ public class SRDISocketContentProvider
                     
                 } catch (IOException iox) {
 
-                    Logging.logCheckedSevere(LOG, "Caught exception in acceptor loop", iox);
+                    Logging.logCheckedSevere(LOG, "Caught exception in acceptor loop\n", iox);
                     
                     // Close and deref the current socket
                     try {
                         serverSocket.close();
                     } catch (IOException iox2) {
-                        LOG.log(Level.WARNING, "Could not close socket", iox);
+                        LOG.log(Level.WARNING, "Could not close socket\n", iox);
                     } finally {
                         serverSocket = null;
                     }
@@ -547,12 +547,12 @@ public class SRDISocketContentProvider
 
                     } catch (InterruptedException intx) {
 
-                        Logging.logCheckedSevere(LOG, "Interrupted", intx);
+                        Logging.logCheckedSevere(LOG, "Interrupted\n", intx);
 
                     }
 
                 } catch (RuntimeException rtx) {
-                    LOG.log(Level.WARNING, "Caught runtime exception", rtx);
+                    LOG.log(Level.WARNING, "Caught runtime exception\n", rtx);
                     throw(rtx);
                 }
             }
@@ -562,7 +562,7 @@ public class SRDISocketContentProvider
                 try {
                     serverSocket.close();
                 } catch (IOException iox) {
-                    LOG.log(Level.WARNING, "Could not close socket", iox);
+                    LOG.log(Level.WARNING, "Could not close socket\n", iox);
                 }
             }
         }
@@ -581,7 +581,7 @@ public class SRDISocketContentProvider
 
         try {
 
-            Logging.logCheckedFine(LOG, "Client executing against socket: " + socket);
+            Logging.logCheckedFine(LOG, "Client executing against socket: ", socket);
 
             InputStream inStream = socket.getInputStream();
             ContentRequest request = ContentRequest.readFromStream(inStream);
@@ -592,8 +592,8 @@ public class SRDISocketContentProvider
 
             if (share != null) share.fireShareSessionOpened(remote);
 
-            Logging.logCheckedFine(LOG, "Client response being sent:\n"
-                        + response.getDocument(MimeMediaType.XMLUTF8));
+            Logging.logCheckedFine(LOG, "Client response being sent:\n",
+                        response.getDocument(MimeMediaType.XMLUTF8));
 
             OutputStream outStream = socket.getOutputStream();
             response.writeToStream(outStream);
@@ -616,11 +616,11 @@ public class SRDISocketContentProvider
             
         } catch (IOException iox) {
 
-            Logging.logCheckedWarning(LOG, "Caught exception in client thread", iox);
+            Logging.logCheckedWarning(LOG, "Caught exception in client thread\n", iox);
             
         } catch (RuntimeException rtx) {
 
-            Logging.logCheckedSevere(LOG, "Caught runtime exception", rtx);
+            Logging.logCheckedSevere(LOG, "Caught runtime exception\n", rtx);
             throw (rtx);
 
         } finally {
@@ -632,7 +632,7 @@ public class SRDISocketContentProvider
             try {
                 socket.close();
             } catch (IOException ignore) {
-                Logging.logCheckedFinest(LOG, "Ignoring exception" + ignore.toString());
+                Logging.logCheckedFinest(LOG, "Ignoring exception", ignore);
             }
 
         }

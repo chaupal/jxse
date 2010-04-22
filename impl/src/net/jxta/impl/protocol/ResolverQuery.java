@@ -230,7 +230,7 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
 
                 } catch (URISyntaxException failed) {
 
-                    Logging.logCheckedWarning(LOG, "Bad ID in message", failed);
+                    Logging.logCheckedWarning(LOG, "Bad ID in message\n", failed);
                     RuntimeException failure = new IllegalArgumentException("Bad ID in message");
                     failure.initCause(failed);
                     throw failure;

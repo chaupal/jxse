@@ -428,7 +428,7 @@ public class WelcomeMessage {
             preferredMessageVersion = 0;
         }
         
-        Logging.logCheckedFine(LOG, "Successfuly parsed a welcome message :" + getWelcomeString());
+        Logging.logCheckedFine(LOG, "Successfuly parsed a welcome message :", getWelcomeString());
 
     }
 

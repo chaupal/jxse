@@ -412,7 +412,7 @@ public class ContentID extends net.jxta.content.ContentID {
             dig = MessageDigest.getInstance( "SHA-1" );
         } catch( NoSuchAlgorithmException caught ) {
             throw new ProviderException(
-                    "SHA-1 digest algorithm not found", caught);
+                    "SHA-1 digest algorithm not found\n", caught);
         }
         
         dig.reset();

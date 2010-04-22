@@ -118,7 +118,7 @@ public class Srdi implements SrdiAPI {
         String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
     	createBackend(backendClassName, group, indexName);
 
-        Logging.logCheckedInfo(LOG, "[" + ((group == null) ? "none" : group.toString()) + "] : Starting SRDI GC Thread for " + indexName);
+        Logging.logCheckedInfo(LOG, "[", ((group == null) ? "none" : group.toString()), "] : Starting SRDI GC Thread for ", indexName);
         
     	startGC(interval);
     	// FIXME?  The scheduledexecutor doesn't give the ability to name threads...
@@ -149,7 +149,7 @@ public class Srdi implements SrdiAPI {
 
         } catch (Exception e) {
 
-            Logging.logCheckedSevere(LOG, "Unable to construct SRDI Index backend [" + backendClassName + "] specified by system property, constructing default", e);
+            Logging.logCheckedSevere(LOG, "Unable to construct SRDI Index backend [", backendClassName, "] specified by system property, constructing default\n", e);
             backend = new XIndiceSrdi(group, indexName);
 
         }
@@ -184,7 +184,7 @@ public class Srdi implements SrdiAPI {
         try {
             backend.add(primaryKey, attribute, value, pid, expiration);
     	} catch(IOException e) {
-    	    Logging.logCheckedWarning(LOG, "Failed to write entry to backend", e);
+    	    Logging.logCheckedWarning(LOG, "Failed to write entry to backend\n", e);
     	}
 
     }
@@ -205,7 +205,7 @@ public class Srdi implements SrdiAPI {
 
     	} catch(IOException e) {
 
-    	    Logging.logCheckedWarning(LOG, "Failed to retrieve record from backend", e);
+    	    Logging.logCheckedWarning(LOG, "Failed to retrieve record from backend\n", e);
     	    return new LinkedList<Entry>();
 
     	}
@@ -225,7 +225,7 @@ public class Srdi implements SrdiAPI {
 
     	} catch(IOException e) {
 
-    	    Logging.logCheckedWarning(LOG, "Failed to remove record from backend", e);
+    	    Logging.logCheckedWarning(LOG, "Failed to remove record from backend\n", e);
 
     	}
 
@@ -248,7 +248,7 @@ public class Srdi implements SrdiAPI {
 
     	} catch(IOException e) {
 
-    	    Logging.logCheckedWarning(LOG, "Failed to query backend for pk=[" + primaryKey + "], attr=[" + attribute + "], val=[" + value + "], thresh=[" + threshold + "]", e);
+    	    Logging.logCheckedWarning(LOG, "Failed to query backend for pk=[", primaryKey, "], attr=[", attribute, "], val=[", value, "], thresh=[", threshold, "]\n", e);
   	    return new LinkedList<PeerID>();
 
     	}
@@ -266,7 +266,7 @@ public class Srdi implements SrdiAPI {
 
     	} catch(IOException e) {
 
-     	    Logging.logCheckedWarning(LOG, "Failed to garbage collect backend", e);
+     	    Logging.logCheckedWarning(LOG, "Failed to garbage collect backend\n", e);
      		
      	}
 
@@ -280,7 +280,7 @@ public class Srdi implements SrdiAPI {
 
     	} catch(IOException e) {
 
-     	    Logging.logCheckedWarning(LOG, "Failed to clear backend", e);
+     	    Logging.logCheckedWarning(LOG, "Failed to clear backend\n", e);
      		
      	}
     }
@@ -315,7 +315,7 @@ public class Srdi implements SrdiAPI {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Failed to clear Srdi cache for peer group " + group.getPeerGroupName(), e);
+            Logging.logCheckedWarning(LOG, "Failed to clear Srdi cache for peer group ", group.getPeerGroupName(), e);
 
 	}
 
@@ -336,7 +336,7 @@ public class Srdi implements SrdiAPI {
 
     	} catch(ClassNotFoundException e) {
 
-    	    Logging.logCheckedSevere(LOG, "Class specified for use as backend could not be found", e);
+    	    Logging.logCheckedSevere(LOG, "Class specified for use as backend could not be found\n", e);
   	    return getDefaultBackendClass();
 
     	}
@@ -349,7 +349,7 @@ public class Srdi implements SrdiAPI {
 
             } catch (ClassCastException e) {
 
-                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not implement SrdiAPI", e);
+                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not implement SrdiAPI\n", e);
                  return getDefaultBackendClass();
 
             }
@@ -360,7 +360,7 @@ public class Srdi implements SrdiAPI {
 
             } catch (Exception e) {
 
-                Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup and String as parameters", e);
+                Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible constructor which takes PeerGroup and String as parameters\n", e);
                 return getDefaultBackendClass();
 
             }
@@ -379,7 +379,7 @@ public class Srdi implements SrdiAPI {
 
             } catch(Exception e) {
 
-                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible method clearSrdi which takes a PeerGroup", e);
+                 Logging.logCheckedSevere(LOG, "Class specified for use as backend does not provide accessible method clearSrdi which takes a PeerGroup\n", e);
                  return getDefaultBackendClass();
 
             }
@@ -395,7 +395,7 @@ public class Srdi implements SrdiAPI {
 
 	} catch (ClassNotFoundException e) {
 
-	    Logging.logCheckedSevere(LOG, "Could not load default backend for SrdiIndex", e);
+	    Logging.logCheckedSevere(LOG, "Could not load default backend for SrdiIndex\n", e);
 	    throw new RuntimeException("Could not load default backend for SrdiIndex", e);
 
         }

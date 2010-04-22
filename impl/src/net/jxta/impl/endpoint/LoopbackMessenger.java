@@ -186,7 +186,7 @@ public class LoopbackMessenger extends BlockingMessenger {
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            Logging.logCheckedWarning(LOG, failure.getMessage());
+            Logging.logCheckedWarning(LOG, failure);
             throw failure;
 
         }
@@ -203,7 +203,7 @@ public class LoopbackMessenger extends BlockingMessenger {
 
                     } catch(Throwable uncaught) {
 
-                        Logging.logCheckedWarning(LOG, "Uncaught Throwable in Loopback Messenger ", uncaught);
+                        Logging.logCheckedWarning(LOG, "Uncaught Throwable in Loopback Messenger\n", uncaught);
                         
                     }
                 }

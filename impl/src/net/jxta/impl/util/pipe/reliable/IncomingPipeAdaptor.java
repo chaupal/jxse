@@ -101,7 +101,7 @@ public class IncomingPipeAdaptor implements Runnable {
             }
         } catch (Throwable all) {
 
-            Logging.logCheckedWarning(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            Logging.logCheckedWarning(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
             
         }
     }

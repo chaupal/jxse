@@ -229,7 +229,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
             } else {
 
-                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + anAttr.getName());
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", anAttr.getName());
                 
             }
         }
@@ -243,7 +243,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) 
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
 
         }
 
@@ -366,7 +366,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
         
         } catch (Exception failed) {
 
-            Logging.logCheckedSevere(LOG, "Failed to process seed cert", failed);
+            Logging.logCheckedSevere(LOG, "Failed to process seed cert\n", failed);
 
             IllegalArgumentException failure = new IllegalArgumentException("Failed to process seed cert");
             failure.initCause(failed);
@@ -385,7 +385,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setCertificate(X509Certificate newCert) {
 
-        Logging.logCheckedFine(LOG, "setCert : " + newCert);
+        Logging.logCheckedFine(LOG, "setCert : ", newCert);
 
         certs.clear();
 
@@ -405,7 +405,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setCertificateChain(X509Certificate[] newCerts) {
 
-        Logging.logCheckedFine(LOG, "setCert : " + newCerts);
+        Logging.logCheckedFine(LOG, "setCert : ", newCerts);
 
         certs.clear();
 
@@ -465,7 +465,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         } catch (Exception failed) {
 
-            Logging.logCheckedSevere(LOG, "Failed to process private key", failed);
+            Logging.logCheckedSevere(LOG, "Failed to process private key\n", failed);
 
             IllegalStateException failure = new IllegalStateException("Failed to process private key");
             failure.initCause(failed);
@@ -579,7 +579,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
         } catch (Exception failed) {
 
-            Logging.logCheckedSevere(LOG, "Failed to process private key", failed);
+            Logging.logCheckedSevere(LOG, "Failed to process private key\n", failed);
 
             IllegalArgumentException failure = new IllegalArgumentException("Failed to process private key");
             failure.initCause(failed);
@@ -598,7 +598,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setEncryptedPrivateKey(EncryptedPrivateKeyInfo newPriv, String algorithm) {
 
-        Logging.logCheckedFine(LOG, "setPrivateKey : " + newPriv);
+        Logging.logCheckedFine(LOG, "setPrivateKey : ", newPriv);
 
         encryptedPrivateKey = newPriv;
         privAlgorithm = algorithm;
@@ -613,7 +613,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setPrivateKey(PrivateKey newPriv, char[] password) {
 
-        Logging.logCheckedFine(LOG, "setPrivateKey : " + newPriv);
+        Logging.logCheckedFine(LOG, "setPrivateKey : ", newPriv);
         
         EncryptedPrivateKeyInfo encypted = PSEUtils.pkcs5_Encrypt_pbePrivateKey(password, newPriv, 500);
         setEncryptedPrivateKey(encypted, newPriv.getAlgorithm());
@@ -669,7 +669,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
                     continue;
                 }
 
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + eachcertelem.getName());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", eachcertelem.getName());
 
             }
 

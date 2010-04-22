@@ -181,7 +181,7 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
 
             if (!handleElement(elem)) {
 
-                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
                 
             }
 

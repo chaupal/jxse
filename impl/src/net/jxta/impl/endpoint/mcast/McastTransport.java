@@ -322,7 +322,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         try {
             paramsAdv = AdvertisementFactory.newAdvertisement(param);
         } catch (NoSuchElementException notThere) {
-            Logging.logCheckedFine(LOG, "Could not find parameter document\n" + notThere.toString());
+            Logging.logCheckedFine(LOG, "Could not find parameter document\n", notThere);
         }
 
         if (!(paramsAdv instanceof MulticastAdv)) {
@@ -356,7 +356,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             } catch (UnknownHostException failed) {
 
-                Logging.logCheckedWarning(LOG, "Invalid address for local interface address, using default", failed);
+                Logging.logCheckedWarning(LOG, "Invalid address for local interface address, using default\n", failed);
                 usingInterface = IPUtils.ANYADDRESS;
 
             }
@@ -607,7 +607,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
                     if (isClosed) return;
 
-                    Logging.logCheckedFine(LOG, "multicast message received from :" + packet.getAddress().getHostAddress());
+                    Logging.logCheckedFine(LOG, "multicast message received from :", packet.getAddress().getHostAddress());
                     
                     // This operation is blocking and may take a long time to
                     // return. As a result we may lose datagram packets because
@@ -624,7 +624,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 } catch (Exception e) {
 
                     if (isClosed) return;
-                    if (!isClosed) Logging.logCheckedSevere(LOG, "failure during multicast receive", e);
+                    if (!isClosed) Logging.logCheckedSevere(LOG, "failure during multicast receive\n", e);
                     break;
 
                 }
@@ -684,7 +684,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             if (isClosed || multicastSocket == null) return false;
             
             multicastSocket.send(packet);
-            Logging.logCheckedFine(LOG, "Sent Multicast message to :" + pName + "/" + pParams);
+            Logging.logCheckedFine(LOG, "Sent Multicast message to :", pName, "/", pParams);
 
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
                 multicastTransportBindingMeter.messageSent(true, message, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
@@ -699,7 +699,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             }
 
             if (multicastSocket != null && !multicastSocket.isClosed()) 
-                Logging.logCheckedWarning(LOG,  "Multicast socket send failed", e);
+                Logging.logCheckedWarning(LOG, "Multicast socket send failed\n", e);
 
             return false;
         }
@@ -776,7 +776,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 multicastTransportBindingMeter.receiveFailure(false, messageReceiveBeginTime - TimeUtils.timeNow(), size);
             }
 
-            Logging.logCheckedFine(LOG, "Discard incoming multicast message\n" + e.toString());
+            Logging.logCheckedFine(LOG, "Discard incoming multicast message\n", e);
 
         }
     }
@@ -857,7 +857,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 return;
             }
 
-            Logging.logCheckedFiner(LOG, "Queuing incoming datagram packet : " + packet);
+            Logging.logCheckedFiner(LOG, "Queuing incoming datagram packet : ", packet);
 
             // push the datagram
             queue.put(packet);
@@ -887,13 +887,13 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 DatagramPacket packet;
 
                 while (!stopped && (null != (packet = queue.poll()))) {
-                    Logging.logCheckedFiner(LOG, "Processing incoming datagram packet : " + packet);
+                    Logging.logCheckedFiner(LOG, "Processing incoming datagram packet : ", packet);
                     processMulticast(packet);
                 }
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable", all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
 
             } finally {
 

@@ -173,14 +173,14 @@ public abstract class PSESecurityEngineFactory {
                     cname = cname.substring(0, cname.length() - 3);
             }
             
-            Logging.logCheckedFine(LOG, "Generating new service cert for \'" + cname + "\'");
+            Logging.logCheckedFine(LOG, "Generating new service cert for \'", cname, "\'");
             
             // generate the service cert and private key
             IssuerInfo serviceinfo = PSEUtils.genCert(cname, info);
 
             // IssuerInfo serviceinfo = membership.genCert( cname, info, "SHA1withRSA" );
             
-            Logging.logCheckedFine(LOG, "Generated new service cert for \'" + cname + "\'");
+            Logging.logCheckedFine(LOG, "Generated new service cert for \'", cname, "\'");
             
             return serviceinfo;
         }

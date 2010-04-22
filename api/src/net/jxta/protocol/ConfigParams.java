@@ -231,7 +231,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unrecognized <Svc> tag : " + e.getName());
+                    Logging.logCheckedWarning(LOG, "Unrecognized <Svc> tag : ", e.getName());
                     
                 }
             }
@@ -251,7 +251,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
             } else {
 
-                Logging.logCheckedWarning(LOG, "Incomplete Service Param : id=" + key + " param=" + param);
+                Logging.logCheckedWarning(LOG, "Incomplete Service Param : id=", key, " param=", param);
                 return false;
 
             }
@@ -429,7 +429,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
         } catch (CloneNotSupportedException failed) {
 
-            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : " + adv.getClass().getName(), failed);
+            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : ", adv.getClass().getName(), failed);
             throw new IllegalArgumentException("Unclonable Advertisements may not be used : " + adv.getClass().getName());
 
         }        
@@ -473,7 +473,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
 
         } catch (CloneNotSupportedException failed) {
 
-            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : " + adv.getClass().getName(), failed);
+            Logging.logCheckedSevere(LOG, "Unclonable Advertisements may not be used : ", adv.getClass().getName(), failed);
             throw new IllegalArgumentException("Unclonable Advertisements may not be used : " + adv.getClass().getName());
 
         }

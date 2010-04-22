@@ -266,7 +266,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         discovery = group.getDiscoveryService();
         pipe = group.getPipeService();
 
-        Logging.logCheckedFine(LOG, "addListener " + serviceName + serviceParameter);
+        Logging.logCheckedFine(LOG, "addListener ", serviceName, serviceParameter);
         endpoint.addIncomingMessageListener(this, serviceName, serviceParameter);
 
         Logging.logCheckedInfo(LOG, "JXME Proxy Service started.");
@@ -279,7 +279,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     public void stopApp() {
 
-        Logging.logCheckedFine(LOG, "removeListener " + serviceName + serviceParameter);
+        Logging.logCheckedFine(LOG, "removeListener ", serviceName, serviceParameter);
         endpoint.removeIncomingMessageListener(serviceName, serviceParameter);
 
         Logging.logCheckedInfo(LOG, "JXME Proxy Service stopped.");
@@ -325,12 +325,12 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "could not create requestor", e);
+            Logging.logCheckedWarning(LOG, "could not create requestor\n", e);
             
         }
 
         String request = popString(REQUEST_TAG, message);
-        Logging.logCheckedFine(LOG, "request = " + request + " requestor " + requestor);
+        Logging.logCheckedFine(LOG, "request = ", request, " requestor ", requestor);
 
         if (request != null && requestor != null) {
             if (REQUEST_JOIN.equals(request)) {
@@ -399,7 +399,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleCreateRequest(Requestor requestor, String type, String name, String id, String arg) {
 
-        Logging.logCheckedFine(LOG, "handleCreateRequest type=" + type + " name=" + name + " id=" + id + " arg=" + arg);
+        Logging.logCheckedFine(LOG, "handleCreateRequest type=", type, " name=", name, " id=", id, " arg=", arg);
 
         if (name == null) name = ""; // default name
 
@@ -414,7 +414,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
                 } catch (Exception e) {
 
-                    Logging.logCheckedWarning(LOG, "Could not publish peer advertisement", e);
+                    Logging.logCheckedWarning(LOG, "Could not publish peer advertisement\n", e);
                     
                 }
                 requestor.send(adv, RESPONSE_SUCCESS);
@@ -444,7 +444,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
                 } catch (Exception e) {
 
-                    Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement", e);
+                    Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement\n", e);
                     
                 }
 
@@ -459,7 +459,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleSearchRequest(Requestor requestor, String type, String attribute, String value, String threshold) {
 
-        Logging.logCheckedFine(LOG, "handleSearchRequest type=" + type + " attribute=" + attribute + " value=" + value + " threshold=" + threshold);
+        Logging.logCheckedFine(LOG, "handleSearchRequest type=", type, " attribute=", attribute, " value=", value, " threshold=", threshold);
         
         int discoveryType;
         int thr = DEFAULT_THRESHOLD;
@@ -470,7 +470,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         } catch (NumberFormatException nex) {
 
-            Logging.logCheckedWarning(LOG, "handleSearchRequest failed to parse threshold " + threshold + ", using default " + DEFAULT_THRESHOLD);
+            Logging.logCheckedWarning(LOG, "handleSearchRequest failed to parse threshold ", threshold, ", using default ", DEFAULT_THRESHOLD);
             
         }
         requestor.setThreshold(thr);
@@ -517,7 +517,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     private void handleListenRequest(Requestor requestor, String id) {
 
-        Logging.logCheckedFine(LOG, "handleListenRequest id=" + id);
+        Logging.logCheckedFine(LOG, "handleListenRequest id=", id);
 
         if (id == null) {
             requestor.notifyError("Pipe ID not specified");
@@ -533,7 +533,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String pipeId = pipeAdv.getPipeID().toString();
 
-        Logging.logCheckedFine(LOG, "listen to pipe name=" + pipeAdv.getName() + " id=" + pipeAdv.getPipeID() + " type=" + pipeAdv.getType());
+        Logging.logCheckedFine(LOG, "listen to pipe name=", pipeAdv.getName(), " id=", pipeAdv.getPipeID(), " type=", pipeAdv.getType());
         
         // check to see if the input pipe already exist
         PipeListenerList list = pipeListeners.get(pipeId);
@@ -549,7 +549,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             } catch (IOException e) {
 
-                Logging.logCheckedWarning(LOG, "could not listen to pipe", e);
+                Logging.logCheckedWarning(LOG, "could not listen to pipe\n", e);
                 requestor.notifyError("could not listen to pipe");
                 return;
 
@@ -562,7 +562,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         // add requestor to list
         list.add(requestor);
 
-        Logging.logCheckedFine(LOG, "add requestor=" + requestor + " id=" + pipeId + " list=" + list);
+        Logging.logCheckedFine(LOG, "add requestor=", requestor, " id=", pipeId, " list=", list);
         Logging.logCheckedFine(LOG, "publish PipeAdvertisement");
         
         // advertise the pipe locally
@@ -572,7 +572,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement", e);
+            Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement\n", e);
             
         }
 
@@ -584,10 +584,10 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleCloseRequest(Requestor requestor, String id) {
 
-        Logging.logCheckedFine(LOG, "handleCloseRequest id=" + id);
+        Logging.logCheckedFine(LOG, "handleCloseRequest id=", id);
 
         PipeListenerList list = pipeListeners.get(id);
-        Logging.logCheckedFine(LOG, "handleCloseRequest list = " + list);
+        Logging.logCheckedFine(LOG, "handleCloseRequest list = ", list);
         
         if (list != null) {
             list.remove(requestor);
@@ -614,7 +614,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (IOException e) {
 
             req.notifyError("could not send to pipe");
-            Logging.logCheckedFine(LOG, "could not send to pipe\n" + e.toString());
+            Logging.logCheckedFine(LOG, "could not send to pipe\n", e);
 
         }
     }
@@ -661,7 +661,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleSendRequest(Requestor requestor, String id, Message message) {
 
-        Logging.logCheckedFine(LOG, "handleSendRequest id=" + id);
+        Logging.logCheckedFine(LOG, "handleSendRequest id=", id);
 
         PipeAdvertisement pipeAdv = findPipeAdvertisement(null, id, null);
 
@@ -672,13 +672,13 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String pipeId = pipeAdv.getPipeID().toString();
 
-        Logging.logCheckedFine(LOG, "send to pipe name=" + pipeAdv.getName() + " id="
-                + pipeAdv.getPipeID().toString() + " arg=" + pipeAdv.getType());
+        Logging.logCheckedFine(LOG, "send to pipe name=", pipeAdv.getName(), " id=",
+                pipeAdv.getPipeID().toString(), " arg=", pipeAdv.getType());
 
         // check if there are local listeners
 
         PipeListenerList list = pipeListeners.get(pipeId);
-        Logging.logCheckedFine(LOG, "local listener list " + list);
+        Logging.logCheckedFine(LOG, "local listener list ", list);
 
         if (list != null && PipeService.UnicastType.equals(pipeAdv.getType())) {
 
@@ -745,18 +745,18 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             } catch (URISyntaxException e) {
 
-                Logging.logCheckedWarning(LOG, "Could not parse peerId from url", e);
+                Logging.logCheckedWarning(LOG, "Could not parse peerId from url\n", e);
                 
             } catch (ClassCastException e) {
 
-                Logging.logCheckedWarning(LOG, "id was not a peerid", e);
+                Logging.logCheckedWarning(LOG, "id was not a peerid\n", e);
                 
             }
         }
 
         if (pid == null) pid = IDFactory.newPeerID(group.getPeerGroupID());
 
-        Logging.logCheckedFine(LOG, "newPeerAdvertisement name=" + name + " id=" + pid.toString());
+        Logging.logCheckedFine(LOG, "newPeerAdvertisement name=", name, " id=", pid.toString());
 
         try {
 
@@ -770,7 +770,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "newPeerAdvertisement Exception", e);
+            Logging.logCheckedWarning(LOG, "newPeerAdvertisement Exception\n", e);
             
         }
 
@@ -791,18 +791,18 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             } catch (URISyntaxException e) {
 
-                Logging.logCheckedWarning(LOG, "Invalid peergroupId", e);
+                Logging.logCheckedWarning(LOG, "Invalid peergroupId\n", e);
                 
             } catch (ClassCastException e) {
 
-                Logging.logCheckedWarning(LOG, "id was not a peergroup id", e);
+                Logging.logCheckedWarning(LOG, "id was not a peergroup id\n", e);
                 
             }
         }
 
         if (gid == null) gid = IDFactory.newPeerGroupID();
 
-        Logging.logCheckedFine(LOG, "newPeerGroupAdvertisement name=" + name + " id=" + gid.toString());
+        Logging.logCheckedFine(LOG, "newPeerGroupAdvertisement name=", name, " id=", gid.toString());
 
         adv = group.getPeerGroupAdvertisement().clone();
 
@@ -820,7 +820,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "newPeerGroupAdvertisement Exception", e);
+            Logging.logCheckedWarning(LOG, "newPeerGroupAdvertisement Exception\n", e);
             
         }
 
@@ -831,7 +831,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         PipeAdvertisement adv = null;
 
-        Logging.logCheckedFine(LOG, "newPipeAdvertisement name=" + pipeName + " pipeId=" + pipeId + " pipeType=" + pipeType);
+        Logging.logCheckedFine(LOG, "newPipeAdvertisement name=", pipeName, " pipeId=", pipeId, " pipeType=", pipeType);
 
         if (pipeType == null || pipeType.length() == 0) {
             pipeType = PipeService.UnicastType;
@@ -851,7 +851,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "newPipeAdvertisement Exception", e);
+            Logging.logCheckedWarning(LOG, "newPipeAdvertisement Exception\n", e);
             
         }
 
@@ -862,7 +862,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String attribute, value;
 
-        Logging.logCheckedFine(LOG, "findPipeAdvertisement name=" + name + " id=" + id + " arg=" + arg);
+        Logging.logCheckedFine(LOG, "findPipeAdvertisement name=", name, " id=", id, " arg=", arg);
 
         if (id != null) {
             attribute = PipeAdvertisement.IdTag;
@@ -883,7 +883,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "IOException in getLocalAdvertisements()", e);
+            Logging.logCheckedWarning(LOG, "IOException in getLocalAdvertisements()\n", e);
             return null;
 
         }
@@ -897,7 +897,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             if (adv instanceof PipeAdvertisement) {
 
                 pipeAdv = (PipeAdvertisement) adv;
-                Logging.logCheckedFine(LOG, "found PipeAdvertisement = " + pipeAdv);
+                Logging.logCheckedFine(LOG, "found PipeAdvertisement = ", pipeAdv);
                 break;
 
             }
@@ -908,7 +908,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     public synchronized void discoveryEvent(DiscoveryEvent event) {
 
-        Logging.logCheckedFine(LOG, "discoveryEvent " + event);
+        Logging.logCheckedFine(LOG, "discoveryEvent ", event);
 
         Requestor requestor = searchRequests.get(event.getQueryID());
         if (requestor == null) {
@@ -937,7 +937,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             } catch (Exception e) {
 
                 // this should not happen unless a bad result is returned
-                Logging.logCheckedWarning(LOG, "Bad result returned by DiscoveryService", e);
+                Logging.logCheckedWarning(LOG, "Bad result returned by DiscoveryService\n", e);
                 
             }
         }
@@ -948,7 +948,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     public synchronized void pipeMsgEvent(PipeMsgEvent event) {
 
-        Logging.logCheckedFine(LOG, "pipeMsgEvent " + event.getPipeID());
+        Logging.logCheckedFine(LOG, "pipeMsgEvent ", event.getPipeID());
 
         String id = event.getPipeID().toString();
 
@@ -966,7 +966,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             // there are no listeners, close the input pipe
             ((InputPipe) event.getSource()).close();
-            Logging.logCheckedFine(LOG, "close pipe id=" + id);
+            Logging.logCheckedFine(LOG, "close pipe id=", id);
 
         }
     }
@@ -976,7 +976,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     public synchronized void outputPipeEvent(OutputPipeEvent event) {
 
-        Logging.logCheckedFine(LOG, "outputPipeEvent " + event);
+        Logging.logCheckedFine(LOG, "outputPipeEvent ", event);
 
         PendingPipe p = (PendingPipe) pendingPipes.remove(event.getPipeID());
 
@@ -1013,14 +1013,14 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             this.id = id;
 
             if (pipeListeners != null) {
-                Logging.logCheckedConfig(LOG, "number of pipeListeners = " + pipeListeners.size());
+                Logging.logCheckedConfig(LOG, "number of pipeListeners = ", pipeListeners.size());
             }
 
         }
 
         void add(Requestor requestor) {
 
-            Logging.logCheckedInfo(LOG, "add " + requestor + " from " + toString());
+            Logging.logCheckedInfo(LOG, "add ", requestor, " from ", this);
             
             if (!list.contains(requestor)) {
                 Logging.logCheckedFine(LOG, "requestor add");
@@ -1033,9 +1033,9 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         void remove(Requestor requestor) {
 
-            Logging.logCheckedInfo(LOG, "remove " + requestor + " from " + toString());
+            Logging.logCheckedInfo(LOG, "remove ", requestor, " from ", this);
             
-            Logging.logCheckedFine(LOG, "removed = " + list.remove(requestor));
+            Logging.logCheckedFine(LOG, "removed = ", list.remove(requestor));
 
             if (list.size() == 0) {
                 // close the pipe and remove from the listenerList
@@ -1052,7 +1052,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         int size() {
 
             int size = list.size();
-            Logging.logCheckedFine(LOG, "size " + size);
+            Logging.logCheckedFine(LOG, "size ", size);
 
             return size;
         }
@@ -1074,32 +1074,32 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
                 if (name.startsWith("RendezVousPropagate")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
+                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
                     elements.remove();
 
                 } else if (name.startsWith("JxtaWireHeader")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
+                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
                     elements.remove();
 
                 } else if (name.startsWith("RdvIncarnjxta")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
+                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
                     elements.remove();
 
                 } else if (name.startsWith("JxtaEndpointRouter")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
+                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
                     elements.remove();
 
                 } else if (name.startsWith("EndpointRouterMsg")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
+                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
                     elements.remove();
 
                 } else if (name.startsWith("EndpointHeaderSrcPeer")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement " + name);
+                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
                     elements.remove();
 
                 }
@@ -1117,7 +1117,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                 }
             } catch (Exception ex) {
 
-                Logging.logCheckedFine(LOG, "Error sending" + ex);
+                Logging.logCheckedFine(LOG, "Error sending", ex);
 
             }
         }

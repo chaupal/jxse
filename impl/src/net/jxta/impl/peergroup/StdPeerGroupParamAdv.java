@@ -376,7 +376,7 @@ public class StdPeerGroupParamAdv {
 
             } else {
 
-                Logging.logCheckedWarning(LOG, "Unhandled top-level tag : " + tagName);
+                Logging.logCheckedWarning(LOG, "Unhandled top-level tag : ", tagName);
                 continue;
 
             }
@@ -414,13 +414,13 @@ public class StdPeerGroupParamAdv {
 
                     } else {
 
-                        Logging.logCheckedWarning(LOG, "Unhandled field : " + fieldName);
+                        Logging.logCheckedWarning(LOG, "Unhandled field : ", fieldName);
                         
                     }
                 }
             } catch (Exception any) {
 
-                Logging.logCheckedWarning(LOG, "Broken entry; skipping", any);
+                Logging.logCheckedWarning(LOG, "Broken entry; skipping\n", any);
                 continue;
 
             }
@@ -527,7 +527,7 @@ public class StdPeerGroupParamAdv {
 
             } else {
 
-                Logging.logCheckedSevere(LOG, "unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
+                Logging.logCheckedSevere(LOG, "unsupported descriptor for ", mcid, " in ", mainTag, " module table : ", val);
                 throw new IllegalStateException("unsupported descriptor for " + mcid + " in " + mainTag +" module table : " + val);
 
             }

@@ -176,16 +176,16 @@ public class RouteControl implements RouteController {
             }
 
             if (router.isLocalRoute(destAddress) || router.isRoutedRoute(route.getDestPeerID())) {
-                Logging.logCheckedFine(LOG, "Skipping add Route " + destAddress + " already exists");
-                Logging.logCheckedFine(LOG, "isLocalRoute() " + router.isLocalRoute(destAddress) + " isRoutedRoute() : "
-                            + router.isRoutedRoute(route.getDestPeerID()));
+                Logging.logCheckedFine(LOG, "Skipping add Route ", destAddress, " already exists");
+                Logging.logCheckedFine(LOG, "isLocalRoute() ", router.isLocalRoute(destAddress),
+                        " isRoutedRoute() : ", router.isRoutedRoute(route.getDestPeerID()));
                 return ALREADY_EXIST;
             }
 
             // ok go ahead try to connect to the destination using the route info
             if (router.ensureLocalRoute(destAddress, route) == null) {
 
-                Logging.logCheckedWarning(LOG, "Failed to connect to address :" + destAddress);
+                Logging.logCheckedWarning(LOG, "Failed to connect to address :", destAddress);
                 return FAILED;
 
             }
@@ -194,7 +194,7 @@ public class RouteControl implements RouteController {
             // which may make good use of ourselves as a first and only hop. (Normally routes are discovered
             // via route discovery, which automatically stiches routes to the respondant ahead of the
             // discovered route. But a discovered route adv is sometimes used as well).
-            Logging.logCheckedFine(LOG, "Publishing route :" + newRoute);
+            Logging.logCheckedFine(LOG, "Publishing route :", newRoute);
 
             routeCM.publishRoute(newRoute);
             return OK;
@@ -432,7 +432,7 @@ public class RouteControl implements RouteController {
 
         } catch (Exception ex) {
 
-            Logging.logCheckedWarning(LOG, "getAllRoutesInfo error : ", ex);
+            Logging.logCheckedWarning(LOG, "getAllRoutesInfo error :\n", ex);
 
         }
 

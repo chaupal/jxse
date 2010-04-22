@@ -229,7 +229,7 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = " + id);
+            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = ", id);
             result = null;
 
         }

@@ -126,7 +126,7 @@ public class CbJxMessenger extends BlockingMessenger {
 
         if (null == outBoundMessenger) {
 
-            Logging.logCheckedSevere(LOG, "Could not get messenger for " + newDestAddr);
+            Logging.logCheckedSevere(LOG, "Could not get messenger for ", newDestAddr);
             throw new IOException("Could not get messenger for " + newDestAddr);
 
         }
@@ -171,7 +171,7 @@ public class CbJxMessenger extends BlockingMessenger {
 
         EndpointAddress destAddressToUse = getDestAddressToUse(service, serviceParam);
 
-        Logging.logCheckedFine(LOG, "Messenger: sending out " + msg + " to: " + destAddressToUse);
+        Logging.logCheckedFine(LOG, "Messenger: sending out ", msg, " to: ", destAddressToUse);
 
         // add the cbjx info to the message
         msg = transport.addCryptoInfo(msg, destAddressToUse);
@@ -179,7 +179,7 @@ public class CbJxMessenger extends BlockingMessenger {
             if (isClosed()) {
 
                 IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-                Logging.logCheckedInfo(LOG, failure.toString());
+                Logging.logCheckedInfo(LOG, failure);
                 throw failure;
 
             }
@@ -200,19 +200,19 @@ public class CbJxMessenger extends BlockingMessenger {
 
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
 
-                Logging.logCheckedFine(LOG, "Getting messenger for " + newDestAddr);
+                Logging.logCheckedFine(LOG, "Getting messenger for ", newDestAddr);
                 outBoundMessenger = transport.endpoint.getMessengerImmediate(newDestAddr, null);
 
                 if (outBoundMessenger == null) {
 
-                    Logging.logCheckedSevere(LOG, "Could not get messenger for " + newDestAddr);
+                    Logging.logCheckedSevere(LOG, "Could not get messenger for ", newDestAddr);
                     throw new IOException("Underlying messenger could not be repaired");
 
                 }
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sending " + msg + " to endpoint " + newDestAddr);
+        Logging.logCheckedFine(LOG, "Sending ", msg, " to endpoint ", newDestAddr);
 
         // Good we have a messenger. Send the message.
         outBoundMessenger.sendMessageB(msg, null, null);

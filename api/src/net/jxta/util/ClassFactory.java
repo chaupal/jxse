@@ -176,7 +176,7 @@ public abstract class ClassFactory<K, I> {
             try {
                 registeredSomething |= registerAssoc(eachInstanceClass);
             } catch (Exception allElse) {
-                Logging.logCheckedWarning(LOG, "Failed to register \'" + eachInstanceClass + "\'", allElse);
+                Logging.logCheckedWarning(LOG, "Failed to register \'", eachInstanceClass, "\'", allElse);
             }
         }
 
@@ -216,7 +216,7 @@ public abstract class ClassFactory<K, I> {
 
         } catch (IOException ex) {
             
-            Logging.logCheckedWarning(LOG, "Failed to locate provider lists", ex);
+            Logging.logCheckedWarning(LOG, "Failed to locate provider lists\n", ex);
             
         }
 
@@ -260,7 +260,7 @@ public abstract class ClassFactory<K, I> {
 
                     } catch (Exception allElse) {
 
-                        Logging.logCheckedWarning(LOG, "Failed to register \'" + provider + "\'", allElse);
+                        Logging.logCheckedWarning(LOG, "Failed to register \'", provider, "\'", allElse);
                         
                     }
 
@@ -309,11 +309,11 @@ public abstract class ClassFactory<K, I> {
 
         } catch (ClassNotFoundException ignored) {
 
-            Logging.logCheckedWarning(LOG, "Failed to locate \'" + className + "\'");
+            Logging.logCheckedWarning(LOG, "Failed to locate \'", className, "\'");
             
         } catch (NoClassDefFoundError ignored) {
 
-            Logging.logCheckedWarning(LOG, "Failed to locate \'" + className + "\'");
+            Logging.logCheckedWarning(LOG, "Failed to locate \'", className, "\'");
             
         }
 
@@ -336,7 +336,7 @@ public abstract class ClassFactory<K, I> {
 
         getAssocTable().put(key, instantiator);
 
-        Logging.logCheckedFine(LOG, "Factory : " + getClass().getName() + " Registered instantiator \'" + instantiator + "\' for \'" + key + "\'");
+        Logging.logCheckedFine(LOG, "Factory : ", getClass().getName(), " Registered instantiator \'", instantiator, "\' for \'", key, "\'");
 
         return true;
     }

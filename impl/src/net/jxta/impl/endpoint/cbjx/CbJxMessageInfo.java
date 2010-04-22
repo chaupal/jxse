@@ -363,7 +363,7 @@ public class CbJxMessageInfo {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.getName());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem.getName());
             }
 
         }

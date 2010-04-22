@@ -300,7 +300,7 @@ public class ListenerAdaptor implements Runnable {
                     try {
                         eachListener.messageSendSucceeded(event);
                     } catch (Throwable any) {
-                        Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", any);
+                        Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", any);
                     }
 
                 }
@@ -319,7 +319,7 @@ public class ListenerAdaptor implements Runnable {
                     try {
                         eachListener.messageSendFailed(event);
                     } catch (Throwable any) {
-                        Logging.logCheckedWarning(LOG, "Uncaught throwable in listener", any);
+                        Logging.logCheckedWarning(LOG, "Uncaught throwable in listener\n", any);
                     }
 
                 }
@@ -371,7 +371,7 @@ public class ListenerAdaptor implements Runnable {
                 try {
                     eachListener.messengerReady(event);
                 } catch (Throwable any) {
-                    Logging.logCheckedWarning(LOG, "Uncaught throwable in listener", any);
+                    Logging.logCheckedWarning(LOG, "Uncaught throwable in listener\n", any);
                 }
 
             }

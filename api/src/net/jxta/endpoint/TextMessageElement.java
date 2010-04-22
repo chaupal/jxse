@@ -53,22 +53,19 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.endpoint;
 
+package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.TextDocument;
 import net.jxta.logging.Logging;
 import net.jxta.util.CountingWriter;
 import net.jxta.util.DevNullWriter;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * An extension of MessageElement for managing elements that are composed of
@@ -132,7 +129,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         StringBuilder theString = new StringBuilder();
 
@@ -156,7 +153,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
 
         } catch (IOException caught) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate string for element. ", caught);
+            Logging.logCheckedSevere(LOG, "Could not generate string for element. \n", caught);
             throw new IllegalStateException("Could not generate string for element. " + caught);
             
         }
@@ -218,7 +215,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating getChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        Logging.logCheckedFine(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         long len = getCharLength();
 

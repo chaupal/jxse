@@ -96,7 +96,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         
         if(!started.get()) {
 
-            Logging.logCheckedWarning(LOG, "Netty transport server for protocol " + addrTranslator.getProtocolName() + " already stopped or never started!");
+            Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
 
         }
@@ -110,7 +110,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
 
         if(!stopping.get()) {
 
-            Logging.logCheckedWarning(LOG, "Netty transport server for protocol " + addrTranslator.getProtocolName() + " already stopped or never started!");
+            Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
 
         }
@@ -128,12 +128,12 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         
         if(!started.get()) {
 
-            Logging.logCheckedWarning(LOG, "Request to get messenger for " + dest.toString() + " when netty transport client stopped or never started");
+            Logging.logCheckedWarning(LOG, "Request to get messenger for ", dest.toString(), " when netty transport client stopped or never started");
             return null;
 
         }
         
-        Logging.logCheckedInfo(LOG, "processing request to open connection to " + dest);
+        Logging.logCheckedInfo(LOG, "processing request to open connection to ", dest);
         
         ClientConnectionRegistrationHandler clientRegistry = new ClientConnectionRegistrationHandler();
         
@@ -153,7 +153,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
             }
         } catch(InterruptedException e) {
 
-            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection to " + dest + " to be established");
+            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection to ", dest, " to be established");
             connectFuture.cancel();
             return null;
         }
@@ -179,7 +179,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
 
         } catch(InterruptedException e) {
 
-            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection handover", e);
+            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection handover\n", e);
             
         }
         

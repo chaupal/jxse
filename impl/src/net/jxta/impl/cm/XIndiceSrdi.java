@@ -117,7 +117,7 @@ public class XIndiceSrdi implements SrdiAPI {
         
         this(getRootDir(group), indexName);
 
-        Logging.logCheckedInfo(LOG, "[" + ((group == null) ? "none" : group.toString()) + "] : Initialized " + indexName);
+        Logging.logCheckedInfo(LOG, "[", ((group == null) ? "none" : group.toString()), "] : Initialized ", indexName);
         
     }
     
@@ -174,12 +174,12 @@ public class XIndiceSrdi implements SrdiAPI {
 	        }
 		} catch (DBException de) {
 
-	        Logging.logCheckedSevere(LOG, "Unable to Initialize databases", de);
+	        Logging.logCheckedSevere(LOG, "Unable to Initialize databases\n", de);
 	        throw new UndeclaredThrowableException(de, "Unable to Initialize databases");
 
 	    } catch (Throwable e) {
 
-	        Logging.logCheckedSevere(LOG, "Unable to create Cm", e);
+	        Logging.logCheckedSevere(LOG, "Unable to create Cm\n", e);
 	        
 	        if (e instanceof Error) {
 	            throw (Error) e;
@@ -204,7 +204,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public synchronized void add(String primaryKey, String attribute, String value, PeerID pid, long expiration) {
         
-        Logging.logCheckedFine(LOG, "[" + indexName + "] Adding " + primaryKey + "/" + attribute + " = \'" + value + "\' for " + pid);
+        Logging.logCheckedFine(LOG, "[", indexName, "] Adding ", primaryKey, "/", attribute, " = \'", value, "\' for ", pid);
         
         try {
             Key key = new Key(primaryKey + attribute + value);
@@ -255,11 +255,11 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (IOException de) {
 
-            Logging.logCheckedWarning(LOG, "Failed to add SRDI", de);
+            Logging.logCheckedWarning(LOG, "Failed to add SRDI\n", de);
             
         } catch (DBException de) {
 
-            Logging.logCheckedWarning(LOG, "Failed to add SRDI", de);
+            Logging.logCheckedWarning(LOG, "Failed to add SRDI\n", de);
             
         }
     }
@@ -285,7 +285,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (DBException de) {
 
-            Logging.logCheckedWarning(LOG, "Failed to retrieve SrdiIndex record", de);
+            Logging.logCheckedWarning(LOG, "Failed to retrieve SrdiIndex record\n", de);
             
         }
 
@@ -322,7 +322,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public synchronized void remove(PeerID pid) {
 
-        Logging.logCheckedFine(LOG, " Adding " + pid + " to peer GC table");
+        Logging.logCheckedFine(LOG, " Adding ", pid, " to peer GC table");
         gcPeerTBL.add(pid);
         
     }
@@ -338,7 +338,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public synchronized List<PeerID> query(String primaryKey, String attribute, String value, int threshold) {
         
-        Logging.logCheckedFine(LOG, "[" + indexName + "] Querying for " + threshold + " " + primaryKey + "/" + attribute + " = \'" + value + "\'");
+        Logging.logCheckedFine(LOG, "[", indexName, "] Querying for ", threshold, " ", primaryKey, "/", attribute, " = \'", value, "\'");
         
         // return nothing
         if (primaryKey == null) return Collections.emptyList();
@@ -359,12 +359,12 @@ public class XIndiceSrdi implements SrdiAPI {
 
             } catch (Exception ex) {
 
-                Logging.logCheckedWarning(LOG, "Failure while searching in index", ex);
+                Logging.logCheckedWarning(LOG, "Failure while searching in index\n", ex);
                 
             }
         }
         
-        Logging.logCheckedFine(LOG, "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey + "/" + attribute + " = \'" + value + "\'");
+        Logging.logCheckedFine(LOG, "[", indexName, "] Returning ", res.size(), " results for ", primaryKey, "/", attribute, " = \'", value, "\'");
 
         return res;
 
@@ -378,7 +378,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     protected synchronized List<PeerID> query(String primaryKey) {
 
-        Logging.logCheckedFine(LOG, "[" + indexName + "] Querying for " + primaryKey);
+        Logging.logCheckedFine(LOG, "[", indexName, "] Querying for ", primaryKey);
         
         List<PeerID> res = new ArrayList<PeerID>();
         
@@ -396,11 +396,11 @@ public class XIndiceSrdi implements SrdiAPI {
             }
         } catch (Exception ex) {
 
-            Logging.logCheckedWarning(LOG, "Exception while searching in index", ex);
+            Logging.logCheckedWarning(LOG, "Exception while searching in index\n", ex);
             
         }
         
-        Logging.logCheckedFine(LOG, "[" + indexName + "] Returning " + res.size() + " results for " + primaryKey);
+        Logging.logCheckedFine(LOG, "[", indexName, "] Returning ", res.size(), " results for ", primaryKey);
         
         return res;
     }
@@ -425,12 +425,12 @@ public class XIndiceSrdi implements SrdiAPI {
             
             if (results.size() >= threshold) {
 
-                Logging.logCheckedFine(LOG, "SearchCallback.indexInfo reached Threshold :" + threshold);
+                Logging.logCheckedFine(LOG, "SearchCallback.indexInfo reached Threshold :", threshold);
                 return false;
 
             }
 
-            Logging.logCheckedFine(LOG, "Found " + val);
+            Logging.logCheckedFine(LOG, "Found ", val);
 
             Record record = null;
             
@@ -440,7 +440,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
             } catch (DBException ex) {
 
-                Logging.logCheckedWarning(LOG, "Exception while reading indexed", ex);
+                Logging.logCheckedWarning(LOG, "Exception while reading indexed\n", ex);
                 return false;
 
             }
@@ -450,7 +450,7 @@ public class XIndiceSrdi implements SrdiAPI {
                 long t0 = TimeUtils.timeNow();
 
                 Srdi.SrdiIndexRecord rec = readRecord(record);
-                Logging.logCheckedFinest(LOG, "Got result back in : " + (TimeUtils.timeNow() - t0) + "ms.");
+                Logging.logCheckedFinest(LOG, "Got result back in : ", (TimeUtils.timeNow() - t0), "ms.");
                 
                 copyIntoList(results, rec.list, excludeTable, threshold);
 
@@ -487,7 +487,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                 } catch (DBException ex) {
 
-                    Logging.logCheckedWarning(LOG, "Exception while reading indexed", ex);
+                    Logging.logCheckedWarning(LOG, "Exception while reading indexed\n", ex);
                     return false;
 
                 }
@@ -518,7 +518,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                         } catch (DBException e) {
 
-                            Logging.logCheckedWarning(LOG, "Exception while deleting empty record", e);
+                            Logging.logCheckedWarning(LOG, "Exception while deleting empty record\n", e);
                             
                         }
 
@@ -533,7 +533,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                         } catch (DBException ex) {
 
-                            Logging.logCheckedWarning(LOG, "Exception while writing back record", ex);
+                            Logging.logCheckedWarning(LOG, "Exception while writing back record\n", ex);
                             
                         }
                     }
@@ -558,7 +558,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                 } catch (Exception e) {
 
-                    Logging.logCheckedWarning(LOG, "Query to clear index failed", e);
+                    Logging.logCheckedWarning(LOG, "Query to clear index failed\n", e);
 
                 }
             }
@@ -582,7 +582,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                 } catch (DBException ex) {
 
-                    Logging.logCheckedWarning(LOG, "Exception while reading indexed", ex);
+                    Logging.logCheckedWarning(LOG, "Exception while reading indexed\n", ex);
                     return false;
 
                 }
@@ -598,7 +598,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
                 } catch (Exception e) {
 
-                    Logging.logCheckedWarning(LOG, "Exception while deleting empty record", e);
+                    Logging.logCheckedWarning(LOG, "Exception while deleting empty record\n", e);
 
                 }
             }
@@ -621,25 +621,25 @@ public class XIndiceSrdi implements SrdiAPI {
         for (Srdi.Entry entry : from) {
             boolean expired = entry.isExpired();
             
-            Logging.logCheckedFiner(LOG, "Entry peerid : " + entry.peerid + (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
+            Logging.logCheckedFiner(LOG, "Entry peerid : ", entry.peerid, (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
             
             if (!to.contains(entry.peerid) && !expired) {
                 if (!table.contains(entry.peerid)) {
 
-                    Logging.logCheckedFiner(LOG, "adding Entry :" + entry.peerid + " to list");
+                    Logging.logCheckedFiner(LOG, "adding Entry :", entry.peerid, " to list");
 
                     to.add(entry.peerid);
                     if(to.size() >= threshold) return;
                     
                 } else {
 
-                    Logging.logCheckedFiner(LOG, "Skipping gc marked entry :" + entry.peerid);
+                    Logging.logCheckedFiner(LOG, "Skipping gc marked entry :", entry.peerid);
 
                 }
 
             } else {
 
-                Logging.logCheckedFiner(LOG, "Skipping expired Entry :" + entry.peerid);
+                Logging.logCheckedFiner(LOG, "Skipping expired Entry :", entry.peerid);
 
             }
         }
@@ -666,7 +666,7 @@ public class XIndiceSrdi implements SrdiAPI {
             dos.close();
             return bos.toByteArray();
         } catch (IOException ie) {
-            Logging.logCheckedFine(LOG, "Exception while reading Entry\n" + ie.toString());
+            Logging.logCheckedFine(LOG, "Exception while reading Entry\n", ie);
         }
         return null;
     }
@@ -712,7 +712,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (EOFException eofe) {
 
-            Logging.logCheckedFine(LOG, "Empty record\n" + eofe.toString());
+            Logging.logCheckedFine(LOG, "Empty record\n", eofe);
 
         } catch (IOException ie) {
 
@@ -753,7 +753,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (Exception ex) {
 
-            Logging.logCheckedWarning(LOG, "Failure during SRDI Garbage Collect", ex);
+            Logging.logCheckedWarning(LOG, "Failure during SRDI Garbage Collect\n", ex);
             
         }
 
@@ -776,7 +776,7 @@ public class XIndiceSrdi implements SrdiAPI {
             
             if (entry.isExpired()) {
                 eachEntry.remove();
-                Logging.logCheckedFine(LOG, "Removing expired Entry peerid :" + entry.peerid + " Expires at :" + entry.expiration);
+                Logging.logCheckedFine(LOG, "Removing expired Entry peerid :", entry.peerid, " Expires at :", entry.expiration);
             }
 
         }
@@ -804,7 +804,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (Exception ex) {
 
-            Logging.logCheckedSevere(LOG, "Unable to stop the Srdi Indexer", ex);
+            Logging.logCheckedSevere(LOG, "Unable to stop the Srdi Indexer\n", ex);
             
         }
     }
@@ -818,7 +818,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public static void clearSrdi(PeerGroup group) {
         
-        Logging.logCheckedInfo(LOG, "Clearing SRDI for " + group.getPeerGroupName());
+        Logging.logCheckedInfo(LOG, "Clearing SRDI for ", group.getPeerGroupName());
         
         try {
 
@@ -842,7 +842,7 @@ public class XIndiceSrdi implements SrdiAPI {
                 
                 for (String aList : list) {
 
-                    Logging.logCheckedFine(LOG, "Removing : " + aList);
+                    Logging.logCheckedFine(LOG, "Removing : ", aList);
                     
                     File file = new File(rootDir, aList);
                     
@@ -857,7 +857,7 @@ public class XIndiceSrdi implements SrdiAPI {
 
         } catch (Throwable t) {
 
-            Logging.logCheckedWarning(LOG, "Unable to clear Srdi", t);
+            Logging.logCheckedWarning(LOG, "Unable to clear Srdi\n", t);
             
         }
     }

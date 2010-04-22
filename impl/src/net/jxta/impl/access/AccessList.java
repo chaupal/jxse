@@ -187,7 +187,7 @@ public class AccessList {
 
     private InputStream getInputStream(URI uri) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Loading ACL : " + uri.toString());
+        Logging.logCheckedFine(LOG, "Loading ACL : ", uri);
 
         URL url = uri.toURL();
 
@@ -396,13 +396,13 @@ public class AccessList {
             
             if (GRANTALL_TAG.equals(elem.getName())) {
                 grantAll = Boolean.getBoolean(elem.getTextValue());
-                Logging.logCheckedConfig(LOG, "Grant all access = [ " + grantAll + " ]");
+                Logging.logCheckedConfig(LOG, "Grant all access = [ ", grantAll, " ]");
                 continue;
             }
             
             if (DESCRIPTION_TAG.equals(elem.getName())) {
                 description = elem.getTextValue();
-                Logging.logCheckedConfig(LOG, "Loading [ " + description + " ] access list :");
+                Logging.logCheckedConfig(LOG, "Loading [ ", description, " ] access list :");
                 continue;
             }
             
@@ -433,13 +433,13 @@ public class AccessList {
                 
                 Entry entry = new Entry(pid, name, acl);
 
-                Logging.logCheckedConfig(LOG, "Adding entry to access list :" + entry);
+                Logging.logCheckedConfig(LOG, "Adding entry to access list :", entry);
                 accessMap.put(entry.id, entry);
                 
                 continue;
             }
             
-            Logging.logCheckedWarning(LOG, "Unrecognized tag : " + elem.getName());
+            Logging.logCheckedWarning(LOG, "Unrecognized tag : ", elem.getName());
             
         }
     }

@@ -86,7 +86,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            Logging.logCheckedWarning(LOG, failure.getMessage());
+            Logging.logCheckedWarning(LOG, failure);
             throw failure;
 
         }
@@ -102,7 +102,8 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
             	failure.initCause(future.getCause());
             }
             
-            Logging.logCheckedWarning(LOG, "Failed to send message to " + logicalDestinationAddr, failure);
+            Logging.logCheckedWarning(LOG, "Failed to send message to ", logicalDestinationAddr,
+                    "\n", failure);
             
             closeImpl();
             
@@ -170,7 +171,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
             MessageElement element = msg.getMessageElement(elementNamespace, elementName);
 	
             if(element == null) {
-		Logging.logCheckedFine(LOG, "Message with no " + addrType + " address detected: " + msg);
+		Logging.logCheckedFine(LOG, "Message with no ", addrType, " address detected: ", msg);
             } else {
 	        msg.removeMessageElement(element);
             }

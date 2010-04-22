@@ -30,7 +30,7 @@ public class CleanerTask extends TimerTask {
 		try {
 			cache.garbageCollect();
 		} catch (IOException e) {
-			Logging.logCheckedWarning(LOG, "Error occurred while attempting to clean up cache", e);
+			Logging.logCheckedWarning(LOG, "Error occurred while attempting to clean up cache\n", e);
 		}
 	}
 

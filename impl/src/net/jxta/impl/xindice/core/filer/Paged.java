@@ -701,7 +701,7 @@ public abstract class Paged {
             try {
                 p.flush();
             } catch (Exception e) {
-                LOG.log(Level.WARNING, "Exception while flushing page", e);
+                LOG.log(Level.WARNING, "Exception while flushing page\n", e);
                 error++;
             }
         }
@@ -711,7 +711,7 @@ public abstract class Paged {
             try {
                 fileHeader.write();
             } catch (Exception e) {
-                LOG.log(Level.WARNING, "Exception while flushing file header", e);
+                LOG.log(Level.WARNING, "Exception while flushing file header\n", e);
                 error++;
             }
         }

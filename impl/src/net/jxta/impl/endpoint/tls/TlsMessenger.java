@@ -156,7 +156,7 @@ public class TlsMessenger extends BlockingMessenger {
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         
-        Logging.logCheckedFine(LOG, "Starting send for " + message);
+        Logging.logCheckedFine(LOG, "Starting send for ", message);
         
         // check if the connection has died.
         if (HandshakeState.CONNECTIONDEAD == conn.getHandshakeState()) {
@@ -172,7 +172,7 @@ public class TlsMessenger extends BlockingMessenger {
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger is closed, it cannot be used to send messages.");
-            Logging.logCheckedWarning(LOG, failure.getMessage());
+            Logging.logCheckedWarning(LOG, failure);
             throw failure;
 
         }
@@ -194,12 +194,12 @@ public class TlsMessenger extends BlockingMessenger {
         } catch (IOException caught) {
 
             close();
-            Logging.logCheckedSevere(LOG, "Message send to \'" + dstAddress + "\' failed for " + message, caught);
+            Logging.logCheckedSevere(LOG, "Message send to \'", dstAddress, "\' failed for ", message, "\n", caught);
             throw caught;
 
         }
         
-        Logging.logCheckedFine(LOG, "Message send to \'" + dstAddress + "\' succeeded for " + message);
+        Logging.logCheckedFine(LOG, "Message send to \'", dstAddress, "\' succeeded for ", message);
 
     }    
 }

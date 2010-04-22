@@ -147,7 +147,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
             KeyStore.getInstance(keystore_type, keystore_provider);
         }
         
-        Logging.logCheckedConfig(LOG, "pse location = " + keystore_location + " in " + keystore_cm);
+        Logging.logCheckedConfig(LOG, "pse location = ", keystore_location, " in ", keystore_cm);
 
     }
     
@@ -224,7 +224,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
      **/
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
         
-        Logging.logCheckedFine(LOG, "Loading (" + keystore_type + "," + keystore_provider + ") store from " + keystore_location);
+        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
         
         try {
 
@@ -264,7 +264,7 @@ public class CMKeyStoreManager implements KeyStoreManager {
      **/
     public void saveKeyStore(KeyStore store, char[] password) throws IOException, KeyStoreException {
         
-        Logging.logCheckedFine(LOG, "Writing " + store + " to " + keystore_location);
+        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
         
         try {
 

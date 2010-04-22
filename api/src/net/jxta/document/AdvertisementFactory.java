@@ -211,7 +211,7 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
 
         } catch (Exception all) {
 
-            Logging.logCheckedFine(LOG, "Failed to register \'" + className + "\'\n" + all.toString());
+            Logging.logCheckedFine(LOG, "Failed to register \'", className, "\'\n", all);
 
         }
         

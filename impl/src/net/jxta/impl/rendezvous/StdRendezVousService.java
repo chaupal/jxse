@@ -164,7 +164,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         EndpointListener shouldbehandler = rdvService.endpoint.removeIncomingMessageListener(pName, null);
 
         if (handler != shouldbehandler) 
-            Logging.logCheckedWarning(LOG, "Unregistered listener was not as expected." + handler + " != " + shouldbehandler);
+            Logging.logCheckedWarning(LOG, "Unregistered listener was not as expected.", handler, " != ", shouldbehandler);
         
         super.stopApp();
     }
@@ -186,7 +186,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
             } catch (URISyntaxException badID) {
 
-                Logging.logCheckedWarning(LOG, "Bad ID in message", badID);
+                Logging.logCheckedWarning(LOG, "Bad ID in message\n", badID);
                 return;
 
             }
@@ -207,7 +207,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
                     if (null == pve) {
 
-                        Logging.logCheckedFine(LOG, "Received " + message + " (" + propHdr.getMsgId() + ") from unrecognized peer : " + peerid);
+                        Logging.logCheckedFine(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from unrecognized peer : ", peerid);
 
                         propHdr.setTTL(Math.min(propHdr.getTTL(), 3)); // will be reduced during repropagate stage.
 
@@ -219,25 +219,25 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
                     } else {
 
-                        Logging.logCheckedFine(LOG, "Received " + message + " (" + propHdr.getMsgId() + ") from " + pve);
+                        Logging.logCheckedFine(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from ", pve);
                         
                     }
 
                 } else {
 
-                    Logging.logCheckedFine(LOG, "Received " + message + " (" + propHdr.getMsgId() + ") from " + pConn);
+                    Logging.logCheckedFine(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from ", pConn);
 
                 }
 
             } else {
 
-                Logging.logCheckedFine(LOG, "Received " + message + " (" + propHdr.getMsgId() + ") from loopback.");
+                Logging.logCheckedFine(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from loopback.");
                 
             }
 
         } else {
 
-            Logging.logCheckedFine(LOG, "Received " + message + " (" + propHdr.getMsgId() + ") from network -- repropagating with TTL 2");
+            Logging.logCheckedFine(LOG, "Received ", message, " (", propHdr.getMsgId(), ") from network -- repropagating with TTL 2");
             propHdr.setTTL(Math.min(propHdr.getTTL(), 3)); // will be reduced during repropagate stage.
 
         }
@@ -252,8 +252,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Propagating " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:" + serviceName + "\tsvc params:"
-            + serviceParam);
+        Logging.logCheckedFine(LOG, "Propagating ", msg, "(TTL=", useTTL, ") to :\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -270,7 +269,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                         // TODO: make use of PeerView connections as well
                         if (null == pConn) {
 
-                            Logging.logCheckedFine(LOG, "Sending " + msg + " (" + propHdr.getMsgId() + ") to " + dest);
+                            Logging.logCheckedFine(LOG, "Sending ", msg, " (", propHdr.getMsgId(), ") to ", dest);
 
                             EndpointAddress addr = mkAddress(dest, PropSName, PropPName);
 
@@ -288,7 +287,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
                         } else {
 
-                            Logging.logCheckedFine(LOG, "Sending " + msg + " (" + propHdr.getMsgId() + ") to " + pConn);
+                            Logging.logCheckedFine(LOG, "Sending ", msg, " (", propHdr.getMsgId(), ") to ", pConn);
 
                             if (pConn.isConnected()) {
                                 pConn.sendMessage(msg.clone(), PropSName, PropPName);
@@ -302,7 +301,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
                     } catch (Exception failed) {
 
-                        Logging.logCheckedWarning(LOG, "Failed to send " + msg + " (" + propHdr.getMsgId() + ") to " + dest);
+                        Logging.logCheckedWarning(LOG, "Failed to send ", msg, " (", propHdr.getMsgId(), ") to ", dest);
                         
                     }
                 }
@@ -312,13 +311,13 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                     rendezvousMeter.propagateToPeers(numPeers);
                 }
 
-                Logging.logCheckedFine(LOG, "Propagated " + msg + " (" + propHdr.getMsgId() + ") to " + numPeers + " peers.");
+                Logging.logCheckedFine(LOG, "Propagated ", msg, " (", propHdr.getMsgId(), ") to ", numPeers, " peers.");
                 
             }
 
         } else {
 
-            Logging.logCheckedFine(LOG, "Declined to send " + msg + " ( no propHdr )");
+            Logging.logCheckedFine(LOG, "Declined to send ", msg, " ( no propHdr )");
             
         }
     }
@@ -332,7 +331,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Propagating " + msg + "(TTL=" + useTTL + ") to neighbors to :" + "\n\tsvc name:" + serviceName+ "\tsvc params:" + serviceParam);
+        Logging.logCheckedFine(LOG, "Propagating ", msg, "(TTL=", useTTL, ") to neighbors to :\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -361,7 +360,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         msg = msg.clone();
 
-        Logging.logCheckedFine(LOG, "Repropagating " + msg + " (" + propHdr.getMsgId() + ")");
+        Logging.logCheckedFine(LOG, "Repropagating ", msg, " (", propHdr.getMsgId(), ")");
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.receivedMessageRepropagatedInGroup();
@@ -380,7 +379,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
             } else {
 
-                Logging.logCheckedFine(LOG, "No propagate header, declining to repropagate " + msg + ")");
+                Logging.logCheckedFine(LOG, "No propagate header, declining to repropagate ", msg, ")");
                 
             }
 
@@ -388,9 +387,9 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
             // Not much we can do
             if (propHdr != null) {
-                Logging.logCheckedWarning(LOG, "Failed to repropagate " + msg + " (" + propHdr.getMsgId() + ")", ez1);
+                Logging.logCheckedWarning(LOG, "Failed to repropagate ", msg, " (", propHdr.getMsgId(), ")\n", ez1);
             } else {
-                Logging.logCheckedWarning(LOG, "Could to repropagate " + msg, ez1);
+                Logging.logCheckedWarning(LOG, "Could to repropagate ", msg, "\n", ez1);
             }
 
         }
@@ -425,14 +424,14 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
         List<PeerConnection> peers = Arrays.asList(getPeerConnections());
         int sentToPeers = 0;
 
-        Logging.logCheckedFine(LOG, "Sending " + msg + "(" + propHdr.getMsgId() + ") to " + peers.size() + " peers.");
+        Logging.logCheckedFine(LOG, "Sending ", msg, "(", propHdr.getMsgId(), ") to ", peers.size(), " peers.");
 
         for (PeerConnection pConn : peers) {
 
             // Check if this rendezvous has already processed this propagated message.
             if (!pConn.isConnected()) {
 
-                Logging.logCheckedFine(LOG, "Skipping " + pConn + " for " + msg + "(" + propHdr.getMsgId() + ") -- disconnected.");
+                Logging.logCheckedFine(LOG, "Skipping ", pConn, " for ", msg, "(", propHdr.getMsgId(), ") -- disconnected.");
                 
                 // next!
                 continue;
@@ -440,21 +439,21 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
             if (propHdr.isVisited(pConn.getPeerID().toURI())) {
 
-                Logging.logCheckedFine(LOG, "Skipping " + pConn + " for " + msg + "(" + propHdr.getMsgId() + ") -- already visited.");
+                Logging.logCheckedFine(LOG, "Skipping ", pConn, " for ", msg, "(", propHdr.getMsgId(), ") -- already visited.");
                 
                 // next!
                 continue;
 
             }
 
-            Logging.logCheckedFine(LOG, "Sending " + msg + "(" + propHdr.getMsgId() + ") to " + pConn);
+            Logging.logCheckedFine(LOG, "Sending ", msg, "(", propHdr.getMsgId(), ") to ", pConn);
 
             if (pConn.sendMessage(msg.clone(), PropSName, PropPName)) {
                 sentToPeers++;
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sent " + msg + "(" + propHdr.getMsgId() + ") to " + sentToPeers + " of " + peers.size() + " peers.");
+        Logging.logCheckedFine(LOG, "Sent ", msg, "(", propHdr.getMsgId(), ") to ", sentToPeers, " of ", peers.size(), " peers.");
 
         return sentToPeers;
     }
@@ -485,7 +484,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
             if (null == messenger) {
 
-                Logging.logCheckedWarning(LOG, "Could not get messenger for " + peerid);
+                Logging.logCheckedWarning(LOG, "Could not get messenger for ", peerid);
                 return;
 
             }
@@ -494,7 +493,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "sendDisconnect failed", e);
+            Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
             
         }
     }
@@ -516,7 +515,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "sendDisconnect failed", e);
+            Logging.logCheckedWarning(LOG, "sendDisconnect failed\n", e);
             
         }
     }

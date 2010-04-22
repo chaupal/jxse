@@ -1490,7 +1490,7 @@ public class NetworkConfigurator {
 
         if (uri == null) throw new IllegalArgumentException("URI can not be null");
         
-        Logging.logCheckedFine(LOG, "Loading configuration : " + uri);
+        Logging.logCheckedFine(LOG, "Loading configuration : ", uri);
 
         PlatformConfig platformConfig = read(uri);
 
@@ -1928,7 +1928,7 @@ public class NetworkConfigurator {
                 if (keyStoreLocation.isAbsolute()) {
                     pseConf.setKeyStoreLocation(keyStoreLocation);
                 } else {
-                    Logging.logCheckedWarning(LOG, "Keystore location set, but is not absolute: " + keyStoreLocation);
+                    Logging.logCheckedWarning(LOG, "Keystore location set, but is not absolute: ", keyStoreLocation);
                 }
             }
             XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
@@ -2292,7 +2292,7 @@ public class NetworkConfigurator {
 
                 if (null != defaults) {
 
-                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n" + failed.toString());
+                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n\n", failed);
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;
@@ -2300,7 +2300,7 @@ public class NetworkConfigurator {
 
                 } else {
 
-                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.", failed);
+                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
 
                 }

@@ -172,6 +172,7 @@ public final class Logging {
 
     /* Initialize the constants */
     static {
+
         Level setLevel = DEFAULT_LOGGING_LEVEL;
 
         try {
@@ -196,7 +197,7 @@ public final class Logging {
         SHOW_WARNING = MIN_SHOW_LEVEL.intValue() <= Level.WARNING.intValue();
         SHOW_SEVERE = MIN_SHOW_LEVEL.intValue() <= Level.SEVERE.intValue();
 
-        logCheckedConfig(LOG, "Logging enabled for level : " + MIN_SHOW_LEVEL);
+        logCheckedConfig(LOG, "Logging enabled for level : ", MIN_SHOW_LEVEL);
 
     }
 
@@ -211,12 +212,14 @@ public final class Logging {
      * message is logged.
      *
      * @param inLog a logger
-     * @param inMsg the message to log
+     * @param inMsg the messages to concatenate
      */
-    public static void logCheckedConfig(Logger inLog, String inMsg) {
+    public static void logCheckedConfig(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
-            inLog.config(inMsg);
+            String Msg = "";
+            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
+            inLog.config(Msg);
         }
 
     }
@@ -227,12 +230,14 @@ public final class Logging {
      * message is logged.
      *
      * @param inLog a logger
-     * @param inMsg the message to log
+     * @param inMsg the messages to concatenate
      */
-    public static void logCheckedFine(Logger inLog, String inMsg) {
+    public static void logCheckedFine(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
-            inLog.fine(inMsg);
+            String Msg = "";
+            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
+            inLog.fine(Msg);
         }
 
     }
@@ -243,12 +248,14 @@ public final class Logging {
      * message is logged.
      *
      * @param inLog a logger
-     * @param inMsg the message to log
+     * @param inMsg the messages to concatenate
      */
-    public static void logCheckedFiner(Logger inLog, String inMsg) {
+    public static void logCheckedFiner(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
-            inLog.finer(inMsg);
+            String Msg = "";
+            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
+            inLog.finer(Msg);
         }
 
     }
@@ -259,12 +266,14 @@ public final class Logging {
      * message is logged.
      *
      * @param inLog a logger
-     * @param inMsg the message to log
+     * @param inMsg the messages to concatenate
      */
-    public static void logCheckedFinest(Logger inLog, String inMsg) {
+    public static void logCheckedFinest(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
-            inLog.finest(inMsg);
+            String Msg = "";
+            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
+            inLog.finest(Msg);
         }
 
     }
@@ -275,12 +284,14 @@ public final class Logging {
      * message is logged.
      *
      * @param inLog a logger
-     * @param inMsg the message to log
+     * @param inMsg the messages to concatenate
      */
-    public static void logCheckedInfo(Logger inLog, String inMsg) {
+    public static void logCheckedInfo(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
-            inLog.info(inMsg);
+            String Msg = "";
+            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
+            inLog.info(Msg);
         }
 
     }
@@ -291,34 +302,14 @@ public final class Logging {
      * message is logged.
      *
      * @param inLog a logger
-     * @param inMsg the message to log
+     * @param inMsg the messages to concatenate
      */
-    public static void logCheckedSevere(Logger inLog, String inMsg) {
+    public static void logCheckedSevere(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
-            inLog.severe(inMsg);
-        }
-
-    }
-
-    /**
-     * This method checks whether {@code SHOW_SEVERE} is set to {@code true),
-     * and whether the provided logger allows severe messages. If yes, the
-     * message is logged. If the throwable is not null, is it printed after the
-     * message.
-     *
-     * @param inLog a logger
-     * @param inMsg the message to log
-     * @param inThrow a throwable
-     */
-    public static void logCheckedSevere(Logger inLog, String inMsg, Throwable inThrow) {
-
-        if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
-
-            if (inThrow != null ) inMsg = inMsg + "\n" + inThrow.toString();
-
-            inLog.severe(inMsg);
-
+            String Msg = "";
+            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
+            inLog.severe(Msg);
         }
 
     }
@@ -329,36 +320,16 @@ public final class Logging {
      * message is logged.
      *
      * @param inLog a logger
-     * @param inMsg the message to log
+     * @param inMsg the messages to concatenate
      */
-    public static void logCheckedWarning(Logger inLog, String inMsg) {
+    public static void logCheckedWarning(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
-            inLog.warning(inMsg);
+            String Msg = "";
+            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
+            inLog.warning(Msg);
         }
 
-    }
-
-    /**
-     * This method checks whether {@code SHOW_WARNING} is set to {@code true),
-     * and whether the provided logger allows warning messages. If yes, the
-     * message is logged. If the throwable is not null, is it printed after the
-     * message.
-     *
-     * @param inLog a logger
-     * @param inMsg the message to log
-     * @param inThrow a throwable
-     */
-    public static void logCheckedWarning(Logger inLog, String inMsg, Throwable inThrow) {
-
-        if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
-
-            if (inThrow != null ) inMsg = inMsg + "\n" + inThrow.toString();
-
-            inLog.warning(inMsg);
-
-        }
- 
     }
 
 }

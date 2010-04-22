@@ -287,7 +287,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 } else {
 
-                    Logging.logCheckedSevere(LOG, "Skipping: " + classID + " Unsupported module descriptor : " + value.getClass().getName());
+                    Logging.logCheckedSevere(LOG, "Skipping: ", classID, " Unsupported module descriptor : ", value.getClass().getName());
                     eachModule.remove();
                     continue;
 
@@ -299,7 +299,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
             } catch (Exception e) {
 
-                Logging.logCheckedWarning(LOG, "Could not load module for class ID : " + classID, e);
+                Logging.logCheckedWarning(LOG, "Could not load module for class ID : ", classID, "\n", e);
 
                 if (value instanceof ModuleImplAdvertisement) {
 
@@ -307,7 +307,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Will be missing from peer group: " + value);
+                    Logging.logCheckedWarning(LOG, "Will be missing from peer group: ", value);
 
                 }
 
@@ -377,7 +377,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
             } catch (Exception any) {
 
-                Logging.logCheckedWarning(LOG, "Failed to stop module: " + aModule, any);
+                Logging.logCheckedWarning(LOG, "Failed to stop module: ", aModule, "\n", any);
                 
             }
         }
@@ -439,7 +439,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                 } catch (Throwable all) {
 
-                    Logging.logCheckedWarning(LOG, "Exception in startApp() : " + aModule, all);
+                    Logging.logCheckedWarning(LOG, "Exception in startApp() : ", aModule, "\n", all);
                     res = -1;
 
                 }
@@ -448,7 +448,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                     case Module.START_OK:
 
-                        Logging.logCheckedFine(LOG, "Module started : " + aModule);
+                        Logging.logCheckedFine(LOG, "Module started : ", aModule);
 
                         if (aModule instanceof Service) {
                             addService(mcid, (Service) aModule);
@@ -463,25 +463,25 @@ public class StdPeerGroup extends GenericPeerGroup {
                         
                     case Module.START_AGAIN_PROGRESS:
 
-                        Logging.logCheckedFiner(LOG, "Service made progress during start : " + aModule);
+                        Logging.logCheckedFiner(LOG, "Service made progress during start : ", aModule);
                         progress = true;
                         break;
                         
                     case Module.START_AGAIN_STALLED:
 
-                        Logging.logCheckedFiner(LOG, "Service stalled during start : " + aModule);
+                        Logging.logCheckedFiner(LOG, "Service stalled during start : ", aModule);
                         break;
                         
                     case Module.START_DISABLED:
 
-                        Logging.logCheckedFine(LOG, "Service declined to start : " + aModule);
+                        Logging.logCheckedFine(LOG, "Service declined to start : ", aModule);
                         eachService.remove();
                         progress = true;
                         break;
                         
                     default: // (negative)
 
-                        Logging.logCheckedWarning(LOG, "Service failed to start (" + res + ") : " + aModule);
+                        Logging.logCheckedWarning(LOG, "Service failed to start (", res, ") : ", aModule);
                         eachService.remove();
                         progress = true;
                         break;
@@ -588,7 +588,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         } catch (Exception e) {
 
-            Logging.logCheckedSevere(LOG, "Failure instantiating local store", e);
+            Logging.logCheckedSevere(LOG, "Failure instantiating local store\n", e);
             throw new PeerGroupException("Failure instantiating local store", e);
 
         }
@@ -615,7 +615,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 if(!conf.isSvcEnabled(aModule)) {
 
                     // remove disabled module
-                    Logging.logCheckedFine(LOG, "Module disabled in configuration : " + aModule);
+                    Logging.logCheckedFine(LOG, "Module disabled in configuration : ", aModule);
                     eachModule.remove();
 
                 }
@@ -635,7 +635,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                 if(!conf.isSvcEnabled(aModule)) {
 
                     // remove disabled module
-                    Logging.logCheckedFine(LOG, "Application disabled in configuration : " + aModule);
+                    Logging.logCheckedFine(LOG, "Application disabled in configuration : ", aModule);
                     eachModule.remove();
 
                 }
@@ -655,7 +655,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         try {
             checkServices();
         } catch (ServiceNotFoundException e) {
-            LOG.log(Level.SEVERE, "Missing peer group service", e);
+            LOG.log(Level.SEVERE, "Missing peer group service\n", e);
             throw new PeerGroupException("Missing peer group service", e);
         }
         

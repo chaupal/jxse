@@ -163,10 +163,10 @@ public class HttpMessageServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        Logging.logCheckedFine(LOG, "GET " + req.getRequestURI() + " thread = " + Thread.currentThread());
+        Logging.logCheckedFine(LOG, "GET ", req.getRequestURI(), " thread = ", Thread.currentThread());
         processRequest(req, res);
 
-        Logging.logCheckedFine(LOG, "GET done for thread = " + Thread.currentThread());
+        Logging.logCheckedFine(LOG, "GET done for thread = ", Thread.currentThread());
 
     }
 
@@ -176,9 +176,9 @@ public class HttpMessageServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        Logging.logCheckedFine(LOG, "POST " + req.getRequestURI() + " thread = " + Thread.currentThread());
+        Logging.logCheckedFine(LOG, "POST ", req.getRequestURI(), " thread = ", Thread.currentThread());
         processRequest(req, res);
-        Logging.logCheckedFine(LOG, "POST done for thread = " + Thread.currentThread());
+        Logging.logCheckedFine(LOG, "POST done for thread = ", Thread.currentThread());
 
     }
 
@@ -277,7 +277,7 @@ public class HttpMessageServlet extends HttpServlet {
         if ((null != currentRequest.requestorAddr) && (currentRequest.responseTimeout >= 0) && (null != currentRequest.destAddr)) {
 
             // create the back channel messenger
-            Logging.logCheckedFine(LOG, "Creating back channel messenger for " + currentRequest.requestorAddr + " (" + currentRequest.destAddr + ")");
+            Logging.logCheckedFine(LOG, "Creating back channel messenger for ", currentRequest.requestorAddr, " (", currentRequest.destAddr, ")");
 
             long messengerAliveFor;
 
@@ -291,7 +291,7 @@ public class HttpMessageServlet extends HttpServlet {
                     currentRequest.requestorAddr, messengerAliveFor);
             boolean taken = owner.messengerReadyEvent(messenger, currentRequest.destAddr);
 
-            Logging.logCheckedFine(LOG, "Incoming messenger to: " + currentRequest.requestorAddr + " taken=" + taken);
+            Logging.logCheckedFine(LOG, "Incoming messenger to: ", currentRequest.requestorAddr, " taken=", taken);
 
             if (!taken) {
                 // nobody cares. Just destroy it.
@@ -321,7 +321,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                     String contentType = req.getContentType();
 
-                    Logging.logCheckedFine(LOG, "Reading message from request : " + contentType);
+                    Logging.logCheckedFine(LOG, "Reading message from request : ", contentType);
                     
                     MimeMediaType contentMimeType = EndpointServiceImpl.DEFAULT_MESSAGE_TYPE;
 
@@ -348,7 +348,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                 } catch (IOException e) {
 
-                    Logging.logCheckedWarning(LOG, "Malformed JXTA message, responding with BAD_REQUEST", e);
+                    Logging.logCheckedWarning(LOG, "Malformed JXTA message, responding with BAD_REQUEST\n", e);
 
                     res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message was not a valid JXTA message");
 
@@ -360,7 +360,7 @@ public class HttpMessageServlet extends HttpServlet {
                 }
 
                 // post the incoming message to the endpoint demux
-                Logging.logCheckedFine(LOG, "Handing " + incomingMessage + " to the endpoint.");
+                Logging.logCheckedFine(LOG, "Handing ", incomingMessage, " to the endpoint.");
 
                 try {
 
@@ -368,7 +368,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                 } catch (Throwable e) {
 
-                    Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message", e);
+                    Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message\n", e);
                     
                 }
             }
@@ -378,7 +378,7 @@ public class HttpMessageServlet extends HttpServlet {
             // Check if the back channel is to be used for sending messages.
             if ((currentRequest.responseTimeout >= 0) && (null != messenger)) {
 
-                Logging.logCheckedFine(LOG, "Wait for message from the messenger. timeout = " + currentRequest.responseTimeout);
+                Logging.logCheckedFine(LOG, "Wait for message from the messenger. timeout = ", currentRequest.responseTimeout);
 
                 long quitAt = (currentRequest.responseTimeout == 0)
                         ? Long.MAX_VALUE
@@ -435,7 +435,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                     long startMessageSend = TimeUtils.timeNow();
 
-                    Logging.logCheckedFine(LOG, "Sending " + outMsg + " on back channel to " + req.getRemoteHost());
+                    Logging.logCheckedFine(LOG, "Sending ", outMsg, " on back channel to ", req.getRemoteHost());
 
                     if (!beganResponse) {
 
@@ -471,7 +471,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                         messenger.messageSent(true);
 
-                        Logging.logCheckedFine(LOG, "Successfully sent " + outMsg + " on back channel to " + req.getRemoteHost());
+                        Logging.logCheckedFine(LOG, "Successfully sent ", outMsg, " on back channel to ", req.getRemoteHost());
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                             lastReadWriteTime = TimeUtils.timeNow();
@@ -483,7 +483,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                     } catch (IOException ex) {
 
-                        Logging.logCheckedFine(LOG, "Failed sending Message on back channel to " + req.getRemoteHost());
+                        Logging.logCheckedFine(LOG, "Failed sending Message on back channel to ", req.getRemoteHost());
                         messenger.messageSent(false);
 
                         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
@@ -533,7 +533,7 @@ public class HttpMessageServlet extends HttpServlet {
         res.flushBuffer();
 
         // done processing the request
-        Logging.logCheckedFine(LOG, "Finished processing the request from " + req.getRemoteHost());
+        Logging.logCheckedFine(LOG, "Finished processing the request from ", req.getRemoteHost());
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
             transportBindingMeter.connectionClosed(false,
@@ -740,9 +740,9 @@ public class HttpMessageServlet extends HttpServlet {
             messageContent = hasMessageContent(req);
 
             Logging.logCheckedFiner(LOG,
-                        "New JXTA Request for Requestor=" + requestorAddr + "\n\tResponse Timeout=" + responseTimeout
-                        + "\tAdditional Response Timeout=" + extraResponsesTimeout + "\tRequest Destination Address=" + destAddr
-                        + "\tHas Message Content=" + Boolean.toString(messageContent));
+                        "New JXTA Request for Requestor=", requestorAddr, "\n\tResponse Timeout=", responseTimeout,
+                        "\tAdditional Response Timeout=", extraResponsesTimeout, "\tRequest Destination Address=", destAddr,
+                        "\tHas Message Content=", Boolean.toString(messageContent));
         
         }
 
@@ -776,7 +776,7 @@ public class HttpMessageServlet extends HttpServlet {
                 }
             }
 
-            Logging.logCheckedFiner(LOG, "requestorPeerId = " + requestorPeerId);
+            Logging.logCheckedFiner(LOG, "requestorPeerId = ", requestorPeerId);
 
             return requestorPeerId;
         }
@@ -800,11 +800,11 @@ public class HttpMessageServlet extends HttpServlet {
                 
             } catch (NumberFormatException e) {
 
-                Logging.logCheckedWarning(LOG, "The requestTimeout does not contain a decimal number " + requestTimeoutString);
+                Logging.logCheckedWarning(LOG, "The requestTimeout does not contain a decimal number ", requestTimeoutString);
                 
             }
 
-            Logging.logCheckedFiner(LOG, "requestTimeout = " + timeout);
+            Logging.logCheckedFiner(LOG, "requestTimeout = ", timeout);
 
             return timeout;
         }
@@ -828,11 +828,11 @@ public class HttpMessageServlet extends HttpServlet {
                 
             } catch (NumberFormatException e) {
 
-                Logging.logCheckedWarning(LOG, "The extraResponseTimeoutString does not contain a decimal number " + extraResponseTimeoutString);
+                Logging.logCheckedWarning(LOG, "The extraResponseTimeoutString does not contain a decimal number ", extraResponseTimeoutString);
                 
             }
 
-            Logging.logCheckedFine(LOG, "extraResponseTimeout = " + timeout);
+            Logging.logCheckedFine(LOG, "extraResponseTimeout = ", timeout);
 
             return timeout;
         }
@@ -864,7 +864,7 @@ public class HttpMessageServlet extends HttpServlet {
 
             }
 
-            Logging.logCheckedFiner(LOG, "hasMessageContent = " + hasContent);
+            Logging.logCheckedFiner(LOG, "hasMessageContent = ", hasContent);
 
             return hasContent;
         }

@@ -195,7 +195,7 @@ public class RelayReferralSeedingManager extends URISeedingManager {
             
         }
         
-        Logging.logCheckedFine(LOG, "Found " + result.size() + " relay seeds.");
+        Logging.logCheckedFine(LOG, "Found ", result.size(), " relay seeds.");
         return result;
 
     }

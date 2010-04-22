@@ -506,8 +506,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             advGroupPropPipeAdv = null;
         }
 
-        Logging.logCheckedInfo(LOG, "PeerView created for group \"" + group.getPeerGroupName() +
-            "\" [" + group.getPeerGroupID() + "] name \"" + name + "\"");
+        Logging.logCheckedInfo(LOG, "PeerView created for group \"", group.getPeerGroupName(),
+            "\" [", group.getPeerGroupID(), "] name \"", name, "\"");
         
     }
 
@@ -528,7 +528,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             if (me == null) {
 
-                Logging.logCheckedWarning(LOG, "Discarding damaged " + msg + ".");
+                Logging.logCheckedWarning(LOG, "Discarding damaged ", msg, ".");
                 return;
 
             } else {
@@ -547,19 +547,19 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         } catch (RuntimeException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element", failed);
+            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element\n", failed);
             return;
 
         } catch (IOException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element", failed);
+            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element\n", failed);
             return;
             
         }
 
         if (!(adv instanceof RdvAdvertisement)) {
 
-            Logging.logCheckedWarning(LOG, "Response does not contain radv (" + adv.getAdvertisementType() + ")");
+            Logging.logCheckedWarning(LOG, "Response does not contain radv (", adv.getAdvertisementType(), ")");
             return;
 
         }
@@ -599,11 +599,11 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (RuntimeException failed) {
 
-                Logging.logCheckedWarning(LOG, "Failed building route adv from message element", failed);
+                Logging.logCheckedWarning(LOG, "Failed building route adv from message element\n", failed);
                 
             } catch (IOException failed) {
 
-                Logging.logCheckedWarning(LOG, "Failed building route adv from message element", failed);
+                Logging.logCheckedWarning(LOG, "Failed building route adv from message element\n", failed);
                 
             }
         }
@@ -652,7 +652,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         if (!isTrusted) {
 
-            Logging.logCheckedWarning(LOG, "Rejecting peerview message from " + radv.getPeerID());
+            Logging.logCheckedWarning(LOG, "Rejecting peerview message from ", radv.getPeerID());
             return;
 
         }
@@ -740,7 +740,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 // with our own advertisement.
                 status = send(pve, self, true, false);
 
-                Logging.logCheckedFine(LOG, "Type 1 (Respond with self PVE) : Sent to " + pve + " result =" + status);
+                Logging.logCheckedFine(LOG, "Type 1 (Respond with self PVE) : Sent to ", pve, " result =", status);
 
                 // Type 3: Respond with random entry from our PV when we are probed.
                 //
@@ -749,7 +749,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                 if ((sendpve != null) && !pve.equals(sendpve) && !self.equals(sendpve)) {
                     status = send(pve, sendpve, true, false);
-                    Logging.logCheckedFine(LOG, "Type 3 (Respond with random PVE) : Sent " + sendpve + " to " + pve + " result=" + status);
+                    Logging.logCheckedFine(LOG, "Type 3 (Respond with random PVE) : Sent ", sendpve, " to ", pve, " result=", status);
                 }
 
             } else {
@@ -767,7 +767,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 // seeds happens as part of the "kick" strategy).
                 status = send(pve, self, false, false);
 
-                Logging.logCheckedFine(LOG, "Type 2 (Probe PVE) : Probed " + pve + " result=" + status);
+                Logging.logCheckedFine(LOG, "Type 2 (Probe PVE) : Probed ", pve, " result=", status);
 
             } else {
                 // Already known or ignoring: do nothing.
@@ -795,7 +795,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             int theEventType = event.getType();
 
-            Logging.logCheckedFine(LOG, "[" + group.getPeerGroupName() + "] Processing  " + event);
+            Logging.logCheckedFine(LOG, "[", group.getPeerGroupName(), "] Processing  ", event);
 
             refreshSelf();
 
@@ -840,7 +840,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             default:
 
-                Logging.logCheckedWarning(LOG, "[" + group.getPeerGroupName() + "] Unexpected RDV event : " + event);
+                Logging.logCheckedWarning(LOG, "[", group.getPeerGroupName(), "] Unexpected RDV event : ", event);
                 break;
 
             }
@@ -987,7 +987,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         if (reseedRemaining > 0) {
 
             // Too early; the previous round is not even done.
-            Logging.logCheckedInfo(LOG, "Still Seeding for " + reseedRemaining + "ms.");
+            Logging.logCheckedInfo(LOG, "Still Seeding for ", reseedRemaining, "ms.");
 
             return;
 
@@ -1070,7 +1070,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread: " + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread: ", Thread.currentThread().getName(), "\n", all);
                 
             } finally {
 
@@ -1082,7 +1082,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
     private void scheduleOpenPipes(long delay) {
 
-        Logging.logCheckedFine(LOG, "Scheduling open pipes attempt in " + delay + "ms.");
+        Logging.logCheckedFine(LOG, "Scheduling open pipes attempt in ", delay, "ms.");
         addTask(new OpenPipesTask(), delay, -1);
 
     }
@@ -1101,7 +1101,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         boolean result = dest.sendMessage(msg, SERVICE_NAME, uniqueGroupId);
 
-        Logging.logCheckedFine(LOG, "Sending " + msg + " to " + dest + " success = " + result);
+        Logging.logCheckedFine(LOG, "Sending ", msg, " to ", dest, " success = ", result);
         return result;
 
     }
@@ -1129,20 +1129,20 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     boolean result = messenger.sendMessage(msg);
 
-                    Logging.logCheckedFine(LOG, "Sending " + msg + " to " + dest + " success = " + result);
+                    Logging.logCheckedFine(LOG, "Sending ", msg, " to ", dest, " success = ", result);
 
                     return result;
 
                 } catch (IOException failed) {
 
-                    Logging.logCheckedWarning(LOG, "Could not send " + msg + " to " + dest, failed);
+                    Logging.logCheckedWarning(LOG, "Could not send ", msg , " to ", dest, "\n", failed);
                     return false;
 
                 }
 
             } else {
 
-                Logging.logCheckedWarning(LOG, "Could not get messenger for " + dest);
+                Logging.logCheckedWarning(LOG, "Could not get messenger for ", dest);
                 return false;
 
             }
@@ -1153,13 +1153,13 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             try {
 
                 endpoint.propagate(msg, SERVICE_NAME, uniqueGroupId);
-                Logging.logCheckedFine(LOG, "Sent " + msg + " via propagate");
+                Logging.logCheckedFine(LOG, "Sent ", msg, " via propagate");
                 return true;
 
             } catch (IOException ez) {
 
                 // Pretty strange. This has little basis for failure...
-                Logging.logCheckedWarning(LOG, "Could not propagate " + msg, ez);
+                Logging.logCheckedWarning(LOG, "Could not propagate ", msg, "\n", ez);
                 return false;
 
             }
@@ -1188,7 +1188,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         } catch (IOException ez) {
 
             // Pretty strange. This has little basis for failure...
-            Logging.logCheckedWarning(LOG, "Could not send " + msg, ez);
+            Logging.logCheckedWarning(LOG, "Could not send ", msg, "\n", ez);
             return false;
             
         }
@@ -1247,7 +1247,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                 } catch (Exception ez1) {
 
-                    Logging.logCheckedWarning(LOG, "Could not create optional src route adv for " + content, ez1);
+                    Logging.logCheckedWarning(LOG, "Could not create optional src route adv for ", content, "\n", ez1);
 
                 }
             }
@@ -1282,7 +1282,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      */
     void notifyFailure(PeerViewElement pve, boolean propagateFailure) {
 
-        Logging.logCheckedFine(LOG, "Notifying failure of " + pve);
+        Logging.logCheckedFine(LOG, "Notifying failure of ", pve);
 
         try {
 
@@ -1310,7 +1310,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 OutputPipe op = localGroupWirePipeOutputPipe;
 
                 if (null != op) {
-                    Logging.logCheckedFine(LOG, "Propagating failure of " + pve);
+                    Logging.logCheckedFine(LOG, "Propagating failure of ", pve);
                     send(op, pve, true, true);
                 }
 
@@ -1318,7 +1318,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         } catch (Exception ez) {
 
-            Logging.logCheckedWarning(LOG, "Failure while generating noficiation of failure of PeerView : " + pve, ez);
+            Logging.logCheckedWarning(LOG, "Failure while generating noficiation of failure of PeerView : ", pve, "\n", ez);
             
         }
     }
@@ -1331,7 +1331,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         try {
 
-            Logging.logCheckedFine(LOG, "Begun kick() in " + group.getPeerGroupID());
+            Logging.logCheckedFine(LOG, "Begun kick() in ", group.getPeerGroupID());
 
             // Use seed strategy. (it has its own throttling and resource limiting).
             seed();
@@ -1340,7 +1340,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             PeerViewElement refreshee = refreshRecipientStrategy.next();
 
             if ((refreshee != null) && (self != refreshee)) {
-                Logging.logCheckedFine(LOG, "Refresh " + refreshee);
+                Logging.logCheckedFine(LOG, "Refresh ", refreshee);
                 send(refreshee, self, false, false);
             }
 
@@ -1367,7 +1367,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 return;
             }
 
-            Logging.logCheckedFine(LOG, "Sending adv " + rpve + " to " + recipient);
+            Logging.logCheckedFine(LOG, "Sending adv ", rpve, " to ", recipient);
             send(recipient, rpve, true, false);
 
         } finally {
@@ -1411,15 +1411,15 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             long tilNextKick = DEFAULT_BOOTSTRAP_KICK_INTERVAL * ((1L << bootLevel) - 1);
 
-            Logging.logCheckedFine(LOG, "Scheduling kick in " + (tilNextKick / TimeUtils.ASECOND)
-                + " seconds at bootLevel " + bootLevel + " in group " + group.getPeerGroupID());
+            Logging.logCheckedFine(LOG, "Scheduling kick in ", (tilNextKick / TimeUtils.ASECOND),
+                " seconds at bootLevel ", bootLevel, " in group ", group.getPeerGroupID());
 
             KickerTask task = new KickerTask();
             addTask(task, tilNextKick, -1);
 
         } catch (Exception ez1) {
 
-            Logging.logCheckedSevere(LOG, "Cannot set timer. RPV will not work.", ez1);
+            Logging.logCheckedSevere(LOG, "Cannot set timer. RPV will not work.\n", ez1);
             
         }
     }
@@ -1492,7 +1492,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         boolean added = rpvListeners.add(listener);
 
-        Logging.logCheckedFine(LOG, "Registered PeerViewEvent Listener (" + listener.getClass().getName() + ")");
+        Logging.logCheckedFine(LOG, "Registered PeerViewEvent Listener (", listener.getClass().getName(), ")");
 
         return added;
     }
@@ -1507,7 +1507,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         boolean removed = rpvListeners.remove(listener);
 
-        Logging.logCheckedFine(LOG, "Removed PeerViewEvent Listener (" + listener.getClass().getName() + ")");
+        Logging.logCheckedFine(LOG, "Removed PeerViewEvent Listener (", listener.getClass().getName(), ")");
 
         return removed;
         
@@ -1523,7 +1523,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         PeerViewEvent newevent = new PeerViewEvent(this, type, element);
 
-        Logging.logCheckedFine(LOG, "Calling listeners for " + newevent + " in group " + group.getPeerGroupID());
+        Logging.logCheckedFine(LOG, "Calling listeners for ", newevent, " in group ", group.getPeerGroupID());
 
         for (Object o : Arrays.asList(rpvListeners.toArray())) {
 
@@ -1535,8 +1535,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable ignored) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in PeerViewEvent listener : ("
-                    + pvl.getClass().getName() + ")", ignored);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in PeerViewEvent listener : (",
+                    pvl.getClass().getName(), ")\n", ignored);
                 
             }
         }
@@ -1678,8 +1678,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             boolean failure = (null != msg.getMessageElement(MESSAGE_NAMESPACE, FAILURE_ELEMENT_NAME));
             boolean response = (null != msg.getMessageElement(MESSAGE_NAMESPACE, RESPONSE_ELEMENT_NAME));
 
-            Logging.logCheckedFine(LOG, "Received a PeerView " + (failure ? "failure " : "") + (response ? "response " : "")
-                + "message [" + msg + "] on propagated pipe " + event.getPipeID());
+            Logging.logCheckedFine(LOG, "Received a PeerView ", (failure ? "failure " : ""), (response ? "response " : ""),
+                "message [", msg, "] on propagated pipe ", event.getPipeID());
 
             if (!failure && !response) {
 
@@ -1699,7 +1699,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     if (randinview >= minHappyPeerView) {
 
-                        Logging.logCheckedFine(LOG, "Ignoring " + msg + " from pipe " + event.getPipeID());
+                        Logging.logCheckedFine(LOG, "Ignoring ", msg, " from pipe ", event.getPipeID());
 
                         // We "lose".
                         return;
@@ -1722,7 +1722,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable ez) {
 
-                Logging.logCheckedWarning(LOG, "Failed processing " + msg + " from pipe " + event.getPipeID(), ez);
+                Logging.logCheckedWarning(LOG, "Failed processing ", msg, " from pipe ", event.getPipeID(), "\n", ez);
                 
             }
         }
@@ -1760,7 +1760,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 
             } finally {
 
@@ -1985,7 +1985,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                 if (closed) return;
 
-                Logging.logCheckedFine(LOG, "Watchdog task executing for group " + PeerView.this.group.getPeerGroupID());
+                Logging.logCheckedFine(LOG, "Watchdog task executing for group ", PeerView.this.group.getPeerGroupID());
 
                 refreshSelf();
                 
@@ -2002,12 +2002,12 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     if (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), up.getLastUpdateTime()) > WATCHDOG_GRACE_DELAY) {
 
-                        Logging.logCheckedWarning(LOG, "UP peer has gone MIA : " + up);
+                        Logging.logCheckedWarning(LOG, "UP peer has gone MIA : ", up);
                         notifyFailure(up, true);
 
                     } else {
 
-                        Logging.logCheckedFine(LOG, "Checking on UP peer : " + up);
+                        Logging.logCheckedFine(LOG, "Checking on UP peer : ", up);
                         PeerView.this.send(up, PeerView.this.getSelf(), false, false);
 
                     }
@@ -2019,12 +2019,12 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     if (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), down.getLastUpdateTime()) > WATCHDOG_GRACE_DELAY) {
 
-                        Logging.logCheckedWarning(LOG, "DOWN peer has gone MIA : " + down);
+                        Logging.logCheckedWarning(LOG, "DOWN peer has gone MIA : ", down);
                         notifyFailure(down, true);
 
                     } else {
 
-                        Logging.logCheckedFine(LOG, "Checking on DOWN peer : " + down);
+                        Logging.logCheckedFine(LOG, "Checking on DOWN peer : ", down);
                         PeerView.this.send(down, PeerView.this.getSelf(), false, false);
 
                     }
@@ -2033,7 +2033,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 
             }
             
@@ -2059,7 +2059,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread : " + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread : ", Thread.currentThread().getName(), "\n", all);
                 
             } finally {
 

@@ -115,13 +115,13 @@ public class DefaultConfigurator extends AutomaticConfigurator {
             File file = new File(jxtaHomeDir, "reconf");
             forceReconfig = file.exists();
 
-            Logging.logCheckedFine(LOG, "force reconfig : " + forceReconfig);
+            Logging.logCheckedFine(LOG, "force reconfig : ", forceReconfig);
 
             return forceReconfig;
 
         } catch (Exception ex1) {
 
-            Logging.logCheckedSevere(LOG, "Could not check \'reconf\' file. Assuming it exists.", ex1);
+            Logging.logCheckedSevere(LOG, "Could not check \'reconf\' file. Assuming it exists.\n", ex1);
             Logging.logCheckedSevere(LOG, "Reconfig required - error getting \'reconf\' file");
             return true;
 
@@ -148,7 +148,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
             } catch (IOException ex1) {
 
-                Logging.logCheckedSevere(LOG, "Could not create \'reconf\' file", ex1);
+                Logging.logCheckedSevere(LOG, "Could not create \'reconf\' file\n", ex1);
                 Logging.logCheckedSevere(LOG, "Create the file \'reconf\' by hand before retrying.");
                 
             }
@@ -161,7 +161,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
             } catch (Exception ex1) {
                 
-                Logging.logCheckedSevere(LOG, "Could not remove \'reconf\' file", ex1);
+                Logging.logCheckedSevere(LOG, "Could not remove \'reconf\' file\n", ex1);
                 Logging.logCheckedSevere(LOG, "Delete the file \'reconf\' by hand before retrying.");
                 
             }
@@ -232,7 +232,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
                 if (t instanceof JxtaError) throw (JxtaError) t;
                 
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not initialize graphical config dialog", t);
+                    LOG.log(Level.WARNING, "Could not initialize graphical config dialog\n", t);
                 }
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

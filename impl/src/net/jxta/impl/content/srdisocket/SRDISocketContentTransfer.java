@@ -221,8 +221,8 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sources remaining: " + sourcesRemaining.size());
-        Logging.logCheckedFine(LOG, "Sources tried    : " + sourcesTried.size());
+        Logging.logCheckedFine(LOG, "Sources remaining: ", sourcesRemaining.size());
+        Logging.logCheckedFine(LOG, "Sources tried    : ", sourcesTried.size());
 
         if (sourcesRemaining.size() == 0) {
 
@@ -247,8 +247,8 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
             ContentRequest request = new ContentRequest();
             request.setContentID(getTransferContentID());
 
-            Logging.logCheckedFiner(LOG, "Sending content request to:\n" + adv.getPipeAdvertisement());
-            Logging.logCheckedFiner(LOG, "Request:\n" + request.getDocument(MimeMediaType.XMLUTF8));
+            Logging.logCheckedFiner(LOG, "Sending content request to:\n", adv.getPipeAdvertisement());
+            Logging.logCheckedFiner(LOG, "Request:\n", request.getDocument(MimeMediaType.XMLUTF8));
             
             socket = new JxtaSocket(
                     peerGroup, null, adv.getPipeAdvertisement(),
@@ -262,7 +262,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
             InputStream inStream = socket.getInputStream();
             ContentResponse response = ContentResponse.readFromStream(inStream);
 
-            Logging.logCheckedFiner(LOG, "Got response: " + response.getDocument(MimeMediaType.XMLUTF8));
+            Logging.logCheckedFiner(LOG, "Got response: ", response.getDocument(MimeMediaType.XMLUTF8));
             
             if (response.getSuccess()) {
 
@@ -283,7 +283,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
                 try {
                     socket.close();
                 } catch (IOException iox) {
-                    Logging.logCheckedFinest(LOG, "Ignoring exception\n" + iox.toString());
+                    Logging.logCheckedFinest(LOG, "Ignoring exception\n" + iox);
                 }
             }
 
@@ -296,7 +296,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
             result = ContentTransferState.COMPLETED;
         }
 
-        Logging.logCheckedFine(LOG, "Transfer attempt exiting with result: " + result);
+        Logging.logCheckedFine(LOG, "Transfer attempt exiting with result: ", result);
         return result;
     }
 
@@ -347,7 +347,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
             destFile.createNewFile();
             fileOut = new FileOutputStream(destFile);
         } catch (Throwable t) {
-            Logging.logCheckedFine(LOG, "Caught exception\n" + t.toString());
+            Logging.logCheckedFine(LOG, "Caught exception\n", t);
             return null;
         }
 
@@ -360,7 +360,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
 
             readCount = stream.read(buffer);
 
-            Logging.logCheckedFinest(LOG, "Read count: " + readCount);
+            Logging.logCheckedFinest(LOG, "Read count: ", readCount);
             
             if (readCount < 0) {
                 // EOS
@@ -385,7 +385,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
         Content result = new Content(
                 adv.getContentID(), cAdv.getMetaID(), fileDocument);
 
-        Logging.logCheckedFiner(LOG, "Result Content object: " + result);
+        Logging.logCheckedFiner(LOG, "Result Content object: ", result);
         return result;
     }
 

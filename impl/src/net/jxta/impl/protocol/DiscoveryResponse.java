@@ -204,7 +204,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
             }
         } catch (Exception failed) {
 
-            Logging.logCheckedWarning(LOG, "Got an Exception during doc creation", failed);
+            Logging.logCheckedWarning(LOG, "Got an Exception during doc creation\n", failed);
             IllegalStateException failure = new IllegalStateException("Got an Exception during doc creation");
             failure.initCause(failed);
             throw failure;
@@ -295,7 +295,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
 
         } catch (Exception failed) {
 
-            Logging.logCheckedWarning(LOG, "Got an Exception during Parse ", failed);
+            Logging.logCheckedWarning(LOG, "Got an Exception during Parse \n", failed);
             IllegalArgumentException failure = new IllegalArgumentException("Got an Exception during parse");
             failure.initCause(failed);
             throw failure;

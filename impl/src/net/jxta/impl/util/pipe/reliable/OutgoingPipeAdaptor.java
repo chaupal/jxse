@@ -105,7 +105,7 @@ public class OutgoingPipeAdaptor implements Outgoing {
 
         } catch (IOException ex) {
 
-            Logging.logCheckedWarning(LOG, "Failed to send message " + msg, ex);
+            Logging.logCheckedWarning(LOG, "Failed to send message ", msg, "\n", ex);
             return false;
 
         }

@@ -439,7 +439,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
 
                     } catch (Throwable uncaught) {
 
-                        Logging.logCheckedSevere(LOG, "Uncaught Throwable in selfDescructTask. ", uncaught);
+                        Logging.logCheckedSevere(LOG, "Uncaught Throwable in selfDescructTask. \n", uncaught);
 
                     }
                 }

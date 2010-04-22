@@ -158,7 +158,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
 
             } catch (IOException failure) {
 
-                Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Failed sending a response message", failure);
+                Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Failed sending a response message\n", failure);
                 return;
                 
             }
@@ -212,7 +212,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
                 received_count.notify();
             }
         } catch (Exception failure) {
-            Logging.logCheckedSevere(LOG, "[" + Thread.currentThread().getName() + "] Failure receiving event", failure);
+            Logging.logCheckedSevere(LOG, "[" + Thread.currentThread().getName() + "] Failure receiving event\n", failure);
         }
     }
 
@@ -237,7 +237,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
 
         } catch (IOException failure) {
 
-            Logging.logCheckedSevere(LOG, "[" + Thread.currentThread().getName() + "] Failure opening pipe", failure);
+            Logging.logCheckedSevere(LOG, "[" + Thread.currentThread().getName() + "] Failure opening pipe\n", failure);
             
         } finally {
 
@@ -290,7 +290,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
             manager.stopNetwork();
             System.out.println("JXTA Shutdown");
         } catch (Throwable all) {
-            LOG.log(Level.SEVERE, "Failure starting bi-directional pipes.", all);
+            LOG.log(Level.SEVERE, "Failure starting bi-directional pipes.\n", all);
             System.exit(-1);
         }
     }

@@ -151,7 +151,7 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
         
         if(e.getCause() instanceof TimeoutException && state == JxtaProtocolState.AWAITING_WELCOME_MESSAGE) {
 
-            Logging.logCheckedWarning(LOG, "Failed to receive welcome message from client " + ctx.getChannel().getRemoteAddress() + " in timely manner - disconnecting");
+            Logging.logCheckedWarning(LOG, "Failed to receive welcome message from client ", ctx.getChannel().getRemoteAddress(), " in timely manner - disconnecting");
             Channels.close(ctx, ctx.getChannel().getCloseFuture());
             return;
 
@@ -241,7 +241,8 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
                 if(receivedBytes.readableBytes() > MAX_WELCOME_MESSAGE_SIZE) {
 
                     // TODO: notify outside world?
-                    Logging.logCheckedWarning(LOG, "Received a welcome message bigger than the maximum size (" + MAX_WELCOME_MESSAGE_SIZE + ") from client " + ctx.getChannel().getRemoteAddress() + "- disconnecting");
+                    Logging.logCheckedWarning(LOG, "Received a welcome message bigger than the maximum size (", MAX_WELCOME_MESSAGE_SIZE, ") from client ",
+                            ctx.getChannel().getRemoteAddress(), "- disconnecting");
                     Channels.close(ctx, ctx.getChannel().getCloseFuture());
 
                 }
@@ -283,7 +284,8 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
 
             // invalid / corrupt welcome message received, disconnect
             // TODO: flag this to controller
-            Logging.logCheckedWarning(LOG, "Corrupt / invalid message header received from client " + ctx.getChannel().getRemoteAddress() + " - disconnecting");
+            Logging.logCheckedWarning(LOG, "Corrupt / invalid message header received from client ",
+                    ctx.getChannel().getRemoteAddress(), " - disconnecting");
             ctx.getChannel().close();
             return false;
 

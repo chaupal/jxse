@@ -125,7 +125,7 @@ class NonBlockingWireOutputPipe implements OutputPipe {
         this.destPeers = new HashSet<ID>(peers);
         this.pAdv = pAdv;
 
-        Logging.logCheckedInfo(LOG, "Constructing for " + getPipeID());
+        Logging.logCheckedInfo(LOG, "Constructing for ", getPipeID());
         
     }
 
@@ -136,7 +136,7 @@ class NonBlockingWireOutputPipe implements OutputPipe {
 
         // Close the queue so that no more messages are accepted
         if (!closed) {
-            Logging.logCheckedInfo(LOG, "Closing queue for " + getPipeID());
+            Logging.logCheckedInfo(LOG, "Closing queue for ", getPipeID());
         }
 
         closed = true;

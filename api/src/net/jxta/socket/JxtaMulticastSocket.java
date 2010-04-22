@@ -209,7 +209,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
 
         srcElement = new StringMessageElement(SRCIDTAG, id, null);
 
-        Logging.logCheckedInfo(LOG, "Starting JxtaMulticastSocket on pipe id :" + pipeAdv.getID());
+        Logging.logCheckedInfo(LOG, "Starting JxtaMulticastSocket on pipe id :", pipeAdv.getID());
         
         String pipeStr = pipeAd.getPipeID().getUniqueValue().toString();
 
@@ -237,7 +237,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
             }
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "failed to get credential", e);
+            Logging.logCheckedWarning(LOG, "failed to get credential\n", e);
             
         }
         return null;
@@ -295,11 +295,11 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
            
         } catch (InterruptedException e) {
 
-            Logging.logCheckedFine(LOG, "Interrupted\n" + e.toString());
+            Logging.logCheckedFine(LOG, "Interrupted\n" + e);
             
         } catch (IllegalArgumentException e){
 
-            Logging.logCheckedFine(LOG, "Failed to push the message onto queue\n" + e.toString());
+            Logging.logCheckedFine(LOG, "Failed to push the message onto queue\n", e);
 
         }
     }
@@ -432,7 +432,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
 
         } catch (InterruptedException e) {
 
-            Logging.logCheckedFine(LOG, "Exception occured\n" + e.toString());
+            Logging.logCheckedFine(LOG, "Exception occured\n", e);
             throw new IOException(e.toString());
 
         }
@@ -442,10 +442,10 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
 
         String addrStr = new String(sel.getBytes(false), 0, (int) sel.getByteLength(), "UTF8");
 
-        Logging.logCheckedFine(LOG, "Src Address :" + addrStr);
+        Logging.logCheckedFine(LOG, "Src Address :", addrStr);
         InetAddress address = InetAddress.getByAddress(addrStr, fauxip);
 
-        Logging.logCheckedFine(LOG, "Setting Data, and Src Address :" + address);
+        Logging.logCheckedFine(LOG, "Setting Data, and Src Address :", address);
         packet.setAddress(address);
         packet.setData(del.getBytes(false));
     }

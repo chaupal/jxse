@@ -191,7 +191,7 @@ public class Certificate {
             Element elem = (Element) elements.nextElement();
 
             if (!elem.getKey().equals("Issuer")) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
                 continue;
             }
 

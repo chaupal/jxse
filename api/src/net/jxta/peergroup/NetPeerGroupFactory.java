@@ -142,7 +142,7 @@ public final class NetPeerGroupFactory {
                         ResourceBundle rsrcs = new PropertyResourceBundle(new FileInputStream(configProperties));
 
                         tunables = new NetGroupTunables(rsrcs, tunables);
-                        Logging.logCheckedFine(LOG, "Loaded defaults from " + rsrcs);
+                        Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
                         
                     } catch (MissingResourceException ignored) {
                         // ingnored
@@ -446,11 +446,11 @@ public final class NetPeerGroupFactory {
                 throw new PeerGroupException("Only a single instance of a Peer Group may be instantiated at a single time.");
             }
 
-            Logging.logCheckedInfo(LOG, "Instantiating net peer group : " + id +
-                        "\n\tParent : " + parentGroup + 
-                        "\n\tID : " + id + 
-                        "\n\tName : " + name + 
-                        "\n\timpl : " + implAdv);
+            Logging.logCheckedInfo(LOG, "Instantiating net peer group : ", id,
+                        "\n\tParent : ", parentGroup,
+                        "\n\tID : ", id,
+                        "\n\tName : ", name,
+                        "\n\timpl : ", implAdv);
 
             try {
                 if (null == implAdv) {
@@ -474,14 +474,14 @@ public final class NetPeerGroupFactory {
                 return result;
             } catch (PeerGroupException failed) {
                 
-                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", failed);
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", failed);
                 
                 // rethrow
                 throw failed;
 
             } catch (RuntimeException e) {
 
-                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
                 
                 // rethrow
                 throw e;
@@ -489,7 +489,7 @@ public final class NetPeerGroupFactory {
             } catch (Exception e) {
 
                 // should be all other checked exceptions
-                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
                 
                 // Simplify exception scheme for caller: every sort of problem 
                 // wrapped in a PeerGroupException.
@@ -559,7 +559,7 @@ public final class NetPeerGroupFactory {
 
                 if (null != defaults) {
 
-                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n" + failed.toString());
+                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n\n", failed);
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;
@@ -567,7 +567,7 @@ public final class NetPeerGroupFactory {
 
                 } else {
 
-                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.", failed);
+                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
                 
                 }

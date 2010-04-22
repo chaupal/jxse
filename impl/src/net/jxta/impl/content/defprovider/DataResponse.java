@@ -247,7 +247,7 @@ public class DataResponse {
         while (elements.hasMoreElements()) {
             Element elem = (Element) elements.nextElement();
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element : " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element : ", elem);
             }
         }
     }

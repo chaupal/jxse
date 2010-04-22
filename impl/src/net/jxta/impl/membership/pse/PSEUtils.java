@@ -132,7 +132,7 @@ public final class PSEUtils {
             
         } catch (Exception disallowed) {
 
-            Logging.logCheckedWarning(LOG, "Failed loading Security Providers into System Class Loader. Will try local class loader (which may not work)",
+            Logging.logCheckedWarning(LOG, "Failed loading Security Providers into System Class Loader. Will try local class loader (which may not work)\n",
                 disallowed);
   
             // Add the providers we use.
@@ -229,7 +229,7 @@ public final class PSEUtils {
 
         } catch (NoSuchAlgorithmException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
+            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
             
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
@@ -301,16 +301,16 @@ public final class PSEUtils {
 
             // dump the certificate?
             if (null == issuer) {
-                Logging.logCheckedFine(LOG, "Root Cert : \n" + info.cert.toString());
+                Logging.logCheckedFine(LOG, "Root Cert : \n", info.cert);
             } else {
-                Logging.logCheckedFine(LOG, "Client Cert : \n" + info.cert.toString());
+                Logging.logCheckedFine(LOG, "Client Cert : \n", info.cert);
             }
 
             return info;
 
         } catch (SignatureException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
+            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
@@ -318,7 +318,7 @@ public final class PSEUtils {
 
         } catch (InvalidKeyException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
+            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
@@ -326,7 +326,7 @@ public final class PSEUtils {
 
         } catch (IOException e) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate certificate", e);
+            Logging.logCheckedSevere(LOG, "Could not generate certificate\n\n", e);
 
             SecurityException failure = new SecurityException("Could not generate certificate");
             failure.initCause(e);
@@ -497,8 +497,6 @@ public final class PSEUtils {
      */
     public static EncryptedPrivateKeyInfo pkcs5_Encrypt_pbePrivateKey(char[] password, PrivateKey privkey, int iterations) {
 
-        Logging.logCheckedFine(LOG, "Encrypting " + privkey + " with \'" + new String(password) + "\'");
-
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
         byte[] salt = new byte[8];
 
@@ -529,7 +527,7 @@ public final class PSEUtils {
 
         } catch (Exception failed) {
 
-            Logging.logCheckedWarning(LOG, "Encrypt failed", failed);
+            Logging.logCheckedWarning(LOG, "Encrypt failed\n", failed);
             return null;
 
         }
@@ -545,8 +543,6 @@ public final class PSEUtils {
      */
     public static PrivateKey pkcs5_Decrypt_pbePrivateKey(char[] password, String algorithm, EncryptedPrivateKeyInfo encryptedPrivKey) {
 
-        Logging.logCheckedFine(LOG, "Decrypting " + encryptedPrivKey + "/" + algorithm + " with \'" + new String(password) + "\'");
-
         PBEKeySpec pbeKeySpec = new PBEKeySpec(password);
 
         try {
@@ -555,7 +551,7 @@ public final class PSEUtils {
 
             if (null == algo) {
 
-                Logging.logCheckedWarning(LOG, "Could not get algo parameters from " + encryptedPrivKey);
+                Logging.logCheckedWarning(LOG, "Could not get algo parameters from ", encryptedPrivKey);
                 throw new IllegalStateException("Could not get algo parameters from " + encryptedPrivKey);
 
             }
@@ -584,13 +580,13 @@ public final class PSEUtils {
 
             } catch (InvalidKeySpecException failed) {
 
-                Logging.logCheckedWarning(LOG, "Incorrect key for " + encryptedPrivKey + " : " + failed);
+                Logging.logCheckedWarning(LOG, "Incorrect key for ", encryptedPrivKey, " : \n", failed);
                 return null;
 
             }
         } catch (Exception failed) {
 
-            Logging.logCheckedWarning(LOG, "Decrypt failed", failed);
+            Logging.logCheckedWarning(LOG, "Decrypt failed\n", failed);
             return null;
 
         }
@@ -792,7 +788,7 @@ public final class PSEUtils {
 
         String encoded = base64.toString();
 
-        Logging.logCheckedFiner(LOG, "Encoded " + in.length + " bytes -> " + encoded.length() + " characters.");
+        Logging.logCheckedFiner(LOG, "Encoded ", in.length, " bytes -> ", encoded.length(), " characters.");
         
         return encoded;
     }
@@ -819,7 +815,7 @@ public final class PSEUtils {
 
         byte[] result = bos.toByteArray();
 
-        Logging.logCheckedFiner(LOG, "Decoded " + result.length + " bytes.");
+        Logging.logCheckedFiner(LOG, "Decoded ", result.length, " bytes.");
 
         return result;
     }

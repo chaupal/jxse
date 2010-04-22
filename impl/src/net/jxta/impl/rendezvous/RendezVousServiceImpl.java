@@ -565,7 +565,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             if (!rdvProviderSwitchStatus.compareAndSet(false, true)) {
 
                 IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
-                Logging.logCheckedSevere(LOG, "Failed to start rendezvous", failed);
+                Logging.logCheckedSevere(LOG, "Failed to start rendezvous\n", failed);
                 throw failed;
 
             }
@@ -592,7 +592,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
         } catch (IOException failure) {
 
-            Logging.logCheckedWarning(LOG, "Failed to start rendezvous", failure);
+            Logging.logCheckedWarning(LOG, "Failed to start rendezvous\n", failure);
             
         }
     }
@@ -609,7 +609,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         if (!rdvProviderSwitchStatus.compareAndSet(false, true)) {
 
             IOException failed = new IOException("Currently switching rendezvous configuration. try again later.");
-            Logging.logCheckedSevere(LOG, "Failed to stop rendezvous", failed);
+            Logging.logCheckedSevere(LOG, "Failed to stop rendezvous\n", failed);
             
         }
 
@@ -864,7 +864,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         Iterator eachListener = Arrays.asList(eventListeners.toArray()).iterator();
         RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
 
-        Logging.logCheckedFine(LOG, "Calling listeners for " + event);
+        Logging.logCheckedFine(LOG, "Calling listeners for ", event);
 
         while (eachListener.hasNext()) {
 
@@ -873,7 +873,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             try {
                 aListener.rendezvousEvent(event);
             } catch (Throwable ignored) {
-                Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener (" + aListener + ")", ignored);
+                Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener (", aListener, ")\n", ignored);
             }
 
         }
@@ -937,7 +937,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in Timer : " + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in Timer : " + Thread.currentThread().getName(), "\n", all);
                 
             }
         }
@@ -951,7 +951,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             found = msgIds.contains(id);
         }
 
-        Logging.logCheckedFiner(LOG, id + " = " + found);
+        Logging.logCheckedFiner(LOG, id, " = ", found);
         
         return found;
 
@@ -981,7 +981,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             messagesReceived++;
         }
 
-        Logging.logCheckedFiner(LOG, "Added Message ID : " + id);
+        Logging.logCheckedFiner(LOG, "Added Message ID : ", id);
 
         return true;
     }

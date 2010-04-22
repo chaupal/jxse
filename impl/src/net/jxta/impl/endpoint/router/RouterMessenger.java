@@ -151,7 +151,7 @@ class RouterMessenger extends BlockingMessenger {
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            Logging.logCheckedWarning(LOG, failure.getMessage());
+            Logging.logCheckedWarning(LOG, failure);
             throw failure;
 
         }
@@ -170,7 +170,7 @@ class RouterMessenger extends BlockingMessenger {
 
                 if (null == sendTo) break;
                 
-                Logging.logCheckedFine(LOG, "Sending " + message + " to " + sendTo);
+                Logging.logCheckedFine(LOG, "Sending ", message, " to ", sendTo);
                 router.sendOnLocalRoute(sendTo, message);
 
                 // it worked! We are done.
@@ -183,7 +183,7 @@ class RouterMessenger extends BlockingMessenger {
                 // Either way, we must not retry. The loop could be
                 // unbounded.
 
-                Logging.logCheckedWarning(LOG, "Failure while routing " + message, rte);
+                Logging.logCheckedWarning(LOG, "Failure while routing ", message, rte);
                 
                 lastFailure = rte;
                 break;
@@ -194,7 +194,7 @@ class RouterMessenger extends BlockingMessenger {
 
                     // This is bad: address message was not able to
                     // do anything. Stop the loop.
-                    Logging.logCheckedWarning(LOG, "Unknown failure while routing " + message, theMatter);
+                    Logging.logCheckedWarning(LOG, "Unknown failure while routing ", message, "\n", theMatter);
                     break;
 
                 }
@@ -235,7 +235,7 @@ class RouterMessenger extends BlockingMessenger {
 
         // Kind of stupid. Have to convert the runtime exceptions so that we
         // can re-throw them.
-        Logging.logCheckedFine(LOG, "Messenger failed:\n" + lastFailure.toString());
+        Logging.logCheckedFine(LOG, "Messenger failed:\n", lastFailure);
 
         if (lastFailure instanceof IOException) {
             throw (IOException) lastFailure;

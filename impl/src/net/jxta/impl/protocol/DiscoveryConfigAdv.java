@@ -202,7 +202,7 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
                 localOnly = flag;
             } else {
 
-                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + name);
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", name);
                 
             }
         }

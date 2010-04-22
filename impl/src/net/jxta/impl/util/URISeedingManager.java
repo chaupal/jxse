@@ -251,7 +251,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
                     } catch (URISyntaxException failed) {
 
-                        Logging.logCheckedWarning(LOG, "bad address in route : " + anEndpointAddress, failed);
+                        Logging.logCheckedWarning(LOG, "bad address in route : ", anEndpointAddress, failed);
                         
                     }
                 }
@@ -353,7 +353,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
                 try {
 
-                    Logging.logCheckedFine(LOG, "Loading seeding list from : " + aSeedingURI);
+                    Logging.logCheckedFine(LOG, "Loading seeding list from : ", aSeedingURI);
                     
                     RouteAdvertisement ras[] = loadSeeds(aSeedingURI);
                     
@@ -367,7 +367,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
                 } catch (IOException failed) {
 
-                    Logging.logCheckedWarning(LOG, "Failed loading seeding list from : " + aSeedingURI);
+                    Logging.logCheckedWarning(LOG, "Failed loading seeding list from : ", aSeedingURI);
                     
                 }
 
@@ -538,7 +538,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
                 } catch (IllegalArgumentException badURI) {
 
-                    Logging.logCheckedWarning(LOG, "bad URI in seeding list : " + aSeed, badURI);
+                    Logging.logCheckedWarning(LOG, "bad URI in seeding list : ", aSeed, badURI);
                     
                 }
             }

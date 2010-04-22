@@ -391,7 +391,7 @@ public class PasswdMembershipService implements MembershipService {
                 XMLElement elem = (XMLElement) elements.nextElement();
 
                 if (!handleElement(elem)) {
-                    Logging.logCheckedWarning(LOG, "Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());
                 }
 
             }
@@ -641,7 +641,7 @@ public class PasswdMembershipService implements MembershipService {
                 int lastDelim = etcPasswd.indexOf(':', nextDelim + 1);
                 String passwd = etcPasswd.substring(nextDelim + 1, lastDelim);
 
-                Logging.logCheckedFine(LOG, "Adding login : \'" + login + "\' with encoded password : \'" + passwd + "\'");
+                Logging.logCheckedFine(LOG, "Adding login : \'", login, "\' with encoded password : \'", passwd, "\'");
                 logins.put(login, passwd);
 
             }
@@ -816,7 +816,7 @@ public class PasswdMembershipService implements MembershipService {
         }
         
         String encodedPW = makePsswd(passwd);
-        Logging.logCheckedFine(LOG, "Password \'" + passwd + "\' encodes as: \'" + encodedPW + "\'");
+        Logging.logCheckedFine(LOG, "Password \'", passwd, "\' encodes as: \'", encodedPW, "\'");
         
         String mustMatch = (String) logins.get(identity);
         

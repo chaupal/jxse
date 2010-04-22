@@ -182,7 +182,7 @@ public class BTree extends Paged {
 
             } catch (Exception e) {
 
-                Logging.logCheckedWarning(LOG, "Failed to create BTree, return false", e);
+                Logging.logCheckedWarning(LOG, "Failed to create BTree, return false\n", e);
                 
             }
         }
@@ -465,7 +465,7 @@ public class BTree extends Paged {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Ignored exception", e);
+            Logging.logCheckedWarning(LOG, "Ignored exception\n", e);
             return null;
 
         }

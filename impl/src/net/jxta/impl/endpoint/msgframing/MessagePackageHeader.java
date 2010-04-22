@@ -319,7 +319,6 @@ public class MessagePackageHeader {
             byte[] headerValueBytes = new byte[headerValueLength];
             
             buffer.get(headerValueBytes);
-
             Logging.logCheckedFiner(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
 
             headers.add(new Header(headerNameString, headerValueBytes));
@@ -350,8 +349,8 @@ public class MessagePackageHeader {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
         
-        Logging.logCheckedFiner(LOG, "Add header :" + name + "(" + name.length() + ") with " + value.length + " bytes of value");
-        
+        Logging.logCheckedFiner(LOG, "Add header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
+
         headers.add(new Header(name, value));
 
     }
@@ -366,7 +365,7 @@ public class MessagePackageHeader {
      */
     public void addHeader(String name, String value) {
         
-        Logging.logCheckedFiner(LOG, "Add header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
+        Logging.logCheckedFiner(LOG, "Add header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
         
         try {
             addHeader(name, value.getBytes("UTF-8"));
@@ -393,7 +392,7 @@ public class MessagePackageHeader {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
         
-        Logging.logCheckedFiner(LOG, "Replace header :" + name + "(" + name.length() + ") with " + value.length + " bytes of value");
+        Logging.logCheckedFiner(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
         
         Header newHeader = new Header(name, value);
         ListIterator<Header> eachHeader = getHeaders();
@@ -423,7 +422,7 @@ public class MessagePackageHeader {
      */
     public void replaceHeader(String name, String value) {
 
-        Logging.logCheckedFiner(LOG, "Replace header :" + name + "(" + name.length() + ") with " + value.length() + " chars of value");
+        Logging.logCheckedFiner(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
         
         try {
             replaceHeader(name, value.getBytes("UTF-8"));

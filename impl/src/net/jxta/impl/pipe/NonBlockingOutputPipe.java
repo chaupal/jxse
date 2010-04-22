@@ -238,7 +238,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         this.destPeer = destPeer;
         this.resolvablePeers = new HashSet<ID>(peers);
 
-        Logging.logCheckedInfo(LOG, "Constructing for " + getPipeID());
+        Logging.logCheckedInfo(LOG, "Constructing for ", getPipeID());
 
         workerstate = WorkerState.ACQUIREMESSENGER;
         startServiceThread();
@@ -264,7 +264,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
         // Close the queue so that no more messages are accepted
         if (!isClosed()) {
-            Logging.logCheckedInfo(LOG, "Closing for " + getPipeID());
+            Logging.logCheckedInfo(LOG, "Closing for ", getPipeID());
         }
 
         closed = true;
@@ -310,7 +310,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
      */
     public boolean send(Message msg) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Queuing " + msg + " for pipe " + getPipeID());
+        Logging.logCheckedFine(LOG, "Queuing ", msg, " for pipe ", getPipeID());
 
         boolean pushed = false;
         while (!isClosed()) {
@@ -325,7 +325,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         if (!pushed && isClosed()) {
 
             IOException failed = new IOException("Could not enqueue " + msg + " for sending. Pipe is closed.");
-            Logging.logCheckedSevere(LOG, failed.getMessage());
+            Logging.logCheckedSevere(LOG, failed);
             throw failed;
 
         }
@@ -430,9 +430,9 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                     if ((WorkerState.STARTVERIFY == workerstate) || (WorkerState.STARTMIGRATE == workerstate)) {
 
                         if (null == destPeer) {
-                            Logging.logCheckedFine(LOG, "Starting re-resolve for \'" + getPipeID());
+                            Logging.logCheckedFine(LOG, "Starting re-resolve for \'", getPipeID());
                         } else {
-                            Logging.logCheckedFine(LOG, "Starting verify for \'" + getPipeID() + "\' to : " + destPeer);
+                            Logging.logCheckedFine(LOG, "Starting verify for \'", getPipeID(), "\' to : ", destPeer);
                         }
 
                         queryID = PipeResolver.getNextQueryID();
@@ -451,11 +451,11 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                     } else if ((WorkerState.PENDINGVERIFY == workerstate) || (WorkerState.PENDINGMIGRATE == workerstate)) {
 
                         Logging.logCheckedFine(LOG,
-                            "Pipe " + ((WorkerState.PENDINGVERIFY == workerstate) ? "verify" : "migrate")
-                            + "in progress. Continues for "
-                            + TimeUtils.toRelativeTimeMillis(absoluteTimeoutAt, TimeUtils.timeNow())
-                            + "ms. Next query in " + TimeUtils.toRelativeTimeMillis(nextQueryAt, TimeUtils.timeNow())
-                            + "ms.");
+                            "Pipe ", ((WorkerState.PENDINGVERIFY == workerstate) ? "verify" : "migrate"),
+                            "in progress. Continues for ",
+                            TimeUtils.toRelativeTimeMillis(absoluteTimeoutAt, TimeUtils.timeNow()),
+                            "ms. Next query in " + TimeUtils.toRelativeTimeMillis(nextQueryAt, TimeUtils.timeNow()),
+                            "ms.");
                         
                         // check to see if we are completely done.
                         if (TimeUtils.toRelativeTimeMillis(absoluteTimeoutAt, TimeUtils.timeNow()) <= 0) {
@@ -464,7 +464,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
                             if (WorkerState.PENDINGVERIFY == workerstate) {
                                 
-                                Logging.logCheckedInfo(LOG, "Pipe \'" + getPipeID() + "\' has migrated from " + destPeer);
+                                Logging.logCheckedInfo(LOG, "Pipe \'", getPipeID(), "\' has migrated from ", destPeer);
                                 
                                 workerstate = WorkerState.STARTMIGRATE;
 
@@ -473,7 +473,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
                             } else {
 
-                                Logging.logCheckedWarning(LOG, "Pipe \'" + getPipeID() + "\' cannot be migrated and is being closed");
+                                Logging.logCheckedWarning(LOG, "Pipe \'", getPipeID(), "\' cannot be migrated and is being closed");
                                 workerstate = WorkerState.CLOSED;
                                 close();
 
@@ -488,15 +488,15 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
                             if (null != destPeer) {
 
-                                Logging.logCheckedFine(LOG, "Sending out verify query ("
-                                    + queryID + ") for \'" + getPipeID() + "\' to : " + destPeer);
+                                Logging.logCheckedFine(LOG, "Sending out verify query (",
+                                    queryID, ") for \'", getPipeID(), "\' to : ", destPeer);
                                 
                                 pipeResolver.sendPipeQuery(pAdv, Collections.singleton(destPeer), queryID);
 
                             } else {
 
-                                Logging.logCheckedFine(LOG, "Sending out resolve query (" + queryID + ") for "
-                                    + getPipeID());
+                                Logging.logCheckedFine(LOG, "Sending out resolve query (", queryID, ") for ",
+                                    getPipeID());
                                 
                                 pipeResolver.sendPipeQuery(pAdv, resolvablePeers, queryID);
 
@@ -509,7 +509,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
                         if (sleep >= 0) {
 
-                            Logging.logCheckedFine(LOG, "Waiting " + sleep + "ms for response for (" + queryID + ") for " + getPipeID());
+                            Logging.logCheckedFine(LOG, "Waiting ", sleep, "ms for response for (", queryID, ") for ", getPipeID());
 
                             try {
                                 wait(sleep);
@@ -525,7 +525,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                         if ((null == destMessenger) || destMessenger.isClosed()) {
 
                             destMessenger = null;
-                            Logging.logCheckedFine(LOG, "Getting messenger to \'" + destPeer + "\' for pipe " + getPipeID());
+                            Logging.logCheckedFine(LOG, "Getting messenger to \'", destPeer, "\' for pipe ", getPipeID());
 
                             destAddress = mkAddress(destPeer, getPipeID());
                             // todo 20031011 bondolo@jxta.org This should not be done under sync
@@ -534,7 +534,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                             if (destMessenger == null) {
 
                                 // We could not get a messenger to the peer, forget it and try again.
-                                Logging.logCheckedWarning(LOG, "Could not get messenger to : " + destPeer + ". ");
+                                Logging.logCheckedWarning(LOG, "Could not get messenger to : ", destPeer, ". ");
 
                                 if (migrated) {
                                     // we can't migrate again, we never finished.
@@ -557,7 +557,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                             }
                         } else {
 
-                            Logging.logCheckedFine(LOG, "Using existing messenger to : " + destPeer);
+                            Logging.logCheckedFine(LOG, "Using existing messenger to : ", destPeer);
 
                         }
 
@@ -618,13 +618,13 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                         }
                     }
 
-                    Logging.logCheckedFine(LOG, "Sending " + msg + " on " + getPipeID());
+                    Logging.logCheckedFine(LOG, "Sending ", msg, " on ", getPipeID());
 
                     if (!destMessenger.isClosed()) {
                         try {
                             destMessenger.sendMessageB(msg, null, null);
                         } catch (IOException failed) {
-                            Logging.logCheckedWarning(LOG, "Failure sending " + msg + " on " + getPipeID(), failed);
+                            Logging.logCheckedWarning(LOG, "Failure sending ", msg, " on ", getPipeID(), "\n", failed);
                         }
                     }
 
@@ -640,7 +640,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             }
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
 
             // give another thread the chance to start unless one already has.
             // If the exception was caused by damaged state on this object then
@@ -654,8 +654,8 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
         } finally {
             
-            Logging.logCheckedInfo(LOG, "Thread exit : " + Thread.currentThread().getName()
-                + "\n\tworker state : " + workerstate);
+            Logging.logCheckedInfo(LOG, "Thread exit : ", Thread.currentThread().getName(),
+                "\n\tworker state : ", workerstate);
             
         }
     }
@@ -672,8 +672,8 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             serviceThread.setDaemon(true);
             serviceThread.start();
 
-            Logging.logCheckedInfo(LOG, "Thread start : " + serviceThread.getName()
-                + "\n\tworker state : " + workerstate);
+            Logging.logCheckedInfo(LOG, "Thread start : ", serviceThread.getName(),
+                "\n\tworker state : ", workerstate);
 
         }
     }
@@ -701,7 +701,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
             // we have been told that the destination peer no longer wants
             // to talk with us. We will try to migrate to another peer.
-            Logging.logCheckedWarning(LOG, "Pipe \'" + getPipeID() + "\' is closed at " + event.getPeerID());
+            Logging.logCheckedWarning(LOG, "Pipe \'", getPipeID(), "\' is closed at ", event.getPeerID());
 
             workerstate = WorkerState.STARTMIGRATE;
             pipeResolver.removeListener(getPipeID(), queryID);
@@ -716,7 +716,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             return true;
         }
 
-        Logging.logCheckedFine(LOG, "Ignoring NAK from " + event.getPeerID());
+        Logging.logCheckedFine(LOG, "Ignoring NAK from ", event.getPeerID());
 
         // didn't refer to us or we don't care.
         return false;
@@ -732,12 +732,12 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             if ((workerstate == WorkerState.PENDINGVERIFY) && !event.getPeerID().equals(destPeer)) {
                 // not from the right peer so ignore it.
 
-                Logging.logCheckedFine(LOG, "Ignoring response from " + event.getPeerID());
+                Logging.logCheckedFine(LOG, "Ignoring response from ", event.getPeerID());
                 return false;
 
             } else {
 
-                Logging.logCheckedInfo(LOG, "Pipe \'" + getPipeID() + "\' is verified for " + destPeer);
+                Logging.logCheckedInfo(LOG, "Pipe \'", getPipeID(), "\' is verified for ", destPeer);
                 
             }
 
@@ -746,14 +746,14 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             destPeer = event.getPeerID();
 
             if (workerstate == WorkerState.PENDINGMIGRATE) {
-                Logging.logCheckedInfo(LOG, "Pipe \'" + getPipeID() + "\' has migrated to " + destPeer);
+                Logging.logCheckedInfo(LOG, "Pipe \'", getPipeID(), "\' has migrated to ", destPeer);
             }
             
             notify();
             return true;
         }
 
-        Logging.logCheckedFine(LOG, "Ignoring resolve from " + event.getPeerID());
+        Logging.logCheckedFine(LOG, "Ignoring resolve from ", event.getPeerID());
         
         // didn't refer to us or we don't care.
         return false;

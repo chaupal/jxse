@@ -185,7 +185,7 @@ public class JxtaServerPipeExample {
                 // System.out.println("Got Message :" + msgElement.toString());
             } catch (Exception e) {
 
-                Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Failure during message receipt.", e);
+                Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Failure during message receipt.\n", e);
 
             }
         }
@@ -242,7 +242,7 @@ public class JxtaServerPipeExample {
                 System.out.println("[" + Thread.currentThread().getName() + "] Closing the pipe");
                 pipe.close();
             } catch (Throwable all) {
-                LOG.log(Level.SEVERE, "[" + Thread.currentThread().getName() + "] Failure in ConnectionHandler", all);
+                LOG.log(Level.SEVERE, "[" + Thread.currentThread().getName() + "] Failure in ConnectionHandler\n", all);
             }
         }
     }
@@ -277,7 +277,7 @@ public class JxtaServerPipeExample {
                 }
             }
         } catch (Throwable all) {
-            LOG.log(Level.SEVERE,"Failure opening server pipe.", all);
+            LOG.log(Level.SEVERE,"Failure opening server pipe.\n", all);
             System.exit(-1);
         }
     }

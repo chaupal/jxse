@@ -170,7 +170,7 @@ public class ContentAdvertisementImpl extends ContentAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if ( !handleElement(elem) ) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
         }
 

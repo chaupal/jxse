@@ -227,7 +227,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         try {
 
-            Logging.logCheckedInfo(LOG, "Connection from " + socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort());
+            Logging.logCheckedInfo(LOG, "Connection from ", socketChannel.socket().getInetAddress().getHostAddress(), ":", socketChannel.socket().getPort());
             
             // Set the socket options.
             Socket socket = socketChannel.socket();
@@ -336,7 +336,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         inetAddress = InetAddress.getByName(hostString);
 
-        Logging.logCheckedInfo(LOG, "Creating new TCP Connection to : " + dstAddress + " / " + inetAddress.getHostAddress() + ":" + port);
+        Logging.logCheckedInfo(LOG, "Creating new TCP Connection to : ", dstAddress, " / ", inetAddress.getHostAddress(), ":", port);
         
         // See if we're attempting to use the loopback address.
         // And if so, is the peer configured for the loopback network only?
@@ -352,8 +352,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         try {
 
-            Logging.logCheckedFine(LOG, "Connecting to " + inetAddress.getHostAddress() + ":" + port + " via "
-                        + this.tcpTransport.usingInterface.getHostAddress() + ":0");
+            Logging.logCheckedFine(LOG, "Connecting to ", inetAddress.getHostAddress(), ":", port, " via ",
+                        this.tcpTransport.usingInterface.getHostAddress(), ":0");
 
             socketChannel = SocketChannel.open();
             Socket socket = socketChannel.socket();
@@ -472,13 +472,13 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             } catch (IOException e) {
 
-                Logging.logCheckedWarning(LOG, "Failed to close messenger " + toString(), e);
+                Logging.logCheckedWarning(LOG, "Failed to close messenger ", this, "\n", e);
                 
             }
 
-            Logging.logCheckedInfo(LOG, (closingDueToFailure ? "Failure" : "Normal") + " close (open "
-                        + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), createdAt) + "ms) of socket to : " + dstAddress + " / "
-                        + inetAddress.getHostAddress() + ":" + port);
+            Logging.logCheckedInfo(LOG, (closingDueToFailure ? "Failure" : "Normal"), " close (open ",
+                        TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), createdAt), "ms) of socket to : ", dstAddress, " / ",
+                        inetAddress.getHostAddress(), ":", port);
 
             if (closingDueToFailure) {
                 Logging.logCheckedFine(LOG, "stack trace");
@@ -550,7 +550,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            Logging.logCheckedWarning(LOG, failure.getMessage());
+            Logging.logCheckedWarning(LOG, failure);
             throw failure;
 
         }
@@ -571,12 +571,12 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         // send it
         try {
 
-            Logging.logCheckedFine(LOG, "Sending " + message + " to " + destAddressToUse + " on connection " + getDestinationAddress());
+            Logging.logCheckedFine(LOG, "Sending ", message, " to ", destAddressToUse, " on connection ", getDestinationAddress());
             xmitMessage(message);
 
         } catch (IOException caught) {
 
-            Logging.logCheckedWarning(LOG, "Message send failed for " + message, caught);
+            Logging.logCheckedWarning(LOG, "Message send failed for ", message, "\n", caught);
             closeImpl();
             throw caught;
 
@@ -618,7 +618,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         if (closed.get()) {
 
-            Logging.logCheckedWarning(LOG, "Connection was closed to : " + dstAddress);
+            Logging.logCheckedWarning(LOG, "Connection was closed to : ", dstAddress);
             throw new IOException("Connection was closed to : " + dstAddress);
 
         }
@@ -638,7 +638,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             size = serialed.getByteLength();
             header.setContentLengthHeader(size);
 
-            Logging.logCheckedFine(LOG, "Sending " + msg + " (" + size + ") to " + dstAddress + " via " + inetAddress.getHostAddress() + ":"+ port);
+            Logging.logCheckedFine(LOG, "Sending ", msg, " (", size, ") to ", dstAddress, " via ", inetAddress.getHostAddress(), ":", port);
 
             List<ByteBuffer> partBuffers = new ArrayList<ByteBuffer>();
 
@@ -673,7 +673,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 transportBindingMeter.sendFailure(initiator, msg, TimeUtils.timeNow() - sendBeginTime, size);
             }
 
-            Logging.logCheckedWarning(LOG, "Message send failed for " + inetAddress.getHostAddress() + ":" + port, failed);
+            Logging.logCheckedWarning(LOG, "Message send failed for ", inetAddress.getHostAddress(), ":", port, failed);
             
             closingDueToFailure = true;
             close();
@@ -794,13 +794,13 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             // The correct value for dstAddr: that of the other party.
             dstAddress = itsWelcome.getPublicAddress();
-            Logging.logCheckedFine(LOG, "Creating a logical address from : " + itsWelcome.getWelcomeString());
+            Logging.logCheckedFine(LOG, "Creating a logical address from : ", itsWelcome.getWelcomeString());
 
             fullDstAddress = dstAddress;
             logicalDestAddress = new EndpointAddress("jxta", itsWelcome.getPeerID().getUniqueValue().toString(), null, null);
 
-            Logging.logCheckedFine(LOG, "Hello from " + itsWelcome.getPublicAddress() + " [" + itsWelcome.getPeerID() + "] ");
-            Logging.logCheckedFine(LOG, "Registering Messenger from " + socketChannel.socket().getInetAddress().getHostAddress() + ":"+ socketChannel.socket().getPort());
+            Logging.logCheckedFine(LOG, "Hello from ", itsWelcome.getPublicAddress(), " [", itsWelcome.getPeerID(), "] ");
+            Logging.logCheckedFine(LOG, "Registering Messenger from ", socketChannel.socket().getInetAddress().getHostAddress(), ":", socketChannel.socket().getPort());
 
             try {
 
@@ -809,7 +809,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 IOException failure = new IOException("Failure announcing messenger.");
                 failure.initCause(all);
                 throw failure;
@@ -818,7 +818,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Error while parsing the welcome message", e);
+            Logging.logCheckedWarning(LOG, "Error while parsing the welcome message\n", e);
             closeImpl();
             return false;
 
@@ -851,7 +851,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Error while parsing the message header", e);
+            Logging.logCheckedWarning(LOG, "Error while parsing the message header\n", e);
             
             if (!socketChannel.isConnected()) {
 
@@ -897,7 +897,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable", all);
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
             
         }
     }
@@ -953,7 +953,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         } catch (ClosedChannelException e) {
 
-            Logging.logCheckedWarning(LOG, "Channel closed while reading data", e);
+            Logging.logCheckedWarning(LOG, "Channel closed while reading data\n", e);
             closeImpl();
             return false;
 
@@ -965,13 +965,13 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             
         } catch (IOException ioe) {
 
-            Logging.logCheckedWarning(LOG, "IOException occured while reading data", ioe);
+            Logging.logCheckedWarning(LOG, "IOException occured while reading data\n", ioe);
             closeImpl();
             return false;
 
         } catch (Throwable e) {
 
-            Logging.logCheckedWarning(LOG, "tcp receive - Error on connection " + inetAddress.getHostAddress().toString() + ":" + port, e);
+            Logging.logCheckedWarning(LOG, "tcp receive - Error on connection ", inetAddress.getHostAddress(), ":", port, e);
             closingDueToFailure = true;
             closeImpl();
             return false;
@@ -1055,7 +1055,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
                         } catch (IOException io) {
 
-                            Logging.logCheckedWarning(LOG, "Failed to parse a message from buffer. closing connection", io);
+                            Logging.logCheckedWarning(LOG, "Failed to parse a message from buffer. closing connection\n", io);
                             closeImpl();
                             done = true;
                             break;

@@ -315,7 +315,7 @@ public class LimitInputStream extends FilterInputStream {
                     IOException failed = new IOException(
                             "Underflow in read, stream EOFed at " + read + " before limit of " + limit);
 
-                    Logging.logCheckedWarning(LOG, failed.getMessage(), failed);
+                    Logging.logCheckedWarning(LOG, failed);
                     throw failed;
 
                 }
@@ -370,7 +370,7 @@ public class LimitInputStream extends FilterInputStream {
                     IOException failed = new IOException(
                             "Underflow while tring to read " + readLen + ", stream EOFed at " + read + " before limit of " + limit);
 
-                    Logging.logCheckedWarning(LOG, failed.getMessage(), failed);
+                    Logging.logCheckedWarning(LOG, failed);
                     throw failed;
 
                 }

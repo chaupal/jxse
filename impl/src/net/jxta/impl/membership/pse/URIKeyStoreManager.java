@@ -125,7 +125,7 @@ public class URIKeyStoreManager implements KeyStoreManager {
             }
         }
         
-        Logging.logCheckedConfig(LOG, "pse location = " + location);
+        Logging.logCheckedConfig(LOG, "pse location = ", location);
         
         keystore_type = type;
         keystore_provider = provider;
@@ -206,7 +206,7 @@ public class URIKeyStoreManager implements KeyStoreManager {
      **/
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
         
-        Logging.logCheckedFine(LOG, "Loading (" + keystore_type + "," + keystore_provider + ") store from " + keystore_location);
+        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
         
         try {
 
@@ -244,7 +244,7 @@ public class URIKeyStoreManager implements KeyStoreManager {
      **/
     public void saveKeyStore(KeyStore store, char[] password) throws KeyStoreException, IOException {
         
-        Logging.logCheckedFine(LOG, "Writing " + store + " to " + keystore_location);
+        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
         
         try {
 
@@ -283,7 +283,7 @@ public class URIKeyStoreManager implements KeyStoreManager {
 
         } else {
 
-            Logging.logCheckedSevere(LOG, "Unable to delete non-file URI :" + keystore_location);
+            Logging.logCheckedSevere(LOG, "Unable to delete non-file URI :", keystore_location);
             throw new UnsupportedOperationException("Unable to delete non-file URI");
 
         }

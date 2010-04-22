@@ -140,7 +140,7 @@ public class RdvAdvSeedingManager extends ACLSeedingManager {
 
             } catch( IOException failed ) {
 
-                Logging.logCheckedWarning(LOG, "Failure retrieving advertisements" , failed);
+                Logging.logCheckedWarning(LOG, "Failure retrieving advertisements\n", failed);
                 return;
 
             }

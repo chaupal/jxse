@@ -365,8 +365,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sources remaining: " + sourcesRemaining.size());
-        Logging.logCheckedFine(LOG, "Sources tried    : " + sourcesTried.size());
+        Logging.logCheckedFine(LOG, "Sources remaining: ", sourcesRemaining.size());
+        Logging.logCheckedFine(LOG, "Sources tried    : ", sourcesTried.size());
 
         if (sourcesRemaining.size() == 0) {
 
@@ -398,8 +398,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             } catch (IOException iox) {
 
-                Logging.logCheckedWarning(LOG, "Could not resolve source pipe for Source: "
-                    + adv.getPipeAdvertisement(), iox);
+                Logging.logCheckedWarning(LOG, "Could not resolve source pipe for Source: ",
+                    adv.getPipeAdvertisement(), iox);
                 
                 adv = null;
 
@@ -409,7 +409,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         
         if (adv == null) throw(new TransferException("Could not find usable source"));
 
-        Logging.logCheckedFine(LOG, "Source selected: " + adv);
+        Logging.logCheckedFine(LOG, "Source selected: ", adv);
         
         try {
             transferInit(dest);
@@ -436,7 +436,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             } catch (InterruptedException intx) {
 
-                Logging.logCheckedWarning(LOG, "Interrupted prior to post-cleanup", intx);
+                Logging.logCheckedWarning(LOG, "Interrupted prior to post-cleanup\n", intx);
                 Thread.interrupted();
 
             }
@@ -516,7 +516,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                                     criticalEntry();
                                     periodicCheck();
                                 } catch (InterruptedException intx) {
-                                    Logging.logCheckedFinest(LOG, "Periodic check interrupted\n" + intx.toString());
+                                    Logging.logCheckedFinest(LOG, "Periodic check interrupted\n", intx);
                                 } finally {
                                     criticalExit();
                                 }
@@ -631,7 +631,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             } catch (IOException iox) {
 
-                Logging.logCheckedWarning(LOG, "Could not create input pipe", iox);
+                Logging.logCheckedWarning(LOG, "Could not create input pipe\n", iox);
                 responsePipe = null;
 
             }
@@ -675,7 +675,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                     try {
                         processMessage(msg);
                     } catch (Exception x) {
-                        Logging.logCheckedWarning(LOG, "Uncaught exception", x);
+                        Logging.logCheckedWarning(LOG, "Uncaught exception\n", x);
                     }
 
                 }
@@ -713,7 +713,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         DataResponse resp;
         byte data[] = null;
 
-        Logging.logCheckedFiner(LOG, "Incoming message: " + msg);
+        Logging.logCheckedFiner(LOG, "Incoming message: ", msg);
 
         it = msg.getMessageElementsOfNamespace(DefaultContentProvider.MSG_NAMESPACE);
 
@@ -728,7 +728,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         if (!DefaultContentProvider.MSG_ELEM_NAME.equals(msge.getElementName())) {
 
-            Logging.logCheckedWarning(LOG, "Not a data response: " + msge.getElementName());
+            Logging.logCheckedWarning(LOG, "Not a data response: ", msge.getElementName());
 
             // Not a data response
             return;
@@ -742,7 +742,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         } catch (IOException iox) {
 
-            Logging.logCheckedWarning(LOG, "Could not process message", iox);
+            Logging.logCheckedWarning(LOG, "Could not process message\n", iox);
             return;
 
         }
@@ -756,7 +756,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             } catch (ClassCastException ccx) {
 
-                Logging.logCheckedWarning(LOG, "Second message element not byte array", ccx);
+                Logging.logCheckedWarning(LOG, "Second message element not byte array\n", ccx);
                 
             }
         }
@@ -794,8 +794,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         while (progress && attempt++ < maxAttempts) {
 
-            Logging.logCheckedFiner(LOG, "Periodic check attempt #" + attempt
-                        + " (" + maxAttempts + " max)");
+            Logging.logCheckedFiner(LOG, "Periodic check attempt #", attempt,
+                        " (", maxAttempts, " max)");
 
             progress = false;
             int i=0;
@@ -803,7 +803,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             for (Node node : outstanding) {
 
-                Logging.logCheckedFiner(LOG, "Evaluating status of Node #" + i + ": " + node);
+                Logging.logCheckedFiner(LOG, "Evaluating status of Node #", i, ": ", node);
 
                 if (0 == node.timeStamp) {
 
@@ -812,7 +812,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
                     if (prepareRequest(node)) {
 
-                        Logging.logCheckedFiner(LOG, "  Node repurposed for request: " + node);
+                        Logging.logCheckedFiner(LOG, "  Node repurposed for request: ", node);
                         
                         progress = true;
                         inUse++;
@@ -831,7 +831,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                         
                         if (prepareRequest(node)) {
 
-                            Logging.logCheckedFiner(LOG, "  Node repurposed for request: " + node);
+                            Logging.logCheckedFiner(LOG, "  Node repurposed for request: ", node);
 
                             progress = true;
                             inUse++;
@@ -964,7 +964,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         Message msg;
 
         if (null == sourcePipe) {
-            Logging.logCheckedFine(LOG, "No source pipe available.  Deferring node: " + node);
+            Logging.logCheckedFine(LOG, "No source pipe available.  Deferring node: ", node);
             node.timeStamp = 1;
             return;
         }
@@ -984,11 +984,11 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         msg.addMessageElement(DefaultContentProvider.MSG_NAMESPACE, msge);
 
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            Logging.logCheckedFinest(LOG, "Sending DataRequest (idx=" + idx + ", node=" + node + "):");
-            Logging.logCheckedFinest(LOG, "   ContentID: " + req.getContentID());
-            Logging.logCheckedFinest(LOG, "   Offset : " + req.getOffset());
-            Logging.logCheckedFinest(LOG, "   Length : " + req.getLength());
-            Logging.logCheckedFinest(LOG, "   QID    : " + req.getQueryID());
+            Logging.logCheckedFinest(LOG, "Sending DataRequest (idx=", idx, ", node=", node, "):");
+            Logging.logCheckedFinest(LOG, "   ContentID: ", req.getContentID());
+            Logging.logCheckedFinest(LOG, "   Offset : ", req.getOffset());
+            Logging.logCheckedFinest(LOG, "   Length : ", req.getLength());
+            Logging.logCheckedFinest(LOG, "   QID    : ", req.getQueryID());
         }
 
         try {
@@ -997,7 +997,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         } catch (IOException iox) {
 
-            Logging.logCheckedWarning(LOG, "IOException during message send", iox);
+            Logging.logCheckedWarning(LOG, "IOException during message send\n", iox);
             
         }
 
@@ -1016,18 +1016,18 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
             Logging.logCheckedFinest(LOG, "DataResponse:");
-            Logging.logCheckedFinest(LOG, "   ContentID: " + resp.getContentID());
-            Logging.logCheckedFinest(LOG, "   Offset : " + resp.getOffset());
-            Logging.logCheckedFinest(LOG, "   Length : " + resp.getLength());
-            Logging.logCheckedFinest(LOG, "   QID    : " + resp.getQueryID());
-            Logging.logCheckedFinest(LOG, "   EOF    : " + resp.getEOF());
-            Logging.logCheckedFinest(LOG, "   Bytes  : " + ((data == null) ? 0 : data.length));
+            Logging.logCheckedFinest(LOG, "   ContentID: ", resp.getContentID());
+            Logging.logCheckedFinest(LOG, "   Offset : ", resp.getOffset());
+            Logging.logCheckedFinest(LOG, "   Length : ", resp.getLength());
+            Logging.logCheckedFinest(LOG, "   QID    : ", resp.getQueryID());
+            Logging.logCheckedFinest(LOG, "   EOF    : ", resp.getEOF());
+            Logging.logCheckedFinest(LOG, "   Bytes  : ", ((data == null) ? 0 : data.length));
         }
 
         if (!resp.getContentID().equals(getTransferContentID())) {
 
             Logging.logCheckedWarning(LOG, "Invalid ContentID.  Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected ContentID: " + getTransferContentID());
+            Logging.logCheckedFinest(LOG, "Expected ContentID: ", getTransferContentID());
             return;
             
         }
@@ -1035,7 +1035,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (resp.getLength() != ((data == null) ? 0 : data.length)) {
 
             Logging.logCheckedWarning(LOG, "Data length doesnt match length in header.  Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected length: " + ((data == null) ? 0 : data.length));
+            Logging.logCheckedFinest(LOG, "Expected length: ", ((data == null) ? 0 : data.length));
             return;
 
         }
@@ -1045,7 +1045,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (idx >= outstanding.size()) {
 
             Logging.logCheckedWarning(LOG, "Invalid query ID.  Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected max: " + outstanding.size());
+            Logging.logCheckedFinest(LOG, "Expected max: ", outstanding.size());
             return;
 
         }
@@ -1064,7 +1064,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (resp.getOffset() != node.offset) {
 
             Logging.logCheckedWarning(LOG, "Invalid offset. Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected offset: " + node.offset);
+            Logging.logCheckedFinest(LOG, "Expected offset: ", node.offset);
             return;
             
         }
@@ -1098,11 +1098,11 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
                 Logging.logCheckedFinest(LOG, "Wrote the following to disk:");
-                Logging.logCheckedFinest(LOG, "   Offset : " + resp.getOffset());
-                Logging.logCheckedFinest(LOG, "   Length : " + resp.getLength());
-                Logging.logCheckedFinest(LOG, "   QID    : " + resp.getQueryID());
-                Logging.logCheckedFinest(LOG, "   EOF    : " + resp.getEOF());
-                Logging.logCheckedFinest(LOG, "   Bytes  : " + ((data == null) ? 0 : data.length));
+                Logging.logCheckedFinest(LOG, "   Offset : ", resp.getOffset());
+                Logging.logCheckedFinest(LOG, "   Length : ", resp.getLength());
+                Logging.logCheckedFinest(LOG, "   QID    : ", resp.getQueryID());
+                Logging.logCheckedFinest(LOG, "   EOF    : ", resp.getEOF());
+                Logging.logCheckedFinest(LOG, "   Bytes  : ", ((data == null) ? 0 : data.length));
             }
 
             if (prepareRequest(node)) {
@@ -1145,7 +1145,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         } catch (IOException iox) {
 
             // We'll implicitly try again later
-            Logging.logCheckedFinest(LOG, "Could not write data\n" + iox.toString());
+            Logging.logCheckedFinest(LOG, "Could not write data\n", iox);
             return false;
 
         }

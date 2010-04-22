@@ -207,7 +207,7 @@ public class LimitedRangeRdvMsg {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem);
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
 
         }

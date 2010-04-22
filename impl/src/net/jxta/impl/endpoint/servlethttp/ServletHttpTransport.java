@@ -349,7 +349,7 @@ public final class ServletHttpTransport implements Module {
 
             } catch (PeerGroupException e) {
 
-                Logging.logCheckedSevere(LOG, "Could not start http message receiver", e);
+                Logging.logCheckedSevere(LOG, "Could not start http message receiver\n", e);
                 return -1; // Can't go on; if we were configured to be a server we must make the failure obvious.
 
             }
@@ -366,7 +366,7 @@ public final class ServletHttpTransport implements Module {
 
             } catch (PeerGroupException e) {
 
-                Logging.logCheckedSevere(LOG, "Could not start http message sender", e);
+                Logging.logCheckedSevere(LOG, "Could not start http message sender\n", e);
                 return -1; // Can't go on; if we were configured to be a server we must make the failure obvious.
 
             }

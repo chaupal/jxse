@@ -120,7 +120,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
                 return nextBP;
             } catch(ChannelException e) {
                 String failReason = (e.getCause() != null) ? e.getCause().getMessage() : e.getMessage();
-                Logging.logCheckedInfo(LOG, "Attempt to bind to " + nextBP + " failed (" + failReason + "), trying another address");
+                Logging.logCheckedInfo(LOG, "Attempt to bind to ", nextBP, " failed (", failReason, "), trying another address");
             }
             
         }
@@ -138,7 +138,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         
         if(listener == null) {
 
-            Logging.logCheckedSevere(LOG, "Transport registration failed for netty transport server, protocol=" + addrTranslator.getProtocolName());
+            Logging.logCheckedSevere(LOG, "Transport registration failed for netty transport server, protocol=", addrTranslator.getProtocolName());
             return false;
 
         }
@@ -151,7 +151,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
 
         if(!started.compareAndSet(true, false)) {
 
-            Logging.logCheckedWarning(LOG, "Netty transport server for protocol " + addrTranslator.getProtocolName() + " already stopped or never started!");
+            Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
 
         }

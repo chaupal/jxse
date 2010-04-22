@@ -414,7 +414,7 @@ public final class PSEMembershipService implements MembershipService {
             defaultCredential = newDefault;
         }
         
-        Logging.logCheckedConfig(LOG, "New Default credential : " + newDefault);
+        Logging.logCheckedConfig(LOG, "New Default credential : ", newDefault);
         
         try {
 
@@ -488,7 +488,7 @@ public final class PSEMembershipService implements MembershipService {
 
             } else {
 
-                Logging.logCheckedWarning(LOG, "I dont know how to deal with this authenticator " + authenticated);
+                Logging.logCheckedWarning(LOG, "I dont know how to deal with this authenticator ", authenticated);
                 throw new PeerGroupException("I dont know how to deal with this authenticator");
 
             }
@@ -538,12 +538,12 @@ public final class PSEMembershipService implements MembershipService {
 
             } catch (IOException failed) {
 
-                Logging.logCheckedWarning(LOG, "Could not save new key pair.", failed);
+                Logging.logCheckedWarning(LOG, "Could not save new key pair.\n", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
 
             } catch (KeyStoreException failed) {
 
-                Logging.logCheckedWarning(LOG, "Could not save new key pair.", failed);
+                Logging.logCheckedWarning(LOG, "Could not save new key pair.\n", failed);
                 throw new PeerGroupException("Could not save new key pair.", failed);
 
             }
@@ -578,17 +578,17 @@ public final class PSEMembershipService implements MembershipService {
                 }
             } catch (IOException failed) {
 
-                Logging.logCheckedWarning(LOG, "Could not create credential.", failed);
+                Logging.logCheckedWarning(LOG, "Could not create credential.\n", failed);
                 throw new PeerGroupException("Could not create credential.", failed);
 
             } catch (KeyStoreException failed) {
 
-                Logging.logCheckedWarning(LOG, "Could not create credential.", failed);
+                Logging.logCheckedWarning(LOG, "Could not create credential.\n", failed);
                 throw new PeerGroupException("Could not create credential.", failed);
 
             } catch (CertificateException failed) {
 
-                Logging.logCheckedWarning(LOG, "Could not create credential.", failed);
+                Logging.logCheckedWarning(LOG, "Could not create credential.\n", failed);
                 throw new PeerGroupException("Could not create credential.", failed);
 
             }
@@ -663,7 +663,7 @@ public final class PSEMembershipService implements MembershipService {
      **/
     X509Certificate[] generateServiceCertificate(ID assignedID, PSECredential credential) throws  IOException, KeyStoreException, InvalidKeyException, SignatureException {
         
-        Logging.logCheckedFine(LOG, "Generating new service cert for " + assignedID);
+        Logging.logCheckedFine(LOG, "Generating new service cert for ", assignedID);
         
         IssuerInfo serviceinfo = peerSecurityEngine.generateCertificate(credential);
         
@@ -698,7 +698,7 @@ public final class PSEMembershipService implements MembershipService {
         
         PSECredential pseCredential = null;
         
-        Logging.logCheckedFine(LOG, "Getting service redential for " + assignedID);
+        Logging.logCheckedFine(LOG, "Getting service redential for ", assignedID);
         
         Authenticator authenticate = null;
         

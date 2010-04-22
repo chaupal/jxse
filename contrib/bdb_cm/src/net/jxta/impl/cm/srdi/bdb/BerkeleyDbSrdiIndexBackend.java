@@ -128,7 +128,7 @@ public class BerkeleyDbSrdiIndexBackend implements SrdiAPI {
 			BerkeleyDbSrdiIndexBackend backend = new BerkeleyDbSrdiIndexBackend(group, "CLEARALL");
 			backend.clearAllIndices(group);
 		} catch (IOException e) {
-			Logging.logCheckedWarning(LOG, "Error occurred while clearing Srdi indices for group [" + group + "]", e);
+			Logging.logCheckedWarning(LOG, "Error occurred while clearing Srdi indices for group [" + group + "]\n", e);
 		}
 	}
 	

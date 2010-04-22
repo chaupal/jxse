@@ -411,7 +411,7 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
             // Send the message to the network using endpoint propagation.
             currentEndpoint.propagate(gossipMessage, getAssignedID().toString(), null);
         } catch (IOException ex) {
-            Logger.getLogger(GossipService.class.getName()).log(Level.SEVERE, "Failed sending gossip message.", ex);
+            Logger.getLogger(GossipService.class.getName()).log(Level.SEVERE, "Failed sending gossip message.\n", ex);
         }
     }
 }

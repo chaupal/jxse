@@ -184,7 +184,7 @@ public final class PSEConfig {
 
             } catch (KeyStoreException failed) {
 
-                Logging.logCheckedSevere(LOG, "Failure accessing or creating keystore.", failed);
+                Logging.logCheckedSevere(LOG, "Failure accessing or creating keystore.\n", failed);
                 keystore_manager.eraseKeyStore();
                 throw failed;
                 
@@ -229,7 +229,7 @@ public final class PSEConfig {
 
         }
 
-        Logging.logCheckedWarning(LOG, "Failure recovering keystore : " + failure);
+        Logging.logCheckedWarning(LOG, "Failure recovering keystore : \n", failure);
 
         return null;
     }
@@ -313,7 +313,7 @@ public final class PSEConfig {
 
         }
 
-        Logging.logCheckedWarning(LOG, "Failure checking passphrase : " + failure);
+        Logging.logCheckedWarning(LOG, "Failure checking passphrase : \n", failure);
         
         return false;
     }
@@ -532,7 +532,7 @@ public final class PSEConfig {
 
         } catch (NoSuchAlgorithmException failed) {
 
-            Logging.logCheckedSevere(LOG, "Something failed", failed);
+            Logging.logCheckedSevere(LOG, "Something failed\n", failed);
 
             KeyStoreException failure = new KeyStoreException("Something Failed");
 
@@ -541,7 +541,7 @@ public final class PSEConfig {
 
         } catch (UnrecoverableKeyException failed) {
 
-            Logging.logCheckedSevere(LOG, "Key passphrase failure", failed);
+            Logging.logCheckedSevere(LOG, "Key passphrase failure\n", failed);
 
             KeyStoreException failure = new KeyStoreException("Key passphrase failure");
             failure.initCause(failed);

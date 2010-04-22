@@ -147,17 +147,17 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		
             } catch(ClassNotFoundException e) {
 
-                Logging.logCheckedWarning(LOG, "Unable to find JDBC driver [" + dbDriver + "]", e);
+                Logging.logCheckedWarning(LOG, "Unable to find JDBC driver [", dbDriver, "]\n", e);
 		return false;
 
 	    } catch(InstantiationException e) {
 
-		Logging.logCheckedWarning(LOG, "Unable to instantiate JDBC driver [" + dbDriver + "]", e);
+		Logging.logCheckedWarning(LOG, "Unable to instantiate JDBC driver [", dbDriver, "]\n", e);
 		return false;
 
 	    } catch(IllegalAccessException e) {
 
-		Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [" + dbDriver + "]", e);
+		Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
                 return false;
 		
             }
@@ -187,7 +187,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
                     try {
                         connPool.dispose();
                     } catch (SQLException e1) {
-                        Logging.logCheckedSevere(LOG, "Failed to dispose database pool when recovering from configuring database", e1);
+                        Logging.logCheckedSevere(LOG, "Failed to dispose database pool when recovering from configuring database\n", e1);
                     }
 
                     IOException wrapper = new IOException("Failed to configure database properly");
@@ -242,14 +242,14 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
                         try {
                             conn.rollback();
                         } catch(SQLException e) {
-                            Logging.logCheckedSevere(LOG, "Failed to roll back connection", e);
+                            Logging.logCheckedSevere(LOG, "Failed to roll back connection\n", e);
                         }
                     }
 			
                     try {
                         conn.close();
                     } catch(SQLException e) {
-                        Logging.logCheckedSevere(LOG, "Failed to close connection", e);
+                        Logging.logCheckedSevere(LOG, "Failed to close connection\n", e);
                     }
 		}
 	}
@@ -261,7 +261,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
             try {
                 st.close();
             } catch(SQLException e) {
-                Logging.logCheckedSevere(LOG, "Failed to close statement", e);
+                Logging.logCheckedSevere(LOG, "Failed to close statement\n", e);
             }
 
 	}
@@ -272,7 +272,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		try {
 		    rs.close();
 		} catch(SQLException e) {
-                    Logging.logCheckedSevere(LOG, "Failed to close result set", e);
+                    Logging.logCheckedSevere(LOG, "Failed to close result set\n", e);
 		}
 
 	}
@@ -835,7 +835,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 
             } catch(SQLException e) {
 
-                Logging.logCheckedSevere(LOG, "Failed to shut down database", e);
+                Logging.logCheckedSevere(LOG, "Failed to shut down database\n", e);
                 IOException wrapper = new IOException("Failed to shut down database");
                 wrapper.initCause(e);
                 throw wrapper;

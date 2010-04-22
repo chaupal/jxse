@@ -239,7 +239,7 @@ public class SrdiManager implements RendezvousListener {
         for (PeerID destPeer : bins.keySet()) {
 
             SrdiMessageImpl msg = bins.get(destPeer);
-            Logging.logCheckedFine(LOG, "[" + group.getPeerGroupName() + " / " + handlername + "] Forwarding replica Srdi to " + destPeer);
+            Logging.logCheckedFine(LOG, "[", group.getPeerGroupName(), " / ", handlername, "] Forwarding replica Srdi to ", destPeer);
             pushSrdi(destPeer, msg);
 
         }
@@ -266,7 +266,7 @@ public class SrdiManager implements RendezvousListener {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Failed to send srdi message", e);
+            Logging.logCheckedWarning(LOG, "Failed to send srdi message\n", e);
             
         }
     }
@@ -284,7 +284,7 @@ public class SrdiManager implements RendezvousListener {
 
         if (query.getHopCount() > 2) {
 
-            Logging.logCheckedFine(LOG, "hopCount exceeded. Not forwarding query " + query.getHopCount());
+            Logging.logCheckedFine(LOG, "hopCount exceeded. Not forwarding query ", query.getHopCount());
             
             // query has been forwarded too many times
             return;
@@ -443,7 +443,7 @@ public class SrdiManager implements RendezvousListener {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Failed forwarding SRDI Message", e);
+            Logging.logCheckedWarning(LOG, "Failed forwarding SRDI Message\n", e);
             
         }
     }
@@ -495,7 +495,7 @@ public class SrdiManager implements RendezvousListener {
 
                     } catch(IOException e) {
 
-                        Logging.logCheckedWarning(LOG, "IOException occurred when attempting to remove peer from SRDI index", e);
+                        Logging.logCheckedWarning(LOG, "IOException occurred when attempting to remove peer from SRDI index\n", e);
                         
                     }
 
@@ -579,7 +579,7 @@ public class SrdiManager implements RendezvousListener {
 
         } catch (Exception ex) {
 
-            Logging.logCheckedWarning(LOG, "Failure generating the global view", ex);
+            Logging.logCheckedWarning(LOG, "Failure generating the global view\n", ex);
             
         }
 

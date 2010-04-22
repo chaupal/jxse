@@ -53,13 +53,12 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.endpoint;
 
+package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.TextDocument;
 import net.jxta.logging.Logging;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,9 +67,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A Message Element using JXTA TextDocument for the element data.
@@ -202,7 +199,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating toString of " + getClass().getName() + "@" + super.hashCode());
+        Logging.logCheckedFiner(LOG, "creating toString of ", getClass().getName(), "@", super.hashCode());
         
         result = doc.toString();
         cachedToString = new SoftReference<String>(result);
@@ -284,7 +281,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        Logging.logCheckedFiner(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String charset = type.getParameter("charset");
 
@@ -298,7 +295,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
 
             } catch (UnsupportedEncodingException caught) {
 
-                Logging.logCheckedWarning(LOG, "MessageElement Data could not be generated", caught);
+                Logging.logCheckedWarning(LOG, "MessageElement Data could not be generated\n\n", caught);
                 throw new IllegalStateException("MessageElement Data could not be generated due to " + caught.getMessage());
 
             }
@@ -341,7 +338,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating getChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        Logging.logCheckedFiner(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String asString = toString();
 

@@ -112,8 +112,8 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         pipeID = adv.getPipeID();
 
-        Logging.logCheckedInfo(LOG, "Creating InputPipe for " + pipeID + " of type " + adv.getType()
-            + " with " + ((null != listener) ? "listener" : "queue"));
+        Logging.logCheckedInfo(LOG, "Creating InputPipe for ", pipeID, " of type ", adv.getType(),
+            " with ", ((null != listener) ? "listener" : "queue"));
         
         // queue based inputpipe?
         if (listener == null) {
@@ -183,7 +183,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         registrar = null;
 
-        Logging.logCheckedInfo(LOG, "Closed " + pipeID);
+        Logging.logCheckedInfo(LOG, "Closed ", pipeID);
         
     }
 
@@ -198,7 +198,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         // XXX: header check, security and such should be done here
         // before pushing the message onto the queue.
-        Logging.logCheckedFine(LOG, "Received " + msg + " from " + srcAddr + " for " + pipeID);
+        Logging.logCheckedFine(LOG, "Received ", msg, " from ", srcAddr, " for ", pipeID);
 
         // determine where demux the msg, to listener, or onto the queue
         if (null == queue) {
@@ -215,7 +215,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
             } catch (Throwable ignored) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for : " + pipeID + "(" + temp.getClass().getName() + ")", ignored);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for : ", pipeID, "(", temp.getClass().getName(), ")\n", ignored);
                 
             }
 
@@ -231,7 +231,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 synchronized (this) {
-                    Logging.logCheckedFine(LOG, "Queued " + msg + " for " + pipeID);
+                    Logging.logCheckedFine(LOG, "Queued ", msg, " for ", pipeID);
                 }
             }
         }

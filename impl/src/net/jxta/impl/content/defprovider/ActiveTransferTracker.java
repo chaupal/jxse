@@ -188,7 +188,7 @@ public class ActiveTransferTracker {
                     result = new ActiveTransfer(group, share, destination);
                     newSession = true;
                     clients.put(key, result);
-                    Logging.logCheckedFine(LOG, "Added client node: " + key);
+                    Logging.logCheckedFine(LOG, "Added client node: ", key);
                 }
             }
         }
@@ -234,12 +234,12 @@ public class ActiveTransferTracker {
             for (Map.Entry<Object, ActiveTransfer> entry : clients.entrySet()) {
 
                 ActiveTransfer session = entry.getValue();
-                Logging.logCheckedFine(LOG, "Closing client session: " + entry.getKey());
+                Logging.logCheckedFine(LOG, "Closing client session: ", entry.getKey());
                 
                 try {
                     session.close();
                 } catch (IOException iox) {
-                    Logging.logCheckedFinest(LOG, "Ignoring exception\n" + iox.toString());
+                    Logging.logCheckedFinest(LOG, "Ignoring exception\n", iox);
                 }
                 toNotify.add(session);
             }
@@ -251,7 +251,7 @@ public class ActiveTransferTracker {
                     gcTask.cancel(false);
                 }
             } catch (IllegalStateException isx) {
-                Logging.logCheckedFinest(LOG, "Ignoring exception\n" + isx.toString());
+                Logging.logCheckedFinest(LOG, "Ignoring exception\n" + isx);
             } finally {
                 gcTask = null;
             }
@@ -290,12 +290,12 @@ public class ActiveTransferTracker {
 
                 if (session.isIdle()) {
 
-                    Logging.logCheckedFine(LOG, "Closing client session: " + entry.getKey());
+                    Logging.logCheckedFine(LOG, "Closing client session: ", entry.getKey());
 
                     try {
                         session.close();
                     } catch (IOException iox) {
-                        Logging.logCheckedFinest(LOG, "Ignoring exception\n" + iox.toString());
+                        Logging.logCheckedFinest(LOG, "Ignoring exception\n", iox);
                     }
 
                     if (toNotify == null) {

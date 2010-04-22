@@ -781,7 +781,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
                 
             } catch (Throwable failed) {
 
-                Logging.logCheckedWarning(LOG, "Failed to validate signature ", failed);
+                Logging.logCheckedWarning(LOG, "Failed to validate signature \n", failed);
                 throw new IllegalArgumentException("Failed to validate signature " + failed.getMessage());
 
             }
@@ -826,7 +826,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedWarning(LOG, "Unhandled element \'" + elem.getName() + "\' in " + doc.getName());
+                Logging.logCheckedWarning(LOG, "Unhandled element \'", elem.getName(), "\' in ", doc.getName());
             }
 
         }

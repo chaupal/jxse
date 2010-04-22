@@ -359,7 +359,7 @@ public class ContentServiceImpl implements ContentService {
              * returns the ContentProvider sub-interface to prevent
              * user access to SPI methods.
              */
-            Logging.logCheckedFine(LOG, "Cannot remove provider which is not a full SPI: " + provider);
+            Logging.logCheckedFine(LOG, "Cannot remove provider which is not a full SPI: ", provider);
             return;
 
         }
@@ -435,7 +435,7 @@ public class ContentServiceImpl implements ContentService {
         try {
             return new TransferAggregator(this, active, contentID);
         } catch (TransferException transx) {
-            Logging.logCheckedFine(LOG, "Returning null due to exception\n" + transx.toString());
+            Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
             return null;
         }
 
@@ -451,7 +451,7 @@ public class ContentServiceImpl implements ContentService {
         try {
             return new TransferAggregator(this, active, adv);
         } catch (TransferException transx) {
-            Logging.logCheckedFine(LOG, "Returning null due to exception\n" + transx.toString());
+            Logging.logCheckedFine(LOG, "Returning null due to exception\n", transx);
             return null;
         }
     }
@@ -472,8 +472,8 @@ public class ContentServiceImpl implements ContentService {
 
                 if (subShares == null) continue;
 
-                Logging.logCheckedFine(LOG, "Content with ID '" + content.getContentID() +
-                    "' being shared by provider: " + provider);
+                Logging.logCheckedFine(LOG, "Content with ID '", content.getContentID(),
+                    "' being shared by provider: ", provider);
 
                 if (result == null) result = new ArrayList<ContentShare>();
 
@@ -481,8 +481,8 @@ public class ContentServiceImpl implements ContentService {
 
             } catch (UnsupportedOperationException uox) {
 
-                Logging.logCheckedFinest(LOG, "Ignoring provider which doesn't support "
-                            + "share operation: " + provider);
+                Logging.logCheckedFinest(LOG, "Ignoring provider which doesn't support ",
+                            "share operation: ", provider);
                 
             }
             
@@ -569,7 +569,7 @@ public class ContentServiceImpl implements ContentService {
 
             } catch (Throwable thr) {
 
-                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", thr);
+                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
                 
             }
         }
@@ -595,7 +595,7 @@ public class ContentServiceImpl implements ContentService {
 
             } catch (Throwable thr) {
 
-                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener", thr);
+                Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
                 
             }
         }
@@ -624,7 +624,7 @@ public class ContentServiceImpl implements ContentService {
         
         } catch (IOException iox) {
 
-            Logging.logCheckedWarning(LOG, "Unable to enumerate ContentProviders", iox);
+            Logging.logCheckedWarning(LOG, "Unable to enumerate ContentProviders\n", iox);
             
             // Early-out.
             return result;
@@ -661,8 +661,8 @@ public class ContentServiceImpl implements ContentService {
 
             } catch (IOException iox) {
 
-                Logging.logCheckedWarning(LOG, "Could not parse ContentProvider services from: "
-                    + resURL, iox);
+                Logging.logCheckedWarning(LOG, "Could not parse ContentProvider services from: ",
+                    resURL, iox);
 
             }
         }
@@ -675,21 +675,21 @@ public class ContentServiceImpl implements ContentService {
                 Class cl = loader.loadClass(str);
                 provider = (ContentProviderSPI) cl.newInstance();
                 result.add(provider);
-                Logging.logCheckedFine(LOG, "Added provider: " + str);
+                Logging.logCheckedFine(LOG, "Added provider: ", str);
 
             } catch (ClassNotFoundException cnfx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider", cnfx);
+                Logging.logCheckedSevere(LOG, "Could not load service provider\n", cnfx);
                 // Continue to next provider class name
 
             } catch (InstantiationException instx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider", instx);
+                Logging.logCheckedSevere(LOG, "Could not load service provider\n", instx);
                 // Continue to next provider class name
 
             } catch (IllegalAccessException iaccx) {
 
-                Logging.logCheckedSevere(LOG, "Could not load service provider", iaccx);
+                Logging.logCheckedSevere(LOG, "Could not load service provider\n", iaccx);
                 // Continue to next provider class name
 
             }

@@ -230,7 +230,7 @@ public class LeaseResponseMsg {
                 
             } else {
                 
-                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRdvAttr.getName());
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRdvAttr.getName());
                 
             }
         }
@@ -243,7 +243,7 @@ public class LeaseResponseMsg {
             
             if (!handleElement(elem)) {
                 
-                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
                 
             }
         }
@@ -487,7 +487,7 @@ public class LeaseResponseMsg {
                     
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + anAdvAttr.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", anAdvAttr.getName());
                     
                 }
             }
@@ -515,7 +515,7 @@ public class LeaseResponseMsg {
                     
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + anAdvAttr.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", anAdvAttr.getName());
                     
                 }
             }

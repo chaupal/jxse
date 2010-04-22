@@ -278,7 +278,7 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String charset = type.getParameter("charset");
 
@@ -316,7 +316,7 @@ public abstract class MessageElement implements Document {
 
         } catch (IOException caught) {
 
-            Logging.logCheckedSevere(LOG, "Could not generate string for element. ", caught);
+            Logging.logCheckedSevere(LOG, "Could not generate string for element. \n", caught);
             throw new IllegalStateException("Could not generate string for element. " + caught);
 
         }
@@ -398,7 +398,7 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        Logging.logCheckedFine(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         long len = getByteLength();
 
@@ -418,7 +418,7 @@ public abstract class MessageElement implements Document {
 
         } catch (IOException caught) {
 
-            Logging.logCheckedSevere(LOG, "Failed to get bytes of Message Element. ", caught);
+            Logging.logCheckedSevere(LOG, "Failed to get bytes of Message Element. \n", caught);
             throw new IllegalStateException("Failed to get bytes of Message Element. " + caught);
 
         }

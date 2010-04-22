@@ -204,7 +204,7 @@ class TlsConn {
         this.currentState = client ? HandshakeState.CLIENTSTART : HandshakeState.SERVERSTART;
         this.lastAccessed = TimeUtils.timeNow();
 
-        Logging.logCheckedInfo(LOG, (client ? "Initiating" : "Accepting") + " new connection for : " + destAddr.getProtocolAddress());
+        Logging.logCheckedInfo(LOG, (client ? "Initiating" : "Accepting"), " new connection for : ", destAddr.getProtocolAddress());
         
         boolean choseTMF = false;
         javax.net.ssl.TrustManagerFactory tmf = null;
@@ -310,7 +310,7 @@ class TlsConn {
 
         long startTime = TimeUtils.timeNow();
 
-        Logging.logCheckedInfo(LOG, (client ? "Client:" : "Server:") + " Handshake START");
+        Logging.logCheckedInfo(LOG, (client ? "Client:" : "Server:"), " Handshake START");
         
         setHandshakeState(HandshakeState.HANDSHAKESTARTED);
 
@@ -326,7 +326,7 @@ class TlsConn {
 
         long hsTime = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startTime) / TimeUtils.ASECOND;
 
-        Logging.logCheckedInfo(LOG, (client ? "Client:" : "Server:") + "Handshake DONE in " + hsTime + " secs");
+        Logging.logCheckedInfo(LOG, (client ? "Client:" : "Server:"), "Handshake DONE in ", hsTime, " secs");
 
         // set up plain text i/o
         // writes to be encrypted
@@ -352,7 +352,7 @@ class TlsConn {
 
             closing = true;
 
-            Logging.logCheckedInfo(LOG, "Shutting down " + this);
+            Logging.logCheckedInfo(LOG, "Shutting down ", this);
             
             setHandshakeState(HandshakeState.CONNECTIONCLOSING);
 
@@ -381,7 +381,7 @@ class TlsConn {
 
             } catch (Throwable failed) {
 
-                Logging.logCheckedInfo(LOG, "Throwable during close " + this + "\n" + failed.toString());
+                Logging.logCheckedInfo(LOG, "Throwable during close ", this, "\n", failed);
 
                 IOException failure = new IOException("Throwable during close()");
                 failure.initCause(failed);
@@ -411,7 +411,7 @@ class TlsConn {
 
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
 
-                Logging.logCheckedFine(LOG, "Getting messenger for " + destAddr);
+                Logging.logCheckedFine(LOG, "Getting messenger for ", destAddr);
 
                 EndpointAddress realAddr = new EndpointAddress(destAddr, JTlsDefs.ServiceName, null);
 
@@ -420,14 +420,14 @@ class TlsConn {
 
                 if (outBoundMessenger == null) {
 
-                    Logging.logCheckedWarning(LOG, "Could not get messenger for " + realAddr);
+                    Logging.logCheckedWarning(LOG, "Could not get messenger for ", realAddr);
                     return false;
 
                 }
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sending " + msg + " to " + destAddr);
+        Logging.logCheckedFine(LOG, "Sending ", msg, " to ", destAddr);
 
         // Good we have a messenger. Send the message.
         return outBoundMessenger.sendMessage(msg);
@@ -455,7 +455,7 @@ class TlsConn {
 
         } catch (IOException failed) {
 
-            Logging.logCheckedInfo(LOG, "Closing " + this + " due to exception\n" + failed);
+            Logging.logCheckedInfo(LOG, "Closing ", this, " due to exception\n", failed);
             close(HandshakeState.CONNECTIONDEAD);
             throw failed;
 
@@ -479,7 +479,7 @@ class TlsConn {
             workerThread.setDaemon(true);
             workerThread.start();
 
-            Logging.logCheckedInfo(LOG, "Started ReadPlaintextMessage thread for " + TlsConn.this.destAddr);
+            Logging.logCheckedInfo(LOG, "Started ReadPlaintextMessage thread for ", TlsConn.this.destAddr);
             
         }
 
@@ -497,7 +497,7 @@ class TlsConn {
                         }
 
                         // dispatch it to TlsTransport for demuxing
-                        Logging.logCheckedFine(LOG, "Dispatching " + msg + " to TlsTransport");
+                        Logging.logCheckedFine(LOG, "Dispatching ", msg, " to TlsTransport");
                         TlsConn.this.transport.processReceivedMessage(msg);
 
                         synchronized (TlsConn.this.lastAccessedLock) {
@@ -506,7 +506,7 @@ class TlsConn {
 
                     } catch (IOException iox) {
 
-                        Logging.logCheckedWarning(LOG, "I/O error while reading decrypted Message", iox);
+                        Logging.logCheckedWarning(LOG, "I/O error while reading decrypted Message\n", iox);
                         break;
 
                     }
@@ -514,7 +514,7 @@ class TlsConn {
 
             } catch (Throwable all) {
                 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 
             } finally {
 
@@ -579,7 +579,7 @@ class TlsConn {
                     continue;
                 }
 
-                Logging.logCheckedFine(LOG, "CHECKING: " + certificate.getIssuerX500Principal() + " in " + allIssuers);
+                Logging.logCheckedFine(LOG, "CHECKING: ", certificate.getIssuerX500Principal(), " in ", allIssuers);
 
                 if (allIssuers.contains(certificate.getIssuerX500Principal())) {
                     return "theone";
@@ -692,16 +692,16 @@ class TlsConn {
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         
-                        Logging.logCheckedFine(LOG, "Looking for : " + cred.getCertificate().getIssuerX500Principal());
-                        Logging.logCheckedFine(LOG, "Issuers : " + allIssuers);
+                        Logging.logCheckedFine(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
+                        Logging.logCheckedFine(LOG, "Issuers : ", allIssuers);
 
                         java.security.Principal prin = cred.getCertificate().getIssuerX500Principal();
-                        Logging.logCheckedFine(LOG, "  Principal Type :" + prin.getClass().getName());
+                        Logging.logCheckedFine(LOG, "  Principal Type :", prin.getClass().getName());
 
                         for (Principal issuer : allIssuers) {
-                            Logging.logCheckedFine(LOG, "Issuer Type : " + issuer.getClass().getName());
-                            Logging.logCheckedFine(LOG, "Issuer value : " + issuer);
-                            Logging.logCheckedFine(LOG, "tmp.equals(prin) : " + issuer.equals(prin));
+                            Logging.logCheckedFine(LOG, "Issuer Type : ", issuer.getClass().getName());
+                            Logging.logCheckedFine(LOG, "Issuer value : ", issuer);
+                            Logging.logCheckedFine(LOG, "tmp.equals(prin) : ", issuer.equals(prin));
                         }
 
                     }

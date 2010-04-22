@@ -273,7 +273,7 @@ public class PSEAccessService implements AccessService {
 
                 if (!handleElement(elem)) {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled element \'" + elem.getName() + "\' in " + doc.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandled element \'", elem.getName(), "\' in ", doc.getName());
                     
                 }
 

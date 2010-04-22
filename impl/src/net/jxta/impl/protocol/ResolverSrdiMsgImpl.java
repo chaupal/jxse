@@ -176,7 +176,7 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
 
             } catch (Exception ce) {
 
-                Logging.logCheckedWarning(LOG, "Got an Exception during credential creation ", ce);
+                Logging.logCheckedWarning(LOG, "Got an Exception during credential creation\n", ce);
                 
             }
         }
@@ -211,7 +211,7 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
                         credential = membership.makeCredential(elem);
                         setCredential(credential);
                     } catch (Exception ce) {
-                        Logging.logCheckedWarning(LOG, "Credential creation failed", ce);
+                        Logging.logCheckedWarning(LOG, "Credential creation failed\n", ce);
                     }
                 }
 

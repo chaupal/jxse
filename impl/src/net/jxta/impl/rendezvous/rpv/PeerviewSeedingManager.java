@@ -235,7 +235,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         } catch (IOException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed sending " + message + ".", failed);
+            Logging.logCheckedWarning(LOG, "Failed sending ", message, ".\n", failed);
             
         }
     }
@@ -279,7 +279,7 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
             if (me == null) {
 
-                Logging.logCheckedWarning(LOG, "Discarding damaged " + msg + ".");
+                Logging.logCheckedWarning(LOG, "Discarding damaged ", msg, ".");
                 return;
 
             } else {
@@ -298,19 +298,19 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
 
         } catch (RuntimeException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element", failed);
+            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element\n", failed);
             return;
 
         } catch (IOException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element", failed);
+            Logging.logCheckedWarning(LOG, "Failed building rdv advertisement from message element\n", failed);
             return;
 
         }
 
         if (!(adv instanceof RdvAdvertisement)) {
 
-            Logging.logCheckedWarning(LOG, "Response does not contain radv (" + adv.getAdvertisementType() + ")");
+            Logging.logCheckedWarning(LOG, "Response does not contain radv (", adv.getAdvertisementType(), ")");
             return;
             
         }
@@ -348,11 +348,11 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
                 }
             } catch (RuntimeException failed) {
 
-                Logging.logCheckedWarning(LOG, "Failed building route adv from message element", failed);
+                Logging.logCheckedWarning(LOG, "Failed building route adv from message element\n", failed);
                 
             } catch (IOException failed) {
 
-                Logging.logCheckedWarning(LOG, "Failed building route adv from message element", failed);
+                Logging.logCheckedWarning(LOG, "Failed building route adv from message element\n", failed);
                 
             }
         }
@@ -370,9 +370,9 @@ public class PeerviewSeedingManager extends ACLSeedingManager implements Endpoin
         boolean isCached = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.CACHED_RADV_ELEMENT_NAME) != null);
         boolean isFromEdge = (msg.getMessageElement(PeerView.MESSAGE_NAMESPACE, PeerView.EDGE_ELEMENT_NAME) != null);
 
-        Logging.logCheckedFine(LOG, "[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
-            + (isFailure ? " failure" : "") + " message (" + msg.toString() + ")" + (isFromEdge ? " from edge" : "")
-            + " regarding \"" + radv.getName() + "\" from " + srcAddr.toString());
+        Logging.logCheckedFine(LOG, "[", group.getPeerGroupID(), "] Received a", (isCached ? " cached" : ""), (isResponse ? " response" : ""),
+            (isFailure ? " failure" : ""), " message (", msg, ")", (isFromEdge ? " from edge" : ""),
+            " regarding \"", radv.getName(), "\" from ", srcAddr);
 
         if (!isResponse || isFailure || isCached || isFromEdge) {
             // We don't care about anything except responses from active rdvs.

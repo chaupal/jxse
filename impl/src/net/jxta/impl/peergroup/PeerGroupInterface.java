@@ -141,7 +141,7 @@ class PeerGroupInterface implements PeerGroup {
         requestor = new Throwable("Requestor Stack Trace : " + theRealThing.getPeerGroupID());
         instance = interfaceInstanceCount.incrementAndGet();
         
-        Logging.logCheckedFine(LOG, "Peer Group Interface Constructed {" + instance + "}\n" + requestor.toString());
+        Logging.logCheckedFine(LOG, "Peer Group Interface Constructed {", instance, "}\n", requestor.toString());
 
     }
 
@@ -268,18 +268,19 @@ class PeerGroupInterface implements PeerGroup {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
 
                 Throwable unrefer = new Throwable("Unrefer Stack Trace", requestor);
-                Logging.logCheckedFiner(LOG, "Peer Group Interface Unreference {" + instance + "}\n"
-                        + unrefer.toString());
+                Logging.logCheckedFiner(LOG, "Peer Group Interface Unreference {", instance, "}\n",
+                        unrefer);
 
             } else {
-                Logging.logCheckedInfo(LOG, "Peer Group Interface Unreference {" + instance + "}");
+                Logging.logCheckedInfo(LOG, "Peer Group Interface Unreference {", instance, "}");
             }
 
             groupImpl = null;
 
         } else {
 
-            Logging.logCheckedWarning(LOG, "Duplicate dereference of Peer Group Interface {" + instance + "}", new Throwable("Unrefer Stack Trace", requestor));
+            Logging.logCheckedWarning(LOG, "Duplicate dereference of Peer Group Interface {",
+                    instance, "}", new Throwable("Unrefer Stack Trace", requestor));
 
         }
 

@@ -123,7 +123,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
             location = new File(location, DEFAULT_KEYSTORE_FILENAME);
         }
 
-        Logging.logCheckedConfig(LOG, "pse location = " + location);
+        Logging.logCheckedConfig(LOG, "pse location = ", location);
 
         keystore_type = type;
         keystore_provider = provider;
@@ -205,7 +205,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedFine(LOG, "Loading (" + keystore_type + "," + keystore_provider + ") store from " + keystore_location);
+        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
 
         try {
 
@@ -243,7 +243,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public void saveKeyStore(KeyStore store, char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedFine(LOG, "Writing " + store + " to " + keystore_location);
+        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
         
         try {
             OutputStream os = new FileOutputStream(keystore_location);

@@ -38,7 +38,7 @@ public class TransportUtils {
 
             } catch (UnknownHostException failed) {
 
-                Logging.logCheckedWarning(LOG, "Invalid address for local interface address, using " +  IPUtils.ANYADDRESS + " instead" );
+                Logging.logCheckedWarning(LOG, "Invalid address for local interface address, using ", IPUtils.ANYADDRESS, " instead" );
                 interfaceAddress = IPUtils.ANYADDRESS;
 
             }

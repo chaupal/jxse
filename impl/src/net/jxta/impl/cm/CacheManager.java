@@ -142,7 +142,7 @@ public final class CacheManager {
 
             } catch (Exception e) {
 
-                Logging.logCheckedSevere(LOG, "Unable to construct cache type [" + cacheImpl + "] specified by system property, constructing default", e);
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property, constructing default\n", e);
                 this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName);
 
             }
@@ -174,7 +174,7 @@ public final class CacheManager {
                     
             } catch (Exception e) {
 
-                Logging.logCheckedSevere(LOG, "Unable to construct cache type [" + cacheImpl + "] specified by system property, constructing default", e);
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property, constructing default\n", e);
                 this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, gcinterval, trackDeltas);
 
             }
@@ -193,7 +193,7 @@ public final class CacheManager {
 
         } catch(IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Exception occurred when getting entries for dn=[" + dn + "], clearDeltas=[" + clearDeltas + "]", e);
+            Logging.logCheckedWarning(LOG, "Exception occurred when getting entries for dn=[", dn, "], clearDeltas=[", clearDeltas, "]\n", e);
             return new ArrayList<Entry>(0);
 
         }
@@ -208,7 +208,7 @@ public final class CacheManager {
 
 	} catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Exception occurred when attempting to determine expiration time of dn=[" + dn + "], fn=[" + fn + "]", e);
+            Logging.logCheckedWarning(LOG, "Exception occurred when attempting to determine expiration time of dn=[", dn, "], fn=[", fn, "]\n", e);
 	    return -1;
 
 	}
@@ -227,7 +227,7 @@ public final class CacheManager {
 
 	} catch (IOException e) {
 
-	    Logging.logCheckedWarning(LOG, "Exception occurred when attempting to determine lifetime of dn=[" + dn + "], fn=[" + fn + "]", e);
+	    Logging.logCheckedWarning(LOG, "Exception occurred when attempting to determine lifetime of dn=[", dn, "], fn=[", fn, "]\n", e);
             return -1;
 
 	}
@@ -255,7 +255,7 @@ public final class CacheManager {
 
 	} catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Exception occurred when to fetch records at dn=[" + dn + "]", e);
+            Logging.logCheckedWarning(LOG, "Exception occurred when to fetch records at dn=[", dn, "]\n", e);
             return new ArrayList<InputStream>(0);
 
         }
@@ -295,7 +295,7 @@ public final class CacheManager {
         try {
 	    wrappedImpl.stop();
 	} catch (IOException e) {
-            Logging.logCheckedWarning(LOG, "Error occurred while stopped cache implementation", e);
+            Logging.logCheckedWarning(LOG, "Error occurred while stopped cache implementation\n", e);
 	}
         
     }
@@ -305,7 +305,7 @@ public final class CacheManager {
         try {
             wrappedImpl.garbageCollect();
 	} catch (IOException e) {
-            Logging.logCheckedWarning(LOG, "Error occurred while garbage collecting", e);
+            Logging.logCheckedWarning(LOG, "Error occurred while garbage collecting\n", e);
 	}
 
     }

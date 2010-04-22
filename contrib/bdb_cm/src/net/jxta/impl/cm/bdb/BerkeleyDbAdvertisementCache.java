@@ -159,7 +159,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				expiryTimeDb.close();
 			} catch (DatabaseException e1) {
-				Logging.logCheckedSevere(LOG, "Failed to close expiry time secondary db when recovering from failed construction", e1);
+				Logging.logCheckedSevere(LOG, "Failed to close expiry time secondary db when recovering from failed construction\n", e1);
 			}
 		}
 		
@@ -167,7 +167,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				attrSearchDb.close();
 			} catch (DatabaseException e1) {
-				Logging.logCheckedSevere(LOG, "Failed to close attribute index secondary db when recovering from failed construction", e1);
+				Logging.logCheckedSevere(LOG, "Failed to close attribute index secondary db when recovering from failed construction\n", e1);
 			}
 		}
 		
@@ -175,7 +175,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				db.close();
 			} catch (DatabaseException e1) {
-				Logging.logCheckedSevere(LOG, "Failed to close main db when recovering from failed construction", e1);
+				Logging.logCheckedSevere(LOG, "Failed to close main db when recovering from failed construction\n", e1);
 			}
 		}
 		
@@ -183,7 +183,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			try {
 				dbEnvironment.close();
 			} catch (DatabaseException e1) {
-				Logging.logCheckedSevere(LOG, "Failed to close environment when recovering from failed construction", e1);
+				Logging.logCheckedSevere(LOG, "Failed to close environment when recovering from failed construction\n", e1);
 			}
 		}
 	}

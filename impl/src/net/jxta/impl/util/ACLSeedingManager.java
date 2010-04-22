@@ -177,7 +177,7 @@ public abstract class ACLSeedingManager implements SeedingManager {
             } catch (IOException failed) {
 
                 // be lenient in response to failures.
-                Logging.logCheckedWarning(LOG, "ACL update failed. GRANTING ALL PERMISSIONS.", failed);
+                Logging.logCheckedWarning(LOG, "ACL update failed. GRANTING ALL PERMISSIONS.\n", failed);
 
                 acl.setGrantAll(true);
                 

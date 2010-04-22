@@ -271,7 +271,7 @@ public class AlwaysAccessService implements AccessService {
 
                 if (!handleElement(elem)) {
 
-                    Logging.logCheckedWarning(LOG, "Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());
                     
                 }
             }

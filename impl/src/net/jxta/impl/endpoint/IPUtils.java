@@ -198,7 +198,7 @@ public final class IPUtils {
         try {
             allInterfaces = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException caught) {
-            Logging.logCheckedWarning(LOG, "Could not get local interfaces list", caught);
+            Logging.logCheckedWarning(LOG, "Could not get local interfaces list\n", caught);
         }
 
         if (null == allInterfaces) 
@@ -222,7 +222,7 @@ public final class IPUtils {
 
             } catch (Throwable caught) {
 
-                Logging.logCheckedWarning(LOG, "Could not get addresses for " + anInterface, caught);
+                Logging.logCheckedWarning(LOG, "Could not get addresses for ", anInterface, "\n", caught);
                 
             }
         }
@@ -241,7 +241,7 @@ public final class IPUtils {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Returning " + allAddr.size() + " addresses.");
+        Logging.logCheckedFine(LOG, "Returning ", allAddr.size(), " addresses.");
 
         return allAddr;
     }

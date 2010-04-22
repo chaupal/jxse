@@ -375,7 +375,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
             } else {
 
-                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRdvAttr.getName());
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRdvAttr.getName());
                 
             }
         }
@@ -387,7 +387,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem))
-                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
                 
         }
 
@@ -474,7 +474,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled Element: " + aSeedElem.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandled Element: ", aSeedElem.getName());
                     
                 }
             }
@@ -495,7 +495,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aSeedAttr.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aSeedAttr.getName());
                     
                 }
             }

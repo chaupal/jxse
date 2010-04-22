@@ -367,7 +367,7 @@ public class ResourceDispatcher {
             nbReserved -= quantity;
             
             if (nbReserved > fromReservedItems + fromExtraItems)
-                Logging.logCheckedSevere(LOG, "Incorrect values after obtaining " + quantity + " : [" + this + "]");
+                Logging.logCheckedSevere(LOG, "Incorrect values after obtaining ", quantity, " : [", this, "]");
             
             return true;
         }
@@ -416,7 +416,7 @@ public class ResourceDispatcher {
             nbReserved += quantity;
 
             if (nbReserved > fromReservedItems + fromExtraItems)
-                Logging.logCheckedSevere(LOG, "Incorrect values after releasing " + quantity + " : [" + this + "]");
+                Logging.logCheckedSevere(LOG, "Incorrect values after releasing ", quantity, " : [", this, "]");
 
         }
         
@@ -698,7 +698,7 @@ public class ResourceDispatcher {
 
                 // Even that was not enough to reach our minimal commitment.
                 // The app should realy consider some cleanup.
-                Logging.logCheckedWarning(LOG, "[" + myName + "] Accepting extra account with below-minimal commitment:[" + userObject + "]");
+                Logging.logCheckedWarning(LOG, "[", myName, "] Accepting extra account with below-minimal commitment:[", userObject, "]");
 
             }
 

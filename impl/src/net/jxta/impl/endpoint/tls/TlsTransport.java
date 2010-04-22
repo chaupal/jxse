@@ -209,7 +209,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     if (override_long >= 1) {
 
                         CONNECTION_IDLE_TIMEOUT = override_long * TimeUtils.AMINUTE;
-                        Logging.logCheckedInfo(LOG, "Adjusting TLS connection idle timeout to " + CONNECTION_IDLE_TIMEOUT + " millis.");
+                        Logging.logCheckedInfo(LOG, "Adjusting TLS connection idle timeout to ", CONNECTION_IDLE_TIMEOUT, " millis.");
                         
                     }
                 }
@@ -230,7 +230,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
                         MIN_IDLE_RECONNECT = override_long * TimeUtils.AMINUTE;
                         
-                        Logging.logCheckedInfo(LOG, "Adjusting TLS min reconnection idle to " + MIN_IDLE_RECONNECT + " millis.");
+                        Logging.logCheckedInfo(LOG, "Adjusting TLS min reconnection idle to ", MIN_IDLE_RECONNECT, " millis.");
                         
                     }
 
@@ -249,7 +249,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     if (override_long >= 1) {
 
                         RETRMAXAGE = override_long * TimeUtils.AMINUTE;
-                        Logging.logCheckedInfo(LOG, "Adjusting TLS maximum retry queue age to " + RETRMAXAGE + " millis.");
+                        Logging.logCheckedInfo(LOG, "Adjusting TLS maximum retry queue age to ", RETRMAXAGE, " millis.");
                         
                     }
                 }
@@ -425,7 +425,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
         } catch (Throwable e2) {
 
-            Logging.logCheckedSevere(LOG, "TLS could not register listener...as good as dead", e2);
+            Logging.logCheckedSevere(LOG, "TLS could not register listener...as good as dead\n", e2);
             return -1;
 
         }
@@ -515,7 +515,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      */
     public Messenger getMessenger(EndpointAddress addr, Object hintIgnored) {
         
-        Logging.logCheckedFine(LOG, "getMessenger for " + addr);
+        Logging.logCheckedFine(LOG, "getMessenger for ", addr);
         
         EndpointAddress plainAddress = new EndpointAddress(addr, null, null);
         
@@ -537,7 +537,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         
         if (conn == null) {
 
-            Logging.logCheckedSevere(LOG, "Cannot get a TLS connection for " + dstPAddr);
+            Logging.logCheckedSevere(LOG, "Cannot get a TLS connection for ", dstPAddr);
             
             // No connection was either available or created. Cannot do TLS
             // with the destination address.
@@ -578,7 +578,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
                     } catch(Throwable uncaught) {
 
-                        Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message", uncaught);
+                        Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message\n", uncaught);
                         
                     }
                 }
@@ -586,7 +586,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             
         } catch (Throwable e) {
 
-            Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message", e);
+            Logging.logCheckedWarning(LOG, "Failure demuxing an incoming message\n", e);
             
         }
     }
@@ -642,7 +642,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             if (credential == evt.getSource()) {
                 if (!credential.isValid()) {
 
-                    Logging.logCheckedInfo(LOG, "Clearing credential/certfile ");
+                    Logging.logCheckedInfo(LOG, "Clearing credential/certfile");
                     
                     credential.removePropertyChangeListener(this);
                     credential = null;
@@ -688,8 +688,8 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     X500Principal credSubjectDN = cred.getCertificate().getSubjectX500Principal();
                     X500Principal peerCertSubjectDN = peerCert.getSubjectX500Principal();
                     
-                    Logging.logCheckedFine(LOG, "Checking credential cert for match to peer cert"
-                        + "\n\tcred subject=" + credSubjectDN + "\n\tpeer subject=" + peerCertSubjectDN);
+                    Logging.logCheckedFine(LOG, "Checking credential cert for match to peer cert",
+                        "\n\tcred subject=", credSubjectDN, "\n\tpeer subject=", peerCertSubjectDN);
                     
                     if (peerCertSubjectDN.equals(credSubjectDN)) {
                         serviceCert = cred.generateServiceCertificate(assignedID);
@@ -706,7 +706,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
                 
                 if (null != failure) {
-                    Logging.logCheckedSevere(LOG, "Failure building service certificate", failure);
+                    Logging.logCheckedSevere(LOG, "Failure building service certificate\n", failure);
                     return;
                 }
             }
@@ -721,12 +721,12 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     X500Principal credSubjectDN = credCert.getSubjectX500Principal();
                     X500Principal serviceIssuerDN = serviceCert[0].getIssuerX500Principal();
                     
-                    Logging.logCheckedFine(LOG, "Checking credential cert for match to service issuer cert" + "\n\tcred subject=" + credSubjectDN
-                        + "\n\t  svc issuer=" + serviceIssuerDN);
+                    Logging.logCheckedFine(LOG, "Checking credential cert for match to service issuer cert\n\tcred subject=", credSubjectDN,
+                        "\n\t  svc issuer=", serviceIssuerDN);
                     
                     if (credSubjectDN.equals(serviceIssuerDN)) {
 
-                        Logging.logCheckedInfo(LOG, "Setting credential/certfile ");
+                        Logging.logCheckedInfo(LOG, "Setting credential/certfile");
                         
                         credential = cred.getServiceCredential(assignedID);
                         
@@ -746,7 +746,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
                 
                 if (null != failure) {
-                    Logging.logCheckedSevere(LOG, "Failure building service credential", failure);
+                    Logging.logCheckedSevere(LOG, "Failure building service credential\n", failure);
                 }
             }
         }

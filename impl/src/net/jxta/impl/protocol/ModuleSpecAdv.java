@@ -177,7 +177,7 @@ public class ModuleSpecAdv extends ModuleSpecAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
             
         }

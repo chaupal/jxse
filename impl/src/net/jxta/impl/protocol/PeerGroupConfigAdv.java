@@ -210,7 +210,7 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
 
         }

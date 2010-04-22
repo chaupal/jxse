@@ -262,7 +262,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     boolean startServer() {
 
-        Logging.logCheckedInfo(LOG, "Starting " + publicAddress);
+        Logging.logCheckedInfo(LOG, "Starting ", publicAddress);
         
         endpointService = group.getEndpointService();
         discoveryService = group.getDiscoveryService();
@@ -284,7 +284,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Could not publish Relay RdvAdvertisement", e);
+            Logging.logCheckedWarning(LOG, "Could not publish Relay RdvAdvertisement\n", e);
             
         }
         
@@ -294,7 +294,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         endpointService.addMessengerEventListener(this, EndpointService.HighPrecedence);
         
-        Logging.logCheckedInfo(LOG, "Relay Server started : " + publicAddress);
+        Logging.logCheckedInfo(LOG, "Relay Server started : ", publicAddress);
         
         return true;
     }
@@ -307,7 +307,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         // remove messenger events listener since we do not have any clients
         endpointService.removeMessengerEventListener(this, EndpointService.HighPrecedence);
         
-        Logging.logCheckedFine(LOG, "Messenger Event Listener removed " + serviceName);
+        Logging.logCheckedFine(LOG, "Messenger Event Listener removed ", serviceName);
         
         // Close all clients.
         for (RelayServerClient aClient : relayedClients.values()) {
@@ -326,7 +326,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         }
         
-        Logging.logCheckedInfo(LOG, "Relay Server stopped : " + publicAddress);
+        Logging.logCheckedInfo(LOG, "Relay Server stopped : ", publicAddress);
         
     }
     
@@ -386,7 +386,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             messenger = handler.getMessenger(destAddr, false);
         }
         
-        Logging.logCheckedFine(LOG, "messenger for " + destAddr.getProtocolAddress() + " is " + messenger);
+        Logging.logCheckedFine(LOG, "messenger for ", destAddr.getProtocolAddress(), " is ", messenger);
         
         return messenger;
     }
@@ -485,7 +485,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         if (null == clientPeerID) {
 
-            Logging.logCheckedWarning(LOG, "Bad client address : " + clientAddr);
+            Logging.logCheckedWarning(LOG, "Bad client address : ", clientAddr);
             return;
 
         }
@@ -517,7 +517,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
             } catch (URISyntaxException badURI) {
 
-                Logging.logCheckedWarning(LOG, "Bad client address : " + dstAddr.getServiceParameter());
+                Logging.logCheckedWarning(LOG, "Bad client address : ", dstAddr.getServiceParameter());
                 return;
 
             }
@@ -536,7 +536,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         request = request.toLowerCase();
         
-        Logging.logCheckedFine(LOG, "request = " + request);
+        Logging.logCheckedFine(LOG, "request = ", request);
         
         Message responseMessage = null;
         
@@ -551,7 +551,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 return;
             }
 
-            Logging.logCheckedFine(LOG, "connect clientPeerId = " + clientPeerID);
+            Logging.logCheckedFine(LOG, "connect clientPeerId = ", clientPeerID);
             
             long requestedLease = MAX_LEASE_DURATION;
             boolean returnRelayAdv = false;
@@ -624,7 +624,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             if (handler != null) {
 
                 // the client was added, send a connected response
-                Logging.logCheckedFine(LOG, "added client " + clientPeerID);
+                Logging.logCheckedFine(LOG, "added client ", clientPeerID);
                 
                 // Now get a messenger that goes through the handler and
                 // sends messages out-of-band (an internal perk).
@@ -668,7 +668,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
                 // We can't keep the messenger.
                 // the client was not added, send a disconnected response
-                Logging.logCheckedWarning(LOG, "could not add client " + clientPeerID);
+                Logging.logCheckedWarning(LOG, "could not add client ", clientPeerID);
                 
                 // We do not get a messenger for ourselves here, so
                 // just get one from the router ourselves, if we have to.
@@ -709,7 +709,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 closingHandler = removeClient(clientPeerID);
 
                 if (closingHandler != null) {
-                    Logging.logCheckedFine(LOG, "removed client " + clientPeerID);
+                    Logging.logCheckedFine(LOG, "removed client ", clientPeerID);
                 }
                 
             }
@@ -733,7 +733,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         // if there is a messenger and a response, send it
         if (messenger != null && responseMessage != null) {
 
-            Logging.logCheckedFine(LOG, "sending response to client " + clientPeerID);
+            Logging.logCheckedFine(LOG, "sending response to client ", clientPeerID);
             
             // If rawMessenger, then this is the incoming
             // messenger brought in by messengerReady. In that case,
@@ -758,7 +758,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
                 } catch (IOException e) {
 
-                    Logging.logCheckedWarning(LOG, "Could not send response message to " + clientPeerID, e);
+                    Logging.logCheckedWarning(LOG, "Could not send response message to ", clientPeerID, "\n", e);
                     
                 }
             }
@@ -793,7 +793,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         if (client.isExpired()) return null;
 
-        Logging.logCheckedFine(LOG, "getClient(" + clientPeerID + ") = " + client);
+        Logging.logCheckedFine(LOG, "getClient(", clientPeerID, ") = ", client);
         
         return client;
     }
@@ -809,7 +809,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         RelayServerClient client;
         boolean isNewClient = false;
         
-        Logging.logCheckedFine(LOG, "addClient(" + clientPeerID + ")");
+        Logging.logCheckedFine(LOG, "addClient(", clientPeerID, ")");
         
         synchronized (relayedClients) {
 
@@ -831,13 +831,13 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
                 } else {
 
-                    Logging.logCheckedFine(LOG, "new client denied. nb clients: " + relayedClients.size() + "/" + MAX_CLIENTS + ", messenger: " + messenger);
+                    Logging.logCheckedFine(LOG, "new client denied. nb clients: ", relayedClients.size(), "/", MAX_CLIENTS, ", messenger: ", messenger);
                     
                 }
             }
         }
         
-        Logging.logCheckedFine(LOG, "added = " + (client != null));
+        Logging.logCheckedFine(LOG, "added = ", (client != null));
         
         if (client == null) return null;
         
@@ -882,7 +882,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     private RelayServerClient removeClient(PeerID clientPeerId) {
         
-        Logging.logCheckedFine(LOG, "removeClient(" + clientPeerId + ")");
+        Logging.logCheckedFine(LOG, "removeClient(", clientPeerId, ")");
         
         return relayedClients.remove(clientPeerId);
         
@@ -891,7 +891,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     // this is only used by the RelayServerClient when it is closing and needs to remove itself
     protected void removeClient(PeerID clientPeerId, RelayServerClient handler) {
 
-        Logging.logCheckedFine(LOG, "removeClient(" + clientPeerId + "," + handler + ")");
+        Logging.logCheckedFine(LOG, "removeClient(", clientPeerId, ",", handler, ")");
         
         synchronized (relayedClients) {
             RelayServerClient currentHandler = relayedClients.get(clientPeerId);
@@ -911,7 +911,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                         temp.interrupt();
                     } catch (SecurityException e) {
                         // ignore this exception
-                        Logging.logCheckedFine(LOG, e.toString());
+                        Logging.logCheckedFine(LOG, e);
                     }
                 }
             }
@@ -953,7 +953,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), "\n", all);
 
         } finally {
 
@@ -973,7 +973,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
          */
         public void run() {
 
-            Logging.logCheckedFine(LOG, "start: " + relayedClients.size() + " clients");
+            Logging.logCheckedFine(LOG, "start: ", relayedClients.size(), " clients");
         
             // run through the clients
             for (RelayServerClient aClient : relayedClients.values()) {
@@ -987,12 +987,12 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
                 } catch (Exception e) {
 
-                    Logging.logCheckedWarning(LOG, "Exception during client gc", e);
+                    Logging.logCheckedWarning(LOG, "Exception during client gc\n", e);
                     
                 }
             }
         
-            Logging.logCheckedFine(LOG, "finish: " + relayedClients.size() + " clients");
+            Logging.logCheckedFine(LOG, "finish: ", relayedClients.size(), " clients");
         
         }
     }
@@ -1038,7 +1038,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         private boolean putCacheAdv(String peerId, RdvAdvertisement adv) {
 
             if (!server.acl.isAllowed(adv.getPeerID())) {
-                Logging.logCheckedFine(LOG, "Rejected cache entry for : " + peerId);
+                Logging.logCheckedFine(LOG, "Rejected cache entry for : ", peerId);
                 return false;
             }
 
@@ -1046,7 +1046,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
                 boolean replaced = (null != relayAdvCache.put(peerId, adv));
                 
-                Logging.logCheckedFine(LOG, (replaced ? "Updated" : "Created") + " cache entry for : " + peerId);
+                Logging.logCheckedFine(LOG, (replaced ? "Updated" : "Created"), " cache entry for : ", peerId);
                 
                 if (relayAdvCache.size() >= MAX_CACHED_SERVERS) {
                     // New entry and map full. Remove one at random.
@@ -1077,7 +1077,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 return;
             }
             
-            Logging.logCheckedFine(LOG, "pipeMsgEvent() from " + peerId);
+            Logging.logCheckedFine(LOG, "pipeMsgEvent() from ", peerId);
             
             MessageElement me = message.getMessageElement(RelayTransport.RELAY_NS, RelayTransport.RELAY_ADV_ELEMENT);
             
@@ -1096,24 +1096,24 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
             } catch (IOException failed) {
 
-                Logging.logCheckedWarning(LOG, "Failed building relay advertisement", failed);
+                Logging.logCheckedWarning(LOG, "Failed building relay advertisement\n", failed);
                 return;
 
             } catch (NoSuchElementException failed) {
 
-                Logging.logCheckedWarning(LOG, "Could not build relay advertisement", failed);
+                Logging.logCheckedWarning(LOG, "Could not build relay advertisement\n", failed);
                 return;
 
             } catch (ClassCastException failed) {
 
-                Logging.logCheckedWarning(LOG, "Could not build relay advertisement", failed);
+                Logging.logCheckedWarning(LOG, "Could not build relay advertisement\n", failed);
                 return;
 
             }
             
             if (!(adv instanceof RdvAdvertisement)) {
 
-                Logging.logCheckedWarning(LOG, "Response does not contain relay advertisement (" + adv.getAdvType() + ")");
+                Logging.logCheckedWarning(LOG, "Response does not contain relay advertisement (", adv.getAdvType(), ")");
                 return;
 
             }
@@ -1163,7 +1163,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
                     } catch (Exception ex) {
 
-                        Logging.logCheckedWarning(LOG, "Bad peerid : " + peerId, ex);
+                        Logging.logCheckedWarning(LOG, "Bad peerid : ", peerId, "\n", ex);
                         
                     }
 
@@ -1204,7 +1204,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                         
                     } catch (IOException e) {
 
-                        Logging.logCheckedFine(LOG, "Could not send reply on pipe\n" + e.toString());
+                        Logging.logCheckedFine(LOG, "Could not send reply on pipe\n", e);
 
                     }
                     
@@ -1287,7 +1287,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     try {
                         server.discoveryService.publish(adv);
                     } catch (IOException e) {
-                        Logging.logCheckedFine(LOG, "Could not publish Relay RdvAdvertisement\n" + e.toString());
+                        Logging.logCheckedFine(LOG, "Could not publish Relay RdvAdvertisement\n", e);
                     }
                     
                     if (adv != null) {
@@ -1302,12 +1302,12 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                         try {
                             outputPipe.send(message);
                         } catch (IOException e) {
-                            Logging.logCheckedFine(LOG, "Could not send message on pipe\n" + e.toString());
+                            Logging.logCheckedFine(LOG, "Could not send message on pipe\n", e);
                         }
                     }
                     
                     long sleepTime = server.minBroadcastInterval + ((server.relayedClients.size() + 1) * 100 / (server.MAX_CLIENTS + 1)) * server.minBroadcastInterval;
-                    Logging.logCheckedFine(LOG, "sleepTime=" + sleepTime);
+                    Logging.logCheckedFine(LOG, "sleepTime=", sleepTime);
                     
                     try {
                         Thread.sleep(sleepTime);
@@ -1325,7 +1325,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 }
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), "\n", all);
 
             } finally {
 
@@ -1386,11 +1386,11 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
             } catch (IOException e) {
 
-                Logging.logCheckedWarning(LOG, "Failed sending response " + ms + " to " + ps, e);
+                Logging.logCheckedWarning(LOG, "Failed sending response ", ms, " to ", ps, e);
                 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 
             }
         }

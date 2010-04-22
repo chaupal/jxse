@@ -247,7 +247,7 @@ public final class CodatBinaryID extends net.jxta.codat.CodatID {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = " + id);
+            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = ", id);
             return null;
 
         }

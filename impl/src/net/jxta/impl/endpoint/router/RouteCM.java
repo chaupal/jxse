@@ -260,7 +260,7 @@ class RouteCM implements Module {
 
         } catch (IOException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed discovering routes for " + peerIDStr, failed);
+            Logging.logCheckedWarning(LOG, "Failed discovering routes for ", peerIDStr, failed);
             
         }
         
@@ -287,7 +287,7 @@ class RouteCM implements Module {
 
         } catch (IOException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for " + peerIDStr, failed);
+            Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for ", peerIDStr, "\n", failed);
             
         }
         
@@ -314,7 +314,7 @@ class RouteCM implements Module {
 
                 } catch (IOException failed) {
 
-                    Logging.logCheckedWarning(LOG, "Failed publishing route", failed);
+                    Logging.logCheckedWarning(LOG, "Failed publishing route\n", failed);
 
                 }
 
@@ -364,7 +364,7 @@ class RouteCM implements Module {
             
             if (!advs.hasMoreElements()) {
                 // No route, sorry
-                Logging.logCheckedFine(LOG, "could not find a route advertisement " + realPeerID);
+                Logging.logCheckedFine(LOG, "could not find a route advertisement ", realPeerID);
                 return;
             }
             
@@ -392,7 +392,7 @@ class RouteCM implements Module {
                 advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
                 if (!advs.hasMoreElements()) {
                     // No route, sorry
-                    Logging.logCheckedFine(LOG, "could not find a route advertisement for hop " + realPeerID);
+                    Logging.logCheckedFine(LOG, "could not find a route advertisement for hop ", realPeerID);
                     return;
                 }
                 adv = advs.nextElement();
@@ -409,7 +409,7 @@ class RouteCM implements Module {
             
             newRoute.setHops(newHops);
             
-            Logging.logCheckedFine(LOG, "publishing new route \n" + newRoute.display());
+            Logging.logCheckedFine(LOG, "publishing new route \n", newRoute.display());
             
             lruCache.put(route.getDestPeerID(), route);
 
@@ -419,7 +419,7 @@ class RouteCM implements Module {
 
         } catch (Exception ex) {
 
-            Logging.logCheckedWarning(LOG, "error publishing route" + route.display(), ex);
+            Logging.logCheckedWarning(LOG, "error publishing route", route.display(), "\n", ex);
             
         }
     }
@@ -442,7 +442,7 @@ class RouteCM implements Module {
             }
         }
         
-        Logging.logCheckedFine(LOG, "Publishing route for " + route.getDestPeerID());
+        Logging.logCheckedFine(LOG, "Publishing route for ", route.getDestPeerID());
         
         // publish route adv
         if (!lruCache.contains(route.getDestPeerID())) {
@@ -455,7 +455,7 @@ class RouteCM implements Module {
 
             } catch (Exception ex) {
 
-                Logging.logCheckedSevere(LOG, "error publishing route adv \n" + route, ex);
+                Logging.logCheckedSevere(LOG, "error publishing route adv \n", route, "\n", ex);
                 
             }
         }
@@ -494,7 +494,7 @@ class RouteCM implements Module {
 
         } catch (IOException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failure recovering route advertisements.", failed);
+            Logging.logCheckedWarning(LOG, "Failure recovering route advertisements.\n", failed);
             
         }
         
@@ -509,7 +509,7 @@ class RouteCM implements Module {
             try {
 
                 discovery.flushAdvertisement(adv);
-                Logging.logCheckedFine(LOG, "removed RouteAdvertisement for " + peerIDStr);
+                Logging.logCheckedFine(LOG, "removed RouteAdvertisement for ", peerIDStr);
 
             } catch (IOException ex) {// protect against flush IOException when the entry is not there
 
@@ -525,7 +525,7 @@ class RouteCM implements Module {
 
         } catch (IOException failed) {
 
-            Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for " + peerIDStr, failed);
+            Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for ", peerIDStr, "\n", failed);
             
         }
         
@@ -539,7 +539,7 @@ class RouteCM implements Module {
             // ok so let's delete the advertisement
             try {
                 discovery.flushAdvertisement(adv);
-                Logging.logCheckedFine(LOG, "removed PeerAdvertisement for " + peerIDStr);
+                Logging.logCheckedFine(LOG, "removed PeerAdvertisement for ", peerIDStr);
             } catch (IOException ex) {// protect against flush IOException when the entry is not there
             }
         }
@@ -595,7 +595,7 @@ class RouteCM implements Module {
                 return true;
             }
         } catch (Exception e) {
-            Logging.logCheckedFine(LOG, "  failure to publish route advertisement response\n" + e.toString());
+            Logging.logCheckedFine(LOG, "  failure to publish route advertisement response\n", e);
         }
         return false;
     }

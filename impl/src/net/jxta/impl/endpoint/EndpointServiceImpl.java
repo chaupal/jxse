@@ -426,8 +426,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             try {
                 ((BlockingMessenger) cachedMessenger).setOwner(this);
             } catch (ClassCastException cce) {
-                Logging.logCheckedSevere(LOG, "Transport messengers must all extend BlockingMessenger for now. " +
-                    cachedMessenger + " may remain open beyond its use.");
+                Logging.logCheckedSevere(LOG, "Transport messengers must all extend BlockingMessenger for now. ",
+                    cachedMessenger, " may remain open beyond its use.");
             }
             return true;
         }
@@ -473,7 +473,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             } catch (RuntimeException any) {
 
-                Logging.logCheckedWarning(LOG, "Failure sending " + msg, any);
+                Logging.logCheckedWarning(LOG, "Failure sending ", msg, "\n", any);
                 throw any;
 
             }
@@ -531,7 +531,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     }
                 } catch (NumberFormatException e) {
 
-                    Logging.logCheckedWarning(LOG, "could not parse MessengerQueueSize string", e);
+                    Logging.logCheckedWarning(LOG, "could not parse MessengerQueueSize string\n", e);
                     
                 }
             }
@@ -750,7 +750,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
                 if (null == filtered) {
 
-                    Logging.logCheckedFine(LOG, "   message " + myMsg + " discarded upon filter decision");
+                    Logging.logCheckedFine(LOG, "   message ", myMsg, " discarded upon filter decision");
 
                     if (EndpointMeterBuildSettings.ENDPOINT_METERING) metrics.numFilteredOut++;
                     
@@ -764,7 +764,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 
             } catch (Exception e) {
 
-                Logging.logCheckedWarning(LOG, "Failed propagating message " + filtered + " on message transport " + aTransport, e);
+                Logging.logCheckedWarning(LOG, "Failed propagating message ", filtered, " on message transport ", aTransport, "\n", e);
 
                 if (EndpointMeterBuildSettings.ENDPOINT_METERING) 
                     metrics.numErrorsPropagated++;
@@ -919,7 +919,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             if (localPeerId.equals(srcPeer)) {
 
                 // This is a loopback. Discard.
-                Logging.logCheckedFine(LOG, msg + " is a propagate loopback. Discarded");
+                Logging.logCheckedFine(LOG, msg, " is a propagate loopback. Discarded");
 
                 if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                     endpointMeter.discardedLoopbackDemuxMessage();
@@ -931,7 +931,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (null == srcAddress) {
 
-            Logging.logCheckedWarning(LOG, "null src address, discarding message " + msg);
+            Logging.logCheckedWarning(LOG, "null src address, discarding message ", msg);
             
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.invalidIncomingMessage();
@@ -941,7 +941,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (null == dstAddress) {
 
-            Logging.logCheckedWarning(LOG, "null destination address, discarding message " + msg);
+            Logging.logCheckedWarning(LOG, "null destination address, discarding message ", msg);
             
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.invalidIncomingMessage();
@@ -963,7 +963,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if ((null == decodedServiceName) || (0 == decodedServiceName.length())) {
 
-            Logging.logCheckedWarning(LOG, "dest serviceName must not be null, discarding message " + msg);
+            Logging.logCheckedWarning(LOG, "dest serviceName must not be null, discarding message ", msg);
             
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.invalidIncomingMessage();
@@ -1002,9 +1002,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (listener == null) {
 
-            Logging.logCheckedWarning(LOG, "No listener for \'" + dstAddress + "\' in group " +
-                        group + "\n\tdecodedServiceName :" +
-                        decodedServiceName + "\tdecodedServiceParam :" +
+            Logging.logCheckedWarning(LOG, "No listener for \'" + dstAddress + "\' in group ",
+                        group, "\n\tdecodedServiceName :",
+                        decodedServiceName, "\tdecodedServiceParam :",
                         decodedServiceParam);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
@@ -1019,9 +1019,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         try {
 
             if (null != decodedServiceParam) {
-                Logging.logCheckedFine(LOG, "Calling listener for \'" + decodedServiceName + "/" + decodedServiceParam + "\' with " + msg);
+                Logging.logCheckedFine(LOG, "Calling listener for \'", decodedServiceName, "/", decodedServiceParam, "\' with ", msg);
             } else {
-                Logging.logCheckedFine(LOG, "Calling listener for \'" + decodedServiceName + "\' with " + msg);
+                Logging.logCheckedFine(LOG, "Calling listener for \'", decodedServiceName, "\' with ", msg);
             }
 
             listener.processIncomingMessage(msg, srcAddress, demangledAddress);
@@ -1036,7 +1036,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught throwable from listener for " + dstAddress, all);
+            Logging.logCheckedSevere(LOG, "Uncaught throwable from listener for ", dstAddress, all);
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.errorProcessingIncomingMessage();
@@ -1066,7 +1066,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (null == dstAddressElement) {
 
             // No destination address... Just discard
-            Logging.logCheckedWarning(LOG, msg + " has no destination address. Discarded");
+            Logging.logCheckedWarning(LOG, msg, " has no destination address. Discarded");
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.noDestinationAddressForDemuxMessage();
@@ -1084,7 +1084,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (null == srcAddressElement) {
 
             // No src address... Just discard
-            Logging.logCheckedWarning(LOG, msg + " has no source address. Discarded");
+            Logging.logCheckedWarning(LOG, msg, " has no source address. Discarded");
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.noSourceAddressForDemuxMessage();
@@ -1197,7 +1197,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             while (allAddresses.hasNext()) {
 
                 EndpointAddress anEndpointAddress = allAddresses.next();
-                Logging.logCheckedFine(LOG, "Adding endpoint address to route advertisement : " + anEndpointAddress);
+                Logging.logCheckedFine(LOG, "Adding endpoint address to route advertisement : ", anEndpointAddress);
                 ea.add(anEndpointAddress.toString());
 
             }
@@ -1271,7 +1271,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             
         } catch (Exception ex) {
 
-            Logging.logCheckedSevere(LOG, "Exception adding message transport ", ex);
+            Logging.logCheckedSevere(LOG, "Exception adding message transport \n", ex);
             
         }
     }
@@ -1301,7 +1301,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             while (allAddresses.hasNext()) {
 
                 EndpointAddress anEndpointAddress = allAddresses.next();
-                Logging.logCheckedFine(LOG, "Removing endpoint address from route advertisement : " + anEndpointAddress);
+                Logging.logCheckedFine(LOG, "Removing endpoint address from route advertisement : ", anEndpointAddress);
                 ea.add(anEndpointAddress.toString());
 
             }
@@ -1344,7 +1344,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         } catch (Exception ex) {
 
-            Logging.logCheckedSevere(LOG, "Exception removing messsage transport ", ex);
+            Logging.logCheckedSevere(LOG, "Exception removing messsage transport \n", ex);
 
         }
     }
@@ -1458,7 +1458,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             listener = incomingMessageListeners.get(serviceName + serviceParam);
 
             if (null != listener) 
-                Logging.logCheckedWarning(LOG, "Found handler only via compatibility listener : " + serviceName + serviceParam);
+                Logging.logCheckedWarning(LOG, "Found handler only via compatibility listener : ", serviceName, serviceParam);
             
         }
 
@@ -1601,7 +1601,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // Try our ancestors enpoints, if any.
 
         if (parentEndpoint == null) {
-            Logging.logCheckedFine(LOG, "Could not create messenger for : " + addr);
+            Logging.logCheckedFine(LOG, "Could not create messenger for : ", addr);
             return null;
         }
 
@@ -1638,12 +1638,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         Messenger messenger = null;
 
         if (sender != null) {
-            Logging.logCheckedFine(LOG, "Trying address \'" + addr + "\' with : " + sender);
+            Logging.logCheckedFine(LOG, "Trying address \'", addr, "\' with : ", sender);
             messenger = sender.getMessenger(addr, hint);
         }
 
         if (messenger == null) {
-            Logging.logCheckedFine(LOG, "Couldn\'t create messenger for : " + addr);
+            Logging.logCheckedFine(LOG, "Couldn\'t create messenger for : ", addr);
         }
 
         return messenger;
@@ -1728,9 +1728,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         Messenger messengerForHere;
         EndpointAddress connAddr = event.getConnectionAddress();
 
-        Logging.logCheckedFine(LOG, "New " + messenger + " for : " +
-                    messenger.getDestinationAddress() + " (" +
-                    messenger.getLogicalDestinationAddress() + ")");
+        Logging.logCheckedFine(LOG, "New ", messenger, " for : ",
+                    messenger.getDestinationAddress(), " (",
+                    messenger.getLogicalDestinationAddress(), ")");
 
         int highestPrec = EndpointService.HighPrecedence;
         int lowestPrec = EndpointService.LowPrecedence;
@@ -1817,7 +1817,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     if (listener.messengerReady(newMessenger)) {
 
                         // A listener has taken the messenger. we're done.
-                        Logging.logCheckedFine(LOG, newMessenger + " claimed by " + listener);
+                        Logging.logCheckedFine(LOG, newMessenger, " claimed by ", listener);
 
                         return true;
 
@@ -1825,14 +1825,14 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
                 } catch (Throwable all) {
 
-                    Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener " + listener, all);
+                    Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener ", listener, "\n", all);
                     
                 }
             }
         }
 
         // Note that the messenger was not wanted.
-        Logging.logCheckedFine(LOG, "Nobody cared about " + event);
+        Logging.logCheckedFine(LOG, "Nobody cared about ", event);
 
         return false;
     }

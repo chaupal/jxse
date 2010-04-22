@@ -285,7 +285,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
             } else {
 
-                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRelayAttr.getName());
                 
             }
         }
@@ -297,7 +297,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
             }
 
         }
@@ -482,7 +482,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRelayAttr.getName());
                     
                 }
 
@@ -505,7 +505,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
                         if (USE_ONLY_SEEDS_ATTR.equals(aRelayAttr.getName())) {
                             useOnlySeeds = Boolean.valueOf(aRelayAttr.getValue().trim());
                         } else {
-                            Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
+                            Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRelayAttr.getName());
                         }
 
                     }
@@ -532,7 +532,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
                         } else {
 
-                            Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                            Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
                             
                         }
 
@@ -540,7 +540,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                    Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
                     
                 }
             }
@@ -577,7 +577,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aRelayAttr.getName());
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRelayAttr.getName());
                     
                 }
             }

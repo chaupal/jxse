@@ -281,7 +281,7 @@ public class StringMessageElement extends TextMessageElement {
 
         if (null == cachedBytes) {
 
-            Logging.logCheckedFiner(LOG, "Creating getBytes of " + getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(this)));
+            Logging.logCheckedFiner(LOG, "Creating getBytes of ", getClass().getName(), '@', Integer.toHexString(System.identityHashCode(this)));
 
             String charset = type.getParameter("charset");
 
@@ -297,7 +297,7 @@ public class StringMessageElement extends TextMessageElement {
 
             } catch (IOException caught) {
 
-                Logging.logCheckedWarning(LOG, "MessageElement Data could not be generated", caught);
+                Logging.logCheckedWarning(LOG, "MessageElement Data could not be generated\n", caught);
                 IllegalStateException failure = new IllegalStateException("MessageElement Data could not be generated");
                 failure.initCause(caught);
                 throw failure;
@@ -337,7 +337,7 @@ public class StringMessageElement extends TextMessageElement {
 
         if (null == cachedChars) {
 
-            Logging.logCheckedFiner(LOG, "creating cachedGetChars of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+            Logging.logCheckedFiner(LOG, "creating cachedGetChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
             if ((data instanceof CharBuffer) && ((CharBuffer) data).hasArray()) {
                 cachedChars = ((CharBuffer) data).array();

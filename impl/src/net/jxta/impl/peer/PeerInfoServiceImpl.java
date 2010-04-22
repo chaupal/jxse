@@ -402,8 +402,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             try {
                 requestSourceID = (PeerID) query.getSrcPeer();
             } catch (Exception e) {
-                Logging.logCheckedFine(LOG, "PeerInfoService.processQuery got a bad query, not valid src\n"
-                        + e.toString());
+                Logging.logCheckedFine(LOG, "PeerInfoService.processQuery got a bad query, not valid src\n", e);
                 return ResolverService.OK;
             }
             
@@ -416,7 +415,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
             } catch (Exception e) {
 
-                Logging.logCheckedWarning(LOG, "PeerInfoService.processQuery got a bad adv", e);
+                Logging.logCheckedWarning(LOG, "PeerInfoService.processQuery got a bad adv\n", e);
                 return ResolverService.OK;
 
             }
@@ -460,7 +459,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
             } catch (Exception e) {
 
-                Logging.logCheckedFine(LOG, "PeerInfoService.processResponse got a bad adv\n" + e.toString());
+                Logging.logCheckedFine(LOG, "PeerInfoService.processResponse got a bad adv\n", e);
                 return;
 
             }
@@ -521,7 +520,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
             } catch (JxtaException e) {
 
-                Logging.logCheckedWarning(LOG, "Failure building document", e);
+                Logging.logCheckedWarning(LOG, "Failure building document\n", e);
                 
             }
         }
@@ -556,7 +555,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
             } catch (JxtaException e) {
 
-                Logging.logCheckedWarning(LOG, "Failure to build resolver query", e);
+                Logging.logCheckedWarning(LOG, "Failure to build resolver query\n", e);
                 
             }
         }

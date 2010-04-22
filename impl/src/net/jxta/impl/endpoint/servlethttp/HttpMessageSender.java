@@ -169,11 +169,11 @@ class HttpMessageSender implements MessageSender {
      */
     public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
 
-        Logging.logCheckedFine(LOG, "getMessenger for : " + destAddr);
+        Logging.logCheckedFine(LOG, "getMessenger for : ", destAddr);
 
         if (!getProtocolName().equals(destAddr.getProtocolName())) {
 
-            Logging.logCheckedWarning(LOG, "Cannot make messenger for protocol :" + destAddr.getProtocolName());
+            Logging.logCheckedWarning(LOG, "Cannot make messenger for protocol :", destAddr.getProtocolName());
             return null;
 
         }
@@ -194,15 +194,15 @@ class HttpMessageSender implements MessageSender {
 
         } catch (SocketTimeoutException noConnect) {
 
-            Logging.logCheckedWarning(LOG, "Could not connect to " + destAddr + " : " + noConnect.getMessage());
+            Logging.logCheckedWarning(LOG, "Could not connect to ", destAddr, " : ", noConnect.getMessage());
             
         } catch (ConnectException noConnect) {
 
-            Logging.logCheckedWarning(LOG, "Failed to connect to " + destAddr + " : " + noConnect.getMessage());
+            Logging.logCheckedWarning(LOG, "Failed to connect to ", destAddr + " : ", noConnect.getMessage());
             
         } catch (Throwable e) {
 
-            Logging.logCheckedWarning(LOG, "Could not make messenger for " + destAddr, e);
+            Logging.logCheckedWarning(LOG, "Could not make messenger for ", destAddr, "\n", e);
             
         }
 

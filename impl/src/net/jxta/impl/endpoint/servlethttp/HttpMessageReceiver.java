@@ -244,7 +244,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         } catch (Exception e) {
 
-            Logging.logCheckedSevere(LOG, "Could not start server", e);
+            Logging.logCheckedSevere(LOG, "Could not start server\n", e);
             PeerGroupException failure = new PeerGroupException("Could not start server");
             failure.initCause(e);
             throw failure;
@@ -271,7 +271,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         } catch (InterruptedException e) {
 
-            Logging.logCheckedSevere(LOG, "Interrupted during stop()", e);
+            Logging.logCheckedSevere(LOG, "Interrupted during stop()\n", e);
             
         }
         
@@ -331,7 +331,7 @@ class HttpMessageReceiver implements MessageReceiver {
         
         try {
             in = new FileInputStream(fromFile);
-            Logging.logCheckedFine(LOG, "Read properties from " + fromFile.getPath());
+            Logging.logCheckedFine(LOG, "Read properties from ", fromFile.getPath());
         } catch (FileNotFoundException e) {
             return null;
         }
@@ -342,7 +342,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         } catch (IOException e) {
 
-            Logging.logCheckedSevere(LOG, "Error reading " + fromFile.getPath(), e);
+            Logging.logCheckedSevere(LOG, "Error reading ", fromFile.getPath(), "\n", e);
             
         } finally {
 

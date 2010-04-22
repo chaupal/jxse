@@ -124,7 +124,7 @@ public class AutomaticConfigurator extends NullConfigurator {
 
         } catch (RuntimeException serious) {
 
-            Logging.logCheckedSevere(LOG, "Trouble while fixing PlatformConfig. Hope for the best.", serious);
+            Logging.logCheckedSevere(LOG, "Trouble while fixing PlatformConfig. Hope for the best.\n", serious);
             reconf = true;
 
         }
@@ -356,7 +356,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             }
         } catch (Exception failure) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading relay configuration", failure);
+                LOG.log(Level.WARNING, "Problem reading relay configuration\n", failure);
             }
         }
 
@@ -399,7 +399,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             }
         } catch (Exception failure) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading rendezvous configuration", failure);
+                LOG.log(Level.WARNING, "Problem reading rendezvous configuration\n", failure);
             }
         }
 
@@ -453,7 +453,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             }
         } catch (Exception failure) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading pse configuration", failure);
+                LOG.log(Level.WARNING, "Problem reading pse configuration\n", failure);
             }
         }
 

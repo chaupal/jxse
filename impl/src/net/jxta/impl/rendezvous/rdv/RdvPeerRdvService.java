@@ -217,7 +217,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         } catch (Exception ohwell) {
 
             // don't worry about it for now. It'll still work.
-            Logging.logCheckedWarning(LOG, "Failed adding service params", ohwell);
+            Logging.logCheckedWarning(LOG, "Failed adding service params\n", ohwell);
             
         }
 
@@ -232,7 +232,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         rpv = new PeerView(group, advGroup, rdvService,
                 rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
 
-        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for " + group.getPeerGroupID() + " as a Rendezvous peer.");
+        Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", group.getPeerGroupID(), " as a Rendezvous peer.");
         
     }
 
@@ -248,7 +248,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
          */
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            Logging.logCheckedFine(LOG, "[" + group.getPeerGroupID() + "] processing " + msg);
+            Logging.logCheckedFine(LOG, "[", group.getPeerGroupID(), "] processing ", msg);
 
             if (msg.getMessageElement("jxta", ConnectRequest) != null)
                 processLeaseRequest(msg);
@@ -402,8 +402,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Propagating " + msg + "(TTL=" + useTTL + ") to :" +
-                    "\n\tsvc name:" + serviceName + "\tsvc params:" + serviceParam);
+        Logging.logCheckedFine(LOG, "Propagating ", msg, "(TTL=", useTTL, ") to :",
+                    "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -431,8 +431,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Propagating " + msg + "(TTL=" + useTTL + ") in group to :" +
-                    "\n\tsvc name:" + serviceName + "\tsvc params:" + serviceParam);
+        Logging.logCheckedFine(LOG, "Propagating ", msg, "(TTL=", useTTL, ") in group to :",
+                    "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -520,7 +520,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     private ClientConnection removeClient(PeerConnection pConn, boolean requested) {
 
-        Logging.logCheckedFine(LOG, "Disconnecting client " + pConn);
+        Logging.logCheckedFine(LOG, "Disconnecting client ", pConn);
 
         if (pConn.isConnected()) {
             pConn.setConnected(false);
@@ -547,7 +547,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             try {
                 removeClient(pConn, false);
             } catch (Exception ez1) {
-                Logging.logCheckedWarning(LOG, "disconnectClient failed for" + pConn, ez1);
+                Logging.logCheckedWarning(LOG, "disconnectClient failed for", pConn, "\n", ez1);
             }
         }
     }
@@ -570,7 +570,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Could not process disconnect request", e);
+            Logging.logCheckedWarning(LOG, "Could not process disconnect request\n", e);
             return;
 
         }
@@ -602,7 +602,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Cannot retrieve advertisment from lease request", e);
+            Logging.logCheckedWarning(LOG, "Cannot retrieve advertisment from lease request\n", e);
             return;
 
         }
@@ -617,7 +617,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Client peer advertisement publish failed", e);
+            Logging.logCheckedWarning(LOG, "Client peer advertisement publish failed\n", e);
 
         }
 
@@ -627,7 +627,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
         if (null != pConn) {
 
-            Logging.logCheckedFine(LOG, "Renewing client lease to " + pConn);
+            Logging.logCheckedFine(LOG, "Renewing client lease to ", pConn);
             lease = LEASE_DURATION;
 
         } else {
@@ -635,14 +635,14 @@ public class RdvPeerRdvService extends StdRendezVousService {
             if (clients.size() < MAX_CLIENTS) {
 
                 lease = LEASE_DURATION;
-                Logging.logCheckedFine(LOG, "Offering new client lease to " + padv.getName() + " [" + padv.getPeerID() + "]");
+                Logging.logCheckedFine(LOG, "Offering new client lease to ", padv.getName(), " [", padv.getPeerID(), "]");
 
             } else {
 
                 lease = 0;
 
-                Logging.logCheckedWarning(LOG, "Max clients exceeded, declining lease request from: "
-                    + padv.getName() + " [" + padv.getPeerID() + "]");
+                Logging.logCheckedWarning(LOG, "Max clients exceeded, declining lease request from: ",
+                    padv.getName(), " [", padv.getPeerID(), "]");
                 
             }
 
@@ -665,7 +665,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     private boolean sendLease(ClientConnection pConn, long lease) {
 
-        Logging.logCheckedFine(LOG, "Sending lease (" + lease + ") to " + pConn.getPeerName());
+        Logging.logCheckedFine(LOG, "Sending lease (", lease, ") to ", pConn.getPeerName());
 
         Message msg = new Message();
 
@@ -691,8 +691,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
         Logging.logCheckedFine(LOG,
-            "Undirected walk of " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:"
-            + serviceName + "\tsvc params:" + serviceParam);
+            "Undirected walk of ", msg, "(TTL=", useTTL, ") to :", "\n\tsvc name:",
+            serviceName, "\tsvc params:", serviceParam);
 
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
@@ -709,7 +709,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
                 rendezvousMeter.walkFailed();
             }
 
-            Logging.logCheckedWarning(LOG, "Cannot send message with Walker", failure);
+            Logging.logCheckedWarning(LOG, "Cannot send message with Walker\n", failure);
             throw failure;
 
         }
@@ -727,8 +727,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Directed walk of " + msg + "(TTL=" + useTTL + ") to :" + "\n\tsvc name:"
-            + serviceName + "\tsvc params:" + serviceParam);
+        Logging.logCheckedFine(LOG, "Directed walk of ", msg, "(TTL=", useTTL, ") to :\n\tsvc name:",
+            serviceName, "\tsvc params:", serviceParam);
 
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
@@ -742,7 +742,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
                     rendezvousMeter.walkToPeersFailed();
                 }
 
-                Logging.logCheckedWarning(LOG, "Cannot send message with Walker to: " + destPeerID, failed);
+                Logging.logCheckedWarning(LOG, "Cannot send message with Walker to: ", destPeerID, "\n", failed);
                 IOException failure = new IOException("Cannot send message with Walker to: " + destPeerID);
                 failure.initCause(failed);
                 throw failure;
@@ -780,7 +780,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
                             // This client has dropped out or the lease is over.
                             // remove it.
-                            Logging.logCheckedFine(LOG, "GC CLIENT: dropping " + pConn);
+                            Logging.logCheckedFine(LOG, "GC CLIENT: dropping ", pConn);
 
                             pConn.setConnected(false);
                             removeClient(pConn, false);
@@ -790,17 +790,18 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
                     } catch (Exception e) {
 
-                        Logging.logCheckedWarning(LOG, "GCTask failed for " + pConn, e);
+                        Logging.logCheckedWarning(LOG, "GCTask failed for ", pConn, "\n", e);
                         
                     }
                 }
 
-                Logging.logCheckedFine(LOG, "Client GC " + gcedClients + " of " + allClients.size()
-                    + " clients completed in " + TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), gcStart) + "ms.");
+                Logging.logCheckedFine(LOG, "Client GC ", gcedClients, " of ", allClients.size(),
+                    " clients completed in ", TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), gcStart),
+                    "ms.");
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
                 
             }
         }
@@ -820,7 +821,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             MessageElement serviceME = msg.getMessageElement("jxta", RDV_WALK_SVC_NAME);
 
             if (null == serviceME) {
-                Logging.logCheckedFine(LOG, "Discarding " + msg + " because its missing service name element");
+                Logging.logCheckedFine(LOG, "Discarding ", msg, " because its missing service name element");
                 return;
             }
 
@@ -840,8 +841,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
             EndpointAddress realDest = new EndpointAddress(dstAddr, sName, sParam);
 
-            Logging.logCheckedFine(LOG, "Calling local listener for [" + realDest.getServiceName()
-                + " / " + realDest.getServiceParameter() + "] with " + msg);
+            Logging.logCheckedFine(LOG, "Calling local listener for [", realDest.getServiceName(),
+                " / ", realDest.getServiceParameter(), "] with ", msg);
 
             rdvService.endpoint.processIncomingMessage(msg, srcAddr, realDest);
 

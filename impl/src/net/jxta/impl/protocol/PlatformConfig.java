@@ -166,7 +166,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
             XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
 
         }

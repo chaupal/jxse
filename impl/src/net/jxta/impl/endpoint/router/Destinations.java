@@ -220,7 +220,7 @@ class Destinations {
             Messenger currentIncoming = getIncoming();
 
             if (currentIncoming == null) {
-                Logging.logCheckedFine(LOG, "Accepted new incoming messenger for " + m.getDestinationAddress());
+                Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
                 incomingMessenger = m;
                 return true;
             }
@@ -249,7 +249,7 @@ class Destinations {
 
             incomingMessenger = m;
 
-            Logging.logCheckedFine(LOG, "Accepted new incoming messenger for " + m.getDestinationAddress());
+            Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
 
             return true;
         }
@@ -262,7 +262,7 @@ class Destinations {
             xportDest = m.getDestinationAddress();
             expiresAt = TimeUtils.toAbsoluteTimeMillis(EXPIRATION);
 
-            Logging.logCheckedFine(LOG, "Accepted new outgoing messenger for " + xportDest);
+            Logging.logCheckedFine(LOG, "Accepted new outgoing messenger for ", xportDest);
             return true;
 
         }
@@ -469,7 +469,7 @@ class Destinations {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in ScheduledTask :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in ScheduledTask :" + Thread.currentThread().getName(), "\n", all);
                 
             }
         }

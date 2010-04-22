@@ -205,7 +205,7 @@ public class DataRequest {
                 setResponsePipe(pAdv);
             } catch ( IOException iox ) {
                 throw new IllegalArgumentException(
-                        "Could not extract PipeAdvertisement from request", iox);
+                        "Could not extract PipeAdvertisement from request\n", iox);
             }
             return true;
         }
@@ -237,7 +237,7 @@ public class DataRequest {
             Element elem = (Element) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element : " + elem.toString());
+                Logging.logCheckedFine(LOG, "Unhandled Element : ", elem);
             }
         }
     }

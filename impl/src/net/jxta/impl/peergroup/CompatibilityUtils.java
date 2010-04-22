@@ -238,7 +238,7 @@ public final class CompatibilityUtils {
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, "Bad element in compatibility statement : " + key);
+                    Logging.logCheckedWarning(LOG, "Bad element in compatibility statement : ", key);
                     return false; // Might as well stop right now.
 
                 }
@@ -246,7 +246,7 @@ public final class CompatibilityUtils {
 
         } catch (Exception any) {
 
-            Logging.logCheckedWarning(LOG, "Failure handling compatibility statement", any);
+            Logging.logCheckedWarning(LOG, "Failure handling compatibility statement\n", any);
             return false;
 
         }

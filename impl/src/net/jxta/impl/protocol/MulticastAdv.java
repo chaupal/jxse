@@ -201,7 +201,7 @@ public class MulticastAdv extends TransportAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem);
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
             }
 
         }

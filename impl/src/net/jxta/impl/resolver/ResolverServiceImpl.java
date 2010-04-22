@@ -230,7 +230,7 @@ public class ResolverServiceImpl implements ResolverService {
 
                         } catch (Exception all) {
 
-                            Logging.logCheckedWarning(LOG, "Could not generate credential document", all);
+                            Logging.logCheckedWarning(LOG, "Could not generate credential document\n", all);
                             currentCredential = null;
 
                         }
@@ -355,7 +355,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         } catch (Exception e) {
 
-            Logging.logCheckedSevere(LOG, "failed to add listeners", e);
+            Logging.logCheckedSevere(LOG, "failed to add listeners\n", e);
             return -1;
 
         }
@@ -376,7 +376,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (Exception all) {
 
-                Logging.logCheckedWarning(LOG, "could not get default credential", all);
+                Logging.logCheckedWarning(LOG, "could not get default credential\n", all);
                 
             }
         }
@@ -488,7 +488,7 @@ public class ResolverServiceImpl implements ResolverService {
      */
     public void sendQuery(String destPeer, ResolverQueryMsg query) {
 
-        Logging.logCheckedFine(LOG, "sending query to resolver handler: " + query.getHandlerName());
+        Logging.logCheckedFine(LOG, "sending query to resolver handler: ", query.getHandlerName());
         
         // NOTE: Add route information about the issuing peer, so the
         // resolver query responding peer can respond to the issuer without
@@ -511,7 +511,7 @@ public class ResolverServiceImpl implements ResolverService {
                     query.setSrcPeerRoute(route.clone());
                 }
 
-                Logging.logCheckedFine(LOG, "Sending query with route info to " + destPeer);
+                Logging.logCheckedFine(LOG, "Sending query with route info to ", destPeer);
                 
             } else {
 
@@ -556,7 +556,7 @@ public class ResolverServiceImpl implements ResolverService {
                     queryHandlerMeter.queryPropagateError();
                 }
 
-                Logging.logCheckedWarning(LOG, "Failure during propagate", e);
+                Logging.logCheckedWarning(LOG, "Failure during propagate\n", e);
                 
             }
 
@@ -605,7 +605,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (Exception e) {
 
-                Logging.logCheckedWarning(LOG, "Error in sending response", e);
+                Logging.logCheckedWarning(LOG, "Error in sending response\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     queryHandlerMeter.responseSendError();
@@ -660,7 +660,7 @@ public class ResolverServiceImpl implements ResolverService {
                 }
             } catch (IOException e) {
 
-                Logging.logCheckedWarning(LOG, "Failure sending srdi message", e);
+                Logging.logCheckedWarning(LOG, "Failure sending srdi message\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorPropagatingMessage();
@@ -684,7 +684,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (Exception e) {
 
-                Logging.logCheckedWarning(LOG, "Error in sending srdi message", e);
+                Logging.logCheckedWarning(LOG, "Error in sending srdi message\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorSendingMessage();
@@ -706,7 +706,7 @@ public class ResolverServiceImpl implements ResolverService {
         // hopCount is used to determine forward counts independent of any other TTL
         if (query.getHopCount() > 3) {
 
-            Logging.logCheckedFine(LOG, "discarding ResolverQuery. HopCount exceeded : " + query.getHopCount());
+            Logging.logCheckedFine(LOG, "discarding ResolverQuery. HopCount exceeded : ", query.getHopCount());
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.propagationQueryDropped(query);
@@ -743,7 +743,7 @@ public class ResolverServiceImpl implements ResolverService {
         } catch (IOException e) {
 
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure propagating query", e);
+                LOG.log(Level.WARNING, "Failure propagating query\n", e);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.queryPropagationError(query);
@@ -767,7 +767,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         if (query.getHopCount() > 2) {
 
-            Logging.logCheckedFine(LOG, "Discarding query #" + query.getQueryId() + " hopCount > 2 : " + query.getHopCount());
+            Logging.logCheckedFine(LOG, "Discarding query #", query.getQueryId(), " hopCount > 2 : ", query.getHopCount());
 
             // query has been forwarded too many times stop
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverServiceMonitor != null)) {
@@ -783,7 +783,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         if (theHandler == null) {
 
-            Logging.logCheckedFine(LOG, "Discarding query #" + query.getQueryId() + ", no handler for :" + queryHandlerName);
+            Logging.logCheckedFine(LOG, "Discarding query #", query.getQueryId(), ", no handler for :", queryHandlerName);
             
             // If this peer is a rendezvous peer, it needs to repropagate the query to other rendezvous peer that
             // may have a handler.
@@ -793,7 +793,7 @@ public class ResolverServiceImpl implements ResolverService {
             return ResolverService.Repropagate;
         }
 
-        Logging.logCheckedFine(LOG, "Handing query #" + query.getQueryId() + " to : " + queryHandlerName);
+        Logging.logCheckedFine(LOG, "Handing query #", query.getQueryId(), " to : ", queryHandlerName);
 
         QueryHandlerMeter queryHandlerMeter = null;
         long startTime = 0;
@@ -818,7 +818,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         } catch (Throwable any) {
 
-            Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for : " + queryHandlerName, any);
+            Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for : ", queryHandlerName, any);
             
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.errorWhileProcessingQuery(query);
@@ -857,7 +857,7 @@ public class ResolverServiceImpl implements ResolverService {
         
         if (theHandler == null) {
 
-            Logging.logCheckedWarning(LOG, "No handler for :" + handlerName);
+            Logging.logCheckedWarning(LOG, "No handler for :", handlerName);
             
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.unknownHandlerForResponse(srcAddr, resp);
@@ -867,7 +867,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         }
 
-        Logging.logCheckedFine(LOG, "Process response to query #" + resp.getQueryId() + " with " + handlerName);
+        Logging.logCheckedFine(LOG, "Process response to query #", resp.getQueryId(), " with ", handlerName);
 
         QueryHandlerMeter queryHandlerMeter = null;
         long startTime = 0;
@@ -890,7 +890,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         } catch (Throwable all) {
 
-            Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for: " + handlerName, all);
+            Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for: ", handlerName, all);
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.errorWhileProcessingResponse(srcAddr);
@@ -936,7 +936,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "failure during propagateResponse", e);
+            Logging.logCheckedWarning(LOG, "failure during propagateResponse\n", e);
             
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.responsePropagateError();
@@ -968,7 +968,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         }
 
-        Logging.logCheckedFine(LOG, "Processing an SRDI msg for : " + handlerName + " in Group ID:" + group.getPeerGroupID());
+        Logging.logCheckedFine(LOG, "Processing an SRDI msg for : ", handlerName, " in Group ID:", group.getPeerGroupID());
 
         SrdiHandler theHandler = getSrdiHandler(handlerName);
         if (theHandler != null) {
@@ -989,7 +989,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for: " + handlerName, all);
+                Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for: ", handlerName, "\n", all);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorWhileProcessing(srcAddr);
@@ -1002,7 +1002,7 @@ public class ResolverServiceImpl implements ResolverService {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) && group.isRendezvous()) {
                 LOG.warning("No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
             } else {
-                Logging.logCheckedFine(LOG, "No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
+                Logging.logCheckedFine(LOG, "No srdi handler registered :", handlerName, " for Group ID:", group.getPeerGroupID());
             }
 
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
@@ -1035,7 +1035,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         } catch (URISyntaxException badpeer) {
 
-            Logging.logCheckedWarning(LOG, "bad destination peerid : " + destPeer, badpeer);
+            Logging.logCheckedWarning(LOG, "bad destination peerid : ", destPeer, "\n", badpeer);
             return false;
 
         }
@@ -1047,28 +1047,28 @@ public class ResolverServiceImpl implements ResolverService {
 
         if (route == null) {
 
-            Logging.logCheckedFiner(LOG, "No route info available for " + destPeer);
+            Logging.logCheckedFiner(LOG, "No route info available for ", destPeer);
 
         } else {
 
             // ok we have a route let's pass it to the router
             if ((null == getRouteControl()) || (routeControl.addRoute(route) == RouteControl.FAILED)) {
 
-                Logging.logCheckedWarning(LOG, "Failed to add route for " + route.getDestPeerID());
+                Logging.logCheckedWarning(LOG, "Failed to add route for ", route.getDestPeerID());
                 
             } else {
 
-                Logging.logCheckedFiner(LOG, "Added route for " + route.getDestPeerID());
+                Logging.logCheckedFiner(LOG, "Added route for ", route.getDestPeerID());
 
             }
         }
         
-        Logging.logCheckedFiner(LOG, "Creating a messenger immediate for :" + destAddress);
+        Logging.logCheckedFiner(LOG, "Creating a messenger immediate for :", destAddress);
 
         messenger = endpoint.getMessengerImmediate(destAddress, route);
 
         if (null == messenger) {
-            Logging.logCheckedFine(LOG, "Failed creating messenger for " + destAddress);
+            Logging.logCheckedFine(LOG, "Failed creating messenger for ", destAddress);
             return false;
         }
 
@@ -1094,13 +1094,13 @@ public class ResolverServiceImpl implements ResolverService {
         } catch (Exception ez1) {
 
             // Not much we can do
-            Logging.logCheckedWarning(LOG, "Failed building message", ez1);
+            Logging.logCheckedWarning(LOG, "Failed building message\n", ez1);
             return false;
 
         }
 
         // Send the message
-        Logging.logCheckedFine(LOG, "Sending " + msg + " to " + destAddress + " " + tagName);
+        Logging.logCheckedFine(LOG, "Sending ", msg, " to ", destAddress, " ", tagName);
 
         // XXX 20040924 bondolo Convert this to ListenerAdaptor
         messenger.sendMessage(msg, null, null, new FailureListener(dest));
@@ -1126,7 +1126,7 @@ public class ResolverServiceImpl implements ResolverService {
          */
         public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            Logging.logCheckedFine(LOG, "Demuxing a query message from " + srcAddr);
+            Logging.logCheckedFine(LOG, "Demuxing a query message from ", srcAddr);
 
             MessageElement element = message.getMessageElement("jxta", outQueName);
             
@@ -1151,7 +1151,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (IOException e) {
 
-                Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.", e);
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
@@ -1161,7 +1161,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (IllegalArgumentException e) {
 
-                Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.", e);
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
@@ -1175,7 +1175,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             if (ResolverService.Repropagate == res) {
 
-                Logging.logCheckedFine(LOG, "Repropagating query " + message + " from " + srcAddr);
+                Logging.logCheckedFine(LOG, "Repropagating query ", message, " from ", srcAddr);
                 repropagateQuery(message, query);
 
             }
@@ -1193,7 +1193,7 @@ public class ResolverServiceImpl implements ResolverService {
          */
         public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            Logging.logCheckedFine(LOG, "Demuxing a response from " + srcAddr);
+            Logging.logCheckedFine(LOG, "Demuxing a response from ", srcAddr);
 
             MessageElement element = message.getMessageElement("jxta", inQueName);
 
@@ -1217,7 +1217,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (IOException e) {
 
-                Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.", e);
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
@@ -1227,7 +1227,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (IllegalArgumentException e) {
 
-                Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.", e);
+                Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
@@ -1252,7 +1252,7 @@ public class ResolverServiceImpl implements ResolverService {
          */
         public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            Logging.logCheckedFine(LOG, "Demuxing an SRDI message from : " + srcAddr);
+            Logging.logCheckedFine(LOG, "Demuxing an SRDI message from : ", srcAddr);
 
             MessageElement element = message.getMessageElement("jxta", srdiQueName);
 
@@ -1281,7 +1281,7 @@ public class ResolverServiceImpl implements ResolverService {
 
             } catch (IOException e) {
 
-                Logging.logCheckedWarning(LOG, "Ill formatted SRDI message, ignoring.", e);
+                Logging.logCheckedWarning(LOG, "Ill formatted SRDI message, ignoring.\n", e);
                 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidSrdiMessageDiscarded(srcAddr);
@@ -1314,7 +1314,7 @@ public class ResolverServiceImpl implements ResolverService {
             // Ignore the failure if it's a case of queue overflow.
             if (event.getFailure() == null) return;
             
-            Logging.logCheckedWarning(LOG, "Clearing SRDI tables for failed peer : " + dest);
+            Logging.logCheckedWarning(LOG, "Clearing SRDI tables for failed peer : ", dest);
             
             for (Object o : Arrays.asList(srdiHandlers.values().toArray())) {
 
@@ -1323,7 +1323,7 @@ public class ResolverServiceImpl implements ResolverService {
                 try {
                     theHandler.messageSendFailed((PeerID) dest, event);
                 } catch (Throwable all) {
-                    Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler : " + theHandler, all);
+                    Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler : ", theHandler, all);
                 }
 
             }

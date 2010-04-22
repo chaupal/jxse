@@ -173,7 +173,7 @@ public class PipeAdv extends PipeAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: " + elem);
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
 
         }
@@ -266,8 +266,8 @@ public class PipeAdv extends PipeAdvertisement {
 
         if ((null == getType()) || (0 == getType().length())) {
 
-            Logging.logCheckedWarning(LOG, "Pipe type not set. Defaulting to " + PipeService.UnicastType + "."
-                + "\n This default is deprecated. Please set the pipe type in your code.");
+            Logging.logCheckedWarning(LOG, "Pipe type not set. Defaulting to ", PipeService.UnicastType, ".",
+                "\n This default is deprecated. Please set the pipe type in your code.");
            
             setType(PipeService.UnicastType);
             // throw new IllegalArgumentException("Pipe type missing in advertisement");

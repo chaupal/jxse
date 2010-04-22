@@ -256,7 +256,7 @@ public final class PeerGroupFactory {
     @Deprecated
     public static void setConfiguratorClass(Class c) {
 
-        Logging.logCheckedFine(LOG, "Setting configurator class to : " + c);
+        Logging.logCheckedFine(LOG, "Setting configurator class to : ", c);
         configurator = c;
 
     }
@@ -418,7 +418,7 @@ public final class PeerGroupFactory {
 
         } catch (RuntimeException e) {
 
-            Logging.logCheckedSevere(LOG, "newPlatform failed", e);
+            Logging.logCheckedSevere(LOG, "newPlatform failed\n", e);
             
             // rethrow
             throw e;
@@ -426,7 +426,7 @@ public final class PeerGroupFactory {
         } catch (Exception e) {
 
             // should be all other checked exceptions
-            Logging.logCheckedSevere(LOG, "newPlatform failed", e);
+            Logging.logCheckedSevere(LOG, "newPlatform failed\n", e);
             
             // Simplify exception scheme for caller: any sort of problem wrapped
             // in a PeerGroupException.
@@ -434,7 +434,7 @@ public final class PeerGroupFactory {
 
         } catch (Error e) {
 
-            Logging.logCheckedSevere(LOG, "newPlatform failed", e);
+            Logging.logCheckedSevere(LOG, "newPlatform failed\n", e);
             
             // rethrow
             throw e;
@@ -476,7 +476,7 @@ public final class PeerGroupFactory {
 
                     tunables = new NetPeerGroupFactory.NetGroupTunables(rsrcs, tunables);
 
-                    Logging.logCheckedFine(LOG, "Loaded defaults from " + rsrcs);
+                    Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
                     
                 } catch (MissingResourceException ignored) {
                     
@@ -501,14 +501,14 @@ public final class PeerGroupFactory {
 
         } catch (PeerGroupException failed) {
 
-            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", failed);
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", failed);
             
             // rethrow
             throw failed;
 
         } catch (RuntimeException e) {
 
-            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
             
             // rethrow
             throw e;
@@ -516,7 +516,7 @@ public final class PeerGroupFactory {
         } catch (Exception e) {
 
             // should be all other checked exceptions
-            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
             
             // Simplify exception scheme for caller: any sort of problem wrapped
             // in a PeerGroupException.
@@ -524,7 +524,7 @@ public final class PeerGroupFactory {
 
         } catch (Error e) {
 
-            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed", e);
+            Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
             
             // rethrow
             throw e;

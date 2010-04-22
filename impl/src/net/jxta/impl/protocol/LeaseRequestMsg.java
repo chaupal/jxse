@@ -229,7 +229,7 @@ public class LeaseRequestMsg {
                 
             } else {
 
-                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aLeaseReqAttr.getName());
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aLeaseReqAttr.getName());
                 
             }
         }
@@ -241,7 +241,7 @@ public class LeaseRequestMsg {
             XMLElement elem = (XMLElement) elements.nextElement();
             
             if (!handleElement(elem)) 
-                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
 
         }
         

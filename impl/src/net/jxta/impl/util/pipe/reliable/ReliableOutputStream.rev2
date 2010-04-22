@@ -835,7 +835,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 ackReceived(seqack, sacs);
             } catch (IOException failed) {
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure processing ACK", failed);
+                    LOG.log(Level.WARNING, "Failure processing ACK\n", failed);
                 }
             }
         }

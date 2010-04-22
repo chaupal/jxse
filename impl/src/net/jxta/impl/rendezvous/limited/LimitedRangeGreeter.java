@@ -107,7 +107,7 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
             throw new IllegalStateException("Could not register endpoint listener for greeter.");
         }
 
-        Logging.logCheckedInfo(LOG, "Listening on " + walk.getWalkServiceName() + "/" + walk.getWalkServiceParam());
+        Logging.logCheckedInfo(LOG, "Listening on ", walk.getWalkServiceName(), "/", walk.getWalkServiceParam());
         
     }
 
@@ -127,7 +127,7 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        Logging.logCheckedFine(LOG, "Processing " + message + " from " + srcAddr);
+        Logging.logCheckedFine(LOG, "Processing ", message, " from ", srcAddr);
 
         LimitedRangeRdvMsg rdvMsg = LimitedRangeWalk.getRdvMessage(message);
 
@@ -135,14 +135,14 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
         if (null == rdvMsg) {
 
             // Message is invalid, drop it
-            Logging.logCheckedWarning(LOG, "Limited Range Greeter received invalid " + message + ". Dropping it.");
+            Logging.logCheckedWarning(LOG, "Limited Range Greeter received invalid ", message, ". Dropping it.");
             return;
 
         }
 
         if (rdvMsg.getTTL() <= 0) {
 
-            Logging.logCheckedWarning(LOG, "No TTL remaining for " + message + ". Dropping it.");
+            Logging.logCheckedWarning(LOG, "No TTL remaining for ", message, ". Dropping it.");
             return;
 
         }
@@ -152,7 +152,7 @@ public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
         try {
             walk.getListener().processIncomingMessage(message, srcAddr, dstAddr);
         } catch (Throwable ignored) {
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener (" + walk.getListener() + ")", ignored);
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener (", walk.getListener(), ")\n", ignored);
         }
 
     }

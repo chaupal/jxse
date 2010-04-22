@@ -316,7 +316,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                 // make sure we have a socket returning
                 if (socket != null) {
 
-                    Logging.logCheckedFine(LOG, "New socket connection " + socket);
+                    Logging.logCheckedFine(LOG, "New socket connection ", socket);
                     return socket;
 
                 } else {
@@ -436,7 +436,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
             }
         }
 
-        Logging.logCheckedInfo(LOG, "Closed : " + this);
+        Logging.logCheckedInfo(LOG, "Closed : ", this);
         
     }
 
@@ -550,7 +550,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
         } catch (InterruptedException woken) {
 
-            Logging.logCheckedFine(LOG, "Interrupted\n" + woken.toString());
+            Logging.logCheckedFine(LOG, "Interrupted\n", woken);
 
         }
 
@@ -573,7 +573,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         PeerAdvertisement remotePeerAdv = null;
         Credential credential = null;
 
-        Logging.logCheckedFine(LOG, "Processing a connection message : " + msg);
+        Logging.logCheckedFine(LOG, "Processing a connection message : ", msg);
 
         try {
             MessageElement el = msg.getMessageElement(MSG_ELEMENT_NAMESPACE, reqPipeTag);
@@ -625,12 +625,12 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         } catch (IOException e) {
 
             // deal with the error
-            Logging.logCheckedWarning(LOG, "IOException occured", e);
+            Logging.logCheckedWarning(LOG, "IOException occured\n", e);
             
         } catch (RuntimeException e) {
 
             // deal with the error
-            Logging.logCheckedWarning(LOG, "Exception occured", e);
+            Logging.logCheckedWarning(LOG, "Exception occured\n", e);
             
         }
         return null;

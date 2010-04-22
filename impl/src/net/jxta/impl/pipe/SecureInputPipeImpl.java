@@ -111,7 +111,7 @@ public class SecureInputPipeImpl extends InputPipeImpl {
 
         } else {
 
-            Logging.logCheckedWarning(LOG, "processIncomingMessage : Discarding " + msg + " because it did not come from TLS");
+            Logging.logCheckedWarning(LOG, "processIncomingMessage : Discarding ", msg, " because it did not come from TLS");
             
         }
     }

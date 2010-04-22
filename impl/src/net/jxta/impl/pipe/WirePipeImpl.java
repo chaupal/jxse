@@ -180,7 +180,7 @@ public class WirePipeImpl implements EndpointListener {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Failed registering Endpoint Listener", e);
+            Logging.logCheckedWarning(LOG, "Failed registering Endpoint Listener\n", e);
             throw new IllegalStateException("Failed registering Endpoint Listener");
 
         }
@@ -251,7 +251,7 @@ public class WirePipeImpl implements EndpointListener {
             if (null == wirePipe) {
 
                 // No.. There is none. Create a new one.
-                Logging.logCheckedFine(LOG, "Creating new wire pipe for " + adv.getPipeID());
+                Logging.logCheckedFine(LOG, "Creating new wire pipe for ", adv.getPipeID());
 
                 wirePipe = new WirePipe(group, pipeResolver, this, adv);
                 wirePipes.put(adv.getPipeID(), wirePipe);
@@ -284,7 +284,7 @@ public class WirePipeImpl implements EndpointListener {
                 adv.setPipeID(pipeID);
                 adv.setType(PipeService.PropagateType);
 
-                Logging.logCheckedFine(LOG, "Creating new wire pipe for " + adv.getPipeID());
+                Logging.logCheckedFine(LOG, "Creating new wire pipe for ", adv.getPipeID());
                 
                 wirePipe = new WirePipe(group, pipeResolver, this, adv);
                 wirePipes.put(pipeID, wirePipe);
@@ -304,7 +304,7 @@ public class WirePipeImpl implements EndpointListener {
 
         synchronized (wirePipes) {
 
-            Logging.logCheckedFine(LOG, "Removing wire pipe for " + pipeID);
+            Logging.logCheckedFine(LOG, "Removing wire pipe for ", pipeID);
             return null != wirePipes.remove(pipeID);
 
         }
@@ -323,7 +323,7 @@ public class WirePipeImpl implements EndpointListener {
 
         if (null == elem) {
 
-            Logging.logCheckedFine(LOG, "No JxtaWireHeader element. Discarding " + message);
+            Logging.logCheckedFine(LOG, "No JxtaWireHeader element. Discarding ", message);
             return;
 
         }
@@ -337,7 +337,7 @@ public class WirePipeImpl implements EndpointListener {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "bad wire header for " + message, e);
+            Logging.logCheckedWarning(LOG, "bad wire header for ", message, "\n", e);
             return;
 
         }
@@ -349,7 +349,7 @@ public class WirePipeImpl implements EndpointListener {
         if (null != wirePipe) {
             wirePipe.processIncomingMessage(message, header, srcAddr, dstAddr);
         } else {
-            Logging.logCheckedFine(LOG, "Ignoring message " + message + " for id " + header.getPipeID());
+            Logging.logCheckedFine(LOG, "Ignoring message ", message, " for id ", header.getPipeID());
         }
         
     }

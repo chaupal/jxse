@@ -187,7 +187,7 @@ public class IncomingUnicastServer implements Runnable {
         try {
             acceptSelector.close();
         } catch (IOException io) {
-            Logging.logCheckedSevere(LOG, "IO error occured while closing Selectors", io);
+            Logging.logCheckedSevere(LOG, "IO error occured while closing Selectors\n\n", io);
         }
     }
 
@@ -231,7 +231,7 @@ public class IncomingUnicastServer implements Runnable {
 
         try {
 
-            Logging.logCheckedInfo(LOG, "Server is ready to accept connections. " + transport.getPublicAddress());
+            Logging.logCheckedInfo(LOG, "Server is ready to accept connections. ", transport.getPublicAddress());
 
             while (acceptSelector.isOpen()) {
                 try {
@@ -295,11 +295,11 @@ public class IncomingUnicastServer implements Runnable {
 
                     if (!acceptSelector.isOpen()) break;
 
-                    Logging.logCheckedWarning(LOG, "[1] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e1);
+                    Logging.logCheckedWarning(LOG, "[1] ServerSocket.accept() failed on ", serverSocket.getInetAddress(), ":", serverSocket.getLocalPort(), "\n", e1);
                     
                 } catch (SecurityException e2) {
 
-                    Logging.logCheckedWarning(LOG, "[2] ServerSocket.accept() failed on " + serverSocket.getInetAddress() + ":" + serverSocket.getLocalPort(), e2);
+                    Logging.logCheckedWarning(LOG, "[2] ServerSocket.accept() failed on ", serverSocket.getInetAddress(), ":", serverSocket.getLocalPort(), "\n", e2);
                     break;
 
                 }
@@ -307,7 +307,7 @@ public class IncomingUnicastServer implements Runnable {
 
         } catch (Throwable all) {
 
-            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+            Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
             
         } finally {
 
@@ -319,13 +319,13 @@ public class IncomingUnicastServer implements Runnable {
                     try {
                         temp.close();
                     } catch (IOException ignored) {
-                        Logging.logCheckedFine(LOG, "Exception occurred while closing server socket\n" + ignored.toString());
+                        Logging.logCheckedFine(LOG, "Exception occurred while closing server socket\n", ignored);
                     }
                 }
                 acceptThread = null;
             }
 
-            Logging.logCheckedInfo(LOG, "Server has been shut down. " + transport.getPublicAddress());
+            Logging.logCheckedInfo(LOG, "Server has been shut down. ", transport.getPublicAddress());
             
         }
     }
@@ -355,7 +355,7 @@ public class IncomingUnicastServer implements Runnable {
                         
                     }
 
-                    Logging.logCheckedSevere(LOG, "Cannot bind ServerSocket on " + serverBindLocalInterface + ":" + serverBindPreferredLocalPort, failed);
+                    Logging.logCheckedSevere(LOG, "Cannot bind ServerSocket on ", serverBindLocalInterface, ":", serverBindPreferredLocalPort, failed);
                     return null;
 
                 }
@@ -381,7 +381,7 @@ public class IncomingUnicastServer implements Runnable {
             break;
         }
 
-        Logging.logCheckedInfo(LOG, "Server will accept connections at " + newChannel.socket().getLocalSocketAddress());
+        Logging.logCheckedInfo(LOG, "Server will accept connections at ", newChannel.socket().getLocalSocketAddress());
         
         return newChannel;
 
@@ -420,18 +420,18 @@ public class IncomingUnicastServer implements Runnable {
 
                 } else {
 
-                    Logging.logCheckedWarning(LOG, socketChannel + " not connected.");
+                    Logging.logCheckedWarning(LOG, socketChannel, " not connected.");
                     
                 }
 
             } catch (IOException io) {
 
                 // protect against invalid connections
-                Logging.logCheckedFine(LOG, "Messenger creation failure\n" + io.toString());
+                Logging.logCheckedFine(LOG, "Messenger creation failure\n\n", io);
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable", all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
                 
             }
         }

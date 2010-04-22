@@ -122,7 +122,7 @@ public class NullConfigurator implements PlatformConfigurator {
 
         jxtaHome = homeRoot;
 
-        Logging.logCheckedConfig(LOG, "JXTA_HOME = " + jxtaHome.toASCIIString());
+        Logging.logCheckedConfig(LOG, "JXTA_HOME = ", jxtaHome.toASCIIString());
 
         if ("file".equalsIgnoreCase(jxtaHome.getScheme())) {
 
@@ -216,7 +216,7 @@ public class NullConfigurator implements PlatformConfigurator {
     @Deprecated
     protected PlatformConfig load(URI loadFile) throws ConfiguratorException {
 
-        Logging.logCheckedFine(LOG, "Reading Platform Config from : " + loadFile);
+        Logging.logCheckedFine(LOG, "Reading Platform Config from : ", loadFile);
 
         InputStream advStream = null;
 
@@ -227,18 +227,18 @@ public class NullConfigurator implements PlatformConfigurator {
             XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, advStream);
             PlatformConfig result = (PlatformConfig) AdvertisementFactory.newAdvertisement(xmlDoc);
 
-            Logging.logCheckedFine(LOG, "Recovered Platform Config from : " + loadFile);
+            Logging.logCheckedFine(LOG, "Recovered Platform Config from : ", loadFile);
             
             return result;
 
         } catch (FileNotFoundException e) {
 
-            Logging.logCheckedWarning(LOG, "Platform Config not found : " + loadFile);
+            Logging.logCheckedWarning(LOG, "Platform Config not found : ", loadFile);
             return null;
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "Failed to Recover \'" + loadFile + "\' due to : ", e);
+            Logging.logCheckedWarning(LOG, "Failed to Recover \'", loadFile, "\' due to : \n", e);
             throw new ConfiguratorException("Failed to recover PlatformConfig", e);
 
         } finally {
@@ -295,7 +295,7 @@ public class NullConfigurator implements PlatformConfigurator {
 
         } catch (IOException e) {
 
-            Logging.logCheckedWarning(LOG, "Could not save to : " + saveFile, e);
+            Logging.logCheckedWarning(LOG, "Could not save to : ", saveFile, "\n", e);
             throw new ConfiguratorException("Could not save to : " + saveFile, e);
 
         } finally {

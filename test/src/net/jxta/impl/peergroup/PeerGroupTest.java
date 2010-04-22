@@ -212,7 +212,7 @@ public class PeerGroupTest {
             newpg.unref();
             newpg = null;
         } catch (Exception caught) {
-            LOG.log(Level.SEVERE, "Caught exception", caught);
+            LOG.log(Level.SEVERE, "Caught exception\n", caught);
             fail("exception thrown : " + caught.getMessage());
         }
     }

@@ -163,7 +163,7 @@ public class OutgoingMsgrAdaptor implements Outgoing {
      */
     public void setLastAccessed(long time) {
         
-        Logging.logCheckedFine(LOG, "Setting lastAccessed to :" + lastAccessed);
+        Logging.logCheckedFine(LOG, "Setting lastAccessed to :", lastAccessed);
         lastAccessed = time;
 
     }

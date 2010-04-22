@@ -174,7 +174,7 @@ public final class RelayTransport implements EndpointListener, Module {
 
             } catch (IllegalArgumentException failed) {
 
-                Logging.logCheckedSevere(LOG, "Error in relay advertisement", failed);
+                Logging.logCheckedSevere(LOG, "Error in relay advertisement\n", failed);
                 throw failed;
 
             }
@@ -257,7 +257,7 @@ public final class RelayTransport implements EndpointListener, Module {
 
         endpoint.addIncomingMessageListener(this, serviceName, null);
 
-        Logging.logCheckedFine(LOG, "Message Listener added " + serviceName);
+        Logging.logCheckedFine(LOG, "Message Listener added ", serviceName);
 
         if (relayServer != null) {
             if (!relayServer.startServer()) {
@@ -291,7 +291,7 @@ public final class RelayTransport implements EndpointListener, Module {
         } else {
 
             endpoint.removeIncomingMessageListener(serviceName, null);
-            Logging.logCheckedFine(LOG, "Message Listener removed " + serviceName);
+            Logging.logCheckedFine(LOG, "Message Listener removed ", serviceName);
 
         }
 
@@ -308,7 +308,7 @@ public final class RelayTransport implements EndpointListener, Module {
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        Logging.logCheckedFine(LOG, "Started for " + message + "\tsrc=" + srcAddr);
+        Logging.logCheckedFine(LOG, "Started for ", message, "\tsrc=", srcAddr);
 
         MessageElement element;
 
@@ -464,11 +464,11 @@ public final class RelayTransport implements EndpointListener, Module {
 
         } catch (URISyntaxException ex) {
 
-            Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address : " + addr, ex);
+            Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address : ", addr, "\n", ex);
 
         } catch (ClassCastException cce) {
 
-            Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address: " + addr, cce);
+            Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address: ", addr, "\n", cce);
             
         }
 

@@ -192,7 +192,7 @@ public final class PipeBinaryID extends net.jxta.pipe.PipeID {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = " + id, e);
+            Logging.logCheckedWarning(LOG, "cannot convert sub group. ID value = ", id, "\n", e);
             return null;
 
         }

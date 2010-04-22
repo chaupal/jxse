@@ -285,7 +285,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
 
         if (throttling) {
 
-            Logging.logCheckedWarning(LOG, "Declining to send -- throttling on " + this);
+            Logging.logCheckedWarning(LOG, "Declining to send -- throttling on ", this);
             return false;
             
         }
@@ -295,7 +295,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         if (null == sendVia) {
 
             // There is nothing really we can do.
-            Logging.logCheckedWarning(LOG, "Could not get messenger for " + getPeerID());
+            Logging.logCheckedWarning(LOG, "Could not get messenger for ", getPeerID());
 
             OutgoingMessageEvent event = new OutgoingMessageEvent(msg,
                     new IOException("Couldn't get messenger for " + getPeerID()));
@@ -360,7 +360,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
 
                 cachedMessenger = null;
 
-                Logging.logCheckedFine(LOG, "Getting cached Messenger for " + radv.getName());
+                Logging.logCheckedFine(LOG, "Getting cached Messenger for ", radv.getName());
                 cachedMessenger = endpoint.getMessengerImmediate(getDestAddress(), radv.getRouteAdv());
                 
                 if (null == cachedMessenger) {

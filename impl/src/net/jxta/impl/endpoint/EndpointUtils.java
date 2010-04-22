@@ -119,7 +119,7 @@ public final class EndpointUtils {
 
         } catch (Exception e) {
 
-            Logging.logCheckedWarning(LOG, "failed to extract radv", e);
+            Logging.logCheckedWarning(LOG, "failed to extract radv\n", e);
             
         }
         

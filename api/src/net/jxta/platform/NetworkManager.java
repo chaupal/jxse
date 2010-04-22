@@ -352,7 +352,7 @@ public class NetworkManager implements RendezvousListener {
 
         if (!config.exists()) {
 
-            Logging.logCheckedInfo(LOG, "Created new configuration. mode = " + mode.toString());
+            Logging.logCheckedInfo(LOG, "Created new configuration. mode = ", mode);
 
             config.setDescription("Created by NetworkManager");
             config.setPeerID(peerID);
@@ -366,7 +366,7 @@ public class NetworkManager implements RendezvousListener {
 
         } else {
 
-            Logging.logCheckedInfo(LOG, "Loading existing configuration. mode = " + mode.toString());
+            Logging.logCheckedInfo(LOG, "Loading existing configuration. mode = ", mode);
 
             File pc = new File(config.getHome(), "PlatformConfig");
 
@@ -401,7 +401,7 @@ public class NetworkManager implements RendezvousListener {
 
         if (config == null) configure(mode);
         
-        Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = " + mode.toString() + ",  HOME = " + instanceHome);
+        Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = ", mode, ",  HOME = ", instanceHome);
         
 // Not needed since the TM is completely static now (at least temporarily) -- Bill
 //        TaskManager.getTaskManager().startup();

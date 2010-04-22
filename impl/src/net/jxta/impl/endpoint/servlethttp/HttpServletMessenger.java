@@ -160,7 +160,7 @@ final class HttpServletMessenger extends BlockingMessenger {
 
                 while( ( null != temp ) &&  ( null != temp.outgoingMessage || temp.sendResult == SEND_INPROGRESS  ) ){
                 	
-                    Logging.logCheckedFine(LOG, "Waiting for outgoingMessage to clear before we close..." + temp);
+                    Logging.logCheckedFine(LOG, "Waiting for outgoingMessage to clear before we close...", temp);
 
                     // Wait a while
                     try {
@@ -169,7 +169,7 @@ final class HttpServletMessenger extends BlockingMessenger {
                     }
                     
                     if( temp.isClosed() || null == this.messenger ){
-                        Logging.logCheckedFine(LOG, "Messenger closed while waiting for send to complete.  Operation cancelled: " + temp);
+                        Logging.logCheckedFine(LOG, "Messenger closed while waiting for send to complete.  Operation cancelled: ", temp);
                     	return;
                     }
                     
@@ -181,7 +181,7 @@ final class HttpServletMessenger extends BlockingMessenger {
                 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in timer task :" + Thread.currentThread().getName(), all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in timer task :", Thread.currentThread().getName(), "\n", all);
                 
             } finally {
 
@@ -213,7 +213,7 @@ final class HttpServletMessenger extends BlockingMessenger {
             expirationTaskHandle = scheduledExecutorService.schedule(new ScheduledExpiry(this), validFor, TimeUnit.MILLISECONDS);
         }
         
-        Logging.logCheckedFine(LOG, "HttpServletMessenger\n\t" + toString());
+        Logging.logCheckedFine(LOG, "HttpServletMessenger\n\t", this);
         
     }
     
@@ -223,7 +223,7 @@ final class HttpServletMessenger extends BlockingMessenger {
     @Override
     public synchronized void closeImpl() {
 
-        Logging.logCheckedFine(LOG, "close\n\t" + toString());
+        Logging.logCheckedFine(LOG, "close\n\t", this);
         
         ScheduledFuture<?> cancelExpire = expirationTaskHandle;
 
@@ -261,12 +261,12 @@ final class HttpServletMessenger extends BlockingMessenger {
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
         
-        Logging.logCheckedFine(LOG, "Send " + message + " to " + dstAddress.toString() + "\n\t" + toString());
+        Logging.logCheckedFine(LOG, "Send ", message, " to ", dstAddress, "\n\t", this);
         
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            Logging.logCheckedFine(LOG, failure.getMessage());
+            Logging.logCheckedFine(LOG, failure);
             
             throw failure;
         }
@@ -286,12 +286,12 @@ final class HttpServletMessenger extends BlockingMessenger {
 
             // send message failed
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-            Logging.logCheckedFine(LOG, "sendMessage failed (messenger closed).\n\t" + toString() + "\n" + failure);
+            Logging.logCheckedFine(LOG, "sendMessage failed (messenger closed).\n\t", this , "\n", failure);
             throw failure;
 
         }
         
-        Logging.logCheckedFine(LOG, "sendMessage successful for " + message + "\n\t" + toString());
+        Logging.logCheckedFine(LOG, "sendMessage successful for ", message, "\n\t", this);
 
     }
     
@@ -327,7 +327,7 @@ final class HttpServletMessenger extends BlockingMessenger {
         sendResult = SEND_INPROGRESS;
         sendingSince = now;
         
-        Logging.logCheckedFine(LOG, "Queued " + message);
+        Logging.logCheckedFine(LOG, "Queued ", message);
         
         // notify the servlet if it was waiting for a message
         notifyAll();
@@ -358,12 +358,12 @@ final class HttpServletMessenger extends BlockingMessenger {
                 wait(waitfor);
             } catch (InterruptedException e) {
                 Thread.interrupted();
-                Logging.logCheckedFine(LOG, "InterruptedException timeout = " + MAX_SENDING_WAIT + "\n\t" + toString() + "\n" + e.toString());
+                Logging.logCheckedFine(LOG, "InterruptedException timeout = ", MAX_SENDING_WAIT, "\n\t", this, "\n", e);
                 break;
             }
         }
         
-        Logging.logCheckedFine(LOG, "Got result\n\t" + toString());
+        Logging.logCheckedFine(LOG, "Got result\n\t", this);
         
         if (isClosed() && (SEND_INPROGRESS == sendResult)) {
             return false;
@@ -401,7 +401,7 @@ final class HttpServletMessenger extends BlockingMessenger {
      */
     protected synchronized Message waitForMessage(long timeout) throws InterruptedException {
 
-        Logging.logCheckedFine(LOG, "Waiting (" + (0 == timeout ? "forever" : Long.toString(timeout)) + ") for message\n\t" + toString());
+        Logging.logCheckedFine(LOG, "Waiting (", (0 == timeout ? "forever" : Long.toString(timeout)), ") for message\n\t", this);
         
         if (0 == timeout) {
             // it's forever
@@ -436,14 +436,14 @@ final class HttpServletMessenger extends BlockingMessenger {
             notifyAll();
         }
         
-        Logging.logCheckedFine(LOG, "Returning " + result + "\n\t" + toString());
+        Logging.logCheckedFine(LOG, "Returning ", result, "\n\t", this);
         
         return result;
     }
     
     protected synchronized void messageSent(boolean wasSuccessful) {
 
-        Logging.logCheckedFine(LOG, "messageSent(" + wasSuccessful + ")\n\t" + toString());
+        Logging.logCheckedFine(LOG, "messageSent(", wasSuccessful, ")\n\t", this);
         
         if (SEND_TOOLONG == sendResult) {
             // No-one cares for the result any more. Let the next send go.

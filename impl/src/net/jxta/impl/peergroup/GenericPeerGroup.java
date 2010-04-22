@@ -495,7 +495,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         } catch (Exception whatever) {
 
-            Logging.logCheckedWarning(LOG, "Failure during discovery", whatever);
+            Logging.logCheckedWarning(LOG, "Failure during discovery\n", whatever);
 
         }
 
@@ -712,7 +712,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         if (!compatible(compat)) {
 
-            Logging.logCheckedWarning(LOG, "Incompatible Module : " + assigned);
+            Logging.logCheckedWarning(LOG, "Incompatible Module : ", assigned);
             throw new ProtocolNotSupportedException("Incompatible Module : " + assigned);
 
         }
@@ -736,8 +736,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 newMod = clazz.newInstance();
                 newMod.init(privileged ? this : getInterface(), assigned, implAdv);
 
-                Logging.logCheckedInfo(LOG, "Loaded" + (privileged ? " privileged" : "") +
-                    " module : " + implAdv.getDescription() + " (" + implAdv.getCode() + ")");
+                Logging.logCheckedInfo(LOG, "Loaded", (privileged ? " privileged" : ""),
+                    " module : ", implAdv.getDescription(), " (", implAdv.getCode(), ")");
 
             } catch (Exception ex) {
                 try {
@@ -868,12 +868,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
             } catch (PeerGroupException failed) {
 
                 // Initialization failure.
-                Logging.logCheckedWarning(LOG, "Initialization failed", failed);
+                Logging.logCheckedWarning(LOG, "Initialization failed\n", failed);
 
             } catch (Throwable e) {
 
                 recentFailure = e;
-                Logging.logCheckedWarning(LOG, "Not a usable impl adv: ", e);
+                Logging.logCheckedWarning(LOG, "Not a usable impl adv: \n", e);
 
             }
     	}
@@ -890,7 +890,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     		}
     	}
 
-    	Logging.logCheckedWarning(LOG, "Could not find a loadable implementation for SpecID: " + specID);
+    	Logging.logCheckedWarning(LOG, "Could not find a loadable implementation for SpecID: ", specID);
 
     	return null;
     }
@@ -1123,7 +1123,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     }
                 }
 
-                Logging.logCheckedFine(LOG, "Setting up group loader -> " + upLoader);
+                Logging.logCheckedFine(LOG, "Setting up group loader -> ", upLoader);
                 loader = new RefJxtaLoader(new URL[0], upLoader, COMP_EQ, this);
 
             }
@@ -1184,7 +1184,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         } catch (Throwable any) {
 
-            Logging.logCheckedSevere(LOG, "Group init failed", any);
+            Logging.logCheckedSevere(LOG, "Group init failed\n", any);
 
             if (any instanceof Error) {
                 throw (Error) any;
@@ -1225,7 +1225,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         } catch (Throwable ohWell) {
 
             // Our attempt failed.
-            Logging.logCheckedFinest(LOG, "Failed to enable 'allowCoreThreadTimeOut'\n" + ohWell.toString());
+            Logging.logCheckedFinest(LOG, "Failed to enable 'allowCoreThreadTimeOut'\n", ohWell);
 
         }
 
@@ -1376,7 +1376,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             return;
         }
 
-        Logging.logCheckedInfo(LOG, "[" + getPeerGroupID() + "] STOPPING UNREFERENCED GROUP");
+        Logging.logCheckedInfo(LOG, "[", getPeerGroupID(), "] STOPPING UNREFERENCED GROUP");
 
         stopApp();
     }
@@ -1487,7 +1487,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         } catch (Exception any) {
 
-            Logging.logCheckedWarning(LOG, "Could not publish the group advertisement: ", any);
+            Logging.logCheckedWarning(LOG, "Could not publish the group advertisement: \n", any);
 
         }
 
@@ -1518,7 +1518,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         } catch (Throwable any) {
 
-            Logging.logCheckedSevere(LOG, "Could not load group implementation", any);
+            Logging.logCheckedSevere(LOG, "Could not load group implementation\n", any);
             throw new PeerGroupException("Could not load group implementation", any);
 
         }
@@ -1530,7 +1530,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         } catch (Exception any) {
 
-            Logging.logCheckedWarning(LOG, "Could not publish group or implementation:", any);
+            Logging.logCheckedWarning(LOG, "Could not publish group or implementation:\n", any);
 
         }
 
