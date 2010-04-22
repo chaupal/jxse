@@ -53,14 +53,14 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.protocol;
 
+import net.jxse.JxseInstantiator;
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.id.ID;
-
-import java.net.URI;
 
 /**
  * Generic Resolver Service message "Query".
@@ -283,4 +283,25 @@ public abstract class ResolverQueryMsg {
      * @return ResolverResponseMsg resolverResponse built from the resolverQuery msg
      */
     public abstract ResolverResponseMsg makeResponse();
+
+    private static final String RESOLVER_QUERY_MSG_IMPL = "net.jxta.impl.protocol.ResolverQuery";
+
+    /**
+     * Provides an instance of a resolver query message implementation.
+     *
+     * @return a resolver response message object instance
+     */
+    public static ResolverQueryMsg newResolverQueryMsg() {
+
+        // Checking for any system properties, or use default implementation
+        String ToResolve = System.getProperty("RESOLVER_QUERY_MSG_IMPL", RESOLVER_QUERY_MSG_IMPL);
+
+        // Retrieving implementing class
+        Class ToInstantiate = JxseInstantiator.forName(ToResolve);
+
+        // Instantiating object
+        return (ResolverQueryMsg) JxseInstantiator.instantiateWithNoParameterConstructor(ToInstantiate);
+
+    }
+
 }

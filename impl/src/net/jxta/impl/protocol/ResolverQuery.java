@@ -53,20 +53,18 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
-import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -370,4 +368,5 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
 
         return res;
     }
+    
 }

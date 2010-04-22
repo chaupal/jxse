@@ -53,8 +53,8 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.protocol;
 
+package net.jxta.protocol;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -62,7 +62,6 @@ import junit.framework.TestSuite;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.impl.protocol.ResolverResponse;
-
 
 /**
  *  A JUnit test for ResolverResponseMsgTest
