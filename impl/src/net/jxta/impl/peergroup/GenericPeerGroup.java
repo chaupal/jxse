@@ -740,6 +740,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     " module : ", implAdv.getDescription(), " (", implAdv.getCode(), ")");
 
             } catch (Exception ex) {
+
+                // What happened?
+                Logging.logCheckedSevere(LOG,ex.toString());
+
                 try {
                     newMod.stopApp();
                 } catch (Throwable ignored) {

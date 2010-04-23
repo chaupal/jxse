@@ -300,18 +300,18 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");
         }
 
-        Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration<XMLElement> multiChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv
-        if (tcpChilds.hasMoreElements()) {
-            param = tcpChilds.nextElement();
+        if (multiChilds.hasMoreElements()) {
+            param = multiChilds.nextElement();
             Attribute typeAttr = param.getAttribute("type");
 
-            if (!TCPAdv.getAdvertisementType().equals(typeAttr.getValue())) {
-                throw new IllegalArgumentException("transport adv is not a " + TCPAdv.getAdvertisementType());
+            if (!MulticastAdv.getAdvertisementType().equals(typeAttr.getValue())) {
+                throw new IllegalArgumentException("transport adv is not a " + MulticastAdv.getAdvertisementType());
             }
 
-            if (tcpChilds.hasMoreElements()) {
+            if (multiChilds.hasMoreElements()) {
                 throw new IllegalArgumentException("Multiple transport advs detected for " + assignedID);
             }
         } else {

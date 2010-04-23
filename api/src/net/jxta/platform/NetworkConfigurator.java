@@ -1514,11 +1514,11 @@ public class NetworkConfigurator {
         // Multicast
         XMLElement param2 = (XMLElement) platformConfig.getServiceParam(PeerGroup.multicastProtoClassID);
         multicastEnabled = platformConfig.isSvcEnabled(PeerGroup.multicastProtoClassID);
-        Enumeration tcpChilds2 = param.getChildren(TransportAdvertisement.getAdvertisementType());
+        Enumeration tcpChilds2 = param2.getChildren(TransportAdvertisement.getAdvertisementType());
 
         // get the TransportAdv from either TransportAdv or multicastConfig
         if (tcpChilds2.hasMoreElements()) {
-            param2 = (XMLElement) tcpChilds.nextElement();
+            param2 = (XMLElement) tcpChilds2.nextElement();
         } else {
             throw new IllegalStateException("Missing Multicast Advertisment");
         }
