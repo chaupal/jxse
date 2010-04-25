@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.socket;
 
 import net.jxta.credential.Credential;
@@ -92,7 +93,6 @@ import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -102,7 +102,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -1222,7 +1221,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             }
 
             if ((null != incomingPipeAdv) && (null != incomingRemotePeerAdv)) {
-                if ((null != remotePeerID) && (remotePeerID != incomingRemotePeerAdv.getPeerID())) {
+                if ((null != remotePeerID) &&
+                    (remotePeerID.toString().compareTo(incomingRemotePeerAdv.getPeerID().toString())!=0) ) {
 
                     // let the connection attempt timeout
                     Logging.logCheckedWarning(LOG, "Connection response from wrong peer! ", remotePeerID,
