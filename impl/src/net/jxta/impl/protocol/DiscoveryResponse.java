@@ -56,20 +56,24 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.*;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.PeerAdvertisement;
-
 import java.io.StringReader;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 
 /**
  *  DiscoveryResponse.
@@ -274,7 +278,7 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
                     long exp;
 
                     // get expiration associated with this response
-                    Attribute attr = (elem).getAttribute(expirationTag);
+                    Attribute attr = elem.getAttribute(expirationTag);
 
                     if (null != attr) {
 
@@ -315,18 +319,19 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
     @Override
     public String toString() {
         
-        try {
+//        try {
+
             XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
-            
             return doc.toString();
-        } catch (Throwable e) {
-            if (e instanceof Error) {
-                throw (Error) e;
-            } else if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new UndeclaredThrowableException(e);
-            }
-        }
+
+//        } catch (Throwable e) {
+//            if (e instanceof Error) {
+//                throw (Error) e;
+//            } else if (e instanceof RuntimeException) {
+//                throw (RuntimeException) e;
+//            } else {
+//                throw new UndeclaredThrowableException(e);
+//            }
+//        }
     }
 }

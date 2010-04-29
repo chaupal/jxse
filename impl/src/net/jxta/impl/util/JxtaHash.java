@@ -53,18 +53,15 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.util;
 
-
 import net.jxta.logging.Logging;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  A message digest wrapper to provide hashing using java.security.MesssageDigest

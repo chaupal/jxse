@@ -267,13 +267,17 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         @Override
         public String toString() {
-            String result = "[Node timeStamp=" + timeStamp
-                    + ", offset=" + offset
-                    + ", length=" + length;
-            if (data != null) {
-                result += ", dataLength=" + data.length;
-            }
-            return result + "]";
+            
+            StringBuffer result = new StringBuffer("[Node timeStamp=")
+                .append(timeStamp)
+                .append(", offset=")
+                .append(offset)
+                .append(", length=")
+                .append(length);
+            
+            if (data != null) result.append(", dataLength=").append(data.length);
+            
+            return result.append(']').toString();
         }
     }
 
@@ -368,7 +372,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         Logging.logCheckedFine(LOG, "Sources remaining: ", sourcesRemaining.size());
         Logging.logCheckedFine(LOG, "Sources tried    : ", sourcesTried.size());
 
-        if (sourcesRemaining.size() == 0) {
+        if (sourcesRemaining.isEmpty()) {
 
             Logging.logCheckedFine(LOG, "No sources remaining to try");
             return ContentTransferState.STALLED;
@@ -384,7 +388,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         DefaultContentShareAdvertisementImpl adv = null;
         sourcePipe = null;
         do {
-            if (sourcesRemaining.size() == 0) {
+            if (sourcesRemaining.isEmpty()) {
                 break;
             }
             adv = sourcesRemaining.remove(0);
@@ -407,7 +411,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             
         } while (adv == null);
         
-        if (adv == null) throw(new TransferException("Could not find usable source"));
+        if (adv == null) throw new TransferException("Could not find usable source");
 
         Logging.logCheckedFine(LOG, "Source selected: ", adv);
         
@@ -417,16 +421,14 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             criticalEntry();
             try {
-                if (toThrow == STALLED) {
-                    return ContentTransferState.STALLED;
-                }
+                if (toThrow == STALLED) return ContentTransferState.STALLED;
             } finally {
                 criticalExit();
             }
         } catch (InterruptedException intx) {
 
             Thread.interrupted();
-            throw(new TransferException("Transfer interrupted", intx));
+            throw new TransferException("Transfer interrupted", intx);
 
         } finally {
 
@@ -530,8 +532,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             try {
                 out = new BufferedOutputStream(new FileOutputStream(dataFile));
             } catch (FileNotFoundException filex) {
-                throw(new TransferException(
-                        "Could not initialize transfer", filex));
+                throw new TransferException("Could not initialize transfer", filex);
             }
 
             written = 0;
@@ -577,8 +578,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                                 ) ;
                     } catch (IOException iox) {
                         out = null;
-                        throw(new TransferException(
-                                "Could not close data file", iox));
+                        throw new TransferException("Could not close data file", iox);
                     }
                 } else {
                     // Cleanup the data file
@@ -1010,6 +1010,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
      * Process an incoming data response.
      */
     private void processDataResponse(DataResponse resp, byte[] data) {
+
         Node node;
         int idx;
         long offs;

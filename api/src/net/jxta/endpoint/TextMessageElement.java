@@ -131,16 +131,16 @@ public abstract class TextMessageElement extends MessageElement implements TextD
 
         Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
-        StringBuilder theString = new StringBuilder();
+        final StringBuilder theString = new StringBuilder();
 
         try {
 
-            Reader asString = getReader();
-            char[] characters = new char[256];
+            final Reader asString = getReader();
+            final char[] characters = new char[256];
 
             do {
 
-                int res = asString.read(characters);
+                final int res = asString.read(characters);
                 if (res < 0) break;
                 theString.append(characters, 0, res);
 
@@ -182,7 +182,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             return cachedGetCharLength;
         }
 
-        CountingWriter countChars = new CountingWriter(new DevNullWriter());
+        final CountingWriter countChars = new CountingWriter(new DevNullWriter());
 
         try {
             sendToWriter(countChars);
@@ -217,7 +217,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
 
         Logging.logCheckedFine(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
-        long len = getCharLength();
+        final long len = getCharLength();
 
         if (len > Integer.MAX_VALUE) {
             throw new IllegalStateException("MessageElement is too large to be stored in a char array.");
@@ -226,13 +226,13 @@ public abstract class TextMessageElement extends MessageElement implements TextD
         result = new char[(int) len];
 
         try {
-            Reader reader = getReader();
+            final Reader reader = getReader();
 
             int toRead = (int) len;
             int offset = 0;
 
             do {
-                int read = reader.read(result, offset, toRead);
+                final int read = reader.read(result, offset, toRead);
 
                 if (-1 == read) {
                     break;
@@ -244,7 +244,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
 
             if (toRead != 0) {
 
-                IOException failure = new IOException("Unexpected EOF");
+                final IOException failure = new IOException("Unexpected EOF");
                 Logging.logCheckedWarning(LOG, failure.getMessage(), failure);
                 throw failure;
 
@@ -252,7 +252,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
 
         } catch (IOException caught) {
 
-            IllegalStateException failure = new IllegalStateException("Failed to get bytes of Message Element");
+            final IllegalStateException failure = new IllegalStateException("Failed to get bytes of Message Element");
             Logging.logCheckedWarning(LOG, failure.getMessage(), caught);
             throw failure;
 
@@ -285,7 +285,7 @@ public abstract class TextMessageElement extends MessageElement implements TextD
      */
     private void copyReaderToWriter(Reader source, Writer sink) throws IOException {
         int c;
-        char[] buf = new char[4096];
+        final char[] buf = new char[4096];
 
         do {
             c = source.read(buf);

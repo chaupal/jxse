@@ -68,7 +68,7 @@ import java.util.logging.Logger;
  * <p>It can be used to instantiate classes within API code without referring to
  * implementation code.</p>
  */
-public class JxseInstantiator {
+public final class JxseInstantiator {
 
     /**
      * Logger for this class
@@ -96,7 +96,7 @@ public class JxseInstantiator {
 
         } catch (ClassNotFoundException notThere) {
 
-            String Tmp = "Could not find class named : " + fullyQualifiedClassName
+            final String Tmp = "Could not find class named : " + fullyQualifiedClassName
                     + "\n" + notThere.toString();
 
             LOG.severe(Tmp);
@@ -104,7 +104,7 @@ public class JxseInstantiator {
 
         } catch (NoClassDefFoundError notThere) {
 
-            String Tmp = "Could not find class named : " + fullyQualifiedClassName
+            final String Tmp = "Could not find class named : " + fullyQualifiedClassName
                     + "\n" + notThere.toString();
 
             LOG.severe(Tmp);
@@ -245,6 +245,12 @@ public class JxseInstantiator {
 
         return instantiate(inClass, new Class[0], new Object[0]);
         
+    }
+
+    /**
+     * Default constructor
+     */
+    private JxseInstantiator() {
     }
 
 }

@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.proxy;
 
 import net.jxta.discovery.DiscoveryEvent;
@@ -90,7 +91,6 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.service.Service;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -102,7 +102,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 // FIXME: jice@jxta.org - 20020515
 // All public methods are synchronized.
@@ -132,16 +131,16 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
     public static final String REQUEST_TAG = "request";
     public static final String RESPONSE_TAG = "response";
 
-    static final String REQUESTID_TAG = "requestId";
-    static final String TYPE_TAG = "type";
-    static final String NAME_TAG = "name";
-    static final String ID_TAG = "id";
-    static final String ARG_TAG = "arg";
-    static final String ATTRIBUTE_TAG = "attr";
-    static final String VALUE_TAG = "value";
-    static final String THRESHOLD_TAG = "threshold";
-    static final String ERROR_MESSAGE_TAG = "error";
-    static final String PROXYNS = "proxy";
+    public static final String REQUESTID_TAG = "requestId";
+    public static final String TYPE_TAG = "type";
+    public static final String NAME_TAG = "name";
+    public static final String ID_TAG = "id";
+    public static final String ARG_TAG = "arg";
+    public static final String ATTRIBUTE_TAG = "attr";
+    public static final String VALUE_TAG = "value";
+    public static final String THRESHOLD_TAG = "threshold";
+    public static final String ERROR_MESSAGE_TAG = "error";
+    public static final String PROXYNS = "proxy";
 
     /**
      * *********************************************************************
@@ -214,7 +213,8 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring JXME Proxy Service : " + assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring JXME Proxy Service : ");
+            configInfo.append(assignedID);
 
             configInfo.append("\n\tImplementation :");
             configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
@@ -492,14 +492,16 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
         int i = 0;
-        while (each.hasMoreElements() && i < thr) {
-            Advertisement adv = each.nextElement();
+        if (each != null) {
+            while (each.hasMoreElements() && i < thr) {
+                Advertisement adv = each.nextElement();
 
-            // notify the requestor of the result
-            // FIXME this can be optimized by sending all adv's in a
-            // single message
-            requestor.send(adv, RESPONSE_RESULT);
-            i++;
+                // notify the requestor of the result
+                // FIXME this can be optimized by sending all adv's in a
+                // single message
+                requestor.send(adv, RESPONSE_RESULT);
+                i++;
+            }
         }
 
         // start the query
@@ -1001,10 +1003,11 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
     }
 
     static class PipeListenerList {
-        LinkedList<Requestor> list = new LinkedList<Requestor>();
-        InputPipe inputPipe = null;
-        Map<String, PipeListenerList> pipeListeners = null;
-        String id = null;
+
+        private LinkedList<Requestor> list = new LinkedList<Requestor>();
+        private InputPipe inputPipe = null;
+        private Map<String, PipeListenerList> pipeListeners = null;
+        private String id = null;
 
         PipeListenerList(InputPipe inputPipe, Map<String, PipeListenerList> pipeListeners, String id) {
 
@@ -1018,7 +1021,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         }
 
-        void add(Requestor requestor) {
+        public void add(Requestor requestor) {
 
             Logging.logCheckedInfo(LOG, "add ", requestor, " from ", this);
             
@@ -1031,13 +1034,13 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             
         }
 
-        void remove(Requestor requestor) {
+        public void remove(Requestor requestor) {
 
             Logging.logCheckedInfo(LOG, "remove ", requestor, " from ", this);
             
             Logging.logCheckedFine(LOG, "removed = ", list.remove(requestor));
 
-            if (list.size() == 0) {
+            if (list.isEmpty()) {
                 // close the pipe and remove from the listenerList
                 if (inputPipe != null) {
                     inputPipe.close();
@@ -1049,7 +1052,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             }
         }
 
-        int size() {
+        public int size() {
 
             int size = list.size();
             Logging.logCheckedFine(LOG, "size ", size);
@@ -1059,7 +1062,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         private static StringMessageElement sme = new StringMessageElement(RESPONSE_TAG, RESPONSE_MESSAGE, null);
 
-        void send(Message message, String id) {
+        public void send(Message message, String id) {
             LOG.fine("send list.size = " + list.size());
 
             message.addMessageElement(PROXYNS, sme);

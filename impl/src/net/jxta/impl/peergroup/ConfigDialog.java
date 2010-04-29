@@ -53,8 +53,28 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.peergroup;
 
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.CardLayout;
+import java.awt.Checkbox;
+import java.awt.Choice;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.TextField;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -76,8 +96,6 @@ import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.TransportAdvertisement;
-
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -94,6 +112,8 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 
 /**
  * The standard and much loved AWT Configuration dialog
@@ -106,13 +126,19 @@ import java.util.NoSuchElementException;
 @Deprecated
 public class ConfigDialog extends Frame {
 
-    static final GridBagConstraints stdConstr;
-    static final GridBagConstraints centerConstr;
-    static final GridBagConstraints centerLastConstr;
-    static final GridBagConstraints fillConstr;
-    static final GridBagConstraints fillInsetConstr;
+    /**
+     * Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(ConfigDialog.class.getName());
+
+    private static final GridBagConstraints stdConstr;
+    private static final GridBagConstraints centerConstr;
+    private static final GridBagConstraints centerLastConstr;
+    private static final GridBagConstraints fillConstr;
+    private static final GridBagConstraints fillInsetConstr;
 
     static {
+
         stdConstr = new GridBagConstraints();
         stdConstr.gridwidth = GridBagConstraints.REMAINDER;
         stdConstr.gridheight = 1;
@@ -144,10 +170,9 @@ public class ConfigDialog extends Frame {
      */
     static class PanelGBL extends Panel {
 
+        private static final long serialVersionUID = 1L;
         protected Insets insets = new Insets(0, 0, 0, 0);
-
-        GridBagLayout lay = new GridBagLayout();
-
+        private GridBagLayout lay = new GridBagLayout();
         private static final GridBagConstraints constrLabel = new GridBagConstraints();
 
         static {
@@ -190,13 +215,14 @@ public class ConfigDialog extends Frame {
         public static final int LOWERED = 2;
         public static final int GROOVE = 3;
         public static final int BUMP = 4;
+        private static final long serialVersionUID = 1L;
 
-        int style = GROOVE;
-        String title;
-        int ascent = 0;
-        int descent = 0;
-        int leading = 0;
-        int titleWidth = 0;
+        private int style = GROOVE;
+        private String title;
+        private int ascent = 0;
+        private int descent = 0;
+        private int leading = 0;
+        private int titleWidth = 0;
 
         public BorderPanelGBL(String title) {
             super();
@@ -358,6 +384,7 @@ public class ConfigDialog extends Frame {
      * Panel implementing paged tabs.
      */
     static class PagesPanel extends Panel implements ActionListener {
+        private static final long serialVersionUID = 1L;
         private final CardLayout layout;
         private final Panel pages;
         private final Panel buttons;
@@ -406,6 +433,7 @@ public class ConfigDialog extends Frame {
      * </ul>
      */
     static class HostPortPanel extends Panel implements ItemListener {
+        private static final long serialVersionUID = 1L;
 
         private final Checkbox useMe;
 
@@ -440,7 +468,7 @@ public class ConfigDialog extends Frame {
                     constraints.gridx = 0;
                     constraints.anchor = GridBagConstraints.LAST_LINE_START;
                 } else {
-                    constraints.gridx++;
+                    constraints.gridy++;
                     constraints.gridx = GridBagConstraints.RELATIVE;
                 }
             }
@@ -534,6 +562,7 @@ public class ConfigDialog extends Frame {
      * A list of URIs
      */
     static class HostListPanel extends Panel implements ActionListener {
+        private static final long serialVersionUID = 1L;
 
         private final String purpose;
         private final TextField host;
@@ -703,7 +732,7 @@ public class ConfigDialog extends Frame {
         public boolean addItem(String item) {
             String hostURI = item.trim();
 
-            if (0 == hostURI.trim().length()) {
+            if (0 == hostURI.length()) {
                 return false;
             }
 
@@ -745,6 +774,7 @@ public class ConfigDialog extends Frame {
      * An interface and port selection panel.
      */
     static class IfAddrPanel extends Panel implements ItemListener {
+        private static final long serialVersionUID = 1L;
         private final Checkbox manual;
 
         private final CardLayout addrLayout;
@@ -880,13 +910,11 @@ public class ConfigDialog extends Frame {
 
 
     static final class IPTptPanel extends BorderPanelGBL implements ItemListener {
+        private static final long serialVersionUID = 1L;
 
         enum TransportType {
             TYPE_HTTP, TYPE_TCP
         }
-
-
-        ;
 
         private final Checkbox useMe;
         private final Checkbox pubAddrOnly;
@@ -1009,6 +1037,7 @@ public class ConfigDialog extends Frame {
      * Manages Peer Identity configuration
      */
     final class IdPanel extends Panel implements ActionListener {
+        private static final long serialVersionUID = 1L;
 
         private final TextField peerName;
         private final TextField passwd;
@@ -1094,6 +1123,8 @@ public class ConfigDialog extends Frame {
      */
     final static class EnablingPanel extends BorderPanelGBL {
 
+        private static final long serialVersionUID = 1L;
+
         private final Checkbox isRelay;
         private final Checkbox isRendezvous;
         private final Checkbox isJxmeProxy;
@@ -1116,6 +1147,8 @@ public class ConfigDialog extends Frame {
      * Manages Rendezvous service options
      */
     final static class RdvPanel extends BorderPanelGBL implements ItemListener {
+
+        private static final long serialVersionUID = 1L;
 
         private final Checkbox useRdv;
         private final Checkbox useOnlySeeds;
@@ -1169,6 +1202,8 @@ public class ConfigDialog extends Frame {
      * Manages relay service parameters
      */
     final static class RelayPanel extends BorderPanelGBL implements ItemListener {
+
+        private static final long serialVersionUID = 1L;
 
         private final Checkbox useRelay;
         private final Checkbox useOnlySeeds;
@@ -1233,12 +1268,12 @@ public class ConfigDialog extends Frame {
     private final Button cancel;
     private final PagesPanel pages = new PagesPanel();
 
-    boolean done = false;
-    boolean canceled = false;
+    private boolean done = false;
+    private boolean canceled = false;
 
-    String tcpMulticastAddr;
-    int tcpMulticastPort;
-    int tcpMulticastLength;
+    private String tcpMulticastAddr;
+    private int tcpMulticastPort;
+    private int tcpMulticastLength;
 
     public ConfigDialog(PlatformConfig configAdv) throws ConfiguratorException {
         super("JXTA Configurator");
@@ -1246,9 +1281,9 @@ public class ConfigDialog extends Frame {
         this.configAdv = configAdv;
 
         // Identity settings
-        String peerName = configAdv.getName();
+        String peerName = configAdv.getName().trim();
 
-        if ((null == peerName) || (0 == peerName.trim().length())) {
+        if ((null == peerName) || (0 == peerName.length())) {
             peerName = "";
         }
 
@@ -1264,9 +1299,11 @@ public class ConfigDialog extends Frame {
             try {
                 adv = AdvertisementFactory.newAdvertisement(param);
             } catch (NoSuchElementException notAnAdv) {
-                ; // that's ok.
+                // that's ok.
+                Logging.logCheckedFine(LOG, "Ignored: ", notAnAdv.toString());
             } catch (IllegalArgumentException badAdv) {
-                ; // that's ok.
+                // that's ok.
+                Logging.logCheckedFine(LOG, "Ignored: ", badAdv.toString());
             }
 
             if (adv instanceof PSEConfigAdv) {
@@ -1287,7 +1324,9 @@ public class ConfigDialog extends Frame {
                 isJxmeProxy = true;
             }
         } catch (Exception nobigdeal) {
-            nobigdeal.printStackTrace();
+
+            Logging.logCheckedWarning(LOG, nobigdeal.toString());
+
         }
 
         int index;
@@ -1304,8 +1343,8 @@ public class ConfigDialog extends Frame {
         boolean noPublicAddressesT;
 
         try {
-            param = (XMLElement) configAdv.getServiceParam(PeerGroup.tcpProtoClassID);
 
+            param = (XMLElement) configAdv.getServiceParam(PeerGroup.tcpProtoClassID);
             tcpEnabled = configAdv.isSvcEnabled(PeerGroup.tcpProtoClassID);
 
             Enumeration<XMLElement> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
@@ -1322,24 +1361,26 @@ public class ConfigDialog extends Frame {
             clientDefaultT = tcpAdv.isClientEnabled();
             serverDefaultT = tcpAdv.isServerEnabled();
 
-            defaultInterfaceAddressT = tcpAdv.getInterfaceAddress();
+            defaultInterfaceAddressT = tcpAdv.getInterfaceAddress().trim();
 
-            if ((null == defaultInterfaceAddressT) || (0 == defaultInterfaceAddressT.trim().length())) {
+            if ((null == defaultInterfaceAddressT) || (0 == defaultInterfaceAddressT.length())) {
                 defaultInterfaceAddressT = null;
             }
 
-            defaultPortT = Integer.toString(tcpAdv.getPort());
-            if ((defaultPortT == null) || (0 == defaultPortT.trim().length())) {
+            defaultPortT = Integer.toString(tcpAdv.getPort()).trim();
+            if ((defaultPortT == null) || (0 == defaultPortT.length())) {
                 defaultPortT = "9701";
             }
 
-            defaultServerNameT = tcpAdv.getServer();
+            defaultServerNameT = tcpAdv.getServer().trim();
 
-            if ((null == defaultServerNameT) || (0 == defaultServerNameT.trim().length())) {
+            if ((null == defaultServerNameT) || (0 == defaultServerNameT.length())) {
                 defaultServerNameT = "";
             }
 
-            if (defaultServerNameT != null && (index = defaultServerNameT.lastIndexOf(":")) != -1) {
+            index = defaultServerNameT.lastIndexOf(':');
+
+            if ( defaultServerNameT != null && (index != -1) ) {
                 if ((0 == index) || (index == defaultServerNameT.length())) {
                     throw new IllegalArgumentException("Bad TCP server name . Cannot proceed.");
                 }
@@ -1391,27 +1432,27 @@ public class ConfigDialog extends Frame {
             clientDefaultH = httpAdv.isClientEnabled();
             serverDefaultH = httpAdv.isServerEnabled();
 
-            defaultInterfaceAddressH = httpAdv.getInterfaceAddress();
+            defaultInterfaceAddressH = httpAdv.getInterfaceAddress().trim();
 
-            if ((null == defaultInterfaceAddressH) || (0 == defaultInterfaceAddressH.trim().length())) {
+            if ((null == defaultInterfaceAddressH) || (0 == defaultInterfaceAddressH.length())) {
                 defaultInterfaceAddressH = null;
             }
 
-            defaultPortH = Integer.toString(httpAdv.getPort());
+            defaultPortH = Integer.toString(httpAdv.getPort()).trim();
 
-            if ((defaultPortH == null) || (0 == defaultPortH.trim().length())) {
+            if ((defaultPortH == null) || (0 == defaultPortH.length())) {
                 defaultPortH = "9700";
             }
 
-            defaultServerNameH = httpAdv.getServer();
+            defaultServerNameH = httpAdv.getServer().trim();
 
-            if ((null != defaultServerNameH) && (0 == defaultServerNameH.trim().length())) {
+            if ((null != defaultServerNameH) && (0 == defaultServerNameH.length())) 
                 defaultServerNameH = "";
-            }
-
+            
             defaultServerPortH = "9700";
+            index = defaultServerNameH.lastIndexOf(':');
 
-            if (defaultServerNameH != null && (index = defaultServerNameH.lastIndexOf(":")) != -1) {
+            if (defaultServerNameH != null && ( index != -1) ) {
                 if ((0 == index) || (index == defaultServerNameH.length())) {
                     throw new IllegalArgumentException("Bad HTTP server name. Cannot proceed.");
                 }
@@ -1615,12 +1656,12 @@ public class ConfigDialog extends Frame {
         if (canceled) {
             throw new JxtaError("Canceled during configuration");
         }
-        return (done);
+        return done;
     }
 
     private synchronized boolean beDone() {
         done = true;
-        notify();
+        notifyAll();
         dispose();
 
         return canceled;
@@ -1637,8 +1678,9 @@ public class ConfigDialog extends Frame {
 
     private boolean verifyPort(String portName, String ports, boolean dynamicok) {
         int p1;
+        ports = ports.trim();
 
-        if ((null == ports) || (0 == ports.trim().length())) {
+        if ((null == ports) || (0 == ports.length())) {
             ports = "0";
         }
 
@@ -1840,7 +1882,7 @@ public class ConfigDialog extends Frame {
 
             String chosenIntf = httpPanel.getInterfaceAddress();
 
-            if (chosenIntf.startsWith("A")) {
+            if (chosenIntf.charAt(0) == 'A') {
                 httpAdv.setInterfaceAddress(null);
             } else {
                 httpAdv.setInterfaceAddress(chosenIntf);
@@ -1869,7 +1911,7 @@ public class ConfigDialog extends Frame {
             tcpAdv.setConfigMode(tcpPanel.getConfigMode());
 
             chosenIntf = tcpPanel.getInterfaceAddress();
-            if (chosenIntf.startsWith("A")) {
+            if (chosenIntf.charAt(0) == 'A') {
                 tcpAdv.setInterfaceAddress(null);
             } else {
                 tcpAdv.setInterfaceAddress(chosenIntf);
@@ -1885,6 +1927,7 @@ public class ConfigDialog extends Frame {
                 }
             } catch (NumberFormatException ignored) {
                 /* verifyInput already checked it */
+                Logging.logCheckedSevere(LOG, "Format exception: ", tcpPanel.ifAddr.getPort(), ignored.toString());
             }
 
             tcpAdv.setClientEnabled(tcpPanel.clientEnabled.getState());
@@ -1987,7 +2030,7 @@ public class ConfigDialog extends Frame {
     }
 
     private XMLDocument wrapParm(Advertisement srcAdv, boolean enabled) {
-        try {
+//        try {
             XMLDocument advDoc = (XMLDocument) srcAdv.getDocument(MimeMediaType.XMLUTF8);
 
             XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
@@ -1998,9 +2041,9 @@ public class ConfigDialog extends Frame {
             }
 
             return doc;
-        } catch (Throwable ez1) {
-            ez1.printStackTrace();
-            return null;
-        }
+//        } catch (Throwable ez1) {
+//            ez1.printStackTrace();
+//            return null;
+//        }
     }
 }

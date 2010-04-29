@@ -56,11 +56,9 @@
 
 package net.jxta.impl.membership.passwd;
 
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.credential.CredentialPCLSupport;
-import net.jxta.document.*;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
@@ -74,14 +72,29 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.service.Service;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.document.Advertisement;
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 
 
 /**
@@ -118,22 +131,22 @@ public class PasswdMembershipService implements MembershipService {
         /**
          * The MembershipService service which generated this credential.
          */
-        PasswdMembershipService source;
+        private PasswdMembershipService source;
         
         /**
          * The identity associated with this credential
          */
-        String whoami;
+        private String whoami;
         
         /**
          * The peerid associated with this credential.
          */
-        ID peerid;
+        private ID peerid;
         
         /**
          * The peerid which has been "signed" so that the identity may be verified.
          */
-        String signedPeerID;
+        private String signedPeerID;
         
         /**
          *  property change support
@@ -143,7 +156,7 @@ public class PasswdMembershipService implements MembershipService {
         /**
          *  Whether the credential is valid.
          */
-        boolean valid = true;
+        private boolean valid = true;
         
         protected PasswdCredential(PasswdMembershipService source, String whoami, String signedPeerID) {
             
@@ -280,7 +293,7 @@ public class PasswdMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          */
-        public StructuredDocument getDocument(MimeMediaType as) throws Exception {
+        public StructuredDocument getDocument(MimeMediaType as) {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
             
             if (doc instanceof XMLDocument) {
@@ -379,7 +392,7 @@ public class PasswdMembershipService implements MembershipService {
             
             String doctype = doc.getName();
             
-            if (!doctype.equals("jxta:PasswdCred") && !typedoctype.equals("jxta:PasswdCred")) {
+            if (!"jxta:PasswdCred".equals(doctype) && !"jxta:PasswdCred".equals(typedoctype)) {
                 throw new IllegalArgumentException(
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
             }
@@ -428,23 +441,23 @@ public class PasswdMembershipService implements MembershipService {
         /**
          * The Membership Service which generated this authenticator.
          */
-        PasswdMembershipService source;
+        private PasswdMembershipService source;
         
         /**
          * The Authentication which was provided to the Apply operation of the
          * membership service.
          */
-        AuthenticationCredential application;
+        private AuthenticationCredential application;
         
         /**
          * the identity which is being claimed
          */
-        String whoami = null;
+        private String whoami = null;
         
         /**
          * the password for that identity.
          */
-        String password = null;
+        private String password = null;
         
         /**
          * Creates an authenticator for the password MembershipService service. The only method
@@ -602,7 +615,8 @@ public class PasswdMembershipService implements MembershipService {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Password Membership Service : " + assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Password Membership Service : ");
+            configInfo.append(assignedID);
 
             configInfo.append("\n\tImplementation:");
             configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
@@ -674,7 +688,7 @@ public class PasswdMembershipService implements MembershipService {
      * <p/>Currently this service starts by itself and does not expect
      * arguments.
      */
-    public int startApp(String[] arg) {
+    public int startApp(String[] args) {
         return 0;
     }
     
@@ -794,7 +808,7 @@ public class PasswdMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      */
-    public Credential makeCredential(Element element) throws PeerGroupException, Exception {
+    public Credential makeCredential(Element element) throws PeerGroupException {
         
         return new PasswdCredential(this, element);
     }
@@ -821,7 +835,7 @@ public class PasswdMembershipService implements MembershipService {
         String mustMatch = (String) logins.get(identity);
         
         // if there is a null password for this identity then match everything.
-        if (mustMatch.equals("")) {
+        if ("".equals(mustMatch)) {
             return true;
         }
         
@@ -852,7 +866,7 @@ public class PasswdMembershipService implements MembershipService {
          *
          */
         
-        final String xlateTable = "DQKWHRTENOGXCVYSFJPILZABMU";
+        String xlateTable = "DQKWHRTENOGXCVYSFJPILZABMU";
         
         StringBuilder work = new StringBuilder(source);
         

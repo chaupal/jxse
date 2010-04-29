@@ -134,7 +134,7 @@ public class PeerInfoServiceInterface implements PeerInfoService {
      *  object's start/stop methods from being called
      *
      */
-    public int startApp(String[] arg) {
+    public int startApp(String[] args) {
         return 0;
     }
 
@@ -148,11 +148,11 @@ public class PeerInfoServiceInterface implements PeerInfoService {
     public void stopApp() {}
 
     public boolean isLocalMonitoringAvailable() {
-        return (impl.isLocalMonitoringAvailable());
+        return impl.isLocalMonitoringAvailable();
     }
 
     public boolean isLocalMonitoringAvailable(ModuleClassID moduleClassID) {
-        return (impl.isLocalMonitoringAvailable(moduleClassID));
+        return impl.isLocalMonitoringAvailable(moduleClassID);
     }
 	
     public long[] getSupportedReportRates() {

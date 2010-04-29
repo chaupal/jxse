@@ -180,31 +180,31 @@ public class CodatID extends net.jxta.codat.CodatID {
         setHash(in);
     }
     
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object target) {
-        if (this == target) {
-            return true;
-        }
-        
-        if (target instanceof CodatID) {
-            CodatID codatTarget = (CodatID) target;
-            
-            return id.equals(codatTarget.id);
-        } else {
-            return false;
-        }
-    }
+//    /**
+//     *  {@inheritDoc}
+//     */
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//
+//        if (obj instanceof CodatID) {
+//            CodatID codatTarget = (CodatID) obj;
+//
+//            return id.equals(codatTarget.id);
+//        } else {
+//            return false;
+//        }
+//    }
     
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
+//    /**
+//     *  {@inheritDoc}
+//     */
+//    @Override
+//    public int hashCode() {
+//        return id.hashCode();
+//    }
     
     /**
      *  {@inheritDoc}

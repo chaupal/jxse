@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint;
 
 import net.jxta.discovery.DiscoveryService;
@@ -64,7 +65,6 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
-import net.jxta.endpoint.*;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
@@ -92,9 +92,35 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.endpoint.ChannelMessenger;
+import net.jxta.endpoint.EndpointListener;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.ListenerAdaptor;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.MessageFilterListener;
+import net.jxta.endpoint.MessagePropagater;
+import net.jxta.endpoint.MessageReceiver;
+import net.jxta.endpoint.MessageSender;
+import net.jxta.endpoint.MessageTransport;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.MessengerEvent;
+import net.jxta.endpoint.MessengerEventListener;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.endpoint.ThreadedMessenger;
 import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.endpoint.router.RouteController;
 import net.jxta.impl.peergroup.StdPeerGroup;
@@ -183,13 +209,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     private final static boolean DEFAULT_USE_PARENT_ENDPOINT = true;
 
-    EndpointServiceMonitor endpointServiceMonitor;
+    private EndpointServiceMonitor endpointServiceMonitor;
 
     /**
      * the EndpointMeter
      */
     private EndpointMeter endpointMeter;
-    private PropagationMeter propagationMeter;
+    // private PropagationMeter propagationMeter;
 
     /**
      * If {@code true} then this service has been initialized.
@@ -240,11 +266,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      */
     private final Map<EndpointAddress, Reference<Messenger>> directMessengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
 
-    /**
-     * The number of active instances of this class. We use this for deciding
-     * when to instantiate and shutdown the listener adaptor.
-     */
-    private static int activeInstanceCount = 0;
+//    /**
+//     * The number of active instances of this class. We use this for deciding
+//     * when to instantiate and shutdown the listener adaptor.
+//     */
+//    private static int activeInstanceCount = 0;
 
     /**
      * Provides emulation of the legacy send-message-with-listener and get-messenger-with-listener APIs.
@@ -285,9 +311,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * Holder for a filter listener and its conditions
      */
     private static class FilterListenerAndMask {
-        final String namespace;
-        final String name;
-        final MessageFilterListener listener;
+
+        private final String namespace;
+        private final String name;
+        private final MessageFilterListener listener;
 
         public FilterListenerAndMask(MessageFilterListener listener, String namespace, String name) {
             this.namespace = namespace;
@@ -296,13 +323,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         @Override
-        public boolean equals(Object target) {
-            if (this == target) {
+        public boolean equals(Object obj) {
+            if (this == obj) {
                 return true;
             }
 
-            if (target instanceof FilterListenerAndMask) {
-                FilterListenerAndMask likeMe = (FilterListenerAndMask) target;
+            if (obj instanceof FilterListenerAndMask) {
+                FilterListenerAndMask likeMe = (FilterListenerAndMask) obj;
 
                 boolean result = (null != namespace) ? (namespace.equals(likeMe.namespace)) : (null == likeMe.namespace);
 
@@ -345,12 +372,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
          * once (to avoid carrying an invalid hint forever) it may happen that a
          * hint is used long after it was suggested.
          */
-        Object hint;
+        private Object hint;
 
         /**
          * The transport messenger that this canonical messenger currently uses.
          */
-        Messenger cachedMessenger = null;
+        private Messenger cachedMessenger = null;
 
         /**
          * Create a new CanonicalMessenger.
@@ -558,7 +585,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Endpoint Service : " + assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Endpoint Service : ");
+            configInfo.append(assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -721,9 +749,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     // A vector for statistics between propagateThroughAll and its invoker.
     private static class Metrics {
-        int numFilteredOut = 0;
-        int numPropagatedTo = 0;
-        int numErrorsPropagated = 0;
+
+        private int numFilteredOut = 0;
+        private int numPropagatedTo = 0;
+        private int numErrorsPropagated = 0;
+
     }
 
     private void propagateThroughAll(Iterator<MessageTransport> eachProto, Message myMsg, String serviceName, String serviceParam, int initialTTL, Metrics metrics) {
@@ -828,9 +858,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointServiceMonitor != null)) {
-            PropagationMeter propagationMeter = endpointServiceMonitor.getPropagationMeter(serviceName, serviceParam);
+            PropagationMeter propagationMeterTmp = endpointServiceMonitor.getPropagationMeter(serviceName, serviceParam);
 
-            propagationMeter.registerPropagateMessageStats(metrics.numPropagatedTo, metrics.numFilteredOut, metrics.numErrorsPropagated,
+            propagationMeterTmp.registerPropagateMessageStats(metrics.numPropagatedTo, metrics.numFilteredOut, metrics.numErrorsPropagated,
                     System.currentTimeMillis() - startPropagationTime);
         }
     }
@@ -991,9 +1021,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         // Now that we know the original service name is valid, finish building the decoded version.
-        if (demangledAddress != dstAddress) {
-            decodedServiceName = dstAddress.getServiceName() + "/" + decodedServiceName;
-        }
+        if (demangledAddress != dstAddress) 
+            decodedServiceName = new StringBuffer(dstAddress.getServiceName())
+                    .append('/')
+                    .append(decodedServiceName)
+                    .toString();
 
         // Look up the listener
         EndpointListener listener = getIncomingMessageListener(decodedServiceName, decodedServiceParam);
@@ -1391,25 +1423,21 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             throw new IllegalArgumentException("EndpointListener must be non-null");
         }
 
-        if (null == serviceName) {
+        if (null == serviceName) 
             throw new IllegalArgumentException("serviceName must not be null");
-        }
-
-        if (-1 != serviceName.indexOf('/')) {
+        
+        if (-1 != serviceName.indexOf('/')) 
             throw new IllegalArgumentException("serviceName may not contain '/' characters");
-        }
-
+        
         String address = serviceName;
 
-        if (null != serviceParam) {
-            address += "/" + serviceParam;
-        }
+        if (null != serviceParam) 
+            address = new StringBuffer(address).append('/').append(serviceParam).toString();
 
         synchronized (incomingMessageListeners) {
-            if (incomingMessageListeners.containsKey(address)) {
-                return false;
-            }
 
+            if (incomingMessageListeners.containsKey(address)) return false;
+            
             InboundMeter incomingMessageListenerMeter = null;
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointServiceMonitor != null)) {
@@ -1474,15 +1502,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             throw new IllegalArgumentException("serviceName must not be null");
         }
 
-        if (-1 != serviceName.indexOf('/')) {
+        if (-1 != serviceName.indexOf('/')) 
             throw new IllegalArgumentException("serviceName may not contain '/' characters");
-        }
-
+        
         String address = serviceName;
 
-        if (null != serviceParam) {
-            address += "/" + serviceParam;
-        }
+        if (null != serviceParam) 
+            address = new StringBuffer(address).append('/').append(serviceParam).toString();
 
         EndpointListener removedListener;
         synchronized (incomingMessageListeners) {
@@ -1850,9 +1876,10 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     private void addActiveRelayListener(PeerGroup listeningGroup) {
         PeerGroup parentGroup = group.getParentGroup();
         while (parentGroup != null) {
-            EndpointService parentEndpoint = parentGroup.getEndpointService();
 
-            for (Iterator<MessageTransport> it = parentEndpoint.getAllMessageTransports(); it.hasNext();) {
+            EndpointService parentEndpointTmp = parentGroup.getEndpointService();
+
+            for (Iterator<MessageTransport> it = parentEndpointTmp.getAllMessageTransports(); it.hasNext();) {
                 MessageTransport mt = it.next();
 
                 if ((mt instanceof RelayClient)) {
@@ -1870,9 +1897,9 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         PeerGroup parentGroup = group.getParentGroup();
 
         while (parentGroup != null) {
-            EndpointService parentEndpoint = parentGroup.getEndpointService();
+            EndpointService parentEndpointTmp = parentGroup.getEndpointService();
 
-            for (Iterator<MessageTransport> it = parentEndpoint.getAllMessageTransports(); it.hasNext();) {
+            for (Iterator<MessageTransport> it = parentEndpointTmp.getAllMessageTransports(); it.hasNext();) {
                 MessageTransport mt = it.next();
 
                 if ((mt instanceof RelayClient)) {
@@ -2102,7 +2129,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
                 Map<PeerID, RouteAdvertisement> TempCR = TempRC.getConnectedRelays();
 
-                if ( TempCR.size() > 0 ) return true;
+                if ( ! TempCR.isEmpty() ) return true;
 
             }
 
@@ -2156,19 +2183,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         // Returning result
         return Result;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This is rather heavy-weight if instances are frequently created and
-     * discarded since finalization significantly delays GC.
-     */
-    @Override
-    protected void finalize() throws Throwable {
-
-        super.finalize();
 
     }
 

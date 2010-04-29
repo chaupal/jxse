@@ -117,7 +117,7 @@ public class DiscoveryResponseMsgTest extends TestCase {
             resp.add(padv);
             Vector exp = new Vector();
 
-            exp.add(new Long(0));
+            exp.add(0);
             
             DiscoveryResponseMsg res = new DiscoveryResponse();
 

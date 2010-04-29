@@ -56,12 +56,10 @@
 
 package net.jxta.document;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 
 /**
  * This class is an implementation of the Document interface. It is perhaps the
@@ -96,7 +94,7 @@ public class BinaryDocument implements Document {
      *         for this Document.
      */
     public static MimeMediaType[] getSupportedMimeTypes() {
-        return (myTypes.clone());
+        return myTypes.clone();
     }
 
     /**
@@ -141,7 +139,7 @@ public class BinaryDocument implements Document {
      * {@inheritDoc}
      */
     public InputStream getStream() throws IOException {
-        return (new ByteArrayInputStream(ourBytes));
+        return new ByteArrayInputStream(ourBytes);
     }
 
     /**

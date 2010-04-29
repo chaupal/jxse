@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint.endpointMeter;
 
-
 import net.jxta.document.Element;
 import net.jxta.document.TextElement;
 import net.jxta.endpoint.EndpointAddress;
@@ -66,18 +65,17 @@ import net.jxta.meter.ServiceMetric;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-
 /**
  * Basic Service Metric EndpointService Monitoring
  */
-public class EndpointServiceMetric implements ServiceMetric {
+public class EndpointServiceMetric implements ServiceMetric, Cloneable {
+
     private LinkedList<InboundMetric> inboundMetrics = new LinkedList<InboundMetric>();
     private LinkedList<OutboundMetric> outboundMetrics = new LinkedList<OutboundMetric>();
     private LinkedList<PropagationMetric> propagationMetrics = new LinkedList<PropagationMetric>();
@@ -98,7 +96,7 @@ public class EndpointServiceMetric implements ServiceMetric {
         return moduleClassID;
     }
 
-    void addInboundMetric(InboundMetric inboundMetric) {
+    public void addInboundMetric(InboundMetric inboundMetric) {
         inboundMetrics.add(inboundMetric);
     }
 
@@ -130,11 +128,11 @@ public class EndpointServiceMetric implements ServiceMetric {
         return null;
     }
 
-    void addPropagationMetric(PropagationMetric propagationMetric) {
+    public void addPropagationMetric(PropagationMetric propagationMetric) {
         propagationMetrics.add(propagationMetric);
     }
 
-    void addOutboundMetric(OutboundMetric outboundMetric) {
+    public void addOutboundMetric(OutboundMetric outboundMetric) {
         outboundMetrics.add(outboundMetric);
     }
 
@@ -156,7 +154,7 @@ public class EndpointServiceMetric implements ServiceMetric {
         return endpointMetric;
     }
 
-    void setEndpointMetric(EndpointMetric endpointMetric) {
+    public void setEndpointMetric(EndpointMetric endpointMetric) {
         this.endpointMetric = endpointMetric;
     }
 
@@ -190,32 +188,32 @@ public class EndpointServiceMetric implements ServiceMetric {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if (tagName.equals("inboundMetric")) {
+            if ("inboundMetric".equals(tagName)) {
                 InboundMetric inboundMetric = (InboundMetric) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         InboundMetric.class);
 
                 inboundMetrics.add(inboundMetric);
             }
-            if (tagName.equals("outboundMetric")) {
+            if ("outboundMetric".equals(tagName)) {
                 OutboundMetric outboundMetric = (OutboundMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, OutboundMetric.class);
 
                 outboundMetrics.add(outboundMetric);
             }
-            if (tagName.equals("propagationMetric")) {
+            if ("propagationMetric".equals(tagName)) {
                 PropagationMetric propagationMetric = (PropagationMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, PropagationMetric.class);
 
                 propagationMetrics.add(propagationMetric);
             }
-            if (tagName.equals("endpointMetric")) {
+            if ("endpointMetric".equals(tagName)) {
                 endpointMetric = (EndpointMetric) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         EndpointMetric.class);
             }
             try {
-                if (tagName.equals("moduleClassID")) {
+                if ("moduleClassID".equals(tagName)) {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));
                 }

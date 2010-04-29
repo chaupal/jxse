@@ -56,9 +56,7 @@
 
 package net.jxta.impl.id.unknown;
 
-
 import net.jxta.id.IDFactory;
-
 
 /**
  *  The 'unknown' format is not a regular JXTA ID format. It is a special ID
@@ -78,4 +76,5 @@ public final class IDFormat {
      *  Private Constructor. This class cannot be instantiated.
      **/
     private IDFormat() {}
+    
 }

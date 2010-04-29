@@ -399,13 +399,15 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
      * Making sure any NetworkManager has been stopped
      */
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
 
         if (this.TheNM!=null) {
             if (this.TheNM.isStarted()) {
                 this.TheNM.stopNetwork();
             }
         }
+
+        super.finalize();
 
     }
 

@@ -99,6 +99,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -127,7 +128,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     
     private Thread thread = null;
     
-    private volatile boolean closed = false;
+    private AtomicBoolean closed = new AtomicBoolean(false);
     
     /**
      * The peergroups which want notification when we connect to a relay.
@@ -144,7 +145,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      */
     private final SeedingManager seedingManager;
     
-    RelayServerConnection currentServer = null;
+    protected RelayServerConnection currentServer = null;
     
     public RelayClient(PeerGroup group, String serviceName, RelayConfigAdv relayConfig) {
         this.group = group;
@@ -245,11 +246,10 @@ public class RelayClient implements MessageReceiver, Runnable {
     }
     
     public synchronized void stopClient() {
-        if (closed) {
-            return;
-        }
         
-        closed = true;
+        if (closed.get()) return;
+        
+        closed.set(true);
         
         endpoint.removeMessageTransport(this);
         
@@ -321,7 +321,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             long gotLastSeedsAt = 0;
             
             // run until the service is stopped
-            while (!closed) {
+            while (!closed.get()) {
                 // Attempt to use any referral immediately.
                 if (null != referral) {
                     RouteAdvertisement relayRoute = referral.getRouteAdv();
@@ -357,7 +357,7 @@ public class RelayClient implements MessageReceiver, Runnable {
                 }
                 
                 // Try seeds until we get a connection, a referral or are closed.
-                while ((null == referral) && !allSeeds.isEmpty() && !closed) {
+                while ((null == referral) && !allSeeds.isEmpty() && !closed.get()) {
                     RouteAdvertisement aSeed = allSeeds.remove(0);
                     
                     if (null == aSeed.getDestPeerID()) {
@@ -397,7 +397,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      *  @param  server  The relay server to connect to
      *  @return The advertisement of an alternate relay server to try.
      */
-    RdvAdvertisement connectToRelay(RelayServerConnection server) {
+    public RdvAdvertisement connectToRelay(RelayServerConnection server) {
         
         Logging.logCheckedFine(LOG, "Connecting to ", server);
         
@@ -721,9 +721,8 @@ public class RelayClient implements MessageReceiver, Runnable {
         // get the request, make it lowercase so that case is ignored
         String response = RelayTransport.getString(message, RelayTransport.RESPONSE_ELEMENT);
         
-        if (response == null) {
-            return;
-        }
+        if (response == null) return;
+        
         response = response.toLowerCase();
         
         Logging.logCheckedFine(LOG, "response = ", response);
@@ -845,22 +844,23 @@ public class RelayClient implements MessageReceiver, Runnable {
     }
     
     static class RelayServerConnection {
-        final RelayClient client;
+
+        private final RelayClient client;
         
-        Messenger messenger = null;
-        EndpointAddress logicalAddress = null;
-        String peerId = null;
-        long leaseLength = 0;
-        long leaseObtainedAt = 0;
+        private Messenger messenger = null;
+        private EndpointAddress logicalAddress = null;
+        private String peerId = null;
+        private long leaseLength = 0;
+        private long leaseObtainedAt = 0;
         
         // If seeded out of a raw address, we have relayAddress.
         // relayAdv comes only later.
         public RouteAdvertisement relayAdv = null;
-        EndpointAddress relayAddress = null;
+        private EndpointAddress relayAddress = null;
         
-        RdvAdvertisement alternateRelayAdv = null;
-        boolean seeded = false;
-        boolean flushNeeded = true; // true until we know it's been done
+        private RdvAdvertisement alternateRelayAdv = null;
+        private boolean seeded = false;
+        private boolean flushNeeded = true; // true until we know it's been done
         
         private final MessengerStateListener failureListener = new MessengerStateListener() {
 			
@@ -1128,6 +1128,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         ID assignedID = PeerGroup.endpointClassID;
         
         try {
+
             // get the advertisement of the associated endpoint address as we
             // need to get the peer Id and available route
             
@@ -1135,7 +1136,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             PeerAdvertisement padv = pg.getPeerAdvertisement();
             XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
             
-            RouteAdvertisement route;
+            RouteAdvertisement route = null;
             
             if (myParam == null) {
 
@@ -1148,9 +1149,11 @@ public class RelayClient implements MessageReceiver, Runnable {
                 Enumeration<XMLElement> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
                 XMLElement param = null;
                 
-                if (paramChilds.hasMoreElements()) param = paramChilds.nextElement();
-                
-                route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
+                if (paramChilds.hasMoreElements()) {
+                    param = paramChilds.nextElement();
+                    route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
+
+                }
 
             }
             
@@ -1197,6 +1200,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             Logging.logCheckedFine(LOG, "exception adding relay route\n", ex);
             
         }
+        
     }
     
     /**
@@ -1237,9 +1241,9 @@ public class RelayClient implements MessageReceiver, Runnable {
                 
                 if (paramChilds.hasMoreElements()) {
                     param = paramChilds.nextElement();
+                    route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement( param);
                 }
                 
-                route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement( param);
             }
             
             if (route == null) {

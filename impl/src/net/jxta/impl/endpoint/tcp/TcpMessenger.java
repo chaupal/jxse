@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.tcp;
 
 import net.jxta.document.MimeMediaType;
@@ -72,7 +73,6 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -93,7 +93,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -198,7 +197,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     /**
      * Time at which we began receiving the current incoming message.
      */
-    long receiveBeginTime = 0;
+    private long receiveBeginTime = 0;
 
     /**
      * Enforces single writer on message write in case the messenger is being
@@ -213,14 +212,14 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * @param transport     the tcp MessageSender we are working for.
      * @throws java.io.IOException if an io error occurs
      */
-    TcpMessenger(SocketChannel socketChannel, TcpTransport transport) throws IOException {
+    TcpMessenger(SocketChannel inSocketChannel, TcpTransport transport) throws IOException {
 
         super(transport.group.getPeerGroupID(),
                 new EndpointAddress(transport.getProtocolName(),
-                        socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null), true);
+                        inSocketChannel.socket().getInetAddress().getHostAddress() + ":" + inSocketChannel.socket().getPort(), null, null), true);
 
         initiator = false;
-        this.socketChannel = socketChannel;
+        this.socketChannel = inSocketChannel;
         this.tcpTransport = transport;
         this.srcAddress = transport.getPublicAddress();
         this.srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddress.toString(), null);
@@ -314,7 +313,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddress.toString(), null);
 
         String protoAddr = destaddr.getProtocolAddress();
-        int portIndex = protoAddr.lastIndexOf(":");
+        int portIndex = protoAddr.lastIndexOf(':');
 
         if (portIndex == -1) {
             throw new IllegalArgumentException("Invalid Protocol Address (port # missing) ");
@@ -691,13 +690,13 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      * @return The number of bytes written.
      * @throws IOException Thrown for errors while writing message.
      */
-    private long write(final ByteBuffer[] byteBuffers) throws IOException {
+    private long write(ByteBuffer[] byteBuffers) throws IOException {
         long nBytes = 0;
         for (ByteBuffer byteBuffer : byteBuffers) nBytes += write(byteBuffer);
         return nBytes;
     }
 
-    private long write(final ByteBuffer byteBuffer) throws IOException {
+    private long write(ByteBuffer byteBuffer) throws IOException {
         // Determine how many bytes there are to be written in the buffers.
         long bytesToWrite = byteBuffer.remaining();
 
@@ -1142,7 +1141,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      *
      * @return the metering object for this tcpTransport
      */
-    TransportBindingMeter getTransportBindingMeter() {
+    public TransportBindingMeter getTransportBindingMeter() {
         return transportBindingMeter;
     }
 

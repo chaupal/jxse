@@ -76,11 +76,11 @@ import java.util.Map;
 
 
 /**
- *		A Monitor Report contains  service-specific metrics for each service specified in the
- *		corresponding MonitorFilter (provided when the report was requested).
- *
+ * A Monitor Report contains  service-specific metrics for each service specified in the
+ * corresponding MonitorFilter (provided when the report was requested).
  **/
 public class MonitorReport implements DocumentSerializable {
+
     private long toTime;
     private long fromTime;
     private boolean isCumulative;
@@ -211,13 +211,13 @@ public class MonitorReport implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
             
-            if (tagName.equals("toTime")) {
+            if ("toTime".equals(tagName)) {
                 toTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("fromTime")) {
+            } else if ("fromTime".equals(tagName)) {
                 fromTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("isCumulative")) {
+            } else if ("isCumulative".equals(tagName)) {
                 isCumulative = DocumentSerializableUtilities.getBoolean(childElement);
-            } else if (tagName.equals("service")) {
+            } else if ("service".equals(tagName)) {
                 try {
                     ModuleClassID moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement, "moduleClassID", "ERROR")));

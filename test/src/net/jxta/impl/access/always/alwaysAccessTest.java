@@ -53,27 +53,23 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.access.always;
 
+package net.jxta.impl.access.always;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-
 import junit.framework.*;
-
 import net.jxta.access.AccessService;
 import net.jxta.access.AccessService.AccessResult;
 import net.jxta.credential.Credential;
 import net.jxta.credential.PrivilegedOperation;
 import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
-
 
 public class alwaysAccessTest extends TestCase {
     

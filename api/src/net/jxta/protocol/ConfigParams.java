@@ -56,24 +56,19 @@
 
 package net.jxta.protocol;
 
-
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A container for collections of configuration parameters. Configuration
@@ -165,13 +160,13 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object other) {
-        if(this == other) {
+    public boolean equals(Object obj) {
+        if(this == obj) {
             return true;
         }
         
-        if(other instanceof ConfigParams) {
-            ConfigParams likeMe = (ConfigParams) other;
+        if(obj instanceof ConfigParams) {
+            ConfigParams likeMe = (ConfigParams) obj;
             
             boolean ep = params.equals(likeMe.params);
             boolean ea = ads.equals(likeMe.ads);
@@ -363,7 +358,7 @@ public abstract class ConfigParams extends ExtendableAdvertisement implements Cl
                 adv = AdvertisementFactory.newAdvertisement((XMLElement) param);
             } catch (RuntimeException ignored) {
                 // ignored
-                ;
+                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
             }
             
             if (null != adv) {

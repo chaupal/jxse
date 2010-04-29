@@ -161,25 +161,25 @@ public class InputStreamMessageElement extends MessageElement {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
-        if (this == target) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (target instanceof MessageElement) {
-            if (!super.equals(target)) {
+        if (obj instanceof MessageElement) {
+            if (!super.equals(obj)) {
                 return false;
             }
 
-            if (target instanceof InputStreamMessageElement) {
+            if (obj instanceof InputStreamMessageElement) {
                 // have to do a slow stream comparison.
                 // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
 
-                MessageElement likeMe = (MessageElement) target;
+                final MessageElement likeMe = (MessageElement) obj;
 
                 try {
-                    InputStream myStream = getStream();
-                    InputStream itsStream = likeMe.getStream();
+                    final InputStream myStream = getStream();
+                    final InputStream itsStream = likeMe.getStream();
 
                     int mine;
                     int its;
@@ -209,14 +209,15 @@ public class InputStreamMessageElement extends MessageElement {
      */
     @Override
     public synchronized int hashCode() {
+        
         if (0 == cachedHashCode) {
-            Checksum crc = new CRC32();
 
-            for (byte[] aBuffer : databytes) {
+            final Checksum crc = new CRC32();
+
+            for (byte[] aBuffer : databytes)
                 crc.update(aBuffer, 0, aBuffer.length);
-            }
-
-            int result = super.hashCode() + (int) crc.getValue() * 6037; // a prime
+            
+            final int result = super.hashCode() + (int) crc.getValue() * 6037; // a prime
 
             cachedHashCode = 0 != result ? result : 1;
         }
@@ -236,12 +237,12 @@ public class InputStreamMessageElement extends MessageElement {
      * {@inheritDoc}
      */
     public InputStream getStream() throws IOException {
-        List<InputStream> buffers = new ArrayList<InputStream>();
 
-        for (byte[] aBuffer : databytes) {
+        final List<InputStream> buffers = new ArrayList<InputStream>();
+
+        for (byte[] aBuffer : databytes) 
             buffers.add(new ByteArrayInputStream(aBuffer));
-        }
-
+        
         return new SequenceInputStream(Collections.enumeration(buffers));
     }
 
@@ -267,10 +268,11 @@ public class InputStreamMessageElement extends MessageElement {
      * @throws IOException if there is a problem reading from the stream.
      */
     protected List<byte[]> CopyToDataBytes(InputStream in, long limit) throws IOException {
+
         final long INITIAL_INTERMEDIATE_BUFFERSIZE = 6;
         final long MAXIMUM_INTERMEDIATE_BUFFERSIZE = 18;
 
-        List<byte[]> buffs = new ArrayList<byte[]>();
+        final List<byte[]> buffs = new ArrayList<byte[]>();
         boolean atEOF = false;
         long read = 0;
         long currentIntermediateBufferSize = INITIAL_INTERMEDIATE_BUFFERSIZE;
@@ -289,7 +291,8 @@ public class InputStreamMessageElement extends MessageElement {
 
             // fully read the buffer if we can.
             do {
-                int readLength = in.read(nextBuffer, offsetInThisBuffer, nextBuffer.length - offsetInThisBuffer);
+
+                final int readLength = in.read(nextBuffer, offsetInThisBuffer, nextBuffer.length - offsetInThisBuffer);
 
                 if (readLength == -1) {
                     atEOF = true;
@@ -301,8 +304,7 @@ public class InputStreamMessageElement extends MessageElement {
 
             // handle the final buffer.
             if (atEOF) {
-                byte[] anotherBuffer = new byte[offsetInThisBuffer];
-
+                final byte[] anotherBuffer = new byte[offsetInThisBuffer];
                 System.arraycopy(nextBuffer, 0, anotherBuffer, 0, offsetInThisBuffer);
                 nextBuffer = anotherBuffer;
             }

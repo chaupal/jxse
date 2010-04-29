@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous;
 
 import net.jxta.endpoint.EndpointAddress;
@@ -66,21 +67,16 @@ import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

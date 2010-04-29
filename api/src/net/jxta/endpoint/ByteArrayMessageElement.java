@@ -191,18 +191,19 @@ public class ByteArrayMessageElement extends MessageElement {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
-        if (this == target) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (target instanceof MessageElement) {
-            if (!super.equals(target)) {
+        if (obj instanceof MessageElement) {
+            if (!super.equals(obj)) {
                 return false;
             }
 
-            if (target instanceof ByteArrayMessageElement) {
-                ByteArrayMessageElement likeMe = (ByteArrayMessageElement) target;
+            if (obj instanceof ByteArrayMessageElement) {
+
+                final ByteArrayMessageElement likeMe = (ByteArrayMessageElement) obj;
 
                 synchronized (this) {
                     synchronized (likeMe) {
@@ -223,10 +224,11 @@ public class ByteArrayMessageElement extends MessageElement {
                 // have to do a slow stream comparison.
                 // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
                 try {
-                    MessageElement likeMe = (MessageElement) target;
 
-                    InputStream myStream = getStream();
-                    InputStream itsStream = likeMe.getStream();
+                    final MessageElement likeMe = (MessageElement) obj;
+
+                    final InputStream myStream = getStream();
+                    final InputStream itsStream = likeMe.getStream();
 
                     int mine;
                     int its;
@@ -260,12 +262,13 @@ public class ByteArrayMessageElement extends MessageElement {
      */
     @Override
     public synchronized int hashCode() {
-        Checksum crc = new CRC32();
 
+        final Checksum crc = new CRC32();
         crc.update(b, offset, len);
-        int dataHash = (int) crc.getValue();
 
-        int result = super.hashCode() * 6037 + // a prime
+        final int dataHash = (int) crc.getValue();
+
+        final int result = super.hashCode() * 6037 + // a prime
                 dataHash;
 
         return (0 != result) ? result : 1;
@@ -297,7 +300,7 @@ public class ByteArrayMessageElement extends MessageElement {
             LOG.finer("creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
         }
 
-        String charset = type.getParameter("charset");
+        final String charset = type.getParameter("charset");
 
         try {
             if (null == charset) {
@@ -334,7 +337,7 @@ public class ByteArrayMessageElement extends MessageElement {
             return b;
         }
 
-        byte[] result = new byte[len];
+        final byte[] result = new byte[len];
 
         System.arraycopy(b, offset, result, 0, len);
 

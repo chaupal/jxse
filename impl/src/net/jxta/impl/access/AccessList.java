@@ -72,7 +72,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -80,7 +79,6 @@ import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -103,8 +101,8 @@ public class AccessList {
     
     protected final Map<ID, Entry> accessMap = new HashMap<ID, Entry>();
     
-    String description = null;
-    boolean grantAll = false;
+    private String description = null;
+    private boolean grantAll = false;
     
     /**
      * Default Constructor
@@ -354,10 +352,10 @@ public class AccessList {
         Element e;
 
         if (grantAll) {
-            e = adv.createElement(GRANTALL_TAG, Boolean.valueOf(grantAll).toString());
+            e = adv.createElement(GRANTALL_TAG, Boolean.toString(grantAll));
             adv.appendChild(e);
         }
-        
+
         if (description != null) {
             e = adv.createElement(DESCRIPTION_TAG, description);
             adv.appendChild(e);
@@ -366,7 +364,7 @@ public class AccessList {
         for (Object o : accessMap.values()) {
             Entry entry = (Entry) o;
 
-            if (entry.id == null && entry.name == null) {
+            if (entry.id == null || entry.name == null) {
                 // skip bad entries
                 continue;
             }
@@ -452,19 +450,18 @@ public class AccessList {
     @Override
     public String toString() {
 
-        try {
+//        try {
             XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
-
             return doc.toString();
-        } catch (Throwable e) {
-            if (e instanceof Error) {
-                throw (Error) e;
-            } else if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new UndeclaredThrowableException(e);
-            }
-        }
+//        } catch (Throwable e) {
+//            if (e instanceof Error) {
+//                throw (Error) e;
+//            } else if (e instanceof RuntimeException) {
+//                throw (RuntimeException) e;
+//            } else {
+//                throw new UndeclaredThrowableException(e);
+//            }
+//        }
     }
 
     /**

@@ -56,16 +56,12 @@
 
 package net.jxta.impl.util.pipe.reliable;
 
-
 import net.jxta.endpoint.Message;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.OutputPipe;
-
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 public class OutgoingPipeAdaptor implements Outgoing {
     
@@ -76,9 +72,8 @@ public class OutgoingPipeAdaptor implements Outgoing {
     private long lastAccessed = 0;
     
     public OutgoingPipeAdaptor(OutputPipe pipe, int wsize) {
-        if (pipe == null) {
-            throw new IllegalArgumentException("pipe cannot be null.");
-        }
+
+        if (pipe == null) throw new IllegalArgumentException("pipe cannot be null.");
         
         this.pipe = pipe;
 

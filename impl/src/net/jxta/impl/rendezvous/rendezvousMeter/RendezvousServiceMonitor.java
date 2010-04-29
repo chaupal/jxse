@@ -56,18 +56,14 @@
 
 package net.jxta.impl.rendezvous.rendezvousMeter;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.meter.GenericServiceMonitor;
 import net.jxta.impl.meter.MetricUtilities;
 import net.jxta.meter.ServiceMetric;
 import net.jxta.meter.ServiceMonitorFilter;
 import net.jxta.peer.PeerID;
-
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
-
 
 /**
  * The Service Monitor for the standard Rendezvous Service

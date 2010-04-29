@@ -66,7 +66,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
@@ -119,7 +118,7 @@ public class TcpConnection implements Runnable {
     /**
      *  only one outgoing message per connection.
      */
-    private transient Object writeLock = new String("Write Lock");
+    private transient Object writeLock = "Write Lock";
     private final static Logger LOG = Logger.getLogger(TcpConnection.class.getName());
     private MessageListener listener = null;
     private final static MimeMediaType appMsg = new MimeMediaType("application/x-jxta-msg");
@@ -143,14 +142,14 @@ public class TcpConnection implements Runnable {
         Logging.logCheckedInfo(LOG, "New TCP Connection to : " + dstAddress);
         
         String tmp = destaddr.getProtocolAddress();
-        int portIndex = tmp.lastIndexOf(":");
+        int portIndex = tmp.lastIndexOf(':');
 
         if (portIndex == -1) {
             throw new IllegalArgumentException("Invalid EndpointAddress (port # missing) ");
         }
         
         try {
-            port = Integer.valueOf(tmp.substring(portIndex + 1)).intValue();
+            port = Integer.valueOf(tmp.substring(portIndex + 1));
         } catch (NumberFormatException caught) {
             throw new IllegalArgumentException("Invalid EndpointAddress (port # invalid) ");
         }
@@ -364,17 +363,18 @@ public class TcpConnection implements Runnable {
      *@return         Description of the Return Value
      */
     @Override
-    public boolean equals(Object target) {
-        if (this == target) {
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
             return true;
         }
         
-        if (null == target) {
+        if (null == obj) {
             return false;
         }
         
-        if (target instanceof TcpConnection) {
-            TcpConnection likeMe = (TcpConnection) target;
+        if (obj instanceof TcpConnection) {
+            TcpConnection likeMe = (TcpConnection) obj;
             
             return getDestinationAddress().equals(likeMe.getDestinationAddress())
                     && getDestinationPeerID().equals(likeMe.getDestinationPeerID());

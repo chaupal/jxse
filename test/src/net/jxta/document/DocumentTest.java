@@ -56,22 +56,23 @@
 
 package net.jxta.document;
 
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Enumeration;
 import java.util.Collections;
 import java.util.List;
 import java.security.ProviderException;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.jxta.document.Element;
-
 import net.jxta.impl.document.LiteXMLDocument;
-import net.jxta.impl.document.LiteXMLElement;
 import net.jxta.impl.document.PlainTextDocument;
-
 
 public final class DocumentTest extends TestCase {
        
@@ -197,8 +198,7 @@ public final class DocumentTest extends TestCase {
             
             if (type.getSubtype().equalsIgnoreCase("XML")) {
                 try {
-                    TextElement testElement5 = doc.createElement("really wrong and long", "1");
-                    
+                    //TextElement testElement5 = doc.createElement("really wrong and long", "1");
                     fail("Tag names with spaces should be disallowed");
                 } catch (Exception failed) {// that's ok
                 }

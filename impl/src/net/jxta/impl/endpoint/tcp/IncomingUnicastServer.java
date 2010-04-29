@@ -53,13 +53,13 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.tcp;
 
 import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.logging.Logging;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetAddress;
@@ -76,7 +76,6 @@ import java.nio.channels.spi.SelectorProvider;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -196,7 +195,7 @@ public class IncomingUnicastServer implements Runnable {
      *
      * @return the local socket address
      */
-    InetSocketAddress getLocalSocketAddress() {
+    protected InetSocketAddress getLocalSocketAddress() {
         ServerSocket localSocket = serverSocket;
 
         if (null != localSocket) {
@@ -211,7 +210,7 @@ public class IncomingUnicastServer implements Runnable {
      *
      * @return starting port range
      */
-    int getStartPort() {
+    public int getStartPort() {
         return serverBindStartLocalPort;
     }
 
@@ -220,7 +219,7 @@ public class IncomingUnicastServer implements Runnable {
      *
      * @return the ending port range
      */
-    int getEndPort() {
+    public int getEndPort() {
         return serverBindEndLocalPort;
     }
 
@@ -239,10 +238,10 @@ public class IncomingUnicastServer implements Runnable {
                     // Open the channel if not already open.
                     if ((null == serverSocChannel) || !serverSocChannel.isOpen()) {
 
-                        serverSocChannel = null;
+                        serverSocChannel = openServerSocket(acceptSelector);
                         serverSocket = null;
 
-                        if (null == (serverSocChannel = openServerSocket(acceptSelector))) {
+                        if ( null == serverSocChannel ) {
                             
                             Logging.logCheckedWarning(LOG, "Failed to open Server Channel");
                             break;
@@ -395,7 +394,7 @@ public class IncomingUnicastServer implements Runnable {
 
         private final SocketChannel socketChannel;
         private final TcpTransport transport;
-        TcpMessenger newMessenger;
+        private TcpMessenger newMessenger;
 
         MessengerBuilder(TcpTransport transport, SocketChannel socketChannel) {
             this.socketChannel = socketChannel;

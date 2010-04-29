@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous;
 
 import net.jxta.document.MimeMediaType;
@@ -75,13 +76,11 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.PeerAdvertisement;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -189,7 +188,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * @return 0 if successful
      * @param arg argument params
      */
-    protected int startApp(String[] arg) {
+    protected int startApp(String[] args) {
 
         // All propagated messages originated by RendezvousService.propagate are handled by the
         // rendezvous service before being delivered to their local recipient.
@@ -581,8 +580,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
      * @return endpointAddress for this peer id.
      */
     protected static EndpointAddress mkAddress(ID destPeer, String serv, String parm) {
-        EndpointAddress addr = new EndpointAddress(RDV_MSG_NAMESPACE_NAME, destPeer.getUniqueValue().toString(), serv, parm);
-        return addr;
+        return new EndpointAddress(RDV_MSG_NAMESPACE_NAME, destPeer.getUniqueValue().toString(), serv, parm);
     }
 
     /**

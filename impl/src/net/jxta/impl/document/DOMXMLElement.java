@@ -56,18 +56,15 @@
 
 package net.jxta.impl.document;
 
-
 import net.jxta.document.Attribute;
 import net.jxta.document.XMLElement;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-
 
 /**
  * This class represent an element of an XML document. XML Documents are formed
@@ -244,6 +241,7 @@ public class DOMXMLElement implements XMLElement<DOMXMLElement> {
      */
     @Override
     public boolean equals(Object element) {
+
         if (this == element) {
             return true;
         }
@@ -257,23 +255,28 @@ public class DOMXMLElement implements XMLElement<DOMXMLElement> {
         Node me = getAssocNode();
         Node it = xmlElement.getAssocNode();
 
-        if (me == it) {
+        if (me == it)
             return true;
-        }
-
-        if (me.getOwnerDocument() != it.getOwnerDocument()) {
+        
+        if (me.getOwnerDocument() != it.getOwnerDocument())
             return false;
-        }
-
-        if (!getName().equals(xmlElement.getName())) {
+        
+        if (!getName().equals(xmlElement.getName()))
             return false;
-        }
-
+        
         String val1 = getTextValue();
         String val2 = xmlElement.getTextValue();
 
         return (null == val1) && (null == val2) || null != val1 && null != val2 && val1.equals(val2);
 
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + (this.root != null ? this.root.hashCode() : 0);
+        hash = 97 * hash + (this.domNode != null ? this.domNode.hashCode() : 0);
+        return hash;
     }
 
     /**
@@ -361,7 +364,8 @@ public class DOMXMLElement implements XMLElement<DOMXMLElement> {
      * @return Attribute the attributes matching the given name.
      */
     public Attribute getAttribute(String name) {
-        NamedNodeMap nmap = (getAssocNode()).getAttributes();
+
+        NamedNodeMap nmap = getAssocNode().getAttributes();
 
         if (nmap == null) {
             return null;

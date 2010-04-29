@@ -289,7 +289,7 @@ public class CmTest extends TestCase {
         long t0 = System.currentTimeMillis();
         List<net.jxta.protocol.SrdiMessage.Entry> entries = cm.getEntries(dirname[0], false);
 
-        assertTrue("empty keys", entries.size() != 0);
+        assertTrue("empty keys", !entries.isEmpty());
         System.out.println(
                 "getEntries retrieved " + entries.size() + " peers in: " + (System.currentTimeMillis() - t0) / 1000 + " seconds");
 
@@ -315,7 +315,7 @@ public class CmTest extends TestCase {
         System.out.println("Testing Query for non-existent records");
 		results = cm.getRecords(dirname[1], threshold, expirations);
         
-        assertTrue("cm.getRecords(dirname[1]) should not return results", results.size() == 0);
+        assertTrue("cm.getRecords(dirname[1]) should not return results", results.isEmpty());
         System.out.println("End Testing Query for non-existent records");
     }
 
@@ -511,7 +511,7 @@ public class CmTest extends TestCase {
         }
 
         // always start unit test with an empty cm (rm -r .jxta)
-        assertTrue("remove failed for " + searchResults.size(), searchResults.size() == 0);
+        assertTrue("remove failed for " + searchResults.size(), searchResults.isEmpty());
 
         System.out.println(
                 "Completed Creation+Deletion of " + ITERATIONS + " PeerAdvertisements in: "

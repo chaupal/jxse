@@ -53,15 +53,12 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.msgframing;
 
-
-import java.io.*;
-
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import junit.framework.*;
-
-import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
-
 
 public class WelcomeMessageTest extends TestCase {
     

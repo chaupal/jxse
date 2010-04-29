@@ -71,6 +71,8 @@ import java.util.zip.Checksum;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#refimpls-ids-jiuft" target="_blank">JXTA Protocols Specification : UUID ID Format</a>
  */
 public final class IDBytes implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     
     /**
      *  The bytes.
@@ -80,7 +82,7 @@ public final class IDBytes implements Serializable {
     /**
      *  The cached hash value for this object
      */
-    protected transient int cachedHash = 0;
+    private transient int cachedHash = 0;
     
     /**
      *  Constructs a new byte representation. This constructor initializes only
@@ -104,13 +106,13 @@ public final class IDBytes implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
-        if (this == target) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
         
-        if (target instanceof IDBytes) {
-            IDBytes asIDBytes = (IDBytes) target;
+        if (obj instanceof IDBytes) {
+            IDBytes asIDBytes = (IDBytes) obj;
 
             return Arrays.equals(bytes, asIDBytes.bytes);
         } else {

@@ -93,11 +93,11 @@ public class FileDocument implements Document {
      */
     public FileDocument(File file, MimeMediaType type) {
         if (file.isDirectory()) {
-            throw(new IllegalArgumentException("File cannot be a directory"));
+            throw new IllegalArgumentException("File cannot be a directory");
         }
         
         if (!file.exists()) {
-            throw(new IllegalArgumentException("File must exist"));
+            throw new IllegalArgumentException("File must exist");
         }
         
         this.file = file;
@@ -125,8 +125,8 @@ public class FileDocument implements Document {
      */
     private static String getFileExtension(File file) {
         
-        String fileName = file.getName();
-        int idx = fileName.lastIndexOf('.');
+        final String fileName = file.getName();
+        final int idx = fileName.lastIndexOf('.');
 
         if (idx < 0 || idx == fileName.length()) {
             return null;
@@ -153,9 +153,10 @@ public class FileDocument implements Document {
      *  {@inheritDoc}
      **/
     public void sendToStream(OutputStream sink) throws IOException {
-        InputStream source = getStream();
+        
+        final InputStream source = getStream();
+        final byte[] buf = new byte[BUFFER_SIZE];
         int c;
-        byte[] buf = new byte[BUFFER_SIZE];
         
         do {
             c = source.read(buf);

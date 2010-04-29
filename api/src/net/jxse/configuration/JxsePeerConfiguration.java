@@ -71,7 +71,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 
 /**
- *
+ * Implementation of the JXTA peer configuration API
  */
 public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
@@ -114,7 +114,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
     public static final JxsePeerConfiguration getDefaultJxsePeerConfiguration() {
 
         // Preparing return value
-        JxsePeerConfiguration Result = new  JxsePeerConfiguration();
+        final JxsePeerConfiguration Result = new  JxsePeerConfiguration();
 
         Result.HttpConfig = JxseHttpTransportConfiguration.getDefaultHttpTransportConfiguration();
         Result.TcpConfig =  JxseTcpTransportConfiguration.getDefaultTcpTransportConfiguration();
@@ -292,7 +292,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public ConnectionMode getConnectionMode() {
 
-        String Temp = this.getProperty(JXSE_CONNECTION_MODE);
+        final String Temp = this.getProperty(JXSE_CONNECTION_MODE);
 
         if (Temp!=null) {
             return ConnectionMode.valueOf(Temp);
@@ -334,7 +334,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public PeerGroupID getInfrastructureID() {
 
-        String Temp = this.getProperty(JXSE_INFRASTRUCTURE_ID);
+        final String Temp = this.getProperty(JXSE_INFRASTRUCTURE_ID);
 
         if (Temp!=null) {
             return PeerGroupID.create(URI.create(Temp));
@@ -404,7 +404,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public URI getPersistenceLocation() {
 
-        String Temp = this.getProperty(JXSE_LOCAL_STORAGE);
+        final String Temp = this.getProperty(JXSE_LOCAL_STORAGE);
 
         if (Temp!=null) {
             return URI.create(Temp);
@@ -443,7 +443,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public PeerID getPeerID() {
 
-        String Temp = this.getProperty(JXSE_PEER_ID);
+        final String Temp = this.getProperty(JXSE_PEER_ID);
 
         if (Temp!=null) {
             return PeerID.create(URI.create(Temp));
@@ -481,7 +481,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public URI getKeyStoreLocation() {
 
-        String Temp = this.getProperty(JXSE_KEYSTORE_LOCATION);
+        final String Temp = this.getProperty(JXSE_KEYSTORE_LOCATION);
 
         if (Temp!=null) {
             return URI.create(Temp);
@@ -520,7 +520,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public int getRelayMaxClients() {
 
-        String Temp = this.getProperty(JXSE_RELAY_MAX_CLIENT);
+        final String Temp = this.getProperty(JXSE_RELAY_MAX_CLIENT);
 
         if (Temp==null) {
             return -1;
@@ -558,7 +558,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public int getRendezvousMaxClients() {
 
-        String Temp = this.getProperty(JXSE_RENDEZVOUS_MAX_CLIENT);
+        final String Temp = this.getProperty(JXSE_RENDEZVOUS_MAX_CLIENT);
 
         if (Temp==null) {
             return -1;
@@ -701,7 +701,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void addSeedRelay(URI seedURI, int itemNumber) {
 
-        String TempKey = JXSE_SEED_RELAY_URI + "_" + itemNumber;
+        final String TempKey = JXSE_SEED_RELAY_URI + "_" + itemNumber;
 
         if ( (seedURI==null) || (itemNumber<0) ) {
             this.remove(TempKey);
@@ -719,8 +719,8 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public URI getSeedRelay(int itemNumber) {
 
-        String TempKey = JXSE_SEED_RELAY_URI + "_" + itemNumber;
-        String Retrieved = this.getProperty(TempKey);
+        final String TempKey = JXSE_SEED_RELAY_URI + "_" + itemNumber;
+        final String Retrieved = this.getProperty(TempKey);
 
         if (Retrieved==null) {
             return null;
@@ -738,13 +738,13 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public synchronized Map<Integer,URI> getAllSeedRelays() {
 
-        HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
+        final HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
         for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEED_RELAY_URI)) {
 
-                int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEED_RELAY_URI.length()+1));
+                final int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEED_RELAY_URI.length()+1));
                 Result.put(ItemNumber, URI.create(this.getProperty(Key)));
 
             }
@@ -787,7 +787,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void addSeedRendezvous(URI seedURI, int itemNumber) {
 
-        String TempKey = JXSE_SEED_RDV_URI + "_" + itemNumber;
+        final String TempKey = JXSE_SEED_RDV_URI + "_" + itemNumber;
 
         if ( (seedURI==null) || (itemNumber<0) ) {
             this.remove(TempKey);
@@ -805,8 +805,8 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public URI getSeedRendezvous(int itemNumber) {
 
-        String TempKey = JXSE_SEED_RDV_URI + "_" + itemNumber;
-        String Retrieved = this.getProperty(TempKey);
+        final String TempKey = JXSE_SEED_RDV_URI + "_" + itemNumber;
+        final String Retrieved = this.getProperty(TempKey);
 
         if (Retrieved==null) {
             return null;
@@ -824,13 +824,13 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public synchronized Map<Integer,URI> getAllSeedRendezvous() {
 
-        HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
+        final HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
         for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEED_RDV_URI)) {
 
-                int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEED_RDV_URI.length()+1));
+                final int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEED_RDV_URI.length()+1));
                 Result.put(ItemNumber, URI.create(this.getProperty(Key)));
 
             }
@@ -873,7 +873,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void addSeedingRelay(URI seedURI, int itemNumber) {
 
-        String TempKey = JXSE_SEEDING_RELAY_URI + "_" + itemNumber;
+        final String TempKey = JXSE_SEEDING_RELAY_URI + "_" + itemNumber;
 
         if ( (seedURI==null) || (itemNumber<0) ) {
             this.remove(TempKey);
@@ -891,8 +891,8 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public URI getSeedingRelay(int itemNumber) {
 
-        String TempKey = JXSE_SEEDING_RELAY_URI + "_" + itemNumber;
-        String Retrieved = this.getProperty(TempKey);
+        final String TempKey = JXSE_SEEDING_RELAY_URI + "_" + itemNumber;
+        final String Retrieved = this.getProperty(TempKey);
 
         if (Retrieved==null) {
             return null;
@@ -910,13 +910,13 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public synchronized Map<Integer,URI> getAllSeedingRelays() {
 
-        HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
+        final HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
         for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEEDING_RELAY_URI)) {
 
-                int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEEDING_RELAY_URI.length()+1));
+                final int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEEDING_RELAY_URI.length()+1));
                 Result.put(ItemNumber, URI.create(this.getProperty(Key)));
 
             }
@@ -959,7 +959,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public void addSeedingRendezvous(URI seedURI, int itemNumber) {
 
-        String TempKey = JXSE_SEEDING_RDV_URI + "_" + itemNumber;
+        final String TempKey = JXSE_SEEDING_RDV_URI + "_" + itemNumber;
 
         if ( (seedURI==null) || (itemNumber<0) ) {
             this.remove(TempKey);
@@ -977,8 +977,8 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public URI getSeedingRendezvous(int itemNumber) {
 
-        String TempKey = JXSE_SEEDING_RDV_URI + "_" + itemNumber;
-        String Retrieved = this.getProperty(TempKey);
+        final String TempKey = JXSE_SEEDING_RDV_URI + "_" + itemNumber;
+        final String Retrieved = this.getProperty(TempKey);
 
         if (Retrieved==null) {
             return null;
@@ -996,13 +996,13 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      */
     public Map<Integer,URI> getAllSeedingRendezvous() {
 
-        HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
+        final HashMap<Integer,URI> Result = new HashMap<Integer,URI>();
 
         for (String Key : PropertiesUtil.stringPropertyNames(this)) {
 
             if ( Key.startsWith(JXSE_SEEDING_RDV_URI)) {
 
-                int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEEDING_RDV_URI.length()+1));
+                final int ItemNumber = Integer.parseInt(Key.substring(JXSE_SEEDING_RDV_URI.length()+1));
                 Result.put(ItemNumber, URI.create(this.getProperty(Key)));
 
             }
@@ -1058,7 +1058,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
             for (String Item : PropertiesUtil.stringPropertyNames(HttpConfig)) {
 
-                String TempSub = HttpPrefix + Item;
+                final String TempSub = HttpPrefix + Item;
                 this.setProperty(TempSub, HttpConfig.getProperty(Item));
 
             }
@@ -1070,7 +1070,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
             for (String Item : PropertiesUtil.stringPropertyNames(MulticastConfig)) {
 
-                String TempSub = MulticastPrefix + Item;
+                final String TempSub = MulticastPrefix + Item;
                 this.setProperty(TempSub, MulticastConfig.getProperty(Item));
 
             }
@@ -1082,7 +1082,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
             for (String Item : PropertiesUtil.stringPropertyNames(TcpConfig)) {
 
-                String TempSub = TcpPrefix + Item;
+                final String TempSub = TcpPrefix + Item;
                 this.setProperty(TempSub, TcpConfig.getProperty(Item));
 
             }

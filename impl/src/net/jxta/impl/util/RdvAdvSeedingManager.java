@@ -63,14 +63,12 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -86,28 +84,28 @@ public class RdvAdvSeedingManager extends ACLSeedingManager {
     /**
      *  The minimum frequence at which we will update our seed lists.
      */
-    final static long MIN_REFRESH_INTERVAL = 30 * TimeUtils.ASECOND;
+    public final static long MIN_REFRESH_INTERVAL = 30 * TimeUtils.ASECOND;
     
     /**
      *  Group who's services we will utilize.
      */
-    final PeerGroup group;
+    private final PeerGroup group;
     
     /**
      *  The identifier which we use to distinguish our RdvAdvertisements.
      */
-    final String serviceName;
+    private final String serviceName;
     
     /**
      *  The absolute time in milliseconds at which we may sen our next remote
      *  discovery.
      */
-    long nextRemoteDiscovery = 0;
+    private long nextRemoteDiscovery = 0;
     
     /**
      *  The Route Advertisements we have discovered.
      */
-    final List<RouteAdvertisement> discoveredRoutes = new ArrayList<RouteAdvertisement>();
+    private final List<RouteAdvertisement> discoveredRoutes = new ArrayList<RouteAdvertisement>();
     
     /**
      * Creates a new instance of RdvAdvSeedingManager

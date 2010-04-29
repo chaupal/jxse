@@ -56,7 +56,6 @@
 
 package net.jxta.impl.membership.pse;
 
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;
@@ -88,9 +87,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.credential.Credential;
 import net.jxta.credential.CredentialPCLSupport;
 import net.jxta.document.Attributable;
@@ -111,7 +108,6 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.service.Service;
-
 
 /**
  * This class provides the sub-class of Credential which is associated with the
@@ -263,14 +259,14 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
+    public boolean equals(Object obj) {
 
-        if (this == target) {
+        if (this == obj) {
             return true;
         }
 
-        if (target instanceof PSECredential) {
-            PSECredential asCred = (PSECredential) target;
+        if (obj instanceof PSECredential) {
+            PSECredential asCred = (PSECredential) obj;
 
             boolean result = peerID.equals(asCred.peerID)
                     && source.group.getPeerGroupID().equals(asCred.source.group.getPeerGroupID());
@@ -422,7 +418,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * 
      * @param valid {@code true} if it is valid, {@code false} otherwise
      */
-    void setValid(boolean valid) {
+    public void setValid(boolean valid) {
         boolean oldValid = isValid();
 
         this.valid = valid;
@@ -450,13 +446,12 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      * {@inheritDoc}
      */
     public StructuredDocument getDocument(MimeMediaType encodeAs) throws Exception {
-        if (!isValid()) {
-            throw new javax.security.cert.CertificateException("Credential is not valid. Cannot generate document.");
-        }
 
-        if (!local) {
+        if (!isValid())
+            throw new javax.security.cert.CertificateException("Credential is not valid. Cannot generate document.");
+        
+        if (!local) 
             throw new IllegalStateException("This credential is not a local credential and document cannot be created.");
-        }
 
         StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(encodeAs, "jxta:Cred");
 
@@ -512,7 +507,9 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
             e = doc.createElement("Signature", PSEUtils.base64Encode(sig));
             doc.appendChild(e);
-        } catch (java.io.UnsupportedEncodingException never) {// UTF-8 is always available
+        } catch (java.io.UnsupportedEncodingException never) {
+            // UTF-8 is always available
+            Logging.logCheckedSevere(LOG, "UTF-8 not available: ", never.toString());
         }
 
         if (doc instanceof Attributable) {
@@ -814,7 +811,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
         String doctype = doc.getName();
 
-        if (!doctype.equals("jxta:PSECred") && !typedoctype.equals("jxta:PSECred")) {
+        if (!"jxta:PSECred".equals(doctype) && !"jxta:PSECred".equals(typedoctype)) {
             throw new IllegalArgumentException(
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
         }

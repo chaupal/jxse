@@ -340,7 +340,7 @@ public class ModuleLifecycleManager<T extends Module> {
                     break;
                 default:
                     // All other states are assumed to require direct equality
-                    if (tState == goalState) {
+                    if (tState.compareTo(goalState) == 0) {
                         result++;
                     }
                     break;
@@ -379,15 +379,16 @@ public class ModuleLifecycleManager<T extends Module> {
      *
      * @param newState new goal state
      */
-    private void setState(ModuleLifecycleState newState) {
-        synchronized(this) {
-            if (newState == state) {
-                // Nothing to do
-                return;
-            }
-            state = newState;
+    private synchronized void setState(ModuleLifecycleState newState) {
+
+        if (newState.compareTo(state) == 0) {
+            // Nothing to do
+            return;
         }
+
+        state = newState;
         checkTrackers();
+
     }
 
     /**
@@ -427,8 +428,8 @@ public class ModuleLifecycleManager<T extends Module> {
                 checkTrackersStop();
                 break;
             default:
-                throw(new IllegalStateException(
-                        "Unsupported goal state: " + goalState));
+                throw new IllegalStateException(
+                        "Unsupported goal state: " + goalState);
         }
 
         // Release processing access
@@ -499,7 +500,7 @@ public class ModuleLifecycleManager<T extends Module> {
             }
 
             // Check to see if we're done
-            if (stalled.size() == 0) {
+            if (stalled.isEmpty()) {
                 break;
             }
 

@@ -403,12 +403,13 @@ public class MonitorResources {
     }
         
     private static class ServiceResource {
-        String serviceMonitorClassName;
-        Class serviceMonitorClass;
-        String serviceMonitorFilterClassName;
-        Class serviceMonitorFilterClass;
-        String serviceMetricClassName;
-        Class serviceMetricClass;
+
+        private String serviceMonitorClassName;
+        private Class serviceMonitorClass;
+        private String serviceMonitorFilterClassName;
+        private Class serviceMonitorFilterClass;
+        private String serviceMetricClassName;
+        private Class serviceMetricClass;
             
         ServiceResource(ModuleImplAdvertisement moduleImplAdvertisement) throws JxtaException {
             try {

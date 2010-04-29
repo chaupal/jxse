@@ -80,6 +80,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -546,7 +547,7 @@ final class HttpClientMessenger extends BlockingMessenger {
         /**
          *  If <tt>true</tt> then this poller is stopped or stopping.
          */
-        private volatile boolean stopped = false;
+        private AtomicBoolean stopped = new AtomicBoolean(false);
         
         /**
          *  The thread that does the work.
@@ -589,11 +590,11 @@ final class HttpClientMessenger extends BlockingMessenger {
         
         protected void stop() {
 
-            if (stopped) return;
+            if (stopped.get()) return;
             
             Logging.logCheckedInfo(LOG, "Stop polling for ", senderURL);
             
-            stopped = true;
+            stopped.set(true);
             
             // Here, we are forced to abandon this object open. Because we could
             // get blocked forever trying to close it. It will rot away after
@@ -617,8 +618,9 @@ final class HttpClientMessenger extends BlockingMessenger {
          */
         protected boolean isStopped() {
 
-            Logging.logCheckedFine(LOG, this, " ", senderURL, " --> ", (stopped ? "stopped" : "running"));
-            return stopped;
+            Logging.logCheckedFine(LOG, this, " ", senderURL, " --> ", (stopped.get() ? "stopped" : "running"));
+            
+            return stopped.get();
 
         }
         
@@ -851,6 +853,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                             inputStream.close();
                         } catch (IOException ignored) {
                             //ignored
+                            Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
                         }
                     }
                 }

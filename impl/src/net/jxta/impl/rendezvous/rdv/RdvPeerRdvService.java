@@ -101,7 +101,6 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -173,7 +172,9 @@ public class RdvPeerRdvService extends StdRendezVousService {
                 if (null != configDoc) {
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
                 }
-            } catch (java.util.NoSuchElementException failed) {// ignored
+            } catch (java.util.NoSuchElementException failed) {
+                // ignored
+                Logging.logCheckedFine(LOG, "Ignored: ", failed.toString());
             }
         }
 

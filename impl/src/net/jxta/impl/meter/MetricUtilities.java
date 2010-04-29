@@ -56,17 +56,15 @@
 
 package net.jxta.impl.meter;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
+public final class MetricUtilities {
 
-public class MetricUtilities {
     private static PeerID unknownPeer = (PeerID) ID.create(URI.create("urn:jxta:uuid-DEAF03"));
     private static PeerID badPeer = (PeerID) ID.create(URI.create("urn:jxta:uuid-BADBAD03"));
 
@@ -97,4 +95,11 @@ public class MetricUtilities {
         }
         return peerId;
     }
+
+    /**
+     * Default constructor
+     */
+    private MetricUtilities() {
+    }
+    
 }

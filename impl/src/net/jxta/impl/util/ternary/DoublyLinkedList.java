@@ -177,9 +177,12 @@ public class DoublyLinkedList {
 
     protected class DLLNode {
 
+        private DLLNode() {};
+
         protected DLLNode nextNode;
         protected DLLNode previousNode;
         protected Object data;
+        
     }
 
     public class DLLIterator implements Iterator<Object> {

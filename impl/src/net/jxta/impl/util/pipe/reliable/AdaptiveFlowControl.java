@@ -56,13 +56,12 @@
 
 package net.jxta.impl.util.pipe.reliable;
 
-
+import java.util.concurrent.atomic.AtomicInteger;
 import net.jxta.impl.util.TimeUtils;
-
 
 public class AdaptiveFlowControl extends FlowControl {
 
-    static final int DEFAULT_RWINDOW = 2;
+    private static final int DEFAULT_RWINDOW = 2;
 
     /**
      * global state.
@@ -83,7 +82,7 @@ public class AdaptiveFlowControl extends FlowControl {
     /**
      * Current recommended rwindow.
      */
-    private volatile int rwindow = 0;
+    private AtomicInteger rwindow = new AtomicInteger(0);
 
     /**
      * state of the currentAck being processed
@@ -120,7 +119,7 @@ public class AdaptiveFlowControl extends FlowControl {
      */
     public AdaptiveFlowControl(int rwindow) {
         this.currACKTime = TimeUtils.timeNow();
-        this.rwindow = rwindow;
+        this.rwindow.set(rwindow);
     }
 
     /**
@@ -128,7 +127,7 @@ public class AdaptiveFlowControl extends FlowControl {
      */
     @Override
     public int getRwindow() {
-        return rwindow;
+        return rwindow.get();
     }
 
     /**
@@ -176,8 +175,8 @@ public class AdaptiveFlowControl extends FlowControl {
         numberMissing++;
     }
 
-    boolean fastMode = true;
-    int takeAchance = 0;
+    private boolean fastMode = true;
+    private int takeAchance = 0;
 
     /**
      * {@inheritDoc}
@@ -231,7 +230,7 @@ public class AdaptiveFlowControl extends FlowControl {
         // we keep all the bandwidth utilized. Beyond that point we have
         // it just serves to create congestion.
 
-        int oldSize = rwindow;
+        int oldSize = rwindow.get();
 
         if (TimeUtils.toRelativeTimeMillis(nextRwinChange) < 0) {
             if (maxHoleRun < 4) {
@@ -285,7 +284,7 @@ public class AdaptiveFlowControl extends FlowControl {
                             // idea of the normal RTT for next time. But we
                             // will drop rwindow tension for now.
 
-                            rwindow--;
+                            rwindow.decrementAndGet();
                             tension = MAX_TENSION;
 
                             // The first time this happens, it's the end of fast
@@ -312,7 +311,7 @@ public class AdaptiveFlowControl extends FlowControl {
 
                     if (tension < MAX_TENSION) {
                         tension++;
-                        rwindow++;
+                        rwindow.incrementAndGet();
                     }
 
                 } else {
@@ -329,7 +328,7 @@ public class AdaptiveFlowControl extends FlowControl {
                 // rwindow is shifted towards a smaller
                 // rwindow.
 
-                rwindow -= (MAX_TENSION + 1);
+                rwindow.addAndGet(-(MAX_TENSION + 1));
                 prevAveRTT = aveRTT;
                 tension = MAX_TENSION;
 
@@ -338,15 +337,15 @@ public class AdaptiveFlowControl extends FlowControl {
                 fastMode = false;
             }
 
-            if (rwindow > rQSize) {
-                rwindow = rQSize;
+            if (rwindow.get() > rQSize) {
+                rwindow.set(rQSize);
             }
 
-            if (rwindow < 2) {
-                rwindow = 2;
+            if (rwindow.get() < 2) {
+                rwindow.set(2);
             }
 
-            if (oldSize != rwindow) {
+            if (oldSize != rwindow.get()) {
                 if (fastMode && (tension < MAX_TENSION)) {
                     nextRwinChange = TimeUtils.toAbsoluteTimeMillis(lastRTT / 10);
                 } else {
@@ -355,6 +354,6 @@ public class AdaptiveFlowControl extends FlowControl {
             }
         }
 
-        return rwindow;
+        return rwindow.get();
     }
 }

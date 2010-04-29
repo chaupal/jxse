@@ -119,7 +119,8 @@ public class LimitedRangeWalk extends RdvWalk {
      * @param msg the Message which must contain the LimitedRangeRdvMsg.
      * @return The LimitedRangeRdvMsg from the message or {@code null}.
      */
-    static LimitedRangeRdvMsg getRdvMessage(Message msg) {
+    public static LimitedRangeRdvMsg getRdvMessage(Message msg) {
+
         MessageElement el = msg.getMessageElement("jxta", ELEMENTNAME);
 
         if (el == null) {
@@ -162,7 +163,7 @@ public class LimitedRangeWalk extends RdvWalk {
      *
      * @return The rendezvous peer PeerView used by this walk.
      */
-    PeerView getPeerView() {
+    public PeerView getPeerView() {
         return rpv;
     }
 
@@ -171,7 +172,7 @@ public class LimitedRangeWalk extends RdvWalk {
      *
      * @return the Service Name used by listener of this walk.
      */
-    String getWalkServiceName() {
+    public String getWalkServiceName() {
         return walkSvcName;
     }
 
@@ -180,7 +181,7 @@ public class LimitedRangeWalk extends RdvWalk {
      *
      * @return the Service Param used by listener of this walk.
      */
-    String getWalkServiceParam() {
+    public String getWalkServiceParam() {
         return walkSvcParam;
     }
 

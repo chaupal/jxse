@@ -56,25 +56,35 @@
 
 package net.jxta.impl.endpoint.tls;
 
-
+import java.util.logging.Logger;
 import net.jxta.document.MimeMediaType;
 
+public final class JTlsDefs {
 
-public class JTlsDefs {
+    /**
+     * Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(JTlsDefs.class.getName());
+
     // Until we decide otherwise, the tls is *by definition* handling
     // peerID addressed messages.
-    static String tlsPName = "jxtatls";
-    
-    static final String TLSNameSpace = "jxtatls"; // our name space
-      
-    static final String ServiceName = "TlsTransport";
+    public static String tlsPName = "jxtatls";
+    public static final String TLSNameSpace = "jxtatls"; // our name space
+    public static final String ServiceName = "TlsTransport";
 
-    static final int FAKEPORT = 1376911; // for TLS hashing only
+    public static final int FAKEPORT = 1376911; // for TLS hashing only
   
-    static final String ACKKEY = "TLSACK";
-    static final String RETR = "MARKRetr";
+    public static final String ACKKEY = "TLSACK";
+    public static final String RETR = "MARKRetr";
 
-    static final MimeMediaType MTYPE = new MimeMediaType("application/x-jxta-msg");
-    static final MimeMediaType BLOCKS = new MimeMediaType("application/x-jxta-tls-block");
-    static final MimeMediaType ACKS = new MimeMediaType("application/x-jxta-tls-ack");
+    public static final MimeMediaType MTYPE = new MimeMediaType("application/x-jxta-msg");
+    public static final MimeMediaType BLOCKS = new MimeMediaType("application/x-jxta-tls-block");
+    public static final MimeMediaType ACKS = new MimeMediaType("application/x-jxta-tls-ack");
+
+    /**
+     * Default constructor
+     */
+    private JTlsDefs() {
+    }
+
 }

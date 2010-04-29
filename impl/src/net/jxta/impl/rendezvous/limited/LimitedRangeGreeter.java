@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.rendezvous.limited;
 
 import net.jxta.endpoint.EndpointAddress;
@@ -63,9 +64,7 @@ import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvGreeter;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.logging.Logging;
-
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

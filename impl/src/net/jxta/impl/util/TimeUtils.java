@@ -55,6 +55,7 @@
  */
 package net.jxta.impl.util;
 
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Utilities for manipulating absolute and relative times and for accelerating
@@ -202,17 +203,17 @@ public final class TimeUtils {
      * current time is used and allows modules which use timeutils to be tested
      * through long (simulated) periods of time passing.
      */
-    static volatile long TIMEWARP = 0;
+    public static AtomicLong TIMEWARP = new AtomicLong(0);
 
     /**
      * Absolute time in millis at which we began timewarping.
      */
-    static long WARPBEGAN = 0;
+    public static long WARPBEGAN = 0;
 
     /**
      * The rate at which time is warped using the auto-warper.
      */
-    static double WARPFACTOR = 1.0;
+    public static double WARPFACTOR = 1.0;
 
     /**
      * Don't let anyone instantiate this class.
@@ -240,10 +241,10 @@ public final class TimeUtils {
 
             long dialation = (long) (elapsed * WARPFACTOR);
 
-            TIMEWARP += (dialation - elapsed);
+            TIMEWARP.set(TIMEWARP.get() + (dialation - elapsed));
         }
 
-        return now + TIMEWARP;
+        return now + TIMEWARP.get();
     }
 
     /**
@@ -380,7 +381,7 @@ public final class TimeUtils {
             throw new IllegalStateException("auto time warping already initialized at warp factor " + WARPFACTOR);
         }
 
-        TIMEWARP += advanceby;
+        TIMEWARP.set(TIMEWARP.get() + advanceby);
     }
 
     /**

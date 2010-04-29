@@ -120,7 +120,7 @@ public class ResolverServiceInterface implements ResolverService {
      *
      *  <p/>Does nothing in the interface object.
      */
-    public int startApp(String[] arg) {
+    public int startApp(String[] args) {
         return Module.START_OK;
     }
     

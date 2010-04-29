@@ -108,9 +108,9 @@ public class RendezvousLoad extends TestCase {
     }
 
     /**
-     *  Description of the Method
+     * Description of the Method
      *
-     *@exception  Exception
+     * @exception  Exception
      */
     @Override
     protected void finalize() throws Exception {}

@@ -56,9 +56,8 @@
 
 package net.jxta.impl.id.binaryID;
 
-
 import java.util.logging.Logger;
-
+import net.jxta.platform.ModuleSpecID;
 
 /**
  * A ModuleSpecID uniquely identifies a particular network behaviour
@@ -105,16 +104,16 @@ import java.util.logging.Logger;
  * @see net.jxta.document.Advertisement
  */
 
-public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
+public final class ModuleSpecBinaryID extends ModuleSpecID {
 
     /**
-     * Log4J categorgy
+     * Log categorgy
      */
     private final static transient Logger LOG = Logger.getLogger(ModuleSpecBinaryID.class.getName());
-
-    protected BinaryID classID;
-    protected BinaryID baseClassID;
-    protected BinaryID specID;
+    
+    private BinaryID classID;
+    private BinaryID baseClassID;
+    private BinaryID specID;
 
     /**
      * Constructor. Used only internally.
@@ -127,8 +126,6 @@ public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
         classID = new BinaryID(BinaryID.flagModuleClassID);
         baseClassID = new BinaryID(BinaryID.flagModuleClassID);
     }
-
-    ;
 
     /**
      * Constructor.
@@ -184,32 +181,32 @@ public final class ModuleSpecBinaryID extends net.jxta.platform.ModuleSpecID {
      }
      */
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object target) {
-        if (this == target) {
-            return true;
-        }
-        
-        if (!(target instanceof ModuleSpecBinaryID)) {
-            return false;
-        }
-        
-        ModuleSpecBinaryID targetObj = (ModuleSpecBinaryID) target;
-        
-        return classID.equals(targetObj.getClassID()) && baseClassID.equals(targetObj.getBaseClassID())
-                && specID.equals(targetObj.getSpecID());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return getUniqueValue().hashCode();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//
+//        if (!(obj instanceof ModuleSpecBinaryID)) {
+//            return false;
+//        }
+//
+//        ModuleSpecBinaryID targetObj = (ModuleSpecBinaryID) obj;
+//
+//        return classID.equals(targetObj.getClassID()) && baseClassID.equals(targetObj.getBaseClassID())
+//                && specID.equals(targetObj.getSpecID());
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public int hashCode() {
+//        return getUniqueValue().hashCode();
+//    }
 
     /**
      * {@inheritDoc}

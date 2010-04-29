@@ -228,7 +228,7 @@ public class Util {
                 w = (byte) '=';
             }
             if (end < 3) {
-                sb.append("" + (char) u + (char) v + (char) w + (char) x);
+                sb.append((char) u + (char) v + (char) w + (char) x);
             }
             k += 4;
         }

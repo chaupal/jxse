@@ -233,21 +233,21 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
      * same endpoint addresses and thee same number of hops and the same
      * endpoint addresses for each hop.
      *
-     * @param target the route to compare against
+     * @param obj the route to compare against
      * @return boolean true if the route is equal to this route otherwise false
      */
     @Override
-    public boolean equals(Object target) {
+    public boolean equals(Object obj) {
 
-        if (this == target) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(target instanceof RouteAdvertisement)) {
+        if (!(obj instanceof RouteAdvertisement)) {
             return false;
         }
 
-        RouteAdvertisement route = (RouteAdvertisement) target;
+        RouteAdvertisement route = (RouteAdvertisement) obj;
 
         // check the destination
         if (!dest.equals(route.getDest())) {
@@ -776,7 +776,8 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
         if (!hops.isEmpty()) {
             lastHop = hops.get(hops.size() - 1);
         }
-        hops = (route.cloneOnlyPIDs()).getVectorHops();
+
+        hops = route.cloneOnlyPIDs().getVectorHops();
 
         // remove cycle from the route
         for (int i = 0; i < hops.size(); i++) {
@@ -808,7 +809,7 @@ public abstract class RouteAdvertisement extends ExtendableAdvertisement impleme
             }
         }
 
-        if (lastHop != null && newHops.size() > 0) {
+        if (lastHop != null && newHops.isEmpty()) {
             newHops.set(newHops.size() - 1, lastHop);
         }
 

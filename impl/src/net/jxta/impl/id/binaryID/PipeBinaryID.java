@@ -79,7 +79,7 @@ public final class PipeBinaryID extends net.jxta.pipe.PipeID {
     /**
      * The id data
      */
-    protected String id;
+    private String id;
 
     /**
      * Used only internally
@@ -127,25 +127,25 @@ public final class PipeBinaryID extends net.jxta.pipe.PipeID {
         id = BinaryIDFactory.newBinaryID(BinaryID.flagPipeID, data, lengthIncluded).getID() + "." + parentStr.replace('-', '.');
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object target) {
-        if (this == target) {
-            return true;
-        }
-        
-        return target instanceof PipeBinaryID && getUniqueValue().equals(((PipeBinaryID) target).getUniqueValue());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return getUniqueValue().hashCode();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//
+//        return obj instanceof PipeBinaryID && getUniqueValue().equals(((PipeBinaryID) obj).getUniqueValue());
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public int hashCode() {
+//        return getUniqueValue().hashCode();
+//    }
 
     /**
      * {@inheritDoc}

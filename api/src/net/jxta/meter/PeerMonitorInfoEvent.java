@@ -61,12 +61,12 @@ import net.jxta.peer.PeerID;
 
 
 /**
- *		Event containing status of request for remote PeerMonitorInfo
+ * Event containing status of request for remote PeerMonitorInfo
  **/
 public class PeerMonitorInfoEvent {
 
-    PeerID peerID;
-    PeerMonitorInfo peerMonitorInfo;
+    private PeerID peerID;
+    private PeerMonitorInfo peerMonitorInfo;
 
     /**
      * PeerMonitorInfoEvent

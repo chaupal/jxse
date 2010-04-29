@@ -56,9 +56,7 @@
 
 package net.jxta.impl.membership.pse;
 
-
 import net.jxta.logging.Logging;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -68,9 +66,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Manages a Keystore located within a single File.

@@ -77,7 +77,7 @@ public class Instantiator implements IDFactory.Instantiator {
     /**
      *  Our ID Format
      */
-    final static String UUIDEncoded = "uuid";
+    public final static String UUIDEncoded = "uuid";
     
     /**
      * {@inheritDoc}

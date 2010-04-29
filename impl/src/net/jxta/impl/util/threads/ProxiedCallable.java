@@ -80,13 +80,13 @@ public class ProxiedCallable<V>
      * 
      * @param proxy schedule future instance
      */
-    void setProxiedScheduledFuture(final ProxiedScheduledFuture<V> proxy) {
+    public void setProxiedScheduledFuture(ProxiedScheduledFuture<V> proxy) {
         synchronized(this) {
             if (futureProxy == null) {
                 futureProxy = proxy;
             } else {
-                throw(new IllegalStateException(
-                        "Proxy instance already set"));
+                throw new IllegalStateException(
+                        "Proxy instance already set");
             }
             notifyAll();
         }

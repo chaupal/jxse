@@ -53,15 +53,14 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.util;
 
 import net.jxta.logging.Logging;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -77,7 +76,6 @@ import java.util.logging.Logger;
  *
  * @see SimpleSelector
  */
-
 public abstract class AbstractSimpleSelectable implements SimpleSelectable {
     
     /**

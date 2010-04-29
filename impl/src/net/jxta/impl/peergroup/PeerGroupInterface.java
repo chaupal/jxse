@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.peergroup;
 
 import net.jxta.access.AccessService;
@@ -149,13 +150,13 @@ class PeerGroupInterface implements PeerGroup {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
+    public boolean equals(Object obj) {
         PeerGroup temp = groupImpl;
 
         if (null != temp) {
-            return temp.equals(target);
+            return temp.equals(obj);
         } else {
-            return super.equals(target);
+            return super.equals(obj);
         }
     }
 
@@ -717,7 +718,8 @@ class PeerGroupInterface implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
+    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
+
         PeerGroup temp = groupImpl;
 
         if (unrefed.get() || (null == temp)) {

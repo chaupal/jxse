@@ -87,8 +87,8 @@ public abstract class ExtendableAdvertisement extends Advertisement {
      *  @param formatted If {@code true} then the advertisement will be pretty 
      *  print formatted when it is output as XML.
      */
-    protected ExtendableAdvertisement(boolean formatted) {
-        this.formatted = formatted;
+    protected ExtendableAdvertisement(boolean inFormatted) {
+        this.formatted = inFormatted;
     }
     
     /**
@@ -172,14 +172,16 @@ public abstract class ExtendableAdvertisement extends Advertisement {
      */
     @Override
     public Document getDocument(MimeMediaType encodeAs) {
-        Document adv = StructuredDocumentFactory.newStructuredDocument(encodeAs, getBaseAdvType());
+
+        final Document adv = StructuredDocumentFactory.newStructuredDocument(encodeAs, getBaseAdvType());
 
         if (!(adv instanceof Attributable)) {
             throw new IllegalArgumentException("Advertisements require document type with attribute support.");
         }
 
         if (adv instanceof XMLDocument) {
-            XMLDocument xmlAdv = (XMLDocument) adv;
+
+            final XMLDocument xmlAdv = (XMLDocument) adv;
 
             xmlAdv.addAttribute("xmlns:jxta", "http://jxta.org");
             if (!formatted) {

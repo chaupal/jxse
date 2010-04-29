@@ -113,27 +113,27 @@ public class ResolverMetric implements DocumentSerializable {
         return numQueriesToUnknownHandler;
     }
 
-    void invalidSrdiMessageDiscarded() {
+    public void invalidSrdiMessageDiscarded() {
         numInvalidSrdiMessages++;
     }
 	
-    void unknownHandlerForSrdiMessage() {
+    public void unknownHandlerForSrdiMessage() {
         numSrdiMessagesToUnknownHandler++;
     }
 
-    void invalidResponseDiscarded() {
+    public void invalidResponseDiscarded() {
         numInvalidResponses++;
     }
 
-    void unknownHandlerForResponse() {
+    public void unknownHandlerForResponse() {
         numResponsesToUnknownHandler++;
     }
 
-    void invalidQueryDiscarded() {
+    public void invalidQueryDiscarded() {
         numInvalidQueries++;
     }
 
-    void unknownHandlerForQuery() {
+    public void unknownHandlerForQuery() {
         numQueriesToUnknownHandler++;
     }	
 
@@ -163,17 +163,17 @@ public class ResolverMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if (tagName.equals("numInvalidSrdiMessages")) { 
+            if ("numInvalidSrdiMessages".equals(tagName)) {
                 numInvalidSrdiMessages = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numSrdiMessagesToUnknownHandler")) { 
+            } else if ("numSrdiMessagesToUnknownHandler".equals(tagName)) {
                 numSrdiMessagesToUnknownHandler = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numInvalidResponses")) { 
+            } else if ("numInvalidResponses".equals(tagName)) {
                 numInvalidResponses = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numResponsesToUnknownHandler")) { 
+            } else if ("numResponsesToUnknownHandler".equals(tagName)) {
                 numResponsesToUnknownHandler = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numInvalidQueries")) { 
+            } else if ("numInvalidQueries".equals(tagName)) {
                 numInvalidQueries = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueriesToUnknownHandler")) { 
+            } else if ("numQueriesToUnknownHandler".equals(tagName)) {
                 numQueriesToUnknownHandler = DocumentSerializableUtilities.getInt(childElement);
             }
         }

@@ -161,12 +161,12 @@ public class AutomaticConfigurator extends NullConfigurator {
         }
 
         // Set the peer name
-        String peerName = advertisement.getName();
+        String peerName = advertisement.getName().trim();
 
-        if ((null == peerName) || (0 == peerName.trim().length())) {
-            String jpn = System.getProperty("jxta.peer.name", "");
+        if ((null == peerName) || (0 == peerName.length())) {
+            String jpn = System.getProperty("jxta.peer.name", "").trim();
 
-            if (0 != jpn.trim().length()) {
+            if (0 != jpn.length()) {
                 advertisement.setName(jpn);
             }
         }

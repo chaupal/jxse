@@ -188,7 +188,8 @@ public interface AdvertisementCache {
      */
     void setTrackDeltas(boolean trackDeltas);
 
-    public void stop() throws IOException;
+    void stop() throws IOException;
 
-    public void garbageCollect() throws IOException;
+    void garbageCollect() throws IOException;
+
 }

@@ -53,14 +53,15 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.endpoint;
 
 import net.jxta.peergroup.PeerGroupID;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Logger;
 
 /**
  * Extends Channel Messenger behaviour to provide asynchronous message sending
@@ -68,10 +69,10 @@ import java.util.concurrent.BlockingQueue;
  */
 public abstract class AsyncChannelMessenger extends ChannelMessenger {
 
-    /*
+    /**
      *  Logger
-     * private final static transient Logger LOG = Logger.getLogger(AsyncChannelMessenger.class.getName());
-     */
+     **/
+     private final static transient Logger LOG = Logger.getLogger(AsyncChannelMessenger.class.getName());
 
     /**
      * {@code true} if we have deliberately closed our one message input queue.
@@ -190,14 +191,14 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
                     return;
                 }
 
-                Message currentMsg = theMsg.msg;
+                final Message currentMsg = theMsg.msg;
                 Throwable currentFailure = theMsg.failure;
 
                 if (currentFailure == null) {
                     currentFailure = new IOException("Messenger unexpectedly closed");
                 }
 
-                OutgoingMessageEvent event = new OutgoingMessageEvent(currentMsg, currentFailure);
+                final OutgoingMessageEvent event = new OutgoingMessageEvent(currentMsg, currentFailure);
 
                 currentMsg.setMessageProperty(Messenger.class, event);
             }
@@ -210,10 +211,11 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
      * abstract class and any implementation.
      */
     protected static class PendingMessage {
-        final Message msg;
-        final String service;
-        final String param;
-        Throwable failure;
+
+        protected final Message msg;
+        protected final String service;
+        protected final String param;
+        protected Throwable failure;
 
         PendingMessage(Message msg, String service, String param) {
             this.msg = msg;
@@ -293,8 +295,8 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
      */
     private boolean sendMessageCommon(Message msg, String rService, String rServiceParam) throws IOException, InterruptedException {
 
-        String service = effectiveService(rService);
-        String serviceParam = effectiveParam(rService, rServiceParam);
+        final String service = effectiveService(rService);
+        final String serviceParam = effectiveParam(rService, rServiceParam);
         boolean queued = true;
         boolean change = false;
         DeferredAction action = DeferredAction.ACTION_NONE;
@@ -304,7 +306,7 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
                 throw new IOException("This messenger is closed. It cannot be used to send messages.");
             }
 
-            boolean wasEmpty = queue.isEmpty();
+            final boolean wasEmpty = queue.isEmpty();
 
             if (queue.remainingCapacity() > 1) {
                 queue.put(new PendingMessage(msg, service, serviceParam));
@@ -398,8 +400,7 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
                 }
             }
         } catch (InterruptedException ie) {
-            InterruptedIOException iie = new InterruptedIOException("Message send interrupted");
-
+            final InterruptedIOException iie = new InterruptedIOException("Message send interrupted");
             iie.initCause(ie);
             throw iie;
         }
@@ -466,6 +467,9 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
         case ACTION_CONNECT:
             connectImpl();
             break;
+
+        default:
+            break;
         }
     }
 
@@ -479,7 +483,8 @@ public abstract class AsyncChannelMessenger extends ChannelMessenger {
      * @return the deferred action.
      */
     private DeferredAction eventCalled(boolean notifyAll) {
-        DeferredAction action = deferredAction;
+
+        final DeferredAction action = deferredAction;
 
         deferredAction = DeferredAction.ACTION_NONE;
         if (notifyAll) {

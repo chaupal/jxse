@@ -176,9 +176,10 @@ public class NettyTransport implements Module {
     }
 
     private void processStaticConfiguration(Advertisement implAdv) {
-        if(implAdv == null || !(implAdv instanceof ModuleImplAdvertisement)) {
-            return;
-        }
+        
+        if(implAdv == null) return;
+        if (!(implAdv instanceof ModuleImplAdvertisement)) return;
+        
         ModuleImplAdvertisement moduleImplAdv = (ModuleImplAdvertisement) implAdv;
         StructuredDocument<?> parameters = moduleImplAdv.getParam();
         

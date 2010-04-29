@@ -32,8 +32,7 @@ public class JxtaMessageEncoder extends OneToOneEncoder {
         MessagePackageHeader header = new MessagePackageHeader();
         header.setContentLengthHeader(messageBytes.readableBytes());
         header.setContentTypeHeader(WireFormatMessageFactory.DEFAULT_WIRE_MIME);
-        SerializedMessage serialized = new SerializedMessage(header, messageBytes);
-        return serialized;
+        return new SerializedMessage(header, messageBytes);
     }
 
 }

@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -71,13 +70,10 @@ import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements the Pipe Advertisement according to the schema used by
@@ -213,9 +209,9 @@ public class PipeAdv extends PipeAdvertisement {
             return true;
         }
 
-        String value = elem.getTextValue();
+        String value = elem.getTextValue().trim();
         
-        if ((null == value) || (0 == value.trim().length())) {
+        if ((null == value) || (0 == value.length())) {
             return false;
         }
         

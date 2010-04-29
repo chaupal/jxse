@@ -159,8 +159,8 @@ public class DigestTool {
     /**
      * Tilde character used to seperate candidate strings from a function.
      */
-    public final String functionSeperator = "~";
-    String algorithmType;
+    public final static String functionSeperator = "~";
+    private String algorithmType;
 
     public DigestTool() {
         algorithmType = SHAOne;

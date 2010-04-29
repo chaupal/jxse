@@ -93,12 +93,18 @@ import net.jxta.protocol.ContentShareAdvertisement;
  * extended to implement a ContentTransfer but simply attempts to consolidate
  * much of the logic that would be repeated throughout many implementations.
  */
-public abstract class AbstractContentTransfer
-        implements ContentTransfer {
+public abstract class AbstractContentTransfer implements ContentTransfer {
+
+    /**
+     * Logger instance.
+     */
+    private final Logger LOG;
+
     /**
      * The default source location interval, in seconds.  This constant
      * is provided for information purposes only - please do not use.
      */
+
     protected static final int DEFAULT_SOURCE_LOCATION_INTERVAL = 15;
 
     /**
@@ -107,6 +113,7 @@ public abstract class AbstractContentTransfer
      * locations.  This constant is provided for information purposes
      * only - please do not use.
      */
+
     protected static final int DEFAULT_DISCOVERY_THRESHOLD = 10;
 
     /**
@@ -130,11 +137,6 @@ public abstract class AbstractContentTransfer
      * do not use.
      */
     protected static final boolean DEFAULT_ENABLE_REMOTE = true;
-
-    /**
-     * Logger instance.
-     */
-    private final Logger LOG;
 
     /**
      * List of our listeners.
@@ -484,11 +486,9 @@ public abstract class AbstractContentTransfer
      */
     public void startTransfer(File destination) {
         if (destination == null) {
-            throw(new IllegalArgumentException(
-                    "Destination cannot be null"));
+            throw new IllegalArgumentException("Destination cannot be null");
         } else if (destFile != null) {
-            throw(new IllegalStateException(
-                    "This transfer has already been started"));
+            throw new IllegalStateException("This transfer has already been started");
         }
 
         synchronized(lockObject) {
@@ -543,7 +543,7 @@ public abstract class AbstractContentTransfer
                 if (transferState.isSuccessful()) {
                     return;
                 } else {
-                    throw(reason);
+                    throw reason;
                 }
             }
 
@@ -632,8 +632,8 @@ public abstract class AbstractContentTransfer
      */
     protected void setSourceLocationInterval(int newInterval) {
         if (newInterval <= 0) {
-            throw(new IllegalArgumentException(
-                    "New interval must be > 0 (was: " + newInterval + ")"));
+            throw new IllegalArgumentException(
+                    "New interval must be > 0 (was: " + newInterval + ")");
         }
         synchronized(lockObject) {
             sourceLocationInterval = newInterval;
@@ -650,8 +650,8 @@ public abstract class AbstractContentTransfer
      */
     protected void setDiscoveryThreshold(int newThreshold) {
         if (newThreshold <= 0) {
-            throw(new IllegalArgumentException(
-                    "New threshold must be > 0 (was: " + newThreshold + ")"));
+            throw new IllegalArgumentException(
+                    "New threshold must be > 0 (was: " + newThreshold + ")");
         }
         synchronized(lockObject) {
             discoveryThreshold = newThreshold;
@@ -765,7 +765,8 @@ public abstract class AbstractContentTransfer
                 Logging.logCheckedFine(LOG, "   Goal      : ", goalState);
             }
 
-            if (lastTransferState != transferState) doFire = true;
+            if (lastTransferState != transferState)
+                doFire = true;
             
             if (goalState != transferState) {
                 switch(goalState) {
@@ -803,14 +804,14 @@ public abstract class AbstractContentTransfer
                     }
                     break;
                 default:
-                    throw(new IllegalStateException(
+                    throw new IllegalStateException(
                             "Unhandled goal state: " + goalState
-                            + " -  Please report!"));
+                            + " -  Please report!");
                 }
 
-                if (lastTransferState != transferState) {
+                if (lastTransferState != transferState)
                     doFire = true;
-                }
+                
             }
 
             lastTransferState = transferState;
@@ -1090,9 +1091,9 @@ public abstract class AbstractContentTransfer
                             running = false;
                             break;
                         case FAILED:
-                            throw(new TransferFailedException(
+                            throw new TransferFailedException(
                                     "Transfer attempt result: "
-                                    + attemptResult));
+                                    + attemptResult);
                         case PENDING:
                         case RETRIEVING:
                         case STALLED:
@@ -1158,7 +1159,7 @@ public abstract class AbstractContentTransfer
                         } catch (InterruptedException intx) {
                             if (Thread.interrupted()) {
                                 // Rethrow
-                                throw(intx);
+                                throw intx;
                             }
                         }
                     }
@@ -1168,7 +1169,7 @@ public abstract class AbstractContentTransfer
         } catch (RuntimeException rtx) {
 
             Logging.logCheckedFine(LOG, "Caught runtime exception\n\n", rtx);
-            throw(rtx);
+            throw rtx;
             
         } finally {
 

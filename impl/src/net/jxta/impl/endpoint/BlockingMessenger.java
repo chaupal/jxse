@@ -53,17 +53,15 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.Timer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.endpoint.AbstractMessenger;
 import net.jxta.endpoint.ChannelMessenger;
 import net.jxta.endpoint.EndpointAddress;
@@ -97,14 +95,14 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      */
     private final static transient Logger LOG = Logger.getLogger(BlockingMessenger.class.getName());
 
-    /**
-     * The self destruct timer.
-     * <p/>
-     * When a messenger has become idle, it is closed. As a side effect, it
-     * makes the owning canonical messenger, if any, subject to removal if it is
-     * otherwise unreferenced.
-     */
-    private final static transient Timer timer = new Timer("BlockingMessenger self destruct timer", true);
+//    /**
+//     * The self destruct timer.
+//     * <p/>
+//     * When a messenger has become idle, it is closed. As a side effect, it
+//     * makes the owning canonical messenger, if any, subject to removal if it is
+//     * otherwise unreferenced.
+//     */
+//    private final static transient Timer timer = new Timer("BlockingMessenger self destruct timer", true);
 
     /*
      * Actions that we defer to after returning from event methods. In other 
@@ -737,6 +735,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      */
 
     private void performDeferredAction(DeferredAction action) {
+
         switch (action) {
             case ACTION_SEND:
                 sendIt();

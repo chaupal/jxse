@@ -59,9 +59,7 @@ import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
@@ -129,7 +127,7 @@ final class HttpServletMessenger extends BlockingMessenger {
         /**
          *  The messenger we will be expiring.
          */
-        HttpServletMessenger messenger;
+        private HttpServletMessenger messenger;
         
         ScheduledExpiry(HttpServletMessenger toExpire) {
             messenger = toExpire;

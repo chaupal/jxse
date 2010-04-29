@@ -122,8 +122,7 @@ public class ContentShareEvent extends EventObject {
                 final ContentShare sourceShare,
                 final Object sourceIdent) {
             if (sourceIdent == null) {
-                throw(new IllegalArgumentException(
-                        "sourceIdent argument cannot be null"));
+                throw new IllegalArgumentException("sourceIdent argument cannot be null");
             }
             bSource = sourceShare;
             bIdent = sourceIdent;
@@ -136,7 +135,7 @@ public class ContentShareEvent extends EventObject {
          * @param value remote peer name in human readable form
          * @return builder instance
          */
-        public Builder remoteName(final String value) {
+        public Builder remoteName(String value) {
             bRemoteName = value;
             return this;
         }
@@ -150,7 +149,7 @@ public class ContentShareEvent extends EventObject {
          * @param value byte index of the first byte
          * @return builder instance
          */
-        public Builder dataStart(final long value) {
+        public Builder dataStart(long value) {
             bDataStart = Long.valueOf(value);
             return this;
         }
@@ -164,7 +163,7 @@ public class ContentShareEvent extends EventObject {
          * @param value total number of bytes of data
          * @return builder instance
          */
-        public Builder dataSize(final int value) {
+        public Builder dataSize(int value) {
             bDataSize = Integer.valueOf(value);
             return this;
         }
@@ -184,7 +183,7 @@ public class ContentShareEvent extends EventObject {
      *
      * @param builder builder instance to use to construct our event instance
      */
-    private ContentShareEvent(final Builder builder) {
+    private ContentShareEvent(Builder builder) {
         super(builder.bSource);
         ident = builder.bIdent;
         if (builder.bRemoteName == null) {

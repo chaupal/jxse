@@ -56,29 +56,20 @@
 
 package net.jxta.protocol;
 
-
-import java.io.*;
 import java.lang.reflect.UndeclaredThrowableException;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.jxta.document.*;
-import net.jxta.id.IDFactory;
 import net.jxta.credential.Credential;
 import net.jxta.credential.AuthenticationCredential;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.XMLDocument;
 import net.jxta.membership.MembershipService;
-import net.jxta.pipe.PipeID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.protocol.SignedAdvertisement;
-
 import net.jxta.exception.PeerGroupException;
-
 import net.jxta.impl.membership.pse.StringAuthenticator;
-import net.jxta.impl.protocol.SignedAdv;
-
 
 /**
  * */

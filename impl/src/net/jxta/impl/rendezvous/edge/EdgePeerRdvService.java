@@ -91,7 +91,6 @@ import net.jxta.impl.rendezvous.RendezVousServiceProvider;
 import net.jxta.impl.rendezvous.StdRendezVousService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
-import net.jxta.impl.rendezvous.rpv.PeerviewSeedingManager;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
@@ -129,7 +128,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
     /**
      * Number of rendezvous we will try to connect to.
      */
-    private final int MAX_RDV_CONNECTIONS = 1;
+    private static final int MAX_RDV_CONNECTIONS = 1;
 
     /**
      * The default amount of time we will attempt to renew a lease before it
@@ -195,7 +194,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
         }
 
         String serviceName = rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString();
-        System.err.println("EdgePeerRdvService: " + group.getPeerGroupID().toString());
+        Logging.logCheckedFine(LOG, "EdgePeerRdvService: ", group.getPeerGroupID().toString());
 
         URISeedingManager uriSeedingManager;
 
@@ -250,9 +249,9 @@ public class EdgePeerRdvService extends StdRendezVousService {
      * {@inheritDoc}
      */
     @Override
-    protected int startApp(String[] arg) {
+    protected int startApp(String[] args) {
 
-        super.startApp(arg, new StdRdvEdgeProtocolListener());
+        super.startApp(args, new StdRdvEdgeProtocolListener());
 
         // The other services may not be fully functional but they're there
         // so we can start our subsystems.
@@ -333,13 +332,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
             } else {
                 uriseed.addSeed(addr.toURI());
             }
-        } else if (seedingManager instanceof PeerviewSeedingManager) {
-            PeerviewSeedingManager pvseed = (PeerviewSeedingManager) seedingManager;
-
-            if (hint instanceof RouteAdvertisement) {
-                pvseed.addSeed((RouteAdvertisement) hint);
-            }
-        }
+        } 
     }
 
     /**
@@ -852,6 +845,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
                                 sentLeaseRequests++;
                             } catch (Exception failed) {
                                 // ignored
+                                Logging.logCheckedFine(LOG, "Ignored: ", failed.toString());
                             }
                         }
                     }

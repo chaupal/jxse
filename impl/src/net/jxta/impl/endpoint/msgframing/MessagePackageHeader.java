@@ -56,10 +56,8 @@
 
 package net.jxta.impl.endpoint.msgframing;
 
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.logging.Logging;
-
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -74,9 +72,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Header Package for Messages. Analogous to HTTP Headers.
@@ -108,15 +104,15 @@ public class MessagePackageHeader {
      */
     public static class Header {
         
-        final String  name;
-        final byte[] value;
+        private final String  name;
+        private final byte[] value;
         
         public Header(String name, byte[] value) {
+
             this.name = name;
-            
             assert value.length <= 65535;
-            
             this.value = value;
+
         }
         
         /**
@@ -447,6 +443,7 @@ public class MessagePackageHeader {
      * Gets all of the headers matching the specified name
      *
      * @param name the name of the header we are seeking.
+     * @return an iterator of headers
      */
     public Iterator<Header> getHeader(String name) {
         List<Header> matchingHeaders = new ArrayList<Header>();

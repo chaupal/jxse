@@ -403,7 +403,7 @@ public class SrdiManager implements RendezvousListener {
             }
             BigInteger sizeOfSpace = java.math.BigInteger.valueOf(rpv.size());
             BigInteger sizeOfHashSpace = BigInteger.ONE.shiftLeft(8 * digest.toByteArray().length);
-            int pos = (digest.multiply(sizeOfSpace)).divide(sizeOfHashSpace).intValue();
+            int pos = digest.multiply(sizeOfSpace).divide(sizeOfHashSpace).intValue();
 
             pid = rpv.get(pos);
             Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Found a direct peer {2}", group.getPeerGroupName(), handlername, pid));

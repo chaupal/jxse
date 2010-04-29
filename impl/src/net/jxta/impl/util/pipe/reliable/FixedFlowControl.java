@@ -59,9 +59,9 @@ package net.jxta.impl.util.pipe.reliable;
 
 public class FixedFlowControl extends FlowControl {
 
-    static final int DEFAULT_RWINDOW = 5;
-    int maxRwindow = 0;
-    int rwindow = 2;
+    private static final int DEFAULT_RWINDOW = 5;
+    private int maxRwindow = 0;
+    private int rwindow = 2;
 
     /**
      * Constructs a fixed flow control module with a fixed rwindow of

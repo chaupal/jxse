@@ -155,31 +155,31 @@ public class PeerGroupID extends net.jxta.peergroup.PeerGroupID {
         System.arraycopy(parent.id.bytes, PeerGroupID.groupIdOffset, id.bytes, PeerGroupID.parentgroupIdOffset, IDFormat.uuidSize);
     }
     
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object target) {
-        if (this == target) {
-            return true;
-        }
-        
-        if (target instanceof PeerGroupID) {
-            PeerGroupID peergroupTarget = (PeerGroupID) target;
-            
-            return id.equals(peergroupTarget.id);
-        } else {
-            return false;
-        }
-    }
-    
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
+//    /**
+//     *  {@inheritDoc}
+//     */
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//
+//        if (obj instanceof PeerGroupID) {
+//            PeerGroupID peergroupTarget = (PeerGroupID) obj;
+//
+//            return id.equals(peergroupTarget.id);
+//        } else {
+//            return false;
+//        }
+//    }
+//
+//    /**
+//     *  {@inheritDoc}
+//     */
+//    @Override
+//    public int hashCode() {
+//        return id.hashCode();
+//    }
     
     /**
      *  {@inheritDoc}

@@ -181,18 +181,18 @@ public class PeerMonitorInfo implements DocumentSerializable {
             Element childElement = (Element) e.nextElement();
             String key = (String) childElement.getKey();
 
-            if (key.equals("allowsMonitoring")) { 
+            if ("allowsMonitoring".equals(key)) {
                 allowsMonitoring = DocumentSerializableUtilities.getBoolean(childElement);
-            } else if (key.equals("lastResetTime")) { 
+            } else if ("lastResetTime".equals(key)) {
                 lastResetTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (key.equals("runningTime")) { 
+            } else if ("runningTime".equals(key)) {
                 runningTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (key.equals("reportRate")) {
+            } else if ("reportRate".equals(key)) {
                 long reportRate = DocumentSerializableUtilities.getLong(childElement);
 
                 reportRates[reportRateIndex] = reportRate;
                 reportRateIndex++;
-            } else if (key.equals("moduleClassID")) {
+            } else if ("moduleClassID".equals(key)) {
                 try {
                     ModuleClassID moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));

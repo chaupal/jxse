@@ -1,3 +1,4 @@
+
 package net.jxta.impl.cm;
 
 import java.io.File;
@@ -7,7 +8,6 @@ import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.FileSystemTest;
-
 import org.jmock.Expectations;
 
 public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
@@ -103,7 +103,7 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 	}
 	
 	@Override
-	public Expectations createExpectationsForConstruction_withPeerGroup_IndexName(final PeerGroup mockGroup, final PeerGroupID groupId, String groupName) {
+	public Expectations createExpectationsForConstruction_withPeerGroup_IndexName(final PeerGroup mockGroup, final PeerGroupID groupId, final String groupName) {
 		final URI storeHomeURI = storeHome.toURI();
 		return new Expectations() {{
 			ignoring(mockGroup).getPeerGroupName(); will(returnValue("testGroup"));

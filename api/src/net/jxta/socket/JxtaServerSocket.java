@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.socket;
 
 import net.jxta.credential.Credential;
@@ -70,7 +71,6 @@ import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -80,7 +80,7 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 /**
@@ -165,8 +165,8 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     protected long timeout = DEFAULT_TIMEOUT;
 
     protected BlockingQueue<Message> queue = null;
-    protected volatile boolean bound = false;
-    protected volatile boolean closed = false;
+    protected AtomicBoolean bound = new AtomicBoolean(false);
+    protected AtomicBoolean closed = new AtomicBoolean(false);
     private CredentialValidator credValidator = null;
     
     private volatile Throwable creatorTrace =
@@ -281,9 +281,10 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     @Override
     protected void finalize() throws Throwable {
         
-        super.finalize();
-        if (!closed) Logging.logCheckedWarning(LOG, "JxtaServerSocket is being finalized without being previously closed. This is likely an application level bug.", creatorTrace);
+        if (!closed.get())
+            Logging.logCheckedWarning(LOG, "JxtaServerSocket is being finalized without being previously closed. This is likely an application level bug.", creatorTrace);
         close();
+        super.finalize();
 
     }
 
@@ -301,17 +302,20 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
             while (true) {
 
-                if (isClosed()) throw new SocketException("Socket is closed");
+                if (isClosed())
+                    throw new SocketException("Socket is closed");
 
-                Message msg = queue.poll(timeout, TimeUnit.MILLISECONDS);
+                final Message msg = queue.poll(timeout, TimeUnit.MILLISECONDS);
 
-                if (isClosed()) throw new SocketException("Socket is closed");
+                if (isClosed())
+                    throw new SocketException("Socket is closed");
                 
-                if (msg == null) throw new SocketTimeoutException("Timeout reached");
+                if (msg == null)
+                    throw new SocketTimeoutException("Timeout reached");
 
                 if (QUEUE_END_MESSAGE == msg) throw new SocketException("Socket is closed.");
 
-                JxtaSocket socket = processMessage(msg);
+                final JxtaSocket socket = processMessage(msg);
 
                 // make sure we have a socket returning
                 if (socket != null) {
@@ -411,10 +415,9 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     @Override
     public void close() throws IOException {
 
-        if (closed) {
-            return;
-        }
-        closed = true;
+        if (closed.get()) return;
+        
+        closed.set(true);
         creatorTrace = null;
 
         if (isBound()) {
@@ -490,7 +493,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     @Override
     public boolean isBound() {
-        return bound;
+        return bound.get();
     }
 
     /**
@@ -498,7 +501,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     @Override
     public boolean isClosed() {
-        return closed;
+        return closed.get();
     }
 
     /**
@@ -509,7 +512,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      * @param boundState The new bound state.
      */
     private synchronized void setBound(boolean boundState) {
-        this.bound = boundState;
+        this.bound.set(boundState);
     }
 
     /**
@@ -536,22 +539,15 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     public void pipeMsgEvent(PipeMsgEvent event) {
 
         // deal with messages as they come in
-        Message message = event.getMessage();
+        final Message message = event.getMessage();
 
-        if (message == null) {
+        if (message == null)
             return;
-        }
-
-        boolean pushed = false;
 
         try {
-
-            pushed = queue.offer(message, timeout, TimeUnit.MILLISECONDS);
-
+            queue.offer(message, timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException woken) {
-
             Logging.logCheckedFine(LOG, "Interrupted\n", woken);
-
         }
 
         Logging.logCheckedWarning(LOG, "backlog queue full, connect request dropped");
@@ -600,7 +596,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
                     }
                 } catch (Exception ignored) {
-                    // ignored
+                    Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
                 }
             }
 

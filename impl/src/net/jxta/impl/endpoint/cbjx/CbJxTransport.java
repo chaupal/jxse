@@ -102,52 +102,52 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
     /**
      * the name of the cbjx crypto element
      */
-    static final String CBJX_MSG_INFO = "CryptoInfo";
+    public static final String CBJX_MSG_INFO = "CryptoInfo";
 
     /**
      * the name of the cbjx body element
      */
-    static final String CBJX_MSG_BODY = "Body";
+    public static final String CBJX_MSG_BODY = "Body";
 
     /**
      * the name of the cbjx body element
      */
-    static final String CBJX_MSG_SIG = "Signature";
+    public static final String CBJX_MSG_SIG = "Signature";
 
     /**
      * the cbjx protocol name
      */
-    static final String cbjxProtocolName = "cbjx";
+    public static final String cbjxProtocolName = "cbjx";
 
     /**
      * the cbjx service name
      */
-    static final String cbjxServiceName = "CbJxTransport";
+    public static final String cbjxServiceName = "CbJxTransport";
 
     /**
      * the local peer ID
      */
-    static PeerID localPeerID = null;
+    private static PeerID localPeerID = null;
 
     /**
      * the endpoint address of this peer
      */
-    static EndpointAddress localPeerAddr = null;
+    protected static EndpointAddress localPeerAddr = null;
 
     /**
      * the peer group to which this module belongs
      */
-    PeerGroup group = null;
+    protected PeerGroup group = null;
 
     /**
      * the endpoint service in my group
      */
-    EndpointService endpoint = null;
+    protected EndpointService endpoint = null;
 
     /**
      * the membership service in my group
      */
-    PSEMembershipService membership = null;
+    protected PSEMembershipService membership = null;
 
     /**
      * Default constructor
@@ -170,7 +170,8 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring CBJX Message Transport : " + assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring CBJX Message Transport : ");
+            configInfo.append(assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -194,7 +195,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] arg) {
+    public int startApp(String[] args) {
 
         endpoint = group.getEndpointService();
 
@@ -390,8 +391,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         Iterator eachCbJxElement = submessage.getMessageElementsOfNamespace(CbJxTransport.CBJX_MSG_NS);
 
         while (eachCbJxElement.hasNext()) {
-            MessageElement aMessageElement = (MessageElement) eachCbJxElement.next();
-
+            eachCbJxElement.next();
             eachCbJxElement.remove();
         }
 
@@ -508,6 +508,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
 
         // check the cbid
         try {
+
             net.jxta.impl.id.CBID.PeerID srcPeerID = (net.jxta.impl.id.CBID.PeerID) cryptoInfo.getSourceID();
 
             byte[] pub_der = peerCert.getPublicKey().getEncoded();
@@ -628,7 +629,6 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         }
     }
 
-
     /**
      * this class filters all outgoing messages that are not sent with
      * messengers. (that is propagate messages). It adds CbJxInformation
@@ -659,5 +659,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
 
             return msg;
         }
+
     }
+
 }

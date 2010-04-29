@@ -53,10 +53,10 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.peergroup;
 
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
@@ -68,7 +68,6 @@ import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 
 /**
  * General compatibility utility library for centralizing default

@@ -255,14 +255,14 @@ public class ClientConnectionMetric implements DocumentSerializable {
         this.transitionTime = transitionTime;
     }
 
-    void clientConnectionEstablished(long transitionTime, long lease) {
+    public void clientConnectionEstablished(long transitionTime, long lease) {
         resetState(CONNECTED, transitionTime);
 			
         this.numConnects++;
         this.lease = lease;
     }
 
-    void clientLeaseRenewed(long lastLeaseRenewalTime, long lease) {
+    public void clientLeaseRenewed(long lastLeaseRenewalTime, long lease) {
         this.numLeaseRenewals++;
         this.lease = lease;
         this.lastLeaseRenewalTime = System.currentTimeMillis();
@@ -272,22 +272,21 @@ public class ClientConnectionMetric implements DocumentSerializable {
         }
     }
 
-    void errorAddingClient() {
+    public void errorAddingClient() {
         this.numErrorsAddingClient++;
-        ;
     }
 	
-    void clientConnectionDisconnected(boolean normal, long transitionTime) {
+    public void clientConnectionDisconnected(boolean normal, long transitionTime) {
         resetState(DISCONNECTED, transitionTime);
         this.numDisconnects++;
         this.lease = 0;
     }
 
-    void unableToRespondToConnectRequest() {
+    public void unableToRespondToConnectRequest() {
         this.numUnableToRespondToConnectRequest++;
     }	
 
-    void clientConnectionRefused(long transitionTime) {
+    public void clientConnectionRefused(long transitionTime) {
         if (!isDisconnected()) {
             clientConnectionDisconnected(false, transitionTime);
         }
@@ -297,76 +296,90 @@ public class ClientConnectionMetric implements DocumentSerializable {
     }	
 
     public void serializeTo(Element element) throws DocumentSerializationException {
+
         if (peerID != null) {
             DocumentSerializableUtilities.addString(element, "peerID", peerID.toString());
         }
+
         if (state != null) {
             DocumentSerializableUtilities.addString(element, "state", state);
         }
+
         if (transitionTime != 0) {
             DocumentSerializableUtilities.addLong(element, "transitionTime", transitionTime);
         }
+
         if (lastLeaseRenewalTime != 0) {
             DocumentSerializableUtilities.addLong(element, "lastLeaseRenewalTime", lastLeaseRenewalTime);
         }
+
         if (lease != 0) {
             DocumentSerializableUtilities.addLong(element, "lease", lease);
         }
+
         if (numConnects != 0) {
             DocumentSerializableUtilities.addInt(element, "numConnects", numConnects);
         }
+
         if (numLeaseRenewals != 0) {
             DocumentSerializableUtilities.addInt(element, "numLeaseRenewals", numLeaseRenewals);
         }
+
         if (numDisconnects != 0) {
             DocumentSerializableUtilities.addInt(element, "numDisconnects", numDisconnects);
         }
+
         if (numConnectionsRefused != 0) {
             DocumentSerializableUtilities.addInt(element, "numConnectionsRefused", numConnectionsRefused);
         }
+
         if (numErrorsAddingClient != 0) {
             DocumentSerializableUtilities.addInt(element, "numErrorsAddingClient", numErrorsAddingClient);
         }
+
         if (numUnableToRespondToConnectRequest != 0) {
             DocumentSerializableUtilities.addInt(element, "numUnableToRespondToConnectRequest", numUnableToRespondToConnectRequest);
         }
+
         if (totalTimeConnected != 0) {
             DocumentSerializableUtilities.addLong(element, "totalTimeConnected", totalTimeConnected);
         }
+
     }
 
     public void initializeFrom(Element element) throws DocumentSerializationException {
+
         state = null;
 
         for (Enumeration e = element.getChildren(); e.hasMoreElements();) {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if (tagName.equals("peerID")) {
+            if ("peerID".equals(tagName)) {
                 String peerIDText = DocumentSerializableUtilities.getString(childElement);
 
                 peerID = MetricUtilities.getPeerIdFromString(peerIDText);
-            } else if (tagName.equals("state")) { 
+            } else if ("state".equals(tagName)) {
                 state = DocumentSerializableUtilities.getString(childElement);
-            } else if (tagName.equals("transitionTime")) { 
+            } else if ("transitionTime".equals(tagName)) {
                 transitionTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("lastLeaseRenewalTime")) { 
+            } else if ("lastLeaseRenewalTime".equals(tagName)) {
                 lastLeaseRenewalTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("lease")) { 
+            } else if ("lease".equals(tagName)) {
                 lease = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("numConnects")) { 
+            } else if ("numConnects".equals(tagName)) {
                 numConnects = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numLeaseRenewals")) { 
+            } else if ("numLeaseRenewals".equals(tagName)) {
                 numLeaseRenewals = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numDisconnects")) { 
+            } else if ("numDisconnects".equals(tagName)) {
                 numDisconnects = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numConnectionsRefused")) { 
+            } else if ("numConnectionsRefused".equals(tagName)) {
                 numConnectionsRefused = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsAddingClient")) { 
+            } else if ("numErrorsAddingClient".equals(tagName)) {
                 numErrorsAddingClient = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numUnableToRespondToConnectRequest")) { 
+            } else if ("numUnableToRespondToConnectRequest".equals(tagName)) {
                 numUnableToRespondToConnectRequest = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("totalTimeConnected")) { 
+            } else if ("totalTimeConnected".equals(tagName)) {
                 totalTimeConnected = DocumentSerializableUtilities.getLong(childElement);
             }
         }

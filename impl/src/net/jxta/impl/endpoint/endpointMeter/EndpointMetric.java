@@ -90,43 +90,43 @@ public class EndpointMetric implements DocumentSerializable {
         endpointStartTime = prototype.endpointStartTime;
     }
 	
-    void invalidIncomingMessage() {
+    public void invalidIncomingMessage() {
         invalidIncomingMessage++;
     }
 
-    void noListenerForIncomingMessage() {
+    public void noListenerForIncomingMessage() {
         noListenerForIncomingMessage++;
     }
 
-    void errorProcessingIncomingMessage() {
+    public void errorProcessingIncomingMessage() {
         errorProcessingIncomingMessage++;
     }
 
-    void noDestinationAddressForDemuxMessage() {
+    public void noDestinationAddressForDemuxMessage() {
         noDestinationAddressForDemuxMessage++;
     }
 
-    void noSourceAddressForDemuxMessage() {
+    public void noSourceAddressForDemuxMessage() {
         noSourceAddressForDemuxMessage++;
     }
 
-    void discardedLoopbackDemuxMessage() {
+    public void discardedLoopbackDemuxMessage() {
         discardedLoopbackDemuxMessage++;
     }
 
-    void incomingMessageFilteredOut() {
+    public void incomingMessageFilteredOut() {
         incomingMessageFilteredOut++;
     }
 
-    void incomingMessageSentToEndpointListener() {
+    public void incomingMessageSentToEndpointListener() {
         incomingMessageSentToEndpointListener++;
     }
 
-    void demuxMessageProcessed() {
+    public void demuxMessageProcessed() {
         demuxMessageProcessed++;
     }
 
-    void setEndpointUpTime(long endpointUpTime) {
+    public void setEndpointUpTime(long endpointUpTime) {
         this.endpointUpTime = endpointUpTime;
     }
 
@@ -230,31 +230,31 @@ public class EndpointMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if (tagName.equals("endpointStartTime")) {
+            if ("endpointStartTime".equals(tagName)) {
                 endpointStartTime = DocumentSerializableUtilities.getLong(childElement);
             }
-            if (tagName.equals("endpointUpTime")) {
+            if ("endpointUpTime".equals(tagName)) {
                 endpointUpTime = DocumentSerializableUtilities.getLong(childElement);
             }
-            if (tagName.equals("invalidIncomingMessage")) {
+            if ("invalidIncomingMessage".equals(tagName)) {
                 invalidIncomingMessage = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("noListenerForIncomingMessage")) {
+            } else if ("noListenerForIncomingMessage".equals(tagName)) {
                 noListenerForIncomingMessage = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("errorProcessingIncomingMessage")) {
+            } else if ("errorProcessingIncomingMessage".equals(tagName)) {
                 errorProcessingIncomingMessage = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("noDestinationAddressForDemuxMessage")) {
+            } else if ("noDestinationAddressForDemuxMessage".equals(tagName)) {
                 noDestinationAddressForDemuxMessage = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("noSourceAddressForDemuxMessage")) {
+            } else if ("noSourceAddressForDemuxMessage".equals(tagName)) {
                 noSourceAddressForDemuxMessage = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("invalidIncomingMessage")) {
+            } else if ("invalidIncomingMessage".equals(tagName)) {
                 invalidIncomingMessage = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("discardedLoopbackDemuxMessage")) {
+            } else if ("discardedLoopbackDemuxMessage".equals(tagName)) {
                 discardedLoopbackDemuxMessage = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("incomingMessageFilteredOut")) {
+            } else if ("incomingMessageFilteredOut".equals(tagName)) {
                 incomingMessageFilteredOut = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("incomingMessageSentToEndpointListener")) {
+            } else if ("incomingMessageSentToEndpointListener".equals(tagName)) {
                 incomingMessageSentToEndpointListener = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("demuxMessageProcessed")) {
+            } else if ("demuxMessageProcessed".equals(tagName)) {
                 demuxMessageProcessed = DocumentSerializableUtilities.getInt(childElement);
             }
         }

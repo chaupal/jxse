@@ -149,13 +149,13 @@ public class TransportMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if (tagName.equals("endpointAddress")) {
+            if ("endpointAddress".equals(tagName)) {
                 String endpointAddressString = DocumentSerializableUtilities.getString(childElement);	
 
                 endpointAddress = new EndpointAddress(endpointAddressString);
-            } else if (tagName.equals("protocol")) {
+            } else if ("protocol".equals(tagName)) {
                 protocol = DocumentSerializableUtilities.getString(childElement);
-            } else if (tagName.equals("binding")) {
+            } else if ("binding".equals(tagName)) {
                 TransportBindingMetric transportBindingMetric = (TransportBindingMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, TransportBindingMetric.class);
 
@@ -164,7 +164,7 @@ public class TransportMetric implements DocumentSerializable {
         }
     }
 
-    void mergeMetrics(TransportMetric otherTransportMetric) {
+    public void mergeMetrics(TransportMetric otherTransportMetric) {
         for (Iterator<TransportBindingMetric> i = otherTransportMetric.getTransportBindingMetrics(); i.hasNext();) {
             TransportBindingMetric otherTransportBindingMetric = i.next();
             TransportBindingMetric transportBindingMetric = getTransportBindingMetric(

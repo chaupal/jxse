@@ -86,7 +86,6 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
-import net.jxta.protocol.*;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
@@ -100,10 +99,30 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.DiscoveryQueryMsg;
+import net.jxta.protocol.DiscoveryResponseMsg;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.PeerGroupAdvertisement;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverResponseMsg;
+import net.jxta.protocol.ResolverSrdiMsg;
+import net.jxta.protocol.SrdiMessage;
 
 /**
  * This Discovery Service implementation provides a mechanism to discover
@@ -135,7 +154,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * adv types
      */
-    final static String[] dirname = {"Peers", "Groups", "Adv"};
+    private final static String[] dirname = {"Peers", "Groups", "Adv"};
 
     /**
      * The Query ID which will be associated with remote publish operations.
@@ -182,7 +201,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * The table of discovery query listeners.
      */
     private final Map<Integer, DiscoveryListener> queryListeners = new HashMap<Integer, DiscoveryListener>();
-    private final String checkPeerAdvLock = new String("Check/Update PeerAdvertisement Lock");
+    private static final String checkPeerAdvLock = "Check/Update PeerAdvertisement Lock";
     private PeerAdvertisement lastPeerAdv = null;
     private int lastModCount = -1;
     private boolean isRdv = false;
@@ -198,11 +217,12 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         /**
          * The current default credential
          */
-        final Credential credential;
+        private final Credential credential;
+
         /**
          * The current default credential in serialized XML form.
          */
-        final XMLDocument credentialDoc;
+        private final XMLDocument credentialDoc;
 
         CurrentCredential(Credential credential, XMLDocument credentialDoc) {
             this.credential = credential;
@@ -213,7 +233,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * The current Membership service default credential.
      */
-    CurrentCredential currentCredential;
+    private CurrentCredential currentCredential;
 
     /**
      * Listener we use for membership credential change events.
@@ -269,7 +289,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * an instance of {@code DiscoveryServiceInterface}. It should be removed from the code
      * in a future release.
      */
-    public synchronized Service getInterface() {
+    public Service getInterface() {
 
         return this;
 
@@ -417,11 +437,11 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
-    public void init(PeerGroup pg, ID assignedID, Advertisement impl) throws PeerGroupException {
+    public void init(PeerGroup pg, ID assignedID, Advertisement implAdv) throws PeerGroupException {
 
         group = pg;
         handlerName = assignedID.toString();
-        implAdvertisement = (ModuleImplAdvertisement) impl;
+        implAdvertisement = (ModuleImplAdvertisement) implAdv;
         localPeerId = group.getPeerID();
 
         ConfigParams confAdv = pg.getConfigAdvertisement();
@@ -438,7 +458,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
                 }
             } catch (NoSuchElementException failed) {
-            // ignored
+                Logging.logCheckedFine(LOG, "Ignoring: ", failed.toString());
             }
 
             if (adv instanceof DiscoveryConfigAdv) {
@@ -457,7 +477,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Discovery Service : " + assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Discovery Service : ");
+            configInfo.append(assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -484,7 +505,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] arg) {
+    public int startApp(String[] args) {
 
         resolver = group.getResolverService();
 
@@ -768,6 +789,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * {@inheritDoc}
      */
     public void processResponse(ResolverResponseMsg response, EndpointAddress srcAddress) {
+
         if (stopped) {
             return;
         }
@@ -844,7 +866,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         DiscoveryListener dl;
         synchronized (queryListeners) {
-            dl = queryListeners.get(new Integer(response.getQueryId()));
+            dl = queryListeners.get(response.getQueryId());
         }
 
         if (dl != null) {
@@ -1184,7 +1206,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private List<InputStream> rawSearch(int type, String attr, String value, int threshold, List<Long> expirations) {
 
         if (stopped) {
-            return new ArrayList();
+            return new ArrayList<InputStream>();
         }
 
         if (type == PEER) {
@@ -1545,6 +1567,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * it has then republish it to the CM.
      */
     private void checkUpdatePeerAdv() {
+
         PeerAdvertisement newPadv = group.getPeerAdvertisement();
         int newModCount = newPadv.getModCount();
 

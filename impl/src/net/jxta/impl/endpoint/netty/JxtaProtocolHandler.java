@@ -6,15 +6,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelFuture;
@@ -263,8 +260,7 @@ public class JxtaProtocolHandler extends SimpleChannelHandler implements Channel
     }
 
     private ByteBuffer createByteBuffer() {
-        ByteBuffer buffer = receivedBytes.toByteBuffer();
-        return buffer;
+        return receivedBytes.toByteBuffer();
     }
     
     private boolean readHeader(ChannelHandlerContext ctx) {

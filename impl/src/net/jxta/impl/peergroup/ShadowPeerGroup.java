@@ -137,15 +137,15 @@ public class ShadowPeerGroup extends StdPeerGroup {
         super.initFirst(parent, assignedID, impl);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void initLast() throws PeerGroupException {
-        // Nothing special, but that could change in the future
-        // Just remember that the possibility exists.
-        super.initLast();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    protected void initLast() throws PeerGroupException {
+//        // Nothing special, but that could change in the future
+//        // Just remember that the possibility exists.
+//        super.initLast();
+//    }
 
     /**
      * {@inheritDoc}

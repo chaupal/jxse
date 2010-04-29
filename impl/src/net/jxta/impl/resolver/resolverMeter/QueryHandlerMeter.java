@@ -56,23 +56,28 @@
 
 package net.jxta.impl.resolver.resolverMeter;
 
-
 import java.util.Collections;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.meter.MetricUtilities;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
+import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 
 public class QueryHandlerMeter {
+
+    /**
+     * Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(QueryHandlerMeter.class.getName());
+
     private static final int QUERY_CULLING_INTERVAL = 5 * 60 * 1000; // Fix-Me: Five minutes hardcoded for now...
 	
     private ResolverServiceMonitor resolverServiceMonitor;
@@ -87,7 +92,7 @@ public class QueryHandlerMeter {
 
     private class QueryMetricsTable extends Hashtable<Integer,QueryMetric> {
 
-        void deReference() {
+        private void deReference() {
             queryMetricsTable = null;
         }
 
@@ -99,10 +104,11 @@ public class QueryHandlerMeter {
 
 
     private class QueryMetric {
-        int queryId;
-        long querySentTime = System.currentTimeMillis();
-        int numResponsesReceived = 0;
-        long lastResponseTime = 0;
+        
+        private int queryId;
+        private long querySentTime = System.currentTimeMillis();
+        private int numResponsesReceived = 0;
+        private long lastResponseTime = 0;
 
         QueryMetric(int queryId) {
             this.queryId = queryId;
@@ -117,7 +123,9 @@ public class QueryHandlerMeter {
                 for (;;) {
                     try {
                         Thread.sleep(QUERY_CULLING_INTERVAL);
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                        Logging.logCheckedFinest(LOG, "Ignored: ", e.toString());
+                    }
 
                     long dormantTime = System.currentTimeMillis() - QUERY_CULLING_INTERVAL;
 					

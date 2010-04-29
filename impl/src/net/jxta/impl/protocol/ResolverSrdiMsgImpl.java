@@ -53,8 +53,8 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.protocol;
 
+package net.jxta.impl.protocol;
 
 import net.jxta.credential.Credential;
 import net.jxta.document.Document;
@@ -67,11 +67,8 @@ import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.protocol.ResolverSrdiMsg;
-
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * ResolverQuery provides the binding for the message to query other nodes
@@ -171,13 +168,9 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
         if (getCredential() != null) {
             
             try {
-
-                StructuredDocumentUtils.copyElements(adv, adv, (getCredential()).getDocument(asMimeType));
-
+                StructuredDocumentUtils.copyElements(adv, adv, getCredential().getDocument(asMimeType));
             } catch (Exception ce) {
-
                 Logging.logCheckedWarning(LOG, "Got an Exception during credential creation\n", ce);
-                
             }
         }
         e = adv.createElement(payloadTag, getPayload());

@@ -56,10 +56,8 @@
 
 package net.jxta.impl.document;
 
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
-
 
 /**
  * Empty interface we use a container for utils
@@ -71,7 +69,7 @@ interface TextDocumentCommon  {
      */
     static class Utils {
 
-        static String getExtensionForMime(StructuredDocumentFactory.Instantiator.ExtensionMapping[] mappings, MimeMediaType mimeType) {
+        public static String getExtensionForMime(StructuredDocumentFactory.Instantiator.ExtensionMapping[] mappings, MimeMediaType mimeType) {
             MimeMediaType cleanMime = new MimeMediaType(mimeType.getMimeMediaType());
             String result = "???";
 
@@ -88,6 +86,12 @@ interface TextDocumentCommon  {
             }
 
             return result;
+        }
+
+        /**
+         * Default constructor
+         */
+        private Utils() {
         }
     }
 }

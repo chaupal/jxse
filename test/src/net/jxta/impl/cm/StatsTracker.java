@@ -51,7 +51,7 @@ public class StatsTracker {
 	private void writeResult(Number n) {
 		if(WRITE_RESULTS_TO_FILE) {
 			try {
-				writer.write("" + n.doubleValue() + "\n");
+				writer.write(n.doubleValue() + "\n");
 			} catch (IOException e) {
 				System.err.println("Failed to write result");
 			}

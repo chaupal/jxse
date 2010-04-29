@@ -217,9 +217,9 @@ public final class Logging {
     public static void logCheckedConfig(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
-            String Msg = "";
-            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
-            inLog.config(Msg);
+            StringBuffer Msg = new StringBuffer();
+            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            inLog.config(Msg.toString());
         }
 
     }
@@ -235,9 +235,9 @@ public final class Logging {
     public static void logCheckedFine(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
-            String Msg = "";
-            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
-            inLog.fine(Msg);
+            StringBuffer Msg = new StringBuffer();
+            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            inLog.fine(Msg.toString());
         }
 
     }
@@ -253,9 +253,9 @@ public final class Logging {
     public static void logCheckedFiner(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
-            String Msg = "";
-            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
-            inLog.finer(Msg);
+            StringBuffer Msg = new StringBuffer();
+            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            inLog.finer(Msg.toString());
         }
 
     }
@@ -271,9 +271,9 @@ public final class Logging {
     public static void logCheckedFinest(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
-            String Msg = "";
-            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
-            inLog.finest(Msg);
+            StringBuffer Msg = new StringBuffer();
+            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            inLog.finest(Msg.toString());
         }
 
     }
@@ -289,9 +289,9 @@ public final class Logging {
     public static void logCheckedInfo(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
-            String Msg = "";
-            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
-            inLog.info(Msg);
+            StringBuffer Msg = new StringBuffer();
+            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            inLog.info(Msg.toString());
         }
 
     }
@@ -307,9 +307,9 @@ public final class Logging {
     public static void logCheckedSevere(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
-            String Msg = "";
-            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
-            inLog.severe(Msg);
+            StringBuffer Msg = new StringBuffer();
+            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            inLog.severe(Msg.toString());
         }
 
     }
@@ -325,9 +325,9 @@ public final class Logging {
     public static void logCheckedWarning(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
-            String Msg = "";
-            for (int i=0;i<inMsg.length;i++) Msg = Msg + inMsg[i];
-            inLog.warning(Msg);
+            StringBuffer Msg = new StringBuffer();
+            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            inLog.warning(Msg.toString());
         }
 
     }

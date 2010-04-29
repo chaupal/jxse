@@ -142,7 +142,7 @@ public class SrdiHandlerMetric implements DocumentSerializable {
         if (obj instanceof SrdiHandlerMetric) {
             SrdiHandlerMetric otherSrdiHandlerMetric = (SrdiHandlerMetric) obj;
 
-            return handlerName.equals((otherSrdiHandlerMetric.handlerName));
+            return handlerName.equals(otherSrdiHandlerMetric.handlerName);
         } else {
             return false;
         }
@@ -182,13 +182,13 @@ public class SrdiHandlerMetric implements DocumentSerializable {
         numErrorsPropagatingMessages++;
     }	
 
-    SrdiDestinationMetric getSrdiDestinationMetric(EndpointAddress endpointAddress) {
+    public SrdiDestinationMetric getSrdiDestinationMetric(EndpointAddress endpointAddress) {
         PeerID peerID = MetricUtilities.getPeerIdFromEndpointAddress(endpointAddress);
 
         return getSrdiDestinationMetric(peerID);
     }
 		
-    SrdiDestinationMetric getSrdiDestinationMetric(PeerID peerID) {
+    public SrdiDestinationMetric getSrdiDestinationMetric(PeerID peerID) {
 		
         SrdiDestinationMetric destinationMetric = (SrdiDestinationMetric) destinationMetrics.get(peerID);
 		
@@ -251,27 +251,27 @@ public class SrdiHandlerMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if (tagName.equals("handlerName")) { 
+            if ("handlerName".equals(tagName)) {
                 handlerName = DocumentSerializableUtilities.getString(childElement);
-            } else if (tagName.equals("registered")) { 
+            } else if ("registered".equals(tagName)) {
                 registered = DocumentSerializableUtilities.getBoolean(childElement);
-            } else if (tagName.equals("numProcessed")) { 
+            } else if ("numProcessed".equals(tagName)) {
                 numProcessed = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsWhileProcessing")) { 
+            } else if ("numErrorsWhileProcessing".equals(tagName)) {
                 numErrorsWhileProcessing = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numToUnregisteredHandler")) { 
+            } else if ("numToUnregisteredHandler".equals(tagName)) {
                 numToUnregisteredHandler = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("totalProcessTime")) { 
+            } else if ("totalProcessTime".equals(tagName)) {
                 totalProcessTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("numMessagesSentViaWalker")) { 
+            } else if ("numMessagesSentViaWalker".equals(tagName)) {
                 numMessagesSentViaWalker = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numMessagesSentViaUnicast")) { 
+            } else if ("numMessagesSentViaUnicast".equals(tagName)) {
                 numMessagesSentViaUnicast = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsSendingMessages")) { 
+            } else if ("numErrorsSendingMessages".equals(tagName)) {
                 numErrorsSendingMessages = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsPropagatingMessages")) { 
+            } else if ("numErrorsPropagatingMessages".equals(tagName)) {
                 numErrorsPropagatingMessages = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("destination")) {
+            } else if ("destination".equals(tagName)) {
                 SrdiDestinationMetric srdiDestinationMetric = new SrdiDestinationMetric();
 
                 srdiDestinationMetric.initializeFrom(childElement);

@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -73,14 +72,11 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.PeerAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Implementation of {@link PeerAdvertisement} matching the standard JXTA

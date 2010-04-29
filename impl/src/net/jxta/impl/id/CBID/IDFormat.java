@@ -72,7 +72,7 @@ import java.util.logging.Logger;
  * @see net.jxta.id.ID
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
  */
-public class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
+public final class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
 
     /**
      * Log4J Logger
@@ -84,14 +84,14 @@ public class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
      * where we have to make ids which are in the world peer group. We only
      * use this ID for those cases and never return this ID.
      */
-    static final PeerGroupID worldPeerGroupID = new PeerGroupID(new UUID(0x5961626164616261L, 0x4A78746150325033L)); // YabadabaJXTAP2P!
+    public static final PeerGroupID worldPeerGroupID = new PeerGroupID(new UUID(0x5961626164616261L, 0x4A78746150325033L)); // YabadabaJXTAP2P!
 
     /**
      * Our local version of the net Peer Group ID. We need this for cases
      * where we have to make ids which are in the net peer group. We only
      * use this ID for those cases and never return this ID.
      */
-    static final PeerGroupID defaultNetPeerGroupID = new PeerGroupID(new UUID(0x5961626164616261L, 0x4E50472050325033L)); // YabadabaNPG P2P!
+    public static final PeerGroupID defaultNetPeerGroupID = new PeerGroupID(new UUID(0x5961626164616261L, 0x4E50472050325033L)); // YabadabaNPG P2P!
 
     /**
      * This table maps our local private versions of the well known ids to the
@@ -119,7 +119,7 @@ public class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
      * @param input the id to be translated.
      * @return the translated ID or the input ID if no translation was needed.
      */
-    static ID translateFromWellKnown(ID input) {
+    public static ID translateFromWellKnown(ID input) {
         for (Object[] wellKnownID : wellKnownIDs) {
             ID aWellKnown = (ID) wellKnownID[0];
 
@@ -137,7 +137,7 @@ public class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
      * @param input the id to be translated.
      * @return the translated ID or the input ID if no translation was needed.
      */
-    static ID translateToWellKnown(ID input) {
+    public static ID translateToWellKnown(ID input) {
         for (Object[] wellKnownID : wellKnownIDs) {
             ID aLocalEncoding = (ID) wellKnownID[1];
 

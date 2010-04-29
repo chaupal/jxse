@@ -1,7 +1,6 @@
 /*
  * The Apache Software License, Version 1.1
  *
- *
  * Copyright (c) 1999 The Apache Software Foundation.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,13 +53,13 @@
  * <http://www.apache.org/>.
  *
  */
+
 package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
 import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Value;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -79,6 +78,7 @@ import java.util.Stack;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 
 /**
  * Paged is a paged file implementation that is foundation for both the
@@ -213,7 +213,7 @@ public abstract class Paged {
      *
      * @param file The File
      */
-    protected final void setFile(final File file) {
+    protected final void setFile(File file) {
         this.file = file;
     }
 
@@ -252,8 +252,12 @@ public abstract class Paged {
                 try {
                     descriptors.wait();
                     return descriptors.pop();
-                } catch (InterruptedException e) {// Ignore, and continue to wait
-                } catch (EmptyStackException e) {// Ignore, and continue to wait
+                } catch (InterruptedException e) {
+                    // Ignore, and continue to wait
+                    Logging.logCheckedFinest(LOG, "Ignoring: ", e.toString());
+                } catch (EmptyStackException e) {
+                    // Ignore, and continue to wait
+                    Logging.logCheckedFinest(LOG, "Ignoring: ", e.toString());
                 }
             }
         }
@@ -267,7 +271,7 @@ public abstract class Paged {
         if (raf != null) {
             synchronized (descriptors) {
                 descriptors.push(raf);
-                descriptors.notify();
+                descriptors.notifyAll();
             }
         }
     }
@@ -280,7 +284,9 @@ public abstract class Paged {
         if (raf != null) {
             try {
                 raf.close();
-            } catch (IOException e) {// Ignore close exception
+            } catch (IOException e) {
+                // Ignore close exception
+                Logging.logCheckedFine(LOG, "Ignoring: ", e.toString());
             }
 
             // Synchronization is necessary as decrement operation is not atomic
@@ -666,7 +672,7 @@ public abstract class Paged {
         }
     }
 
-    void addDirty(Page page) throws IOException {
+    private void addDirty(Page page) throws IOException {
         synchronized (dirtyLock) {
             dirty.put(page.pageNum, page);
             if (dirty.size() > MAX_DIRTY_SIZE) {
@@ -687,15 +693,15 @@ public abstract class Paged {
         int error = 0;
 
         // Obtain collection of dirty pages
-        Collection<Page> pages;
+        Collection<Page> pagesTmp;
 
         synchronized (dirtyLock) {
-            pages = dirty.values();
+            pagesTmp = dirty.values();
             dirty = new HashMap<Long, Page>();
         }
 
         // Flush dirty pages
-        for (Object page : pages) {
+        for (Object page : pagesTmp) {
             Page p = (Page) page;
 
             try {
@@ -873,7 +879,8 @@ public abstract class Paged {
     /**
      * Paged file's header
      */
-    public abstract class FileHeader {
+    public class FileHeader {
+
         private boolean dirty = false;
         private int workSize;
 
@@ -1378,14 +1385,14 @@ public abstract class Paged {
                 RandomAccessFile raf = null;
 
                 try {
-                    byte[] data = new byte[fileHeader.pageSize];
+                    byte[] dataTmp = new byte[fileHeader.pageSize];
 
                     raf = getDescriptor();
                     raf.seek(this.offset);
-                    raf.read(data);
+                    raf.read(dataTmp);
 
                     // Read in the header
-                    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+                    ByteArrayInputStream bis = new ByteArrayInputStream(dataTmp);
 
                     this.header.read(new DataInputStream(bis));
 
@@ -1393,7 +1400,7 @@ public abstract class Paged {
                     this.dataPos = this.keyPos + this.header.keyLen;
 
                     // Successfully read all the data
-                    this.data = data;
+                    this.data = dataTmp;
                 } finally {
                     putDescriptor(raf);
                 }

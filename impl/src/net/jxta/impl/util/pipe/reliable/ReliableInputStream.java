@@ -56,14 +56,12 @@
 
 package net.jxta.impl.util.pipe.reliable;
 
-
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -73,6 +71,8 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
@@ -91,7 +91,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
      */
     private Outgoing outgoing;
     
-    private volatile boolean closed = false;
+    private AtomicBoolean closed = new AtomicBoolean(false);
     private boolean closing = false;
     
     private MsgListener listener = null;
@@ -104,7 +104,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
     /**
      *  The current sequence number we are reading bytes from.
      */
-    private volatile int sequenceNumber = 0;
+    private AtomicInteger sequenceNumber = new AtomicInteger(0);
     
     /**
      *  Queue of incoming messages.
@@ -139,7 +139,9 @@ public class ReliableInputStream extends InputStream implements Incoming {
             if (null != inputStream) {
                 try {
                     inputStream.close();
-                } catch (IOException ignored) {}
+                } catch (IOException ignored) {
+                    Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
+                }
             }
             inputStream = null;
             size = nextByte = 0;
@@ -152,9 +154,10 @@ public class ReliableInputStream extends InputStream implements Incoming {
      *  enqueueMessage().
      */
     private static class IQElt implements Comparable {
-        final int seqnum;
-        final MessageElement elt;
-        boolean ackd = false;
+
+        private final int seqnum;
+        private final MessageElement elt;
+        private boolean ackd = false;
         
         IQElt(int sequence, MessageElement element) {
             seqnum = sequence;
@@ -201,7 +204,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
         this.listener = listener;
         // 1 <= seq# <= maxint, monotonically increasing
         // Incremented before compare.
-        sequenceNumber = 0;
+        sequenceNumber.set(0);
 
         if (listener != null) {
             Logging.logCheckedInfo(LOG, "Listener based ReliableInputStream created");
@@ -219,7 +222,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
     public void close() throws IOException {
         super.close();
         synchronized (inputQueue) {
-            closed = true;
+            closed.set(true);
             inputQueue.clear();
             inputQueue.notifyAll();
         }
@@ -231,7 +234,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
      * @return true if closed
      */
     public boolean isInputShutdown() {
-        return closed;
+        return closed.get();
     }
     
     /**
@@ -266,9 +269,8 @@ public class ReliableInputStream extends InputStream implements Incoming {
      */
     @Override
     public int read() throws IOException {
-        if (closed) {
-            return -1;
-        }
+        
+        if (closed.get()) return -1;
         
         byte[] a = new byte[1];
         
@@ -298,13 +300,10 @@ public class ReliableInputStream extends InputStream implements Incoming {
      */
     @Override
     public int read(byte[] a, int offset, int length) throws IOException {
-        if (closed) {
-            return -1;
-        }
         
-        if (0 == length) {
-            return 0;
-        }
+        if (closed.get()) return -1;
+        
+        if (0 == length) return 0;
         
         int i = local_read(a, offset, length);
         
@@ -375,7 +374,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             
             outgoing.send(ACKMsg);
             
-            Logging.logCheckedFine(LOG, "SENT ACK, seqn#",  seqnAck, " and ", sackList.size(), " SACKs ");
+            Logging.logCheckedFine(LOG, "SENT ACK, seqn#", seqnAck, " and ", sackList.size(), " SACKs ");
             
         } catch (IOException e) {
 
@@ -395,21 +394,20 @@ public class ReliableInputStream extends InputStream implements Incoming {
         return !inputQueue.isEmpty();
     }
        
-    Message nextMessage(boolean blocking) throws IOException {
+    public Message nextMessage(boolean blocking) throws IOException {
 
         Logging.logCheckedFine(LOG, "nextMessage blocking?  [", blocking, "]");
         
-        MessageElement elt = dequeueMessage(sequenceNumber + 1, blocking);
-
+        MessageElement elt = dequeueMessage(sequenceNumber.get() + 1, blocking);
         if (null == elt) return null;
         
-        sequenceNumber += 1; // next msg sequence number
+        sequenceNumber.incrementAndGet(); // next msg sequence number
         
         Message msg;
 
         try {
 
-            Logging.logCheckedFine(LOG, "Converting message seqn :", (sequenceNumber - 1), "element to message");
+            Logging.logCheckedFine(LOG, "Converting message seqn :", (sequenceNumber.get() - 1), "element to message");
             msg = WireFormatMessageFactory.fromWire(elt.getStream(), Defs.MIME_TYPE_MSG, null);
 
         } catch (IOException ex) {
@@ -434,7 +432,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
         Iterator<MessageElement> eachElement = msg.getMessageElements(Defs.NAMESPACE, Defs.MIME_TYPE_BLOCK);
         
         // OK look for jxta message
-        while (!closed && !closing && eachElement.hasNext()) {
+        while (!closed.get() && !closing && eachElement.hasNext()) {
             MessageElement elt = eachElement.next();
 
             eachElement.remove();
@@ -460,7 +458,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             // enqueued.
             
             // see if this is a duplicate
-            if (newElt.seqnum <= sequenceNumber) {
+            if (newElt.seqnum <= sequenceNumber.get()) {
 
                 Logging.logCheckedFine(LOG, "RCVD OLD MESSAGE : Discard seqn#", newElt.seqnum, " now at seqn#", sequenceNumber);
                 break;
@@ -470,7 +468,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             synchronized (inputQueue) {
                 
                 // dbl check with the lock held.
-                if (closing || closed) {
+                if (closing || closed.get()) {
                     return;
                 }
                 
@@ -510,7 +508,9 @@ public class ReliableInputStream extends InputStream implements Incoming {
             while (true) {
                 try {
                     newmsg = nextMessage(false);
-                } catch (IOException io) {// do nothing as this exception will never occur
+                } catch (IOException io) {
+                    // do nothing as this exception will never occur
+                    Logging.logCheckedFine(LOG, "Ignored: ", io.toString());
                 }
                 if (newmsg == null) {
                     break;
@@ -533,7 +533,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
     }
     
-    long nextRetransRequest = TimeUtils.toAbsoluteTimeMillis(TimeUtils.ASECOND);
+    private long nextRetransRequest = TimeUtils.toAbsoluteTimeMillis(TimeUtils.ASECOND);
     
     /**
      *  Dequeue the message with the desired sequence number waiting as needed
@@ -546,6 +546,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
      *  the queue has been closed.
      */
     private MessageElement dequeueMessage(int desiredSeqn, boolean blocking) throws IOException {
+
         IQElt iQ = null;
         
         // Wait for incoming message here
@@ -554,7 +555,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
         int wct = 0;
         
         synchronized (inputQueue) {
-            while (!closed) {
+            while (!closed.get()) {
                 if (inputQueue.isEmpty()) {
                     if (!blocking) {
                         return null;
@@ -650,12 +651,11 @@ public class ReliableInputStream extends InputStream implements Incoming {
      */
     @Override
     public int available() throws IOException {
-        if (listener != null) {
-            throw new IOException("available() not supported in async mode");
-        }
-        if (closed) {
-            throw new IOException("Stream closed");
-        }
+
+        if (listener != null) throw new IOException("available() not supported in async mode");
+        
+        if (closed.get()) throw new IOException("Stream closed");
+        
         synchronized (record) {
             if (record.inputStream != null) {
                 if ((record.size == 0) || (record.nextByte == record.size)) {
@@ -666,14 +666,13 @@ public class ReliableInputStream extends InputStream implements Incoming {
                     // reset the record
                     record.resetRecord(); // GC as necessary(inputStream byte[])
                     
-                    Logging.logCheckedFine(LOG, "Getting next data block at seqn#", (sequenceNumber + 1));
+                    Logging.logCheckedFine(LOG, "Getting next data block at seqn#", (sequenceNumber.get() + 1));
                     
-                    MessageElement elt = dequeueMessage(sequenceNumber + 1, false);
+                    MessageElement elt = dequeueMessage(sequenceNumber.get() + 1, false);
 
-                    if (null == elt) {
-                        return 0;
-                    }
-                    sequenceNumber += 1; // next msg sequence number
+                    if (null == elt) return 0;
+                    
+                    sequenceNumber.incrementAndGet(); // next msg sequence number
                     // Get the length of the Record
                     record.size = elt.getByteLength();
                     record.inputStream = elt.getStream();
@@ -697,13 +696,13 @@ public class ReliableInputStream extends InputStream implements Incoming {
                 // reset the record
                 record.resetRecord(); // GC as necessary(inputStream byte[])
                 
-                Logging.logCheckedFine(LOG, "Getting next data block at seqn#", (sequenceNumber + 1));
+                Logging.logCheckedFine(LOG, "Getting next data block at seqn#", (sequenceNumber.get() + 1));
                 
-                MessageElement elt = dequeueMessage(sequenceNumber + 1, true);
+                MessageElement elt = dequeueMessage(sequenceNumber.get() + 1, true);
                 
                 if (null == elt) return -1;
                 
-                sequenceNumber += 1; // next msg sequence number
+                sequenceNumber.incrementAndGet(); // next msg sequence number
                 
                 // Get the length of the Record
                 record.size = elt.getByteLength();
@@ -723,10 +722,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
             
             do {
                 int res = record.inputStream.read(buf, offset + copied, copyLen - copied);
-                
-                if (res < 0) {
-                    break;
-                }
+                if (res < 0) break;
                 copied += res;
             } while (copied < copyLen);
             

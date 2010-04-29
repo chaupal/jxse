@@ -302,7 +302,7 @@ public interface NavigableMap extends SortedMap {
      *         outside the bounds of the range
      */
     NavigableMap subMap(Object fromKey, boolean fromInclusive,
-                        Object toKey,   boolean toInclusive);
+                        Object toKey,  boolean toInclusive);
 
     /**
      * Returns a view of the portion of this map whose keys are less than (or

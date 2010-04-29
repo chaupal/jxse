@@ -57,7 +57,7 @@
 
 package net.jxta.impl.endpoint.endpointMeter;
 
-import net.jxta.impl.meter.*;
+import net.jxta.impl.meter.MeterBuildSettings;
 
 /**
  * This interface contains a boolean controlling the execution of the Endpoint metering code.

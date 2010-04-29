@@ -135,17 +135,17 @@ public class EndpointServiceMonitorFilter implements ServiceMonitorFilter {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if (tagName.equals("includeOutboundMetrics")) { 
+            if ("includeOutboundMetrics".equals(tagName)) {
                 includeOutboundMetrics = DocumentSerializableUtilities.getBoolean(childElement);
             }
-            if (tagName.equals("includeInboundMetrics")) { 
+            if ("includeInboundMetrics".equals(tagName)) {
                 includeInboundMetrics = DocumentSerializableUtilities.getBoolean(childElement);
             }
-            if (tagName.equals("includePropagateMetrics")) { 
+            if ("includePropagateMetrics".equals(tagName)) {
                 includePropagateMetrics = DocumentSerializableUtilities.getBoolean(childElement);
             }
 		
-            if (tagName.equals("moduleClassID")) {
+            if ("moduleClassID".equals(tagName)) {
                 try {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));

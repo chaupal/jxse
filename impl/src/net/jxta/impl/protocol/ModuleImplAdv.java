@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -71,13 +70,10 @@ import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Provides XML serialization support for ModuleImplAdvertisement matching the

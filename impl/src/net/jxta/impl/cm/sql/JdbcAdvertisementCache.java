@@ -70,7 +70,6 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.ConnectionPoolDataSource;
 import net.jxta.document.Advertisement;
@@ -217,7 +216,9 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 			successful = true;
 		} 
 		catch(Exception e){
-			e.printStackTrace();
+
+			Logging.logCheckedSevere(LOG, e.toString());
+
 		}
 		finally {
 			closeResources(conn, !successful);
@@ -759,7 +760,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		}
 	}
 
-	static String SEARCH_RECORDS_SQL(boolean withValueMatch) {
+	private static String SEARCH_RECORDS_SQL(boolean withValueMatch) {
 		return "SELECT Record.data, Record.lifetime, Record.expiry\n" +
 		  "FROM Record, IndexField\n" +
 		  "WHERE Record.isAdvertisement = 1" +

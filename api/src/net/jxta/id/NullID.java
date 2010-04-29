@@ -61,23 +61,15 @@ package net.jxta.id;
  */
 public final class NullID extends ID {
 
-    final static String JXTAFormat = "jxta";
+    private final static String JXTAFormat = "jxta";
 
-    final static String UNIQUEVALUE = "Null";
+    private final static String UNIQUEVALUE = "Null";
 
     /**
      *  NullID is not intended to be constructed. You should use the
      *  {@link #nullID} constant instead.
      */
     NullID() {}
-
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object target) {
-        return (this == target); // null is only itself.
-    }
 
     /**
      * deserialization has to point back to the singleton in this VM.

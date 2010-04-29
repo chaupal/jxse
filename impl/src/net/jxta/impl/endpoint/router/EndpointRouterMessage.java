@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.router;
 
 import net.jxta.document.AdvertisementFactory;
@@ -68,10 +69,8 @@ import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -222,7 +221,8 @@ public class EndpointRouterMessage {
                         radv = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(e);
                     }
                 } catch (Exception ee) {
-                    // keep going
+                     Logging.logCheckedFine(LOG, "Ignored: ", ee.toString());
+
                 }
             }
             
@@ -235,6 +235,7 @@ public class EndpointRouterMessage {
             // give up. The dirty flag will get the element removed
             // from the message (if there was one) and we'll report
             // there was none.
+            Logging.logCheckedFine(LOG, "Ignored: ", eee.toString());
         }
     }
 
@@ -314,6 +315,7 @@ public class EndpointRouterMessage {
                         StructuredDocumentUtils.copyElements(doc, e, xptDoc);
                     } catch (Exception ignored) {
                         //ignored
+                        Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
                     }
                 }
             }
@@ -353,6 +355,7 @@ public class EndpointRouterMessage {
 
                     } catch (Exception e1) {
                         // ignored
+                        Logging.logCheckedFine(LOG, "Ignored: ", e1.toString());
                     }
                 }
             }

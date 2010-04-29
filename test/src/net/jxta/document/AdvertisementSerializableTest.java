@@ -95,7 +95,7 @@ public class AdvertisementSerializableTest extends TestCase{
     }
     private Hashtable<ID,Element> buildService(ID serviceid){
     	Hashtable<ID,Element> service = new Hashtable<ID,Element>();
-    	service.put(serviceid,  buildDesc());
+    	service.put(serviceid, buildDesc());
     	return service;
     }
     

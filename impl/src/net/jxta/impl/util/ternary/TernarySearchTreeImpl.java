@@ -264,7 +264,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         if ( startNode.data != null ) {
 
-            sortKeysBuffer.append( getKey( startNode ) + "\n" );
+            sortKeysBuffer.append( getKey( startNode )).append('\n');
             sortKeysNumReturnValues--;
         }
 
@@ -307,7 +307,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
                 sortKeysResult.addLast( getKey( currentNode ) );
             } else {
 
-                sortKeysBuffer.append( getKey( currentNode ) + "\n" );
+                sortKeysBuffer.append( getKey( currentNode )).append( '\n' );
             }
 
             sortKeysNumReturnValues--;
@@ -354,7 +354,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         if ( startNode == null ) {
 
-            return new String( "" );
+            return "";
         }
 
         sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
@@ -363,7 +363,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         if ( startNode.data != null ) {
 
-            sortKeysBuffer.append( getKey( startNode ) + "\n" );
+            sortKeysBuffer.append( getKey( startNode )).append( '\n' );
             sortKeysNumReturnValues--;
         }
 
@@ -485,11 +485,9 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
             // If instead the condition nextD >= 0 is used, then all keys having up to and including matchAlmostDiff mismatched letters
             // will be included in the result (including a key that is exactly the same as the target string).
             if ( matchAlmostListAction ) {
-
                 matchAlmostResult.addLast( getKey( currentNode ) );
             } else {
-
-                matchAlmostBuffer.append( getKey( currentNode ) + "\n" );
+                matchAlmostBuffer.append( getKey( currentNode ) ).append( '\n' );
             }
 
             matchAlmostNumReturnValues--;
@@ -706,16 +704,12 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
     public void deleteTree() {
 
-        if ( rootNode == null ) {
-
-            return;
-        }
+        if ( rootNode == null ) return;
 
         // Simply detach the lot and let gc deal with it
         rootNode.relatives = new TSTNode[ 4 ];
         rootNode.data = null;
 
-        System.gc();
     }
 
     /** Prints entire tree structure to standard output, beginning with the root node and workind down.

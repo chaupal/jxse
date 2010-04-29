@@ -58,12 +58,18 @@
 package net.jxta.impl.rendezvous.rendezvousMeter;
 
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 
 /**
  * This class is used to extract runtime rendezvous metering code configuration.
- *
  */
-public class ConditionalRendezvousMeterBuildSettings {
+public final class ConditionalRendezvousMeterBuildSettings {
+
+    /**
+     * Logger
+     */
+    private static final transient Logger LOG = Logger.getLogger(ConditionalRendezvousMeterBuildSettings.class.getName());
 
     /**
      * This method indicates whether the rendezvous metering code should be executed or not.
@@ -84,8 +90,16 @@ public class ConditionalRendezvousMeterBuildSettings {
                 String meteringValue = userResourceBundle.getString( meteringProperty );
                 runtimeMetering = "on".equalsIgnoreCase( meteringValue );
         } catch (Exception ignored) {
+            Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
         }
 
         return runtimeMetering;
     }
+
+    /**
+     * Default constructor
+     */
+    private ConditionalRendezvousMeterBuildSettings() {
+    }
+
 }

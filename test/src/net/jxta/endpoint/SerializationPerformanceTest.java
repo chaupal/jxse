@@ -56,20 +56,10 @@
 
 package net.jxta.endpoint;
 
-
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
-
 import junit.framework.*;
-
 import net.jxta.document.MimeMediaType;
-import net.jxta.endpoint.ByteArrayMessageElement;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.WireFormatMessage;
-import net.jxta.endpoint.WireFormatMessageFactory;
-import net.jxta.util.DevNullOutputStream;
-
 
 /**
  *

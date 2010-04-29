@@ -123,21 +123,21 @@ public class QueryHandlerMetric implements DocumentSerializable {
         this.handlerName = prototype.handlerName;
     }
 
-    void responseProcessed(long responseTime, long processingTime) {
+    public void responseProcessed(long responseTime, long processingTime) {
         numResponses++;
         responseTime += responseTime;
         responseProcessingTime += processingTime;
     }
 
-    void responseToUnregisteredHandler() {
+    public void responseToUnregisteredHandler() {
         numResponsesToUnregisteredHandler++;
     }
 
-    void errorWhileProcessingResponse() {
+    public void errorWhileProcessingResponse() {
         numResponseErrors++;
     }
 
-    void queryProcessed(int result, long processingTime) {
+    public void queryProcessed(int result, long processingTime) {
         numQueries++;
 
         if (result == ResolverService.Repropagate) {
@@ -147,71 +147,71 @@ public class QueryHandlerMetric implements DocumentSerializable {
         queryProcessingTime += processingTime;
     }
 
-    void queryToUnregisteredHandler() {
+    public void queryToUnregisteredHandler() {
         numQueriesToUnregisteredHandler++;
     }
 	
-    void errorWhileProcessingQuery() {
+    public void errorWhileProcessingQuery() {
         numQueryErrors++;
     }
 
-    void querySentInGroup() {
+    public void querySentInGroup() {
         numQueriesSentInGroup++;
     }
 
-    void querySentViaWalker() {
+    public void querySentViaWalker() {
         numQueriesSentViaWalker++;
     }
 
-    void querySentViaUnicast(String peer) {
+    public void querySentViaUnicast(String peer) {
         numQueriesSentViaUnicast++;
     }
 
-    void querySendError() {
+    public void querySendError() {
         numErrorsSendingQueries++;
     }
 
-    void queryPropagateError() {
+    public void queryPropagateError() {
         numErrorsPropagatingQueries++;
     }
 
-    void queryHopCountDropped() {
+    public void queryHopCountDropped() {
         numQueriesHopCountDropped++;
     }
 
-    void responseSentInGroup() {
+    public void responseSentInGroup() {
         numResponsesSentInGroup++;
     }
 
-    void responseSentViaWalker() {
+    public void responseSentViaWalker() {
         numResponsesSentViaWalker++;
     }
 
-    void responseSentViaUnicast() {
+    public void responseSentViaUnicast() {
         numResponsesSentViaUnicast++;
     }
 
-    void responseSendError() {
+    public void responseSendError() {
         numErrorsSendingResponses++;
     }
 	
-    void responsePropagateError() {
+    public void responsePropagateError() {
         numErrorsPropagatingResponses++;
     }
 
-    void propagationQueryDropped() {
+    public void propagationQueryDropped() {
         numPropagationQueriesDropped++;
     }
 
-    void queryPropagatedInGroup() {
+    public void queryPropagatedInGroup() {
         numPropagatedInGroup++;
     }
 
-    void queryPropagatedViaWalker() {
+    public void queryPropagatedViaWalker() {
         numPropagatedViaWalker++;
     }
 
-    void unableToPropagate() {
+    public void unableToPropagate() {
         numUnableToPropagate++;
     }
 
@@ -220,7 +220,7 @@ public class QueryHandlerMetric implements DocumentSerializable {
         if (obj instanceof QueryHandlerMetric) {
             QueryHandlerMetric otherQueryHandlerMetric = (QueryHandlerMetric) obj;
 
-            return handlerName.equals((otherQueryHandlerMetric.handlerName));
+            return handlerName.equals(otherQueryHandlerMetric.handlerName);
         } else {
             return false;
         }
@@ -231,7 +231,7 @@ public class QueryHandlerMetric implements DocumentSerializable {
         return handlerName.hashCode();
     }
 
-    void setRegistered(boolean isRegistered) {
+    public void setRegistered(boolean isRegistered) {
         this.registered = isRegistered ? REGISTERED : UNREGISTERED;
     }
 
@@ -483,61 +483,61 @@ public class QueryHandlerMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if (tagName.equals("handlerName")) { 
+            if ("handlerName".equals(tagName)) {
                 handlerName = DocumentSerializableUtilities.getString(childElement);
-            } else if (tagName.equals("registered")) { 
+            } else if ("registered".equals(tagName)) {
                 registered = DocumentSerializableUtilities.getString(childElement);
-            } else if (tagName.equals("numResponses")) { 
+            } else if ("numResponses".equals(tagName)) {
                 numResponses = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("responseProcessingTime")) { 
+            } else if ("responseProcessingTime".equals(tagName)) {
                 responseProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("responseTime")) { 
+            } else if ("responseTime".equals(tagName)) {
                 responseTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("numResponseErrors")) { 
+            } else if ("numResponseErrors".equals(tagName)) {
                 numResponseErrors = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueries")) { 
+            } else if ("numQueries".equals(tagName)) {
                 numQueries = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueriesRepropagated")) { 
+            } else if ("numQueriesRepropagated".equals(tagName)) {
                 numQueriesRepropagated = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("queryProcessingTime")) { 
+            } else if ("queryProcessingTime".equals(tagName)) {
                 queryProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("numQueryErrors")) { 
+            } else if ("numQueryErrors".equals(tagName)) {
                 numQueryErrors = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueriesSentInGroup")) { 
+            } else if ("numQueriesSentInGroup".equals(tagName)) {
                 numQueriesSentInGroup = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueriesSentViaWalker")) { 
+            } else if ("numQueriesSentViaWalker".equals(tagName)) {
                 numQueriesSentViaWalker = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueriesSentViaUnicast")) { 
+            } else if ("numQueriesSentViaUnicast".equals(tagName)) {
                 numQueriesSentViaUnicast = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsSendingQueries")) { 
+            } else if ("numErrorsSendingQueries".equals(tagName)) {
                 numErrorsSendingQueries = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsPropagatingQueries")) { 
+            } else if ("numErrorsPropagatingQueries".equals(tagName)) {
                 numErrorsPropagatingQueries = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueriesHopCountDropped")) { 
+            } else if ("numQueriesHopCountDropped".equals(tagName)) {
                 numQueriesHopCountDropped = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numPropagationQueriesDropped")) { 
+            } else if ("numPropagationQueriesDropped".equals(tagName)) {
                 numPropagationQueriesDropped = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numPropagatedInGroup")) { 
+            } else if ("numPropagatedInGroup".equals(tagName)) {
                 numPropagatedInGroup = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numPropagatedViaWalker")) { 
+            } else if ("numPropagatedViaWalker".equals(tagName)) {
                 numPropagatedViaWalker = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numUnableToPropagate")) { 
+            } else if ("numUnableToPropagate".equals(tagName)) {
                 numUnableToPropagate = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numResponsesToUnregisteredHandler")) { 
+            } else if ("numResponsesToUnregisteredHandler".equals(tagName)) {
                 numResponsesToUnregisteredHandler = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numQueriesToUnregisteredHandler")) { 
+            } else if ("numQueriesToUnregisteredHandler".equals(tagName)) {
                 numQueriesToUnregisteredHandler = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numResponsesSentInGroup")) { 
+            } else if ("numResponsesSentInGroup".equals(tagName)) {
                 numResponsesSentInGroup = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numResponsesSentViaWalker")) { 
+            } else if ("numResponsesSentViaWalker".equals(tagName)) {
                 numResponsesSentViaWalker = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numResponsesSentViaUnicast")) { 
+            } else if ("numResponsesSentViaUnicast".equals(tagName)) {
                 numResponsesSentViaUnicast = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsSendingResponses")) { 
+            } else if ("numErrorsSendingResponses".equals(tagName)) {
                 numErrorsSendingResponses = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numErrorsPropagatingResponses")) { 
+            } else if ("numErrorsPropagatingResponses".equals(tagName)) {
                 numErrorsPropagatingResponses = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("destination")) {
+            } else if ("destination".equals(tagName)) {
                 QueryDestinationMetric queryDestinationMetric = new QueryDestinationMetric();
 
                 queryDestinationMetric.initializeFrom(childElement);

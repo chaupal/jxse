@@ -56,11 +56,9 @@
 
 package net.jxta.protocol;
 
-
 import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
 import net.jxta.document.ExtendableAdvertisement;
-
 
 /**
  * A container for signed Advertisements

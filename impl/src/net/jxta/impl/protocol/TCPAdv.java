@@ -662,8 +662,8 @@ public class TCPAdv extends TransportAdvertisement {
             return true;
         }
 
-        String value = elem.getTextValue();
-        if ((null == value) || (0 == value.trim().length())) {
+        String value = elem.getTextValue().trim();
+        if ((null == value) || (0 == value.length())) {
             return false;
         }
 

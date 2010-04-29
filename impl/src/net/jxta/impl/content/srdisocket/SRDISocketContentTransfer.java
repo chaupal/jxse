@@ -64,7 +64,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.Content;
@@ -224,7 +223,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
         Logging.logCheckedFine(LOG, "Sources remaining: ", sourcesRemaining.size());
         Logging.logCheckedFine(LOG, "Sources tried    : ", sourcesTried.size());
 
-        if (sourcesRemaining.size() == 0) {
+        if (sourcesRemaining.isEmpty()) {
 
             Logging.logCheckedFine(LOG, "No sources remaining to try");
             return ContentTransferState.STALLED;
@@ -275,7 +274,7 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
             
         } catch (IOException iox) {
 
-            throw(new TransferException("Retrieval attempt failed", iox));
+            throw new TransferException("Retrieval attempt failed", iox);
 
         } finally {
 
@@ -300,13 +299,13 @@ public class SRDISocketContentTransfer extends AbstractContentTransfer {
         return result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void cancel() {
-        super.cancel();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public void cancel() {
+//        super.cancel();
+//    }
 
     //////////////////////////////////////////////////////////////////////////
     // Private methods:

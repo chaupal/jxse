@@ -123,7 +123,7 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
             TextElement element = (TextElement) elements.nextElement();
             String elementName = element.getName();
 
-            if (elementName.equals("sourcePid")) {
+            if ("sourcePid".equals(elementName)) {
                 try {
                     URI peerid = new URI(element.getTextValue());
                     ID id = IDFactory.fromURI(peerid);
@@ -138,7 +138,7 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
                 continue;
             }
 
-            if (elementName.equals("targetPid")) {
+            if ("targetPid".equals(elementName)) {
                 try {
                     URI peerid = new URI(element.getTextValue());
                     PeerID id = (PeerID) IDFactory.fromURI(peerid);
@@ -151,17 +151,17 @@ public class PeerInfoResponseMsg extends PeerInfoResponseMessage {
                 }
             }
 
-            if (elementName.equals("uptime")) {
+            if ("uptime".equals(elementName)) {
                 setUptime(Long.parseLong(element.getTextValue()));
                 continue;
             }
 
-            if (elementName.equals("timestamp")) {
+            if ("timestamp".equals(elementName)) {
                 setTimestamp(Long.parseLong(element.getTextValue()));
                 continue;
             }
 
-            if (elementName.equals("response")) {
+            if ("response".equals(elementName)) {
                 Enumeration elems = element.getChildren();
 
                 if (elems.hasMoreElements()) {

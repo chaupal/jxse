@@ -56,19 +56,16 @@
 
 package net.jxta.impl.meter;
 
-
 import net.jxta.meter.ServiceMonitor;
 import net.jxta.meter.ServiceMonitorFilter;
-
 import java.util.Iterator;
 import java.util.LinkedList;
-
 
 public class ServiceMonitorPulseInfo {
     public static final int NOT_PULSING = MonitorManager.NOT_PULSING;
 	
     private MonitorManager monitorManager;
-    ServiceMonitor serviceMonitor;
+    protected ServiceMonitor serviceMonitor;
     private LinkedList<RegisteredServiceMonitorFilter> registeredServiceMonitorFilters = new LinkedList<RegisteredServiceMonitorFilter>();
     private int pulseRateIndex = NOT_PULSING; // quickestReportRateIndex registered for this service
     private long pulseRate = NOT_PULSING; // quickestReportRate registered for this service
@@ -76,8 +73,8 @@ public class ServiceMonitorPulseInfo {
     private boolean pulsing;
 
     private class RegisteredServiceMonitorFilter {
-        ServiceMonitorFilter serviceMonitorFilter;
-        int reportRateIndex;
+        private ServiceMonitorFilter serviceMonitorFilter;
+        private int reportRateIndex;
 
         RegisteredServiceMonitorFilter(ServiceMonitorFilter serviceMonitorFilter, int reportRateIndex) {
             this.serviceMonitorFilter = serviceMonitorFilter;
@@ -117,7 +114,7 @@ public class ServiceMonitorPulseInfo {
         return (filtersPerRate[pulseRateIndex] != 0);
     }	
 
-    void registerServiceMonitorFilter(ServiceMonitorFilter serviceMonitorFilter, int reportRateIndex, long reportRate) {
+    public void registerServiceMonitorFilter(ServiceMonitorFilter serviceMonitorFilter, int reportRateIndex, long reportRate) {
         RegisteredServiceMonitorFilter registeredServiceMonitorFilter = new RegisteredServiceMonitorFilter(serviceMonitorFilter
                 ,
                 reportRateIndex);
@@ -142,7 +139,8 @@ public class ServiceMonitorPulseInfo {
         serviceMonitor.serviceMonitorFilterRegistered(serviceMonitorFilter, reportRateIndex, reportRate, newRate);
     }
 
-    boolean deregisterServiceMonitorFilter(ServiceMonitorFilter serviceMonitorFilter, int reportRateIndex, long reportRate) {
+    public boolean deregisterServiceMonitorFilter(ServiceMonitorFilter serviceMonitorFilter, int reportRateIndex, long reportRate) {
+
         boolean removed = false;
 		
         for (Iterator<RegisteredServiceMonitorFilter> i = registeredServiceMonitorFilters.iterator(); i.hasNext();) {

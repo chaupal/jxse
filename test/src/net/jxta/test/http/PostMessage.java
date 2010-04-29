@@ -104,15 +104,15 @@ public class PostMessage extends GetMessage {
         return getHeader(Constants.MIME.Key.CONTENT_TYPE);
     }
 
-    @Override
-    public void setBody(String body) {
-        super.setBody(body);
-    }
+//    @Override
+//    public void setBody(String body) {
+//        super.setBody(body);
+//    }
 
-    @Override
-    public String getBody() {
-        return super.getBody();
-    }
+//    @Override
+//    public String getBody() {
+//        return super.getBody();
+//    }
 
     @Override
     public Message dispatch() throws IOException {
@@ -126,7 +126,7 @@ public class PostMessage extends GetMessage {
                 doGet();
                 doPost();
             } catch (IOException ioe) {
-                throw new IOException(ioe.getMessage());
+                throw ioe;
             }
 
             response = getResponse(to);

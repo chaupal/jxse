@@ -74,10 +74,10 @@ import java.nio.channels.SocketChannel;
  */
 public class TlsSocket extends Socket {
 
-    final JTlsInputStream input;
-    final JTlsOutputStream output;
+    protected final JTlsInputStream input;
+    protected final JTlsOutputStream output;
 
-    boolean connected = true;
+    private boolean connected = true;
 
     /**
      * Creates a new instance of TlsSocket

@@ -56,9 +56,6 @@
 
 package net.jxta.test.http;
 
-
-import java.security.Security;
-import java.security.Provider;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.HttpURLConnection;
@@ -74,7 +71,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-
 
 /**
  *
@@ -145,13 +141,13 @@ public class GetMessage
     }
 
     public void removeHeader(String key) throws NullPointerException {
-        if (key == null) {
-            throw new NullPointerException("null key");
-        }
 
-        if (this.message != null) {
+        if (key == null)
+            throw new NullPointerException("null key");
+        
+        if (this.message != null) 
             this.message.removeHeader(key);
-        }
+        
     }
 
     public boolean isUnicodeEncoding() {
@@ -224,7 +220,7 @@ public class GetMessage
                 try {
                     doGet();
                 } catch (IOException ioe) {
-                    throw new IOException(ioe.getMessage());
+                    throw ioe;
                 }
 
                 response = getResponse(u);
@@ -287,7 +283,7 @@ public class GetMessage
         int contentLength = -1;
 
         try {
-            contentLength = Integer.valueOf(cl != null ? cl : "-1").intValue();
+            contentLength = Integer.valueOf(cl != null ? cl : "-1");
         } catch (NumberFormatException nfe) {}
 
         String contentType = m.getHeader(Constants.MIME.Key.CONTENT_TYPE);

@@ -53,19 +53,16 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.endpoint.cbjx;
 
+package net.jxta.impl.endpoint.cbjx;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.logging.Logging;
-
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class is the Messenger used to send CbJx Messages
@@ -87,7 +84,7 @@ public class CbJxMessenger extends BlockingMessenger {
      * A string which we can lock on while acquiring new messengers. We don't
      * want to lock the whole object.
      */
-    private final Object acquireMessengerLock = new String("Messenger Acquire Lock");
+    private final static Object acquireMessengerLock = "Messenger Acquire Lock";
 
     /**
      * Cached messenger for sending to {@link #newDestAddr}
@@ -194,7 +191,7 @@ public class CbJxMessenger extends BlockingMessenger {
      * @param msg The message to send to the remote peer.
      * @throws IOException if there was a problem sending the message.
      **/
-    void sendTo( Message msg ) throws IOException {
+    public void sendTo( Message msg ) throws IOException {
 
         synchronized (acquireMessengerLock) {
 

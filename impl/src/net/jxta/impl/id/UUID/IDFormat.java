@@ -174,7 +174,7 @@ public class IDFormat {
      * @param input the id to be translated.
      * @return the translated ID or the input ID if no translation was needed.
      */
-    static ID translateFromWellKnown(ID input) {
+    public static ID translateFromWellKnown(ID input) {
         for (Object[] wellKnownID : wellKnownIDs) {
             ID aWellKnown = (ID) wellKnownID[0];
 
@@ -192,7 +192,7 @@ public class IDFormat {
      * @param input the id to be translated.
      * @return the translated ID or the input ID if no translation was needed.
      */
-    static ID translateToWellKnown(ID input) {
+    public static ID translateToWellKnown(ID input) {
         for (Object[] wellKnownID : wellKnownIDs) {
             ID aLocalEncoding = (ID) wellKnownID[1];
 

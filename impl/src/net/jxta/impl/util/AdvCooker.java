@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *  
@@ -58,7 +56,6 @@
 
 package net.jxta.impl.util;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
@@ -77,13 +74,11 @@ import net.jxta.protocol.ModuleClassAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 
 /**
  * Advertisements and ID's "cooked" according to recipes lifted
@@ -98,7 +93,7 @@ import java.util.Map;
  *
  **/
 @Deprecated
-public class AdvCooker {
+public final class AdvCooker {
     
     /**
      * Reconstructs a ModuleClassID from its String representation
@@ -108,7 +103,7 @@ public class AdvCooker {
      * @throws URISyntaxException -- if url is messed up
      * @return -- module class id reconstructed from String
      */
-    private static ModuleClassID buildModuleClassID(String uri) throws URISyntaxException {
+    public static ModuleClassID buildModuleClassID(String uri) throws URISyntaxException {
         return (ModuleClassID) IDFactory.fromURI(new URI(uri));
     }
     
@@ -119,7 +114,7 @@ public class AdvCooker {
      * @throws URISyntaxException -- if url is messed up
      * @return -- module spec id reconstructed from String
      */
-    private static ModuleSpecID buildModuleSpecID(String uri) throws URISyntaxException {
+    public static ModuleSpecID buildModuleSpecID(String uri) throws URISyntaxException {
         return (ModuleSpecID) IDFactory.fromURI(new URI(uri));
     }
     
@@ -327,7 +322,8 @@ public class AdvCooker {
      * @throws Exception --- if the parent can't produce a copy of its own impl advert
      */
     public static ModuleImplAdvertisement buildPeerGroupImplAdvertisement(StdPeerGroup parent, ModuleSpecID newGroupModuleSpecID, String newDescription, Map newServices) throws Exception {
-        Map newApps = null, newProtos = null;
+
+//        Map newApps = null, newProtos = null;
 
         // illegal types will cause an IllegalArgumentException
         typeCheckKeys(newServices);
@@ -353,7 +349,8 @@ public class AdvCooker {
     }
     
     public static ModuleImplAdvertisement buildPeerGroupImplAdvertisement(PeerGroup parent, ModuleSpecID newGroupModuleSpecID, String newDescription, Map newServices, Map newApps) throws Exception {
-        Map newProtos = null;
+
+//        Map newProtos = null;
 
         // illegal types will cause an IllegalArgumentException
         typeCheckKeys(newServices);
@@ -458,9 +455,9 @@ public class AdvCooker {
             Object value = moduleTable.get(keys.next());
             boolean legalValue = value instanceof ModuleImplAdvertisement;
 
-            if (!legalValue) {
-                throw(new IllegalArgumentException(badVal + value));
-            }
+            if (!legalValue) 
+                throw new IllegalArgumentException(badVal + value);
+            
         }
     }
     
@@ -478,9 +475,7 @@ public class AdvCooker {
             Object key = keys.next();
             boolean legalKey = key instanceof ModuleClassID;
 
-            if (!legalKey) {
-                throw(new IllegalArgumentException(badKey + key));
-            }
+            if (!legalKey) throw new IllegalArgumentException(badKey + key);
         }
     }
     
@@ -511,5 +506,11 @@ public class AdvCooker {
             mergedServices.put(key, newServices.get(key));
         }
         return mergedServices;
+    }
+
+    /**
+     * Default constructor
+     */
+    private AdvCooker() {
     }
 }

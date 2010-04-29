@@ -54,6 +54,7 @@
  * <http://www.apache.org/>.
  *
  */
+
 package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.DBException;
@@ -62,12 +63,12 @@ import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Record;
 import net.jxta.impl.xindice.core.data.RecordSet;
 import net.jxta.impl.xindice.core.data.Value;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * MemFiler is an In-Memory Filer implementation for Xindice.  MemFiler can be
@@ -80,6 +81,12 @@ import java.util.Map;
  **/
 @Deprecated
 public final class MemFiler implements Filer {
+
+    /**
+     * LOG
+     */
+    private final static Logger LOG = Logger.getLogger(MemFiler.class.getName());
+
     private Map<Key, Record> hashTable = null;
     private Map<Long, Key> posTable = null;
     private boolean opened = false;
@@ -220,11 +227,11 @@ public final class MemFiler implements Filer {
 
         public synchronized Value getNextValue() throws DBException {
             checkOpened();
-            return (it.next()).getValue();
+            return it.next().getValue();
         }
 
         public synchronized Key getNextKey() {
-            return (it.next()).getKey();
+            return it.next().getKey();
         }
     }
 }

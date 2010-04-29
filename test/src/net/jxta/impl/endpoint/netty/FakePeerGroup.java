@@ -1,9 +1,9 @@
+
 package net.jxta.impl.endpoint.netty;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
-
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -84,7 +84,7 @@ public class FakePeerGroup implements PeerGroup {
         throw new RuntimeException("not implemented");
     }
 
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
+    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
         throw new RuntimeException("not implemented");
     }
 

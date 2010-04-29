@@ -78,10 +78,10 @@ import java.util.Hashtable;
 
 public class EndpointServiceStatsFilter implements MessageFilterListener {
 
-    long lastMessageTime;
-    Hashtable channelTrafficTable;
-    Hashtable sourceCountTable;
-    Hashtable destCountTable;
+    private long lastMessageTime;
+    private Hashtable channelTrafficTable;
+    private Hashtable sourceCountTable;
+    private Hashtable destCountTable;
 
     public EndpointServiceStatsFilter() {
 
@@ -188,6 +188,6 @@ public class EndpointServiceStatsFilter implements MessageFilterListener {
     }
 
     private static final class Counter {
-        long value;
+        private long value;
     }
 }

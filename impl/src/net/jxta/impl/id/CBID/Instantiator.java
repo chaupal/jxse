@@ -76,7 +76,7 @@ public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
     /**
      * Our ID Format
      */
-    final static String CBIDEncoded = "cbid";
+    public final static String CBIDEncoded = "cbid";
 
     /**
      * {@inheritDoc}
@@ -236,7 +236,6 @@ public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      */
     public net.jxta.peer.PeerID newPeerID(net.jxta.peergroup.PeerGroupID groupID) {
         PeerGroupID peerGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(groupID);
-
         throw new UnsupportedOperationException("Must provide a cert as seed to generate a peer id.");
     }
 
@@ -245,7 +244,6 @@ public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      */
     public net.jxta.peer.PeerID newPeerID(net.jxta.peergroup.PeerGroupID groupID, byte[] seed) {
         PeerGroupID peerGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(groupID);
-
         return new PeerID(peerGroupID, seed);
     }
 

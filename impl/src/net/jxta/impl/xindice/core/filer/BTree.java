@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -56,15 +53,15 @@ package net.jxta.impl.xindice.core.filer;
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
-
  */
+
+package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
 import net.jxta.impl.xindice.core.data.Value;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.logging.Logging;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -75,9 +72,7 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * BTree represents a Variable Magnitude Simple-Prefix B+Tree File.
@@ -106,7 +101,12 @@ import java.util.logging.Logger;
  */
 
 public class BTree extends Paged {
-    private final static Logger LOG = Logger.getLogger(BTree.class.getName());
+
+    /**
+     * LOG
+     */
+    private static final Logger LOG = Logger.getLogger(BTree.class.getName());
+
     protected static final byte LEAF = 1;
     protected static final byte BRANCH = 2;
     protected static final byte STREAM = 3;

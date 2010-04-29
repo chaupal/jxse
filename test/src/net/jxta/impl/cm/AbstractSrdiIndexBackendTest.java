@@ -451,7 +451,7 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		srdiIndex.stop();
 	}
 	
-	protected abstract Expectations createExpectationsForConstruction_withPeerGroup_IndexName(final PeerGroup mockGroup, final PeerGroupID groupId, String groupName);
+	protected abstract Expectations createExpectationsForConstruction_withPeerGroup_IndexName(PeerGroup mockGroup, PeerGroupID groupId, String groupName);
 	
 	protected <T> void assertContains(List<T> entries, T... expected) {
 		assertContains(entries, null, expected);

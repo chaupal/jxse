@@ -71,7 +71,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,24 +113,24 @@ class JTlsOutputStream extends OutputStream {
     /**
      *  If true then the stream has been closed.
      **/
-    private volatile boolean closed = false;
+    private AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
      * If true then the stream is being closed.
      * It means that it still works completely for all messages already
      * queued, but no new message may be enqueued.
      **/
-    private volatile boolean closing = false;
+    private AtomicBoolean closing = new AtomicBoolean(false);
 
     /**
      *  Sequence number of the message we most recently sent out.
      **/
-    private volatile int sequenceNumber = 0;
+    private AtomicInteger sequenceNumber = new AtomicInteger(0);
 
     /**
      *  Sequence number of highest sequential ACK.
      **/
-    private volatile int maxACK = 0;
+    private AtomicInteger maxACK = new AtomicInteger(0);
 
     /**
      *  Transport we are working for
@@ -147,8 +149,8 @@ class JTlsOutputStream extends OutputStream {
     /**
      *  Average round trip time in milliseconds.
      **/
-    private volatile long aveRTT = initRTT;
-    private volatile long remRTT = 0;
+    private AtomicLong aveRTT = new AtomicLong(initRTT);
+    private AtomicLong remRTT = new AtomicLong(0);
 
     /**
      *  Number of ACK message received.
@@ -158,27 +160,27 @@ class JTlsOutputStream extends OutputStream {
     /**
      *  Retry Time Out measured in milliseconds.
      **/
-    private volatile long RTO = 0;
+    private AtomicLong RTO = new AtomicLong(0);
 
     /**
      *  Minimum Retry Timeout measured in milliseconds.
      **/
-    private volatile long minRTO = initRTT;
+    private AtomicLong minRTO = new AtomicLong(initRTT);
 
     /**
      *  Maximum Retry Timeout measured in milliseconds.
      **/
-    private volatile long maxRTO = initRTT * 5;
+    private AtomicLong maxRTO = new AtomicLong(initRTT * 5);
 
     /**
      *  absolute time in milliseconds of last sequential ACK.
      **/
-    private volatile long lastACKTime = 0;
+    private AtomicLong lastACKTime = new AtomicLong(0);
 
     /**
      *  absolute time in milliseconds of last SACK based retransmit.
      **/
-    private volatile long sackRetransTime = 0;
+    private AtomicLong sackRetransTime = new AtomicLong(0);
 
     /**
      *   The collection of messages available for re-transmission.
@@ -192,7 +194,7 @@ class JTlsOutputStream extends OutputStream {
     /**
      *  Our estimation of the current free space in the remote input queue.
      **/
-    private volatile int mrrIQFreeSpace = 0;
+    private AtomicInteger mrrIQFreeSpace = new AtomicInteger(0);
 
     /**
      *  Our estimation of the maximum sise of the remote input queue.
@@ -204,7 +206,7 @@ class JTlsOutputStream extends OutputStream {
      * Once stabilisation is established, downward tracking of RTO is suspended
      * Set to zero to defeat this behaviour.
      */
-    private volatile int stabalizationAckCount = 0;
+    private AtomicInteger stabalizationAckCount = new AtomicInteger(0);
     
     /**
      * retrans queue element
@@ -228,18 +230,18 @@ class JTlsOutputStream extends OutputStream {
     JTlsOutputStream(TlsTransport tp, TlsConn conn) {
     	
         String maxrto = System.getProperty( "net.jxta.tlsout.maxrto" );
-        if( null != maxrto ){
-        	this.maxRTO = Integer.parseInt( maxrto );
-        }
+        if( null != maxrto )
+        	this.maxRTO.set(Integer.parseInt( maxrto ));
+        
 
         String minrto = System.getProperty( "net.jxta.tlsout.minrto" );
         if( null != minrto ){
-        	this.minRTO = Integer.parseInt( minrto );
+        	this.minRTO.set(Integer.parseInt( minrto ));
         }
 
         String ackStabilizaton = System.getProperty( "net.jxta.tlsout.stablizeacks" );
         if( null != ackStabilizaton ){
-        	this.stabalizationAckCount = Integer.parseInt( ackStabilizaton );
+        	this.stabalizationAckCount.set(Integer.parseInt( ackStabilizaton ));
         }
     	
         this.conn = conn; // TlsConnection.
@@ -249,11 +251,11 @@ class JTlsOutputStream extends OutputStream {
 
         // input free queue size
         this.rmaxQSize = 20;
-        this.mrrIQFreeSpace = rmaxQSize;
+        this.mrrIQFreeSpace.set(rmaxQSize);
 
         // Init last ACK Time to now
-        this.lastACKTime = TimeUtils.timeNow();
-        this.sackRetransTime = TimeUtils.timeNow();
+        this.lastACKTime.set(TimeUtils.timeNow());
+        this.sackRetransTime.set(TimeUtils.timeNow());
 
         // Start retransmission thread
         this.retransmitter = new Retransmitter();
@@ -265,15 +267,13 @@ class JTlsOutputStream extends OutputStream {
      *  <p/>We don't current support linger.
      **/
     @Override
-    public void close() throws IOException {
-        synchronized (this) {
-            super.close();
-            closed = true;
-        }
-        synchronized (retrQ) {
-            retrQ.notifyAll();
-            retrQ.clear();
-        }
+    public synchronized void close() throws IOException {
+
+        super.close();
+        closed.set(true);
+        retrQ.notifyAll();
+        retrQ.clear();
+        
     }
 
     /**
@@ -286,7 +286,7 @@ class JTlsOutputStream extends OutputStream {
      **/
     public void setClosing() {
         synchronized (retrQ) {
-            closing = true;
+            closing.set(true);
             retrQ.clear();
             retrQ.notifyAll();
         }
@@ -332,23 +332,20 @@ class JTlsOutputStream extends OutputStream {
         Message jmsg = new Message();
 
         try {
-            if (closed) {
+            if (closed.get())
                 throw new IOException("stream is closed");
-            }
-            if (closing) {
+            
+            if (closing.get())
                 throw new IOException("stream is being closed");
-            }
-            if (b == null) {
+            
+            if (b == null)
                 throw new IllegalArgumentException("buffer is null");
-            }
-
-            if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {
+            
+            if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0))
                 throw new IndexOutOfBoundsException();
-            }
-
-            if (len == 0) {
+            
+            if (len == 0) 
                 return;
-            }
 
             // Copy the data since it will be queued, and caller may
             // overwrite the same byte[] buffer.
@@ -359,9 +356,10 @@ class JTlsOutputStream extends OutputStream {
             // sync so that writes don't get out of order.
             synchronized (retrQ) {
                 // add TLS record as element
-                MessageElement ciphertext = new ByteArrayMessageElement(Integer.toString(++sequenceNumber), JTlsDefs.BLOCKS, data
+                MessageElement ciphertext = new ByteArrayMessageElement(Integer.toString(sequenceNumber.get()), JTlsDefs.BLOCKS, data
                         ,
                         null);
+                sequenceNumber.incrementAndGet();
 
                 jmsg.addMessageElement(JTlsDefs.TLSNameSpace, ciphertext);
 
@@ -375,12 +373,12 @@ class JTlsOutputStream extends OutputStream {
                 // We assume some msgs are in transit or the remote system buffers
                 // We do not want to overrun the receiver.
                 // (3) We need to release from the loop because of possible deadlocks
-                // EG: retrQ.size() == 0 and mrrIQFreeSpace forces looping
+                // EG: retrQ.isEmpty() and mrrIQFreeSpace forces looping
                 // forever because the most recent SACK cleared it, and the receiver
                 // is waiting for more data.
 
                 // max of ??? wait
-                int maxwait = (int)Math.min(RTO, maxRTO);
+                int maxwait = (int)Math.min(RTO.get(), maxRTO.get());
                 // iterations to wait (max 3, min 1)
                 int waitCt = Math.max(maxwait / 250, 1);
 
@@ -413,7 +411,7 @@ class JTlsOutputStream extends OutputStream {
 
                 int i = 0;
 
-                while (!closed && ((mrrIQFreeSpace < rmaxQSize / 5) || (retrQ.size() > rmaxQSize))) {
+                while (!closed.get() && ((mrrIQFreeSpace.get() < rmaxQSize / 5) || (retrQ.size() > rmaxQSize))) {
 
                     // see if max. wait has arrived.
                     if (i++ == waitCt) {
@@ -434,7 +432,7 @@ class JTlsOutputStream extends OutputStream {
                 }
 
                 // place copy on retransmission queue
-                RetrQElt r = new RetrQElt(sequenceNumber, jmsg.clone());
+                RetrQElt r = new RetrQElt(sequenceNumber.get(), jmsg.clone());
 
                 retrQ.add(r);
 
@@ -445,7 +443,7 @@ class JTlsOutputStream extends OutputStream {
             // Here we will send the message to the transport
             conn.sendToRemoteTls(jmsg);
             // assume we have now taken a slot
-            mrrIQFreeSpace--;
+            mrrIQFreeSpace.decrementAndGet();
 
             Logging.logCheckedFine(LOG, "TLS CT SENT : seqn#", sequenceNumber, " length=", len);
             
@@ -458,7 +456,7 @@ class JTlsOutputStream extends OutputStream {
                     // in this we close ourself
                     conn.close(HandshakeState.CONNECTIONDEAD);
                 } catch (IOException ignored) {
-                    ;
+                    Logging.logCheckedWarning(LOG, "Ignoring: ", ignored.toString());
                 }
             }
         }
@@ -474,24 +472,24 @@ class JTlsOutputStream extends OutputStream {
         // Use the same single exponential smoothing as ReliableOutputStream
         if( nACKS.incrementAndGet() > 2 ){
         	
-	        long tmp = (6 * aveRTT) + ((6 * remRTT) / 9) + (3 * dt);
+	        long tmp = (6 * aveRTT.get()) + ((6 * remRTT.get()) / 9) + (3 * dt);
 	        
-	        aveRTT = tmp / 9;
-	        remRTT = tmp - aveRTT * 9;
+	        aveRTT.set(tmp / 9);
+	        remRTT.set(tmp - aveRTT.get() * 9);
         }
         
-        long newRTO = aveRTT * 2;
+        long newRTO = aveRTT.get() * 2;
         
         // Unless stabalizationAckCount is zero, after a period of stream stabilisation, do not reduce the RTO value further. 
         // This avoids the situation where a few small message sends reduce the RTO so much that when a large
         // message is sent it immediately requires repetitive retransmission until the value of RTO climbs again.
         // This is most apparent when using 'slow' relayed streams and large MTUs. 
-        if( 0 != this.stabalizationAckCount && nACKS.get() > this.stabalizationAckCount ){
-       		RTO = Math.max( RTO, newRTO );
+        if( 0 != this.stabalizationAckCount.get() && nACKS.get() > this.stabalizationAckCount.get() ){
+       		RTO.set(Math.max( RTO.get(), newRTO ));
         } else {
             // Enforce a min/max
-            RTO = Math.max(newRTO, minRTO);
-            RTO = Math.min(RTO, maxRTO);
+            RTO.set(Math.max(newRTO, minRTO.get()));
+            RTO.set(Math.min(RTO.get(), maxRTO.get()));
         }
         
         Logging.logCheckedFine(LOG, "TLS!! RTT = ", dt, "ms aveRTT = ", aveRTT, "ms RTO = ", RTO, "ms maxRTO = ", maxRTO, "ms");
@@ -527,19 +525,20 @@ class JTlsOutputStream extends OutputStream {
      **/
     void ackReceived(int seqnum, int[] sackList) {
 
-        lastACKTime = TimeUtils.timeNow();
+        lastACKTime.set(TimeUtils.timeNow());
         int numberACKed = 0;
 
         // remove acknowledged messages from retrans Q.
 
         synchronized (retrQ) {
 
-            maxACK = Math.max(maxACK, seqnum);
+            maxACK.set(Math.max(maxACK.get(), seqnum));
 
             // dump the current Retry queue and the SACK list
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
 
-                StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
+                StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : ");
+                dumpRETRQ.append(Integer.toString(seqnum));
 
                 dumpRETRQ.append('\n');
                 dumpRETRQ.append("\tRETRQ (size=").append(retrQ.size()).append(")");
@@ -602,7 +601,7 @@ class JTlsOutputStream extends OutputStream {
 
             // most recent remote IQ free space
             rmaxQSize = Math.max(rmaxQSize, sackList.length);
-            mrrIQFreeSpace = rmaxQSize - sackList.length;
+            mrrIQFreeSpace.set(rmaxQSize - sackList.length);
 
             // let's look at average sacs.size(). If it is big, then this
             // probably means we must back off because the system is slow.
@@ -675,8 +674,8 @@ class JTlsOutputStream extends OutputStream {
 
                 // retransmit 1 retq mem. only
                 if (retrans > 0) {
-                    retransmit(Math.min(RWINDOW, retrans), lastACKTime);
-                    sackRetransTime = TimeUtils.timeNow();
+                    retransmit(Math.min(RWINDOW, retrans), lastACKTime.get());
+                    sackRetransTime.set(TimeUtils.timeNow());
                 }
             }
 
@@ -718,7 +717,7 @@ class JTlsOutputStream extends OutputStream {
                     // detect a hole within that delay. So, often enough, as soon as
                     // a hole is detected, it's time to resend...but not always.
 
-                    if (TimeUtils.toRelativeTimeMillis(triggerTime, r.sentAt) < (6 * aveRTT) / 5) {
+                    if (TimeUtils.toRelativeTimeMillis(triggerTime, r.sentAt) < (6 * aveRTT.get()) / 5) {
 
                         // Nothing to worry about, yet.
                         continue;
@@ -733,7 +732,7 @@ class JTlsOutputStream extends OutputStream {
                     // Otherwise the receiver will reach the hole, and that's really
                     // expensive. (Think that we've been trying for a while already.)
 
-                    if (TimeUtils.toRelativeTimeMillis(triggerTime, r.sentAt) < aveRTT) {
+                    if (TimeUtils.toRelativeTimeMillis(triggerTime, r.sentAt) < aveRTT.get()) {
 
                         // Nothing to worry about, yet.
                         continue;
@@ -768,7 +767,7 @@ class JTlsOutputStream extends OutputStream {
                     sending = sending.clone();
                     sending.replaceMessageElement(JTlsDefs.TLSNameSpace, RETELT);
                     if (conn.sendToRemoteTls(sending)) {
-                        mrrIQFreeSpace--; // assume we have now taken a slot
+                        mrrIQFreeSpace.decrementAndGet(); // assume we have now taken a slot
                         retransmitted++;
                     } else {
                         break;
@@ -792,7 +791,7 @@ class JTlsOutputStream extends OutputStream {
     private class Retransmitter implements Runnable {
 
         Thread retransmitterThread;
-        volatile int nretransmitted = 0;
+        AtomicInteger nretransmitted = new AtomicInteger(0);
         int nAtThisRTO = 0;
 
         public Retransmitter() {
@@ -806,7 +805,7 @@ class JTlsOutputStream extends OutputStream {
         }
 
         public int getRetransCount() {
-            return nretransmitted;
+            return nretransmitted.get();
         }
 
         /**
@@ -817,7 +816,7 @@ class JTlsOutputStream extends OutputStream {
             try {
                 int idleCounter = 0;
 
-                while (!closed) {
+                while (!closed.get()) {
                     long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), conn.lastAccessed);
 
                     Logging.logCheckedFine(LOG, "RETRANS : ", conn, " idle for ", conn_idle);
@@ -838,7 +837,7 @@ class JTlsOutputStream extends OutputStream {
                             return;
 
                         } catch (IOException ignored) {
-                            
+                            Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
                         }
 
                         continue;
@@ -847,25 +846,25 @@ class JTlsOutputStream extends OutputStream {
 
                     synchronized (retrQ) {
                         try {
-                            retrQ.wait(RTO);
+                            retrQ.wait(RTO.get());
                         } catch (InterruptedException e) {
                             Thread.interrupted();
                         }
                     }
-                    if (closed) {
+                    if (closed.get()) {
                         break;
                     }
 
                     // see if we recently did a retransmit triggered by a SACK
-                    long sinceLastSACKRetr = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), sackRetransTime);
+                    long sinceLastSACKRetr = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), sackRetransTime.get());
 
-                    if (sinceLastSACKRetr < RTO) {
+                    if (sinceLastSACKRetr < RTO.get()) {
                         Logging.logCheckedFine(LOG, "RETRANS : SACK retrans ", sinceLastSACKRetr, "ms ago");
                         continue;
                     }
 
                     // See how long we've waited since RTO was set
-                    long sinceLastACK = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), lastACKTime);
+                    long sinceLastACK = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), lastACKTime.get());
                     long oldestInQueueWait;
 
                     synchronized (retrQ) {
@@ -892,7 +891,7 @@ class JTlsOutputStream extends OutputStream {
                             return;
 
                         } catch (IOException ignored) {
-                            
+                            Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
                         }
                         continue;
                     }
@@ -909,7 +908,7 @@ class JTlsOutputStream extends OutputStream {
                     // want to overrun the receiver. Also, we
                     // do not want to restransmit a message that
                     // has not been idle for the RTO.
-                    if ((realWait >= RTO) && (oldestInQueueWait >= RTO)) {
+                    if ((realWait >= RTO.get()) && (oldestInQueueWait >= RTO.get())) {
 
                         Logging.logCheckedFine(LOG, "RETRANS : RTO RETRANSMISSION [", RWINDOW, "]");
 
@@ -917,7 +916,7 @@ class JTlsOutputStream extends OutputStream {
                         int retransed = retransmit(RWINDOW, TimeUtils.timeNow());
 
                         // Total
-                        nretransmitted += retransed;
+                        nretransmitted.addAndGet(retransed);
 
                         // number at this RTO
                         nAtThisRTO += retransed;
@@ -927,8 +926,8 @@ class JTlsOutputStream extends OutputStream {
                         // Double after window restransmitted msgs at this RTO
                         // exceeds the RWINDOW, and we've had no response for
                         // twice the current RTO.
-                        if ((retransed > 0) && (realWait >= 2 * RTO) && (nAtThisRTO >= 2 * RWINDOW)) {
-                            RTO = (realWait > maxRTO ? maxRTO : 2 * RTO);
+                        if ((retransed > 0) && (realWait >= 2 * RTO.get()) && (nAtThisRTO >= 2 * RWINDOW)) {
+                            RTO.set(realWait > maxRTO.get() ? maxRTO.get() : 2 * RTO.get());
                             nAtThisRTO = 0;
                         }
 

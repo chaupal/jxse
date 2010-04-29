@@ -241,13 +241,13 @@ public final class UUID implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
-        if (this == target) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (target instanceof UUID) {
-            return equals((UUID) target);
+        if (obj instanceof UUID) {
+            return equals((UUID) obj);
         } else {
             return false;
         }

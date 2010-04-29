@@ -79,7 +79,7 @@ import java.util.Set;
 @Deprecated
 class PipeServiceInterface implements PipeService {
 
-	PipeServiceImpl impl;
+	private PipeServiceImpl impl;
 
 	/**
 	 * The only authorized constructor.
@@ -132,7 +132,7 @@ class PipeServiceInterface implements PipeService {
 	 * By definition, the interface object protects the real object's start/stop
 	 * methods from being called
 	 */
-	public int startApp(String[] arg) {
+	public int startApp(String[] args) {
 		return 0;
 	}
 

@@ -96,7 +96,7 @@ public class TempDir extends File {
      * @param parent The parent abstract pathname
      * @param child The child pathname string
      */
-    public TempDir(final File parent, final String child) {
+    public TempDir(File parent, String child) {
         super(parent, child);
         checkDirectory();
     }
@@ -108,7 +108,7 @@ public class TempDir extends File {
      * 
      * @param pathname A pathname string
      */
-    public TempDir(final String pathname) {
+    public TempDir(String pathname) {
         super(pathname);
         checkDirectory();
     }
@@ -121,7 +121,7 @@ public class TempDir extends File {
      * @param parent The parent pathname string
      * @param child The child pathname string
      */
-    public TempDir(final String parent, final String child) {
+    public TempDir(String parent, String child) {
         super(parent, child);
         checkDirectory();
     }
@@ -135,7 +135,7 @@ public class TempDir extends File {
      *  a non-empty path component, and undefined authority, query, and
      *  fragment components
      */
-    public TempDir(final URI uri) {
+    public TempDir(URI uri) {
         super(uri);
         checkDirectory();
     }
@@ -211,7 +211,7 @@ public class TempDir extends File {
         synchronized(toDelete) {
             // De-register the shutdown hook reference
             toDelete.remove(this);
-            if (toDelete.size() == 0) {
+            if (toDelete.isEmpty()) {
                 try {
                     Runtime.getRuntime().removeShutdownHook(shutdownHook);
                 } catch (IllegalStateException isx) {
@@ -254,14 +254,14 @@ public class TempDir extends File {
      * @param file file or directory to delete
      * @return true if delete was successful, false otherwise
      */
-    private boolean recursiveDelete(final File file) {
+    private boolean recursiveDelete(File file) {
         boolean result = true;
         if (file.isDirectory()) {
             for (File child : file.listFiles()) {
                 result &= recursiveDelete(child);
             }
         }
-        result = result &= file.delete();
+        result &= file.delete();
         return result;
     }
 
@@ -271,34 +271,34 @@ public class TempDir extends File {
     private void checkDirectory() {
         if (exists()) {
             if (!delete()) {
-                throw(new IllegalStateException(
+                throw new IllegalStateException(
                         "Temp directory exists but could not be deleted: "
-                        + getPath()));
+                        + getPath());
             }
         }
         if (!mkdirs()) {
-            throw(new IllegalStateException(
+            throw new IllegalStateException(
                     "Temp directory could not be created: "
-                    + getPath()));
+                    + getPath());
         }
         if (!isDirectory()) {
-            throw(new IllegalStateException(
+            throw new IllegalStateException(
                     "Temp directory is not a directory: "
-                    + getPath()));
+                    + getPath());
         }
         if (!canRead()) {
-            throw(new IllegalStateException(
+            throw new IllegalStateException(
                     "Temp directory is not readable: "
-                    + getPath()));
+                    + getPath());
         }
         if (!canWrite()) {
-            throw(new IllegalStateException(
+            throw new IllegalStateException(
                     "Temp directory is not writable: "
-                    + getPath()));
+                    + getPath());
         }
         /* Java 6 only
         if (!canExecute()) {
-            throw(new IllegalStateException(
+            throw new IllegalStateException(
                     "Temp directory is not executable: "
                     + this.getPath()));
         }

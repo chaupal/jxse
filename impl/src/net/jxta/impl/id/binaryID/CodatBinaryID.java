@@ -53,18 +53,15 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.impl.id.binaryID;
 
+package net.jxta.impl.id.binaryID;
 
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
-
 import java.io.InputStream;
 import java.net.URI;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements a Pipe ID. Each pipe is assigned a unique id.
@@ -84,7 +81,7 @@ public final class CodatBinaryID extends net.jxta.codat.CodatID {
     /**
      * The id data
      */
-    protected String id;
+    private String id;
 
     /**
      * Used only internally
@@ -182,25 +179,25 @@ public final class CodatBinaryID extends net.jxta.codat.CodatID {
      }
      */
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object target) {
-        if (this == target) {
-            return true;
-        }
-        
-        return target instanceof CodatBinaryID && getUniqueValue().equals(((CodatBinaryID) target).getUniqueValue());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return getUniqueValue().hashCode();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//
+//        return obj instanceof CodatBinaryID && getUniqueValue().equals(((CodatBinaryID) obj).getUniqueValue());
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public int hashCode() {
+//        return getUniqueValue().hashCode();
+//    }
 
     /**
      * {@inheritDoc}

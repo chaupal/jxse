@@ -124,7 +124,7 @@ public class ModuleLifecycleTracker<T extends Module> {
         peerGroup = group;
         assignedID = id;
         advertisement = adv;
-        startArgs = args;
+        startArgs = args.clone();
     }
 
     /**

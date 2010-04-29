@@ -65,7 +65,6 @@ import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.util.IgnoreFlushFilterOutputStream;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
@@ -89,7 +88,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This class implements the TLS connection between two peers.
  *
@@ -105,60 +103,74 @@ class TlsConn {
      * Logger
      */
     private static final transient Logger LOG = Logger.getLogger(TlsConn.class.getName());
-    static final int BOSIZE = 16000;
+
+    private static final int BOSIZE = 16000;
+
     /**
      * TLS transport this connection is working for.
      */
-    final TlsTransport transport;
+    private final TlsTransport transport;
+
     /**
      * The address of the peer to which we will be forwarding ciphertext
      * messages.
      */
-    final EndpointAddress destAddr;
+    protected final EndpointAddress destAddr;
+
     /**
      * Are we client or server?
      */
     private boolean client;
+
     /**
      * State of the connection
      */
-    private volatile HandshakeState currentState;
+    private HandshakeState currentState;
+
     /**
      * Are we currently closing? To prevent recursion in {@link #close(HandshakeState)}
      */
     private boolean closing = false;
+
     /**
      * Time that something "good" last happened on the connection
      */
-    long lastAccessed;
-    final String lastAccessedLock = new String("lastAccessedLock");
-    final String closeLock = new String("closeLock");
+    protected long lastAccessed;
+    public static final String lastAccessedLock = "lastAccessedLock";
+    public static final String closeLock = "closeLock";
+
     /**
      * Number of retransmissions we have received.
      */
-    int retrans;
+    protected int retrans;
+
     /**
      * Our synthetic socket which sends and receives the ciphertext.
      */
-    final TlsSocket tlsSocket;
+    protected final TlsSocket tlsSocket;
     private final SSLContext context;
+
     /**
      * For interfacing with TLS
      */
     private SSLSocket ssls;
+
     /**
      * We write our plaintext to this stream
      */
     private OutputStream plaintext_out = null;
+
     /**
      * Reads plaintext from the
      */
     private PlaintextMessageReader readerThread = null;
+
     /**
      * A string which we can lock on while acquiring new messengers. We don't
      * want to lock the whole connection object.
      */
-    private final String acquireMessengerLock = new String("Messenger Acquire Lock");
+    private final static String acquireMessengerLock = "Messenger Acquire Lock";
+
     /**
      * Cached messenger for sending to {@link #destAddr}
      */
@@ -216,13 +228,11 @@ class TlsConn {
         }
 
         Collection<Provider> providers = Arrays.asList(Security.getProviders());
-
         Set<String> providerNames = new HashSet<String>();
 
-        for (Provider provider : providers) {
-            providerNames.add((provider).getName());
-        }
-
+        for (Provider provider : providers) 
+            providerNames.add(provider.getName());
+        
         if ((!choseTMF) && providerNames.contains("SunJSSE")) {
             tmf = javax.net.ssl.TrustManagerFactory.getInstance("SunX509", "SunJSSE");
             choseTMF = true;
@@ -281,7 +291,7 @@ class TlsConn {
      *
      * @return the current state of the connection.
      */
-    HandshakeState getHandshakeState() {
+    public HandshakeState getHandshakeState() {
         return currentState;
     }
 
@@ -293,7 +303,7 @@ class TlsConn {
      * @param newstate the new connection state.
      * @return the previous state of the connection.
      */
-    synchronized HandshakeState setHandshakeState(HandshakeState newstate) {
+    private synchronized HandshakeState setHandshakeState(HandshakeState newstate) {
 
         HandshakeState oldstate = currentState;
 
@@ -306,7 +316,7 @@ class TlsConn {
      * Open the connection with the remote peer.
      * @throws java.io.IOException if handshake fails
      */
-    void finishHandshake() throws IOException {
+    public void finishHandshake() throws IOException {
 
         long startTime = TimeUtils.timeNow();
 
@@ -342,7 +352,7 @@ class TlsConn {
      * @param finalstate state that the connection will be in after close.
      * @throws java.io.IOException if an error occurs
      */
-    void close(HandshakeState finalstate) throws IOException {
+    public void close(HandshakeState finalstate) throws IOException {
 
         synchronized (lastAccessedLock) {
             lastAccessed = Long.MIN_VALUE;
@@ -361,7 +371,7 @@ class TlsConn {
                     try {
                         tlsSocket.close();
                     } catch (IOException ignored) {
-                        ;
+                        Logging.logCheckedWarning(LOG, "Ignoring: ", ignored.toString());
                     }
                 }
 
@@ -369,7 +379,7 @@ class TlsConn {
                     try {
                         ssls.close();
                     } catch (IOException ignored) {
-                        ;
+                        Logging.logCheckedWarning(LOG, "Ignoring: ", ignored.toString());
                     }
                     ssls = null;
                 }
@@ -405,7 +415,7 @@ class TlsConn {
      * @return if true then message was sent, otherwise false.
      * @throws IOException if there was a problem sending the message.
      */
-    boolean sendToRemoteTls(Message msg) throws IOException {
+    public boolean sendToRemoteTls(Message msg) throws IOException {
 
         synchronized (acquireMessengerLock) {
 
@@ -445,7 +455,7 @@ class TlsConn {
      * @param msg The plaintext message to be sent via this connection.
      * @throws IOException for errors in sending the message.
      */
-    void sendMessage(Message msg) throws IOException {
+    public void sendMessage(Message msg) throws IOException {
 
         try {
 
@@ -468,8 +478,8 @@ class TlsConn {
      */
     private class PlaintextMessageReader implements Runnable {
 
-        InputStream ptin = null;
-        Thread workerThread = null;
+        private InputStream ptin = null;
+        private Thread workerThread = null;
 
         public PlaintextMessageReader(InputStream ptin) {
             this.ptin = ptin;
@@ -537,8 +547,8 @@ class TlsConn {
      */
     private static class PSECredentialKeyManager implements javax.net.ssl.X509KeyManager {
 
-        PSECredential cred;
-        KeyStore trusted;
+        private PSECredential cred;
+        private KeyStore trusted;
 
         public PSECredentialKeyManager(PSECredential useCred, KeyStore trusted) {
             this.cred = useCred;
@@ -605,7 +615,7 @@ class TlsConn {
          * {@inheritDoc}
          */
         public X509Certificate[] getCertificateChain(String alias) {
-            if (alias.equals("theone")) {
+            if ("theone".equals(alias)) {
                 return cred.getCertificateChain();
             } else {
                 try {
@@ -655,12 +665,12 @@ class TlsConn {
                                 clientAliases.add(anAlias);
                             }
                         } catch (KeyStoreException ignored) {
-                            ;
+                            Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
                         }
                     }
                 }
             } catch (KeyStoreException ignored) {
-                ;
+                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
             }
 
             return clientAliases.toArray(new String[clientAliases.size()]);
@@ -670,7 +680,7 @@ class TlsConn {
          * {@inheritDoc}
          */
         public java.security.PrivateKey getPrivateKey(String alias) {
-            if (alias.equals("theone")) {
+            if ("theone".equals(alias)) {
                 return cred.getPrivateKey();
             } else {
                 return null;
@@ -714,7 +724,7 @@ class TlsConn {
                     }
                 }
             }
-            return null;
+            return new String[0];
         }
     }
 }

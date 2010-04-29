@@ -105,7 +105,8 @@ class HttpMessageSender implements MessageSender {
         this.publicAddress = publicAddress;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder( "Configuring HTTP Client Message Transport : " + servletHttpTransport.assignedID);
+            StringBuilder configInfo = new StringBuilder( "Configuring HTTP Client Message Transport : ");
+            configInfo.append(servletHttpTransport.assignedID);
             configInfo.append("\n\tPublic Address = ").append(publicAddress);
             LOG.config(configInfo.toString());
         }

@@ -57,7 +57,6 @@ package net.jxta.impl.endpoint;
 
 import java.util.Collection;
 import net.jxta.document.Advertisement;
-import net.jxta.endpoint.*;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.id.ID;
@@ -72,6 +71,15 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import net.jxta.endpoint.ChannelMessenger;
+import net.jxta.endpoint.EndpointListener;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.ListenerAdaptor;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageFilterListener;
+import net.jxta.endpoint.MessageTransport;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.MessengerEventListener;
 
 /**
  * Provides an interface object appropriate for applications using the endpoint
@@ -94,12 +102,12 @@ class EndpointServiceInterface implements EndpointService {
      * The number of active instances of this class. We use this for deciding
      * when to instantiate and shutdown the listener adaptor.
      */
-    private static int activeInstanceCount = 0;
+    private int activeInstanceCount = 0;
 
     /**
      * Provides emulation of the legacy send-message-with-listener and get-messenger-with-listener APIs.
      */
-    private static ListenerAdaptor listenerAdaptor;
+    private ListenerAdaptor listenerAdaptor;
 
     /**
      * The cache of channels. If a given owner of this EndpointService interface
@@ -178,7 +186,7 @@ class EndpointServiceInterface implements EndpointService {
      * it is ALWAYS ignored. By definition, the interface object
      * protects the real object's start/stop methods from being called
      */
-    public int startApp(String[] arg) {
+    public int startApp(String[] args) {
         return Module.START_OK;
     }
 

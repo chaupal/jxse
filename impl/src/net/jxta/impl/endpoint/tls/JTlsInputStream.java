@@ -56,13 +56,11 @@
 
 package net.jxta.impl.endpoint.tls;
 
-
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -73,9 +71,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
-
 
 /**
  *  Acts as the input for TLS. Accepts ciphertext which arrives in messages
@@ -98,12 +96,12 @@ class JTlsInputStream extends InputStream {
      */
     private TlsConn conn;
     
-    private volatile boolean closed = false;
+    private AtomicBoolean closed = new AtomicBoolean(false);
     private boolean closing = false;
     
     private long timeout = 2 * TimeUtils.AMINUTE;
     private JTlsRecord jtrec = null;
-    private volatile int sequenceNumber = 0;
+    private AtomicInteger sequenceNumber = new AtomicInteger(0);
     private final Vector<IQElt> inputQueue = new Vector<IQElt>(MAXQUEUESIZE); // For incoming messages.
     
     /**
@@ -127,7 +125,9 @@ class JTlsInputStream extends InputStream {
             if (null != tlsRecord) {
                 try {
                     tlsRecord.close();
-                } catch (IOException ignored) {// ignored
+                } catch (IOException ignored) {
+                    // ignored
+                    Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
                 }
             }
             tlsRecord = null;
@@ -139,9 +139,9 @@ class JTlsInputStream extends InputStream {
     // An input queue element which breaks out a
     // received message in enqueueMessage().
     private static class IQElt {
-        int seqnum;
-        MessageElement elt;
-        boolean ackd;
+        protected int seqnum;
+        protected MessageElement elt;
+        protected boolean ackd;
     }
     
     public JTlsInputStream(TlsConn conn, long timeout) {
@@ -150,7 +150,7 @@ class JTlsInputStream extends InputStream {
         jtrec = new JTlsRecord();
         // 1 <= seq# <= maxint, monotonically increasing
         // Incremented before compare.
-        sequenceNumber = 0;
+        sequenceNumber.set(0);
         
     }
     
@@ -161,7 +161,7 @@ class JTlsInputStream extends InputStream {
     public void close() throws IOException {
         super.close();
         
-        closed = true;
+        closed.set(true);
         synchronized (inputQueue) {
             inputQueue.clear();
             inputQueue.notifyAll();
@@ -194,9 +194,8 @@ class JTlsInputStream extends InputStream {
      */
     @Override
     public int read() throws IOException {
-        if (closed) {
-            return -1;
-        }
+        
+        if (closed.get()) return -1;
         
         byte[] a = new byte[1];
         
@@ -226,7 +225,7 @@ class JTlsInputStream extends InputStream {
     @Override
     public int read(byte[] a, int offset, int length) throws IOException {
 
-        if (closed) return -1;
+        if (closed.get()) return -1;
         
         if (0 == length) return 0;
         
@@ -243,12 +242,12 @@ class JTlsInputStream extends InputStream {
     }
     
     // protected accessor for sequence number
-    int getSequenceNumber() {
-        return sequenceNumber;
+    protected int getSequenceNumber() {
+        return sequenceNumber.get();
     }
     
     // Our input queue max size
-    int getMaxIQSize() {
+    public int getMaxIQSize() {
         return MAXQUEUESIZE;
     }
     
@@ -267,7 +266,7 @@ class JTlsInputStream extends InputStream {
                 IQElt anIQElt = eachInQueue.next();
 
                 if (anIQElt.seqnum > seqnAck) {
-                    selectedAckList.add(new Integer(anIQElt.seqnum));
+                    selectedAckList.add(anIQElt.seqnum);
                 }
             }
         }
@@ -294,7 +293,7 @@ class JTlsInputStream extends InputStream {
             Iterator<Integer> eachSACK = sackList.iterator();
             
             while (eachSACK.hasNext()) {
-                int aSack = (eachSACK.next()).intValue();
+                int aSack = eachSACK.next().intValue();
 
                 dos.writeInt(aSack);
             }
@@ -329,7 +328,7 @@ class JTlsInputStream extends InputStream {
         Message.ElementIterator e = msg.getMessageElements(JTlsDefs.TLSNameSpace, JTlsDefs.BLOCKS);
         
         // OK look for jxta message
-        while (!closed && !closing && e.hasNext()) {
+        while (!closed.get() && !closing && e.hasNext()) {
             MessageElement elt = e.next();
 
             e.remove();
@@ -356,14 +355,14 @@ class JTlsInputStream extends InputStream {
             // OK we must inqueue:
             // Wait until someone dequeues if we are at the size limit
             // see if this is a duplicate
-            if (newElt.seqnum <= sequenceNumber) {
+            if (newElt.seqnum <= sequenceNumber.get()) {
                 Logging.logCheckedFine(LOG, "RCVD OLD MESSAGE : Discard seqn#", newElt.seqnum, " now at seqn#", sequenceNumber);
                 break;
             }
 
             synchronized (inputQueue) {
                 // dbl check with the lock held.
-                if (closing || closed) {
+                if (closing || closed.get()) {
                     return;
                 }
                 
@@ -427,8 +426,8 @@ class JTlsInputStream extends InputStream {
         long nextRetransRequest = TimeUtils.toAbsoluteTimeMillis(TimeUtils.ASECOND);
         
         synchronized (inputQueue) {
-            while (!closed) {
-                if (inputQueue.size() == 0) {
+            while (!closed.get()) {
+                if (inputQueue.isEmpty()) {
                     if (closing) {
                         return null;
                     }
@@ -507,65 +506,64 @@ class JTlsInputStream extends InputStream {
     /**
      *
      */
-    private int local_read(byte[] a, int offset, int length) throws IOException {
+    private synchronized int local_read(byte[] a, int offset, int length) throws IOException {
         
-        synchronized (jtrec) {
-            if ((jtrec.size == 0) || (jtrec.nextByte == jtrec.size)) {
-                
-                // reset the record
-                jtrec.resetRecord(); // GC as necessary(tlsRecord byte[])
-                
-                Logging.logCheckedFine(LOG, "local_read: getting next data block at seqn#", (sequenceNumber + 1));
-                
-                MessageElement elt = null;
+        if ((jtrec.size == 0) || (jtrec.nextByte == jtrec.size)) {
 
-                try {
-                    elt = dequeueMessage(sequenceNumber + 1);
-                } catch (SocketTimeoutException ste) {
-                    // timed out with no data
-                    // SSLSocket expects a 0 data in this case
-                    return 0;
-                }
-                
-                if (null == elt) {
-                    return -1;
-                }
-                
-                sequenceNumber += 1; // next msg sequence number
-                
-                // Get the length of the TLS Record
-                jtrec.size = elt.getByteLength();
-                jtrec.tlsRecord = elt.getStream();
-                
-                Logging.logCheckedFine(LOG, "local_read: new seqn#", sequenceNumber, ", bytes = ", jtrec.size);
+            // reset the record
+            jtrec.resetRecord(); // GC as necessary(tlsRecord byte[])
 
+            Logging.logCheckedFine(LOG, "local_read: getting next data block at seqn#", (sequenceNumber.get() + 1));
+
+            MessageElement elt = null;
+
+            try {
+                elt = dequeueMessage(sequenceNumber.get() + 1);
+            } catch (SocketTimeoutException ste) {
+                // timed out with no data
+                // SSLSocket expects a 0 data in this case
+                return 0;
             }
-            
-            // return the requested TLS Record data
-            // These calls should NEVER ask for more data than is in the
-            // received TLS Record.
-            
-            long left = jtrec.size - jtrec.nextByte;
-            int copyLen = (int) Math.min(length, left);
-            int copied = 0;
-            
-            do {
-                int res = jtrec.tlsRecord.read(a, offset + copied, copyLen - copied);
-                
-                if (res < 0) {
-                    break;
-                }
-                
-                copied += res;
-            } while (copied < copyLen);
-            
-            jtrec.nextByte += copied;
-            
-            if (DEBUGIO) {
-                Logging.logCheckedFine(LOG, "local_read: Requested ", length, ", Read ", copied, " bytes");
+
+            if (null == elt) {
+                return -1;
             }
-            
-            return copied;
+
+            sequenceNumber.incrementAndGet(); // next msg sequence number
+
+            // Get the length of the TLS Record
+            jtrec.size = elt.getByteLength();
+            jtrec.tlsRecord = elt.getStream();
+
+            Logging.logCheckedFine(LOG, "local_read: new seqn#", sequenceNumber, ", bytes = ", jtrec.size);
+
         }
+
+        // return the requested TLS Record data
+        // These calls should NEVER ask for more data than is in the
+        // received TLS Record.
+
+        long left = jtrec.size - jtrec.nextByte;
+        int copyLen = (int) Math.min(length, left);
+        int copied = 0;
+
+        do {
+            int res = jtrec.tlsRecord.read(a, offset + copied, copyLen - copied);
+
+            if (res < 0) {
+                break;
+            }
+
+            copied += res;
+        } while (copied < copyLen);
+
+        jtrec.nextByte += copied;
+
+        if (DEBUGIO) {
+            Logging.logCheckedFine(LOG, "local_read: Requested ", length, ", Read ", copied, " bytes");
+        }
+
+        return copied;
+
     }
 }

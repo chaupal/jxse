@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.endpoint;
 
 import java.io.BufferedReader;
@@ -71,9 +72,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import junit.framework.*;
-
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.StringMessageElement;
 
 /**
  *

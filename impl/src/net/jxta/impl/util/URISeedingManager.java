@@ -66,7 +66,6 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import java.io.BufferedReader;
@@ -173,12 +172,13 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         this.useSeedsOnly = inUseSeedsOnly;
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    public void stop() { 
-        super.stop();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public void stop() {
+//        super.stop();
+//    }
     
     /**
      * Adds the specified URI to the list of permanent seeds. Even if
@@ -188,15 +188,18 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      * @param seed The URI of the seed peer.
      */
     public synchronized void addSeed(URI seed) {
+
         RouteAdvertisement ra = (RouteAdvertisement) 
                 AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
-        AccessPointAdvertisement apa = (AccessPointAdvertisement) 
-                AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
+
+//        AccessPointAdvertisement apa = (AccessPointAdvertisement)
+//                AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
         
         ra.addDestEndpointAddress(new EndpointAddress(seed));
         
         permanentSeeds.add(ra);
         activeSeeds.add(ra);
+
     }
     
     /**
@@ -445,7 +448,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      *  @throws IOException Thrown for errors encountered loading the seed
      *  RouteAdvertisements.
      */
-    static RouteAdvertisement[] loadSeeds(URI seedingURI) throws IOException {
+    public static RouteAdvertisement[] loadSeeds(URI seedingURI) throws IOException {
         boolean isXML;
         URL seedingURL = seedingURI.toURL();
         URLConnection connection = seedingURL.openConnection();
@@ -477,8 +480,8 @@ public class URISeedingManager extends RdvAdvSeedingManager {
             type = new MimeMediaType(content_type);
         }
         
-        isXML = MimeMediaType.XML_DEFAULTENCODING.equalsIngoringParams(type)
-                || MimeMediaType.APPLICATION_XML_DEFAULTENCODING.equalsIngoringParams(type);
+        isXML = MimeMediaType.XML_DEFAULTENCODING.equalsIgnoringParams(type)
+                || MimeMediaType.APPLICATION_XML_DEFAULTENCODING.equalsIgnoringParams(type);
         
         BufferedReader seeds = new BufferedReader(new InputStreamReader(is));
         

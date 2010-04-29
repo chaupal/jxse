@@ -58,10 +58,12 @@ package net.jxta.protocol;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.logging.Logger;
 import net.jxta.content.ContentID;
 import net.jxta.document.ExtendableAdvertisement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 
 /**
@@ -78,15 +80,15 @@ import net.jxta.peergroup.PeerGroupID;
 public abstract class ContentShareAdvertisement
         extends ExtendableAdvertisement
         implements Cloneable {
+
+    /**
+     * Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(ContentShareAdvertisement.class.getName());
+
     private ContentAdvertisement contentAdv;
 
     private transient ID hashID;
-
-    /**
-     *  Construct a new Codat Advertisement.
-     */
-    public ContentShareAdvertisement() {
-    }
 
     /**
      *  Returns the identifying type of this Advertisement.
@@ -111,16 +113,18 @@ public abstract class ContentShareAdvertisement
      */
     @Override
     public ContentShareAdvertisement clone() {
-        // All members are either immutable or never modified nor allowed to
-        // be modified: all accessors return clones.
+        
         try {
-            ContentShareAdvertisement clone =
-                    (ContentShareAdvertisement) super.clone();
+            // All members are either immutable or never modified nor allowed to
+            // be modified: all accessors return clones.
+            ContentShareAdvertisement clone = (ContentShareAdvertisement) super.clone();
             clone.setContentAdvertisement(getContentAdvertisement());
             return clone;
-        } catch (CloneNotSupportedException impossible) {
+        } catch (CloneNotSupportedException ex) {
+            Logging.logCheckedSevere(LOG, ex.toString());
             return null;
         }
+
     }
 
     /**

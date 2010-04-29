@@ -56,7 +56,6 @@
 
 package net.jxta.util.documentSerializable;
 
-
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -64,7 +63,6 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
 import net.jxta.exception.JxtaException;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,11 +70,19 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Enumeration;
-
+import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 
 /**
+ * Document serializable utilities.
  **/
-public class DocumentSerializableUtilities {
+public final class DocumentSerializableUtilities {
+
+    /**
+     * Logger
+     */
+    private final static transient Logger LOG = Logger.getLogger(DocumentSerializableUtilities.class.getName());
+
     // Fix-Me: I didn't implement byte, short or float
     // Fix-Me: I didn't implement arrays, ie addInt(Element element, String tagName, int values[]), etc
 
@@ -512,12 +518,12 @@ public class DocumentSerializableUtilities {
     public static void printAsXmlString(DocumentSerializable documentSerializable) {
         try {
             if (documentSerializable == null) {
-                System.err.println("<null DocumentSerializable>");
+                Logging.logCheckedSevere(LOG, "<null DocumentSerializable>");
             } else {
                 writeAsXmlString(System.err, documentSerializable);
             }
         } catch (Exception e) {
-            System.err.println("<Error converting DocumentSerializable to XML doc: " + e);
+            Logging.logCheckedSevere(LOG, "<Error converting DocumentSerializable to XML doc: ", e.toString());
         }
     }
 	
@@ -573,6 +579,12 @@ public class DocumentSerializableUtilities {
         } catch (JxtaException e) {
             throw new DocumentSerializationException("Unable to get the document", e);
         }
+    }
+
+    /**
+     * Default constructor
+     */
+    private DocumentSerializableUtilities() {
     }
 
 }

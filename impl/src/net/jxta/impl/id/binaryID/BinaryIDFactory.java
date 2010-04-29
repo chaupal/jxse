@@ -65,7 +65,7 @@ package net.jxta.impl.id.binaryID;
  * @see net.jxta.id.ID
  */
 
-public class BinaryIDFactory {
+public final class BinaryIDFactory {
 
     /**
      * Returns a new BinaryID value.
@@ -76,4 +76,11 @@ public class BinaryIDFactory {
     public static BinaryID newBinaryID(byte type, byte data[], boolean lengthIncluded) {
         return new BinaryID(type, data, lengthIncluded);
     }
+
+    /**
+     * Default constructor
+     */
+    private BinaryIDFactory() {
+    }
+
 }

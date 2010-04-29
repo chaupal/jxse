@@ -56,19 +56,15 @@
 
 package net.jxta.impl.membership.pse;
 
-
 import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.logging.Logging;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  A factory for PSE Security Engines.

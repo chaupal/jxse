@@ -231,7 +231,7 @@ public class PropagatedPipeServer implements PipeMsgListener {
         }
     }
 
-    private void processRoute(final Message msg) {
+    private void processRoute(Message msg) {
         try {
             final MessageElement routeElement = msg.getMessageElement(NAMESPACE, ROUTEADV);
             if (routeElement != null && routeControl != null) {

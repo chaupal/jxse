@@ -84,10 +84,6 @@ public abstract class PeerInfoQueryMessage {
     /* representing request  */
     private StructuredDocument request = null;
     
-    public PeerInfoQueryMessage() {
-        super();
-    }
-    
     /**
      * returns the Message type
      * @return a string

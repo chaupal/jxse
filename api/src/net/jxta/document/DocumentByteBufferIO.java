@@ -56,9 +56,7 @@
 
 package net.jxta.document;
 
-
 import java.nio.ByteBuffer;
-
 
 /**
  * Provides {@code ByteBuffer} based interfaces for manipulating 

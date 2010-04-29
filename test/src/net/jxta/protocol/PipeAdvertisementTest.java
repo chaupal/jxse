@@ -56,19 +56,22 @@
 
 package net.jxta.protocol;
 
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import net.jxta.document.*;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.XMLDocument;
 import net.jxta.id.ID;
 import net.jxta.pipe.PipeID;
-import net.jxta.peergroup.PeerGroupID;
-
 
 /**
  * @author nadment

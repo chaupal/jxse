@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.relay;
 
 import java.io.IOException;
@@ -64,9 +65,8 @@ import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.AbstractSelectionKey;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.logging.Level;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
@@ -74,7 +74,6 @@ import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-
 
 /**
  * A client of the Relay Server
@@ -131,21 +130,23 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	/**
 	 *  Our current set of valid operations.
 	 */
-	private volatile int readyOps = 0;
+	private AtomicInteger readyOps = new AtomicInteger(0);
 
 	/**
 	 *  A message queued for sending to the client.
 	 */
 	private static class QueuedMessage {
-		final Message message;
-		final String destService;
-		final String destParam;
 
-		QueuedMessage(Message message, String destService, String destParam) {
-			this.message = message;
-			this.destService = destService;
-			this.destParam = destParam;
-		}
+            private final Message message;
+            private final String destService;
+            private final String destParam;
+
+            QueuedMessage(Message message, String destService, String destParam) {
+                    this.message = message;
+                    this.destService = destService;
+                    this.destParam = destParam;
+            }
+
 	}
 
 	RelayServerClient(RelayServer server, PeerID clientPeerId, long leaseLength, long stallTimeout, int clientQueueSize) {
@@ -171,13 +172,14 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean equals(Object target) {
-		if(target == this) {
+        @Override
+	public boolean equals(Object obj) {
+		if(obj == this) {
 			return true;
 		}
 
-		if(target instanceof RelayServerClient) {
-			return clientPeerId.equals(((RelayServerClient) target).clientPeerId);
+		if(obj instanceof RelayServerClient) {
+			return clientPeerId.equals(((RelayServerClient) obj).clientPeerId);
 		}
 
 		return false;
@@ -186,6 +188,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	/**
 	 * {@inheritDoc}
 	 */
+        @Override
 	public int hashCode() {
 		return clientPeerId.hashCode();
 	}
@@ -208,7 +211,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
                     Messenger useMessenger;
                     QueuedMessage message;
-                    boolean wasOOB;
+                    // boolean wasOOB;
 
                     synchronized (this) {
 
@@ -225,10 +228,10 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
                         if (outOfBandMessage != null) {
                             message = outOfBandMessage;
                             outOfBandMessage = null;
-                            wasOOB = true;
+                            // wasOOB = true;
                         } else {
                             message = messageList.poll();
-                            wasOOB = false;
+                            // wasOOB = false;
                         }
 
                         // No messages? We are now inactive.
@@ -276,10 +279,9 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
                             // should reset failedInARow, since we won't be retrying
                             // the same message. But it does not realy matter so
                             // let's keep things simple.
-                            if (outOfBandMessage == null) {
+                            if (outOfBandMessage == null)
                                     outOfBandMessage = message;
-                            }
-
+                            
                             // If we are still holding the same messenger, kill it.
                             if(useMessenger == messenger) {
                                     queueStallAt = Math.min(queueStallAt, TimeUtils.toAbsoluteTimeMillis(stallTimeout));
@@ -381,8 +383,8 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	 *
 	 *  @return the current ops state, if any.
 	 */
-	int readyOps() {
-		return readyOps;
+	public int readyOps() {
+	    return readyOps.get();
 	}
 
 	/**
@@ -391,7 +393,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	 *  @param readyOps the new ops state.
 	 */
 	private void setReadyOps(int readyOps) {
-		this.readyOps = readyOps;
+		this.readyOps.set(readyOps);
 		ClientSelectionKey key = (ClientSelectionKey) keyFor(server.selector);
 		if(null != key) {
 			key.setReadyOps(readyOps);
@@ -406,7 +408,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	 *  @param att The attached object.
 	 */
 	ClientSelectionKey newSelectionKey(RelayServer.ClientSelector selector, int ops, Object att) {
-		return new ClientSelectionKey(selector, ops, att);
+	    return new ClientSelectionKey(selector, ops, att);
 	}
 
 	/**
@@ -421,8 +423,8 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	/**
 	 * Remove all queued messages. The Out of band message (if any) is retained.
 	 */
-	void flushQueue() {
-		messageList.clear();
+	public void flushQueue() {
+	    messageList.clear();
 	}
 
 	/**
@@ -436,7 +438,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	 * @return {@code true} if this client is no longer usable otherwise
 	 * {@code false}.
 	 */
-	boolean isExpired() {
+	public boolean isExpired() {
 
             long now = TimeUtils.timeNow();
             boolean isExpired = !isOpen() || (now > leaseExpireAt) || (now > queueStallAt);
@@ -446,25 +448,25 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
 	}
 
-	long getLeaseRemaining() {
-		return TimeUtils.toRelativeTimeMillis(leaseExpireAt);
+	public long getLeaseRemaining() {
+	    return TimeUtils.toRelativeTimeMillis(leaseExpireAt);
 	}
 
 	protected PeerID getClientPeerId() {
-		return clientPeerId;
+	    return clientPeerId;
 	}
 
-	boolean renewLease(long leaseLength) {
-		// It is ok to renew a lease past the expiration time, as long as the
-		// client has not been closed yet.
+	protected boolean renewLease(long leaseLength) {
 
-		if (!isOpen()) return false;
+            // It is ok to renew a lease past the expiration time, as long as the
+            // client has not been closed yet.
+            if (!isOpen()) return false;
 
-		Logging.logCheckedFine(LOG, this, " : additional lease = ", leaseLength );
+            Logging.logCheckedFine(LOG, this, " : additional lease = ", leaseLength );
+            leaseExpireAt = TimeUtils.toAbsoluteTimeMillis(leaseLength);
 
-		leaseExpireAt = TimeUtils.toAbsoluteTimeMillis(leaseLength);
+            return true;
 
-		return true;
 	}
 
 	/**
@@ -475,7 +477,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	 *  will be used to send messages to the client. If {@code false} then the
 	 *  messenger will not be used.
 	 */
-	boolean addMessenger(Messenger newMessenger) {
+	public boolean addMessenger(Messenger newMessenger) {
 
             // make sure we are being passed a valid messenger
             if ((null == newMessenger) || (0 == (newMessenger.getState() & Messenger.USABLE))) {
@@ -594,8 +596,8 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	/**
 	 *  {@inheritDoc}
 	 */
-	Messenger getMessenger(EndpointAddress destAddr, boolean outOfBand) {
-		return new RelayMessenger(destAddr, outOfBand);
+	public Messenger getMessenger(EndpointAddress destAddr, boolean outOfBand) {
+	    return new RelayMessenger(destAddr, outOfBand);
 	}
 
 	private class RelayMessenger extends BlockingMessenger {
@@ -693,9 +695,9 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	class ClientSelectionKey extends AbstractSelectionKey {
 
 	    private final RelayServer.ClientSelector selector;
-	    private volatile int ops;
 
-	    private volatile int readyOps = 0;
+            private AtomicInteger ops = new AtomicInteger();
+	    private AtomicInteger readyOps = new AtomicInteger(0);
 
 	    ClientSelectionKey(RelayServer.ClientSelector selector, int ops, Object att) {
 
@@ -723,17 +725,17 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	     *  {@inheritDoc}
 	     */
 	    public int interestOps() {
-	        return ops;
+	        return ops.get();
             }
 
 	    /**
 	     *  {@inheritDoc}
 	     */
-	    public ClientSelectionKey interestOps(int ops) {
+	    public ClientSelectionKey interestOps(int inOps) {
 
                 if(!isValid()) throw new CancelledKeyException();
 
-	        this.ops = ops;
+	        this.ops.set(inOps);
                 return this;
 
 	    }
@@ -744,7 +746,7 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	    public int readyOps() {
 
 		if(!isValid()) throw new CancelledKeyException();
-	        return readyOps;
+	        return readyOps.get();
 
             }
 
@@ -753,11 +755,11 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 	     *
 	     *  @param readyOps The new ops value.
 	     */
-	    public void setReadyOps(int readyOps) {
+	    public void setReadyOps(int inReadyOps) {
 	
                 if(!isValid()) throw new CancelledKeyException();
 
-	        this.readyOps = readyOps;
+	        this.readyOps.set(inReadyOps);
 		selector.keyChanged(this);
             }
 

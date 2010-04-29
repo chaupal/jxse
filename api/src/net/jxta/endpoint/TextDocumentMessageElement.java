@@ -103,25 +103,25 @@ public class TextDocumentMessageElement extends TextMessageElement {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object target) {
-        if (this == target) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (target instanceof MessageElement) {
-            if (!super.equals(target)) {
+        if (obj instanceof MessageElement) {
+            if (!super.equals(obj)) {
                 return false;
             }
 
-            if (target instanceof TextMessageElement) {
+            if (obj instanceof TextMessageElement) {
                 // have to do a slow char by char comparison. Still better than the stream since it saves encoding.
                 // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
 
-                TextMessageElement likeMe = (TextMessageElement) target;
+                final TextMessageElement likeMe = (TextMessageElement) obj;
 
                 try {
-                    Reader myReader = getReader();
-                    Reader itsReader = likeMe.getReader();
+                    final Reader myReader = getReader();
+                    final Reader itsReader = likeMe.getReader();
 
                     int mine;
                     int its;
@@ -144,11 +144,11 @@ public class TextDocumentMessageElement extends TextMessageElement {
                 // have to do a slow stream comparison.
                 // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
 
-                MessageElement likeMe = (MessageElement) target;
+                final MessageElement likeMe = (MessageElement) obj;
 
                 try {
-                    InputStream myStream = getStream();
-                    InputStream itsStream = likeMe.getStream();
+                    final InputStream myStream = getStream();
+                    final InputStream itsStream = likeMe.getStream();
 
                     int mine;
                     int its;
@@ -178,7 +178,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
      */
     @Override
     public int hashCode() {
-        int result = super.hashCode() * 6037 + // a prime
+        final int result = super.hashCode() * 6037 + // a prime
                 toString().hashCode();
 
         return result;
@@ -228,7 +228,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
      * {@inheritDoc}
      */
     public InputStream getStream() throws IOException {
-        byte[] sending = getBytes(false);
+        final byte[] sending = getBytes(false);
 
         return new ByteArrayInputStream(sending);
     }
@@ -239,7 +239,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
     @Override
     public void sendToStream(OutputStream sendTo) throws IOException {
 
-        byte[] sending = getBytes(false);
+        final byte[] sending = getBytes(false);
 
         sendTo.write(sending, 0, sending.length);
     }
@@ -272,7 +272,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
 
             if (null != result) {
                 if (copy) {
-                    byte[] theCopy = new byte[result.length];
+                    final byte[] theCopy = new byte[result.length];
 
                     System.arraycopy(theCopy, 0, result, 0, result.length);
                 } else {
@@ -283,7 +283,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
 
         Logging.logCheckedFiner(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
-        String charset = type.getParameter("charset");
+        final String charset = type.getParameter("charset");
 
         if (null == charset) {
             result = toString().getBytes();
@@ -329,7 +329,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
 
             if (null != result) {
                 if (copy) {
-                    char[] theCopy = new char[result.length];
+                    final char[] theCopy = new char[result.length];
 
                     System.arraycopy(theCopy, 0, result, 0, result.length);
                 } else {
@@ -340,7 +340,7 @@ public class TextDocumentMessageElement extends TextMessageElement {
 
         Logging.logCheckedFiner(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
-        String asString = toString();
+        final String asString = toString();
 
         result = asString.toCharArray();
 

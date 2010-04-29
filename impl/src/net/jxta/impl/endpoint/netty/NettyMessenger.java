@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
@@ -16,7 +15,6 @@ import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
-
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 

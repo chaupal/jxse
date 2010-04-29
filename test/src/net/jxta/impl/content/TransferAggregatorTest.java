@@ -129,8 +129,8 @@ public class TransferAggregatorTest {
         try {
             TEMP_DIR = new TempDir();
         } catch (IOException iox) {
-            throw(new IllegalStateException(
-                    "Could not intiialize temp dir", iox));
+            throw new IllegalStateException(
+                    "Could not intiialize temp dir", iox);
         }
     }
 

@@ -71,7 +71,7 @@ public final class StructuredDocumentUtils {
      *  A singleton class, not meant to be constructed
      **/
     private StructuredDocumentUtils() {
-        ;
+        
     }
     
     /**
@@ -94,18 +94,19 @@ public final class StructuredDocumentUtils {
         
         for (Enumeration eachChild = from.getChildren(); eachChild.hasMoreElements();) {
             
-            Element aChild = (Element) eachChild.nextElement();
-            Element newElement = intoDoc.createElement(aChild.getKey(), aChild.getValue());
+            final Element aChild = (Element) eachChild.nextElement();
+            final Element newElement = intoDoc.createElement(aChild.getKey(), aChild.getValue());
 
             intoElement.appendChild(newElement);
             
             // copy attributes if any
             if ((aChild instanceof Attributable) && (newElement instanceof Attributable)) {
-                Enumeration eachAttrib = ((Attributable) aChild).getAttributes();
+
+                final Enumeration eachAttrib = ((Attributable) aChild).getAttributes();
                 
                 while (eachAttrib.hasMoreElements()) {
-                    Attribute anAttrib = (Attribute) eachAttrib.nextElement();
-                    
+
+                    final Attribute anAttrib = (Attribute) eachAttrib.nextElement();
                     ((Attributable) newElement).addAttribute(anAttrib.getName(), anAttrib.getValue());
                 }
             }
@@ -131,7 +132,7 @@ public final class StructuredDocumentUtils {
      **/
     public static Element copyElements(StructuredDocument intoDoc, Element intoElement, Element from, Object newName) {
         
-        Element newElement = intoDoc.createElement(newName, from.getValue());
+        final Element newElement = intoDoc.createElement(newName, from.getValue());
         
         intoElement.appendChild(newElement);
         
@@ -141,13 +142,15 @@ public final class StructuredDocumentUtils {
         if (newElement instanceof Attributable) {
 
             if (from instanceof Attributable) {
-                Enumeration eachAttrib = ((Attributable) from).getAttributes();
+
+                final Enumeration eachAttrib = ((Attributable) from).getAttributes();
             
                 while (eachAttrib.hasMoreElements()) {
-                    Attribute anAttrib = (Attribute) eachAttrib.nextElement();
-                    String attribName = anAttrib.getName();
 
-                    if (attribName.equals("type")) {
+                    final Attribute anAttrib = (Attribute) eachAttrib.nextElement();
+                    final String attribName = anAttrib.getName();
+
+                    if ("type".equals(attribName)) {
                         hasType = true;
                     }
                     ((Attributable) newElement).addAttribute(attribName, anAttrib.getValue());
@@ -160,7 +163,7 @@ public final class StructuredDocumentUtils {
             // it one day becomes an issue, it will have to be resolved by having a method specific to each kind of structured
             // document and dedicated to correcting type loss.
 
-            Object origName = from.getKey().toString();
+            final Object origName = from.getKey().toString();
 
             if ((!hasType) && (!newName.equals(origName)) && (from instanceof Document)) {
                 ((Attributable) newElement).addAttribute("type", origName.toString());
@@ -212,11 +215,11 @@ public final class StructuredDocumentUtils {
         
         // copy attributes if any
         if ((from instanceof Attributable) && (result instanceof Attributable)) {
-            Enumeration eachAttrib = ((Attributable) from).getAttributes();
+
+            final Enumeration eachAttrib = ((Attributable) from).getAttributes();
             
             while (eachAttrib.hasMoreElements()) {
-                Attribute anAttrib = (Attribute) eachAttrib.nextElement();
-                
+                final Attribute anAttrib = (Attribute) eachAttrib.nextElement();
                 ((Attributable) result).addAttribute(anAttrib.getName(), anAttrib.getValue());
             }
         }

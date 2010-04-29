@@ -1,6 +1,7 @@
 /**
  * 
  */
+
 package net.jxta.impl.util.threads;
 
 import java.util.concurrent.Callable;
@@ -8,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-
+import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 
 /**
@@ -21,8 +22,13 @@ import net.jxta.logging.Logging;
  */
 class RunMetricsWrapper<T> implements Callable<T>, Runnable {
 	
+    /**
+     * Logger
+     */
+    private static final transient Logger LOG = Logger.getLogger(RunMetricsWrapper.class.getName());
+
     private Callable<T> wrappedRunnable;
-    Thread executorThread;
+    private Thread executorThread;
     
     private long startTime;
     private ScheduledExecutorService longTaskMonitor;
@@ -87,9 +93,9 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
     
     public void run() {
     	try {
-			call();
-		} catch (Exception e) {
-			
-		}
+	    call();
+	} catch (Exception e) {
+	    Logging.logCheckedFine(LOG, "Ignored: ", e.toString());
+	}
     }
 }

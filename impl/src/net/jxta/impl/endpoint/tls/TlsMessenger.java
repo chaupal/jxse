@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint.tls;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
@@ -65,11 +64,8 @@ import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
 import net.jxta.logging.Logging;
-
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements sending messages through a TLS connection.

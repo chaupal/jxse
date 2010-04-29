@@ -56,20 +56,25 @@
 
 package net.jxta.impl.protocol;
 
-
-import net.jxta.document.*;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleSpecAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Attribute;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.XMLElement;
 
 /**
  * Provides XML serialization support for ModuleSpecAdvertisement matching the

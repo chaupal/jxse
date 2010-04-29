@@ -49,7 +49,7 @@ public class ProxiedScheduledFuture<V>
      * This instance is equivalent to calling
      * <code>proxyFuture.getDelay()</code>.
      */
-    public long getDelay(final TimeUnit unit) {
+    public long getDelay(TimeUnit unit) {
         return pFuture.getDelay(unit);
     }
 
@@ -59,7 +59,7 @@ public class ProxiedScheduledFuture<V>
      * This instance is equivalent to calling
      * <code>proxyFuture.compareTo()</code>.
      */
-    public int compareTo(final Delayed o) {
+    public int compareTo(Delayed o) {
         return pFuture.compareTo(o);
     }
 
@@ -71,7 +71,7 @@ public class ProxiedScheduledFuture<V>
      * the alternate executor service, and is equivalent to
      * <code>future.cancel()</code> thereafter.
      */
-    public boolean cancel(final boolean mayInterruptIfRunning) {
+    public boolean cancel(boolean mayInterruptIfRunning) {
         synchronized(this) {
             if (future == null) {
                 return pFuture.cancel(mayInterruptIfRunning);
@@ -139,21 +139,21 @@ public class ProxiedScheduledFuture<V>
      *  while waiting
      */
     public V get(
-            final long timeout, final TimeUnit unit)
+            final long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         long entryTime = System.currentTimeMillis();
         synchronized(this) {
             long timeoutMillis = TimeUnit.MILLISECONDS.convert(timeout, unit);
             wait(timeoutMillis);
             if (future == null) {
-                throw(new TimeoutException(
-                        "Timeout while waiting for future (1)"));
+                throw new TimeoutException(
+                        "Timeout while waiting for future (1)");
             }
             // Adjust the timeout based on how long we've waited already
             timeoutMillis -= (System.currentTimeMillis() - entryTime);
             if (timeoutMillis < 0) {
-                throw(new TimeoutException(
-                        "Timeout while waiting for future (2)"));
+                throw new TimeoutException(
+                        "Timeout while waiting for future (2)");
             }
             return future.get(timeoutMillis, TimeUnit.MILLISECONDS);
         }
@@ -168,7 +168,7 @@ public class ProxiedScheduledFuture<V>
      * 
      * @param actualFuture actual future instance
      */
-    void setFuture(final Future<V> actualFuture) {
+    public void setFuture(Future<V> actualFuture) {
         synchronized(this) {
             if (future == null) {
                 future = actualFuture;
@@ -177,8 +177,8 @@ public class ProxiedScheduledFuture<V>
                 }
                 notifyAll();
             } else {
-                throw(new IllegalStateException(
-                        "Actual future has already been set"));
+                throw new IllegalStateException(
+                        "Actual future has already been set");
             }
         }
     }

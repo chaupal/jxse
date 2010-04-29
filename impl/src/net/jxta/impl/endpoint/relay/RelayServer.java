@@ -53,28 +53,18 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.relay;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.channels.IllegalSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.AbstractSelector;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -109,18 +99,17 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.impl.peergroup.GenericPeerGroup;
@@ -134,26 +123,32 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
      *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(RelayServer.class.getName());
+
     /**
      * The maximum number of relay servers we will cache to provide as referrals.
      */
     private final static int MAX_CACHED_SERVERS = 20;
+
     /**
      * The EndpointService for the RelayService
      */
-    EndpointService endpointService;
+    private EndpointService endpointService;
+
     /**
      * 
      */
     private MessengerEventListener messengerEventListener = null;
+
     /**
      * The DiscoveryService for the RelayService
      */
     private DiscoveryService discoveryService;
+
     /**
      * The public address is of the form relay://peerId
      */
     private final EndpointAddress publicAddress;
+
     /**
      *  Map of the current clients
      */
@@ -171,17 +166,18 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     protected long refreshTime = 0;
     protected long aclFileLastModified = 0;
     private static final long ACL_REFRESH_PERIOD = 30 * TimeUtils.AMINUTE;
-    RelayServerCache relayServerCache;
+    private RelayServerCache relayServerCache;
     
     /**
      *  Services the selector thread and (incidentally) initiates the client GC
      *  process.
      */
     private Thread selectorThread = null;
+
     /**
      *  Our selector for clients with pending sendable messages.
      */
-    final ClientSelector selector = new ClientSelector();
+    protected final ClientSelector selector = new ClientSelector();
     
     /**
      * constructor
@@ -260,7 +256,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         return res;
     }
     
-    boolean startServer() {
+    public boolean startServer() {
 
         Logging.logCheckedInfo(LOG, "Starting ", publicAddress);
         
@@ -271,11 +267,11 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         selectorThread.setDaemon(true);
         selectorThread.start();
 
-        if ((messengerEventListener = endpointService.addMessageTransport(this)) == null) {
-            
+        messengerEventListener = endpointService.addMessageTransport(this);
+
+        if (messengerEventListener == null) {
             Logging.logCheckedSevere(LOG, "Transport registration refused");
             return false;
-
         }
         
         try {
@@ -299,7 +295,8 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         return true;
     }
 
-    void stopServer() {
+    public void stopServer() {
+
         // stop cache relay servers
         relayServerCache.stopCache();
         relayServerCache = null;
@@ -314,8 +311,8 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             try {
                 aClient.close();
             } catch (IOException ignored) {
-        
-        }
+                Logging.logCheckedWarning(LOG, "IOException when closing relayed clients:\n", ignored.toString());
+            }
         }
         
         relayedClients.clear();
@@ -323,7 +320,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         try {
             selector.close();
         } catch (IOException ignored) {
-
+            Logging.logCheckedWarning(LOG, "IOException when closing selector:\n", ignored.toString());
         }
         
         Logging.logCheckedInfo(LOG, "Relay Server stopped : ", publicAddress);
@@ -526,13 +523,12 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         handleRequest(request, clientPeerID, null);
     }
 
-    void handleRequest(String request, PeerID clientPeerID, Messenger messenger) {
+    private void handleRequest(String request, PeerID clientPeerID, Messenger messenger) {
+
         // This request may come along with a messenger (if it is a renewal
         // post-disconnection or an initial lease request).
         
-        if (request == null) {
-            return;
-        }
+        if (request == null) return;
         
         request = request.toLowerCase();
         
@@ -772,9 +768,9 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             try {
                 closingHandler.close();
             } catch (IOException ignored) {
-        
+                Logging.logCheckedWarning(LOG, "IOException when closing handler:\n", ignored.toString());
+            }
         }
-    }
     }
     
     /**
@@ -804,36 +800,33 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
      *
      * @param flushQueue instructs to clear the queue if the client exists.
      */
-    private RelayServerClient addClient(PeerID clientPeerID, long requestedLease, Messenger messenger, boolean flushQueue) {
+    private synchronized RelayServerClient addClient(PeerID clientPeerID, long requestedLease, Messenger messenger, boolean flushQueue) {
 
         RelayServerClient client;
         boolean isNewClient = false;
         
         Logging.logCheckedFine(LOG, "addClient(", clientPeerID, ")");
         
-        synchronized (relayedClients) {
+        // check if this client is already registered
+        client = relayedClients.get(clientPeerID);
 
-            // check if this client is already registered
-            client = relayedClients.get(clientPeerID);
+        if (client == null) {
+            // make sure the maximum number of clients has not been reached
+            // and make sure that we have a messenger to give to the new
+            // clientHandler.
+            if ((relayedClients.size() < MAX_CLIENTS) && (messenger != null) && !messenger.isClosed()) {
 
-            if (client == null) {
-                // make sure the maximum number of clients has not been reached
-                // and make sure that we have a messenger to give to the new
-                // clientHandler.
-                if ((relayedClients.size() < MAX_CLIENTS) && (messenger != null) && !messenger.isClosed()) {
-                    
-                    // create a new client
-                    client = new RelayServerClient(this, clientPeerID, requestedLease, MAX_QUEUE_STALL_DURATION, CLIENT_MESSAGE_QUEUE_SIZE);
-                    
-                    // add the client to the list
-                    relayedClients.put(clientPeerID, client);
-                    isNewClient = true;
+                // create a new client
+                client = new RelayServerClient(this, clientPeerID, requestedLease, MAX_QUEUE_STALL_DURATION, CLIENT_MESSAGE_QUEUE_SIZE);
 
-                } else {
+                // add the client to the list
+                relayedClients.put(clientPeerID, client);
+                isNewClient = true;
 
-                    Logging.logCheckedFine(LOG, "new client denied. nb clients: ", relayedClients.size(), "/", MAX_CLIENTS, ", messenger: ", messenger);
-                    
-                }
+            } else {
+
+                Logging.logCheckedFine(LOG, "new client denied. nb clients: ", relayedClients.size(), "/", MAX_CLIENTS, ", messenger: ", messenger);
+
             }
         }
         
@@ -847,13 +840,11 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         // make a new one. FIXME: it's not nice to the client, but in no way
         // a disaster (and very rare).
         
-        if (!client.renewLease(requestedLease)) {
+        if (!client.renewLease(requestedLease))
             return null;
-        }
         
-        if (flushQueue) {
+        if (flushQueue)
             client.flushQueue();
-        }
         
         if (messenger != null) {
             client.addMessenger(messenger);
@@ -889,33 +880,31 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     }
         
     // this is only used by the RelayServerClient when it is closing and needs to remove itself
-    protected void removeClient(PeerID clientPeerId, RelayServerClient handler) {
+    protected synchronized void removeClient(PeerID clientPeerId, RelayServerClient handler) {
 
         Logging.logCheckedFine(LOG, "removeClient(", clientPeerId, ",", handler, ")");
         
-        synchronized (relayedClients) {
-            RelayServerClient currentHandler = relayedClients.get(clientPeerId);
-            
-            // only remove the client if the current handler matches the passed one
-            if (currentHandler == handler) {
-                relayedClients.remove(clientPeerId);
-            }
-            
-            // check if there are any clients
-            if (relayedClients.size() == 0) {
-                // stop the selectorThread
-                Thread temp = selectorThread;
-                
-                if (temp != null) {
-                    try {
-                        temp.interrupt();
-                    } catch (SecurityException e) {
-                        // ignore this exception
-                        Logging.logCheckedFine(LOG, e);
-                    }
+        RelayServerClient currentHandler = relayedClients.get(clientPeerId);
+
+        // only remove the client if the current handler matches the passed one
+        if (currentHandler == handler)
+            relayedClients.remove(clientPeerId);
+        
+        // check if there are any clients
+        if (relayedClients.isEmpty()) {
+            // stop the selectorThread
+            Thread temp = selectorThread;
+
+            if (temp != null) {
+                try {
+                    temp.interrupt();
+                } catch (SecurityException e) {
+                    // ignore this exception
+                    Logging.logCheckedFine(LOG, e);
                 }
             }
         }
+
     }
     
     /**
@@ -999,15 +988,15 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     
     private static class RelayServerCache implements PipeMsgListener, Runnable {
 
-        final static ID pipeID = ID.create(
+        private final static ID pipeID = ID.create(
                 URI.create("urn:jxta:uuid-59616261646162614E50472050325033DEADBEEFDEAFBABAFEEDBABE0000000F04"));
-        final RelayServer server;
-        final PipeAdvertisement pipeAdv;
-        InputPipe inputPipe = null;
-        volatile boolean doRun = false;
-        Thread cacheThread = null;
-        final Map<String, RdvAdvertisement> relayAdvCache = new HashMap<String, RdvAdvertisement>();
-        final Random rand = new Random();
+        private final RelayServer server;
+        private final PipeAdvertisement pipeAdv;
+        private InputPipe inputPipe = null;
+        private AtomicBoolean doRun = new AtomicBoolean(false);
+        private Thread cacheThread = null;
+        private final Map<String, RdvAdvertisement> relayAdvCache = new HashMap<String, RdvAdvertisement>();
+        private final Random rand = new Random();
         
         protected RelayServerCache(RelayServer server) {
             this.server = server;
@@ -1222,7 +1211,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 OutputPipe outputPipe = null;
                 PipeService pipeService = server.group.getPipeService();
                 
-                while (doRun && inputPipe == null) {
+                while (doRun.get() && inputPipe == null) {
 
                     try {
                         inputPipe = pipeService.createInputPipe(pipeAdv, this);
@@ -1242,7 +1231,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 
                 Logging.logCheckedFine(LOG, "Created input pipe");
                 
-                while (doRun && outputPipe == null) {
+                while (doRun.get() && outputPipe == null) {
 
                     try {
                         outputPipe = pipeService.createOutputPipe(pipeAdv, 5 * TimeUtils.ASECOND);
@@ -1278,7 +1267,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     Logging.logCheckedFine(LOG, "wait interrupted");
                 }
                 
-                while (doRun) {
+                while (doRun.get()) {
 
                     RdvAdvertisement adv = RelayServer.createRdvAdvertisement(server.group.getPeerAdvertisement(), server.serviceName);
                     
@@ -1337,20 +1326,25 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         }
         
         protected void startCache() {
-            doRun = true;
+
+            doRun.set(true);
             cacheThread = new Thread(server.group.getHomeThreadGroup(), this, "RelayCache Worker Thread for " + server.publicAddress);
             cacheThread.setDaemon(true);
             cacheThread.start();
+
         }
         
         protected void stopCache() {
-            doRun = false;
+            
+            doRun.set(false);
             
             if (inputPipe != null) {
                 inputPipe.close();
                 inputPipe = null;
             }
+
             cacheThread.interrupt();
+
         }
     }
     
@@ -1359,10 +1353,10 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
      */
     static class BGSend extends Thread {
         
-        Messenger mr;
-        Message ms;
-        String sn;
-        String ps;
+        private Messenger mr;
+        private Message ms;
+        private String sn;
+        private String ps;
         
         BGSend(Messenger mr, Message ms, String sn, String ps) {
             super("Relay Background Sender");
@@ -1454,9 +1448,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
          *  {@inheritDoc}
          */
         protected void implCloseSelector() throws IOException {
-            synchronized (selectedClientKeys) {
-                selectedClientKeys.notifyAll();
-            }
+            selectedClientKeys.notifyAll();
         }
 
         /**
@@ -1523,21 +1515,21 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         /**
          *  {@inheritDoc}
          */
-        public int select(long timeout) throws IOException {
-            synchronized (selectedClientKeys) {
-                int selectedKeys = selectNow();
+        public synchronized int select(long timeout) throws IOException {
 
-                if (0 == selectedKeys) {
-                    try {
-                        selectedClientKeys.wait(timeout);
-                    } catch (InterruptedException woken) {
-                        Thread.interrupted();
-                        throw new InterruptedIOException();
-                    }
+            int selectedKeys = selectNow();
+
+            if (0 == selectedKeys) {
+                try {
+                    selectedClientKeys.wait(timeout);
+                } catch (InterruptedException woken) {
+                    Thread.interrupted();
+                    throw new InterruptedIOException();
                 }
-
-                return selectedClientKeys.size();
             }
+
+            return selectedClientKeys.size();
+
         }
 
         /**
@@ -1551,21 +1543,16 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
          *  {@inheritDoc}
          */
         public Selector wakeup() {
-            synchronized (selectedClientKeys) {
-                selectedClientKeys.notifyAll();
-            }
-
+            selectedClientKeys.notifyAll();
             return this;
         }
 
-        void keyChanged(RelayServerClient.ClientSelectionKey key) {
-            synchronized (selectedClientKeys) {
-                RelayServerClient channel = key.channel();
-                int ready = channel.readyOps() & key.interestOps();
-                if ((ready != 0) && !selectedClientKeys.keySet().contains(key)) {
-                    selectedClientKeys.put(key, key);
-                    selectedClientKeys.notify();
-                }
+        public synchronized void keyChanged(RelayServerClient.ClientSelectionKey key) {
+            RelayServerClient channel = key.channel();
+            int ready = channel.readyOps() & key.interestOps();
+            if ((ready != 0) && !selectedClientKeys.keySet().contains(key)) {
+                selectedClientKeys.put(key, key);
+                selectedClientKeys.notifyAll();
             }
         }
     }

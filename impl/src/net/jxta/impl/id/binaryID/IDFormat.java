@@ -56,9 +56,7 @@
 
 package net.jxta.impl.id.binaryID;
 
-
 import java.util.logging.Logger;
-
 
 /**
  * The 'BinaryID' format is a general purpose JXTA ID Format. It implements all of
@@ -68,10 +66,10 @@ import java.util.logging.Logger;
  *
  * @author Daniel Brookshier <a HREF="mailto:turbogeek@cluck.com">turbogeek@cluck.com</a>
  */
-public class IDFormat {
+public final class IDFormat {
 
     /**
-     * LOG4J Logger
+     * LOG
      */
     private final static transient Logger LOG = Logger.getLogger(IDFormat.class.getName());
 
@@ -80,7 +78,7 @@ public class IDFormat {
      * globally known version.
      */
 
-    final static Object[][] wellKnownIDs = {
+    public final static Object[][] wellKnownIDs = {
         { net.jxta.peergroup.PeerGroupID.worldPeerGroupID, net.jxta.impl.id.UUID.IDFormat.worldPeerGroupID}
                 ,
         { net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID, net.jxta.impl.id.UUID.IDFormat.defaultNetPeerGroupID}
@@ -103,7 +101,7 @@ public class IDFormat {
      * @return the translated ID or the input ID if no translation was needed.
      */
 
-    static net.jxta.id.ID translateFromWellKnown(net.jxta.id.ID input) {
+    public static net.jxta.id.ID translateFromWellKnown(net.jxta.id.ID input) {
         for (int eachWellKnown = 0; eachWellKnown < wellKnownIDs.length; eachWellKnown++) {
             net.jxta.id.ID aWellKnown = (net.jxta.id.ID) wellKnownIDs[eachWellKnown][0];
 
@@ -122,7 +120,7 @@ public class IDFormat {
      * @return the translated ID or the input ID if no translation was needed.
      */
 
-    static net.jxta.id.ID translateToWellKnown(net.jxta.id.ID input) {
+    public static net.jxta.id.ID translateToWellKnown(net.jxta.id.ID input) {
         for (int eachWellKnown = 0; eachWellKnown < wellKnownIDs.length; eachWellKnown++) {
             net.jxta.id.ID aLocalEncoding = (net.jxta.id.ID) wellKnownIDs[eachWellKnown][1];
 

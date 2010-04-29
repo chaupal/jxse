@@ -57,7 +57,6 @@
 package net.jxta.impl.endpoint.router;
 
 import net.jxta.credential.Credential;
-import net.jxta.document.*;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.exception.PeerGroupException;
@@ -65,13 +64,11 @@ import net.jxta.id.ID;
 import net.jxta.impl.cm.SrdiManager;
 import net.jxta.impl.cm.SrdiManager.SrdiPushEntriesInterface;
 import net.jxta.impl.cm.Srdi;
-import net.jxta.impl.protocol.*;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
-import net.jxta.protocol.*;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
@@ -83,8 +80,34 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
+import net.jxta.impl.protocol.ResolverQuery;
+import net.jxta.impl.protocol.ResolverResponse;
+import net.jxta.impl.protocol.RouteQuery;
+import net.jxta.impl.protocol.RouteResponse;
+import net.jxta.impl.protocol.SrdiMessageImpl;
+import net.jxta.protocol.AccessPointAdvertisement;
+import net.jxta.protocol.ConfigParams;
+import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.ResolverQueryMsg;
+import net.jxta.protocol.ResolverResponseMsg;
+import net.jxta.protocol.ResolverSrdiMsg;
+import net.jxta.protocol.RouteAdvertisement;
+import net.jxta.protocol.SrdiMessage;
 
 /**
  * Handles dynamic route resolution.
@@ -182,25 +205,26 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
     final static class CurrentCredential {
 
         /**
-         *	The current default credential
+         * The current default credential
          */
-        final Credential credential;
+        public final Credential credential;
         
         /**
-         *	The current default credential in serialized XML form.
+         * The current default credential in serialized XML form.
          */
-        final XMLDocument credentialDoc;
+        private final XMLDocument credentialDoc;
         
         CurrentCredential(Credential credential, XMLDocument credentialDoc) {
             this.credential = credential;
             this.credentialDoc = credentialDoc;
         }
+
     }
     
     /**
      *   The current Membership service default credential.
      */
-    CurrentCredential currentCredential;
+    private CurrentCredential currentCredential;
     
     /**
      *  Listener we use for membership property events.
@@ -247,7 +271,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         }
     }
 
-    final CredentialListener membershipCredListener = new CredentialListener();
+    private final CredentialListener membershipCredListener = new CredentialListener();
 
     /**
      * @param router the router
@@ -289,7 +313,8 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : " + assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : ");
+            configInfo.append(assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -313,7 +338,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] arg) {
+    public int startApp(String[] args) {
 
         resolver = group.getResolverService();
 
@@ -398,7 +423,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
      *
      * @return routeResolver usage
      */
-    boolean useRouteResolver() {
+    public boolean useRouteResolver() {
         return useRouteResolver;
     }
 
@@ -406,7 +431,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
      * enable routeResolver usage
      * @param enable if true, enables route resolver
      */
-    void enableRouteResolver(boolean enable) {
+    public void enableRouteResolver(boolean enable) {
         useRouteResolver = enable;
     }
 
@@ -756,11 +781,10 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
             // keep the bad one in a cache table so we don't retry them
             // right away. We use the default route timeout
-            BadRoute badRoute = (router.getBadRoute(addr));
+            BadRoute badRoute = router.getBadRoute(addr);
 
             if (badRoute != null) {
-                if (badRoute.getExpiration() > TimeUtils.timeNow()) {// nothing to do. the information is still valid
-                } else {
+                if (badRoute.getExpiration() <= TimeUtils.timeNow()) {
                     // It is ancient knowlege update it
                     badRoute.setExpiration(TimeUtils.toAbsoluteTimeMillis(BADROUTE_EXPIRATION));
                 }
@@ -973,7 +997,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                 // we look for 10 entries, will pickup one randomly
                 List<PeerID> results = srdiIndex.query("route", RouteAdvertisement.DEST_PID_TAG, pId.toString(), 10);
 
-                if (results.size() > 0) {
+                if ( !results.isEmpty() ) {
 
                     Logging.logCheckedFine(LOG, "processQuery srdiIndex lookup match : ", results.size());
 
@@ -982,7 +1006,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                     // index in the process
                     List<PeerID> clean = cleanupAnyEdges(query.getSrcPeer(), results);
 
-                    if (clean.size() > 0) {
+                    if ( !clean.isEmpty() ) {
 
                         Logging.logCheckedFine(LOG, "found an srdi entry forwarding query to SRDI peer");
 
@@ -1243,7 +1267,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
         try {
             // check if we have anything to send
-            if (routeIx.size() == 0) {
+            if (routeIx.isEmpty()) {
                 return;
             }
 

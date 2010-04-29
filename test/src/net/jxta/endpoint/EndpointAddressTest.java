@@ -56,11 +56,7 @@
 
 package net.jxta.endpoint;
 
-
-import net.jxta.endpoint.EndpointAddress;
-
 import junit.framework.*;
-
 
 public class EndpointAddressTest extends TestCase {
     

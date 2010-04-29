@@ -56,22 +56,27 @@
 
 package net.jxta.impl.protocol;
 
-
-import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.PeerAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import net.jxta.document.Attributable;
+import net.jxta.document.Attribute;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
 
 /**
  * A Leasing Protocol Request Message.
@@ -172,20 +177,20 @@ public class LeaseRequestMsg {
      * Construct from a XLMElement
      */
     public LeaseRequestMsg(Element root) {
-        if (!XMLElement.class.isInstance(root)) {
+
+        if (!XMLElement.class.isInstance(root))
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
-        }
         
         XMLElement doc = (XMLElement) root;
         
-        String doctype = doc.getName();
-        
-        String typedoctype = "";
-        Attribute itsType = doc.getAttribute("type");
-        
-        if (null != itsType) {
-            typedoctype = itsType.getValue();
-        }
+//        String doctype = doc.getName();
+//
+//        // String typedoctype = "";
+//        Attribute itsType = doc.getAttribute("type");
+//
+//        if (null != itsType) {
+//            typedoctype = itsType.getValue();
+//        }
         
         if (!doc.getName().equals(getMessageType())) {
             throw new IllegalArgumentException(

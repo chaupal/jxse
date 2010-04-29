@@ -59,7 +59,7 @@ package net.jxta.impl.cm;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.jxta.document.Element;
 import net.jxta.document.StructuredDocument;
 import net.jxta.impl.util.TimeUtils;
@@ -69,55 +69,61 @@ import net.jxta.logging.Logging;
  * Collection of utility methods useful to {@link AdvertisementCache} implementations,
  * extracted from the original {@link Cm} implementation.
  */
-public class CacheUtils {
+public final class CacheUtils {
 
-	/**
-	 * Extracts the values for all indexable fields in an advertisement.
-	 * @param fields the names of the indexable fields, typically provided by {@link net.jxta.document.Advertisement#getIndexFields()}.
-	 * @param doc the document of the advertisement.
-	 * @return a map of all indexable fields to their values in the provided advertisement document.
-	 */
-	public static Map<String, String> getIndexfields(String[] fields, StructuredDocument<?> doc) {
+    /**
+     * Logger.
+     */
+    private final static Logger LOG = Logger.getLogger(XIndiceAdvertisementCache.class.getName());
 
-            Map<String, String> map = new HashMap<String, String>();
-	
-	    if (doc == null) {
+    /**
+     * Extracts the values for all indexable fields in an advertisement.
+     * @param fields the names of the indexable fields, typically provided by {@link net.jxta.document.Advertisement#getIndexFields()}.
+     * @param doc the document of the advertisement.
+     * @return a map of all indexable fields to their values in the provided advertisement document.
+     */
+    public static Map<String, String> getIndexfields(String[] fields, StructuredDocument<?> doc) {
 
-	        if (Logging.SHOW_WARNING && XIndiceAdvertisementCache.LOG.isLoggable(Level.WARNING)) {
-	            XIndiceAdvertisementCache.LOG.warning("Null document");
-	        }
+        Map<String, String> map = new HashMap<String, String>();
 
-	        return map;
-                
-	    }
+        if (doc == null) {
+            Logging.logCheckedWarning(LOG, "Null document");
+            return map;
+        }
 
-	    if (fields == null) return map;
-	    
-	    for (String field : fields) {
+        if (fields == null) return map;
 
-	        Enumeration<?> en = doc.getChildren(field);
+        for (String field : fields) {
 
-	        while (en.hasMoreElements()) {
+            Enumeration<?> en = doc.getChildren(field);
 
-	            String val = (String) ((Element<?>) en.nextElement()).getValue();
+            while (en.hasMoreElements()) {
 
-                    if (val != null) map.put(field, val);
-	            
-	        }
-	    }
+                String val = (String) ((Element<?>) en.nextElement()).getValue();
 
-	    return map;
-	}
-	
-	public static long getRelativeExpiration(long absoluteLifetime, long relativeExpiry) {
+                if (val != null) map.put(field, val);
 
-	    return Math.min(Math.max(-1, TimeUtils.toRelativeTimeMillis(absoluteLifetime)), relativeExpiry);
+            }
+        }
 
-	}
-	
-	public static String convertValueQueryToRegex(String value) {
+        return map;
+    }
 
-	    return value.replaceAll("\\*", ".*?");
-            
-	}
+    public static long getRelativeExpiration(long absoluteLifetime, long relativeExpiry) {
+
+        return Math.min(Math.max(-1, TimeUtils.toRelativeTimeMillis(absoluteLifetime)), relativeExpiry);
+
+    }
+
+    public static String convertValueQueryToRegex(String value) {
+
+        return value.replaceAll("\\*", ".*?");
+
+    }
+
+    /**
+     * Default contructor
+     */
+    private CacheUtils() {
+    }
 }

@@ -76,6 +76,7 @@ import net.jxta.rendezvous.RendezvousEvent;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -124,7 +125,9 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
                 }
-            } catch (java.util.NoSuchElementException ignored) {// ignored
+            } catch (NoSuchElementException ignored) {
+                // ignored
+                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
             }
 
             if (adv instanceof RdvConfigAdv) {
@@ -146,9 +149,9 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
      * {@inheritDoc}
      */
     @Override
-    protected int startApp(String[] arg) {
+    protected int startApp(String[] args) {
 
-        super.startApp(arg);
+        super.startApp(args);
 
         // The other services may not be fully functional but they're there
         // so we can start our subsystems.
@@ -304,7 +307,9 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
                         try {
                             messenger.sendMessage(msg);
                             numPeers++;
-                        } catch (IOException failed) {// ignored
+                        } catch (IOException failed) {
+                            // ignored
+                            Logging.logCheckedFine(LOG, "Ignored: ", failed.toString());
                         }
                     }
                 }

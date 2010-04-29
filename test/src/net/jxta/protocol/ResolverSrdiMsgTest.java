@@ -53,8 +53,8 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.protocol;
 
+package net.jxta.protocol;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -63,8 +63,6 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.impl.protocol.ResolverSrdiMsgImpl;
-import net.jxta.peergroup.PeerGroup;
-
 
 /**
  *  A JUnit test for ResolverSrdiMsg
@@ -144,21 +142,21 @@ public class ResolverSrdiMsgTest extends TestCase {
 
     private StructuredDocument createMessagefromString() {
 
-        String strdoc = null;
+        StringBuffer strdoc = new StringBuffer();
 
-        strdoc += "<" + ResolverSrdiMsgImpl.handlernameTag + ">";
-        strdoc += handlername;
-        strdoc += "</" + ResolverSrdiMsgImpl.handlernameTag + ">";
-        strdoc += "<" + ResolverSrdiMsgImpl.credentialTag + ">";
-        strdoc += cred;
-        strdoc += "</" + ResolverSrdiMsgImpl.credentialTag + ">";
-        strdoc += "<" + ResolverSrdiMsgImpl.payloadTag + ">";
-        strdoc += payload;
-        strdoc += "</" + ResolverSrdiMsgImpl.payloadTag + ">";
+        strdoc.append('<').append(ResolverSrdiMsgImpl.handlernameTag).append('>');
+        strdoc.append(handlername);
+        strdoc.append("</").append(ResolverSrdiMsgImpl.handlernameTag).append('>');
+        strdoc.append('<').append(ResolverSrdiMsgImpl.credentialTag).append('>');
+        strdoc.append(cred);
+        strdoc.append("</").append(ResolverSrdiMsgImpl.credentialTag).append('>');
+        strdoc.append('<').append(ResolverSrdiMsgImpl.payloadTag).append('>');
+        strdoc.append(payload);
+        strdoc.append("</").append(ResolverSrdiMsgImpl.payloadTag).append('>');
 
         StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(new MimeMediaType("text/xml")
                 ,
-                ResolverSrdiMsg.getMessageType(), strdoc);
+                ResolverSrdiMsg.getMessageType(), strdoc.toString());
 
         assertNotNull("Failed to create ResolverSrdiMessage from a String", doc);
         return doc;

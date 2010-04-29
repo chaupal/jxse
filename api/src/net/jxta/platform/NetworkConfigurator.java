@@ -980,7 +980,7 @@ public class NetworkConfigurator {
      * @param certificateChain the new Certificate chain value
      */
     public void setCertificateChain(X509Certificate[] certificateChain) {
-        this.cert = certificateChain;
+        this.cert = certificateChain.clone();
     }
 
     /**
@@ -1579,7 +1579,7 @@ public class NetworkConfigurator {
         // Relay
         try {
             param = (XMLElement) platformConfig.getServiceParam(PeerGroup.relayProtoClassID);
-            if (param != null && !platformConfig.isSvcEnabled(PeerGroup.relayProtoClassID)) {
+            if (!platformConfig.isSvcEnabled(PeerGroup.relayProtoClassID)) {
                 mode = mode | RELAY_OFF;
             }
             // backwards compatibility
@@ -1631,9 +1631,9 @@ public class NetworkConfigurator {
                 infraPeerGroupConfig.setName(tunables.name);
                 infraPeerGroupConfig.setDesc(tunables.desc);
             } catch (IOException ignored) {
-                //ignored
+                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
             } catch (MissingResourceException ignored) {
-                //ignored
+                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
             }
         }
         return platformConfig;
@@ -1966,8 +1966,7 @@ public class NetworkConfigurator {
         InputStream input = url.openStream();
         try {
             XMLDocument document = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, input);
-            PlatformConfig platformConfig = (PlatformConfig) AdvertisementFactory.newAdvertisement(document);
-            return platformConfig;
+            return (PlatformConfig) AdvertisementFactory.newAdvertisement(document);
         } finally {
             input.close();
         }
@@ -2238,9 +2237,9 @@ public class NetworkConfigurator {
      */
     static class NetGroupTunables {
 
-        final ID id;
-        final String name;
-        final XMLElement desc;
+        private final ID id;
+        private final String name;
+        private final XMLElement desc;
 
         /**
          * Constructor for loading the default Net Peer Group construction

@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint;
 
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
@@ -65,7 +64,6 @@ import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.logging.Logging;
 import net.jxta.util.LimitInputStream;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -87,7 +85,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * A Wire Format Message which encodes the message into MIME Type
  * "application/x-jxta-msg".
@@ -103,7 +100,7 @@ import java.util.logging.Logger;
 public class WireFormatMessageBinary implements WireFormatMessage {
 
     /*
-     *  Log4J Logger
+     *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(WireFormatMessageBinary.class.getName());
 
@@ -252,7 +249,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 } catch (IOException failed) {
 
                     Logging.logCheckedSevere(LOG, "Failure reading element ", eachElement, " of ",
-                            elementCnt, " from ", buffer, " for ", msg, failed);
+                            elementCnt, " from ", buffer, " for ", msg, "\n", failed.toString());
                     throw failed;
                     
                 }
@@ -526,7 +523,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             Message submsg = null;
 
             // Value
-            if (type.equalsIngoringParams(myTypes[0])) {
+            if (type.equalsIgnoringParams(myTypes[0])) {
                 InputStream subis = new LimitInputStream(is, dataLen);
 
                 submsg = WireFormatMessageFactory.fromWire(subis, type, null);
@@ -639,7 +636,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             Message submsg = null;
 
             // Value
-            if (type.equalsIngoringParams(myTypes[0])) {
+            if (type.equalsIgnoringParams(myTypes[0])) {
                 InputStream subis = new ByteArrayInputStream(buffer.array(), buffer.position(), dataLen);
 
                 submsg = WireFormatMessageFactory.fromWire(subis, type, null);
@@ -720,17 +717,18 @@ public class WireFormatMessageBinary implements WireFormatMessage {
      * top of the streams this class produces.
      */
     static class binaryMessageProxy implements WireFormatMessage {
-        final Message message;
 
-        final MimeMediaType type;
+        private final Message message;
 
-        final List<binaryElementProxy> elements = new ArrayList<binaryElementProxy>();
+        private final MimeMediaType type;
 
-        final Map<String, Integer> namespaceIDs = new HashMap<String, Integer>();
+        private final List<binaryElementProxy> elements = new ArrayList<binaryElementProxy>();
 
-        final List<String> namespaces = new ArrayList<String>();
+        private final Map<String, Integer> namespaceIDs = new HashMap<String, Integer>();
 
-        byte[] header;
+        private final List<String> namespaces = new ArrayList<String>();
+
+        private byte[] header;
 
         binaryMessageProxy(Message msg, MimeMediaType type) throws IOException {
             message = msg;
@@ -854,8 +852,9 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          * in the message and assign and id to each namespace.
          */
         private void assignNamespaceIds() {
+
             int id = 0;
-            Iterator namespaces = message.getMessageNamespaces();
+            Iterator namespacesTemp = message.getMessageNamespaces();
 
             // insert the predefined namespaces.
             namespaceIDs.put("", id++);
@@ -864,8 +863,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             this.namespaces.add("jxta");
 
             // insert items in the vector if they are not found in the map
-            while (namespaces.hasNext()) {
-                String namespace = (String) namespaces.next();
+            while (namespacesTemp.hasNext()) {
+                String namespace = (String) namespacesTemp.next();
 
                 if (namespaceIDs.get(namespace) == null) {
                     namespaceIDs.put(namespace, id++);
@@ -876,6 +875,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             if (id >= 256) {
                 throw new IllegalStateException("WireFormatMessageBinary does not support more than 255 namespaces");
             }
+
         }
 
         /**
@@ -884,30 +884,32 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          * @throws IOException if for some reason the header cannot be built.
          */
         private void buildHeader() throws IOException {
+
             ByteArrayOutputStream headerBytes = new ByteArrayOutputStream(256);
-            DataOutputStream header = new DataOutputStream(headerBytes);
+            DataOutputStream headerTemp = new DataOutputStream(headerBytes);
 
-            header.writeBytes("jxmg");
+            headerTemp.writeBytes("jxmg");
 
-            header.writeByte(MESSAGE_VERSION);
-            header.writeShort(namespaces.size() - 2);
+            headerTemp.writeByte(MESSAGE_VERSION);
+            headerTemp.writeShort(namespaces.size() - 2);
 
             for (int eachNamespace = 2; eachNamespace < namespaces.size(); eachNamespace++) {
                 byte[] elementName = namespaces.get(eachNamespace).getBytes("UTF8");
 
-                header.writeShort(elementName.length);
-                header.write(elementName, 0, elementName.length);
+                headerTemp.writeShort(elementName.length);
+                headerTemp.write(elementName, 0, elementName.length);
             }
 
-            header.writeShort(elements.size());
+            headerTemp.writeShort(elements.size());
 
-            header.flush();
-            header.close();
+            headerTemp.flush();
+            headerTemp.close();
             headerBytes.flush();
             headerBytes.close();
 
             this.header = headerBytes.toByteArray();
         }
+        
     }
 
 
@@ -916,29 +918,28 @@ public class WireFormatMessageBinary implements WireFormatMessage {
      * meta information.
      */
     static class binaryElementProxy {
-        final byte namespaceid;
 
-        binaryElementProxy sig;
-
-        MessageElement element;
-
-        byte[] header;
+        private final byte namespaceid;
+        private binaryElementProxy sig;
+        private MessageElement element;
+        private byte[] header;
 
         binaryElementProxy(byte namespaceid, MessageElement element) throws IOException {
-            this.namespaceid = namespaceid;
 
+            this.namespaceid = namespaceid;
             this.element = element;
 
-            MessageElement sig = element.getSignature();
+            MessageElement sigTemp = element.getSignature();
 
-            if (null != sig) {
-                this.sig = new binaryElementProxy(namespaceid, sig);
+            if (null != sigTemp) {
+                this.sig = new binaryElementProxy(namespaceid, sigTemp);
             }
 
             buildHeader();
         }
 
-        void buildHeader() throws IOException {
+        private void buildHeader() throws IOException {
+
             byte[] elementName = element.getElementName().getBytes("UTF8");
             byte[] elementType = null;
 
@@ -948,19 +949,19 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             // FIXME  20020504 bondolo@jxta.org Do something with encodings.
             ByteArrayOutputStream headerBytes = new ByteArrayOutputStream(256);
-            DataOutputStream header = new DataOutputStream(headerBytes);
+            DataOutputStream headerTemp = new DataOutputStream(headerBytes);
 
-            header.writeBytes("jxel");
+            headerTemp.writeBytes("jxel");
 
-            header.writeByte(namespaceid);
-            header.writeByte(((null != elementType) ? HAS_TYPE : 0) | ((null != sig) ? HAS_SIGNATURE : 0));
+            headerTemp.writeByte(namespaceid);
+            headerTemp.writeByte(((null != elementType) ? HAS_TYPE : 0) | ((null != sig) ? HAS_SIGNATURE : 0));
 
-            header.writeShort(elementName.length);
-            header.write(elementName, 0, elementName.length);
+            headerTemp.writeShort(elementName.length);
+            headerTemp.write(elementName, 0, elementName.length);
 
             if (null != elementType) {
-                header.writeShort(elementType.length);
-                header.write(elementType, 0, elementType.length);
+                headerTemp.writeShort(elementType.length);
+                headerTemp.write(elementType, 0, elementType.length);
             }
 
             // FIXME content encoding should go here
@@ -971,10 +972,10 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 throw new IllegalStateException("WireFormatMessageBinary does not support elements longer than 4GB");
             }
 
-            header.writeInt((int) dataLen);
+            headerTemp.writeInt((int) dataLen);
 
-            header.flush();
-            header.close();
+            headerTemp.flush();
+            headerTemp.close();
             headerBytes.flush();
             headerBytes.close();
 
@@ -1067,31 +1068,25 @@ public class WireFormatMessageBinary implements WireFormatMessage {
      * @throws java.io.IOException if an io error occurs
      */
     WireFormatMessageBinary(Message msg, MimeMediaType type, MimeMediaType[] preferedContentEncodings) throws IOException {
-        if (null == msg) {
-            throw new IllegalArgumentException("Null message!");
-        }
 
+        if (null == msg) throw new IllegalArgumentException("Null message!");
+        
         this.msg = msg;
-
         this.msgModCount = msg.getMessageModCount();
 
-        if (null == type) {
-            throw new IllegalArgumentException("Null mime type!");
-        }
-
+        if (null == type) throw new IllegalArgumentException("Null mime type!");
+        
         int matchedIdx = -1;
 
         for (int eachType = 0; eachType < myTypes.length; eachType++) {
-            if (type.equalsIngoringParams(myTypes[eachType])) {
+            if (type.equalsIgnoringParams(myTypes[eachType])) {
                 matchedIdx = eachType;
                 break;
             }
         }
 
-        if (-1 == matchedIdx) {
-            throw new IllegalArgumentException("Unsupported mime type!");
-        }
-
+        if (-1 == matchedIdx) throw new IllegalArgumentException("Unsupported mime type!");
+        
         // FIXME  20020504 bondolo@jxta.org Check the mimetype params to make
         // sure we can support them.
         this.type = type;

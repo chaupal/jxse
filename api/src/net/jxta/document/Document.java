@@ -56,7 +56,6 @@
 
 package net.jxta.document;
 
-
 /**
  * A simple typed container for data. A {@code Document} is presented as a
  * byte stream with an associated type. The data type is specified using a

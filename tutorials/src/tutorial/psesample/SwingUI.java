@@ -186,7 +186,7 @@ public class SwingUI extends javax.swing.JFrame {
         initComponents();
 
         membership.addPropertyChangeListener("defaultCredential", new PropertyChangeListener() {
-            public void propertyChange(final PropertyChangeEvent evt) {
+            public void propertyChange(PropertyChangeEvent evt) {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     public void run() {// FIXME 20050624 bondolo how do I tell the swing UI????
                     }

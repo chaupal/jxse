@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint.tls;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
@@ -64,16 +63,13 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Manages the connection pool between peers.
@@ -117,7 +113,7 @@ class TlsManager implements EndpointListener {
      *  Close this manager. This involves closing all registered connections.
      *
      **/
-    void close() {
+    public void close() {
         
         Logging.logCheckedInfo(LOG, "Shutting down all connections");
         
@@ -147,7 +143,7 @@ class TlsManager implements EndpointListener {
      *  @param dstAddr the EndpointAddress of the remote peer.
      *  @return A TLS Connection or null if the connection could not be opened.
      **/
-    TlsConn getTlsConn(EndpointAddress dstAddr) {
+    public TlsConn getTlsConn(EndpointAddress dstAddr) {
         
         if (null == transport.credential) {
 
@@ -230,7 +226,7 @@ class TlsManager implements EndpointListener {
                 try {
                     conn.close(HandshakeState.HANDSHAKEFAILED);
                 } catch (IOException ignored) {
-                    ;
+                    Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
                 }
                 
                 return null;
@@ -367,7 +363,7 @@ class TlsManager implements EndpointListener {
                             try {
                                 conn.close(HandshakeState.CONNECTIONDEAD);
                             } catch (IOException ignored) {
-                                
+                                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
                             }
                         }
                     }
@@ -448,7 +444,7 @@ class TlsManager implements EndpointListener {
                 try {
                     conn.close(HandshakeState.HANDSHAKEFAILED);
                 } catch (IOException ignored) {
-                    ;
+                    Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
                 }
                 
                 return;

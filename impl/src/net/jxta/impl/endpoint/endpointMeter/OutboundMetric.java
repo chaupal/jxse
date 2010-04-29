@@ -180,32 +180,31 @@ public class OutboundMetric implements DocumentSerializable {
         return endpointAddress.hashCode();
     }	 
 
-    void outboundMessageQueued(Message message) {
+    public void outboundMessageQueued(Message message) {
         numOutboundQueued++;
     }
 
-    void outboundMessageDropped(Message message, long time) {
+    public void outboundMessageDropped(Message message, long time) {
         numOutboundDropped++;
         timeToDropOutbound += time;
     }
 
-    void outboundMessageFailed(Message message, long time) {
+    public void outboundMessageFailed(Message message, long time) {
         numOutboundFailed++;
         timeOutboundToFail += time;
     }
 
-    void outboundMessageDeQueued(Message message, long time) {
+    public void outboundMessageDeQueued(Message message, long time) {
         numOutboundDeQueued++;
         timeInOutboundQueue += time;
     }
 
-    void outboundMessageProcessed(Message message, long time) {	
+    public void outboundMessageProcessed(Message message, long time) {
         numOutboundProcessed++;
         timeToProcessOutbound += time;
     }
 
     public void mergeMetrics(OutboundMetric other) {
-	
         numOutboundQueued += other.numOutboundQueued;
         numOutboundDropped += other.numOutboundDropped;
         timeToDropOutbound += other.timeToDropOutbound;
@@ -264,27 +263,27 @@ public class OutboundMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if (tagName.equals("endpointAddress")) {
+            if ("endpointAddress".equals(tagName)) {
                 String endpointAddressString = DocumentSerializableUtilities.getString(childElement);	
 
                 endpointAddress = new EndpointAddress(endpointAddressString);
-            } else if (tagName.equals("numOutboundQueued")) {
+            } else if ("numOutboundQueued".equals(tagName)) {
                 numOutboundQueued = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("numOutboundDropped")) {
+            } else if ("numOutboundDropped".equals(tagName)) {
                 numOutboundDropped = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("timeToDropOutbound")) {
+            } else if ("timeToDropOutbound".equals(tagName)) {
                 timeToDropOutbound = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("numOutboundDeQueued")) {
+            } else if ("numOutboundDeQueued".equals(tagName)) {
                 numOutboundDeQueued = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("timeInOutboundQueue")) {
+            } else if ("timeInOutboundQueue".equals(tagName)) {
                 timeInOutboundQueue = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("numOutboundProcessed")) {
+            } else if ("numOutboundProcessed".equals(tagName)) {
                 numOutboundProcessed = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("timeToProcessOutbound")) {
+            } else if ("timeToProcessOutbound".equals(tagName)) {
                 timeToProcessOutbound = DocumentSerializableUtilities.getLong(childElement);
-            } else if (tagName.equals("numOutboundFailed")) {
+            } else if ("numOutboundFailed".equals(tagName)) {
                 numOutboundFailed = DocumentSerializableUtilities.getInt(childElement);
-            } else if (tagName.equals("timeOutboundToFail")) {
+            } else if ("timeOutboundToFail".equals(tagName)) {
                 timeOutboundToFail = DocumentSerializableUtilities.getLong(childElement);
             }
         }

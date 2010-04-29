@@ -56,7 +56,6 @@
 
 package net.jxta.membership;
 
-
 /**
  * Extension to standard Authenticator for authenticators which support
  * interactive authentication with a human user.
@@ -77,5 +76,6 @@ public interface InteractiveAuthenticator extends Authenticator {
      * <code>false</code>.
      **/
     public boolean  interact();
+    
 }
 

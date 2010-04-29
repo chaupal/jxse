@@ -72,7 +72,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.concurrent.ScheduledExecutorService;
@@ -112,37 +111,45 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     /**
      * Logger.
      */
-    final static Logger LOG = Logger.getLogger(XIndiceAdvertisementCache.class.getName());
+    private final static Logger LOG = Logger.getLogger(XIndiceAdvertisementCache.class.getName());
+
     /**
      * adv types
      */
     private final static String[] DIRNAME = {"Peers", "Groups", "Adv", "Raw"};
+
     /**
      * Default period in milliseconds at which expired record GC will occur.
      */
     public final static long DEFAULT_GC_MAX_INTERVAL = TimeUtils.ANHOUR;
+
     /**
      * Period in milliseconds at which we will check to see if it is time to GC.
      */
     private final static long GC_CHECK_PERIOD = TimeUtils.AMINUTE;
+
     /**
      * Alternative to GC. If we accumulate this many changes without a GC then
      * we start the GC early.
      */
     private final static int MAX_INCONVENIENCE_LEVEL = 1000;
     private final static String DATABASE_FILE_NAME = "advertisements";
+
     /**
      * Shared timer for scheduling GC tasks.
      */
     private final static Timer GC_TIMER = new Timer("CM GC Timer", true);
+
     /**
      * the name we will use for the base directory
      */
     private final File ROOTDIRBASE;
+
     /**
      * The Executor we use for our tasks.
      */
     private final ScheduledExecutorService executor;
+
     /*
      *  record db
      */
@@ -157,6 +164,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * If {@code true} then we will track changes to the indexes.
      */
     private boolean trackDeltas;
+
     /**
      * The current set of database changes we have accumulated.
      */
@@ -166,10 +174,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * file descriptor for the root of the cm
      */
     protected final File rootDir;
+
     /**
      * If {@code true} then this cache has been stopped.
      */
     private boolean stop = false;
+
     /**
      * The scheduler for our GC operations.
      */
@@ -180,10 +190,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * begin.
      */
     private long gcTime = 0;
+
     /**
      * The maximum period between GC operations.
      */
     private final long gcMaxInterval;
+
     /**
      * Measure of accumulated number of record changes since the last GC. If
      * this reaches {@link #MAX_INCONVENIENCE_LEVEL} then the GC operation will
@@ -200,7 +212,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @param storeRoot store root dir
      * @throws IOException 
      */
-	public XIndiceAdvertisementCache(URI storeRoot, String areaName) throws IOException {
+     public XIndiceAdvertisementCache(URI storeRoot, String areaName) throws IOException {
 		// XXX I'm not sure how to support an arbitrary executor in this context.
 		// Granted, it's only used in tests right now, but clearly we dont need
 		// yet another pool floating around.  SingleThreadExecutor seems safest...
@@ -339,6 +351,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @param expirations List to contain expirations
      * @return List<InputStream> containing the files
      */
+    @Override
     public List<InputStream> getRecords(String dn, int threshold, List<Long> expirations) {
         return getRecords(dn, threshold, expirations, false);
     }
@@ -678,6 +691,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @param adv Advertisement to store
      * @throws IOException if an I/O error occurs
      */
+    @Override
     public void save(String dn, String fn, Advertisement adv) throws IOException {
         save(dn, fn, adv, DiscoveryService.INFINITE_LIFETIME, DiscoveryService.NO_EXPIRATION);
     }
@@ -857,7 +871,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         }
 
         Map<String, String> tmp = new HashMap<String, String>();
-        if (map.size() > 0) {
+        if (map.isEmpty()) {
             Iterator<String> it = map.keySet().iterator();
 
             while (it != null && it.hasNext()) {
@@ -926,8 +940,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
     private final static class SearchResult {
 
-        final Value value;
-        final long expiration;
+        private final Value value;
+        private final long expiration;
 
         SearchResult(Value value, long expiration) {
             this.value = value;
@@ -952,7 +966,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             this.indexer = indexer;
 //            this.results = results;
             this.threshold = threshold;
-            this.results = new ArrayList((threshold < 200) ? threshold : 200);
+            this.results = new ArrayList<SearchResult>((threshold < 200) ? threshold : 200);
             this.purge = purge;
         }
 
@@ -1025,7 +1039,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             return null;
         } else if (value.length() == 0 || "*".equals(value)) {
             return null;
-        } else if (value.indexOf("*") < 0) {
+        } else if (value.indexOf('*') < 0) {
             operator = IndexQuery.EQ;
         } else if (value.charAt(0) == '*' && value.charAt(value.length() - 1) != '*') {
             operator = IndexQuery.EW;

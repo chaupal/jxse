@@ -1,6 +1,3 @@
-package net.jxta.impl.xindice.core.filer;
-
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -57,13 +54,15 @@ package net.jxta.impl.xindice.core.filer;
  * <http://www.apache.org/>.
  *
  */
+
+package net.jxta.impl.xindice.core.filer;
+
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.FaultCodes;
 import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Record;
 import net.jxta.impl.xindice.core.data.RecordSet;
 import net.jxta.impl.xindice.core.data.Value;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -73,13 +72,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
+import net.jxta.logging.Logging;
 
 /**
  * BTreeFiler is a Filer implementation based on the BTree class.
  */
 public final class BTreeFiler extends BTree implements Filer {
 
-    protected static final byte RECORD = 20;
+    /**
+     * LOG
+     */
+    private static final Logger LOG = Logger.getLogger(BTree.class.getName());
+
+    private static final byte RECORD = 20;
 
     private static final short PAGESIZE = 512;
     // TODO: MAXKEYSIZE might need tuning
@@ -132,7 +138,9 @@ public final class BTreeFiler extends BTree implements Filer {
 
             record.setKey(key);
             return record;
-        } catch (BTreeNotFoundException b) {// do nothing
+        } catch (BTreeNotFoundException b) {
+            // do nothing
+            Logging.logCheckedFinest(LOG, "Doing nothing");
         } catch (IOException e) {
             throw new FilerException(DBE_CANNOT_READ, "Can't read record '" + key + "': " + e.getMessage(), e);
         }
@@ -238,7 +246,9 @@ public final class BTreeFiler extends BTree implements Filer {
             flush();
 
             return true;
-        } catch (BTreeNotFoundException b) {// not found move on
+        } catch (BTreeNotFoundException b) {
+            // not found move on
+            Logging.logCheckedFinest(LOG, "Doing nothing");
         } catch (IOException e) {
             throw new FilerException(FaultCodes.DBE_CANNOT_DROP, "Can't delete record '" + key + "': " + e.getMessage(), e);
         }

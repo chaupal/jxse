@@ -112,12 +112,10 @@ public class ContentProviderEvent extends EventObject {
                 final ContentProvider provider,
                 final ContentID contentID) {
             if (provider == null) {
-                throw(new IllegalArgumentException(
-                        "provider argument cannot be null"));
+                throw new IllegalArgumentException("provider argument cannot be null");
             }
             if (contentID == null) {
-                throw(new IllegalArgumentException(
-                        "contentID argument cannot be null"));
+                throw new IllegalArgumentException("contentID argument cannot be null");
             }
             bSource = provider;
             bContentID = contentID;
@@ -134,12 +132,10 @@ public class ContentProviderEvent extends EventObject {
                 final ContentProvider provider,
                 final List<ContentShare> shareList) {
             if (provider == null) {
-                throw(new IllegalArgumentException(
-                        "provider argument cannot be null"));
+                throw new IllegalArgumentException("provider argument cannot be null");
             }
             if (shareList == null) {
-                throw(new IllegalArgumentException(
-                        "shareList argument cannot be null"));
+                throw new IllegalArgumentException("shareList argument cannot be null");
             }
             bSource = provider;
             bShares = Collections.unmodifiableList(shareList);
@@ -151,7 +147,7 @@ public class ContentProviderEvent extends EventObject {
          * @param id of the Content which this event pertains to
          * @return builder instance
          */
-        public Builder contentID(final ContentID id) {
+        public Builder contentID(ContentID id) {
             bContentID = id;
             return this;
         }
@@ -164,7 +160,7 @@ public class ContentProviderEvent extends EventObject {
          *  {@code false} otherwise
          * @return builder instance
          */
-        public Builder lastRecord(final boolean flag) {
+        public Builder lastRecord(boolean flag) {
             bLastRecord = Boolean.valueOf(flag);
             return this;
         }
@@ -193,9 +189,9 @@ public class ContentProviderEvent extends EventObject {
                 return null;
             }
             ContentID newID = null;
-            Iterator<ContentShare> iter = bShares.iterator();
+            final Iterator<ContentShare> iter = bShares.iterator();
             while (iter.hasNext()) {
-                ContentShareAdvertisement adv =
+                final ContentShareAdvertisement adv =
                         iter.next().getContentShareAdvertisement();
                 if (newID == null) {
                     // First one.  Set it using the adv's ID.
@@ -218,7 +214,7 @@ public class ContentProviderEvent extends EventObject {
      *
      * @param Builder builder with our data
      */
-    private ContentProviderEvent(final Builder builder) {
+    private ContentProviderEvent(Builder builder) {
         super(builder.bSource);
         contentID = builder.bContentID;
         contentShares = builder.bShares;

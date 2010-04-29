@@ -56,12 +56,9 @@
 
 package net.jxta.impl.util;
 
-
 import junit.framework.*;
 
-
 /**
- *
  * @author mike
  */
 public class TimeUtilsTest extends TestCase {
@@ -153,6 +150,7 @@ public class TimeUtilsTest extends TestCase {
     }
 
     public void testToRelativeTime() {
+
         long justpast = TimeUtils.toRelativeTimeMillis(-1);
         
         assertTrue("-1 is not a mapped value", (justpast > Long.MIN_VALUE) && (justpast < Long.MAX_VALUE));
@@ -174,7 +172,7 @@ public class TimeUtilsTest extends TestCase {
         
         assertTrue("Warper active", TimeUtils.WARPBEGAN == 0); // private API
         
-        TimeUtils.TIMEWARP = 0; // private API
+        TimeUtils.TIMEWARP.set(0); // private API
         
         long now = TimeUtils.timeNow();
         
@@ -189,7 +187,7 @@ public class TimeUtilsTest extends TestCase {
         
         assertTrue("Warper already active", TimeUtils.WARPFACTOR == 1.0); // private API
         
-        TimeUtils.TIMEWARP = 0; // private API
+        TimeUtils.TIMEWARP.set(0); // private API
         
         long start = TimeUtils.timeNow();
 

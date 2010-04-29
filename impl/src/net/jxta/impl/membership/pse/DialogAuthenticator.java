@@ -56,15 +56,15 @@
 
 package net.jxta.impl.membership.pse;
 
-
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.id.ID;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.peer.PeerID;
-
 import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -74,6 +74,14 @@ import java.awt.event.WindowEvent;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Iterator;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import net.jxta.logging.Logging;
 
 
 /**
@@ -91,11 +99,12 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
      *  Entries we stick into the combo list
      **/
     private static class JComboEntry {
-        ID itsID;
+
+        private ID itsID;
         
-        X509Certificate itsCertificate;
+        private X509Certificate itsCertificate;
         
-        String itsName;
+        private String itsName;
         
         JComboEntry(ID entryID, X509Certificate itsCert) {
             itsID = entryID;
@@ -306,6 +315,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
                             identityList.addItem(anEntry);
                             identityList.setSelectedIndex(0);
                         } catch (Exception ignore) {
+                            Logging.logCheckedFine(LOG, "Ignored: ", ignore.toString());
                         }
                     }
                 }
@@ -345,7 +355,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
             } else if (cancelButton == e.getSource()) {
                 canceled = true;
                 dispose();
-            } else {}
+            } 
         }
         
         public void showDialog() {

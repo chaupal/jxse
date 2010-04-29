@@ -56,30 +56,23 @@
 
 package net.jxta.pipe;
 
-
 import java.net.URI;
 import java.util.Collections;
-
 import java.io.IOException;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.peer.PeerID;
-
 import net.jxta.impl.endpoint.tls.TlsTransport;
-
 
 public class PipeTest extends TestCase {
     

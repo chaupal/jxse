@@ -151,7 +151,7 @@ public class SrdiReplicaTest extends TestCase {
         BigInteger digest = jxtaHash.getDigestInteger().abs();
         BigInteger sizeOfHashSpace = BigInteger.ONE.shiftLeft(8 * digest.toByteArray().length);
 
-        return (digest.multiply(sizeOfPeerView)).divide(sizeOfHashSpace).intValue();
+        return digest.multiply(sizeOfPeerView).divide(sizeOfHashSpace).intValue();
     }
 
 }

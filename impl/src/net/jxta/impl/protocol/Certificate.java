@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.Attributable;
 import net.jxta.document.Attribute;
 import net.jxta.document.Document;
@@ -68,7 +67,6 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.logging.Logging;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -81,9 +79,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A lightweight container for X.509 Certificates.
@@ -216,7 +212,7 @@ public class Certificate {
         String encodedCert;
 
         try {
-            encodedCert = PSEUtils.base64Encode((certs.get(0)).getEncoded());
+            encodedCert = PSEUtils.base64Encode(certs.get(0).getEncoded());
         } catch (CertificateEncodingException failed) {
             IllegalStateException failure = new IllegalStateException("bad certificate.");
 

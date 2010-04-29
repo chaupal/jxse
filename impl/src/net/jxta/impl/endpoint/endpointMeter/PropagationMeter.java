@@ -86,11 +86,11 @@ public class PropagationMeter {
         totals.registerPropagateMessageStats(numPropagatedTo, numFilteredOut, numErrorsPropagated, propagationTime);
     }
 
-    String getServiceName() {
+    public String getServiceName() {
         return serviceName;
     }
 
-    String getServiceParameter() {
+    public String getServiceParameter() {
         return serviceParameter;
     }
 

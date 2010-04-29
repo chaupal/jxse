@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.peergroup;
 
 import net.jxta.document.AdvertisementFactory;
@@ -63,7 +64,6 @@ import net.jxta.exception.ConfiguratorException;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -72,7 +72,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -251,6 +250,7 @@ public class NullConfigurator implements PlatformConfigurator {
 
             } catch (Exception ignored) {
                 // ignored
+                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
             }
         }
     }
@@ -303,7 +303,9 @@ public class NullConfigurator implements PlatformConfigurator {
                 if (null != out) {
                     out.close();
                 }
-            } catch (Exception ignored) {// ignored
+            } catch (Exception ignored) {
+                // ignored
+                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
             }
             out = null;
         }

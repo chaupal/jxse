@@ -205,7 +205,7 @@ public class ConfiguratorException extends JxtaException {
         int count = 1;
 
         for (Object o : getCauses()) {
-            Throwable t = (Throwable) o;
+            final Throwable t = (Throwable) o;
 
             ps.print("Cause #" + count++ + " : ");
 
