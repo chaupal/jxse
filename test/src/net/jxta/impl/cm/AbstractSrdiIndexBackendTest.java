@@ -190,6 +190,19 @@ public abstract class AbstractSrdiIndexBackendTest extends MockObjectTestCase {
 		assertEquals(2, results.size());
 		assertContains(results, PEER_ID, PEER_ID_2);
 	}
+
+	public void testQuery_nullValue() throws Exception {
+
+            srdiIndex.add("a", "b", "c", PEER_ID, 1000L);
+            srdiIndex.add("a", "c", "c", PEER_ID, 1000L);
+            srdiIndex.add("a", "b", "d", PEER_ID_2, 1000L);
+            srdiIndex.add("b", "x", "y", PEER_ID, 1000L);
+
+            List<PeerID> results = srdiIndex.query("a", "b", null, NO_THRESHOLD);
+            assertEquals(2, results.size());
+            assertContains(results, PEER_ID, PEER_ID_2);
+
+	}
 	
 	public void testQuery_endsWith() throws Exception {
 		srdiIndex.add("a", "b", "alpha", PEER_ID, 1000L);

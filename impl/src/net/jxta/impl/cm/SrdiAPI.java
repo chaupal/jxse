@@ -113,7 +113,9 @@ public interface SrdiAPI {
 	 * @param attribute the attribute for the search. If this is null, the search will return all peer
 	 * IDs who have records under the primary key that have not expired.
 	 * @param value the value for the search. This can include a wildcard at the start, end, or middle
-	 * of the string. e.g. "*match", "match*", "*match*", "match*match".
+	 * of the string. e.g. "*match", "match*", "*match*", "match*match".  If this is null, the search will
+	 * return all Peer IDs under the primary key with a matching attribute.
+         *
 	 * @param threshold the maximum number of results to return.
 	 * @return a list of peer IDs who have records matching the specified criteria of this query.
 	 */

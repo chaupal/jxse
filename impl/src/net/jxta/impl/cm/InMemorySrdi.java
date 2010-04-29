@@ -343,6 +343,9 @@ public class InMemorySrdi implements SrdiAPI {
 
         stoppedCheck();
 
+        if ( null == pkey )
+            throw new IOException( "Null primary key is not supported in query." );
+
         HashMap<PeerID, Object> results = new HashMap<PeerID, Object>();
 
         if ( null == skey ) {
@@ -353,6 +356,12 @@ public class InMemorySrdi implements SrdiAPI {
 
             processKeyList( keys, results, threshold );
         } else {
+
+            if ( null == value ) {
+
+                // No value specified so assume all values are required
+                value = WILDCARD;
+            }
 
             String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 
