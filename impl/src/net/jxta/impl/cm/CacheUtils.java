@@ -120,6 +120,10 @@ public final class CacheUtils {
         return value.replaceAll("\\*", ".*?");
 
     }
+    
+    public static boolean hasWildcards(String value) {
+        return value.indexOf('*') != -1;
+    }
 
     /**
      * Default contructor

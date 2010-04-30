@@ -32,7 +32,7 @@ public class BerkeleyDbSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest
 	}
 
 	@Override
-	protected Expectations createExpectationsForConstruction_withPeerGroup_IndexName(PeerGroup mockGroup, PeerGroupID groupId, String groupName) {
+	protected Expectations createExpectationsForConstruction_withPeerGroup_IndexName(final PeerGroup mockGroup, final PeerGroupID groupId, final String groupName) {
 		return new Expectations() {{
 			ignoring(mockGroup).getPeerGroupName(); will(returnValue(groupName));
 			ignoring(mockGroup).getPeerGroupID(); will(returnValue(groupId));

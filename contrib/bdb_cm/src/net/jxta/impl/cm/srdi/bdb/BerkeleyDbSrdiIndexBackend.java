@@ -8,12 +8,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.impl.cm.CacheUtils;
 import net.jxta.impl.cm.SrdiAPI;
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.impl.cm.bdb.BerkeleyDbUtil;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
@@ -303,9 +302,13 @@ public class BerkeleyDbSrdiIndexBackend implements SrdiAPI {
 		Set<PeerID> results = new HashSet<PeerID>();
 		SrdiIndexKey searchKey = new SrdiIndexKey(groupId, indexName, primaryKey, attribute, null, null);
 		QueryMatchHandler<SrdiIndexKey, PeerID, Set<PeerID>> handler;
+		
 		if(value == null) {
 			handler = new AllMatchHandler(results, threshold);
-		} else {
+		} else if(!CacheUtils.hasWildcards(value)) {
+            searchKey.setValue(value);
+            handler = new AllMatchHandler(results, threshold);
+        } else {
 			String regex = CacheUtils.convertValueQueryToRegex(value);
 			handler = new ValueRegexMatchHandler(results, regex, threshold);
 		}
