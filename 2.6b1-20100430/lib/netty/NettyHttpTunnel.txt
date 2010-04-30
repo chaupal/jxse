@@ -1,0 +1,14 @@
+NettyHttpTunnel is a stand-alone add-on to the Netty library written by 
+Iain McGinniss with the support of OneDrum (www.onedrum.com). It is 
+presently a candidate for inclusion in the core Netty distribution,
+but is presently being maintained as a separate module as it does not
+change any fundamental components on Netty. This is to facilitate
+moving to new, API compatible versions of Netty without issue
+(particularly important to JXTA at present). The library has been
+tested against Netty 3.2.0-BETA1, and the source code can be found
+here:
+
+http://bitbucket.org/iainmcgin/netty-httptunnel
+
+NettyHttpTunnel is released under the Apache 2 license, the same
+license that Netty itself uses.

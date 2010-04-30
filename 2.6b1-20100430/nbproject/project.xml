@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Copyright (c) 2003-2006 Sun Microsystems, Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, 
+are permitted provided that the following conditions are met: 
+
+1. Redistributions of source code must retain the above copyright notice, this 
+list of conditions and the following disclaimer. 
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation and/or 
+other materials provided with the distribution. 
+
+3. The end-user documentation included with the redistribution, if any, must 
+include the following acknowledgment: "This product includes software developed 
+by the Sun Microsystems, Inc. for Project JXTA." Alternately, this 
+acknowledgment may appear in the software itself, if and wherever such 
+third-party acknowledgments normally appear. 
+
+4. The names "Sun" "Sun Microsystems, Inc." "JXTA" and "Project JXTA" must not 
+be used to endorse or promote products derived from this software without prior 
+written permission. For written permission, please contact Project JXTA at the 
+Project JXTA homepage <http://www.jxta.org>
+
+5. Products derived from this software may not be called "JXTA" nor may "JXTA" 
+appear in their name, without prior written permission of Sun. 
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
+MICROSYSTEMS INCORPORATED OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+This software consists of voluntary contributions made by many individuals on 
+behalf of Project JXTA. For more information on Project JXTA, please see the 
+Project JXTA homepage <http://www.jxta.org>
+
+This license is based on the BSD license adopted by the Apache Foundation. 
+
+$Id: project.xml,v 1.11 2007/03/22 04:34:26 bondolo Exp $
+-->
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.ant.freeform</type>
+    <configuration>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
+            <!-- Do not use Project Properties customizer when editing this file manually. -->
+            <name>jxse</name>
+            <properties/>
+            <folders>
+                <source-folder>
+                    <label>API Source</label>
+                    <type>java</type>
+                    <location>api/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>Reference Implementation Source</label>
+                    <type>java</type>
+                    <location>impl/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>Unit Tests Source</label>
+                    <type>java</type>
+                    <location>test/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>Tutorials Source</label>
+                    <type>java</type>
+                    <location>tutorials/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>Conditional Build</label>
+                    <type>java</type>
+                    <location>build/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>Build Generated Source</label>
+                    <type>java</type>
+                    <location>build_generated</location>
+                </source-folder>
+            </folders>
+            <ide-actions>
+                <action name="build">
+                    <target>signjar</target>
+                </action>
+                <action name="clean">
+                    <target>clean</target>
+                </action>
+                <action name="javadoc">
+                    <target>javadoc</target>
+                </action>
+                <action name="run">
+                    <target>runshell</target>
+                </action>
+                <action name="test">
+                    <target>runtest</target>
+                </action>
+                <action name="rebuild">
+                    <target>clean</target>
+                    <target>signjar</target>
+                </action>
+                <action name="compile.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>compile-selected-files-in-core-src</target>
+                    <context>
+                        <property>files</property>
+                        <folder>build_generated</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="compile.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>compile-selected-files-in-core-src</target>
+                    <context>
+                        <property>files</property>
+                        <folder>api/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="compile.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>compile-selected-files-in-core-src</target>
+                    <context>
+                        <property>files</property>
+                        <folder>impl/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="compile.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>compile-selected-files-in-ext-src</target>
+                    <context>
+                        <property>files</property>
+                        <folder>ext/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="compile.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>compile-selected-files-in-test-src</target>
+                    <context>
+                        <property>files</property>
+                        <folder>test/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="compile.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>compile-selected-files-in-tutorials-src</target>
+                    <context>
+                        <property>files</property>
+                        <folder>tutorials/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>relative-path</format>
+                        <arity>
+                            <separated-files>,</separated-files>
+                        </arity>
+                    </context>
+                </action>
+                <action name="debug">
+                    <script>nbproject/ide-targets.xml</script>
+                    <target>debug-runshell</target>
+                </action>
+                <action name="debug.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>debug-single-tutorial</target>
+                    <context>
+                        <property>classname</property>
+                        <folder>tutorials/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="run.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>run-single-tutorial</target>
+                    <context>
+                        <property>classname</property>
+                        <folder>tutorials/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="debug.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>debug-single-test</target>
+                    <context>
+                        <property>classname</property>
+                        <folder>test/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+                <action name="run.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>run-single-test</target>
+                    <context>
+                        <property>classname</property>
+                        <folder>test/src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+            </ide-actions>
+            <export>
+                <type>folder</type>
+                <location>classes</location>
+                <build-target>signjar</build-target>
+            </export>
+            <export>
+                <type>jar</type>
+                <location>dist/jxta.jar</location>
+                <build-target>signjar</build-target>
+            </export>
+            <export>
+                <type>folder</type>
+                <location>test_classes/test_classes</location>
+                <build-target>signjar</build-target>
+            </export>
+            <export>
+                <type>folder</type>
+                <location>tutorials/classes</location>
+                <build-target>signjar</build-target>
+            </export>
+            <export>
+                <type>folder</type>
+                <location>build_classes</location>
+                <build-target>signjar</build-target>
+            </export>
+            <view>
+                <items>
+                    <source-folder style="packages">
+                        <label>API Source</label>
+                        <location>api/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>Reference Implementation Source</label>
+                        <location>impl/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>Unit Tests Source</label>
+                        <location>test/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>Tutorials Source</label>
+                        <location>tutorials/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>Conditional Build</label>
+                        <location>build/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>Build Generated Source</label>
+                        <location>build_generated</location>
+                    </source-folder>
+                    <source-file>
+                        <location>build.xml</location>
+                    </source-file>
+                </items>
+                <context-menu>
+                    <ide-action name="build"/>
+                    <ide-action name="clean"/>
+                    <ide-action name="javadoc"/>
+                    <ide-action name="run"/>
+                    <ide-action name="test"/>
+                    <ide-action name="rebuild"/>
+                    <ide-action name="debug"/>
+                    <action>
+                        <label>Build Distribution</label>
+                        <target>dist</target>
+                    </action>
+                </context-menu>
+            </view>
+            <subprojects/>
+        </general-data>
+        <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
+            <compilation-unit>
+                <package-root>api/src</package-root>
+                <classpath mode="compile">impl/src</classpath>
+                <built-to>classes</built-to>
+                <javadoc-built-to>doc/api</javadoc-built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>impl/src</package-root>
+                <classpath mode="compile">lib/bcprov-jdk14.jar:lib/javax.servlet.jar:lib/org.mortbay.jetty.jar:api/src:build_generated</classpath>
+                <built-to>dist/jxta.jar</built-to>
+                <javadoc-built-to>doc/impl</javadoc-built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>test/src</package-root>
+                <unit-tests/>
+                <classpath mode="compile">api/src:impl/src:tools/junit-4.4.jar:tools/jmock-2.5.0/hamcrest-core-1.1.jar:tools/jmock-2.5.0/hamcrest-library-1.1.jar:tools/jmock-2.5.0/jmock-2.5.0.jar:tools/jmock-2.5.0/jmock-junit4-2.5.0.jar</classpath>
+                <built-to>test_classes/test_classes</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>tutorials/src</package-root>
+                <classpath mode="compile">api/src:impl/src:lib/bcprov-jdk14.jar</classpath>
+                <built-to>tutorials/classes</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>build/src</package-root>
+                <built-to>build_classes</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>build_generated</package-root>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+        </java-data>
+    </configuration>
+</project>

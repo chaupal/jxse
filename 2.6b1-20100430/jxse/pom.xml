@@ -1,0 +1,488 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>jxse-parent</artifactId>
+		<groupId>net.jxta</groupId>
+		<version>2.6</version>
+	</parent>
+
+	<artifactId>jxse</artifactId>
+	<groupId>net.jxta</groupId>
+    <packaging>jar</packaging>
+	<name>JXSE</name>
+
+	<repositories>
+		<repository>
+			<!-- Repository needed to include the jboss netty library -->
+			<id>repository.jboss.org</id>
+			<url>http://repository.jboss.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+
+			<!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
+
+			<plugin>
+
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.0.1</version>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+							<goals>
+								<goal>manifest</goal>
+							</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<instructions>
+
+						<!-- Officially, we only export one bundle/service from an OSGi perspective 
+
+						     REM: This configuration triggers a warning, because our .jar is not a  
+						          a 'pure' OSGi bundle. It exports (de facto) many non-OSGi items.  
+						          This warning can be ignored.                                      -->
+
+
+					        <Export-Package>
+							net.jxse.OSGi.Services.JxseOSGiNetworkManagerService
+						</Export-Package>
+
+						<!-- But, our jar is full of non-OSGi stuff and we want to make sure BND does not strip it -->
+						<Private-Package>
+							*
+						</Private-Package>
+
+						<!-- Our activator will start the OSGi party by creating and registering our service  -->
+						<Bundle-Activator>
+							net.jxse.impl.OSGi.Activators.JxseOSGiNetworkManagerActivator
+						</Bundle-Activator>
+
+					</instructions>
+				</configuration>
+			</plugin> 
+
+                        <!-- Configuring JUnits / Surefire -->
+			<plugin>
+
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+
+				<configuration>
+
+					<skipTests>false</skipTests>
+
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
+
+					<excludes>
+
+						<!-- We exclude some slow tests -->
+						<exclude>**/jxta/impl/cm/**/*</exclude>
+
+						<!-- We exclude some tests causing trouble  -->
+						<exclude>**/Abstract*.java</exclude>
+						<exclude>**/jxta/endpoint/TextDocumentMessageElementTest.java</exclude>
+						<exclude>**/jxta/impl/access/**/*</exclude>
+						<exclude>**/jxta/impl/endpoint/**/*</exclude>
+						<exclude>**/jxta/impl/id/**/*</exclude>
+						<exclude>**/jxta/impl/membership/**/*</exclude>
+						<exclude>**/jxta/impl/util/**/*</exclude>
+						<exclude>**/jxta/impl/xindice/**/*</exclude>
+						<exclude>**/jxta/peergroup/**/*</exclude>
+						<exclude>**/jxta/pipe/PipeTest.java</exclude>
+						<exclude>**/jxta/platform/**/*</exclude>
+						<exclude>**/jxta/protocol/SignedAdvertisementTest.java</exclude>
+						<exclude>**/jxta/rendezvous/**/*</exclude>
+						<exclude>**/jxta/socket/**/*</exclude>
+						<exclude>**/jxta/test/**/*</exclude>
+					</excludes>
+
+				</configuration>
+
+			</plugin>
+
+
+			<!-- We add Javadoc creation to the build process  -->
+
+			<plugin>
+
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+							<goals>
+								<goal>javadoc</goal>
+							</goals>
+					</execution>
+				</executions>
+
+				<!-- We exclude Impl Javadoc  -->
+				<configuration>
+					<excludePackageNames>net.jxta.impl</excludePackageNames>
+				</configuration>
+
+			</plugin>
+			
+			<!-- We use assembly to package the source code as a project ready for Maven. -->
+
+			<plugin>
+
+			        <artifactId>maven-assembly-plugin</artifactId>
+			        <version>2.2-beta-5</version>
+			        <configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/distribution-descriptor.xml</descriptor>
+					</descriptors>
+				</configuration>
+
+			        <executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
+
+
+			<!-- Kenai packaging -->
+	
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>packaging</id>
+						<phase>package</phase>
+
+						<goals>
+							<goal>run</goal>
+						</goals>
+
+						<configuration>
+							<tasks>
+
+								<!-- Deleting kenai dir content -->
+								<delete dir="${project.build.directory}/kenai" />
+									
+								<!-- Copying site (including online Javadoc) -->
+								<copy todir="${project.build.directory}/kenai/site">
+									<fileset dir="${project.build.directory}/site" />
+								</copy>
+
+								<!-- Tar-gz & zip Javadoc -->
+								<tar destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar"
+									basedir="${project.build.directory}/kenai/site/apidocs"/>
+							
+								<gzip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar.gz"
+									src="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar"/>
+
+								<delete file="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
+
+								<zip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.zip"
+									basedir="${project.build.directory}/kenai/site/apidocs"/>
+
+								<!-- Moving the src code packaging -->
+								<copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.tar.gz" todir="${project.build.directory}/kenai" />
+								<copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.zip" todir="${project.build.directory}/kenai" />
+
+								<!-- Moving the .jar -->
+								<copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" todir="${project.build.directory}/kenai" />
+
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!--
+			JXTA seems to work just fine with the 124 (currently the only
+			available version on ibiblio.org/maven2). However, note that the JAR
+			bundled with the project is 132.
+		-->
+		<dependency>
+			<groupId>bouncycastle</groupId>
+			<artifactId>bcprov-jdk15</artifactId>
+			<version>140</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.3</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+		</dependency>
+		<!--
+			The following dependencies are not always needed in normal JXTA use,
+			so they are flagged as "optional". Include it manually in your
+			project's pom.xml if you want to use the parts of JXTA that depend on
+			them.
+		-->
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.main</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>jetty</groupId>
+			<artifactId>org.mortbay.jetty</artifactId>
+			<version>4.2.25</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.1.5.GA</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.5.3.0_1</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.1.118</version>
+			<optional>true</optional>
+		</dependency>
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-junit4</artifactId>
+			<version>2.5.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency> <!-- To be removed -->
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-junit3</artifactId>
+			<version>2.5.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.4.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<profiles>
+
+		<!--
+			This profile triggers the copy of all the JXTA files in the maven
+			tree. It is linked to two maven default lifecycle phases:
+				- generate-sources: the JXTA sources and resource are copied
+				- clean: the JXTA sources and resource are deleted
+		-->
+
+		<profile>
+			<id>import-from-ant</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-sources</id>
+								<phase>generate-sources</phase>
+								<configuration>
+									<tasks>
+										<!-- Delete main resources -->
+										<delete dir="src/main/java" />
+										<delete dir="src/main/resources" />
+										<delete dir="src/test" />
+										<!-- Copy sources -->
+										<copy todir="src/main/java" includeEmptyDirs="false"
+											verbose="false">
+											<fileset dir="../api/src">
+												<exclude name="**/*.properties" />
+												<exclude name="**/*.html" />
+											</fileset>
+										</copy>
+										<copy todir="src/main/java" includeEmptyDirs="false"
+											verbose="false">
+											<fileset dir="../impl/src" />
+											<globmapper from="*.template" to="*.java" /> <!-- ProxiedScheduledExecutorService -->
+										</copy>
+										<copy todir="src/main/java" includeEmptyDirs="false"
+											verbose="false">
+											<fileset dir="../impl/src">
+												<exclude name="**/*.properties" />
+												<exclude name="**/*.html" />
+												<exclude name="**/*.template" />
+												<exclude name="**/net.jxta.*" />
+											</fileset>
+										</copy>
+										<!-- Copy resources -->
+										<copy todir="src/main/resources" includeEmptyDirs="false"
+											verbose="false">
+											<fileset dir="../api/src">
+												<exclude name="**/*.java" />
+											</fileset>
+										</copy>
+										<copy todir="src/main/resources" includeEmptyDirs="false"
+											verbose="false">
+											<fileset dir="../impl/src">
+												<exclude name="**/*.java" />
+											</fileset>
+										</copy>
+
+										<!-- Copy test sources -->
+										<copy todir="src/test/java" includeEmptyDirs="false"
+											verbose="false">
+											<fileset dir="../test/src">
+												<include name="**/*.java" />
+											</fileset>
+										</copy>
+
+										<!-- Copy test resources -->
+										<copy todir="src/test/resources" includeEmptyDirs="false"
+											verbose="false">
+											<fileset dir="../test/resources">
+												<exclude name="**/*.java" />
+											</fileset>
+										</copy>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>delete-sources</id>
+								<phase>clean</phase>
+								<configuration>
+									<tasks>
+										<delete dir="src/main/java" />
+										<delete dir="src/main/resources" />
+										<delete dir="src/test" />
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>replace-if-jre-6</id>
+			<activation>
+				<jdk>[1.6,)</jdk>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>tweak-sources-for-java-6</id>
+								<phase>process-sources</phase>
+								<configuration>
+									<tasks>
+										<replace
+											file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+											<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+											<replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
+										</replace>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>replace-if-jre-5</id>
+			<activation>
+				<jdk>(,1.6)</jdk>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>tweak-sources-for-java-5</id>
+								<phase>process-sources</phase>
+								<configuration>
+									<tasks>
+										<replace
+											file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+											<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+											<replacevalue><![CDATA[Collection<Callable<T>>]]></replacevalue>
+										</replace>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
+
+	<scm>
+		<url>http://platform.jxta.org/source/browse/platform/</url>
+	</scm>
+
+</project>
