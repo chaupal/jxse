@@ -130,6 +130,7 @@ public class Platform extends StdPeerGroup {
 
         paramAdv.addProto(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
         paramAdv.addProto(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
+        paramAdv.addProto(PeerGroup.http2ProtoClassID, PeerGroup.refHttp2ProtoSpecID);
         paramAdv.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
 
         // Do the Applications

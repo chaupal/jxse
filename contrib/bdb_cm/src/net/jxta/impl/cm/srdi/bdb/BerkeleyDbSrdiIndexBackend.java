@@ -305,9 +305,13 @@ public class BerkeleyDbSrdiIndexBackend implements SrdiIndexBackend {
 		Set<PeerID> results = new HashSet<PeerID>();
 		SrdiIndexKey searchKey = new SrdiIndexKey(groupId, indexName, primaryKey, attribute, null, null);
 		QueryMatchHandler<SrdiIndexKey, PeerID, Set<PeerID>> handler;
+		
 		if(value == null) {
 			handler = new AllMatchHandler(results, threshold);
-		} else {
+		} else if(!CacheUtils.hasWildcards(value)) {
+            searchKey.setValue(value);
+            handler = new AllMatchHandler(results, threshold);
+        } else {
 			String regex = CacheUtils.convertValueQueryToRegex(value);
 			handler = new ValueRegexMatchHandler(results, regex, threshold);
 		}

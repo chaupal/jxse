@@ -11,6 +11,7 @@ urn:jxta:uuid-deadbeefdeafbabafeedbabe000000060106 net.jxta.impl.rendezvous.Rend
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000070106 net.jxta.impl.peer.PeerInfoServiceImpl Reference Implementation of the Peerinfo Service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000080106 net.jxta.impl.endpoint.EndpointServiceImpl Reference Implementation of the Endpoint service
 urn:jxta:uuid-deadbeefdeafbabafeedbabe000000090106 net.jxta.impl.endpoint.netty.NettyTransport Reference Implementation of the TCP Message Transport
+urn:jxta:uuid-E549DB3BCBCF4789A392B6100B78CC55F127AD1AADF0443ABF6FBDFD7909876906 net.jxta.impl.endpoint.netty.http.NettyHttpTunnelTransport HTTP tunneling message transport
 urn:jxta:uuid-deadbeefdeafbabafeedbabe0000000A0106 net.jxta.impl.endpoint.servlethttp.ServletHttpTransport Reference Implementation of the HTTP Message Transport
 urn:jxta:uuid-deadbeefdeafbabafeedbabe0000000B0106 net.jxta.impl.endpoint.router.EndpointRouter Reference Implementation of the Router Message Transport
 urn:jxta:uuid-deadbeefdeafbabafeedbabe0000000D0106 net.jxta.impl.endpoint.tls.TlsTransport Reference Implementation of the TLS Message Transport

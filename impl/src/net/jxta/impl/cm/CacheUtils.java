@@ -53,4 +53,8 @@ public class CacheUtils {
 	public static String convertValueQueryToRegex(String value) {
 		return value.replaceAll("\\*", ".*?");
 	}
+	
+	public static boolean hasWildcards(String value) {
+        return value.indexOf('*') != -1;
+    }
 }

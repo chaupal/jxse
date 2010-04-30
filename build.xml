@@ -193,7 +193,8 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         </condition>
         
         <path id="compile.classpath">
-            <pathelement location="${lib}/netty/netty-3.1.5.GA.jar" />
+            <pathelement location="${lib}/netty/netty-3.2.0.BETA1.jar" />
+        	<pathelement location="${lib}/netty/NettyHttpTunnel-0.9.jar"/>
             <pathelement location="${lib}/h2/h2-1.2.127.jar" />
             <pathelement location="${lib}/derby/derby-10.5.1.1.jar" />
         	<pathelement location="${lib}/jetty/javax.servlet.jar" />
@@ -789,6 +790,12 @@ href="bcprov-ext.jnlp">
 
     <!-- meta targets -->
   
+	<target name="contrib" depends="all, contrib-bdb" description="build of all contrib modules" />
+	
+	<target name="contrib-bdb" depends="jar">
+		
+	</target>
+	
     <target name="all" depends="clean, signjar" description="Clean build of core targets" />
     
     <target name="dist" depends="clean, -prepare" description="Clean build of all dist targets">

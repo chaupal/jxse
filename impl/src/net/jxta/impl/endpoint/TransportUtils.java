@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
 import net.jxta.logging.Logging;
 
 /**
@@ -67,6 +71,50 @@ public class TransportUtils {
         }
         Collections.shuffle(inRange);
         return inRange;
+    }
+    
+    public static Message retargetMessage(Message message, String service, String param, EndpointAddress localAddress, EndpointAddress defaultDestAddress) {
+        MessageElement srcAddrElem = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, localAddress.toString(), null);
+        message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, srcAddrElem);
+        EndpointAddress destAddressToUse;
+        destAddressToUse = getDestAddressToUse(service, param, defaultDestAddress);
+
+        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME, destAddressToUse.toString(), null);
+        message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
+        
+        return message;
+    }
+    
+    /**
+     * Assemble a destination address for a message based upon the messenger
+     * default destination address and the optional provided overrides.
+     *
+     * @param service The destination service or {@code null} to use default.
+     * @param serviceParam The destination service parameter or {@code null} to 
+     * use default.
+     */
+    public static EndpointAddress getDestAddressToUse(final String service, final String serviceParam, final EndpointAddress defaultAddress) {
+        EndpointAddress result;
+        
+        if(null == service) {
+            if(null == serviceParam) {
+                // Use default service name and service params
+                result = defaultAddress;
+            } else {
+                // use default service name, override service params
+                result = new EndpointAddress(defaultAddress, defaultAddress.getServiceName(), serviceParam);
+            }
+        } else {
+            if(null == serviceParam) {
+                // override service name, use default service params (this one is pretty weird and probably not useful)
+                result = new EndpointAddress(defaultAddress, service, defaultAddress.getServiceParameter());
+            } else {
+                // override service name, override service params
+                result = new EndpointAddress(defaultAddress, service, serviceParam);
+            }
+        }
+        
+        return result;
     }
     
 }

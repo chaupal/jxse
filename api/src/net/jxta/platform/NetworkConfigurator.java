@@ -243,6 +243,16 @@ public class NetworkConfigurator {
      * RendezVousService Ad-Hoc mode
      */
     public final static int RDV_AD_HOC = 1 << 13;
+    
+    /**
+     * HTTP2 (netty http tunnel) client
+     */
+    public final static int HTTP2_CLIENT = 1 << 14;
+    
+    /**
+     * HTTP2 (netty http tunnel) server
+     */
+    public final static int HTTP2_SERVER = 1 << 15;
 
     /**
      * Default AD-HOC configuration
@@ -252,17 +262,17 @@ public class NetworkConfigurator {
     /**
      * Default Edge configuration
      */
-    public final static int EDGE_NODE = TCP_CLIENT | TCP_SERVER | HTTP_CLIENT | IP_MULTICAST | RDV_CLIENT | RELAY_CLIENT;
+    public final static int EDGE_NODE = TCP_CLIENT | TCP_SERVER | HTTP_CLIENT | HTTP2_CLIENT | IP_MULTICAST | RDV_CLIENT | RELAY_CLIENT;
 
     /**
      * Default Rendezvous configuration
      */
-    public final static int RDV_NODE = RDV_SERVER | TCP_CLIENT | TCP_SERVER | HTTP_SERVER;
+    public final static int RDV_NODE = RDV_SERVER | TCP_CLIENT | TCP_SERVER | HTTP_SERVER | HTTP2_SERVER;
 
     /**
      * Default Relay configuration
      */
-    public final static int RELAY_NODE = RELAY_SERVER | TCP_CLIENT | TCP_SERVER | HTTP_SERVER;
+    public final static int RELAY_NODE = RELAY_SERVER | TCP_CLIENT | TCP_SERVER | HTTP_SERVER | HTTP2_SERVER;
 
     /**
      * Default Proxy configuration
@@ -381,11 +391,22 @@ public class NetworkConfigurator {
      * HTTP Config Advertisement
      */
     protected transient HTTPAdv httpConfig;
+    
 
     /**
-     * Default HTTP transport state
+     * Default HTTP transport state.
      */
     protected transient boolean httpEnabled = true;
+    
+    /**
+     * HTTP2 Config Advertisement
+     */
+    protected transient TCPAdv http2Config;
+    
+    /**
+     * Default HTTP2 transport state
+     */
+    protected transient boolean http2Enabled = true;
 
     /**
      * Infrastructure Peer Group Configuration
@@ -497,6 +518,7 @@ public class NetworkConfigurator {
         relayConfig = createRelayConfigAdv();
         proxyConfig = createProxyAdv();
         tcpConfig = createTcpAdv();
+        http2Config = createHttp2Adv();
         infraPeerGroupConfig = createInfraConfigAdv();
 
         setMode(mode);
@@ -663,6 +685,80 @@ public class NetworkConfigurator {
         httpConfig.setServer(address);
         httpConfig.setPublicAddressOnly(exclusive);
     }
+    
+    public boolean isHttp2Enabled() {
+    	return http2Enabled;
+    }
+    
+    public void setHttp2Enabled(boolean enabled) {
+    	http2Enabled = enabled;
+    	
+    	if(http2Enabled) {
+    		http2Config.setClientEnabled(false);
+    		http2Config.setServerEnabled(false);
+    	}
+    }
+    
+    public boolean getHttp2IncomingStatus() {
+    	return http2Config.getServerEnabled();
+    }
+    
+    public void setHttp2Incoming(boolean enabled) {
+    	http2Config.setServerEnabled(enabled);
+    }
+    
+    public boolean getHttp2OutgoingStatus() {
+    	return http2Config.getClientEnabled();
+    }
+    
+    public void setHttp2Outgoing(boolean enabled) {
+    	http2Config.setClientEnabled(enabled);
+    }
+    
+    public int getHttp2Port() {
+    	return http2Config.getPort();
+    }
+    
+    public void setHttp2Port(int port) {
+    	http2Config.setPort(port);
+    }
+    
+    public int getHttp2StartPort() {
+    	return http2Config.getStartPort();
+    }
+    
+    public void setHttp2StartPort(int startPort) {
+    	http2Config.setStartPort(startPort);
+    }
+    
+    public int getHttp2EndPort() {
+    	return http2Config.getEndPort();
+    }
+    
+    public void setHttp2EndPort(int endPort) {
+    	http2Config.setEndPort(endPort);
+    }
+    
+    public String getHttp2InterfaceAddress() {
+    	return http2Config.getInterfaceAddress();
+    }
+    
+    public void setHttp2InterfaceAddress(String address) {
+    	http2Config.setInterfaceAddress(address);
+    }
+    
+    public String getHttp2PublicAddress() {
+    	return http2Config.getServer();
+    }
+    
+    public boolean isHttp2PublicAddressExclusive() {
+    	return http2Config.getPublicAddressOnly();
+    }
+    
+    public void setHttp2PublicAddress(String address, boolean exclusive) {
+    	http2Config.setServer(address);
+        http2Config.setPublicAddressOnly(exclusive);
+    }
 
     /**
      * Returns the HTTP JXTA Public Address
@@ -817,6 +913,10 @@ public class NetworkConfigurator {
         httpConfig.setClientEnabled((mode & HTTP_CLIENT) == HTTP_CLIENT);
         httpConfig.setServerEnabled((mode & HTTP_SERVER) == HTTP_SERVER);
 
+        // HTTP2
+        http2Config.setClientEnabled((mode & HTTP2_CLIENT) == HTTP2_CLIENT);
+        http2Config.setServerEnabled((mode & HTTP2_SERVER) == HTTP2_SERVER);
+        
         // Multicast
         tcpConfig.setMulticastState((mode & IP_MULTICAST) == IP_MULTICAST);
 
@@ -1470,19 +1570,12 @@ public class NetworkConfigurator {
         name = platformConfig.getName();
         peerid = platformConfig.getPeerID();
         description = platformConfig.getDescription();
+        
+        XMLElement<?> param;
 
         // TCP
-        XMLElement param = (XMLElement) platformConfig.getServiceParam(PeerGroup.tcpProtoClassID);
         tcpEnabled = platformConfig.isSvcEnabled(PeerGroup.tcpProtoClassID);
-        Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
-
-        // get the TransportAdv from either TransportAdv or tcpConfig
-        if (tcpChilds.hasMoreElements()) {
-            param = (XMLElement) tcpChilds.nextElement();
-        } else {
-            throw new IllegalStateException("Missing TCP Advertisment");
-        }
-        tcpConfig = (TCPAdv) AdvertisementFactory.newAdvertisement(param);
+        tcpConfig = loadTcpAdv(platformConfig, PeerGroup.tcpProtoClassID);
 
         // HTTP
         try {
@@ -1504,6 +1597,10 @@ public class NetworkConfigurator {
             ioe.initCause(failure);
             throw ioe;
         }
+        
+        // HTTP2
+        http2Enabled = platformConfig.isSvcEnabled(PeerGroup.http2ProtoClassID);
+        http2Config = loadTcpAdv(platformConfig, PeerGroup.http2ProtoClassID);
 
         // ProxyService
         try {
@@ -1599,7 +1696,21 @@ public class NetworkConfigurator {
         return platformConfig;
     }
 
-    /**
+    private TCPAdv loadTcpAdv(PlatformConfig platformConfig, ModuleClassID moduleClassID) {
+    	XMLElement<?> param = (XMLElement<?>) platformConfig.getServiceParam(moduleClassID);
+        Enumeration<?> tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
+
+        // get the TransportAdv from either TransportAdv or tcpConfig
+        if (tcpChilds.hasMoreElements()) {
+            param = (XMLElement<?>) tcpChilds.nextElement();
+        } else {
+            throw new IllegalStateException("Missing TCP Advertisment");
+        }
+        
+        return (TCPAdv) AdvertisementFactory.newAdvertisement(param);
+	}
+
+	/**
      * Persists a PlatformConfig advertisement under getStoreHome()+"/PlaformConfig"
      * <p/>
      * Home may be overridden by a call to setHome()
@@ -1610,6 +1721,8 @@ public class NetworkConfigurator {
     public void save() throws IOException {
         httpEnabled = (httpConfig.isClientEnabled() || httpConfig.isServerEnabled());
         tcpEnabled = (tcpConfig.isClientEnabled() || tcpConfig.isServerEnabled());
+        http2Enabled = (http2Config.isClientEnabled() || http2Config.isServerEnabled());
+        
         ConfigParams advertisement = getPlatformConfig();
         OutputStream out = null;
 
@@ -1799,6 +1912,26 @@ public class NetworkConfigurator {
         tcpConfig.setServerEnabled((mode & TCP_SERVER) == TCP_SERVER);
         return tcpConfig;
     }
+    
+    protected TCPAdv createHttp2Adv() {
+    	http2Config = (TCPAdv) AdvertisementFactory.newAdvertisement(TCPAdv.getAdvertisementType());
+    	http2Config.setProtocol("http2");
+    	http2Config.setInterfaceAddress(null);
+    	http2Config.setPort(8080);
+        http2Config.setStartPort(8080);
+        http2Config.setEndPort(8089);
+        http2Config.setServer(null);
+        http2Config.setClientEnabled((mode & HTTP2_CLIENT) == TCP_CLIENT);
+        http2Config.setServerEnabled((mode & HTTP2_SERVER) == TCP_SERVER);
+        
+        // this is only here because TCPAdv explodes without them being set - they aren't
+        // intended to be used by the http2 implementation. Since the TCP transport no longer
+        // deals with multicast directly, multicast properties should probably be pulled out 
+        // as a separateadvertisement type
+        http2Config.setMulticastState(false);
+        
+        return http2Config;
+    }
 
     protected PeerGroupConfigAdv createInfraConfigAdv() {
         infraPeerGroupConfig = (PeerGroupConfigAdv) AdvertisementFactory.newAdvertisement(
@@ -1839,6 +1972,11 @@ public class NetworkConfigurator {
         if (httpConfig != null) {
             boolean enabled = httpEnabled && (httpConfig.isServerEnabled() || httpConfig.isClientEnabled());
             advertisement.putServiceParam(PeerGroup.httpProtoClassID, getParmDoc(enabled, httpConfig));
+        }
+        
+        if (http2Config != null) {
+        	boolean enabled = http2Enabled && (http2Config.isServerEnabled() || http2Config.isClientEnabled());
+        	advertisement.putServiceParam(PeerGroup.http2ProtoClassID, getParmDoc(enabled, http2Config));
         }
 
         if (relayConfig != null) {

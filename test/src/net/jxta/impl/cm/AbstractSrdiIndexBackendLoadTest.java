@@ -1,10 +1,13 @@
 package net.jxta.impl.cm;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
@@ -17,6 +20,7 @@ import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,6 +52,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	protected abstract String getSrdiIndexBackendClassname();
 	
 	@Test
+	@Ignore
 	public void testAddPerformance() throws IOException {
 		SrdiIndex index = new SrdiIndex(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "testIndex");
 		File resultsFile = File.createTempFile("perftest_" + index.getBackendClassName(), ".csv", new File("."));
@@ -145,6 +150,41 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 		}});
 		
 		return group;
+	}
+	
+	@Test
+	public void testQuery_manyValuesForSameKeyAndAttribute() throws IOException {
+	    SrdiIndex index = new SrdiIndex(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "duplicatesTestIndex");
+	    String primaryKey = "pk";
+	    String attribute = "attr";
+	    
+
+	    int numAlreadyAdded = 0;
+	    // add entries with the same primary key and attribute, but with different values and peer IDs
+	    for(int stage=1; stage <= 3; stage++) {
+	        int numEntries = (int) Math.pow(10, stage+2);
+	        System.out.println("Testing with " + numEntries);
+	        StatsTracker queryTimeTracker = new StatsTracker();
+	        
+    	    System.out.println("Adding test entries");
+            for(int i=numAlreadyAdded; i < numEntries; i++) {
+    	        index.add(primaryKey, attribute, "value" + i, IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID), Long.MAX_VALUE);
+    	    }
+    	    System.out.println("Finished adding test entries");
+    	    
+    	    System.out.println("Performing queries");
+    	    Random r = new Random();
+    	    // perform random queries to determine the average query time
+    	    for(int i=0; i < 1000; i++) {
+    	        long startTime = System.nanoTime();
+    	        List<PeerID> result = index.query(primaryKey, attribute, "value" + r.nextInt(numEntries), 1);
+    	        assertEquals(1, result.size());
+    	        long endTime = System.nanoTime();
+    	        queryTimeTracker.addResult(endTime - startTime);
+    	    }
+    	    
+    	    System.out.printf("Query times - mean: %.1f ns, min: %.1f, max: %.1f, stdev: %.3f\n" , queryTimeTracker.getMean(), queryTimeTracker.getMin(), queryTimeTracker.getMax(), queryTimeTracker.getStdDev());
+	    }
 	}
 	
 }
