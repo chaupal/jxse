@@ -56,18 +56,32 @@
 
 package net.jxta.endpoint;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.FilterInputStream;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Vector;
 import java.util.List;
 import java.util.Set;
+
+import java.io.IOException;
 import java.util.ConcurrentModificationException;
+
 import junit.framework.*;
+
 import net.jxta.document.MimeMediaType;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
+
 
 /**
  *

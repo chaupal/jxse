@@ -56,11 +56,13 @@
 
 package net.jxta.meter;
 
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroupID;
+
+import net.jxta.peergroup.*;
+import net.jxta.peer.*;
+
 
 /**
- * Information regarding a Remote Monitor's Report
+ *	Information regarding a Remote Monitor's Report
  **/
 public class MonitorEvent {
 
@@ -103,7 +105,7 @@ public class MonitorEvent {
     private int requestId;
     private PeerID peerID;
     private PeerGroupID peerGroupID;
-    private MonitorFilter monitorFilter = null; // FIX-ME: Is this necessary?
+    private MonitorFilter monitorFilter; // FIX-ME: Is this necessary?
     private long reportRate; // FIX-ME: Is this necessary?
     private long leaseTime; // FIX-ME: Is this necessary?
     private MonitorReport monitorReport;

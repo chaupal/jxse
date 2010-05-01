@@ -53,20 +53,23 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.socket;
+
 
 import java.io.IOException;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
+
+import java.util.logging.Level;
+import net.jxta.impl.util.pipe.reliable.*;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-import net.jxta.impl.util.pipe.reliable.Outgoing;
-import net.jxta.impl.util.pipe.reliable.OutgoingMsgrAdaptor;
+
 
 /**
  *  An Outgoing Messenger adpator that implements synthetic faults. The faults

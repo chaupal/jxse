@@ -53,11 +53,11 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.logging.Logging;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayReader;
@@ -76,6 +76,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -107,9 +108,9 @@ public class StringMessageElement extends TextMessageElement {
      *          if the mime is unsupported
      */
     private static MimeMediaType makeMimeType(String encoding) throws UnsupportedEncodingException {
-        final InputStreamReader getEncoding = new InputStreamReader(new ByteArrayInputStream(new byte[0]), encoding);
+        InputStreamReader getEncoding = new InputStreamReader(new ByteArrayInputStream(new byte[0]), encoding);
 
-        final String canonicalName = getEncoding.getEncoding();
+        String canonicalName = getEncoding.getEncoding();
 
         return new MimeMediaType(MimeMediaType.TEXT_DEFAULTENCODING, "charset=\"" + canonicalName + "\"", true).intern();
     }
@@ -168,28 +169,28 @@ public class StringMessageElement extends TextMessageElement {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
             return true;
         }
 
-        if (obj instanceof MessageElement) {
-            if (!super.equals(obj)) {
+        if (target instanceof MessageElement) {
+            if (!super.equals(target)) {
                 return false;               
             }
 
-            if (obj instanceof StringMessageElement) {
-                final StringMessageElement likeMe = (StringMessageElement) obj;
+            if (target instanceof StringMessageElement) {
+                StringMessageElement likeMe = (StringMessageElement) target;
 
                 return data.toString().equals(likeMe.data.toString()); // same chars?
-            } else if (obj instanceof TextMessageElement) {
+            } else if (target instanceof TextMessageElement) {
                 // have to do a slow char by char comparison. Still better than the stream since it saves encoding.
                 // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
-                final TextMessageElement likeMe = (TextMessageElement) obj;
+                TextMessageElement likeMe = (TextMessageElement) target;
 
                 try {
-                    final Reader myReader = getReader();
-                    final Reader itsReader = likeMe.getReader();
+                    Reader myReader = getReader();
+                    Reader itsReader = likeMe.getReader();
 
                     int mine;
                     int its;
@@ -207,7 +208,7 @@ public class StringMessageElement extends TextMessageElement {
 
                     return ((-1 == mine) && (-1 == its)); // end at the same time?
                 } catch (IOException fatal) {
-                    final IllegalStateException failure = new IllegalStateException("MessageElements could not be compared.");
+                    IllegalStateException failure = new IllegalStateException("MessageElements could not be compared.");
 
                     failure.initCause(fatal);
                     throw failure;
@@ -215,11 +216,11 @@ public class StringMessageElement extends TextMessageElement {
             } else {
                 // have to do a slow stream comparison.
                 // XXX 20020615 bondolo the performance of this could be much improved.
-                final MessageElement likeMe = (MessageElement) obj;
+                MessageElement likeMe = (MessageElement) target;
 
                 try {
-                    final InputStream myStream = getStream();
-                    final InputStream itsStream = likeMe.getStream();
+                    InputStream myStream = getStream();
+                    InputStream itsStream = likeMe.getStream();
 
                     int mine;
                     int its;
@@ -237,7 +238,8 @@ public class StringMessageElement extends TextMessageElement {
 
                     return ((-1 == mine) && (-1 == its)); // end at the same time?
                 } catch (IOException fatal) {
-                    final IllegalStateException failure = new IllegalStateException("MessageElements could not be compared.");
+                    IllegalStateException failure = new IllegalStateException("MessageElements could not be compared.");
+
                     failure.initCause(fatal);
                     throw failure;
                 }
@@ -252,7 +254,7 @@ public class StringMessageElement extends TextMessageElement {
      */
     @Override
     public int hashCode() {
-        final int result = super.hashCode() * 6037 + // a prime
+        int result = super.hashCode() * 6037 + // a prime
                 data.toString().hashCode();
 
         return result;
@@ -281,14 +283,14 @@ public class StringMessageElement extends TextMessageElement {
 
             Logging.logCheckedFiner(LOG, "Creating getBytes of ", getClass().getName(), '@', Integer.toHexString(System.identityHashCode(this)));
 
-            final String charset = type.getParameter("charset");
+            String charset = type.getParameter("charset");
 
             try {
                 // implementation note : As of 1.6.0_07 this impl results in one 
                 // less copy of the data then data.toString().getBytes(charset)
-                final Charset characterset = Charset.forName(charset);
-                final CharsetEncoder encoder = characterset.newEncoder();
-                final ByteArrayOutputStream bos = new ByteArrayOutputStream((int) ((double) encoder.maxBytesPerChar() * data.length()));
+                Charset characterset = Charset.forName(charset);
+                CharsetEncoder encoder = characterset.newEncoder();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream((int) ((double) encoder.maxBytesPerChar() * data.length()));
                 sendToStream(bos);
                 bos.close();
                 cachedBytes = bos.toByteArray();
@@ -296,7 +298,7 @@ public class StringMessageElement extends TextMessageElement {
             } catch (IOException caught) {
 
                 Logging.logCheckedWarning(LOG, "MessageElement Data could not be generated\n", caught);
-                final IllegalStateException failure = new IllegalStateException("MessageElement Data could not be generated");
+                IllegalStateException failure = new IllegalStateException("MessageElement Data could not be generated");
                 failure.initCause(caught);
                 throw failure;
 
@@ -309,7 +311,7 @@ public class StringMessageElement extends TextMessageElement {
             return cachedBytes;
         }
 
-        final byte[] bytesCopy = cachedBytes.clone();
+        byte[] bytesCopy = cachedBytes.clone();
 
         return bytesCopy;
     }
@@ -352,7 +354,8 @@ public class StringMessageElement extends TextMessageElement {
             return cachedChars;
         }
 
-        return cachedChars.clone();
+        char[] copyChars = cachedChars.clone();
+        return copyChars;
 
     }
 
@@ -371,7 +374,7 @@ public class StringMessageElement extends TextMessageElement {
         if (null != cachedBytes) {
             return new ByteArrayInputStream(cachedBytes);
         } else {
-            final String charset = type.getParameter("charset");
+            String charset = type.getParameter("charset");
             return new CharBufferInputStream(data, charset);
         }
     }
@@ -389,7 +392,7 @@ public class StringMessageElement extends TextMessageElement {
 
     @Override
     public void sendToStream(OutputStream sendTo) throws IOException {
-        final Writer osw = new OutputStreamWriter(sendTo, type.getParameter("charset"));
+        Writer osw = new OutputStreamWriter(sendTo, type.getParameter("charset"));
 
         sendToWriter(osw);
         osw.flush();
@@ -442,7 +445,7 @@ public class StringMessageElement extends TextMessageElement {
             conversion.onMalformedInput(CodingErrorAction.REPORT);
             conversion.onUnmappableCharacter(CodingErrorAction.REPORT);
 
-            final int maxBytes = new Float(conversion.maxBytesPerChar()).intValue();
+            int maxBytes = new Float(conversion.maxBytesPerChar()).intValue();
 
             multiByteChar = new byte[maxBytes];
             position = multiByteChar.length;
@@ -489,7 +492,7 @@ public class StringMessageElement extends TextMessageElement {
         public int read() throws IOException {
             // prefill the buffer
             while (multiByteChar.length == position) {
-                final int readsome = read(multiByteChar, 0, multiByteChar.length);
+                int readsome = read(multiByteChar, 0, multiByteChar.length);
 
                 if (-1 == readsome) {
                     return -1;
@@ -520,20 +523,20 @@ public class StringMessageElement extends TextMessageElement {
         public int read(byte[] buffer, int offset, int length) throws IOException {
             // handle partial characters;
             if (multiByteChar.length != position) {
-                final int copying = Math.min(length, multiByteChar.length - position);
+                int copying = Math.min(length, multiByteChar.length - position);
 
                 System.arraycopy(multiByteChar, position, buffer, offset, copying);
                 position += copying;
                 return copying;
             }
 
-            final ByteBuffer bb = ByteBuffer.wrap(buffer, offset, length);
+            ByteBuffer bb = ByteBuffer.wrap(buffer, offset, length);
 
-            final int before = bb.remaining();
+            int before = bb.remaining();
 
-            final CoderResult result = conversion.encode(charData, bb, true);
+            CoderResult result = conversion.encode(charData, bb, true);
 
-            final int readin = before - bb.remaining();
+            int readin = before - bb.remaining();
 
             if (CoderResult.UNDERFLOW == result) {
                 if (0 == readin) {

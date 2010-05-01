@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.util;
 
 import net.jxta.credential.Credential;
@@ -91,6 +90,7 @@ import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
+
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -101,7 +101,7 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -127,7 +127,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(JxtaBiDiPipe.class.getName());
-
     private final static int MAXRETRYTIMEOUT = 120 * 1000;
     private PipeAdvertisement remotePipeAdv;
     private PeerAdvertisement remotePeerAdv;
@@ -168,7 +167,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * remote peer. We will assume that messages which are sent successfully
      * will be received successfully.
      */
-    protected AtomicBoolean direct = new AtomicBoolean(false);
+    protected volatile boolean direct = false;
     protected OutgoingMsgrAdaptor outgoing = null;
     protected StructuredDocument credentialDoc = null;
     protected Properties connectionProperties = null;
@@ -190,10 +189,10 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct) throws IOException {
-
-        if (msgr == null) throw new IOException("Null Messenger");
-        
-        this.direct.set(direct);
+        if (msgr == null) {
+            throw new IOException("Null Messenger");
+        }
+        this.direct = direct;
         this.group = group;
         this.pipeAdv = pipe;
         this.credentialDoc = credDoc != null ? credDoc : getCredDoc(group);
@@ -523,11 +522,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         }
         // Write properties file.
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
         try {
             properties.store(bos, null);
         } catch (IOException e) {
-            Logging.logCheckedSevere(LOG, e.toString());
         }
         return bos.toByteArray();
     }
@@ -598,7 +595,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     /**
      * Sets the bound attribute of the JxtaServerPipe object
      */
-    private void setBound() {
+    void setBound() {
 
         bound = true;
         Logging.logCheckedFine(LOG, "Pipe Bound :true");
@@ -683,12 +680,11 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             bound = false;
         }
 
-        if (!fastClose && isReliable && !direct.get()) {
+        if (!fastClose && isReliable && !direct) {
             /*
              *  This implements linger!
              */
-            final long quitAt = System.currentTimeMillis() + timeout;
-
+            long quitAt = System.currentTimeMillis() + timeout;
             while (true) {
                 //FIXME hamada this does not loop
                 if (ros == null || ros.getMaxAck() == ros.getSeqNumber()) {
@@ -849,7 +845,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                     if (directSupported) {
                         msgr = getDirectMessenger(group, remotePipeAdv, remotePeerAdv);
                         if (msgr != null) {
-                            this.direct.set(true);
+                            this.direct = true;
                         } else {
                             msgr = lightweightOutputPipe(group, remotePipeAdv, remotePeerAdv);
                         }
@@ -859,9 +855,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
                     Logging.logCheckedFine(LOG, "Reliability set to :", isReliable);
                     
-                    if (isReliable && !direct.get())
+                    if (isReliable && !direct) {
                         createRLib();
-
+                    }
                     synchronized (finalLock) {
                         waiting = false;
                         finalLock.notifyAll();
@@ -877,7 +873,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             }
         }
 
-        if (isReliable && !direct.get()) {
+        if (isReliable && !direct) {
             // let reliabilty deal with the message
             receiveMessage(message);
             return;
@@ -1058,8 +1054,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @see net.jxta.endpoint.Message
      */
     public boolean sendMessage(Message msg) throws IOException {
-
-        if (isReliable && !direct.get()) {
+        if (isReliable && !direct) {
             int seqn = ros.send(msg);
             return (seqn > 0);
         } else {
@@ -1141,15 +1136,16 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected static Messenger getDirectMessenger(PeerGroup group, PipeAdvertisement pipeAdv, PeerAdvertisement peer) {
 
         // Get an endpoint messenger to that address
-        if (pipeAdv.getType().equals(PipeService.PropagateType)) 
+        if (pipeAdv.getType().equals(PipeService.PropagateType)) {
             throw new IllegalArgumentException("Invalid pipe type " + pipeAdv.getType());
-        
+        }
+
         Logging.logCheckedFine(LOG, "Creating a Direct Messenger");
 
         if (pipeAdv.getType().equals(PipeService.UnicastType)) {
             EndpointService endpoint = group.getEndpointService();
             EndpointAddress pipeEndpoint = new EndpointAddress("jxta",
-                    peer.getPeerID().getUniqueValue().toString(),
+                    (peer.getPeerID().getUniqueValue()).toString(),
                     "PipeService",
                     pipeAdv.getPipeID().toString());
             return endpoint.getDirectMessenger(pipeEndpoint, peer, true);
@@ -1170,9 +1166,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     protected static Messenger lightweightOutputPipe(PeerGroup group, PipeAdvertisement pipeAdv, PeerAdvertisement peer) {
 
-        final EndpointService endpoint = group.getEndpointService();
-        final ID opId = pipeAdv.getPipeID();
-        final String destPeer = peer.getPeerID().getUniqueValue().toString();
+        EndpointService endpoint = group.getEndpointService();
+        ID opId = pipeAdv.getPipeID();
+        String destPeer = (peer.getPeerID().getUniqueValue()).toString();
 
         // Get an endpoint messenger to that address
         EndpointAddress addr;
@@ -1206,14 +1202,14 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     private void sendClose() {
 
-        if (!direct.get() && isReliable && ros.isClosed()) {
+        if (!direct && isReliable && ros.isClosed()) {
 
             Logging.logCheckedFine(LOG, "ReliableOutputStream is already closed. Skipping close message");
             return;
 
         }
 
-        final Message msg = new Message();
+        Message msg = new Message();
         msg.addMessageElement(JxtaServerPipe.nameSpace, new StringMessageElement(JxtaServerPipe.closeTag, "close", null));
 
         try {
@@ -1221,7 +1217,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             sendMessage(msg);
 
             // ros will not take any new message, now.
-            if (!direct.get() && ros != null) ros.close();
+            if (!direct && ros != null) ros.close();
 
         } catch (IOException ie) {
 

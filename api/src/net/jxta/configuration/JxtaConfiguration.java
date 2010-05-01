@@ -86,8 +86,9 @@ public class JxtaConfiguration extends Properties {
         super();
         
         // Copying entries
-        for (String Item : PropertiesUtil.stringPropertyNames(toCopy))
+        for (String Item : PropertiesUtil.stringPropertyNames(toCopy)) {
             this.setProperty(Item, toCopy.getProperty(Item));
+        }
 
         // Initializing defaults
         this.defaults = new Properties();
@@ -163,7 +164,7 @@ public class JxtaConfiguration extends Properties {
     public Properties getDefaultsCopy() {
 
         // Preparing result
-        final Properties Result = new Properties();
+        Properties Result = new Properties();
 
         for (String Items : PropertiesUtil.stringPropertyNames(this.defaults)) {
             Result.setProperty(Items, this.defaults.getProperty(Items));

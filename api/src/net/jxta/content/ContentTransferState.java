@@ -159,7 +159,11 @@ public enum ContentTransferState {
      * @return true if state is COMPLETED, false otherwise
      */
     public boolean isSuccessful() {
-        return (this == COMPLETED);
+        if (this == COMPLETED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

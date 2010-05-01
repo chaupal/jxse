@@ -89,7 +89,7 @@ public class IDTutorial {
      * @return a SHA1 hash of string or {@code null} if the expression could
      *         not be hashed.
      */
-    private static byte[] hash(String expression) {
+    private static byte[] hash(final String expression) {
         byte[] result;
         MessageDigest digest;
 
@@ -178,7 +178,7 @@ public class IDTutorial {
      * @param groupName group name encoding value
      * @return The PeerGroupID value
      */
-    public static PeerGroupID createPeerGroupID(String groupName) {
+    public static PeerGroupID createPeerGroupID(final String groupName) {
         // Use lower case to avoid any locale conversion inconsistencies.
         return IDFactory.newPeerGroupID(PeerGroupID.defaultNetPeerGroupID, hash(SEED + groupName.toLowerCase()));
     }

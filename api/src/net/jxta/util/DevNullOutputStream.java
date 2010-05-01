@@ -68,6 +68,9 @@ import java.io.OutputStream;
  */
 public class DevNullOutputStream extends OutputStream {
   
+    /** Creates a new instance of DevNullOutputStream */
+    public DevNullOutputStream() {}
+  
     /**
      *    {@inheritDoc}
      *

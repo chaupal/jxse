@@ -62,7 +62,7 @@ package net.jxta.impl.util.ternary;
 * Lifted from the Java World article: http://www.javaworld.com/javaworld/jw-02-2001/jw-0216-ternary.html
 * "With thanks to Michael Amster of webeasy.com for introducing me to the Ternary Search Tree, and providing some starting code."
 */
-public final class CharUtility {
+public class CharUtility {
 
     /**
      * Returns an int value that is negative if cCompare comes before cRef in the alphabet, zero if
@@ -97,11 +97,4 @@ public final class CharUtility {
 
         return c;
     }
-
-    /**
-     * Default constructor
-     */
-    private CharUtility() {
-    }
-    
 }

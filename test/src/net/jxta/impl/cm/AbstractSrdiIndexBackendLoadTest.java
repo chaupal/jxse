@@ -1,4 +1,3 @@
-
 package net.jxta.impl.cm;
 
 import static org.junit.Assert.*;
@@ -15,6 +14,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.FileSystemTest;
+
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;

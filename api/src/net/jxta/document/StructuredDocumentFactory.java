@@ -56,16 +56,20 @@
 
 package net.jxta.document;
 
+
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextMessageElement;
 import net.jxta.logging.Logging;
 import net.jxta.util.ClassFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * A factory for constructing instances of {@link StructuredDocument}.
@@ -120,13 +124,13 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
              * {@inheritDoc}
              */
             @Override
-            public boolean equals(Object obj) {
-                if (this == obj) {
+            public boolean equals(Object target) {
+                if (this == target) {
                     return true;
                 }
                 
-                if (obj instanceof ExtensionMapping) {
-                    ExtensionMapping likeMe = (ExtensionMapping) obj;
+                if (target instanceof ExtensionMapping) {
+                    ExtensionMapping likeMe = (ExtensionMapping) target;
 
                     if (!extension.equals(likeMe.extension)) {
                         return false;
@@ -365,10 +369,11 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         LOG.finer("Registering : " + className);
         
         try {
-
-            final Class docClass = Class.forName(className);
-            final Instantiator instantiator = (Instantiator) docClass.getField("INSTANTIATOR").get(null);
-            final MimeMediaType[] mimeTypes = instantiator.getSupportedMimeTypes();
+            Class docClass = Class.forName(className);
+            
+            Instantiator instantiator = (Instantiator) docClass.getField("INSTANTIATOR").get(null);
+            
+            MimeMediaType[] mimeTypes = instantiator.getSupportedMimeTypes();
 
             for (MimeMediaType mimeType : mimeTypes) {
                 LOG.finer("   Registering Type : " + mimeType.getMimeMediaType());
@@ -407,9 +412,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  @return MimeMediaType associated with this file extension.
      */
     public static MimeMediaType getMimeTypeForFileExtension(String extension) {
-
         factory.loadProviders();
-        final MimeMediaType result = factory.extToMime.get(extension);
+        
+        MimeMediaType result = factory.extToMime.get(extension);
         
         return result;
     }
@@ -427,12 +432,10 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      *  the instantiator.
      */
     public static boolean registerInstantiator(MimeMediaType mimetype, Instantiator instantiator) {
-        
-        final boolean registered = factory.registerAssoc(mimetype.getBaseMimeMediaType(), instantiator);
+        boolean registered = factory.registerAssoc(mimetype.getBaseMimeMediaType(), instantiator);
         
         if (registered) {
-
-            final Instantiator.ExtensionMapping[] extensions = instantiator.getSupportedFileExtensions();
+            Instantiator.ExtensionMapping[] extensions = instantiator.getSupportedFileExtensions();
 
             for (int eachExt = 0; eachExt < extensions.length; eachExt++) {
                 if (null != extensions[eachExt].getMimeMediaType()) {
@@ -464,9 +467,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws java.util.NoSuchElementException invalid mime-media-type
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype) {
-
         factory.loadProviders();
-        final Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
+        
+        Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
         return instantiator.newInstance(mimetype, doctype);
     }
@@ -488,9 +491,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws java.util.NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype, String value) {
-
         factory.loadProviders();
-        final Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
+        
+        Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
         return instantiator.newInstance(mimetype, doctype, value);
     }
@@ -511,9 +514,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws java.util.NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, InputStream stream) throws IOException {
-
         factory.loadProviders();
-        final Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
+        
+        Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
         return instantiator.newInstance(mimetype, stream);
     }
@@ -535,10 +538,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * a text oriented MIME type.
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, Reader reader) throws IOException {
-        
         factory.loadProviders();
-
-        final Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
+        
+        Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
         if (!(instantiator instanceof TextInstantiator)) {
 
@@ -566,10 +568,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      * @throws java.util.NoSuchElementException if the mime-type has not been registered.
      */
     public static StructuredDocument newStructuredDocument(MessageElement element) throws IOException {
-
         factory.loadProviders();
         
-        final Instantiator instantiator = factory.getInstantiator(element.getMimeType().getBaseMimeMediaType());
+        Instantiator instantiator = factory.getInstantiator(element.getMimeType().getBaseMimeMediaType());
         
         if ((instantiator instanceof TextInstantiator) && (element instanceof TextMessageElement)) {
             return ((TextInstantiator) instantiator).newInstance(element.getMimeType(), ((TextMessageElement) element).getReader());

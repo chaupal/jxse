@@ -53,10 +53,12 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.test.util;
 
+
+import java.io.InputStream;
 import java.util.Iterator;
+
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
@@ -73,9 +75,11 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.util.CountingOutputStream;
 import net.jxta.util.DevNullOutputStream;
+
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.router.EndpointRouterMessage;
 import net.jxta.impl.rendezvous.StdRendezVousService;
+
 
 /**
  *  Utility class to create the various types of JXTA mesasges

@@ -115,13 +115,13 @@ public class ResolverServiceMonitorFilter implements ServiceMonitorFilter {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("includeQueryHandlerMetrics".equals(tagName)) {
+            if (tagName.equals("includeQueryHandlerMetrics")) { 
                 includeQueryHandlerMetrics = DocumentSerializableUtilities.getBoolean(childElement);
             }
-            if ("includeSrdiHandlerMetrics".equals(tagName)) {
+            if (tagName.equals("includeSrdiHandlerMetrics")) { 
                 includeSrdiHandlerMetrics = DocumentSerializableUtilities.getBoolean(childElement);
             }
-            if ("moduleClassID".equals(tagName)) {
+            if (tagName.equals("moduleClassID")) {
                 try {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));

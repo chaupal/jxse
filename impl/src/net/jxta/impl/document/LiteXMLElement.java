@@ -56,9 +56,11 @@
 
 package net.jxta.impl.document;
 
+
 import net.jxta.document.Attribute;
 import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -66,7 +68,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * An element of a <CODE>StructuredDocument</CODE>. <CODE>StructuredDocument</CODE>s
@@ -126,14 +130,6 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             charRange someRange = (charRange) aRange;
 
             return (start == someRange.start) && (end == someRange.end);
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 3;
-            hash = 97 * hash + this.start;
-            hash = 97 * hash + this.end;
-            return hash;
         }
 
         /**
@@ -279,15 +275,6 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             return startTag.equals(likeMe.startTag) && body.equals(likeMe.body) && endTag.equals(likeMe.endTag);
         }
 
-        @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 97 * hash + (this.startTag != null ? this.startTag.hashCode() : 0);
-            hash = 97 * hash + (this.body != null ? this.body.hashCode() : 0);
-            hash = 97 * hash + (this.endTag != null ? this.endTag.hashCode() : 0);
-            return hash;
-        }
-
         /**
          * {@inheritDoc}
          */
@@ -415,7 +402,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * @param val  The value of the element being created or null if there is no
      *             content to the element.
      */
-    public LiteXMLElement(LiteXMLDocument doc, String name, String val) {
+    public LiteXMLElement(LiteXMLDocument doc, final String name, final String val) {
         this(doc, new tagRange());
 
         for (int eachChar = name.length() - 1; eachChar >= 0; eachChar--) {
@@ -439,7 +426,6 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      */
     @Override
     public boolean equals(Object element) {
-
         if (this == element) {
             return true;
         }
@@ -474,17 +460,6 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
 
         return null != val1 && null != val2 && val1.equals(val2);
 
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 13 * hash + (this.doc != null ? this.doc.hashCode() : 0);
-        hash = 13 * hash + (this.parent != null ? this.parent.hashCode() : 0);
-        hash = 13 * hash + (this.loc != null ? this.loc.hashCode() : 0);
-        hash = 13 * hash + (this.uninserted != null ? this.uninserted.hashCode() : 0);
-        hash = 13 * hash + (this.children != null ? this.children.hashCode() : 0);
-        return hash;
     }
 
     /**
@@ -963,7 +938,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * @return tagRange containing the ranges of the found tag.
      */
 
-    protected tagRange getTagRanges(StringBuilder source, String tag, charRange range) {
+    protected tagRange getTagRanges(final StringBuilder source, String tag, final charRange range) {
 
         // FIXME   bondolo@jxta.org 20010327    Does not handle XML comments. ie.  <!-- -->
         if (null != uninserted) {
@@ -1190,7 +1165,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      * @param scanRange the range to be parsed for sub-tags
      * @param addTo     the element to add any discovered children to.
      */
-    protected void addChildTags(charRange scanRange, LiteXMLElement addTo) {
+    protected void addChildTags(final charRange scanRange, LiteXMLElement addTo) {
         if (null != uninserted) {
             throw new IllegalStateException("This element has not been added to the document.");
         }
@@ -1241,7 +1216,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      *                    location.
      * @param by          amount to adjust all matching locations.
      */
-    protected void adjustLocations(int beginningAt, int by) {
+    protected void adjustLocations(final int beginningAt, final int by) {
         if (null != uninserted) {
             throw new IllegalStateException("This element has not been added.");
         }
@@ -1375,11 +1350,10 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
                     }
 
                     try {
-
                         char asChar = (char) Integer.parseInt(numericChar.toLowerCase(), 16);
+
                         result.append(asChar);
                         current += escaped.length();
-
                     } catch (NumberFormatException badref) {
                         // it was bad, we will just skip it.
                         result.append(target.charAt(current));
@@ -1731,7 +1705,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
      *
      * @return The document we are a part of.
      */
-    protected LiteXMLDocument getDocument() {
+    LiteXMLDocument getDocument() {
         return doc;
     }
 }

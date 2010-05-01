@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.MessageReceiver;
@@ -17,6 +19,7 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
@@ -61,7 +64,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
 
     private List<EndpointAddress> boundAddresses;
     
-    public NettyTransportServer(ServerChannelFactory factory, AddressTranslator addrTranslator, PeerGroup group) {
+    public NettyTransportServer(ServerChannelFactory factory, AddressTranslator addrTranslator, final PeerGroup group) {
         this.channels = new DefaultChannelGroup();
         this.homeGroupID = group.getPeerGroupID();
         this.localPeerID = group.getPeerID();

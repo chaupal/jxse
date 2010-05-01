@@ -84,7 +84,7 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
          * 
          * @param source event source
          */
-        public Builder(ContentTransferAggregator source) {
+        public Builder(final ContentTransferAggregator source) {
             super(source);
         }
         
@@ -94,7 +94,7 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
          * @param value ContentTransfer to which this event pertains
          * @return builder instance
          */
-        public Builder contentTransfer(ContentTransfer value) {
+        public Builder contentTransfer(final ContentTransfer value) {
             bDelegate = value;
             return this;
         }
@@ -115,7 +115,7 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
      *
      * @param builder builder instance
      */
-    public ContentTransferAggregatorEvent(Builder builder) {
+    public ContentTransferAggregatorEvent(final Builder builder) {
         super(builder);
         delegate = builder.bDelegate;
     }
@@ -143,8 +143,7 @@ public class ContentTransferAggregatorEvent extends ContentTransferEvent {
      */
     @Override
     public String toString() {
-
-        final StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         builder.append("[");
         builder.append(getClass().getSimpleName());
         builder.append(": source=");

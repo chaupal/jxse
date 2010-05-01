@@ -59,6 +59,7 @@ package net.jxta.impl.protocol;
 import java.util.Enumeration;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.ContentID;

@@ -81,7 +81,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -225,7 +224,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@code true} when we have decided to stop this group.
      */
-    private AtomicBoolean stopping = new AtomicBoolean(false);
+    private volatile boolean stopping = false;
 
     /**
      * {@code true} when the PG adv has been published.
@@ -254,7 +253,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Is set to {@code true} when {@code init()} is completed enough that it
      * makes sense to perform ref-counting.
      */
-    protected AtomicBoolean initComplete = new AtomicBoolean(false);
+    protected volatile boolean initComplete = false;
 
     /**
      * The thread group in which threads created by this group or services of
@@ -268,9 +267,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * The minimum number of Threads our Executor will reserve. Once started
      * these Threads will remain.
      *
-     * TODO: convert these hardcoded settings into group config params.
+     * todo convert these hardcoded settings into group config params.
      */
-    private static final int COREPOOLSIZE = 5;
+    private final int COREPOOLSIZE = 5;
 
     /**
      * The number of seconds that Threads above {@code COREPOOLSIZE} will
@@ -278,7 +277,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *
      * todo convert these hardcoded settings into group config params.
      */
-    private static final long KEEPALIVETIME = 15;
+    private final long KEEPALIVETIME = 15;
 
     /**
      * The intended upper bound on the number of threads we will allow our
@@ -287,7 +286,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *
      * todo convert these hardcoded settings into group config params.
      */
-    private static final int MAXPOOLSIZE = 100;
+    private final int MAXPOOLSIZE = 100;
 
     /**
      * Queue for tasks waiting to be run by our {@code Executor}.
@@ -364,12 +363,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof PeerGroup)) {
+    public boolean equals(Object target) {
+        if (!(target instanceof PeerGroup)) {
             return false;
         }
 
-        PeerGroup targetAsPeerGroup = (PeerGroup) obj;
+        PeerGroup targetAsPeerGroup = (PeerGroup) target;
 
         // both null or both non-null.
         if ((null == parentGroup) && (null != targetAsPeerGroup.getParentGroup())) {
@@ -573,12 +572,13 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * @param service The service instance to set as the shortcut or
      */
     protected synchronized void addService(ModuleClassID mcid, Service service) {
-        
-        if (stopping.get())
+        if (stopping) {
             return;
-        
-        if (services.containsKey(mcid)) 
+        }
+
+        if (services.containsKey(mcid)) {
             throw new IllegalStateException("Service" + mcid + " already registered.");
+        }
 
         services.put(mcid, service);
 
@@ -747,8 +747,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 try {
                     newMod.stopApp();
                 } catch (Throwable ignored) {
-                    // If this does not work, nothing needs to be done.
-                    Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
+                // If this does not work, nothing needs to be done.
                 }
                 throw new PeerGroupException("Could not load module for : " + assigned + " (" + implAdv.getDescription() + ")", ex);
             }
@@ -772,7 +771,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
             }
         } catch (Exception ignored) {
             // ignored
-            Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
         }
 
         // If we reached this point we're done.
@@ -971,7 +969,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             initLast();
         } finally {
             // This must be done in all cases.
-            initComplete.set(true);
+            initComplete = true;
         }
     }
 
@@ -1061,9 +1059,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                         Advertisement paramsAdv = null;
                         try {
                             paramsAdv = AdvertisementFactory.newAdvertisement(param);
-                        } catch (NoSuchElementException noadv) {
-                            // ignored
-                            Logging.logCheckedFine(LOG, "Ignored: ", noadv.toString());
+                        } catch (NoSuchElementException noadv) {// ignored
                         }
                         if (!(paramsAdv instanceof PSEConfigAdv)) {
                             throw new IllegalArgumentException("Provided Advertisement was not a " + PSEConfigAdv.getAdvertisementType());
@@ -1260,8 +1256,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Group : ");
-            configInfo.append(getPeerGroupID());
+            StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -1272,6 +1267,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
             }
             configInfo.append("\n\tGroup Params :");
+            configInfo.append("\n\t\tModule Spec ID : ").append(implAdvertisement.getModuleSpecID());
             configInfo.append("\n\t\tPeer Group ID : ").append(getPeerGroupID());
             configInfo.append("\n\t\tGroup Name : ").append(getPeerGroupName());
             configInfo.append("\n\t\tPeer ID in Group : ").append(getPeerID());
@@ -1299,7 +1295,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         return Module.START_OK;
     }
 
@@ -1310,8 +1306,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * group object permits to stop it without going through ref counting.
      */
     public void stopApp() {
-
-        stopping.set(true);
+        stopping = true;
 
         Collection<ModuleClassID> allServices = new ArrayList<ModuleClassID>(services.keySet());
 
@@ -1342,7 +1337,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         // executors from TaskManager are now shutdown by the NetworkManager
         // No longer initialized.
-        initComplete.set(false);
+        initComplete = false;
     }
 
     /**
@@ -1398,11 +1393,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup getInterface() {
-        
-        if (stopping.get())
+        if (stopping) {
             throw new IllegalStateException("Group has been shutdown. getInterface() is not available");
-        
-        if (initComplete.get()) {
+        }
+
+        if (initComplete) {
             // If init is complete the group can become sensitive to its ref
             // count reaching zero. Before there could be transient references
             // before there is a chance to give a permanent reference to the
@@ -1803,9 +1798,9 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     static class PeerGroupThreadFactory implements ThreadFactory {
 
-        private final AtomicInteger threadNumber = new AtomicInteger(1);
-        private final String name;
-        private final ThreadGroup threadgroup;
+        final AtomicInteger threadNumber = new AtomicInteger(1);
+        final String name;
+        final ThreadGroup threadgroup;
 
         PeerGroupThreadFactory(String name, ThreadGroup threadgroup) {
             this.name = name;

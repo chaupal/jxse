@@ -56,6 +56,7 @@
 
 package net.jxta.impl.peergroup;
 
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
@@ -71,11 +72,14 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
+
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Not actually an advertisement, but often acts as part of one.
@@ -271,7 +275,6 @@ public class StdPeerGroupParamAdv {
      * @param servicesTable the services table
      */
     public void setServices(Map<ModuleClassID, Object> servicesTable) {
-
         if(servicesTable.containsKey(null)) {
             throw new IllegalArgumentException("null key in servicesTable");
         }
@@ -286,8 +289,9 @@ public class StdPeerGroupParamAdv {
 
         this.services.clear();
 
-        this.services.putAll(servicesTable);
-
+        if (null != servicesTable) {
+            this.services.putAll(servicesTable);
+        }
     }
 
     /**
@@ -297,7 +301,6 @@ public class StdPeerGroupParamAdv {
      * @param protosTable The message transport descriptors for the group.
      */
     public void setProtos(Map<ModuleClassID, Object> protosTable) {
-
         if(protosTable.containsKey(null)) {
             throw new IllegalArgumentException("null key in protosTable");
         }
@@ -312,8 +315,9 @@ public class StdPeerGroupParamAdv {
 
         this.transports.clear();
 
-        this.transports.putAll(protosTable);
-        
+        if (null != protosTable) {
+            this.transports.putAll(protosTable);
+        }
     }
 
     /**
@@ -323,7 +327,6 @@ public class StdPeerGroupParamAdv {
      * @param appsTable The application descriptors for the group.
      */
     public void setApps(Map<ModuleClassID, Object> appsTable) {
-
         if(appsTable.containsKey(null)) {
             throw new IllegalArgumentException("null key in appsTable");
         }
@@ -337,9 +340,10 @@ public class StdPeerGroupParamAdv {
         }
 
         this.apps.clear();
-        
-        this.apps.putAll(appsTable);
-        
+
+        if (null != appsTable) {
+            this.apps.putAll(appsTable);
+        }
     }
 
     private void initialize(XMLElement doc) {
@@ -494,6 +498,7 @@ public class StdPeerGroupParamAdv {
                 if (modulesTable != apps && !mcid.equals(mcid.getBaseClass())) {
                     // It is not an app and there is a role ID. Output it.
                     Element i = doc.createElement(MCID_TAG, mcid.toString());
+
                     m.appendChild(i);
                 }
 

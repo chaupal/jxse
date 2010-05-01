@@ -56,6 +56,7 @@
 
 package net.jxta.impl.util.cm;
 
+
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.data.Record;
 import net.jxta.impl.xindice.core.data.Value;
@@ -63,14 +64,17 @@ import net.jxta.impl.xindice.core.filer.BTreeCallback;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.impl.xindice.core.indexer.NameIndexer;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 
+
 /**
  * A utility to dump the CM databases.
  */
-public final class DumpCm {
+
+public class DumpCm {
 
     private static final IndexQuery ANY = new IndexQuery(IndexQuery.ANY, "*");
 
@@ -103,11 +107,11 @@ public final class DumpCm {
             throw new IllegalArgumentException("Missing mandatory option");
         }
 
-        if ("index".equals(type)) {
+        if (type.equals("index")) {
             dumpIndex(dir, file, callback);
-        } else if ("offsets".equals(type)) {
+        } else if (type.equals("offsets")) {
             dumpOffsets(dir, file, callback);
-        } else if ("db".equals(type)) {
+        } else if (type.equals("db")) {
             dumpDatabase(dir, file, callback);
         } else {
             throw new IllegalArgumentException("Incorrect type");
@@ -118,7 +122,7 @@ public final class DumpCm {
         NameIndexer indexer = new NameIndexer();
 
         // remove the suffix if present (setLocation automatically adds it back)
-        String SUFFIX = ".idx";
+        final String SUFFIX = ".idx";
 
         if (file.endsWith(SUFFIX)) {
             file = file.substring(0, file.length() - SUFFIX.length());
@@ -154,7 +158,7 @@ public final class DumpCm {
         BTreeFiler filer = new BTreeFiler();
 
         // remove the suffix if present (setLocation automatically adds it back)
-        String SUFFIX = ".tbl";
+        final String SUFFIX = ".tbl";
 
         if (file.endsWith(SUFFIX)) {
             file = file.substring(0, file.length() - SUFFIX.length());
@@ -222,7 +226,7 @@ public final class DumpCm {
         BTreeFiler filer = new BTreeFiler();
 
         // remove the suffix if present (setLocation automatically adds it back)
-        String SUFFIX = ".tbl";
+        final String SUFFIX = ".tbl";
 
         if (file.endsWith(SUFFIX)) {
             file = file.substring(0, file.length() - SUFFIX.length());
@@ -264,11 +268,5 @@ public final class DumpCm {
             }
             return true;
         }
-    }
-
-    /**
-     * Default constructor
-     */
-    private DumpCm() {
     }
 }

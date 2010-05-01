@@ -5,7 +5,6 @@
  */
 
 package net.jxta.impl.util.backport.java.util;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.Iterator;
@@ -31,12 +30,10 @@ public abstract class AbstractMap extends java.util.AbstractMap {
     /**
      * {@inheritDoc}
      */
-    @Override
     public Set keySet() {
         if (keySet == null) {
             keySet = new AbstractSet() { // from e.e.m.b. (overrides toArray)
                 public int size() { return AbstractMap.this.size(); }
-                @Override
                 public boolean contains(Object e) { return AbstractMap.this.containsKey(e); }
                 public Iterator iterator() {
                     return new Iterator() {
@@ -119,14 +116,12 @@ public abstract class AbstractMap extends java.util.AbstractMap {
             return oldValue;
         }
 
-        @Override
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry)) return false;
             Map.Entry e = (Map.Entry)o;
             return eq(key, e.getKey()) && eq(value, e.getValue());
         }
 
-        @Override
         public int hashCode() {
             return ((key   == null) ? 0 :   key.hashCode()) ^
                    ((value == null) ? 0 : value.hashCode());
@@ -140,7 +135,6 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @return a String representation of this map entry
          */
-        @Override
         public String toString() {
             return key + "=" + value;
         }
@@ -214,7 +208,6 @@ public abstract class AbstractMap extends java.util.AbstractMap {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
@@ -222,7 +215,6 @@ public abstract class AbstractMap extends java.util.AbstractMap {
             return eq(key, e.getKey()) && eq(value, e.getValue());
         }
 
-        @Override
         public int hashCode() {
             return ((key   == null) ? 0 :   key.hashCode()) ^
                    ((value == null) ? 0 : value.hashCode());
@@ -236,7 +228,6 @@ public abstract class AbstractMap extends java.util.AbstractMap {
          *
          * @return a String representation of this map entry
          */
-        @Override
         public String toString() {
             return key + "=" + value;
         }

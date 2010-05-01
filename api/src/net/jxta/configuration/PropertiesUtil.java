@@ -13,15 +13,15 @@ public class PropertiesUtil {
 	 * this method can be replaced with the commented out version below.
 	 */
 	public static Set<String> stringPropertyNames(Properties p) {
-		final Set<String> propertyNames = new TreeSet<String>();
-		final Enumeration<?> propNameEnum = p.propertyNames();
+		Set<String> propertyNames = new TreeSet<String>();
+		Enumeration<?> propNameEnum = p.propertyNames();
 		while(propNameEnum.hasMoreElements()) {
 			propertyNames.add((String)propNameEnum.nextElement());
 		}
 		
 		return propertyNames;
 	}
-
+	
 	/* JAVA 6 VERSION
 	public static Set<String> stringPropertyNaes(Properties p) {
 		return p.stringPropertyNames();

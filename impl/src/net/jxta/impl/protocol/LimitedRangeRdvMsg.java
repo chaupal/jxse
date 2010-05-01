@@ -56,6 +56,7 @@
 
 package net.jxta.impl.protocol;
 
+
 import net.jxta.document.Document;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
@@ -67,10 +68,13 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * The LimitedRangeRdv walk header message.
@@ -391,8 +395,9 @@ public class LimitedRangeRdvMsg {
         }
 
         if (elem.getName().equals(DIRECTION_ELEMENT)) {
-            int directionTemp = Integer.parseInt(value);
-            setDirection(LimitedRangeRdvMsg.WalkDirection.toWalkDirection(directionTemp));
+            int direction = Integer.parseInt(value);
+
+            setDirection(LimitedRangeRdvMsg.WalkDirection.toWalkDirection(direction));
             return true;
         }
 

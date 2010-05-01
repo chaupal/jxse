@@ -58,8 +58,6 @@ package net.jxta.util;
 
 
 import java.awt.*;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  * This class is not used anywhere in the code.
@@ -71,11 +69,6 @@ import net.jxta.logging.Logging;
 
 @Deprecated
 public class AwtUtils {
-
-    /**
-     *  Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(AwtUtils.class.getName());
 
     // It is recommended to invoke this method at least once before
     // making any other references to awt. This will force awt threads
@@ -91,9 +84,7 @@ public class AwtUtils {
                     Frame f = new Frame();
 
                     f.dispose();
-                } catch (Throwable t) {
-                    Logging.logCheckedFine(LOG, "Ignoring: ", t.toString());
-                }
+                } catch (Throwable t) {}
             }
 
             public void doit() {

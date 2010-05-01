@@ -111,9 +111,9 @@ public class PSEAccessService implements AccessService {
      */
     private static class PSEOperation implements PrivilegedOperation {
         
-        private final PSEAccessService source;
+        final PSEAccessService source;
         
-        private PSECredential op;
+        PSECredential op;
         
         protected PSEOperation(PSEAccessService source, PSECredential op) {
             this.source = source;
@@ -177,7 +177,7 @@ public class PSEAccessService implements AccessService {
          *  FIXME 20060317 bondolo This implementation is not secure. The
          *  operation should be signed by the offerer.
          */
-        public StructuredDocument getDocument(MimeMediaType as) {
+        public StructuredDocument getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
             
             if (doc instanceof Attributable) {
@@ -260,7 +260,7 @@ public class PSEAccessService implements AccessService {
             
             String doctype = doc.getName();
             
-            if (!"jxta:PSEOp".equals(doctype) && !"jxta:PSEOp".equals(typedoctype)) {
+            if (!doctype.equals("jxta:PSEOp") && !typedoctype.equals("jxta:PSEOp")) {
                 throw new IllegalArgumentException(
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
             }
@@ -290,28 +290,28 @@ public class PSEAccessService implements AccessService {
     /**
      *  The Peer Group we are working for.
      */
-    private PeerGroup group;
+    PeerGroup group;
     
     /**
      *  Implementation advertisement for this instance.
      */
-    private ModuleImplAdvertisement implAdvertisement;
+    ModuleImplAdvertisement implAdvertisement;
     
     /**
      *  The PSE Membership service we are paired with.
      */
-    private PSEMembershipService pseMembership;
+    PSEMembershipService pseMembership;
     
     /**
      *  If {@code true} then a null credential will be allowed for the null op.
      */
-    private static final boolean allowNullCredentialForNullOperation = false;
+    final boolean allowNullCredentialForNullOperation = false;
     
     /**
      *  The default constructor
      */
     public PSEAccessService() {}
-
+    
     /**
      * {@inheritDoc}
      */
@@ -321,8 +321,7 @@ public class PSEAccessService implements AccessService {
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder("Configuring PSE Access Service : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring PSE Access Service : " + assignedID);
             
             configInfo.append("\n\tImplementation :");
             configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
@@ -453,11 +452,13 @@ public class PSEAccessService implements AccessService {
             throw new IllegalArgumentException(getClass().getName() + " only supports PSECredential subjects.");
         }
         
-        if (subject != offerer)
+        if (subject != offerer) {
             throw new IllegalArgumentException("PSE Access Service requires operation and offerer to be the same object.");
+        }
         
-        if (!offerer.isValid()) 
+        if (!offerer.isValid()) {
             throw new IllegalArgumentException("offerer is not a valid credential");
+        }
         
         return new PSEOperation((PSEAccessService) getInterface(), (PSECredential) offerer);
     }
@@ -474,7 +475,7 @@ public class PSEAccessService implements AccessService {
      * 
      * @return PeerGroup instance
      */
-    private PeerGroup getPeerGroup() {
+    PeerGroup getPeerGroup() {
         return group;
     }
 }

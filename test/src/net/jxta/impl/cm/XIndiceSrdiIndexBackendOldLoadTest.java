@@ -149,7 +149,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
         srdi.garbageCollect();
         List<PeerID> res = srdi.query("pkey", "ID", pipeID, 1);
 
-        assertTrue("query should not have returned a result", res.isEmpty());
+        assertTrue("query should not have returned a result", res.size() == 0);
         srdi.stop();
     }
 
@@ -162,8 +162,8 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
         for (int i = 0; i < ITERATIONS; i++) {
             List<PeerID> res = srdi.query("pkey", "attr", "value" + i, 1);
 
-            assertTrue("query should have returned a result", !res.isEmpty());
-            if (!res.isEmpty()) {
+            assertTrue("query should have returned a result", res.size() > 0);
+            if (res.size() > 0) {
                 PeerID path = res.get(0);
 
                 assertEquals("Incorrect result", peerStr, path.toString());
@@ -195,7 +195,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
         for (int i = 0; i < ITERATIONS; i++) {
             List<PeerID> res = srdi.query("pkey", "attr", "value+i", 1);
 
-            assertTrue("query should not have returned a result", res.isEmpty());
+            assertTrue("query should not have returned a result", res.size() == 0);
         }
         // the following should not produce exceptions
         srdi.remove(pid);
@@ -310,7 +310,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
             for (int i = 0; i < (ITERATIONS / 10) && !failed; i++) {
                 List<PeerID> res = srdi.query("pkey", "attr", "value" + i, 1);
 
-                if ( !res.isEmpty() ) {
+                if (res.size() > 0) {
                     PeerID path = res.get(0);
                     assertEquals("Incorrect result", peerStr, path.toString());
                 }

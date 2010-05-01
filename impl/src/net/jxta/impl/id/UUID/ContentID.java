@@ -263,31 +263,31 @@ public class ContentID extends net.jxta.content.ContentID {
         return encoded.toString();
     }
     
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals( Object target ) {
-//        if (this == target) {
-//            return true;
-//        }
-//
-//        if (target instanceof ContentID ) {
-//            ContentID contentTarget = (ContentID) target;
-//
-//            return id.equals( contentTarget.id );
-//        }  else {
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals( Object target ) {
+        if (this == target) {
+            return true;
+        }
+        
+        if (target instanceof ContentID ) {
+            ContentID contentTarget = (ContentID) target;
+            
+            return id.equals( contentTarget.id );
+        }  else {
+            return false;
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
     
     /**
      * {@inheritDoc}

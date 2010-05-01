@@ -71,7 +71,6 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -93,7 +92,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
     protected final PipeAdvertisement pipeAdv;
     protected final ID pipeID;
 
-    protected AtomicBoolean closed = new AtomicBoolean(false);
+    protected volatile boolean closed = false;
 
     protected PipeMsgListener listener;
     protected final BlockingQueue<Message> queue;
@@ -136,7 +135,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
     @Override
     protected synchronized void finalize() throws Throwable {
         
-        if (!closed.get()) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
+        if (!closed) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
         close();
         super.finalize();
 
@@ -171,10 +170,10 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      * {@inheritDoc}
      */
     public synchronized void close() {
-        
-        if (closed.get()) return;
-        
-        closed.set(true);
+        if (closed) {
+            return;
+        }
+        closed = true;
         listener = null;
 
         // Remove myself from the pipe registrar.
@@ -192,9 +191,10 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      * {@inheritDoc}
      */
     public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-
         // if we are closed, ignore any additional messages
-        if (closed.get()) return;
+        if (closed) {
+            return;
+        }
 
         // XXX: header check, security and such should be done here
         // before pushing the message onto the queue.

@@ -56,14 +56,18 @@
 
 package net.jxta.impl.endpoint;
 
+
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  *  Utility functions related to the Endpoint Service.
@@ -121,11 +125,4 @@ public final class EndpointUtils {
         
         return null;
     }
-
-    /**
-     * Default constructor
-     */
-    private EndpointUtils() {
-    }
-
 }

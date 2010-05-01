@@ -138,31 +138,31 @@ public class ModuleClassID extends net.jxta.platform.ModuleClassID {
         this(classID.getClassUUID(), UUIDFactory.newUUID());
     }
     
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        if (obj instanceof ModuleClassID) {
-//            ModuleClassID mcidTarget = (ModuleClassID) obj;
-//
-//            return id.equals(mcidTarget.id);
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
+        
+        if (target instanceof ModuleClassID) {
+            ModuleClassID mcidTarget = (ModuleClassID) target;
+            
+            return id.equals(mcidTarget.id);
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
     
     /**
      *  {@inheritDoc}

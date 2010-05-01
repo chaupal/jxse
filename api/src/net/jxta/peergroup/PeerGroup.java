@@ -253,7 +253,7 @@ public interface PeerGroup extends Service {
          * @param gid The id of the group of which an instance is wanted.
          * @return The group, or {@code null} if no instance exists.
          */
-        private synchronized PeerGroup getInstance(PeerGroupID gid) {
+        synchronized PeerGroup getInstance(PeerGroupID gid) {
 
             Reference<PeerGroup> ref = registry.get(gid);
 
@@ -970,8 +970,9 @@ public interface PeerGroup extends Service {
      * protocols or applications is altered before use.
      *
      * @return ModuleImplAdvertisement The new peergroup impl adv.
+     * @throws Exception if an error occurs while creating the implementation advertisement
      */
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement();
+    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception;
 
     /**
      * Explicitly notifies a group interface that it will no-longer be used

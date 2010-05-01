@@ -72,6 +72,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.Content;
@@ -262,9 +263,9 @@ public class DefaultContentProvider implements
             URI specURI = new URI(MODULE_SPEC_ID);
             specID = (ModuleSpecID) IDFactory.fromURI(specURI);
         } catch (URISyntaxException urisx) {
-            throw new RuntimeException(
+            throw(new RuntimeException(
                     "Illegal ModuleSpecURI in code: " + MODULE_SPEC_ID,
-                    urisx);
+                    urisx));
         }
     }
 
@@ -487,7 +488,7 @@ public class DefaultContentProvider implements
             }
         }
 
-        if (result.isEmpty()) {
+        if (result.size() == 0) {
             /*
              * This content was already shared.  We'll skip notifying our
              * listeners but will return it in the results.

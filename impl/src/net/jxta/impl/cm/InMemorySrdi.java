@@ -87,16 +87,16 @@ public class InMemorySrdi implements SrdiAPI {
     private static final Object OBJ = new Object();
 
     // Value counter - used to index ItemIndex objects 
-    private static long counter = 0;
+    static long counter = 0;
     
     // Wild card ternary tree of values to peerID lists
-    private WildcardTernarySearchTree<List<PeerIDItem>> peeridValueIndex = new WildcardTernarySearchTreeImpl<List<PeerIDItem>>();
+    WildcardTernarySearchTree<List<PeerIDItem>> peeridValueIndex = new WildcardTernarySearchTreeImpl<List<PeerIDItem>>();
     
     // The GC Index
-    private TreeMap expiryIndex = new TreeMap();
+    TreeMap expiryIndex = new TreeMap();
 
     // Used by removal to complete expire time for gc cleanup
-    private TernarySearchTreeImpl peerRemovalIndex = new TernarySearchTreeImpl();
+    TernarySearchTreeImpl peerRemovalIndex = new TernarySearchTreeImpl();
 
     // Stopped indicator
     private boolean stopped = false;
@@ -276,9 +276,9 @@ public class InMemorySrdi implements SrdiAPI {
 
         String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 
-        List<PeerIDItem> ipids = this.peeridValueIndex.find( treeKey );
+        List<PeerIDItem> ipids;
 
-        if ( null != ipids ) {
+        if ( null != ( ipids = this.peeridValueIndex.find( treeKey ) ) ) {
 
             for ( PeerIDItem ipid : ipids ) {
 
@@ -464,10 +464,10 @@ public class InMemorySrdi implements SrdiAPI {
 
         String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 
-        List<PeerIDItem> pids = this.peeridValueIndex.find( treeKey );
+        List<PeerIDItem> pids;
         String pidString = pid.getUniqueValue().toString();
 
-        if ( null != pids ) {
+        if ( null != ( pids = this.peeridValueIndex.find( treeKey ) ) ) {
 
             // Check for a PeerID entry already added
             for ( PeerIDItem item : pids ) {
@@ -616,7 +616,7 @@ public class InMemorySrdi implements SrdiAPI {
             this.expiry = expiry;
         }
 
-        private Entry toEntry() {
+        Entry toEntry() {
 
             return new Entry( this.peerid, this.expiry );
         }
@@ -626,7 +626,7 @@ public class InMemorySrdi implements SrdiAPI {
 
         private Long id;
         private String treeKey;
-        private PeerIDItem ipid;
+        PeerIDItem ipid;
 
         public IndexItem( PeerIDItem ipid, String treeKey ) {
 

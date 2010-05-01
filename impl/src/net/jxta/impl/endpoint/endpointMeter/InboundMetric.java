@@ -187,21 +187,21 @@ public class InboundMetric implements DocumentSerializable {
         return serviceIdString.hashCode();
     }
 	
-    public void inboundMessageQueued(Message message) {
+    void inboundMessageQueued(Message message) {
         numInboundQueued++;
     }
 
-    public void inboundMessageDropped(Message message, long time) {
+    void inboundMessageDropped(Message message, long time) {
         numInboundDropped++;
         timeToDropInbound += time;
     }
 
-    public void inboundMessageDeQueued(Message message, long time) {
+    void inboundMessageDeQueued(Message message, long time) {
         numInboundDeQueued++;
         timeInInboundQueue += time;
     }
 
-    public void inboundMessageProcessed(Message message, long time) {
+    void inboundMessageProcessed(Message message, long time) {
         numInboundProcessed++;
         timeToProcessInbound += time;
     }
@@ -255,23 +255,23 @@ public class InboundMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("serviceName".equals(tagName)) {
+            if (tagName.equals("serviceName")) { 
                 serviceName = DocumentSerializableUtilities.getString(childElement);
-            } else if ("serviceParam".equals(tagName)) {
+            } else if (tagName.equals("serviceParam")) { 
                 serviceParameter = DocumentSerializableUtilities.getString(childElement);
-            } else if ("numInboundQueued".equals(tagName)) {
+            } else if (tagName.equals("numInboundQueued")) {
                 numInboundQueued = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numInboundDropped".equals(tagName)) {
+            } else if (tagName.equals("numInboundDropped")) {
                 numInboundDropped = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("timeToDropInbound".equals(tagName)) {
+            } else if (tagName.equals("timeToDropInbound")) {
                 timeToDropInbound = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("numInboundDeQueued".equals(tagName)) {
+            } else if (tagName.equals("numInboundDeQueued")) {
                 numInboundDeQueued = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("timeInInboundQueue".equals(tagName)) {
+            } else if (tagName.equals("timeInInboundQueue")) {
                 timeInInboundQueue = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("numInboundProcessed".equals(tagName)) {
+            } else if (tagName.equals("numInboundProcessed")) {
                 numInboundProcessed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("timeToProcessInbound".equals(tagName)) {
+            } else if (tagName.equals("timeToProcessInbound")) {
                 timeToProcessInbound = DocumentSerializableUtilities.getLong(childElement);
             }
         }

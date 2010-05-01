@@ -56,26 +56,49 @@
 
 package net.jxta.impl.membership.pse;
 
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URI;
 import javax.crypto.EncryptedPrivateKeyInfo;
 import java.security.PrivateKey;
 import java.util.Arrays;
 import java.util.Map;
+
+import java.net.URISyntaxException;
+
 import junit.framework.*;
+
+import net.jxta.credential.Credential;
+import net.jxta.credential.PrivilegedOperation;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
+import net.jxta.document.XMLElement;
+import net.jxta.discovery.DiscoveryService;
+import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
+import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
+import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
+
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
+import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.PSEConfigAdv;
+
 
 public class pseMembershipTest extends TestCase {
     
@@ -230,7 +253,7 @@ public class pseMembershipTest extends TestCase {
     // InteractiveAuthenticator auth = (InteractiveAuthenticator) membership.apply( authCred );
     //
     // if( auth.interact() ) {
-    // assertTrue( "should have been ready", auth.isReadyForJoin() );
+    // assertTrue( "should have been ready",  auth.isReadyForJoin() );
     // membership.join( auth );
     // }
     // }   catch( Throwable all ) {

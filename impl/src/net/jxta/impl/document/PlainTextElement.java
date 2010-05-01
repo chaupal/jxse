@@ -56,25 +56,29 @@
 
 package net.jxta.impl.document;
 
+
 import net.jxta.document.Attributable;
 import net.jxta.document.Attribute;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.TextElement;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+
 
 /**
  * This class is an implementation of the StructuredTextDocument interface using
  * simple text
  */
 public class PlainTextElement implements TextElement<PlainTextElement>, Attributable {
-
     protected PlainTextDocument doc;
 
     protected PlainTextElement parent;
@@ -108,7 +112,6 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
      */
     @Override
     public boolean equals(Object element) {
-
         if (this == element) {
             return true;
         }
@@ -139,19 +142,6 @@ public class PlainTextElement implements TextElement<PlainTextElement>, Attribut
         }
 
         return val1.equals(val2);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 11 * hash + (this.doc != null ? this.doc.hashCode() : 0);
-        hash = 11 * hash + (this.parent != null ? this.parent.hashCode() : 0);
-        hash = 11 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 11 * hash + (this.val != null ? this.val.hashCode() : 0);
-        hash = 11 * hash + (this.children != null ? this.children.hashCode() : 0);
-        hash = 11 * hash + (this.attributes != null ? this.attributes.hashCode() : 0);
-        return hash;
     }
 
     /**

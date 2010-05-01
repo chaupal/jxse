@@ -56,6 +56,7 @@
 
 package net.jxta.impl.endpoint.router;
 
+
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -69,14 +70,16 @@ import java.util.Timer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
+
 
 /**
  * This class is a repository of wisdom regarding destinations. It also provides
@@ -121,7 +124,7 @@ class Destinations {
     /**
      * If {@code true} then we are shutting down.
      */
-    private AtomicBoolean stopped = new AtomicBoolean(false);
+    private volatile boolean stopped = false;
 
     /**
      * The endpoint service we are working for.
@@ -144,7 +147,7 @@ class Destinations {
          * How long we consider that a past outgoingMessenger is an indication 
          * that one is possible in the future.
          */
-        public static final long EXPIRATION = 10 * TimeUtils.AMINUTE;
+        static final long EXPIRATION = 10 * TimeUtils.AMINUTE;
 
         /**
          * The channel we last used, if any. They disappear faster than the 
@@ -204,14 +207,14 @@ class Destinations {
          *
          * @return {@code true} if this is the first time this method is invoked.
          */
-        private synchronized boolean isWelcomeNeeded() {
+        synchronized boolean isWelcomeNeeded() {
             boolean res = welcomeNeeded;
 
             welcomeNeeded = false;
             return res;
         }
 
-        private boolean addIncomingMessenger(Messenger m) {
+        boolean addIncomingMessenger(Messenger m) {
 
             // If we have no other incoming, we take it. No questions asked.
             Messenger currentIncoming = getIncoming();
@@ -251,7 +254,7 @@ class Destinations {
             return true;
         }
 
-        private boolean addOutgoingMessenger(Messenger m) {
+        boolean addOutgoingMessenger(Messenger m) {
             if (getOutgoing() != null) {
                 return false;
             }
@@ -264,7 +267,7 @@ class Destinations {
 
         }
 
-        private void noOutgoingMessenger() {
+        void noOutgoingMessenger() {
             outgoingMessenger = null;
             xportDest = null;
             expiresAt = 0;
@@ -348,7 +351,7 @@ class Destinations {
          *
          * @return a channel for this destination
          */
-        private Messenger getCurrentMessenger() {
+        Messenger getCurrentMessenger() {
             Messenger res = getIncoming();
 
             if (res != null) {
@@ -361,7 +364,7 @@ class Destinations {
         /**
          * @return true if we do have an outgoing messenger or, failing that, we had one not too long ago.
          */
-        private boolean isNormallyReachable() {
+        boolean isNormallyReachable() {
             return ((getOutgoing() != null) || (TimeUtils.toRelativeTimeMillis(expiresAt) >= 0));
         }
 
@@ -370,14 +373,14 @@ class Destinations {
          *
          * @return true if we have any kind of messenger or, failing that, we had an outgoing one not too long ago.
          */
-        private boolean isCurrentlyReachable() {
+        boolean isCurrentlyReachable() {
             return ((getIncoming() != null) || (getOutgoing() != null) || (TimeUtils.toRelativeTimeMillis(expiresAt) >= 0));
         }
 
         /**
          * @return true if this wisdom carries no positive information whatsoever.
          */
-        private boolean isExpired() {
+        boolean isExpired() {
             return !isCurrentlyReachable();
         }
     }
@@ -428,8 +431,7 @@ class Destinations {
      * Shutdown this cache. (stop the gc)
      */
     public synchronized void close() {
-        
-        stopped.set(true);
+        stopped = true;
 
         // forget everything.
         wisdoms.clear();

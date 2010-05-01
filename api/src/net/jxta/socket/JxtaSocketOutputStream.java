@@ -116,7 +116,7 @@ class JxtaSocketOutputStream extends OutputStream {
     /**
      * Similar to close except that any buffered data is discarded.
      */
-    public synchronized void hardClose() {
+    synchronized void hardClose() {
         count = 0;
         closed = true;
     }

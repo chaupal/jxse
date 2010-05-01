@@ -135,7 +135,6 @@ public abstract class MessengerState {
      * The transition each event causes when in that state.
      */
     private static class State {
-
         private final int number;
 
         private State stResolve;
@@ -173,7 +172,7 @@ public abstract class MessengerState {
          * 
          * @param data The events and actions for each transition.
          */
-        private void init(Object[] data) {
+        void init(Object[] data) {
             stResolve = (State) data[0];
             acResolve = (Action) data[1];
             stMsgs = (State) data[2];
@@ -293,9 +292,6 @@ public abstract class MessengerState {
             Closed.init(INIT_TRANSITION_MAP[15]);
             Broken.init(INIT_TRANSITION_MAP[16]);
         }
-
-        private TransitionMap() {
-        }
     }
 
     /**
@@ -324,7 +320,7 @@ public abstract class MessengerState {
     }
     
     private void changeState(State newState) {
-    	final boolean stateChanged = (state.number != newState.number);
+    	boolean stateChanged = (state.number != newState.number);
     	state = newState;
     	
     	if(stateChanged) {
@@ -344,7 +340,7 @@ public abstract class MessengerState {
      * Event input.
      */
     public void resolveEvent() {
-        final Action action = state.acResolve;
+        Action action = state.acResolve;
 
         changeState(state.stResolve);
         action.doIt(this);
@@ -354,7 +350,7 @@ public abstract class MessengerState {
      * Message event
      */
     public void msgsEvent() {
-        final Action action = state.acMsgs;
+        Action action = state.acMsgs;
 
         changeState(state.stMsgs);
         action.doIt(this);
@@ -364,7 +360,7 @@ public abstract class MessengerState {
      * Saturated Event
      */
     public void saturatedEvent() {
-        final Action action = state.acSaturated;
+        Action action = state.acSaturated;
 
         changeState(state.stSaturated);
         action.doIt(this);
@@ -374,7 +370,7 @@ public abstract class MessengerState {
      * Close Event
      */
     public void closeEvent() {
-        final Action action = state.acClose;
+        Action action = state.acClose;
 
         changeState(state.stClose);
         action.doIt(this);
@@ -384,7 +380,7 @@ public abstract class MessengerState {
      * Shutdown Event
      */
     public void shutdownEvent() {
-        final Action action = state.acShutdown;
+        Action action = state.acShutdown;
 
         changeState(state.stShutdown);
         action.doIt(this);
@@ -394,7 +390,7 @@ public abstract class MessengerState {
      * Up Event
      */
     public void upEvent() {
-        final Action action = state.acUp;
+        Action action = state.acUp;
 
         changeState(state.stUp);
         action.doIt(this);
@@ -404,7 +400,7 @@ public abstract class MessengerState {
      * Down Event
      */
     public void downEvent() {
-        final Action action = state.acDown;
+        Action action = state.acDown;
 
         changeState(state.stDown);
         action.doIt(this);
@@ -414,7 +410,7 @@ public abstract class MessengerState {
      * Idle Event
      */
     public void idleEvent() {
-        final Action action = state.acIdle;
+        Action action = state.acIdle;
 
         changeState(state.stIdle);
         action.doIt(this);

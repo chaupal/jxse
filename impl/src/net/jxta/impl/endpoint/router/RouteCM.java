@@ -165,8 +165,7 @@ class RouteCM implements Module {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : " + assignedID);
             
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -191,7 +190,7 @@ class RouteCM implements Module {
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         // ok, we are initialized, go ahead and enable CM usage desired
         useCM = useCMConfig;
         return Module.START_OK;
@@ -209,7 +208,7 @@ class RouteCM implements Module {
      *
      * @return true if enabled
      */
-    public boolean useRouteCM() {
+    boolean useRouteCM() {
         return useCM;
     }
     
@@ -217,7 +216,7 @@ class RouteCM implements Module {
      * toggles whether to use the RouteCM
      * @param enable if <code>true</code> it enables use of persistent store
      */
-    public void enableRouteCM(boolean enable) {
+    void enableRouteCM(boolean enable) {
         useCM = enable;
     }
     
@@ -512,9 +511,8 @@ class RouteCM implements Module {
                 discovery.flushAdvertisement(adv);
                 Logging.logCheckedFine(LOG, "removed RouteAdvertisement for ", peerIDStr);
 
-            } catch (IOException ex) {
-                // protect against flush IOException when the entry is not there
-                Logging.logCheckedFine(LOG, "Ignored: ", ex.toString());
+            } catch (IOException ex) {// protect against flush IOException when the entry is not there
+
             }
         }
         
@@ -542,9 +540,7 @@ class RouteCM implements Module {
             try {
                 discovery.flushAdvertisement(adv);
                 Logging.logCheckedFine(LOG, "removed PeerAdvertisement for ", peerIDStr);
-            } catch (IOException ex) {
-                // protect against flush IOException when the entry is not there
-                Logging.logCheckedFine(LOG, "Ignored: ", ex.toString());
+            } catch (IOException ex) {// protect against flush IOException when the entry is not there
             }
         }
         // remove it from the cache as well
@@ -574,7 +570,7 @@ class RouteCM implements Module {
             String realPeerID = route.getDestPeerID().toString();
             
             // check first if we have a route advertisement
-            Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
+            Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG,  realPeerID);
             
             if (advs.hasMoreElements()) {
                 Advertisement adv = advs.nextElement();

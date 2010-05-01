@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.servlethttp;
 
 import net.jxta.document.Advertisement;
@@ -70,6 +69,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
+import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
@@ -78,6 +78,7 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -109,19 +110,19 @@ public final class ServletHttpTransport implements Module {
      */
     private final static String DEFAULT_HTTP_PROTOCOL_NAME = "http";
 
-    public String HTTP_PROTOCOL_NAME = DEFAULT_HTTP_PROTOCOL_NAME;
+    String HTTP_PROTOCOL_NAME = DEFAULT_HTTP_PROTOCOL_NAME;
 
     /**
      * PeerGroup we are working for
      */
-    protected PeerGroup group;
-    protected ID assignedID;
-    protected ModuleImplAdvertisement implAdvertisement;
+    PeerGroup group;
+    ID assignedID;
+    ModuleImplAdvertisement implAdvertisement;
     
     /**
      * The executor used by HttpClientMessenger
      */
-    protected Executor executor;
+    Executor executor;
 
     /**
      * The endpoint we attach to.
@@ -164,12 +165,12 @@ public final class ServletHttpTransport implements Module {
      * The InetAddress of the network interface we are bound to otherwise the
      * ALL/ANY address.
      */
-    private InetAddress usingInterface = null;
+    InetAddress usingInterface = null;
 
     /**
      * Port number to which we are bound.
      */
-    private int usingPort = 0;
+    int usingPort = 0;
 
     /**
      * The addresses which we will advertise and by which we may be reached.
@@ -190,7 +191,7 @@ public final class ServletHttpTransport implements Module {
         this.assignedID = assignedID;
         implAdvertisement = (ModuleImplAdvertisement) impl;
         
-//        this.executor = ((StdPeerGroup) group).getExecutor();
+        this.executor = ((StdPeerGroup) group).getExecutor();
 
         // Get out invariable parameters from the implAdv
         XMLElement param = (XMLElement) implAdvertisement.getParam();
@@ -279,8 +280,7 @@ public final class ServletHttpTransport implements Module {
         // Tell tell the world about our configuration.
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring HTTP Message Transport : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring HTTP Message Transport : " + assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation:");
@@ -395,7 +395,7 @@ public final class ServletHttpTransport implements Module {
      * 
      * @return EndpointService instance
      */
-    public EndpointService getEndpointService() {
+    EndpointService getEndpointService() {
         return endpoint;
     }
 
@@ -443,6 +443,11 @@ public final class ServletHttpTransport implements Module {
                 public int compare(EndpointAddress one, EndpointAddress two) {
                     return one.toString().compareTo(two.toString());
                 }
+
+                @Override
+                public boolean equals(Object that) {
+                    return this == that;
+                }
             });
 
             publicAddresses.addAll(wildAddrs);
@@ -462,7 +467,7 @@ public final class ServletHttpTransport implements Module {
         return publicAddresses;
     }
 
-    public TransportBindingMeter getTransportBindingMeter(String peerIDString, EndpointAddress destinationAddress) {
+    TransportBindingMeter getTransportBindingMeter(String peerIDString, EndpointAddress destinationAddress) {
         if (transportMeter != null) {
             return transportMeter.getTransportBindingMeter((peerIDString != null) ? peerIDString : TransportMeter.UNKNOWN_PEER,
                     destinationAddress);
@@ -471,7 +476,7 @@ public final class ServletHttpTransport implements Module {
         }
     }
 
-    public TransportBindingMeter getUnknownTransportBindingMeter() {
+    TransportBindingMeter getUnknownTransportBindingMeter() {
         return unknownTransportBindingMeter;
     }
 }

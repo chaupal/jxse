@@ -102,9 +102,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-import net.jxta.impl.endpoint.EndpointUtils;
 
 /**
  * JxtaSocket is a sub-class of java.net.socket, and should be used like a java.net.Socket.
@@ -229,7 +227,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     /**
      * If {@code true} then this socket has been closed and can no longer be used.
      */
-    protected AtomicBoolean closed = new AtomicBoolean(false);
+    protected volatile boolean closed = false;
 
     /**
      * If {@code true} then we believer our end of the connection is open.
@@ -491,8 +489,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     @Override
     protected void finalize() throws Throwable {
         
-        if (!closed.get())
-            Logging.logCheckedWarning(LOG, "JxtaSocket is being finalized without being previously closed. This is likely a users bug.");
+        if (!closed) Logging.logCheckedWarning(LOG, "JxtaSocket is being finalized without being previously closed. This is likely a users bug.");
         close();
         super.finalize();
 
@@ -905,7 +902,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             try {
                 ros.setSendBufferSize(outputBufferSize);
             } catch (IOException ignored) {// it's only a preference...
-                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
             }
         } else {
             nonReliableInputStream = new JxtaSocketInputStream(this, windowSize);
@@ -965,28 +961,27 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     @Override
     public synchronized void close() throws IOException {
-        
         try {
-
             synchronized (closeLock) {
-
-                // ServerSocket has a timeout of zero which is no use...
-            	final int to = (int)Math.max(DEFAULT_TIMEOUT, timeout);
+            	// ServerSocket has a timeout of zero which is no use...
+            	int to = (int)Math.max(DEFAULT_TIMEOUT, timeout);
+            	
                 long closeEndsAt = System.currentTimeMillis() + to;
 
                 if (closeEndsAt < to) closeEndsAt = Long.MAX_VALUE;
 
                 Logging.logCheckedInfo(LOG, "Closing ", this, " timeout=", to, "ms.");
                 
-                if (closed.get()) return;
+                if (closed) return;
 
-                closed.set(true);
-
+                closed = true;
                 while (isConnected()) {
                     long closingFor = closeEndsAt - System.currentTimeMillis();
 
-                    if (closingFor <= 0) break;
-                    
+                    if (closingFor <= 0) {
+                        break;
+                    }
+
                     if (isReliable) {
                         try {
                             if (ros.isQueueEmpty()) {
@@ -1030,9 +1025,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 }
             }
         } finally {
-            
-            // We must keep the streams open until we've exchanged close request/response
-            // ...now we can close them.
+        	// We must keep the streams open until we've exchanged close request/response
+        	// ...now we can close them.
             shutdownOutput();
             shutdownInput();
             // No matter what else happens at the end of close() we are no
@@ -1102,7 +1096,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             try {
                 ris.close();
             } catch (IOException ignored) {// ignored
-                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
             }
 
             ros.hardClose();
@@ -1189,7 +1182,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                     incomingPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(pipeAdvDoc);
                 } catch (IOException badPipeAdv) {// ignored
-                    Logging.logCheckedFine(LOG, "Ignoring: ", badPipeAdv.toString());
                 }
             }
 
@@ -1201,7 +1193,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                     XMLDocument peerAdvDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
                     incomingRemotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(peerAdvDoc);
                 } catch (IOException badPeerAdv) {// ignored
-                    Logging.logCheckedFine(LOG, "Ignoring: ", badPeerAdv.toString());
                 }
             }
 
@@ -1267,7 +1258,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                         }
 
-                        socketConnectLock.notifyAll();
+                        socketConnectLock.notify();
 
                         Logging.logCheckedInfo(LOG, "New Socket Connection : ", this);
 
@@ -1344,7 +1335,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                     // if not null, will be closed.
                     op = null;
                 }
-                pipeResolveLock.notifyAll();
+                pipeResolveLock.notify();
             }
             // Ooops one too many, we were too fast re-trying.
             if (op != null) op.close();
@@ -1373,7 +1364,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         // Get an endpoint messenger to that address
         EndpointAddress addr;
-        RouteAdvertisement routeHint = EndpointUtils.extractRouteAdv(peerAdv);
+        RouteAdvertisement routeHint = net.jxta.impl.endpoint.EndpointUtils.extractRouteAdv(peerAdv);
         if (pipeAdv.getType().equals(PipeService.UnicastType)) {
             addr = new EndpointAddress("jxta", destPeer, "PipeService", opId.toString());
         } else if (pipeAdv.getType().equals(PipeService.UnicastSecureType)) {
@@ -1525,7 +1516,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     @Override
     public boolean isClosed() {
-        return closed.get();
+        return closed;
     }
 
     /**

@@ -721,7 +721,7 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
     }
 
     public URI[] getSeedRendezvous() {
-        return seedRendezvous.toArray(new URI[seedRendezvous.size()]);
+        return seedRendezvous.toArray(new URI[0]);
     }
 
     public void addSeedRendezvous(URI addr) {

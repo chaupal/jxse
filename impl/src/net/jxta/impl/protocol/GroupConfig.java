@@ -56,6 +56,7 @@
 
 package net.jxta.impl.protocol;
 
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -66,8 +67,11 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
+
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Configuration container for any Peer Group.

@@ -99,41 +99,44 @@ public final class RelayTransport implements EndpointListener, Module {
     private final static Logger LOG = Logger.getLogger(RelayTransport.class.getName());
 
     // // constants ////
-    public static final String protocolName = "relay";
+    static final String protocolName = "relay";
 
-    public static final String RELAY_NS = "relay";
-    public static final String REQUEST_ELEMENT = "request";
-    public static final String RESPONSE_ELEMENT = "response";
-    public static final String PEERID_ELEMENT = "peerid";
-    public static final String LEASE_ELEMENT = "lease";
-    public static final String RELAY_ADV_ELEMENT = "relayAdv";
+    static final String RELAY_NS = "relay";
+    static final String REQUEST_ELEMENT = "request";
+    static final String RESPONSE_ELEMENT = "response";
+    static final String PEERID_ELEMENT = "peerid";
+    static final String LEASE_ELEMENT = "lease";
+    static final String RELAY_ADV_ELEMENT = "relayAdv";
 
-    public static final String CONNECT_REQUEST = "connect";
-    public static final MessageElement CONNECT_REQUEST_ELEMENT = new StringMessageElement(REQUEST_ELEMENT, CONNECT_REQUEST, null);
-    public static final String DISCONNECT_REQUEST = "disconnect";
-    public static final MessageElement DISCONNECT_REQUEST_ELEMENT = new StringMessageElement(REQUEST_ELEMENT, DISCONNECT_REQUEST, null);
-    public static final String PID_REQUEST = "pid";
-    public static final MessageElement PID_REQUEST_ELEMENT = new StringMessageElement(REQUEST_ELEMENT, PID_REQUEST, null);
+    static final String CONNECT_REQUEST = "connect";
+    static final MessageElement CONNECT_REQUEST_ELEMENT = new StringMessageElement(REQUEST_ELEMENT, CONNECT_REQUEST, null);
+    static final String DISCONNECT_REQUEST = "disconnect";
+    static final MessageElement DISCONNECT_REQUEST_ELEMENT = new StringMessageElement(REQUEST_ELEMENT, DISCONNECT_REQUEST, null);
+    static final String PID_REQUEST = "pid";
+    static final MessageElement PID_REQUEST_ELEMENT = new StringMessageElement(REQUEST_ELEMENT, PID_REQUEST, null);
 
-    public static final String CONNECTED_RESPONSE = "connected";
-    public static final MessageElement CONNECTED_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, CONNECTED_RESPONSE, null);
-    public static final String DISCONNECTED_RESPONSE = "disconnected";
-    public static final MessageElement DISCONNECTED_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, DISCONNECTED_RESPONSE, null);
-    public static final String PID_RESPONSE = "pid";
-    public static final MessageElement PID_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, PID_RESPONSE, null);
+    static final String CONNECTED_RESPONSE = "connected";
+    static final MessageElement CONNECTED_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, CONNECTED_RESPONSE, null);
+    static final String DISCONNECTED_RESPONSE = "disconnected";
+    static final MessageElement DISCONNECTED_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, DISCONNECTED_RESPONSE, null);
+    static final String PID_RESPONSE = "pid";
+    static final MessageElement PID_RESPONSE_ELEMENT = new StringMessageElement(RESPONSE_ELEMENT, PID_RESPONSE, null);
 
-    public static final int DEFAULT_MAX_CLIENTS = 150;
+    static final int DEFAULT_MAX_CLIENTS = 150;
 
-    public static final int DEFAULT_MAX_SERVERS = 1;
+    static final int DEFAULT_MAX_SERVERS = 1;
 
     // Note the weird time below can be decreased but should not be increased
     // otherwise there will not be enough traffic for the other side to
     // keep the connection open.
-    public static final long DEFAULT_LEASE = TimeUtils.ANHOUR;
-    public static final long DEFAULT_STALL_TIMEOUT = 15 * TimeUtils.ASECOND;
-    public static final long DEFAULT_POLL_INTERVAL = 15 * TimeUtils.ASECOND; // (the poll costs very little)
-    public static final long DEFAULT_BROADCAST_INTERVAL = 10 * TimeUtils.AMINUTE;
-    public static final int DEFAULT_CLIENT_QUEUE_SIZE = 200;
+    static final long DEFAULT_LEASE = TimeUtils.ANHOUR;
+    static final long DEFAULT_STALL_TIMEOUT = 15 * TimeUtils.ASECOND;
+
+    static final long DEFAULT_POLL_INTERVAL = 15 * TimeUtils.ASECOND; // (the poll costs very little)
+
+    static final long DEFAULT_BROADCAST_INTERVAL = 10 * TimeUtils.AMINUTE;
+
+    static final int DEFAULT_CLIENT_QUEUE_SIZE = 200;
 
     private PeerGroup group = null;
 
@@ -146,10 +149,9 @@ public final class RelayTransport implements EndpointListener, Module {
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
-
-        // Initialization
         this.group = group;
         ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) implAdv;
+
         this.serviceName = assignedID.getUniqueValue().toString();
 
         ConfigParams confAdv = group.getConfigAdvertisement();
@@ -158,19 +160,17 @@ public final class RelayTransport implements EndpointListener, Module {
         // the defaults (edge peer/no auto-rdv)
         RelayConfigAdv relayConfigAdv = null;
 
-        Advertisement adv = null;
-
         if (confAdv != null) {
+            Advertisement adv = null;
 
             try {
-
                 XMLDocument configDoc = (XMLDocument) confAdv.getServiceParam(assignedID);
+
                 if (null != configDoc) adv = AdvertisementFactory.newAdvertisement(configDoc);
                 
             } catch (NoSuchElementException failed) {
 
                 //ignored
-                Logging.logCheckedFine(LOG, "Ignored: ", failed.toString());
 
             } catch (IllegalArgumentException failed) {
 
@@ -179,12 +179,11 @@ public final class RelayTransport implements EndpointListener, Module {
 
             }
 
-        }
-
-        if (adv instanceof RelayConfigAdv) {
-            relayConfigAdv = (RelayConfigAdv) adv;
-        } else {
-            relayConfigAdv = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType());
+            if (adv instanceof RelayConfigAdv) {
+                relayConfigAdv = (RelayConfigAdv) adv;
+            } else {
+                relayConfigAdv = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType());
+            }
         }
 
         // XXX bondolo 20041030 I'd like to move these to startApp so that we 
@@ -199,8 +198,7 @@ public final class RelayTransport implements EndpointListener, Module {
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Relay Message Transport : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Relay Message Transport : " + assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -345,13 +343,13 @@ public final class RelayTransport implements EndpointListener, Module {
 
     // This is for reference only, the Desktop client implementation does not
     // use that server feature
-    public static Message createPIDRequestMessage() {
+    static Message createPIDRequestMessage() {
         Message message = new Message();
         message.addMessageElement(RELAY_NS, PID_REQUEST_ELEMENT);
         return message;
     }
 
-    public static Message createPIDResponseMessage(PeerID newPeerID) {
+    static Message createPIDResponseMessage(PeerID newPeerID) {
         Message message = new Message();
         message.addMessageElement(RELAY_NS, PID_RESPONSE_ELEMENT);
         setString(message, PEERID_ELEMENT, newPeerID.toString());
@@ -359,52 +357,57 @@ public final class RelayTransport implements EndpointListener, Module {
         return message;
     }
 
-    public static Message createConnectMessage(long lease, boolean doReturnAdv, boolean doFlushQueue) {
+    static Message createConnectMessage(long lease, boolean doReturnAdv, boolean doFlushQueue) {
         Message message = new Message();
         String request = createConnectString(lease, doReturnAdv, doFlushQueue);
         setString(message, REQUEST_ELEMENT, request);
         return message;
     }
 
-    public static String createConnectString(long lease, boolean doReturnAdv, boolean doFlushQueue) {
+    static String createConnectString(long lease, boolean doReturnAdv, boolean doFlushQueue) {
 
-        StringBuffer request = new StringBuffer(CONNECT_REQUEST).append(',');
+        String request = CONNECT_REQUEST;
 
-        if (lease > 0) 
-            request.append(Long.toString(lease));
-        
-        if (doFlushQueue) {
-            request.append(",flush");
+        if (lease > 0) {
+            request += "," + Long.toString(lease);
         } else {
-            request.append(",keep");
+            request += ",";
+        }
+
+        if (doFlushQueue) {
+            request += ",flush";
+        } else {
+            request += ",keep";
         }
 
         if (doReturnAdv) {
-            request.append(",true");
+            request += ",true";
         } else {
-            request.append(",other");
+            request += ",other";
         }
 
-        return request.toString();
+        return request;
     }
 
-    public static Message createConnectedMessage(long lease) {
-
+    static Message createConnectedMessage(long lease) {
         Message message = new Message();
+
         message.addMessageElement(RELAY_NS, CONNECTED_RESPONSE_ELEMENT);
 
-        if (lease > 0) setString(message, LEASE_ELEMENT, Long.toString(lease));
-        
+        if (lease > 0) {
+            setString(message, LEASE_ELEMENT, Long.toString(lease));
+        }
+
         return message;
     }
 
-    public static Message createDisconnectMessage() {
+    static Message createDisconnectMessage() {
         Message message = new Message();
         message.addMessageElement(RELAY_NS, DISCONNECT_REQUEST_ELEMENT);
         return message;
     }
 
-    public static Message createDisconnectedMessage() {
+    static Message createDisconnectedMessage() {
         Message message = new Message();
         message.addMessageElement(RELAY_NS, DISCONNECTED_RESPONSE_ELEMENT);
         return message;
@@ -417,7 +420,7 @@ public final class RelayTransport implements EndpointListener, Module {
      * @param elementName message element name
      * @param value the value of the string
      */
-    public static void setString(Message message, String elementName, String value) {
+    static void setString(Message message, String elementName, String value) {
         // create a new String Element with the given value
         StringMessageElement sme = new StringMessageElement(elementName, value, null);
 
@@ -433,13 +436,14 @@ public final class RelayTransport implements EndpointListener, Module {
      * @param elementName the value of the string
      * @return the string value, null if the element does not exist
      */
-    public static String getString(Message message, String elementName) {
+    static String getString(Message message, String elementName) {
         // get the requested element
         MessageElement element = message.getMessageElement(RelayTransport.RELAY_NS, elementName);
 
         // if the element is not present, return null
-        if (element == null) return null;
-        
+        if (element == null) {
+            return null;
+        }
         return element.toString();
     }
     
@@ -450,21 +454,25 @@ public final class RelayTransport implements EndpointListener, Module {
      * @param addr the address to extract peerAddress from
      * @return the PeerID
      */
-    public static PeerID addr2pid(EndpointAddress addr) {
-
+    static PeerID addr2pid(EndpointAddress addr) {
         URI asURI = null;
 
         try {
+
             asURI = new URI(ID.URIEncodingName, ID.URNNamespace + ":" + addr.getProtocolAddress(), null);
             return (PeerID) IDFactory.fromURI(asURI);
+
         } catch (URISyntaxException ex) {
+
             Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address : ", addr, "\n", ex);
+
         } catch (ClassCastException cce) {
+
             Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address: ", addr, "\n", cce);
+            
         }
 
         return null;
         
     }
-
 }

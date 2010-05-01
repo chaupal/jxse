@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.relay;
 
 import net.jxta.endpoint.EndpointAddress;
@@ -69,6 +68,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

@@ -198,7 +198,7 @@ public interface NavigableSet extends SortedSet {
      *         {@code toElement} lies outside the bounds of the range.
      */
     NavigableSet subSet(Object fromElement, boolean fromInclusive,
-                        Object toElement,  boolean toInclusive);
+                        Object toElement,   boolean toInclusive);
 
     /**
      * Returns a view of the portion of this set whose elements are less than

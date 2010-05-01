@@ -386,85 +386,85 @@ public class RendezvousMetric implements DocumentSerializable {
         }
     }
 
-    public void startEdge(long transitionTime) {
+    void startEdge(long transitionTime) {
         this.transitionTime = transitionTime;
         this.state = EDGE;
         this.numEdgeTransitions++;
     }
 
-    public void stopEdge(long transitionTime, long timeAsEdge) {
+    void stopEdge(long transitionTime, long timeAsEdge) {
         this.state = STOPPED;
         this.transitionTime = transitionTime;
         this.totalEdgeTime += timeAsEdge;
     }
 
-    public void startRendezvous(long transitionTime) {
+    void startRendezvous(long transitionTime) {
         this.state = RENDEZVOUS;
         this.transitionTime = transitionTime;
         this.numRendezvousTransitions++;
     }
 
-    public void stopRendezvous(long transitionTime, long timeAsRendezvous) {
+    void stopRendezvous(long transitionTime, long timeAsRendezvous) {
         this.state = STOPPED;
         this.transitionTime = transitionTime;
         this.totalRendezvousTime += timeAsRendezvous;
     }
 
-    public void invalidMessageReceived() {
+    void invalidMessageReceived() {
         numReceivedInvalid++;
     } 
 
-    public void receivedMessageProcessedLocally() {
+    void receivedMessageProcessedLocally() {
         numReceivedProcessedLocally++;
     } 
 
-    public void receivedMessageRepropagatedInGroup() {
+    void receivedMessageRepropagatedInGroup() {
         numReceivedRepropagatedInGroup++;
     } 
 
-    public void receivedDeadMessage() {
+    void receivedDeadMessage() {
         numReceivedDead++;
     } 
 
-    public void receivedLoopbackMessage() {
+    void receivedLoopbackMessage() {
         numReceivedLoopback++;
     } 
 
-    public void receivedDuplicateMessage() {
+    void receivedDuplicateMessage() {
         numReceivedDuplicate++;
     } 
 	
-    public void propagateToPeers(int numPeers) {
+    void propagateToPeers(int numPeers) {
         numPropagatedToPeers++;
         numPeersPropagatedTo += numPeers;
     }
 
-    public void propagateToNeighbors() {
+    void propagateToNeighbors() {
         numPropagatedToNeighbors++;
     }
 	
-    public void propagateToNeighborsFailed() {
+    void propagateToNeighborsFailed() {
         numFailedPropagatingToNeighbors++;
     } 
 
-    public void propagateToGroup() {
+    void propagateToGroup() {
         numPropagatedInGroup++;
     } 
 
-    public void walk() {
+    void walk() {
         numWalks++;
     } 
 
-    public void walkFailed() {
+    void walkFailed() {
         numFailedWalks++;
     } 
 
-    public void walkToPeers(int numPeers) {
+    void walkToPeers(int numPeers) {
         numWalkedToPeers++;
         numPeersWalkedTo += numPeers;
     } 
 
-    public void walkToPeersFailed() {
+    void walkToPeersFailed() {
         numFailedWalkToPeers++;
     } 
 
@@ -607,59 +607,59 @@ public class RendezvousMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if ("state".equals(tagName)) {
+            if (tagName.equals("state")) { 
                 state = DocumentSerializableUtilities.getString(childElement);
-            } else if ("transitionTime".equals(tagName)) {
+            } else if (tagName.equals("transitionTime")) { 
                 transitionTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("totalEdgeTime".equals(tagName)) {
+            } else if (tagName.equals("totalEdgeTime")) { 
                 totalEdgeTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("numEdgeTransitions".equals(tagName)) {
+            } else if (tagName.equals("numEdgeTransitions")) { 
                 numEdgeTransitions = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("totalRendezvousTime".equals(tagName)) {
+            } else if (tagName.equals("totalRendezvousTime")) { 
                 totalRendezvousTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("numRendezvousTransitions".equals(tagName)) {
+            } else if (tagName.equals("numRendezvousTransitions")) { 
                 numRendezvousTransitions = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("numReceivedProcessedLocally".equals(tagName)) {
+            } else if (tagName.equals("numReceivedProcessedLocally")) { 
                 numReceivedProcessedLocally = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numReceivedRepropagatedInGroup".equals(tagName)) {
+            } else if (tagName.equals("numReceivedRepropagatedInGroup")) { 
                 numReceivedRepropagatedInGroup = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numReceivedInvalid".equals(tagName)) {
+            } else if (tagName.equals("numReceivedInvalid")) { 
                 numReceivedInvalid = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numReceivedDead".equals(tagName)) {
+            } else if (tagName.equals("numReceivedDead")) { 
                 numReceivedDead = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numReceivedLoopback".equals(tagName)) {
+            } else if (tagName.equals("numReceivedLoopback")) { 
                 numReceivedLoopback = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numReceivedDuplicate".equals(tagName)) {
+            } else if (tagName.equals("numReceivedDuplicate")) { 
                 numReceivedDuplicate = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPropagated".equals(tagName)) {
+            } else if (tagName.equals("numPropagated")) { 
                 numPropagated = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFailedPropagating".equals(tagName)) {
+            } else if (tagName.equals("numFailedPropagating")) { 
                 numFailedPropagating = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numRepropagated".equals(tagName)) {
+            } else if (tagName.equals("numRepropagated")) { 
                 numRepropagated = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFailedRepropagating".equals(tagName)) {
+            } else if (tagName.equals("numFailedRepropagating")) { 
                 numFailedRepropagating = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPropagatedToPeers".equals(tagName)) {
+            } else if (tagName.equals("numPropagatedToPeers")) { 
                 numPropagatedToPeers = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFailedPropagatingToPeers".equals(tagName)) {
+            } else if (tagName.equals("numFailedPropagatingToPeers")) { 
                 numFailedPropagatingToPeers = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPeersPropagatedTo".equals(tagName)) {
+            } else if (tagName.equals("numPeersPropagatedTo")) { 
                 numPeersPropagatedTo = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPropagatedInGroup".equals(tagName)) {
+            } else if (tagName.equals("numPropagatedInGroup")) { 
                 numPropagatedInGroup = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPropagatedToNeighbors".equals(tagName)) {
+            } else if (tagName.equals("numPropagatedToNeighbors")) { 
                 numPropagatedToNeighbors = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFailedPropagatingToNeighbors".equals(tagName)) {
+            } else if (tagName.equals("numFailedPropagatingToNeighbors")) { 
                 numFailedPropagatingToNeighbors = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numWalks".equals(tagName)) {
+            } else if (tagName.equals("numWalks")) { 
                 numWalks = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFailedWalks".equals(tagName)) {
+            } else if (tagName.equals("numFailedWalks")) { 
                 numFailedWalks = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numWalkedToPeers".equals(tagName)) {
+            } else if (tagName.equals("numWalkedToPeers")) { 
                 numWalkedToPeers = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFailedWalkToPeers".equals(tagName)) {
+            } else if (tagName.equals("numFailedWalkToPeers")) { 
                 numFailedWalkToPeers = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPeersWalkedTo".equals(tagName)) {
+            } else if (tagName.equals("numPeersWalkedTo")) { 
                 numPeersWalkedTo = DocumentSerializableUtilities.getInt(childElement);
             }
         }

@@ -56,7 +56,9 @@
 
 package net.jxta.impl.util.pipe.reliable;
 
+
 import net.jxta.id.IDFactory;
+import net.jxta.id.ID;
 import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeService;
 import net.jxta.pipe.InputPipe;
@@ -85,9 +87,14 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.Message.ElementIterator;
+import java.util.Vector;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Enumeration;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -99,7 +106,9 @@ import junit.framework.TestSuite;
 import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.textui.TestRunner;
+
 import net.jxta.impl.util.threads.TaskManager;
+
 
 public class ReliableTest extends TestCase implements 
         RendezvousListener, DiscoveryListener, PipeMsgListener, OutputPipeListener {
@@ -744,8 +753,8 @@ public class ReliableTest extends TestCase implements
             ++nbMsgs;
             printMessageForDebug("doReceiver", msg);
 
-            String msgId = msg.getMessageElement(MESSAGE_TAG).toString();
-            String sentAt = msg.getMessageElement(SENT_AT_TAG).toString();
+            String msgId = (msg.getMessageElement(MESSAGE_TAG)).toString();
+            String sentAt = (msg.getMessageElement(SENT_AT_TAG)).toString();
             long size = msg.getByteLength();
             
             long now = System.currentTimeMillis();
@@ -780,7 +789,7 @@ public class ReliableTest extends TestCase implements
 
             long delay = now - sent;
 
-            if ("mclose".equals(msgId)) {
+            if (msgId.equals("mclose")) {
                 System.out.println(
                         "\nResults" + "\n-------" + "\ntransferred:       " + bytesTransferred + " bytes"
                         + "\nthroughput:        " + throughput + " kbps" + "\ncongestion events: " + lostToCongestion);

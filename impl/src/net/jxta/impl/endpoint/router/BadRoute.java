@@ -79,7 +79,7 @@ class BadRoute {
     /**
      * The RouteAdvertisement with known bad hops.
      */
-    private final RouteAdvertisement badRouteAdv;
+    private final RouteAdvertisement badRoute;
     
     /**
      * The PeerID of the known bad hops in the route.
@@ -92,7 +92,7 @@ class BadRoute {
     private long expiration;
     
     BadRoute(RouteAdvertisement route, long exp, Set<PeerID> hops) {
-        this.badRouteAdv = route;
+        this.badRoute = route;
         this.expiration = exp;
         this.badHops.addAll(hops);
     }
@@ -103,8 +103,8 @@ class BadRoute {
      * @return bad route advertisement
      */
     public RouteAdvertisement getRoute() {
-        if (badRouteAdv != null) {
-            return badRouteAdv.clone();
+        if (badRoute != null) {
+            return badRoute.clone();
         } else {
             return null;
         }

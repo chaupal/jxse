@@ -139,31 +139,31 @@ public class PipeID extends net.jxta.pipe.PipeID {
         id.bytes[PipeID.idOffset + 10] |= 0x80; /* multicast bit */
     }
     
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        if (obj instanceof PipeID) {
-//            PipeID pipeTarget = (PipeID) obj;
-//
-//            return id.equals(pipeTarget.id);
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
+        
+        if (target instanceof PipeID) {
+            PipeID pipeTarget = (PipeID) target;
+            
+            return id.equals(pipeTarget.id);
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
     
     /**
      *  {@inheritDoc}

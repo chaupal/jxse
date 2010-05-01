@@ -65,6 +65,7 @@ public class JxtaError extends Error {
     
     /**
      * Construct a new JxtaError with no detailed message.
+     *
      */
     public JxtaError() {}  
   

@@ -153,7 +153,8 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
         try {
             currentState = waitState(IDLE, 0);
         } catch (InterruptedException ie) {
-            final InterruptedIOException iio = new InterruptedIOException("flush() interrupted");
+            InterruptedIOException iio = new InterruptedIOException("flush() interrupted");
+
             iio.initCause(ie);
             throw iio;
         }
@@ -188,8 +189,9 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
         // We have to retrieve the failure from the message and throw it if its an IOException, this is what the API
         // says that this method does.
 
-        final boolean ret = sendMessageN(msg, rService, rServiceParam);
-        final Object failed = msg.getMessageProperty(Messenger.class);
+        boolean ret = sendMessageN(msg, rService, rServiceParam);
+
+        Object failed = msg.getMessageProperty(Messenger.class);
 
         if (failed == null) {
             // huh ?
@@ -218,7 +220,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
             throw (Error) throwable;
         }
 
-        final IOException failure = new IOException("Failure sending message");
+        IOException failure = new IOException("Failure sending message");
         failure.initCause(throwable);
         throw failure;
     }
@@ -227,13 +229,12 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
      * {@inheritDoc}
      */
     public final int waitState(int wantedStates, long timeout) throws InterruptedException {
-
-        // register the barrier first, in case the state changes concurrently while we do
+    	// register the barrier first, in case the state changes concurrently while we do
     	// our initial interrogation
-    	final MessengerStateBarrier barrier = new MessengerStateBarrier(wantedStates);
+    	MessengerStateBarrier barrier = new MessengerStateBarrier(wantedStates);
     	addStateListener(barrier);
     	
-    	final int currentState = getState();
+    	int currentState = getState();
     	if((currentState & wantedStates) != 0) {
     		barrier.expire();
     		return currentState;
@@ -241,7 +242,7 @@ public abstract class AbstractMessenger extends AbstractSimpleSelectable impleme
     	
     	// we are not currently in any of the states we want, so wait until we are
     	// notified that we are
-        final int matchingState = barrier.awaitMatch(timeout);
+        int matchingState = barrier.awaitMatch(timeout);
         barrier.expire();
         
         if(matchingState != MessengerStateBarrier.NO_MATCH) {

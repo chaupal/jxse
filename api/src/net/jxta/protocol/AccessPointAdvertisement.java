@@ -57,7 +57,6 @@
 package net.jxta.protocol;
 
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import net.jxta.document.ExtendableAdvertisement;
@@ -100,7 +99,7 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
      * {@link net.jxta.endpoint.EndpointAddress}.</li>
      * </ul>
      */
-    private List<String> endpointAddresses = new ArrayList<String>();
+    private Vector<String> endpointAddresses = new Vector<String>();
 
     /**
      * {@inheritDoc}
@@ -128,17 +127,17 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
      * Equals means the same PID and the same endpoint addresses.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object target) {
 
-        if (this == obj) {
+        if (this == target) {
             return true;
         }
 
-        if (!(obj instanceof AccessPointAdvertisement)) {
+        if (!(target instanceof AccessPointAdvertisement)) {
             return false;
         }
 
-        AccessPointAdvertisement ap = (AccessPointAdvertisement) obj;
+        AccessPointAdvertisement ap = (AccessPointAdvertisement) target;
 
         if ((null == getPeerID()) && (null != ap.getPeerID())) {
             return false;
@@ -283,7 +282,7 @@ public abstract class AccessPointAdvertisement extends ExtendableAdvertisement i
      *                  being referred to directly</b>
      */
     public void setEndpointAddresses(Vector<String> addresses) {
-        endpointAddresses = new ArrayList<String>(addresses);
+        endpointAddresses = new Vector<String>(addresses);
     }
 
     /**

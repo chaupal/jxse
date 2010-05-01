@@ -147,13 +147,13 @@ public class RefJxtaLoaderTest {
         bothContent = new Content(contentID, null, jarDoc);
         List<ContentShare> shares = service.shareContent(bothContent);
         assertNotNull(shares);
-        assertTrue(!shares.isEmpty());
+        assertTrue(shares.size() > 0);
 
         contentID = IDFactory.newContentID(pg.getPeerGroupID(), true);
         parentContent = new Content(contentID, null, jarDoc);
         shares = service.shareContent(parentContent);
         assertNotNull(shares);
-        assertTrue(!shares.isEmpty());
+        assertTrue(shares.size() > 0);
 
         LOG.finest("NPG PGA: " + pg.getPeerGroupAdvertisement());
         
@@ -211,7 +211,7 @@ public class RefJxtaLoaderTest {
         assertNotNull(testService);
         List<ContentShare> shares = testService.shareContent(bothContent);
         assertNotNull(shares);
-        assertTrue(!shares.isEmpty());
+        assertTrue(shares.size() > 0);
         
         /*
          * Create a test loader referencing our test-specific group.

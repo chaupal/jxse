@@ -150,58 +150,58 @@ public class EventAggregator implements ContentProviderListener {
      * @return true if the listing request should continue, false to cancel
      *  this request and prevent further processing
      */
-    public synchronized boolean contentSharesFound(ContentProviderEvent event) {
-
+    public boolean contentSharesFound(ContentProviderEvent event) {
         ContentProvider provider = event.getContentProvider();
         ContentID id = event.getContentID();
         List<ContentShare> shares;
-
         Boolean isLastRecord = event.isLastRecord();
         boolean wantMore = true;
         boolean needsNewEvent = false;
-        
-        // Make sure the provider is one we are expecting more data from
-        if (!desiredProviders.contains(provider)) {
-            return false;
-        }
 
-        // Dont send more than requested
-        if (desired <= 0) {
-            return false;
-        }
-
-        // Trim the results if necessary
-        shares = event.getContentShares();
-        if (desired > 0 && shares.size() > desired) {
-            List<ContentShare> newShares =
-                    new ArrayList<ContentShare>();
-            newShares.addAll(shares.subList(0, desired));
-            shares = newShares;
-            needsNewEvent = true;
-        }
-
-        // Check to see if we've reached the desired max
-        if (desired >= 0) {
-            desired -= shares.size();
-            if (desired <= 0) {
-                wantMore = false;
+        synchronized(desiredProviders) {
+            // Make sure the provider is one we are expecting more data from
+            if (!desiredProviders.contains(provider)) {
+                return false;
             }
-        }
 
-        // Or if we've reached the end of the result set for this provider
-        if (isLastRecord) {
-            desiredProviders.remove(provider);
-            if (desiredProviders.size() == 1) {
-                // This is our last aggregated event, too
-                wantMore = false;
+            // Dont send more than requested
+            if (desired <= 0) {
+                return false;
+            }
+
+            // Trim the results if necessary
+            shares = event.getContentShares();
+            if (desired > 0 && shares.size() > desired) {
+                List<ContentShare> newShares =
+                        new ArrayList<ContentShare>();
+                newShares.addAll(shares.subList(0, desired));
+                shares = newShares;
                 needsNewEvent = true;
             }
-        } else if (!wantMore) {
-            // Make this our last aggregated event
-            isLastRecord = true;
-            needsNewEvent = true;
+
+            // Check to see if we've reached the desired max
+            if (desired >= 0) {
+                desired -= shares.size();
+                if (desired <= 0) {
+                    wantMore = false;
+                }
+            }
+
+            // Or if we've reached the end of the result set for this provider
+            if (isLastRecord) {
+                desiredProviders.remove(provider);
+                if (desiredProviders.size() == 1) {
+                    // This is our last aggregated event, too
+                    wantMore = false;
+                    needsNewEvent = true;
+                }
+            } else if (!wantMore) {
+                // Make this our last aggregated event
+                isLastRecord = true;
+                needsNewEvent = true;
+            }
         }
-        
+
         ContentProviderEvent aggEvent;
         if (needsNewEvent) {
             aggEvent = new ContentProviderEvent.Builder(provider, shares)
@@ -217,7 +217,6 @@ public class EventAggregator implements ContentProviderListener {
         }
 
         return wantMore;
-        
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -228,16 +227,16 @@ public class EventAggregator implements ContentProviderListener {
      *
      * @param maxNum maximum number of result shares to return
      */
-    public synchronized void dispatchFindRequest(int maxNum) {
-
-        desired = maxNum;
-        desiredProviders.clear();
-        desiredProviders.addAll(providers);
+    public void dispatchFindRequest(int maxNum) {
+        synchronized(desiredProviders) {
+            desired = maxNum;
+            desiredProviders.clear();
+            desiredProviders.addAll(providers);
+        }
 
         for (ContentProvider provider : desiredProviders) {
             provider.findContentShares(maxNum, this);
         }
-
     }
 
 }

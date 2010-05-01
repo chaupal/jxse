@@ -194,7 +194,6 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
      */
     @Override
     public boolean equals(Object other) {
-
         if(this == other) {
             return true;
         }
@@ -212,15 +211,6 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
         }
         
         return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 67 * hash + (this.pid != null ? this.pid.hashCode() : 0);
-        hash = 67 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 67 * hash + (this.description != null ? this.description.hashCode() : 0);
-        return hash;
     }
     
     /**

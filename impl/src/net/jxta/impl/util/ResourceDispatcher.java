@@ -56,8 +56,12 @@
 
 package net.jxta.impl.util;
 
+
 import net.jxta.logging.Logging;
+
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * This class does not in itself allocate anything; it just does accounting.

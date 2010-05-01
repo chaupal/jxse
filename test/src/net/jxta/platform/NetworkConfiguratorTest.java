@@ -53,15 +53,20 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.platform;
+
 
 import java.io.IOException;
 import java.io.File;
 import java.net.URI;
+
 import junit.framework.TestSuite;
 import junit.framework.TestCase;
 import junit.framework.Test;
+import junit.textui.TestRunner;
+
+import net.jxta.platform.NetworkConfigurator;
+
 
 /**
  *  A JUnit test for NetworkConfigurator

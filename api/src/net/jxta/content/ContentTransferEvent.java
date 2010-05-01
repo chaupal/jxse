@@ -114,7 +114,7 @@ public class ContentTransferEvent extends EventObject {
          * 
          * @param source ContentTransfer issueing this event
          */
-        public Builder(ContentTransfer source) {
+        public Builder(final ContentTransfer source) {
             bSource = source;
         }
         
@@ -124,7 +124,7 @@ public class ContentTransferEvent extends EventObject {
          * @param value current source location state
          * @return builder instance
          */
-        public Builder locationState(ContentSourceLocationState value) {
+        public Builder locationState(final ContentSourceLocationState value) {
             bLocationState = value;
             return this;
         }
@@ -135,7 +135,7 @@ public class ContentTransferEvent extends EventObject {
          * @param value current transfer state
          * @return builder instance
          */
-        public Builder transferState(ContentTransferState value) {
+        public Builder transferState(final ContentTransferState value) {
             bTransferState = value;
             return this;
         }
@@ -146,7 +146,7 @@ public class ContentTransferEvent extends EventObject {
          * @param value number of remote data sources
          * @return builder instance
          */
-        public Builder locationCount(int value) {
+        public Builder locationCount(final int value) {
             bLocationCount = Integer.valueOf(value);
             return this;
         }
@@ -160,7 +160,7 @@ public class ContentTransferEvent extends EventObject {
          * @param value number of bytes
          * @return builder instance
          */
-        public Builder bytesReceived(long value) {
+        public Builder bytesReceived(final long value) {
             bBytesReceived = Long.valueOf(value);
             return this;
         }
@@ -170,7 +170,7 @@ public class ContentTransferEvent extends EventObject {
          * @param value
          * @return builder instance
          */
-        public Builder bytesTotal(long value) {
+        public Builder bytesTotal(final long value) {
             bBytesTotal = Long.valueOf(value);
             return this;
         }
@@ -190,7 +190,7 @@ public class ContentTransferEvent extends EventObject {
      *
      * @param builder builder instance to obtain values from
      */
-    protected ContentTransferEvent(Builder builder) {
+    protected ContentTransferEvent(final Builder builder) {
         super(builder.bSource);
         locationCount = builder.bLocationCount;
         locationState = builder.bLocationState;
@@ -261,8 +261,7 @@ public class ContentTransferEvent extends EventObject {
      */
     @Override
     public String toString() {
-        
-        final StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         builder.append("[");
         builder.append(getClass().getSimpleName());
         builder.append(": source=");

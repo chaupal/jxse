@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
 
 import net.jxta.document.Advertisement;
@@ -70,10 +69,13 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.service.Service;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -170,8 +172,7 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     protected synchronized void initFirst(PeerGroup nullParent, ID assignedID, Advertisement impl) throws PeerGroupException {
-        
-        if (initComplete.get()) {
+        if (initComplete) {
             LOG.severe("You cannot initialize more than one World PeerGroup!");
             throw new PeerGroupException("You cannot initialize more than one World PeerGroup!");
         }
@@ -253,8 +254,9 @@ public class Platform extends StdPeerGroup {
     @Override
     protected void checkServices() throws ServiceNotFoundException {
         super.checkServices();
-        lookupService(discoveryClassID);
-        lookupService(rendezvousClassID);
-        lookupService(peerinfoClassID);
+        Service ignored;
+        ignored = lookupService(discoveryClassID);
+        ignored = lookupService(rendezvousClassID);
+        ignored = lookupService(peerinfoClassID);
     }
 }

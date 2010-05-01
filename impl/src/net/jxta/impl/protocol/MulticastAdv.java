@@ -184,8 +184,8 @@ public class MulticastAdv extends TransportAdvertisement {
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
 
-//        Attribute attr = doc.getAttribute(FlagsTag);
-//
+        Attribute attr = doc.getAttribute(FlagsTag);
+
 //
 //        To be deleted in a future release
 //
@@ -668,8 +668,8 @@ public class MulticastAdv extends TransportAdvertisement {
 //            return true;
 //        }
 
-        String value = elem.getTextValue().trim();
-        if ((null == value) || (0 == value.length())) {
+        String value = elem.getTextValue();
+        if ((null == value) || (0 == value.trim().length())) {
             return false;
         }
 

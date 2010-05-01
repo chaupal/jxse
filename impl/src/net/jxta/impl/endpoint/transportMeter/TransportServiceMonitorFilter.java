@@ -132,7 +132,7 @@ public class TransportServiceMonitorFilter implements ServiceMonitorFilter {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if ("moduleClassID".equals(tagName)) {
+            if (tagName.equals("moduleClassID")) {
                 try {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));
@@ -140,12 +140,12 @@ public class TransportServiceMonitorFilter implements ServiceMonitorFilter {
                     throw new DocumentSerializationException("Can't read moduleClassID", jex);
                 }
             }
-            if ("includedTransport".equals(tagName)) {
+            if (tagName.equals("includedTransport")) {
                 String includedTransport = DocumentSerializableUtilities.getString(childElement);
 
                 includedTransports.add(includedTransport);
             }
-            if ("includeAllTransports".equals(tagName)) {
+            if (tagName.equals("includeAllTransports")) {
                 includeAllTransports = DocumentSerializableUtilities.getBoolean(childElement);
             }
         }

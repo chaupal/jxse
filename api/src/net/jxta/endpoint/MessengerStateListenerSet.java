@@ -16,9 +16,9 @@ public class MessengerStateListenerSet {
     }
     
     public synchronized void notifyNewState(int newState) {
-        final Iterator<MessengerStateListener> listenerIter = stateChangeListeners.iterator();
+        Iterator<MessengerStateListener> listenerIter = stateChangeListeners.iterator();
         while(listenerIter.hasNext()) {
-            final MessengerStateListener listener = listenerIter.next();
+            MessengerStateListener listener = listenerIter.next();
             if(!listener.messengerStateChanged(newState)) {
                 listenerIter.remove();
             }

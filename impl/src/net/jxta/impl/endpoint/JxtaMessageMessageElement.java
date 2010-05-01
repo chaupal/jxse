@@ -56,16 +56,20 @@
 
 package net.jxta.impl.endpoint;
 
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.logging.Logging;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * A Message Element using a JXTA Message as the element data
@@ -113,26 +117,25 @@ public class JxtaMessageMessageElement extends MessageElement {
      *  {@inheritDoc}
      **/
     @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
             return true;
         }
         
-        if (obj instanceof MessageElement) {
-            if (!super.equals(obj)) {
+        if (target instanceof MessageElement) {
+            if (!super.equals(target)) {
                 return false;
             }
             
-            if (obj instanceof JxtaMessageMessageElement) {
-                JxtaMessageMessageElement likeMe = (JxtaMessageMessageElement) obj;
+            if (target instanceof JxtaMessageMessageElement) {
+                JxtaMessageMessageElement likeMe = (JxtaMessageMessageElement) target;
                 
                 return super.equals(likeMe) && msg.equals(likeMe.msg);
             } else {
                 // have to do a slow stream comparison.
                 // XXX 20020615 bondolo@jxta.org the performance of this could be much improved.
                 try {
-                    MessageElement likeMe = (MessageElement) obj;
+                    MessageElement likeMe = (MessageElement) target;
                     
                     InputStream myStream = getStream();
                     InputStream itsStream = likeMe.getStream();

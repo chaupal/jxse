@@ -53,7 +53,6 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
-
 package net.jxta.impl.endpoint.mcast;
 
 import net.jxta.document.Advertisement;
@@ -81,6 +80,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
@@ -91,6 +91,7 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -106,7 +107,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.impl.protocol.MulticastAdv;
@@ -251,13 +251,13 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
             return true;
         }
 
-        if (obj instanceof McastTransport) {
-            McastTransport likeMe = (McastTransport) obj;
+        if (target instanceof McastTransport) {
+            McastTransport likeMe = (McastTransport) target;
             return getProtocolName().equals(likeMe.getProtocolName()) && getPublicAddress().equals(likeMe.getPublicAddress());
         }
         return false;
@@ -274,20 +274,16 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
     /**
      * {@inheritDoc}
      */
-    public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
+    public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
         this.group = group;
         this.assignedID = assignedID;
-        this.implAdvertisement = (ModuleImplAdvertisement) implAdv;
+        this.implAdvertisement = (ModuleImplAdvertisement) impl;
 
         ConfigParams configAdv = group.getConfigAdvertisement();
 
         // Get out invariable parameters from the implAdv
-        XMLElement param = null;
-
-        if ( implAdvertisement != null ) {
-            param = (XMLElement) implAdvertisement.getParam();
-        }
+        XMLElement param = (XMLElement) implAdvertisement.getParam();
 
         if (param != null) {
             Enumeration<XMLElement> list = param.getChildren("Proto");
@@ -432,8 +428,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         // Tell tell the world about our configuration.
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring IP Multicast Message Transport : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring IP Multicast Message Transport : " + assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -476,7 +471,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
     /**
      * {@inheritDoc}
      */
-    public synchronized int startApp(String[] args) {
+    public synchronized int startApp(String[] arg) {
         
         if (disabled) {
 
@@ -650,21 +645,20 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
     /**
      * {@inheritDoc}
      */
-    public boolean propagate(Message msg, String serviceName, String serviceParams, int initialTTL) {
-
+    public boolean propagate(Message message, final String pName, final String pParams, int initalTTL) {
         long sendStartTime = TimeUtils.timeNow();
         int numBytesInPacket = 0;
 
         try {
-            msg.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, msgSrcAddrElement);
+            message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, msgSrcAddrElement);
 
             // First build the destination and source addresses
-            EndpointAddress destAddr = new EndpointAddress(publicAddress, serviceName, serviceParams);
+            EndpointAddress destAddr = new EndpointAddress(publicAddress, pName, pParams);
             MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME, destAddr.toString(), null);
 
-            msg.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
+            message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
 
-            WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
+            WireFormatMessage serialed = WireFormatMessageFactory.toWire(message, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
             MessagePackageHeader header = new MessagePackageHeader();
 
             header.setContentTypeHeader(serialed.getMimeType());
@@ -690,10 +684,10 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             if (isClosed || multicastSocket == null) return false;
             
             multicastSocket.send(packet);
-            Logging.logCheckedFine(LOG, "Sent Multicast message to :", serviceName, "/", serviceParams);
+            Logging.logCheckedFine(LOG, "Sent Multicast message to :", pName, "/", pParams);
 
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.messageSent(true, msg, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
+                multicastTransportBindingMeter.messageSent(true, message, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
             }
 
             return true;
@@ -701,7 +695,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         } catch (IOException e) {
 
             if (TransportMeterBuildSettings.TRANSPORT_METERING && (multicastTransportBindingMeter != null)) {
-                multicastTransportBindingMeter.sendFailure(true, msg, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
+                multicastTransportBindingMeter.sendFailure(true, message, TimeUtils.timeNow() - sendStartTime, numBytesInPacket);
             }
 
             if (multicastSocket != null && !multicastSocket.isClosed()) 
@@ -716,7 +710,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      *
      * @param packet the message packet.
      */
-    public void processMulticast(DatagramPacket packet) {
+    void processMulticast(DatagramPacket packet) {
         int size = packet.getLength();
         byte[] buffer = packet.getData();
 
@@ -787,7 +781,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
     }
 
-    public TransportBindingMeter getMulticastTransportBindingMeter(EndpointAddress destinationAddress) {
+    TransportBindingMeter getMulticastTransportBindingMeter(EndpointAddress destinationAddress) {
         if (multicastTransportMeter != null) {
             return multicastTransportMeter.getTransportBindingMeter(group.getPeerID(), destinationAddress);
         } else {
@@ -810,24 +804,24 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         /**
          * The executor to which we will issue tasks.
          */
-        private final Executor executor;
+        final Executor executor;
 
         /**
          * Queue of datagrams waiting to be executed. The queue is quite small.
          * The goal is not to cache datagrams in memory. If we can't keep up it
          * is better that we drop messages.
          */
-        private final BlockingQueue<DatagramPacket> queue;
+        final BlockingQueue<DatagramPacket> queue;
 
         /**
          * The number of executor tasks we are currently using.
          */
-        private int currentTasks = 0;
+        int currentTasks = 0;
 
         /**
          * If {@code true} then this processor has been stopped.
          */
-        private AtomicBoolean stopped = new AtomicBoolean(false);
+        volatile boolean stopped = false;
 
         /**
          * Default constructor
@@ -844,9 +838,9 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         /**
          * Stops this thread
          */
-        public synchronized void stop() {
+        void stop() {
             queue.clear();
-            stopped.set(true);
+            stopped = true;
         }
 
         /**
@@ -856,10 +850,12 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
          * @param packet the datagram
          * @throws InterruptedException if interrupted
          */
-        public void put(DatagramPacket packet) throws InterruptedException {
+        void put(DatagramPacket packet) throws InterruptedException {
             boolean execute = false;
 
-            if (stopped.get()) return;
+            if (stopped) {
+                return;
+            }
 
             Logging.logCheckedFiner(LOG, "Queuing incoming datagram packet : ", packet);
 
@@ -868,7 +864,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             // See if we can start a new executor.
             synchronized (this) {
-                if (!stopped.get() && (currentTasks < poolSize)) {
+                if (!stopped && (currentTasks < poolSize)) {
                     currentTasks++;
                     execute = true;
                 }
@@ -888,12 +884,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             try {
 
-                DatagramPacket packet = queue.poll();
+                DatagramPacket packet;
 
-                while (!stopped.get() && (null != packet )) {
+                while (!stopped && (null != (packet = queue.poll()))) {
                     Logging.logCheckedFiner(LOG, "Processing incoming datagram packet : ", packet);
                     processMulticast(packet);
-                    packet = queue.poll();
                 }
 
             } catch (Throwable all) {

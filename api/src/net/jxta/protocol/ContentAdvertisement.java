@@ -99,21 +99,31 @@ public abstract class ContentAdvertisement
     }
 
     /**
+     *  Construct a new Content Advertisement.
+     */
+    public ContentAdvertisement() {
+    }
+
+    /**
      * Clone this ContentAdvertisement.
      *
      * @return a copy of this ContentAdvertisement
      */
     @Override
-    public ContentAdvertisement clone() throws CloneNotSupportedException {
-
+    public ContentAdvertisement clone() {
         // All members are either immutable or never modified nor allowed to
         // be modified: all accessors return clones.
-        ContentAdvertisement clone = (ContentAdvertisement) super.clone();
-        clone.setContentID(getContentID());
-        clone.setMetaID(getMetaID());
-        clone.setMimeType(getMimeType());
-        return clone;
+        try {
+            ContentAdvertisement clone = (ContentAdvertisement) super.clone();
 
+            clone.setContentID(getContentID());
+            clone.setMetaID(getMetaID());
+            clone.setMimeType(getMimeType());
+
+            return clone;
+        } catch (CloneNotSupportedException impossible) {
+            return null;
+        }
     }
 
     /**

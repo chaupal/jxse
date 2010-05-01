@@ -138,7 +138,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     // This static package public hashtable of registered PeerInfoServiceImpls
     // allows us to do Peergroup Monitoring via an IP Bridge to the PIP
     // See the documentation on the JXTA Monitor
-    private static Hashtable peerInfoServices = new Hashtable();
+    static Hashtable peerInfoServices = new Hashtable();
     
     /**
      * {@inheritDoc}
@@ -165,8 +165,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring PeerInfo Service : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring PeerInfo Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
             configInfo.append("\n\t\tImpl Description: ");
@@ -185,7 +184,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         
         resolver = group.getResolverService();
         
@@ -250,11 +249,11 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         return implAdvertisement;
     }
     
-    public PeerInfoHandler getPeerInfoHandler(String name) {
+    PeerInfoHandler getPeerInfoHandler(String name) {
         return (PeerInfoHandler) peerInfoHandlers.get(name);
     }
     
-    public int getNextQueryId() {
+    int getNextQueryId() {
         int id = 0;
 
         synchronized (rand) {
@@ -321,7 +320,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
-    public void getPeerMonitorInfo(PeerID peerID, PeerMonitorInfoListener peerMonitorInfoListener, long timeout) throws MonitorException {
+    public void getPeerMonitorInfo(final PeerID peerID, PeerMonitorInfoListener peerMonitorInfoListener, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.getPeerMonitorInfo(peerID, peerMonitorInfoListener, timeout, resolverServicePeerInfoMessenger);
     }
     

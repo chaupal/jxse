@@ -172,7 +172,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
 		
 		int index = 0;
 		for(String name : names) {
-			if("Peer1".equals(name)) {
+			if(name.equals("Peer1")) {
 				assertEquals(70000L, expirations.get(index).longValue());
 			} else {
 				assertEquals(110000L, expirations.get(index).longValue());
@@ -405,9 +405,9 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(2, expirations.size());
     	int index = 0;
     	for(String name : names) {
-    		if("Peer3".equals(name)) {
+    		if(name.equals("Peer3")) {
     			assertEquals(10000L, expirations.get(index).longValue());
-    		} else if("Peer4".equals(name)) {
+    		} else if(name.equals("Peer4")) {
     			assertEquals(20000L, expirations.get(index).longValue());
     		}
     		

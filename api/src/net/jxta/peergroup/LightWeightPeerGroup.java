@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.peergroup;
 
 import net.jxta.access.AccessService;
@@ -80,12 +79,15 @@ import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.resolver.ResolverService;
 import net.jxta.service.Service;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.content.ContentService;
+
 
 /**
  * LightWeightPeerGroup is a class intended to help
@@ -275,7 +277,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public Iterator<ID> getRoleMap(ID name) {
+    public Iterator getRoleMap(ID name) {
         if (group != null) {
             return group.getRoleMap(name);
         } else {
@@ -528,7 +530,7 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
+    public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception {
         if (group != null) {
             return group.getAllPurposePeerGroupImplAdvertisement();
         } else {

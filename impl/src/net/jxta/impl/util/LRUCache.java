@@ -180,12 +180,11 @@ public class LRUCache<K, V> {
      * cache node object wrapper
      */
     protected class CacheNode<K, V> {
+        final K key;
+        CacheNode<K, V> next;
 
-        private final K key;
-        private CacheNode<K, V> next;
-
-        private CacheNode<K, V> prev;
-        private V value;
+        CacheNode<K, V> prev;
+        V value;
 
         /**
          * Constructor for the CacheNode object

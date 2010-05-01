@@ -72,7 +72,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.document.Advertisement;
@@ -275,10 +274,9 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     private RouteController theRouteController = null;
 
     class ClearPendingQuery extends SelfCancellingTask {
-
-        private final PeerID peerID;
-        private AtomicBoolean failed = new AtomicBoolean(false);
-        private long nextRouteResolveAt = 0;
+        final PeerID peerID;
+        volatile boolean failed = false;
+        long nextRouteResolveAt = 0;
 
         ClearPendingQuery(PeerID peerID) {
             this.peerID = peerID;
@@ -294,7 +292,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         @Override
         public void execute() {
             try {
-                if (failed.get()) {
+                if (failed) {
                     // Second tick.
                     // This negative cache info is expired.
                     pendingQueries.remove(peerID);
@@ -304,7 +302,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                     // First timer tick. We're done trying. This is now a negative
                     // cache info. For the next 5 minutes that destination fails
                     // immediately unless it unexpectedly gets finaly resolved.
-                    failed.set(true);
+                    failed = true;
                 }
 
             } catch (Throwable all) {
@@ -324,11 +322,11 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         }
 
         public boolean isFailed() {
-            return failed.get();
+            return failed;
         }
     }
 
-    public RouteAdvertisement getMyLocalRoute() {
+    RouteAdvertisement getMyLocalRoute() {
 
         // Update our idea of the local peer adv. If it has change,
         // update our idea of the local route adv.
@@ -409,9 +407,8 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         private final EndpointRouter router;
         private final EndpointAddress logDest;
 
-        private AtomicBoolean hasResponse = new AtomicBoolean(false);
-        private AtomicBoolean isGone = new AtomicBoolean(false);
-
+        volatile boolean hasResponse = false;
+        volatile boolean isGone = false;
         private Messenger messenger = null;
 
         /**
@@ -433,7 +430,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             Messenger toClose = null;
 
             synchronized (this) {
-                hasResponse.set(true);
+                hasResponse = true;
                 if (event != null) {
                     messenger = event.getMessenger();
                     if (null != messenger) {
@@ -490,7 +487,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                     // above if (!isGone) as in the case of success below. 
                     // However, we'll minimize changes for risk management 
                     // reasons.
-                    notifyAll();
+                    notify();
                 }
                 return false;
             }
@@ -498,8 +495,8 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             // It worked. Update router cache entry if we have to.
 
             synchronized (this) {
-                if (!isGone.get()) {
-                    notifyAll(); // Waiter will do the rest.
+                if (!isGone) {
+                    notify(); // Waiter will do the rest.
                     return true;
                 }
             }
@@ -524,7 +521,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 while (TimeUtils.toRelativeTimeMillis(quitAt) > 0) {
                     try {
                         // check if we got a response already
-                        if (hasResponse.get()) { // ok, we got a response
+                        if (hasResponse) { // ok, we got a response
                             break;
                         }
                         wait(ASYNC_MESSENGER_WAIT);
@@ -536,7 +533,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             }
 
             // mark the fact that the caller is bailing out
-            isGone.set(true);
+            isGone = true;
             return messenger;
         }
     }
@@ -549,7 +546,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @return {@code true} if we know a direct route to the specified address
      *         otherwise {@code false}.
      */
-    public boolean isLocalRoute(EndpointAddress peerAddress) {
+    boolean isLocalRoute(EndpointAddress peerAddress) {
         return destinations.isCurrentlyReachable(peerAddress);
     }
 
@@ -561,7 +558,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @return Messenger for direct route or {@code null} if none could be
      *         found or created.
      */
-    public Messenger ensureLocalRoute(EndpointAddress peerAddress, RouteAdvertisement hint) {
+    Messenger ensureLocalRoute(EndpointAddress peerAddress, RouteAdvertisement hint) {
 
         // We need to make sure that there is a possible connection to that peer
         // If we have a decent (not closed, busy or available) transport 
@@ -610,17 +607,17 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param message     the message to be sent.
      * @throws java.io.IOException if an io error occurs
      */
-    public void sendOnLocalRoute(EndpointAddress destination, Message message) throws IOException {
+    void sendOnLocalRoute(EndpointAddress destination, Message message) throws IOException {
 
         IOException lastIoe = null;
-        Messenger sendVia = ensureLocalRoute(destination, null);
+        Messenger sendVia;
 
         // Try sending the message as long as we get have transport messengers
         // to try with. They close when they fail, which puts them out of cache
         // or pool if any, so we will not see a broken one a second time. We'll
         // try the next one until we run out of options.
 
-        while ( sendVia != null ) {
+        while ((sendVia = ensureLocalRoute(destination, null)) != null) {
 
             Logging.logCheckedFine(LOG, "Sending ", message, " to ", destination, " via ", sendVia);
 
@@ -643,9 +640,6 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
             Logging.logCheckedFine(LOG, "Trying next messenger to ", destination);
             // try the next messenger if there is one.
-
-            sendVia = ensureLocalRoute(destination, null);
-
         }
 
         // Now see why we're here.
@@ -669,10 +663,10 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
-    public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
+    public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
         this.assignedID = assignedID;
-        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) implAdv;
+        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
 
         localPeerId = group.getPeerID();
         localPeerAddr = pid2addr(group.getPeerID());
@@ -682,8 +676,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Router Transport : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Router Transport : " + assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -708,7 +701,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
-    public synchronized int startApp(String[] args) {
+    public synchronized int startApp(String[] arg) {
 
         endpoint = group.getEndpointService();
 
@@ -778,7 +771,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         // FIXME tra 20031015 Should be started as a service when refactored work
         // completed
-        status = routeCM.startApp(args);
+        status = routeCM.startApp(arg);
 
         if (status != 0) {
 
@@ -789,7 +782,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         // FIXME tra 20031015 Should be started as a service when refactored work
         // completed
-        status = routeResolver.startApp(args);
+        status = routeResolver.startApp(arg);
 
         if (status != 0) {
 
@@ -911,8 +904,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *                    hint should be used
      * @return an EndpointAddress at which that peer should be reachable.
      */
-    public EndpointAddress getGatewayAddress(EndpointAddress peerAddress, boolean seekRoute, RouteAdvertisement hint) {
-
+    EndpointAddress getGatewayAddress(EndpointAddress peerAddress, boolean seekRoute, RouteAdvertisement hint) {
         PeerID peerID = addr2pid(peerAddress);
 
         try {
@@ -948,7 +940,9 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 if (hint != null) {
                     route = hint;
                     addr = extractUsableAddress(peerAddress, route);
-                    if(addr != null) return addr;
+                    if(addr != null){
+                        return addr;
+                    }
                 }
 
                 // the hint that we got was useless or we did not get any hint
@@ -964,14 +958,16 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 }
 
                 // For messages we didn't originate we don't seek routes.
-                if (!seekRoute) 
+                if (!seekRoute) {
                     break;
+                }
 
                 // Check that route resolution is enabled if
                 // not then bail out, there is nothing more
                 // that we can do.
-                if (!routeResolver.useRouteResolver()) 
+                if (!routeResolver.useRouteResolver()) {
                     break;
+                }
 
                 // due to the asynchronous nature of getting our messenger we
                 // need to handle the multi-entrance of issueing a route
@@ -1144,7 +1140,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @param logDest the failed logical destination
      */
-    public void noMessenger(EndpointAddress logDest) {
+    void noMessenger(EndpointAddress logDest) {
 
         // Switch to short timeout if there was an infinite one.
         // Note if there's one, it is either short or inifinite. So we
@@ -1169,7 +1165,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param event the new messenger event.
      * @return always returns true
      */
-    public boolean newMessenger(MessengerEvent event) {
+    boolean newMessenger(MessengerEvent event) {
 
         Messenger messenger = event.getMessenger();
         EndpointAddress logDest = messenger.getLogicalDestinationAddress();
@@ -1193,7 +1189,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *                    if we don't have one
      * @return a route advertisement describing the direct route to the peer.
      */
-    public RouteAdvertisement getRoute(EndpointAddress peerAddress, boolean seekRoute) {
+    RouteAdvertisement getRoute(EndpointAddress peerAddress, boolean seekRoute) {
 
         ID peerID = addr2pid(peerAddress);
 
@@ -1331,7 +1327,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *              a message
      * @return true if route was truly new
      */
-    public boolean setRoute(RouteAdvertisement route, boolean force) {
+    boolean setRoute(RouteAdvertisement route, boolean force) {
 
         PeerID peerID;
         EndpointAddress peerAddress;
@@ -1471,7 +1467,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @param peerID route to peerid to be removed
      */
-    public void removeRoute(PeerID peerID) {
+    void removeRoute(PeerID peerID) {
         boolean needRemove;
 
         synchronized (this) {
@@ -1501,8 +1497,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
-    public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
-        
+    public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
         EndpointAddress srcPeerAddress;
         EndpointAddress destPeer;
         EndpointAddress lastHop = null;
@@ -1515,10 +1510,10 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         RouteAdvertisement radv;
 
         // We do not want the existing header to be ignored of course.
-        routerMsg = new EndpointRouterMessage(message, false);
+        routerMsg = new EndpointRouterMessage(msg, false);
         if (!routerMsg.msgExists()) {
             // The sender did not use this router
-            Logging.logCheckedFine(LOG, "Discarding ", message, ". No routing info.");
+            Logging.logCheckedFine(LOG, "Discarding ", msg, ". No routing info.");
             return;
         }
 
@@ -1566,7 +1561,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         } catch (Exception badHdr) {
 
             // Drop it, we do not even know the destination
-            Logging.logCheckedWarning(LOG, "Bad routing header or bad message. Dropping ", message);
+            Logging.logCheckedWarning(LOG, "Bad routing header or bad message. Dropping ", msg);
             Logging.logCheckedFine(LOG, "Exception: ", badHdr.toString());
             return;
 
@@ -1621,9 +1616,10 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             // better than existing ones.
             Vector<AccessPointAdvertisement> reverseHops = routerMsg.getReverseHops();
 
-            if (reverseHops == null)
+            if (reverseHops == null) {
                 reverseHops = new Vector<AccessPointAdvertisement>();
-            
+            }
+
             // check if we do not have a direct route
             // in that case we don't care to learn thelong route
             if (!isLocalRoute(srcPeerAddress)) {
@@ -1635,7 +1631,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                     // the complete route, just clone it. (newRoute
                     // owns the given vector)
 
-                    if ( (!reverseHops.isEmpty()) && reverseHops.firstElement().getPeerID().equals(addr2pid(lastHop))) {
+                    if ((reverseHops.size() > 0) && reverseHops.firstElement().getPeerID().equals(addr2pid(lastHop))) {
 
                         // Looks like a good route to learn
                         setRoute(RouteAdvertisement.newRoute(addr2pid(srcPeerAddress), null, (Vector<AccessPointAdvertisement>) reverseHops.clone()), true);
@@ -1655,7 +1651,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 routerMsg.clearAll();
                 routerMsg.updateMessage();
                 // receive locally
-                endpoint.processIncomingMessage(message, origSrcAddr, origDstAddr);
+                endpoint.processIncomingMessage(msg, origSrcAddr, origDstAddr);
                 return;
             }
 
@@ -1859,7 +1855,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             routerMsg.updateMessage();
 
             Logging.logCheckedFine(LOG, "Trying to forward to ", nextHop);
-            sendOnLocalRoute(nextHop, message);
+            sendOnLocalRoute(nextHop, msg);
 
             Logging.logCheckedFine(LOG, "Successfully forwarded to ", nextHop);
             
@@ -1888,7 +1884,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      */
     private EndpointAddress getNextHop(Vector hops) {
         // check if we have a real route
-        if ((hops == null) || (hops.isEmpty())) {
+        if ((hops == null) || (hops.size() == 0)) {
             return null;
         }
 
@@ -1921,13 +1917,13 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     private boolean isFast(MessageTransport p) {
         String name = p.getProtocolName();
 
-        return "tcp".equals(name) || "beep".equals(name);
+        return name.equals("tcp") || name.equals("beep");
     }
 
     private boolean isRelay(MessageTransport p) {
         String name = p.getProtocolName();
 
-        return "relay".equals(name);
+        return name.equals("relay");
     }
 
     /**
@@ -1952,7 +1948,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @return The endpoint address for which we found a local route otherwise
      *         null
      */
-    public Messenger findBestReachableEndpoint(EndpointAddress dest, List<EndpointAddress> mightWork, boolean exist) {
+    Messenger findBestReachableEndpoint(EndpointAddress dest, List<EndpointAddress> mightWork, boolean exist) {
 
         List<Integer> rankings = new ArrayList<Integer>(mightWork.size());
         List<EndpointAddress> worthTrying = new ArrayList<EndpointAddress>(mightWork.size());
@@ -2107,7 +2103,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param hint            route hint
      * @return a reachable messenger
      */
-    public Messenger findReachableEndpoint(EndpointAddress destPeerAddress, boolean exist, RouteAdvertisement hint) {
+    Messenger findReachableEndpoint(EndpointAddress destPeerAddress, boolean exist, RouteAdvertisement hint) {
 
         PeerID destPeerID = addr2pid(destPeerAddress);
 
@@ -2218,22 +2214,21 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
-    public Messenger getMessenger(EndpointAddress dest, Object hint) {
-
+    public Messenger getMessenger(EndpointAddress addr, Object hint) {
         RouteAdvertisement routeHint = null;
-        EndpointAddress plainAddr = new EndpointAddress(dest, null, null);
+        EndpointAddress plainAddr = new EndpointAddress(addr, null, null);
 
         // If the dest is the local peer, just loop it back without going
         // through the router.
         if (plainAddr.equals(localPeerAddr)) {
             Logging.logCheckedFine(LOG, "return LoopbackMessenger");
-            return new LoopbackMessenger(group, endpoint, localPeerAddr, dest, dest);
+            return new LoopbackMessenger(group, endpoint, localPeerAddr, addr, addr);
         }
 
         try {
 
             // try and add that hint to our cache of routes (that may be our only route).
-            if (hint instanceof RouteAdvertisement) {
+            if (hint != null && hint instanceof RouteAdvertisement) {
 
                 routeHint = ((RouteAdvertisement) hint).clone();
 
@@ -2255,7 +2250,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                     firstHopPid = firstHop.getPeerID();
                     firstHopAddr = pid2addr(firstHopPid);
 
-                    if (firstHopAddr.equals(dest)) {
+                    if (firstHopAddr.equals(addr)) {
 
                         // The first hop is the destination itself.
                         // We don't need to go via the destination to reach the destination.
@@ -2362,10 +2357,10 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             // achieve that? The user has no way to be sure its hint is correct...
             // This check has to be performed by core code.
 
-            return new RouterMessenger(dest, this, routeHint);
+            return new RouterMessenger(addr, this, routeHint);
 
         } catch (IOException caught) {
-            Logging.logCheckedFine(LOG, "Can\'t generate messenger for addr ", dest, "\n", caught);
+            Logging.logCheckedFine(LOG, "Can\'t generate messenger for addr ", addr, "\n", caught);
             return null;
         }
     }
@@ -2382,7 +2377,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @return EndpointAddress The address (logical) where to send the message next. Null if there
      *         is nowhere to send it to.
      */
-    public EndpointAddress addressMessage(Message message, EndpointAddress dstAddress) {
+    EndpointAddress addressMessage(Message message, EndpointAddress dstAddress) {
 
         if (endpoint == null) return null;
 
@@ -2481,7 +2476,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param addr the address to extract peerAddress from
      * @return the PeerID
      */
-    public static PeerID addr2pid(EndpointAddress addr) {
+    static PeerID addr2pid(EndpointAddress addr) {
 
         URI asURI = null;
 
@@ -2509,7 +2504,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param pid The ID who's equivalent Endpoint Address is desired.
      * @return The ID as an EndpointAddress.
      */
-    public static EndpointAddress pid2addr(ID pid) {
+    static EndpointAddress pid2addr(ID pid) {
         return new EndpointAddress(ROUTER_PROTOCOL_NAME, pid.getUniqueValue().toString(), null, null);
     }
 
@@ -2518,7 +2513,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @param route route advertisement
      */
-    public void updateRouteAdv(RouteAdvertisement route) {
+    void updateRouteAdv(RouteAdvertisement route) {
         updateRouteAdv(route, false);
     }
 
@@ -2532,7 +2527,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * with force=false since 2.5. It is about time to clean the code.
      */
     @Deprecated
-    public void updateRouteAdv(RouteAdvertisement route, boolean force) {
+    void updateRouteAdv(RouteAdvertisement route, boolean force) {
         try {
             PeerID pID = route.getDestPeerID();
 
@@ -2589,7 +2584,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param peerID destination address
      * @return true or false
      */
-    public boolean isPendingRouteQuery(PeerID peerID) {
+    boolean isPendingRouteQuery(PeerID peerID) {
         return pendingQueries.containsKey(peerID);
     }
 
@@ -2599,7 +2594,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param peerID destination address
      * @return pending route query info
      */
-    public ClearPendingQuery getPendingRouteQuery(PeerID peerID) {
+    ClearPendingQuery getPendingRouteQuery(PeerID peerID) {
         return pendingQueries.get(peerID);
     }
 
@@ -2609,7 +2604,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param peerID destination address
      * @return true or false
      */
-    public boolean isRoutedRoute(PeerID peerID) {
+    boolean isRoutedRoute(PeerID peerID) {
         return peerID != null && routedRoutes.containsKey(peerID);
     }
 
@@ -2619,7 +2614,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param addr destination address
      * @return Messenger
      */
-    public Messenger getCachedMessenger(EndpointAddress addr) {
+    Messenger getCachedMessenger(EndpointAddress addr) {
         return destinations.getCurrentMessenger(addr);
     }
 
@@ -2628,7 +2623,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @return Iterator iterations of all endpoint destinations
      */
-    public Iterator<EndpointAddress> getAllCachedMessengerDestinations() {
+    Iterator<EndpointAddress> getAllCachedMessengerDestinations() {
         return destinations.allDestinations().iterator();
     }
 
@@ -2637,7 +2632,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @return Iterator iterations of all routed route destinations
      */
-    public Iterator<Map.Entry<ID, RouteAdvertisement>> getRoutedRouteAllDestinations() {
+    Iterator<Map.Entry<ID, RouteAdvertisement>> getRoutedRouteAllDestinations() {
         return routedRoutes.entrySet().iterator();
     }
 
@@ -2646,7 +2641,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @return Iterator iterations of all routed route addresses
      */
-    public Iterator<ID> getAllRoutedRouteAddresses() {
+    Iterator<ID> getAllRoutedRouteAddresses() {
         return routedRoutes.keySet().iterator();
     }
 
@@ -2655,8 +2650,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @return All pending route query destinations
      */
-    public Collection<Map.Entry<PeerID, ClearPendingQuery>> getPendingQueriesAllDestinations() {
-
+    Collection<Map.Entry<PeerID, ClearPendingQuery>> getPendingQueriesAllDestinations() {
         List<Map.Entry<PeerID, ClearPendingQuery>> copy = new ArrayList<Map.Entry<PeerID, ClearPendingQuery>>(
                 pendingQueries.size());
 
@@ -2672,7 +2666,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @return the route CM cache Manager
      */
-    public RouteCM getRouteCM() {
+    RouteCM getRouteCM() {
         return routeCM;
     }
 
@@ -2681,7 +2675,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      *
      * @return the route resolver Manager
      */
-    public RouteResolver getRouteResolver() {
+    RouteResolver getRouteResolver() {
         return routeResolver;
     }
 
@@ -2691,7 +2685,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param addr     of the bad route
      * @param badRoute bad route info
      */
-    public synchronized void setBadRoute(EndpointAddress addr, BadRoute badRoute) {
+    synchronized void setBadRoute(EndpointAddress addr, BadRoute badRoute) {
         badRoutes.put(addr, badRoute);
     }
 
@@ -2701,7 +2695,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @param addr of the bad route
      * @return BadRoute bad route info
      */
-    public synchronized BadRoute getBadRoute(EndpointAddress addr) {
+    synchronized BadRoute getBadRoute(EndpointAddress addr) {
         return badRoutes.get(addr);
     }
 

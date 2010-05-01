@@ -61,7 +61,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -84,7 +83,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DynamicEnumeration implements Enumeration {
     private List sequence = new ArrayList();
     
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private volatile boolean closed = false;
     
     /**
      * Creates a new instance of DynamicEnumeration
@@ -105,7 +104,7 @@ public class DynamicEnumeration implements Enumeration {
      *  have a stream to return.
      **/
     public boolean hasMoreElements() {
-        while (!closed.get()) {
+        while (!closed) {
             synchronized (sequence) {
                 if (!sequence.isEmpty()) {
                     return true;
@@ -129,7 +128,7 @@ public class DynamicEnumeration implements Enumeration {
      *  have a stream to return.
      **/
     public synchronized Object nextElement() {
-        while (!closed.get()) {
+        while (!closed) {
             synchronized (sequence) {
                 if (sequence.isEmpty()) {
                     try {
@@ -153,13 +152,13 @@ public class DynamicEnumeration implements Enumeration {
      *  Add another object to the enumeration.
      **/
     public void add(Object add) {
-        if (closed.get()) {
+        if (closed) {
             throw new IllegalStateException("Enumeration was closed");
         }
         
         synchronized (sequence) {
             sequence.add(add);
-            sequence.notifyAll();
+            sequence.notify();
         }
     }
     
@@ -167,9 +166,9 @@ public class DynamicEnumeration implements Enumeration {
      *  There will be no more objects added.
      **/
     public void close() {
-        closed.set(true);
+        closed = true;
         synchronized (sequence) {
-            sequence.notifyAll();
+            sequence.notify();
         }
     }
 }

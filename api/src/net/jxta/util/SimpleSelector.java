@@ -93,6 +93,11 @@ public final class SimpleSelector extends AbstractSimpleSelectable {
     private final Set<IdentityReference> currentBatch = new HashSet<IdentityReference>(2);
     
     /**
+     * Let it be newed for now. We need to find a place for a factory.
+     */
+    public SimpleSelector() {}
+    
+    /**
      * {@inheritDoc}
      *
      * <p/>This is invoked by registered items when their state changes. Records
@@ -101,7 +106,7 @@ public final class SimpleSelector extends AbstractSimpleSelectable {
      * possible to register selectors with a selector and come to a particular
      * one only when it has something to report.
      **/
-    public void itemChanged(SimpleSelectable item) {
+    public final void itemChanged(SimpleSelectable item) {
         synchronized (currentBatch) {
             currentBatch.add(item.getIdentityReference());
             currentBatch.notifyAll();
@@ -131,12 +136,10 @@ public final class SimpleSelector extends AbstractSimpleSelectable {
         IdentityReference[] refs;
         
         synchronized (currentBatch) {
-
-            int resLen = currentBatch.size();
+            int resLen = 0;
             
-            while (resLen  == 0) {
+            while ((resLen = currentBatch.size()) == 0) {
                 currentBatch.wait();
-                resLen = currentBatch.size();
             }
             
             refs = currentBatch.toArray(new IdentityReference[resLen]);

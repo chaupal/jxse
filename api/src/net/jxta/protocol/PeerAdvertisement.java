@@ -56,6 +56,7 @@
 
 package net.jxta.protocol;
 
+
 import net.jxta.document.Element;
 import net.jxta.document.ExtendableAdvertisement;
 import net.jxta.document.MimeMediaType;
@@ -67,6 +68,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
+
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -74,6 +76,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Generated when instantiating a group on a peer and contains all the
@@ -346,8 +349,7 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      *
      * @param params The whole set of parameters.
      */
-    public void setServiceParams(Map<ID, ? extends Element> params) {
-
+    public void setServiceParams(Hashtable<ID, ? extends Element> params) {
         serviceParams.clear();
 
         if (params == null) {

@@ -1,4 +1,3 @@
-
 package net.jxta.impl.endpoint;
 
 import java.net.InetAddress;
@@ -6,7 +5,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.logging.Logging;
 
 /**
@@ -15,7 +16,7 @@ import net.jxta.logging.Logging;
  * 
  * @author Iain McGinniss (iain.mcginniss@onedrum.com)
  */
-public final class TransportUtils {
+public class TransportUtils {
 
     private static final Logger LOG = Logger.getLogger(TransportUtils.class.getName());
 
@@ -74,12 +75,6 @@ public final class TransportUtils {
         }
         Collections.shuffle(inRange);
         return inRange;
-    }
-
-    /**
-     * Default constructor
-     */
-    private TransportUtils() {
     }
     
 }

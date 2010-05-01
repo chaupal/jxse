@@ -56,6 +56,7 @@
 
 package net.jxta.test.http;
 
+
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Map;
@@ -64,6 +65,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.net.URL;
+import java.net.URLDecoder;
+
 
 /**
  *
@@ -161,7 +164,7 @@ public class Message {
         if (this.headers != null) {
             this.headers.remove(key);
 
-            if (this.headers.isEmpty()) {
+            if (this.headers.size() == 0) {
                 this.headers = null;
             }
         }
@@ -214,7 +217,7 @@ public class Message {
                 value = fields[i].get(this);
 
                 if (value == null) {
-                    value = "null";
+                    value = new String("null");
                 }
 
                 map.put(object, value);

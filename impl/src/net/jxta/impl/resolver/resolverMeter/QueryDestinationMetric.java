@@ -97,7 +97,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return peerID;
     }
 
-    public void querySentViaUnicast() {
+    void querySentViaUnicast() {
         querySentViaUnicast++;
     }
 
@@ -106,7 +106,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return querySentViaUnicast;
     }
 	
-    public void responseSentViaUnicast() {
+    void responseSentViaUnicast() {
         responseSentViaUnicast++;
     }
 
@@ -115,7 +115,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return responseSentViaUnicast;
     }
 
-    public void responseToUnregisteredHandler() {
+    void responseToUnregisteredHandler() {
         responseToUnregisteredHandler++;
     }
 
@@ -124,7 +124,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return responseToUnregisteredHandler;
     }
 		
-    public void responseProcessed() {
+    void responseProcessed() {
         responseProcessed++;
     }
 
@@ -133,7 +133,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return responseProcessed;
     }
 	
-    public void errorWhileProcessingResponse() {
+    void errorWhileProcessingResponse() {
         errorWhileProcessingResponse++;
     }
 
@@ -142,7 +142,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return errorWhileProcessingResponse;
     }
 	
-    public void queryProcessed() {
+    void queryProcessed() {
         queryProcessed++;
     }
 
@@ -151,7 +151,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return queryProcessed;
     }
 
-    public void queryToUnregisteredHandler() {
+    void queryToUnregisteredHandler() {
         queryToUnregisteredHandler++;
     }
 
@@ -160,7 +160,7 @@ public class QueryDestinationMetric implements DocumentSerializable {
         return queryToUnregisteredHandler;
     }
 	
-    public void errorWhileProcessingQuery() {
+    void errorWhileProcessingQuery() {
         errorWhileProcessingQuery++;
     }
 
@@ -204,25 +204,25 @@ public class QueryDestinationMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if ("peerID".equals(tagName)) {
+            if (tagName.equals("peerID")) {
                 String peerIDText = DocumentSerializableUtilities.getString(childElement);
 
                 peerID = MetricUtilities.getPeerIdFromString(peerIDText);
-            } else if ("errorWhileProcessingQuery".equals(tagName)) {
+            } else if (tagName.equals("errorWhileProcessingQuery")) { 
                 errorWhileProcessingQuery = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("queryProcessed".equals(tagName)) {
+            } else if (tagName.equals("queryProcessed")) { 
                 queryProcessed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("errorWhileProcessingResponse".equals(tagName)) {
+            } else if (tagName.equals("errorWhileProcessingResponse")) { 
                 errorWhileProcessingResponse = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("responseProcessed".equals(tagName)) {
+            } else if (tagName.equals("responseProcessed")) { 
                 responseProcessed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("responseSentViaUnicast".equals(tagName)) {
+            } else if (tagName.equals("responseSentViaUnicast")) { 
                 responseSentViaUnicast = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("querySentViaUnicast".equals(tagName)) {
+            } else if (tagName.equals("querySentViaUnicast")) { 
                 querySentViaUnicast = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("queryToUnregisteredHandler".equals(tagName)) {
+            } else if (tagName.equals("queryToUnregisteredHandler")) { 
                 queryToUnregisteredHandler = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("responseToUnregisteredHandler".equals(tagName)) {
+            } else if (tagName.equals("responseToUnregisteredHandler")) { 
                 responseToUnregisteredHandler = DocumentSerializableUtilities.getInt(childElement);
             }
         }

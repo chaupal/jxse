@@ -56,11 +56,13 @@
 
 package net.jxta.document;
 
+
 import net.jxta.id.ID;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
+
 
 /**
  *  Advertisements are core JXTA objects that are used to advertise Peers,
@@ -106,7 +108,7 @@ public abstract class Advertisement {
      */
     @Override
     public String toString() {        
-        final XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
+        XMLDocument doc = (XMLDocument) getDocument(MimeMediaType.XMLUTF8);
         
         // Force pretty printing
         doc.addAttribute("xml:space", "default");
@@ -150,28 +152,25 @@ public abstract class Advertisement {
      */
     public String getAdvType() {
         try {
-
-            final Method getAdvertisementTypeMethod = this.getClass().getMethod("getAdvertisementType", (Class[]) null);
-            return (String) getAdvertisementTypeMethod.invoke(null, (Object[]) null);
-
+            Method getAdvertisementTypeMethod = this.getClass().getMethod("getAdvertisementType", (Class[]) null);
+            String result = (String) getAdvertisementTypeMethod.invoke(null, (Object[]) null);
+            
+            return result;
         } catch (NoSuchMethodException failed) {
+            UnsupportedOperationException failure = new UnsupportedOperationException("Could not get Advertisement type.");
 
-            final UnsupportedOperationException failure = new UnsupportedOperationException("Could not get Advertisement type.");
             failure.initCause(failed);
             throw failure;
-
         } catch (IllegalAccessException failed) {
+            SecurityException failure = new SecurityException("Could not get Advertisement type.");
 
-            final SecurityException failure = new SecurityException("Could not get Advertisement type.");
             failure.initCause(failed);
             throw failure;
-
         } catch (InvocationTargetException failed) {
+            UndeclaredThrowableException failure = new UndeclaredThrowableException(failed, "Failed getting Advertisement type.");
 
-            final UndeclaredThrowableException failure = new UndeclaredThrowableException(failed, "Failed getting Advertisement type.");
             failure.initCause(failed.getCause());
             throw failure;
-
         }
     }
     

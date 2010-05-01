@@ -69,6 +69,13 @@ import java.io.Writer;
 public class DevNullWriter extends Writer {
     
     /**
+     * Creates a new instance of DevNullOutputStream
+     **/
+    public DevNullWriter() {
+        ;
+    }
+    
+    /**
      *    {@inheritDoc}
      *
      *    <p/>Does nothing....

@@ -79,11 +79,9 @@ public final class Version {
      *  @return The specification title.
      */
     public static String getSpecTitle() {
-
-        final Package versionPackage = Version.class.getPackage();
+        Package versionPackage = Version.class.getPackage();
         
         return versionPackage.getSpecificationTitle();
-
     }
             
     /**
@@ -92,8 +90,7 @@ public final class Version {
      *  @return The specification vendor.
      */
     public static String getSpecVendor() {
-
-        final Package versionPackage = Version.class.getPackage();
+        Package versionPackage = Version.class.getPackage();
         
         return versionPackage.getSpecificationVendor();
     }
@@ -104,8 +101,7 @@ public final class Version {
      *  @return The specification version.
      */
     public static String getSpecVersion() {
-
-        final Package versionPackage = Version.class.getPackage();
+        Package versionPackage = Version.class.getPackage();
         
         return versionPackage.getSpecificationVersion();
     }
@@ -116,7 +112,7 @@ public final class Version {
      *  @return The specification title.
      */
     public static String getImplTitle() {
-        final Package versionPackage = Version.class.getPackage();
+        Package versionPackage = Version.class.getPackage();
         
         return versionPackage.getImplementationTitle();
     }
@@ -127,7 +123,7 @@ public final class Version {
      *  @return The specification vendor.
      */
     public static String getImplVendor() {
-        final Package versionPackage = Version.class.getPackage();
+        Package versionPackage = Version.class.getPackage();
         
         return versionPackage.getImplementationVendor();
     }
@@ -138,7 +134,7 @@ public final class Version {
      *  @return The specification version.
      */
     public static String getImplVersion() {
-        final Package versionPackage = Version.class.getPackage();
+        Package versionPackage = Version.class.getPackage();
         
         return versionPackage.getImplementationVersion();
     }

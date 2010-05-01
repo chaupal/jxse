@@ -56,28 +56,23 @@
 
 package net.jxta.protocol;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+
+import java.io.*;
 import java.net.URI;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Document;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.XMLDocument;
+import net.jxta.document.*;
+import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
+
 
 /**
  * @author nadment
  */
 public class PeerAdvertisementTest extends TestCase {
-
     private static final String TestName = "Testing J2SE JXTA Peer (����)";
     private static final String TestDescription = "Testing J2SE JXTA Peer desc (����)";
     private static final String TestPeerID = "urn:jxta:uuid-59616261646162614A787461503250336ACC981CFAF047CFADA8A31FC6D0B88C03";

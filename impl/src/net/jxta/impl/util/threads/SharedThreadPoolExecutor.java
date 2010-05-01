@@ -21,9 +21,9 @@ import java.util.logging.Logger;
  */
 public class SharedThreadPoolExecutor extends ThreadPoolExecutor {
     
-    protected static final Logger LOG = Logger.getLogger(SharedThreadPoolExecutor.class.getName());
+    static final Logger LOG = Logger.getLogger(SharedThreadPoolExecutor.class.getName());
     
-    private ScheduledExecutorService longTaskMonitorService;
+    ScheduledExecutorService longTaskMonitorService;
 
 	public SharedThreadPoolExecutor(ScheduledExecutorService monitoringExecutor,
                         	        int corePoolSize,

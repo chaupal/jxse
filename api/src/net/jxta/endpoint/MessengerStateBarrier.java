@@ -11,8 +11,8 @@ public class MessengerStateBarrier implements MessengerStateListener {
     
     private final CountDownLatch latch;
     private final int awaitedState;
-    private final AtomicInteger matchingState;
-    private final AtomicBoolean expired;
+    private AtomicInteger matchingState;
+    private AtomicBoolean expired;
     
     public MessengerStateBarrier(int awaitedState) {
         this.latch = new CountDownLatch(1);

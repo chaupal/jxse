@@ -381,7 +381,7 @@ public class XportConfTest extends TestCase {
             return null;
         }
 
-        if (addrs.isEmpty()) {
+        if (addrs.size() == 0) {
             return null;
         }
 

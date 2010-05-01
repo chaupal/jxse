@@ -62,6 +62,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringBufferInputStream;
+import java.security.InvalidParameterException;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 import org.junit.After;

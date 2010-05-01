@@ -74,7 +74,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.cm.Srdi.Entry;
@@ -101,7 +100,7 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     private final static transient Logger LOG = Logger.getLogger(XIndiceSrdi.class.getName());
     
-    private AtomicBoolean stop = new AtomicBoolean(false);
+    private volatile boolean stop = false;
     private final XIndiceIndexer srdiIndexer;
     private final BTreeFiler cacheDB;
     private final Set<PeerID> gcPeerTBL = new HashSet<PeerID>();
@@ -117,14 +116,14 @@ public class XIndiceSrdi implements SrdiAPI {
     public XIndiceSrdi(PeerGroup group, String indexName) {
         
         this(getRootDir(group), indexName);
+
         Logging.logCheckedInfo(LOG, "[", ((group == null) ? "none" : group.toString()), "] : Initialized ", indexName);
         
     }
     
     
     private static File getRootDir(PeerGroup group) {
-
-        String pgdir = null;
+    	String pgdir = null;
         File storeHome;
         
         if (group == null) {
@@ -148,52 +147,49 @@ public class XIndiceSrdi implements SrdiAPI {
         return rootDir;
 	}
     
-    public XIndiceSrdi(File storageDir, String indexName) {
+	public XIndiceSrdi(File storageDir, String indexName) {
+		this.indexName = indexName;
+		
+		try {
+	    	// peerid database
+	        // Storage
+	        cacheDB = new BTreeFiler();
+	        // lazy checkpoint
+	        cacheDB.setSync(false);
+	        cacheDB.setLocation(storageDir.getCanonicalPath(), indexName);
+	        
+	        if (!cacheDB.open()) {
+	            cacheDB.create();
+	            // now open it
+	            cacheDB.open();
+	        }
+	        
+	        // index
+	        srdiIndexer = new XIndiceIndexer(false);
+	        srdiIndexer.setLocation(storageDir.getCanonicalPath(), indexName);
+	        if (!srdiIndexer.open()) {
+	            srdiIndexer.create();
+	            // now open it
+	            srdiIndexer.open();
+	        }
+		} catch (DBException de) {
 
-            this.indexName = indexName;
+	        Logging.logCheckedSevere(LOG, "Unable to Initialize databases\n", de);
+	        throw new UndeclaredThrowableException(de, "Unable to Initialize databases");
 
-            try {
-            // peerid database
-            // Storage
-            cacheDB = new BTreeFiler();
-            // lazy checkpoint
-            cacheDB.setSync(false);
-            cacheDB.setLocation(storageDir.getCanonicalPath(), indexName);
+	    } catch (Throwable e) {
 
-            if (!cacheDB.open()) {
-                cacheDB.create();
-                // now open it
-                cacheDB.open();
-            }
+	        Logging.logCheckedSevere(LOG, "Unable to create Cm\n", e);
+	        
+	        if (e instanceof Error) {
+	            throw (Error) e;
+	        } else if (e instanceof RuntimeException) {
+	            throw (RuntimeException) e;
+	        } else {
+	            throw new UndeclaredThrowableException(e, "Unable to create Cm");
+	        }
 
-            // index
-            srdiIndexer = new XIndiceIndexer(false);
-            srdiIndexer.setLocation(storageDir.getCanonicalPath(), indexName);
-            if (!srdiIndexer.open()) {
-                srdiIndexer.create();
-                // now open it
-                srdiIndexer.open();
-            }
-            } catch (DBException de) {
-
-            Logging.logCheckedSevere(LOG, "Unable to Initialize databases\n", de);
-            throw new UndeclaredThrowableException(de, "Unable to Initialize databases");
-
-        } catch (Exception e) {
-
-            Logging.logCheckedSevere(LOG, "Unable to create Cm\n", e);
-            throw new UndeclaredThrowableException(e, "Unable to create Cm");
-
-//	        if (e instanceof Error) {
-//	            throw (Error) e;
-//	        } else if (e instanceof RuntimeException) {
-//	            throw (RuntimeException) e;
-//	        } else {
-//	            throw new UndeclaredThrowableException(e, "Unable to create Cm");
-//	        }
-
-        }
-
+	    }
     }
     
     /**
@@ -391,9 +387,9 @@ public class XIndiceSrdi implements SrdiAPI {
             Map<String, NameIndexer> map = srdiIndexer.getIndexers();
             
             for (Map.Entry<String, NameIndexer> index : map.entrySet()) {
-                String indexNameTmp = index.getKey();
+                String indexName = index.getKey();
                 // seperate the index name from attribute
-                if (indexNameTmp.startsWith(primaryKey)) {
+                if (indexName.startsWith(primaryKey)) {
                     NameIndexer idxr = index.getValue();
                     idxr.query(null, new SearchCallback(cacheDB, res, Integer.MAX_VALUE, gcPeerTBL));
                 }
@@ -466,7 +462,6 @@ public class XIndiceSrdi implements SrdiAPI {
     
     
     private static final class GcCallback implements BTreeCallback {
-
         private final BTreeFiler cacheDB;
         private final List<Long> list;
         private final Set<PeerID> table;
@@ -673,7 +668,7 @@ public class XIndiceSrdi implements SrdiAPI {
         } catch (IOException ie) {
             Logging.logCheckedFine(LOG, "Exception while reading Entry\n", ie);
         }
-        return new byte[0];
+        return null;
     }
     
     /**
@@ -709,7 +704,7 @@ public class XIndiceSrdi implements SrdiAPI {
                     
                     result.add(entry);
                 } catch (URISyntaxException badID) {
-                    Logging.logCheckedFine(LOG, "Ignoring: ", badID.toString());
+                    // ignored
                 }
             }
 
@@ -744,7 +739,7 @@ public class XIndiceSrdi implements SrdiAPI {
             for(NameIndexer idxr : map.values()) {
                 List<Long> list = new ArrayList<Long>();
                 
-                if(stop.get()) {
+                if(stop) {
                     break;
                 }
                 
@@ -793,10 +788,11 @@ public class XIndiceSrdi implements SrdiAPI {
      * stop the current running thread
      */
     public synchronized void stop() {
+        if(stop) {
+            return;
+        }
         
-        if(stop.get()) return;
-        
-        stop.set(true);
+        stop = true;
         
         // Stop the database
         
@@ -822,16 +818,16 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public static void clearSrdi(PeerGroup group) {
         
+        Logging.logCheckedInfo(LOG, "Clearing SRDI for ", group.getPeerGroupName());
+        
         try {
 
             String pgdir = null;
             
             if (group == null) {
                 pgdir = "srdi-index";
-                Logging.logCheckedInfo(LOG, "Clearing SRDI");
             } else {
                 pgdir = group.getPeerGroupID().getUniqueValue().toString();
-                Logging.logCheckedInfo(LOG, "Clearing SRDI for ", group.getPeerGroupName());
             }
 
             File rootDir = null;

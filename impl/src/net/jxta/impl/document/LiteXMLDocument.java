@@ -102,14 +102,14 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
          * {@inheritDoc}
          */
         public MimeMediaType[] getSupportedMimeTypes() {
-            return myTypes;
+            return (myTypes);
         }
 
         /**
          * {@inheritDoc}
          */
         public ExtensionMapping[] getSupportedFileExtensions() {
-            return myExtensions;
+            return (myExtensions);
         }
 
         /**
@@ -149,7 +149,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
     /**
      * The actual document contents.
      */
-    protected final StringBuilder docContent;
+    final StringBuilder docContent;
 
     /**
      * The mimetype of this document.
@@ -460,9 +460,8 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
         }
     }
 
-    protected tagRange getDocType(StringBuilder source, boolean wholeElement) {
-
-        String xmldoctype = "!DOCTYPE";
+    protected tagRange getDocType(final StringBuilder source, boolean wholeElement) {
+        final String xmldoctype = "!DOCTYPE";
         int start = 0;
         int end = getDocument().docContent.length() - 1;
         tagRange ranges = getTagRanges(source, xmldoctype, new charRange(start, end));
@@ -507,7 +506,7 @@ public class LiteXMLDocument extends LiteXMLElement implements XMLDocument<LiteX
      * {@inheritDoc}
      */
     @Override
-    protected LiteXMLDocument getDocument() {
+    LiteXMLDocument getDocument() {
         return this;
     }
 }

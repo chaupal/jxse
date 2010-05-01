@@ -98,7 +98,7 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
     public static JxseTcpTransportConfiguration getDefaultTcpTransportConfiguration() {
 
         // Preparing result
-        final JxseTcpTransportConfiguration Result = new JxseTcpTransportConfiguration();
+        JxseTcpTransportConfiguration Result = new JxseTcpTransportConfiguration();
 
         Result.setDefaultPropertyValue(JXSE_TCP_PORT, Integer.toString(DEFAULT_PORT));
         Result.setDefaultPropertyValue(JXSE_TCP_START_PORT, Integer.toString(DEFAULT_START_PORT));
@@ -161,7 +161,7 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
      */
     public int getTcpPort() {
 
-        final String Temp = this.getProperty(JXSE_TCP_PORT);
+        String Temp = this.getProperty(JXSE_TCP_PORT);
 
         if (Temp!=null) {
             return Integer.parseInt(Temp);
@@ -205,7 +205,7 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
      */
     public int getTcpStartPort() {
 
-        final String Temp = this.getProperty(JXSE_TCP_START_PORT);
+        String Temp = this.getProperty(JXSE_TCP_START_PORT);
 
         if (Temp!=null) {
             return Integer.parseInt(Temp);
@@ -250,7 +250,7 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
      */
     public int getTcpEndPort() {
 
-        final String Temp = this.getProperty(JXSE_TCP_END_PORT);
+        String Temp = this.getProperty(JXSE_TCP_END_PORT);
 
         if (Temp!=null) {
             return Integer.parseInt(Temp);
@@ -362,7 +362,7 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
      * @param address   the TCP transport public address
      * @param exclusive public address advertised exclusively
      */
-    public void setTcpPublicAddress(String address, boolean exclusive) {
+    public void setTcpPublicAddress(String address, Boolean exclusive) {
 
         if ( address == null ) {
             this.remove(JXSE_TCP_PUBLIC_ADDRESS);

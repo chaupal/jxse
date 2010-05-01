@@ -92,11 +92,10 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
     }
 
     public synchronized InboundMeter getInboundMeter(String serviceName, String serviceParam) {
-
         String address = serviceName;
 
         if (null != serviceParam) {
-            address = new StringBuffer(address).append('/').append(serviceParam).toString();
+            address += "/" + serviceParam;
         }
 
         InboundMeter inboundMeter = inboundMeters.get(address);
@@ -111,11 +110,11 @@ public class EndpointServiceMonitor extends GenericServiceMonitor {
     }
 
     public synchronized PropagationMeter getPropagationMeter(String serviceName, String serviceParam) {
-
         String address = serviceName;
 
-        if (null != serviceParam) 
-            address = new StringBuffer(address).append('/').append(serviceParam).toString();
+        if (null != serviceParam) {
+            address += "/" + serviceParam;
+        }
 
         PropagationMeter propagationMeter = propagationMeters.get(address);
 

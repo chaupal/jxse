@@ -56,9 +56,11 @@
 
 package net.jxta.document;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 
 /**
  * Provides stream based interfaces for manipulating {@code Document} contents.

@@ -141,9 +141,8 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
             System.err.println("hello time: " + delta + MS_LABEL);
         }
 
-        r = r.trim();
         assertFalse("bogus", isBogus);
-        assertFalse("empty response", r == null || r.length() == 0);
+        assertFalse("empty response", r == null || r.trim().length() == 0);
         assertTrue("missing prefix" + HELLO_PREFIX, r != null && r.startsWith(HELLO_PREFIX));
     }
 
@@ -176,7 +175,6 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
             System.err.println("put 1k time: " + delta + MS_LABEL);
         }
 
-        r = r.trim();
         assertFalse("bogus", isBogus);
         assertTrue("empty response", r == null || r.trim().length() == 0);
     }
@@ -275,10 +273,8 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
             int c = -1;
 
             try {
-                c = is.read();
-                while (c != -1) {
+                while ((c = is.read()) != -1) {
                     os.write(c);
-                    c = is.read();
                 }
             } catch (IOException ioe) {} finally {
                 if (is != null) {

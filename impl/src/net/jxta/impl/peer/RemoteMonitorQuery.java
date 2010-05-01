@@ -115,42 +115,42 @@ public class RemoteMonitorQuery implements DocumentSerializable {
         return includeCumulative;
     }
 	
-    public boolean isCumulativeReportQuery() {
+    boolean isCumulativeReportQuery() {
         return requestType.equals(CUMULATIVE_REPORT_REQUEST);
     }
 
-    public boolean isRegisterMonitorQuery() {
+    boolean isRegisterMonitorQuery() {
         return requestType.equals(REGISTER_MONITOR_REQUEST);
     }
 
-    public boolean isRemoveMonitorQuery() {
+    boolean isRemoveMonitorQuery() {
         return requestType.equals(REMOVE_MONITOR_REQUEST);
     }
 
-    public boolean isValidateFilterRequest() {
+    boolean isValidateFilterRequest() {
         return requestType.equals(VALIDATE_FILTER_REQUEST);
     }
 
-    public boolean isValidateCumulativeFilterRequest() {
+    boolean isValidateCumulativeFilterRequest() {
         return requestType.equals(VALIDATE_CUMULATIVE_FILTER_REQUEST);
     }
 
-    public boolean isPeerMonitorInfoQuery() {
+    boolean isPeerMonitorInfoQuery() {
         return requestType.equals(PEER_MONITOR_INFO);
     }
 
-    public boolean isLeaseRenewal() {
+    boolean isLeaseRenewal() {
         return requestType.equals(RENEW_LEASE);
     }
 
-    public static RemoteMonitorQuery createGetCumulativeReportQuery(MonitorFilter monitorFilter) {
+    static RemoteMonitorQuery createGetCumulativeReportQuery(MonitorFilter monitorFilter) {
         RemoteMonitorQuery remoteMonitorQuery = new RemoteMonitorQuery(CUMULATIVE_REPORT_REQUEST);
 
         remoteMonitorQuery.monitorFilter = monitorFilter;
         return remoteMonitorQuery;
     }
 		
-    public static RemoteMonitorQuery createRegisterMonitorQuery(boolean includeCumulative, MonitorFilter monitorFilter, long reportRate, long lease) {
+    static RemoteMonitorQuery createRegisterMonitorQuery(boolean includeCumulative, MonitorFilter monitorFilter, long reportRate, long lease) {
         RemoteMonitorQuery remoteMonitorQuery = new RemoteMonitorQuery(REGISTER_MONITOR_REQUEST);
 
         remoteMonitorQuery.monitorFilter = monitorFilter;
@@ -160,20 +160,20 @@ public class RemoteMonitorQuery implements DocumentSerializable {
         return remoteMonitorQuery;
     }
 
-    public static RemoteMonitorQuery createRemoveMonitorListenerQuery(int leaseId) {
+    static RemoteMonitorQuery createRemoveMonitorListenerQuery(int leaseId) {
         RemoteMonitorQuery remoteMonitorQuery = new RemoteMonitorQuery(REMOVE_MONITOR_REQUEST);
 
         remoteMonitorQuery.leaseId = leaseId;
         return remoteMonitorQuery;
     }
 
-    public static RemoteMonitorQuery createPeerMonitorInfoQuery() {
+    static RemoteMonitorQuery createPeerMonitorInfoQuery() {
         RemoteMonitorQuery remoteMonitorQuery = new RemoteMonitorQuery(PEER_MONITOR_INFO);
 
         return remoteMonitorQuery;		
     }
 
-    public static RemoteMonitorQuery createLeaseRenewalQuery(int leaseId, long requestedLease) {
+    static RemoteMonitorQuery createLeaseRenewalQuery(int leaseId, long requestedLease) {
         RemoteMonitorQuery remoteMonitorQuery = new RemoteMonitorQuery(RENEW_LEASE);
 
         remoteMonitorQuery.leaseId = leaseId;
@@ -210,19 +210,19 @@ public class RemoteMonitorQuery implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("requestType".equals(tagName)) {
+            if (tagName.equals("requestType")) { 
                 requestType = DocumentSerializableUtilities.getString(childElement);
-            } else if ("monitorFilter".equals(tagName)) {
+            } else if (tagName.equals("monitorFilter")) { 
                 monitorFilter = (MonitorFilter) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         MonitorFilter.class);
-            } else if ("lease".equals(tagName)) {
+            } else if (tagName.equals("lease")) { 
                 lease = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("leaseId".equals(tagName)) {
+            } else if (tagName.equals("leaseId")) { 
                 leaseId = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("reportRate".equals(tagName)) {
+            } else if (tagName.equals("reportRate")) { 
                 reportRate = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("includeCumulative".equals(tagName)) {
+            } else if (tagName.equals("includeCumulative")) { 
                 includeCumulative = DocumentSerializableUtilities.getBoolean(childElement);
             }
         }

@@ -56,6 +56,7 @@
 
 package net.jxta.impl.util;
 
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -74,11 +75,11 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleClassAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
+
 
 /**
  * Module Manager.
@@ -116,15 +117,11 @@ import net.jxta.logging.Logging;
  *
  * @since 2.6 Peergroups offer loadmodule() methods, making this class obsolete. It has been
  * deprecated and will be removed in the next version.
+ * 
  */
 
 @Deprecated
 public class ModuleManager {
-
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(ModuleManager.class.getName());
 
     private static Hashtable<PeerGroupID, ModuleManager> managers = null;
     private static long LOCAL_ADV_TTL = 5 * 60 * 1000;
@@ -358,9 +355,7 @@ public class ModuleManager {
                 try {
                     mcAdv = (ModuleClassAdvertisement) each.nextElement();
                     break;
-                } catch (Exception ez1) {
-                    // ignored
-                    Logging.logCheckedFine(LOG, "Ignored: ", ez1.toString());
+                } catch (Exception ez1) {// ignored
                 }
             }
 
@@ -376,15 +371,8 @@ public class ModuleManager {
                 try {
                     mSpecAdv = (ModuleSpecAdvertisement) each.nextElement();
                     break;
-                } catch (Exception ez1) {
-                    // ignored
-                    Logging.logCheckedFine(LOG, "Ignored: ", ez1.toString());
+                } catch (Exception ez1) {// ignored
                 }
-            }
-
-            if ( mSpecAdv == null ) {
-                Logging.logCheckedSevere(LOG, "Cannot find Module Specification Advertisement");
-                return null;
             }
 
             module = group.loadModule(mcAdv.getModuleClassID(), mSpecAdv.getModuleSpecID(), PeerGroup.Here);
@@ -574,25 +562,19 @@ public class ModuleManager {
      * @exception  IOException   if an io error occurs
      */
     public Advertisement getServiceAdvertisement(PeerGroup group, ModuleImplAdvertisement mia, String advertismentType) throws IOException {
-
         Element param = mia.getParam();
         Element pel = null;
 
-        Advertisement adv = null;
-
         if (param != null) {
-            
             Enumeration list = param.getChildren(advertismentType);
 
             if (list.hasMoreElements()) {
                 pel = (Element) list.nextElement();
-                adv = AdvertisementFactory.newAdvertisement((XMLElement) pel);
             }
-
         }
+        Advertisement adv = AdvertisementFactory.newAdvertisement((XMLElement) pel);
 
         return adv;
-
     }
 
     /**

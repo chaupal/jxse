@@ -123,8 +123,8 @@ public abstract class AbstractPipeContentShare<
     public U getContentShareAdvertisement() {
         U adv = super.getContentShareAdvertisement();
         if (pipeAdv == null) {
-            throw new IllegalStateException(
-                    "The PipeAdvertisement has not yet been set");
+            throw(new IllegalStateException(
+                    "The PipeAdvertisement has not yet been set"));
         }
         adv.setPipeAdvertisement(pipeAdv);
         return adv;

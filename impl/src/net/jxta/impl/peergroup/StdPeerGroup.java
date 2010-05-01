@@ -62,7 +62,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.discovery.DiscoveryService;
@@ -147,7 +146,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * If {@code true} then the PeerGroup has been started.
      */
-    private AtomicBoolean started = new AtomicBoolean(false);
+    private volatile boolean started = false;
     
     /**
      * The order in which we started the services.
@@ -327,9 +326,9 @@ public class StdPeerGroup extends GenericPeerGroup {
      * @return int Status.
      */
     @Override
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         
-        if (!initComplete.get()) {
+        if (!initComplete) {
 
             Logging.logCheckedSevere(LOG, "Group has not been initialized or init failed.");
             return -1;
@@ -338,13 +337,14 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // FIXME: maybe concurrent callers should be blocked until the
         // end of startApp(). That could mean forever, though.
-        if (started.get())
+        if (started) {
             return Module.START_OK;
+        }
         
-        started.set(true);
+        started = true;
         
         // Normally does nothing, but we have to.
-        int res = super.startApp(args);
+        int res = super.startApp(arg);
         
         if (Module.START_OK != res) {
             return res;
@@ -568,7 +568,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     @Override
     protected synchronized void initFirst(PeerGroup parent, ID assignedID, Advertisement impl) throws PeerGroupException {
         
-        if (initComplete.get()) {
+        if (initComplete) {
 
             Logging.logCheckedWarning(LOG, "You cannot initialize a PeerGroup more than once !");
             return;
@@ -698,8 +698,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Group : " );
-            configInfo.append(getPeerGroupID());
+            StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
             
             configInfo.append("\n\tConfiguration :");
             configInfo.append("\n\t\tCompatibility Statement :\n\t\t\t");

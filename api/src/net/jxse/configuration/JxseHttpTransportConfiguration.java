@@ -86,7 +86,7 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
     public static final JxseHttpTransportConfiguration getDefaultHttpTransportConfiguration() {
 
         // Preparing return value
-        final JxseHttpTransportConfiguration Result = new JxseHttpTransportConfiguration();
+        JxseHttpTransportConfiguration Result = new JxseHttpTransportConfiguration();
 
         Result.setDefaultPropertyValue(JXSE_HTTP_OUTGOING, Boolean.toString(true));
         Result.setDefaultPropertyValue(JXSE_HTTP_INCOMING, Boolean.toString(false));
@@ -205,7 +205,7 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
      */
     public int getHttpPort() {
 
-        final String Temp = this.getProperty(JXSE_HTTP_PORT);
+        String Temp = this.getProperty(JXSE_HTTP_PORT);
 
         if ( Temp!=null ) {
             return Integer.parseInt(Temp);
@@ -303,7 +303,7 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
      */
     public boolean getHttpPublicAddressExclusive() {
 
-        final String Temp = this.getProperty(JXSE_HTTP_PUBLIC_ADDRESS_EXCLUSIVE);
+        String Temp = this.getProperty(JXSE_HTTP_PUBLIC_ADDRESS_EXCLUSIVE);
 
         if (Temp==null) {
             return false;

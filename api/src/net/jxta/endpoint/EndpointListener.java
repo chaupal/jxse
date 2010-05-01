@@ -76,5 +76,4 @@ public interface EndpointListener {
      * @param dstAddr Endpoint Address of the destination of the message.
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr);
-
 }

@@ -178,14 +178,14 @@ public class PeerGroupID extends net.jxta.impl.id.UUID.PeerGroupID {
         return (net.jxta.peergroup.PeerGroupID) IDFormat.translateToWellKnown(groupID);
     }
 
-//    /**
-//     * Returns the UUID associated with this PeerGroupID.
-//     *
-//     * @return The UUID associated with this PeerGroupID.
-//     */
-//    @Override
-//    public UUID getUUID() {
-//        return super.getUUID();
-//    }
+    /**
+     * Returns the UUID associated with this PeerGroupID.
+     *
+     * @return The UUID associated with this PeerGroupID.
+     */
+    @Override
+    public UUID getUUID() {
+        return super.getUUID();
+    }
 
 }

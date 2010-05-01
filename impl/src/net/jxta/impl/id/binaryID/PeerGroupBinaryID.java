@@ -53,13 +53,16 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.id.binaryID;
+
 
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
+
 import java.net.URI;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * This class implements a PeerGroup ID. Each peer group is assigned a unique
@@ -83,7 +86,7 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
     /**
      * This is the id string used in the XML of the id. The format is TX0..Xn where T is the type and X0 through Xn are the base64 encoded id.
      */
-    private String id;
+    protected String id;
 
     /**
      * Constructor for creating a new PeerGroupID with a unique ID and a parent.<p>
@@ -149,25 +152,25 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
         this.id = id.getID();
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        return obj instanceof PeerGroupBinaryID && getUniqueValue().equals(((PeerGroupBinaryID) obj).getUniqueValue());
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return getUniqueValue().hashCode();
-//    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
+        
+        return target instanceof PeerGroupBinaryID && getUniqueValue().equals(((PeerGroupBinaryID) target).getUniqueValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getUniqueValue().hashCode();
+    }
 
     /**
      * {@inheritDoc}
@@ -209,7 +212,7 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
 
         try {
             if (id == null) {
-                return null;
+                result = (net.jxta.peergroup.PeerGroupID) net.jxta.id.ID.nullID;
             }
             String idd = id;
             int parentStart = idd.indexOf('.');

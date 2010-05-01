@@ -135,11 +135,11 @@ public class SimpleACLAccessService implements AccessService {
      */
     private static class SimpleACLOperation implements PrivilegedOperation {
         
-        private SimpleACLAccessService source;
+        SimpleACLAccessService source;
         
-        private String op;
+        String op;
         
-        private Credential offerer;
+        Credential offerer;
         
         protected SimpleACLOperation(SimpleACLAccessService source, String op, Credential offerer) {
             this.source = source;
@@ -202,7 +202,6 @@ public class SimpleACLAccessService implements AccessService {
          * {@inheritDoc}
          */
         public StructuredDocument getDocument(MimeMediaType as) throws Exception {
-
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
             
             if (doc instanceof Attributable) {
@@ -295,7 +294,7 @@ public class SimpleACLAccessService implements AccessService {
             
             String doctype = doc.getName();
             
-            if (!"jxta:SimpleACLOp".equals(doctype) && !"jxta:SimpleACLOp".equals(typedoctype)) {
+            if (!doctype.equals("jxta:SimpleACLOp") && !typedoctype.equals("jxta:SimpleACLOp")) {
                 throw new IllegalArgumentException(
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
             }
@@ -329,12 +328,12 @@ public class SimpleACLAccessService implements AccessService {
     /**
      *  The peer group we are working for.
      */
-    private PeerGroup group;
+    PeerGroup group;
     
     /**
      *  Implementation advertisement for this instance.
      */
-    private ModuleImplAdvertisement implAdvertisement;
+    ModuleImplAdvertisement implAdvertisement;
     
     /**
      *  The ACLs we are supporting.
@@ -344,8 +343,8 @@ public class SimpleACLAccessService implements AccessService {
     /**
      *  The default constructor
      */
-    public SimpleACLAccessService() {}
-
+    public SimpleACLAccessService() {}      
+    
     /**
      * {@inheritDoc}
      */
@@ -355,8 +354,7 @@ public class SimpleACLAccessService implements AccessService {
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder("Configuring Access Service : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Access Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
             configInfo.append("\n\t\tImpl Description: ").append(implAdvertisement.getDescription());
@@ -504,7 +502,7 @@ public class SimpleACLAccessService implements AccessService {
      * 
      * @return PeerGroup instance
      */
-    private PeerGroup getPeerGroup() {
+    PeerGroup getPeerGroup() {
         return group;
     }
     

@@ -57,15 +57,12 @@
 package net.jxta.id;
 
 import java.io.ObjectStreamException;
-import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  *  IDs are used to uniquely identify peers, peer groups, pipes and other
@@ -80,13 +77,8 @@ import net.jxta.logging.Logging;
  *  @see net.jxta.platform.ModuleSpecID
  *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
  */
-public abstract class ID implements Serializable, Comparable<ID> {
+public abstract class ID implements java.io.Serializable {
  
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(ID.class.getName());
-
     /**
      * Magic value for this format of serialization version.
      */
@@ -121,7 +113,7 @@ public abstract class ID implements Serializable, Comparable<ID> {
      *
      *  <p/>This is a singleton within the scope of a VM.
      */
-    public static final ID nullID = new NullID().intern();
+    public static final ID nullID = (new NullID()).intern();
     
     /**
      *
@@ -151,7 +143,7 @@ public abstract class ID implements Serializable, Comparable<ID> {
         try {
             return IDFactory.fromURI(fromURI);
         } catch (URISyntaxException badid) {
-            final IllegalArgumentException failure = new IllegalArgumentException();
+            IllegalArgumentException failure = new IllegalArgumentException();
 
             failure.initCause(badid);
             throw failure;
@@ -161,6 +153,7 @@ public abstract class ID implements Serializable, Comparable<ID> {
     /**
      *  Constructor for IDs. IDs are constructed using the {@link IDFactory} or
      *  {@link #create(URI)}.
+     *
      */
     protected ID() {}
     
@@ -227,7 +220,7 @@ public abstract class ID implements Serializable, Comparable<ID> {
      */
     protected ID intern() {
         synchronized (ID.class) {
-            final Reference<ID> common = interned.get(this);
+            Reference<ID> common = interned.get(this);
             
             ID result = null;
             
@@ -257,44 +250,4 @@ public abstract class ID implements Serializable, Comparable<ID> {
     public URI toURI() {
         return URI.create(URIEncodingName + ":" + URNNamespace + ":" + getUniqueValue());
     }
-
-    /**
-     * {@inheritDoc }
-     */
-    public final int compare(ID o1, ID o2) {
-        return o1.toString().compareTo(o2.toString());
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public final int compareTo(ID o) {
-        return compare(this, o);
-    }
-
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public final int hashCode() {
-
-        int result = 17;
-
-        return 37 * result + this.getUniqueValue().hashCode();
-
-    }
-
-    @Override
-    public final boolean equals(Object obj) {
-
-        if (obj == null) return false;
-
-        if ( ! (obj instanceof ID) ) Logging.logCheckedSevere(LOG, "Parameter not instance of ID");
-        
-        final ID other = (ID) obj;
-
-        return (compareTo(other) == 0);
-
-    }
-
 }

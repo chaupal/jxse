@@ -7,12 +7,22 @@
 
 package net.jxta.endpoint;
 
+
 import junit.framework.*;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.ref.SoftReference;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.util.logging.Level;
+import net.jxta.logging.Logging;
+import java.util.logging.Logger;
 import net.jxta.document.MimeMediaType;
+import net.jxta.document.TextDocument;
+
 
 /**
  *

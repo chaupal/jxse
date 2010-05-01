@@ -56,11 +56,13 @@
 
 package net.jxta.endpoint;
 
+
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.logging.Logging;
 import net.jxta.util.CountingOutputStream;
 import net.jxta.util.DevNullOutputStream;
+
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -73,7 +75,9 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.util.UUIDUtilities;
 
 /**
@@ -202,8 +206,8 @@ public abstract class MessageElement implements Document {
      *             no signature is to be specified, pass null.
      */
     protected MessageElement(String name, MimeMediaType type, MessageElement sig) {
-
         this.name = (null != name) ? name : "";
+
         this.type = (null != type) ? type.intern() : MimeMediaType.AOS;
 
         if ((null != sig) && (null != sig.sig)) {
@@ -221,17 +225,18 @@ public abstract class MessageElement implements Document {
      * implementation as it is mostly intended for subclass use.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true; // same object
+        }
 
-        if (this == obj) return true;
-
-        if (obj instanceof MessageElement) {
-            final MessageElement likeMe = (MessageElement) obj;
+        if (target instanceof MessageElement) {
+            MessageElement likeMe = (MessageElement) target;
 
             // sig is nullable so test seperatly.
-            final boolean sigequals = (null != sig) ? sig.equals(likeMe.sig) : (null == likeMe.sig);
+            boolean sigequals = (null != sig) ? sig.equals(likeMe.sig) : (null == likeMe.sig);
 
-            return sigequals && name.equals(likeMe.name) && type.equalsIgnoringParams(likeMe.type);
+            return sigequals && name.equals(likeMe.name) && type.equalsIngoringParams(likeMe.type);
         }
 
         return false; // not a MessageElement
@@ -242,9 +247,9 @@ public abstract class MessageElement implements Document {
      */
     @Override
     public int hashCode() {
-        final int sigHash = ((null != getSignature()) && (this != getSignature())) ? getSignature().hashCode() : 1;
+        int sigHash = ((null != getSignature()) && (this != getSignature())) ? getSignature().hashCode() : 1;
 
-        final int result = sigHash * 2467 + // a prime
+        int result = sigHash * 2467 + // a prime
                 getElementName().hashCode() * 3943 + // also a prime
                 getMimeType().getBaseMimeMediaType().hashCode();
 
@@ -275,8 +280,9 @@ public abstract class MessageElement implements Document {
 
         Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
-        final String charset = type.getParameter("charset");
-        final StringBuilder theString = new StringBuilder();
+        String charset = type.getParameter("charset");
+
+        StringBuilder theString = new StringBuilder();
 
         Reader asString;
 
@@ -291,11 +297,10 @@ public abstract class MessageElement implements Document {
                 }
             }
 
-            final char[] characters = new char[256];
+            char[] characters = new char[256];
 
             do {
-
-                final int res = asString.read(characters);
+                int res = asString.read(characters);
 
                 if (res < 0) {
                     break;
@@ -358,7 +363,7 @@ public abstract class MessageElement implements Document {
             return cachedGetByteLength;
         }
 
-        final CountingOutputStream countBytes = new CountingOutputStream(new DevNullOutputStream());
+        CountingOutputStream countBytes = new CountingOutputStream(new DevNullOutputStream());
 
         try {
             sendToStream(countBytes);
@@ -395,7 +400,7 @@ public abstract class MessageElement implements Document {
 
         Logging.logCheckedFine(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
-        final long len = getByteLength();
+        long len = getByteLength();
 
         if (len > Integer.MAX_VALUE) {
 
@@ -407,8 +412,7 @@ public abstract class MessageElement implements Document {
         result = new byte[(int) len];
 
         try {
-
-            final DataInput di = new DataInputStream(getStream());
+            DataInput di = new DataInputStream(getStream());
 
             di.readFully(result);
 
@@ -520,9 +524,8 @@ public abstract class MessageElement implements Document {
      * @throws IOException if there is a problem copying the data
      */
     protected static void copyInputStreamToOutputStream(InputStream source, OutputStream sink) throws IOException {
-
         int c;
-        final byte[] buf = new byte[4096];
+        byte[] buf = new byte[4096];
 
         do {
             c = source.read(buf);

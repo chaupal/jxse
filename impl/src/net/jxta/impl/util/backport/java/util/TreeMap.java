@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
  */
 @SuppressWarnings("unchecked")
 public class TreeMap extends AbstractMap
-                     implements NavigableMap, Serializable, Cloneable {
+                     implements NavigableMap, Serializable {
 
     private static final long serialVersionUID = 919286545866124006L;
 
@@ -64,17 +64,14 @@ public class TreeMap extends AbstractMap
         putAll(map);
     }
 
-    @Override
     public int size() { return size; }
 
-    @Override
     public void clear() {
         root = null;
         size = 0;
         modCount++;
     }
 
-    @Override
     public Object clone() {
         TreeMap clone;
         try { clone = (TreeMap)super.clone(); }
@@ -88,7 +85,6 @@ public class TreeMap extends AbstractMap
         return clone;
     }
 
-    @Override
     public Object put(Object key, Object value) {
         if (root == null) {
             root = new Entry(key, value);
@@ -132,13 +128,11 @@ public class TreeMap extends AbstractMap
     /**
      * {@inheritDoc}
      */
-    @Override
     public Object get(Object key) {
         Entry entry = getEntry(key);
         return (entry == null) ? null : entry.getValue();
     }
 
-    @Override
     public boolean containsKey(Object key) {
         return getEntry(key) != null;
     }
@@ -194,11 +188,8 @@ public class TreeMap extends AbstractMap
          * but with null links. (Since it is never OK to have
          * multiple identical links in a RB tree.)
          */
-        @Override
         protected Object clone() throws CloneNotSupportedException {
-            Entry t = (Entry) super.clone();
-            t.key = key;
-            t.element = element;
+            Entry t = new Entry(key, element);
             t.color = color;
             return t;
         }
@@ -223,20 +214,17 @@ public class TreeMap extends AbstractMap
             return old;
         }
 
-        @Override
         public boolean equals(Object o) {
             if (!(o instanceof Map.Entry)) return false;
             Map.Entry e = (Map.Entry)o;
             return eq(key, e.getKey()) && eq(element, e.getValue());
         }
 
-        @Override
         public int hashCode() {
             return (key == null ? 0 : key.hashCode()) ^
                    (element == null ? 0 : element.hashCode());
         }
 
-        @Override
         public String toString() {
             return key + "=" + element;
         }
@@ -774,25 +762,18 @@ public class TreeMap extends AbstractMap
     }
 
     class EntrySet extends AbstractSet {
-        
         public int size() { return TreeMap.this.size(); }
-
-        @Override
         public boolean isEmpty() { return TreeMap.this.isEmpty(); }
-
-        @Override
         public void clear() { TreeMap.this.clear(); }
 
         public Iterator iterator() {
             return new EntryIterator(getFirstEntry());
         }
 
-        @Override
         public boolean contains(Object o) {
             return getMatchingEntry(o) != null;
         }
 
-        @Override
         public boolean remove(Object o) {
             Entry e = getMatchingEntry(o);
             if (e == null) return false;
@@ -802,23 +783,16 @@ public class TreeMap extends AbstractMap
     }
 
     class DescendingEntrySet extends EntrySet {
-        @Override
         public Iterator iterator() {
             return new DescendingEntryIterator(getLastEntry());
         }
     }
 
     class ValueSet extends AbstractSet {
-        
         public int size() { return TreeMap.this.size(); }
-
-        @Override
         public boolean isEmpty() { return TreeMap.this.isEmpty(); }
-
-        @Override
         public void clear() { TreeMap.this.clear(); }
 
-        @Override
         public boolean contains(Object o) {
             for (Entry e = getFirstEntry(); e != null; e = successor(e)) {
                 if (eq(o, e.element)) return true;
@@ -830,7 +804,6 @@ public class TreeMap extends AbstractMap
             return new ValueIterator(getFirstEntry());
         }
 
-        @Override
         public boolean remove(Object o) {
             for (Entry e = getFirstEntry(); e != null; e = successor(e)) {
                 if (eq(o, e.element)) {
@@ -843,21 +816,14 @@ public class TreeMap extends AbstractMap
     }
 
     abstract class KeySet extends AbstractSet implements NavigableSet {
-        
         public int size() { return TreeMap.this.size(); }
-
-        @Override
         public boolean isEmpty() { return TreeMap.this.isEmpty(); }
-
-        @Override
         public void clear() { TreeMap.this.clear(); }
 
-        @Override
         public boolean contains(Object o) {
             return getEntry(o) != null;
         }
 
-        @Override
         public boolean remove(Object o) {
             Entry found = getEntry(o);
             if (found == null) return false;
@@ -903,9 +869,9 @@ public class TreeMap extends AbstractMap
         }
 
         public NavigableSet subSet(Object fromElement, boolean fromInclusive,
-                                   Object toElement,  boolean toInclusive) {
+                                   Object toElement,   boolean toInclusive) {
             return (NavigableSet)(subMap(fromElement, fromInclusive,
-                                         toElement,  toInclusive)).keySet();
+                                         toElement,   toInclusive)).keySet();
         }
         public NavigableSet headSet(Object toElement, boolean inclusive) {
             return (NavigableSet)(headMap(toElement, inclusive)).keySet();
@@ -946,9 +912,9 @@ public class TreeMap extends AbstractMap
         }
 
         public NavigableSet subSet(Object fromElement, boolean fromInclusive,
-                                   Object toElement,  boolean toInclusive) {
+                                   Object toElement,   boolean toInclusive) {
             return (NavigableSet)(descendingMap().subMap(fromElement, fromInclusive,
-                                          toElement,  toInclusive)).keySet();
+                                          toElement,   toInclusive)).keySet();
         }
         public NavigableSet headSet(Object toElement, boolean inclusive) {
             return (NavigableSet)(descendingMap().headMap(toElement, inclusive)).keySet();
@@ -1102,19 +1068,19 @@ public class TreeMap extends AbstractMap
     }
 
     public NavigableMap subMap(Object fromKey, boolean fromInclusive,
-                               Object toKey,  boolean toInclusive) {
+                               Object toKey,   boolean toInclusive) {
         return new AscendingSubMap(false, fromKey, fromInclusive,
                                    false, toKey, toInclusive);
     }
 
     public NavigableMap headMap(Object toKey, boolean toInclusive) {
-        return new AscendingSubMap(true, null, true,
+        return new AscendingSubMap(true,  null,  true,
                                    false, toKey, toInclusive);
     }
 
     public NavigableMap tailMap(Object fromKey, boolean fromInclusive) {
         return new AscendingSubMap(false, fromKey, fromInclusive,
-                                   true, null,   true);
+                                   true,  null,    true);
     }
 
     public Comparator comparator() {
@@ -1140,12 +1106,10 @@ public class TreeMap extends AbstractMap
         return e.key;
     }
 
-    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    @Override
     public boolean containsValue(Object value) {
         if (root == null) return false;
         return (value == null) ? containsNull(root) : containsValue(root, value);
@@ -1165,7 +1129,6 @@ public class TreeMap extends AbstractMap
         return false;
     }
 
-    @Override
     public Object remove(Object key) {
         Entry e = getEntry(key);
         if (e == null) return null;
@@ -1174,7 +1137,6 @@ public class TreeMap extends AbstractMap
         return old;
     }
 
-    @Override
     public void putAll(Map map) {
         if (map instanceof SortedMap) {
             SortedMap smap = (SortedMap)map;
@@ -1187,7 +1149,6 @@ public class TreeMap extends AbstractMap
         super.putAll(map);
     }
 
-    @Override
     public Set keySet() {
         return navigableKeySet();
     }
@@ -1220,7 +1181,7 @@ public class TreeMap extends AbstractMap
         transient NavigableSet navigableKeySet;
 
         NavigableSubMap(boolean fromStart, Object fromKey, boolean fromInclusive,
-                        boolean toEnd,    Object toKey,  boolean toInclusive) {
+                        boolean toEnd,     Object toKey,   boolean toInclusive) {
             if (!fromStart && !toEnd) {
                 if (compare(fromKey, toKey, comparator) > 0) {
                     throw new IllegalArgumentException("fromKey > toKey");
@@ -1404,7 +1365,6 @@ public class TreeMap extends AbstractMap
             return tailMap(fromKey, true);
         }
 
-        @Override
         public int size() {
             if (cachedSize < 0 || cacheVersion != modCount) {
                 cachedSize = recalculateSize();
@@ -1425,30 +1385,25 @@ public class TreeMap extends AbstractMap
             return size;
         }
 
-        @Override
         public boolean isEmpty() {
             return absLowest() == null;
         }
 
-        @Override
         public boolean containsKey(Object key) {
             return (inRange(key) && TreeMap.this.containsKey(key));
         }
 
-        @Override
         public Object get(Object key) {
             if (!inRange(key)) return null;
             else return TreeMap.this.get(key);
         }
 
-        @Override
         public Object put(Object key, Object value) {
             if (!inRange(key))
                 throw new IllegalArgumentException("Key out of range");
             return TreeMap.this.put(key, value);
         }
 
-        @Override
         public Object remove(Object key) {
             if (!inRange(key)) return null;
             return TreeMap.this.remove(key);
@@ -1461,7 +1416,6 @@ public class TreeMap extends AbstractMap
             return entrySet;
         }
 
-        @Override
         public Set keySet() {
             return navigableKeySet();
         }
@@ -1483,18 +1437,13 @@ public class TreeMap extends AbstractMap
         }
 
         class SubEntrySet extends AbstractSet {
-
             public int size() { return NavigableSubMap.this.size(); }
-
-            @Override
             public boolean isEmpty() { return NavigableSubMap.this.isEmpty(); }
 
-            @Override
             public boolean contains(Object o) {
                 return getMatchingSubEntry(o) != null;
             }
 
-            @Override
             public boolean remove(Object o) {
                 TreeMap.Entry e = getMatchingSubEntry(o);
                 if (e == null) return false;
@@ -1508,21 +1457,14 @@ public class TreeMap extends AbstractMap
         }
 
         class SubKeySet extends AbstractSet implements NavigableSet {
-
             public int size() { return NavigableSubMap.this.size(); }
-
-            @Override
             public boolean isEmpty() { return NavigableSubMap.this.isEmpty(); }
-
-            @Override
             public void clear() { NavigableSubMap.this.clear(); }
 
-            @Override
             public boolean contains(Object o) {
                 return getEntry(o) != null;
             }
 
-            @Override
             public boolean remove(Object o) {
                 if (!inRange(o)) return false;
                 TreeMap.Entry found = getEntry(o);
@@ -1566,9 +1508,9 @@ public class TreeMap extends AbstractMap
             }
 
             public NavigableSet subSet(Object fromElement, boolean fromInclusive,
-                                       Object toElement,  boolean toInclusive) {
+                                       Object toElement,   boolean toInclusive) {
                 return (NavigableSet)(NavigableSubMap.this.subMap(fromElement, fromInclusive,
-                                             toElement,  toInclusive)).keySet();
+                                             toElement,   toInclusive)).keySet();
             }
             public NavigableSet headSet(Object toElement, boolean inclusive) {
                 return (NavigableSet)(NavigableSubMap.this.headMap(toElement, inclusive)).keySet();
@@ -1582,20 +1524,15 @@ public class TreeMap extends AbstractMap
         }
 
         class SubEntryIterator extends BaseEntryIterator implements Iterator {
-
             final Object terminalKey;
-
             SubEntryIterator() {
                 super(first());
                 TreeMap.Entry terminator = last();
                 this.terminalKey = terminator == null ? null : terminator.key;
             }
-
-            @Override
             public boolean hasNext() {
                 return cursor != null;
             }
-
             public Object next() {
                 TreeMap.Entry curr = cursor;
                 if (curr == null) throw new NoSuchElementException();
@@ -1618,7 +1555,7 @@ public class TreeMap extends AbstractMap
 
     class AscendingSubMap extends NavigableSubMap {
         AscendingSubMap(boolean fromStart, Object fromKey, boolean fromInclusive,
-                        boolean toEnd,    Object toKey,  boolean toInclusive) {
+                        boolean toEnd,     Object toKey,   boolean toInclusive) {
             super(fromStart, fromKey, fromInclusive, toEnd, toKey, toInclusive);
         }
 
@@ -1669,7 +1606,7 @@ public class TreeMap extends AbstractMap
             if (descendingMap == null) {
                 descendingMap =
                     new DescendingSubMap(fromStart, fromKey, fromInclusive,
-                                         toEnd,    toKey,  toInclusive);
+                                         toEnd,     toKey,   toInclusive);
             }
             return descendingMap;
         }
@@ -1677,7 +1614,7 @@ public class TreeMap extends AbstractMap
 
     class DescendingSubMap extends NavigableSubMap {
         DescendingSubMap(boolean fromStart, Object fromKey, boolean fromInclusive,
-                         boolean toEnd,    Object toKey,  boolean toInclusive) {
+                         boolean toEnd,     Object toKey,   boolean toInclusive) {
             super(fromStart, fromKey, fromInclusive, toEnd, toKey, toInclusive);
         }
 
@@ -1695,7 +1632,7 @@ public class TreeMap extends AbstractMap
         }
 
         public NavigableMap subMap(Object fromKey, boolean fromInclusive,
-                                   Object toKey,  boolean toInclusive) {
+                                   Object toKey,   boolean toInclusive) {
             if (!inRange(fromKey, fromInclusive)) {
                 throw new IllegalArgumentException("fromKey out of range");
             }
@@ -1726,7 +1663,7 @@ public class TreeMap extends AbstractMap
             if (descendingMap == null) {
                 descendingMap =
                     new AscendingSubMap(fromStart, fromKey, fromInclusive,
-                                        toEnd,    toKey,  toInclusive);
+                                        toEnd,     toKey,   toInclusive);
 
             }
             return descendingMap;
@@ -1789,9 +1726,9 @@ public class TreeMap extends AbstractMap
         throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        int sizeTmp = in.readInt();
+        int size = in.readInt();
         try {
-            buildFromSorted(new IOIterator(in, sizeTmp), sizeTmp);
+            buildFromSorted(new IOIterator(in, size), size);
         }
         catch (IteratorIOException e) {
             throw e.getException();

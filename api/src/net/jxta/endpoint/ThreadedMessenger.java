@@ -53,15 +53,16 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
 
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
+
 import java.io.IOException;
 import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -383,9 +384,6 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 case ACTION_CONNECT:
                     connect();
                     break;
-
-                default:
-                    break;
                 }
             }
 
@@ -415,7 +413,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
     private DeferredAction nextAction() {
 
-        final long quitAt = System.currentTimeMillis() + THREAD_IDLE_DEAD;
+        long quitAt = System.currentTimeMillis() + THREAD_IDLE_DEAD;
 
         synchronized (stateMachine) {
             while (deferredAction == DeferredAction.ACTION_NONE) {
@@ -435,7 +433,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 }
             }
 
-            final DeferredAction action = deferredAction;
+            DeferredAction action = deferredAction;
 
             deferredAction = DeferredAction.ACTION_NONE;
             return action;
@@ -462,8 +460,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         }
 
         while (true) {
-
-            final AsyncChannelMessenger.PendingMessage theMsg = theChannel.peek();
+            AsyncChannelMessenger.PendingMessage theMsg = theChannel.peek();
 
             if (theMsg == null) {
                 // done with that channel for now. (And it knows it). Move to the next channel. Actually
@@ -485,9 +482,9 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 return;
             }
 
-            final Message currentMsg = theMsg.msg;
-            final String currentService = theMsg.service;
-            final String currentParam = theMsg.param;
+            Message currentMsg = theMsg.msg;
+            String currentService = theMsg.service;
+            String currentParam = theMsg.param;
 
             try {
                 sendMessageBImpl(currentMsg, currentService, currentParam);
@@ -516,7 +513,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 theChannel.poll();
                 // Rotate the queues (Things are quite a bit simpler if there's a single still active channel
                 // and it's frequent, so it's worth checking)
-                final boolean empty = (theChannel.peek() == null);
+                boolean empty = (theChannel.peek() == null);
 
                 if ((activeChannels.size() != 1) || empty) {
                     activeChannels.poll();
@@ -550,8 +547,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
      * Performs the ACTION_CONNECT deferred action. Generates a down event if it does not work.
      */
     private void connect() {
-
-        final boolean worked = connectImpl();
+        boolean worked = connectImpl();
         ThreadedMessengerChannel[] channels = null;
 
         synchronized (stateMachine) {
@@ -560,7 +556,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                 // we can now get the logical destination from the underlying implementation (likely obtained from a transport
                 // messenger)
 
-                final EndpointAddress effectiveLogicalDest = getLogicalDestinationImpl();
+                EndpointAddress effectiveLogicalDest = getLogicalDestinationImpl();
 
                 if (logicalDestination == null) {
                     // We did not know what was supposed to be on the other side. Anything will do.

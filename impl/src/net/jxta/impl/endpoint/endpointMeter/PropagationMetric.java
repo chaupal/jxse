@@ -71,16 +71,19 @@ import java.util.Enumeration;
  *    Meter corresponding to propagated to a ServiceName/ServiceParam pair
  **/
 public class PropagationMetric implements DocumentSerializable {
-
     private String serviceName;
     private String serviceParameter;
 
     private String serviceIdString; // for Hashing
-    private int numPropagations;
-    private int numPropagatedTo;
-    private int numFilteredOut;
-    private int numErrorsPropagated;
-    private long propagationTime;
+    int numPropagations;
+    int numPropagatedTo;
+    int numFilteredOut;
+    int numErrorsPropagated;
+    long propagationTime;
+
+    public PropagationMetric() {
+        serviceIdString = serviceName + serviceParameter;		
+    }
 
     public PropagationMetric(PropagationMeter propagationMeter) {
         this.serviceName = propagationMeter.getServiceName();
@@ -96,7 +99,7 @@ public class PropagationMetric implements DocumentSerializable {
         serviceIdString = serviceName + serviceParameter;		
     }
 
-    public void registerPropagateMessageStats(int numPropagatedTo, int numFilteredOut, int numErrorsPropagated, long propagationTime) {
+    void registerPropagateMessageStats(int numPropagatedTo, int numFilteredOut, int numErrorsPropagated, long propagationTime) {
         this.numPropagations++;
         this.numPropagatedTo += numPropagatedTo;
         this.numFilteredOut += numFilteredOut;
@@ -178,7 +181,7 @@ public class PropagationMetric implements DocumentSerializable {
         return serviceIdString.hashCode();
     }
 
-    public String getServiceIdString() {
+    String getServiceIdString() {
         return serviceIdString;
     }	
 
@@ -220,19 +223,19 @@ public class PropagationMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("serviceName".equals(tagName)) {
+            if (tagName.equals("serviceName")) { 
                 serviceName = DocumentSerializableUtilities.getString(childElement);
-            } else if ("serviceParam".equals(tagName)) {
+            } else if (tagName.equals("serviceParam")) { 
                 serviceParameter = DocumentSerializableUtilities.getString(childElement);
-            } else if ("numPropagations".equals(tagName)) {
+            } else if (tagName.equals("numPropagations")) {
                 numPropagations = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPropagatedTo".equals(tagName)) {
+            } else if (tagName.equals("numPropagatedTo")) {
                 numPropagatedTo = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFilteredOut".equals(tagName)) {
+            } else if (tagName.equals("numFilteredOut")) {
                 numFilteredOut = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("propagationTime".equals(tagName)) {
+            } else if (tagName.equals("propagationTime")) {
                 propagationTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("numErrorsPropagated".equals(tagName)) {
+            } else if (tagName.equals("numErrorsPropagated")) {
                 numErrorsPropagated = DocumentSerializableUtilities.getInt(childElement);
             }
         }

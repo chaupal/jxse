@@ -201,10 +201,12 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
         boolean registeredSomething = false;
         
         try {
+            Class advClass = Class.forName(className + "$Instantiator");
             
-            final Class advClass = Class.forName(className + "$Instantiator");
-            final Instantiator instantiator = (Instantiator) advClass.newInstance();
-            final String advType = instantiator.getAdvertisementType();
+            Instantiator instantiator = (Instantiator) advClass.newInstance();
+            
+            String advType = instantiator.getAdvertisementType();
+            
             registeredSomething = registerAdvertisementInstance(advType, instantiator);
 
         } catch (Exception all) {
@@ -228,9 +230,9 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
      *   already a constructor for this type then false will be returned.
      */
     public static boolean registerAdvertisementInstance(String rootType, Instantiator instantiator) {
+        boolean result = factory.registerAssoc(rootType, instantiator);
         
-        return factory.registerAssoc(rootType, instantiator);
-
+        return result;
     }
     
     /**
@@ -242,12 +244,13 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
      * @throws NoSuchElementException if there is no matching advertisement type.
      */
     public static Advertisement newAdvertisement(String advertisementType) {
-
         factory.loadProviders();
-        final Instantiator instantiator = factory.getInstantiator(advertisementType);
         
-        return instantiator.newInstance();
-
+        Instantiator instantiator = factory.getInstantiator(advertisementType);
+        
+        Advertisement a = instantiator.newInstance();
+        
+        return a;
     }
 
     /**
@@ -268,14 +271,13 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
         // The base type of the advertisement may be overridden by a type
         // declaration. If this is the case, then we try to use that as the
         // key rather than the root name.
-        final Attribute type = root.getAttribute("type");
+        Attribute type = root.getAttribute("type");
 
         if (null != type) {
             try {
                 instantiator = factory.getInstantiator(type.getValue());
             } catch (NoSuchElementException notThere) {
                 // do nothing, its not fatal
-                Logging.logCheckedFiner(LOG, notThere.toString());
             }
         }
         
@@ -284,7 +286,8 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
             instantiator = factory.getInstantiator(root.getName());
         }
         
-        return instantiator.newInstance(root);
-
+        Advertisement a = instantiator.newInstance(root);
+        
+        return a;
     }
 }

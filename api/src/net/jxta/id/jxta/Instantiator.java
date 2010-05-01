@@ -56,19 +56,22 @@
 
 package net.jxta.id.jxta;
 
+
 import net.jxta.codat.CodatID;
 import net.jxta.content.ContentID;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.ProviderException;
-import net.jxta.peergroup.PeerGroupID;
+
 
 /**
  * Instantiator for the 'jxta' ID Format.
@@ -83,10 +86,10 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * This table maps the textual values of the well known ids to the
      * singleton classes which match those textual names.
      */
-    private final static Object[][] wellKnownIDs = {
+    final static Object[][] wellKnownIDs = {
         { net.jxta.id.ID.nullID.getUniqueValue(), net.jxta.id.ID.nullID},
-        { PeerGroupID.worldPeerGroupID.getUniqueValue(), PeerGroupID.worldPeerGroupID},
-        { PeerGroupID.defaultNetPeerGroupID.getUniqueValue(), PeerGroupID.defaultNetPeerGroupID}
+        { net.jxta.peergroup.PeerGroupID.worldPeerGroupID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.worldPeerGroupID},
+        { net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID.getUniqueValue(), net.jxta.peergroup.PeerGroupID.defaultNetPeerGroupID}
     };
 
     /**
@@ -128,7 +131,7 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic ) {
+            PeerGroupID groupID, boolean contentIsStatic ) {
         throw new ProviderException("unsupported id type");
     }
         
@@ -136,8 +139,8 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final byte[] indexSeed) {
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed) {
         throw new ProviderException("unsupported id type");
     }
         
@@ -145,8 +148,8 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final InputStream indexSeed)
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed)
             throws IOException {
         throw new ProviderException("unsupported id type");
     }
@@ -155,8 +158,8 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final byte[] indexSeed, byte[] variant){
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant){
         throw new ProviderException("unsupported id type");
     }
         
@@ -164,8 +167,8 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final InputStream indexSeed, byte[] variant)
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant)
             throws IOException{
         throw new ProviderException("unsupported id type");
     }
@@ -174,8 +177,8 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final byte[] indexSeed, InputStream variant)
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant)
             throws IOException{
         throw new ProviderException("unsupported id type");
     }
@@ -184,8 +187,8 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final InputStream indexSeed, InputStream variant)
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant)
             throws IOException{
         throw new ProviderException("unsupported id type");
     }
@@ -207,28 +210,28 @@ final class Instantiator implements net.jxta.id.IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      */
-    public PeerGroupID newPeerGroupID() {
+    public net.jxta.peergroup.PeerGroupID newPeerGroupID() {
         throw new ProviderException("unsupported id type");
     }
 
     /**
      * {@inheritDoc}
      */
-    public PeerGroupID newPeerGroupID(byte[] seed) {
+    public net.jxta.peergroup.PeerGroupID newPeerGroupID(byte[] seed) {
         throw new ProviderException("unsupported id type");
     }
 
     /**
      * {@inheritDoc}
      */
-    public PeerGroupID newPeerGroupID(PeerGroupID parent) {
+    public net.jxta.peergroup.PeerGroupID newPeerGroupID(net.jxta.peergroup.PeerGroupID parent) {
         throw new ProviderException("unsupported id type");
     }
 
     /**
      * {@inheritDoc}
      */
-    public PeerGroupID newPeerGroupID(PeerGroupID parent, byte[] seed) {
+    public net.jxta.peergroup.PeerGroupID newPeerGroupID(net.jxta.peergroup.PeerGroupID parent, byte[] seed) {
         throw new ProviderException("unsupported id type");
     }
 

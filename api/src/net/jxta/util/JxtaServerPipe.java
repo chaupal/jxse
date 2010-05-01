@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.util;
 
 import net.jxta.document.AdvertisementFactory;
@@ -77,6 +76,7 @@ import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.SocketException;
@@ -84,7 +84,9 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Properties;
 
@@ -272,7 +274,7 @@ public class JxtaServerPipe implements PipeMsgListener {
     /**
      * Sets the bound attribute of the JxtaServerPipe
      */
-    private void setBound() {
+    void setBound() {
         bound = true;
     }
 
@@ -388,7 +390,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             if (el != null) {
 
-                isReliable = Boolean.valueOf(el.toString());
+                isReliable = Boolean.valueOf((el.toString()));
                 Logging.logCheckedFine(LOG, "Connection request [isReliable] :", isReliable);
                 
             }
@@ -398,7 +400,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             if (el != null) {
 
-                directSupported = Boolean.valueOf(el.toString());
+                directSupported = Boolean.valueOf((el.toString()));
                 Logging.logCheckedFine(LOG, "Connection request [directSupported] :", directSupported);
                 
             }
@@ -465,7 +467,6 @@ public class JxtaServerPipe implements PipeMsgListener {
         try {
             properties.load(bis);
         } catch (IOException e) {
-            Logging.logCheckedSevere(LOG, e.toString());
         }
         return properties;
     } 

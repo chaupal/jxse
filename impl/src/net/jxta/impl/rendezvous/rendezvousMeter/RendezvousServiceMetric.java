@@ -113,7 +113,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
         return rendezvousMetric;
     }
 
-    public void setRendezvousMetric(RendezvousMetric rendezvousMetric) {
+    void setRendezvousMetric(RendezvousMetric rendezvousMetric) { 
         this.rendezvousMetric = rendezvousMetric; 
     }
 
@@ -133,7 +133,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
         return clientConnectionMetrics.iterator();
     }
 
-    public void clearClientConnectionMetrics() {
+    void clearClientConnectionMetrics() {
         clientConnectionMetrics.clear();
     }
 
@@ -168,7 +168,7 @@ public class RendezvousServiceMetric implements ServiceMetric {
         return rendezvousConnectionMetrics.iterator();
     }
 
-    public void clearRendezvousConnectionMetrics() {
+    void clearRendezvousConnectionMetrics() {
         rendezvousConnectionMetrics.clear();
     }
 
@@ -223,23 +223,22 @@ public class RendezvousServiceMetric implements ServiceMetric {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("clientConnectionMetric".equals(tagName)) {
+            if (tagName.equals("clientConnectionMetric")) {
                 ClientConnectionMetric clientConnectionMetric = (ClientConnectionMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, ClientConnectionMetric.class);
 
                 clientConnectionMetrics.add(clientConnectionMetric);
-            } else if ("rendezvousConnectionMetric".equals(tagName)) {
+            } else if (tagName.equals("rendezvousConnectionMetric")) {
                 RendezvousConnectionMetric rendezvousConnectionMetric = (RendezvousConnectionMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, RendezvousConnectionMetric.class);
 
                 rendezvousConnectionMetrics.add(rendezvousConnectionMetric);
-            } else if ("rendezvousMetric".equals(tagName)) {
+            } else if (tagName.equals("rendezvousMetric")) {
                 rendezvousMetric = (RendezvousMetric) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         RendezvousMetric.class);
             }
-
-            if ("moduleClassID".equals(tagName)) {
+            if (tagName.equals("moduleClassID")) {
                 try {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));

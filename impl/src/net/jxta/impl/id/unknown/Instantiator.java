@@ -56,19 +56,22 @@
 
 package net.jxta.impl.id.unknown;
 
+
 import net.jxta.id.IDFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.ProviderException;
 
+
 final class Instantiator implements IDFactory.Instantiator {
     
     /**
      *  Our ID Format
      **/
-    private final static String unknownFormat = "unknown";
+    final static String unknownFormat = "unknown";
     
     /**
      * {@inheritDoc}
@@ -233,14 +236,14 @@ final class Instantiator implements IDFactory.Instantiator {
     /**
      * {@inheritDoc}
      **/
-    public net.jxta.platform.ModuleClassID newModuleClassID(net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.platform.ModuleClassID newModuleClassID(final net.jxta.platform.ModuleClassID classID) {
         throw new ProviderException("unsupported id type");
     }
     
     /**
      * {@inheritDoc}
      **/
-    public net.jxta.platform.ModuleSpecID newModuleSpecID(net.jxta.platform.ModuleClassID classID) {
+    public net.jxta.platform.ModuleSpecID newModuleSpecID(final net.jxta.platform.ModuleClassID classID) {
         throw new ProviderException("unsupported id type");
     }
     
@@ -281,8 +284,9 @@ final class Instantiator implements IDFactory.Instantiator {
      * {@inheritDoc}
      **/
     public net.jxta.id.ID fromURNNamespaceSpecificPart(String source) throws URISyntaxException {
-
-        return new IDImpl(source);
+        ID result = new ID(source);
+        
+        return result;
         
     }
 }

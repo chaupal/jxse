@@ -313,25 +313,25 @@ public class RemoteMonitorResponse implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("responseType".equals(tagName)) {
+            if (tagName.equals("responseType")) { 
                 responseType = DocumentSerializableUtilities.getString(childElement);
-            } else if ("requestId".equals(tagName)) {
+            } else if (tagName.equals("requestId")) { 
                 requestId = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("monitorReport".equals(tagName)) {
+            } else if (tagName.equals("monitorReport")) {
                 monitorReport = (MonitorReport) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         MonitorReport.class);
-            } else if ("monitorFilter".equals(tagName)) {
+            } else if (tagName.equals("monitorFilter")) {
                 monitorFilter = (MonitorFilter) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         MonitorFilter.class);
-            } else if ("lease".equals(tagName)) {
+            } else if (tagName.equals("lease")) { 
                 lease = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("leaseId".equals(tagName)) {
+            } else if (tagName.equals("leaseId")) { 
                 leaseId = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("isCumulative".equals(tagName)) {
+            } else if (tagName.equals("isCumulative")) { 
                 isCumulative = DocumentSerializableUtilities.getBoolean(childElement);
-            } else if ("peerMonitorInfo".equals(tagName)) {
+            } else if (tagName.equals("peerMonitorInfo")) {
                 peerMonitorInfo = (PeerMonitorInfo) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         PeerMonitorInfo.class);

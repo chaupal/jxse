@@ -103,7 +103,7 @@ class HttpMessageReceiver implements MessageReceiver {
     /**
      * The ServletHttpTransport that created this MessageReceiver.
      */
-    protected final ServletHttpTransport servletHttpTransport;
+    final ServletHttpTransport servletHttpTransport;
 
     /**
      * The public addresses for the this transport.
@@ -149,8 +149,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : ");
-            configInfo.append(servletHttpTransport.assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
 
             configInfo.append("\n\tMin threads=").append(MIN_LISTENER_THREADS);
             configInfo.append("\n\tMax threads=").append(MAX_LISTENER_THREADS);
@@ -236,7 +235,7 @@ class HttpMessageReceiver implements MessageReceiver {
         handler.addServlet(MSG_RECEIVER_RELATIVE_URI, HttpMessageServlet.class.getName());
     }
 
-    public synchronized void start() throws PeerGroupException {
+    synchronized void start() throws PeerGroupException {
         
         try {
 
@@ -261,7 +260,7 @@ class HttpMessageReceiver implements MessageReceiver {
         
     }
     
-    public synchronized void stop() {
+    synchronized void stop() {
 
         servletHttpTransport.getEndpointService().removeMessageTransport(this);
         messengerEventListener = null;
@@ -288,8 +287,9 @@ class HttpMessageReceiver implements MessageReceiver {
      * @return {@code true} if the listener claimed the messenger, {@code false}
      *  otherwise
      */
-    public boolean messengerReadyEvent(HttpServletMessenger newMessenger, EndpointAddress connAddr) {
+    boolean messengerReadyEvent(HttpServletMessenger newMessenger, EndpointAddress connAddr) {
         MessengerEventListener temp = messengerEventListener;
+
         return null != temp && temp.messengerReady(new MessengerEvent(this, newMessenger, connAddr));
     }
 
@@ -314,7 +314,7 @@ class HttpMessageReceiver implements MessageReceiver {
         return servletHttpTransport.getEndpointService();
     }
     
-    public ServletHttpTransport getServletHttpTransport() {
+    ServletHttpTransport getServletHttpTransport() {
         return servletHttpTransport;
     }
 
@@ -350,7 +350,6 @@ class HttpMessageReceiver implements MessageReceiver {
                 in.close();
             } catch (IOException ignored) {
                 //ignored
-                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
             }
             in = null;
         }

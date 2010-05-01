@@ -61,6 +61,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 
@@ -152,7 +153,7 @@ public class RecoveryWindow {
 
                     // Cannot recover data that far back.
                     Logging.logCheckedFinest(LOG, "Data requested extends beyond recovery window");
-                    throw new IOException("Data requested extends beyond recovery window");
+                    throw(new IOException("Data requested extends beyond recovery window"));
 
                 }
 

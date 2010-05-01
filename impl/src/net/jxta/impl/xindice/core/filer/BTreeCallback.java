@@ -54,7 +54,6 @@
  * <http://www.apache.org/>.
  *
  */
-
 package net.jxta.impl.xindice.core.filer;
 
 import net.jxta.impl.xindice.core.data.Value;

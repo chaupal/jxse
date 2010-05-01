@@ -91,7 +91,7 @@ public class CmRandomLoadTester implements Runnable {
 				    Collections.addAll(directories, DIRECTORIES);
 				    String dn = null;
 				    String fn = null;
-				    while(fn == null && directories.isEmpty()) {
+				    while(fn == null && directories.size() > 0) {
 				        dn = randomSelection(directories);
 				        fn = randomFileInDirectory(dn);
 				    }

@@ -56,12 +56,16 @@
 
 package net.jxta.util;
 
+
 import net.jxta.logging.Logging;
+
 import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  *  Implements a bounds on the number of bytes which may be read from an

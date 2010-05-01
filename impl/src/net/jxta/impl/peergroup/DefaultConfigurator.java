@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
 
 import net.jxta.document.Advertisement;
@@ -65,6 +64,7 @@ import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -197,12 +197,8 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
                 try {
                     adv = AdvertisementFactory.newAdvertisement(security);
-                } catch (NoSuchElementException notAnAdv) {
-                    // that's ok.
-                    Logging.logCheckedFine(LOG, "Ignored: ", notAnAdv.toString());
-                } catch (IllegalArgumentException badAdv) {
-                    // that's ok.
-                    Logging.logCheckedFine(LOG, "Ignored: ", badAdv.toString());
+                } catch (NoSuchElementException notAnAdv) {// that's ok.
+                } catch (IllegalArgumentException badAdv) {// that's ok.
                 }
 
                 if (adv instanceof PSEConfigAdv) {
@@ -246,9 +242,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
                     while (in.ready()) {
                         in.readLine();
                     }
-                } catch (Exception ignored) {
-                    // ignored
-                    Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
+                } catch (Exception ignored) {// ignored
                 }
 
                 System.err.flush();
@@ -260,9 +254,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
                 try {
                     answer = in.readLine();
-                } catch (Exception ignored) {
-                    // ignored
-                    Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
+                } catch (Exception ignored) {// ignored
                 }
 
                 // this will cover all the cases of the answer yes, while

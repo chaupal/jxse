@@ -123,7 +123,7 @@ public final class DiscoveryServiceInterface implements DiscoveryService {
      * it is ALWAYS ignored. By definition, the interface object
      * protects the real object's start/stop methods from being called
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         return 0;
     }
     
@@ -257,7 +257,7 @@ public final class DiscoveryServiceInterface implements DiscoveryService {
      *  {@inheritDoc}
      */
     public synchronized boolean removeDiscoveryListener(DiscoveryListener listener) {
-        return impl.removeDiscoveryListener(listener);
+        return (impl.removeDiscoveryListener(listener));
     }
 }
 

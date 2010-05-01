@@ -102,7 +102,6 @@ public abstract class PeerGroupID extends ID {
     /**
      *  {@inheritDoc}
      */
-    @Override
     public PeerGroupID intern() {
         return (PeerGroupID) super.intern();
     }
@@ -111,13 +110,13 @@ public abstract class PeerGroupID extends ID {
      * The well known Unique Identifier of the world peergroup.
      * This is a singleton within the scope of a VM.
      */
-    public final static PeerGroupID worldPeerGroupID = new WorldPeerGroupID().intern();
+    public final static PeerGroupID worldPeerGroupID = (new WorldPeerGroupID()).intern();
     
     /**
      * The well known Unique Identifier of the net peergroup.
      * This is a singleton within the scope of this VM.
      */
-    public final static PeerGroupID defaultNetPeerGroupID = new NetPeerGroupID().intern();
+    public final static PeerGroupID defaultNetPeerGroupID = (new NetPeerGroupID()).intern();
     
     /**
      *  Returns the parent peer group id of this peer group id, if any.
@@ -128,12 +127,13 @@ public abstract class PeerGroupID extends ID {
     public abstract PeerGroupID getParentPeerGroupID();
 }
 
+
 final class WorldPeerGroupID extends PeerGroupID {
     
     /**
      * The name associated with this ID Format.
      */
-    private final static String JXTAFormat = "jxta";
+    final static String JXTAFormat = "jxta";
     
     private static final String UNIQUEVALUE = "WorldGroup";
     
@@ -142,6 +142,14 @@ final class WorldPeerGroupID extends PeerGroupID {
      *  {@link PeerGroupID#worldPeerGroupID} constant instead.
      */
     WorldPeerGroupID() {}
+    
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        return (this == target); // worldPeerGroupID is only itself.
+    }
     
     /**
      * deserialization has to point back to the singleton in this VM
@@ -173,15 +181,15 @@ final class WorldPeerGroupID extends PeerGroupID {
     public PeerGroupID getParentPeerGroupID() {
         return null;
     }
-
 }
+
 
 final class NetPeerGroupID extends PeerGroupID {
 
     /**
      * The name associated with this ID Format.
      */
-    private final static String JXTAFormat = "jxta";
+    final static String JXTAFormat = "jxta";
     
     private static final String UNIQUEVALUE = "NetGroup";
     
@@ -190,6 +198,14 @@ final class NetPeerGroupID extends PeerGroupID {
      *  {@link PeerGroupID#defaultNetPeerGroupID} constant instead.
      */
     NetPeerGroupID() {}
+    
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        return (this == target); // netPeerGroupID is only itself.
+    }
     
     /**
      * deserialization has to point back to the singleton in this VM

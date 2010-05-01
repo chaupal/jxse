@@ -59,6 +59,7 @@ package net.jxta.impl.membership.pse;
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
+import net.jxta.document.*;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
@@ -88,23 +89,9 @@ import java.security.cert.CertPath;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.XMLDocument;
-import net.jxta.document.XMLElement;
 
 
 /**
@@ -128,7 +115,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * the peergroup to which this service is associated.
      **/
-    protected PeerGroup group = null;
+    PeerGroup group = null;
     
     /**
      *  The ID assigned to this instance.
@@ -158,7 +145,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      *  the keystore we are working with.
      **/
-    protected PSEConfig pseStore = null;
+    PSEConfig pseStore = null;
     
     /**
      *  the default credential
@@ -174,7 +161,7 @@ public final class PSEMembershipService implements MembershipService {
      * PSEPeerSecurityEngine ( and PSEAuthenticatorEngine ) loader
      */
     
-    protected PSEPeerSecurityEngine peerSecurityEngine = null;
+    PSEPeerSecurityEngine peerSecurityEngine = null;
     
     private PSEAuthenticatorEngine authenticatorEngine = null;
     
@@ -217,7 +204,6 @@ public final class PSEMembershipService implements MembershipService {
      * {@inheritDoc}
      **/
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
-
         this.group = group;
         this.assignedID = assignedID;
         this.implAdvertisement = (ModuleImplAdvertisement) impl;
@@ -233,7 +219,7 @@ public final class PSEMembershipService implements MembershipService {
             try {
                 paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
             } catch (NoSuchElementException ignored) {
-                Logging.logCheckedFine(LOG, ignored);
+                ;
             }
             
             if (!(paramsAdv instanceof PSEConfigAdv)) {
@@ -256,8 +242,7 @@ public final class PSEMembershipService implements MembershipService {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring PSE Membership Service : ")
-                    .append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring PSE Membership Service : " + assignedID);
 
             configInfo.append("\n\tImplementation :");
             configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
@@ -302,7 +287,7 @@ public final class PSEMembershipService implements MembershipService {
      * <p/>Currently this service starts by itself and does not expect
      * arguments.
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         
         Logging.logCheckedInfo(LOG, "PSE Membmership Service started.");
 
@@ -454,7 +439,6 @@ public final class PSEMembershipService implements MembershipService {
             }
 
         } catch (Exception ignored) {
-            Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
         }
         
         support.firePropertyChange("defaultCredential", oldDefault, newDefault);
@@ -677,7 +661,7 @@ public final class PSEMembershipService implements MembershipService {
      *  @param assignedID   The assigned ID of the service credential.
      *  @param credential   The issuer credential for the service credential.
      **/
-    public X509Certificate[] generateServiceCertificate(ID assignedID, PSECredential credential) throws  IOException, KeyStoreException, InvalidKeyException, SignatureException {
+    X509Certificate[] generateServiceCertificate(ID assignedID, PSECredential credential) throws  IOException, KeyStoreException, InvalidKeyException, SignatureException {
         
         Logging.logCheckedFine(LOG, "Generating new service cert for ", assignedID);
         
@@ -724,7 +708,7 @@ public final class PSEMembershipService implements MembershipService {
             try {
                 authenticate = apply(authCred);
             } catch (Exception failed) {
-                Logging.logCheckedInfo(LOG, "Failed authentication: ", failed.toString());
+                ;
             }
             
             if (null == authenticate) {
@@ -742,7 +726,7 @@ public final class PSEMembershipService implements MembershipService {
             try {
                 authenticate = apply(authCred);
             } catch (Exception failed) {
-                Logging.logCheckedFine(LOG, failed);
+                ;
             }
             
             if (null == authenticate) {

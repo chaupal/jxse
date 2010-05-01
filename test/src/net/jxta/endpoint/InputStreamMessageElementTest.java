@@ -56,16 +56,24 @@
 
 package net.jxta.endpoint;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.Collections;
+
 import java.io.IOException;
+
 import junit.framework.*;
+
 import net.jxta.document.MimeMediaType;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.InputStreamMessageElement;
+
 
 /**
  *

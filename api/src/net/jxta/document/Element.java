@@ -53,10 +53,11 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.document;
 
+
 import java.util.Enumeration;
+
 
 /**
  *  An element represents a portion of a {@link StructuredDocument}. An element

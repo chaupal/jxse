@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
 
 import net.jxta.document.AdvertisementFactory;
@@ -73,12 +72,14 @@ import net.jxta.pipe.PipeService;
 import net.jxta.platform.Module;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -94,7 +95,7 @@ public class WirePipeImpl implements EndpointListener {
     /**
      * Service name we register our listener with.
      */
-    public final static String WIRE_SERVICE_NAME = "jxta.service.wirepipe";
+    final static String WIRE_SERVICE_NAME = "jxta.service.wirepipe";
 
     /**
      * Service param we register our listener with.
@@ -109,12 +110,12 @@ public class WirePipeImpl implements EndpointListener {
     /**
      * The Message namespace we use for passing the wire header.
      */
-    public final static String WIRE_HEADER_ELEMENT_NAMESPACE = "jxta";
+    final static String WIRE_HEADER_ELEMENT_NAMESPACE = "jxta";
 
     /**
      * The Message Element name we use for passing the wire header.
      */
-    public final static String WIRE_HEADER_ELEMENT_NAME = "JxtaWireHeader";
+    final static String WIRE_HEADER_ELEMENT_NAME = "JxtaWireHeader";
 
     /**
      * The wire pipes we know of.
@@ -154,7 +155,7 @@ public class WirePipeImpl implements EndpointListener {
      * @param arg A table of strings arguments.
      * @return int status indication.
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
@@ -214,7 +215,7 @@ public class WirePipeImpl implements EndpointListener {
      * @return InputPipe InputPipe object created
      * @throws IOException error creating input pipe
      */
-    protected InputPipe createInputPipe(PipeAdvertisement adv, PipeMsgListener listener) throws IOException {
+    InputPipe createInputPipe(PipeAdvertisement adv, PipeMsgListener listener) throws IOException {
         WirePipe wirePipe = getWirePipe(adv);
         return new InputPipeImpl(wirePipe, adv, listener);
     }
@@ -228,7 +229,7 @@ public class WirePipeImpl implements EndpointListener {
      *              for the corresponding Pipes
      * @return OuputPipe corresponding OutputPipe
      */
-    protected NonBlockingWireOutputPipe createOutputPipe(PipeAdvertisement adv, Set<? extends ID> peers) {
+    NonBlockingWireOutputPipe createOutputPipe(PipeAdvertisement adv, Set<? extends ID> peers) {
         WirePipe wirePipe = getWirePipe(adv);
         return new NonBlockingWireOutputPipe(group, wirePipe, adv, peers);
     }
@@ -299,7 +300,7 @@ public class WirePipeImpl implements EndpointListener {
      * @return {@code true} if the wire pipe had been registered otherwise
      *         {@code false}.
      */
-    protected boolean forgetWirePipe(ID pipeID) {
+    boolean forgetWirePipe(ID pipeID) {
 
         synchronized (wirePipes) {
 

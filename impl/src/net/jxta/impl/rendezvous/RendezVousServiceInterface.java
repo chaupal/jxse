@@ -63,6 +63,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.peer.PeerID;
+import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -88,7 +89,7 @@ import java.util.Vector;
 @Deprecated
 public class RendezVousServiceInterface implements RendezVousService {
 
-    private RendezVousServiceImpl impl = null;
+    RendezVousServiceImpl impl = null;
 
     /**
      * The only authorized constructor.
@@ -140,7 +141,7 @@ public class RendezVousServiceInterface implements RendezVousService {
      * it is ALWAYS ignored. By definition, the interface object
      * protects the real object's start/stop methods from being called
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         return Module.START_OK;
     }
 

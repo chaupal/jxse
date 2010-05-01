@@ -143,5 +143,4 @@ public final class ModuleClassID extends net.jxta.impl.id.UUID.ModuleClassID {
     protected UUID getClassUUID() {
         return super.getClassUUID();
     }
-
 }

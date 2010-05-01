@@ -56,6 +56,7 @@
 
 package net.jxta.meter;
 
+
 import net.jxta.document.Element;
 import net.jxta.document.TextElement;
 import net.jxta.id.IDFactory;
@@ -63,6 +64,7 @@ import net.jxta.platform.ModuleClassID;
 import net.jxta.util.documentSerializable.DocumentSerializable;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -71,6 +73,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  *		A Monitor Filter specifies which service-specific metrics should be obtained by the Monitor.
@@ -216,7 +219,7 @@ public class MonitorFilter implements DocumentSerializable {
             Element serviceElement = (TextElement) e.nextElement();
             String tagName = (String) serviceElement.getKey();
 			
-            if ("service".equals(tagName)) {
+            if (tagName.equals("service")) {
                 try {
                     ModuleClassID moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(serviceElement, "moduleClassID", "ERROR")));

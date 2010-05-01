@@ -53,16 +53,9 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.loader;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import net.jxta.content.*;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
@@ -77,30 +70,17 @@ import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
+
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.content.Content;
-import net.jxta.content.ContentID;
-import net.jxta.content.ContentService;
-import net.jxta.content.ContentTransfer;
-import net.jxta.content.ContentTransferAggregator;
-import net.jxta.content.ContentTransferAggregatorEvent;
-import net.jxta.content.ContentTransferAggregatorListener;
-import net.jxta.content.ContentTransferEvent;
-import net.jxta.content.ContentTransferListener;
-import net.jxta.content.TransferException;
+
 
 /**
  * This class is the reference implementation of the JxtaLoader.
@@ -226,7 +206,7 @@ public class RefJxtaLoader extends JxtaLoader {
         } catch (ClassNotFoundException e) {
             if (uri == null) {
                 // Nothing more we can do
-                throw e;
+                throw(e);
             }
             
             /*
@@ -238,8 +218,8 @@ public class RefJxtaLoader extends JxtaLoader {
             try {
                 ID id = IDFactory.fromURI(uri);
                 if (!(id instanceof ContentID)) {
-                    throw new ClassNotFoundException(
-                            "Of all JXTA IDs, only ContentIDs are supported package URIs");
+                    throw(new ClassNotFoundException(
+                            "Of all JXTA IDs, only ContentIDs are supported package URIs"));
                 }
                 
                 URI contentURI = retrieveContent((ContentID) id);
@@ -265,8 +245,8 @@ public class RefJxtaLoader extends JxtaLoader {
                 addURL(url);
                 return loadClass(name, resolve);
             } catch (MalformedURLException mux) {
-                throw new ClassNotFoundException(
-                        "Could not load class from URL: " + uri);
+                throw(new ClassNotFoundException(
+                        "Could not load class from URL: " + uri));
             }
         }
     }
@@ -290,7 +270,7 @@ public class RefJxtaLoader extends JxtaLoader {
         try {
             return super.loadClass(name, resolve);
         } catch (ClassNotFoundException cnfx) {
-            Logging.logCheckedFine(LOG, "Ignored: ", cnfx.toString());
+            // Fall through
         }
         
         /*
@@ -398,7 +378,7 @@ public class RefJxtaLoader extends JxtaLoader {
             Logging.logCheckedFinest(LOG, hashHex(), ": Self loader threw: ",
                         cnfx.getClass(), ": ", cnfx.getMessage());
 
-            throw cnfx;
+            throw(cnfx);
         }
     }
 
@@ -567,8 +547,10 @@ public class RefJxtaLoader extends JxtaLoader {
                 asDoc = StructuredDocumentFactory.newStructuredDocument(
                         MimeMediaType.XMLUTF8, new StringReader(aCompat));
             } catch (IOException iox) {
+                
                 Logging.logCheckedFinest(LOG, hashHex(), ": Caught exception ", iox);
                 continue;
+                
             }
 
             if (equator.compatible(asDoc)) {
@@ -650,9 +632,9 @@ public class RefJxtaLoader extends JxtaLoader {
             urlStream = providers.openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
             
-            String provider = reader.readLine();
+            String provider;
 
-            while (provider != null) {
+            while ((provider = reader.readLine()) != null) {
                 int comment = provider.indexOf('#');
                 
                 if (comment != -1) {
@@ -712,9 +694,6 @@ public class RefJxtaLoader extends JxtaLoader {
                     
                 }
 
-                // Reading next line
-                provider = reader.readLine();
-
             }
 
         } catch (IOException ex) {
@@ -726,7 +705,7 @@ public class RefJxtaLoader extends JxtaLoader {
                 try {
                     urlStream.close();
                 } catch (IOException ignored) {
-                    Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
+                    
                 }
             }
         }
@@ -775,8 +754,8 @@ public class RefJxtaLoader extends JxtaLoader {
         try {
             return clazz.asSubclass(Module.class);
         } catch (ClassCastException ccx) {
-            throw new ClassNotFoundException(
-                    "Class found but was not a Module class: " + clazz);
+            throw(new ClassNotFoundException(
+                    "Class found but was not a Module class: " + clazz));
         }
     }
     
@@ -788,7 +767,6 @@ public class RefJxtaLoader extends JxtaLoader {
      * @param service ContentService instance 
      */
     private File getContentFile(ContentID forContentID) {
-
         ModuleSpecID groupMSID =
                 group.getPeerGroupAdvertisement().getModuleSpecID();
         URI storeHomeURI = group.getStoreHome();
@@ -824,9 +802,9 @@ public class RefJxtaLoader extends JxtaLoader {
     private URI retrieveContent(ContentID contentID)
             throws ClassNotFoundException {
         if (group == null) {
-            throw new ClassNotFoundException(
+            throw(new ClassNotFoundException(
                     "Loading of ContentID is only possible when JxtaLoader "
-                    + "is constructed with a PeerGroup reference");
+                    + "is constructed with a PeerGroup reference"));
         }
         
         // Get the storage location for this Content
@@ -852,9 +830,9 @@ public class RefJxtaLoader extends JxtaLoader {
             parentService = parentGroup.getContentService();
         }
         if (groupService == null && parentService == null) {
-            throw new ClassNotFoundException(
+            throw(new ClassNotFoundException(
                     "No ContentService instance found in either the local "
-                    + "group or the parent group");
+                    + "group or the parent group"));
         }
         
         // Commence the transfer, creating an aggregation as necessary
@@ -895,10 +873,10 @@ public class RefJxtaLoader extends JxtaLoader {
                 toAgg.add(xfer);
             }
             
-            if (toAgg.isEmpty()) {
-                throw new ClassNotFoundException(
+            if (toAgg.size() == 0) {
+                throw(new ClassNotFoundException(
                         "No Content providers were able to load content ID: "
-                        + contentID);
+                        + contentID));
             } else if (toAgg.size() == 1) {
                 // No reason to use an aggregation.
                 xfer = toAgg.get(0);
@@ -929,13 +907,13 @@ public class RefJxtaLoader extends JxtaLoader {
 
             xfer.cancel();
             file.delete();
-            throw new ClassNotFoundException("Thread was interrupted during transfer attempt", intx);
+            throw(new ClassNotFoundException("Thread was interrupted during transfer attempt", intx));
 
         } catch (TransferException xferx) {
 
             xfer.cancel();
             file.delete();
-            throw new ClassNotFoundException("Package Content transfer failed", xferx);
+            throw(new ClassNotFoundException("Package Content transfer failed", xferx));
 
         }
         
@@ -948,8 +926,8 @@ public class RefJxtaLoader extends JxtaLoader {
                 fileOut.close();
             } catch (IOException iox) {
                 file.delete();
-                throw new ClassNotFoundException(
-                        "Could not persist Content", iox);
+                throw(new ClassNotFoundException(
+                        "Could not persist Content", iox));
             }
         }
         

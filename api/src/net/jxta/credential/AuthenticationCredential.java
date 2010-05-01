@@ -69,9 +69,11 @@ import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -223,10 +225,11 @@ public final class AuthenticationCredential implements Credential {
      *
      * @param as The mime media type of the encoding format being requested.
      * @return the StructuredDocument which represents this credential.
+     * @throws Exception When errors occur.
      */
-    public StructuredDocument getDocument(MimeMediaType as) {
+    public StructuredDocument getDocument(MimeMediaType as) throws Exception {
 
-        final StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
+        StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
 
         if (doc instanceof Attributable) {
             ((Attributable) doc).addAttribute("xmlns:jxta", "http://jxta.org");
@@ -289,8 +292,8 @@ public final class AuthenticationCredential implements Credential {
     protected boolean handleElement(TextElement elem) {
         if (elem.getName().equals("PeerGroupID")) {
             try {
-                final URI gID = new URI(elem.getTextValue());
-                final ID pgid = IDFactory.fromURI(gID);
+                URI gID = new URI(elem.getTextValue());
+                ID pgid = IDFactory.fromURI(gID);
 
                 if (!pgid.equals(getPeerGroupID())) {
                     throw new IllegalArgumentException("Operation is from a different group. " + pgid + " != " + getPeerGroupID());
@@ -303,8 +306,8 @@ public final class AuthenticationCredential implements Credential {
 
         if (elem.getName().equals("PeerID")) {
             try {
-                final URI pID = new URI(elem.getTextValue());
-                final ID pid = IDFactory.fromURI(pID);
+                URI pID = new URI(elem.getTextValue());
+                ID pid = IDFactory.fromURI(pID);
 
                 if (!pid.equals(getPeerID())) {
                     throw new IllegalArgumentException("Operation is from a different group. " + pid + " != " + getPeerID());
@@ -323,7 +326,7 @@ public final class AuthenticationCredential implements Credential {
         }
 
         if (elem.getName().equals("IdentityInfo")) {
-            final Enumeration firstChild = elem.getChildren();
+            Enumeration firstChild = elem.getChildren();
 
             if (!firstChild.hasMoreElements()) {
                 throw new IllegalArgumentException("Missing identity info");
@@ -349,29 +352,29 @@ public final class AuthenticationCredential implements Credential {
             throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
         }
 
-        final TextElement doc = (TextElement) root;
+        TextElement doc = (TextElement) root;
 
         String typedoctype = "";
 
         if (root instanceof Attributable) {
-            final Attribute itsType = ((Attributable) root).getAttribute("type");
+            Attribute itsType = ((Attributable) root).getAttribute("type");
 
             if (null != itsType) {
                 typedoctype = itsType.getValue();
             }
         }
 
-        final String doctype = doc.getName();
+        String doctype = doc.getName();
 
         if (!"jxta:AuthenticationCredential".equals(doctype) && !"jxta:AuthenticationCredential".equals(typedoctype)) {
             throw new IllegalArgumentException(
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
         }
 
-        final Enumeration elements = doc.getChildren();
+        Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
-            final TextElement elem = (TextElement) elements.nextElement();
+            TextElement elem = (TextElement) elements.nextElement();
 
             if (!handleElement(elem)) {
                 Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());

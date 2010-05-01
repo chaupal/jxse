@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
@@ -61,6 +60,7 @@ import net.jxta.logging.Logging;
 import net.jxta.util.AbstractSimpleSelectable;
 import net.jxta.util.SimpleSelectable;
 import net.jxta.util.UUIDUtilities;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -78,6 +78,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.annotation.DoNotDelete;
 import net.jxta.annotation.DoNotRelyOnThisCode;
@@ -107,7 +108,7 @@ import net.jxta.annotation.DoNotRelyOnThisCode;
  * @see net.jxta.pipe.OutputPipe
  * @see net.jxta.pipe.PipeService
  */
-public class Message extends AbstractSimpleSelectable implements Serializable, Cloneable {
+public class Message extends AbstractSimpleSelectable implements Serializable {
 
     /**
      * Logger
@@ -157,7 +158,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * This string identifies the namespace which is assumed when calls are
      * made that don't include a namespace specification.
      */
-    protected String defaultNamespace;
+    protected final String defaultNamespace;
 
     /**
      * the namespaces in this message and the elements in each.
@@ -193,7 +194,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * The modification count is part of the {@code toString()} display for
      * Messages.
      */
-    protected AtomicInteger modCount = new AtomicInteger(0);
+    protected transient volatile int modCount = 0;
 
     /**
      * cached aggregate size of all the member elements. Used by
@@ -244,17 +245,17 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         /**
          * The elements being iterated.
          */
-        private ListIterator<element> list;
+        ListIterator<element> list;
 
         /**
          * The current element
          */
-        private element current = null;
+        element current = null;
 
         /**
          * The modCount at the time when the iterator was created.
          */
-        private transient int origModCount;
+        transient int origModCount;
 
         /**
          * Intialize the iterator from a list iterator.
@@ -272,7 +273,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         public boolean hasNext() {
 
             if (origModCount != Message.this.getMessageModCount()) {
-                final RuntimeException failure = new ConcurrentModificationException(
+                RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 Logging.logCheckedSevere(LOG,
@@ -291,7 +292,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         public MessageElement next() {
 
             if (origModCount != Message.this.getMessageModCount()) {
-                final RuntimeException failure = new ConcurrentModificationException(
+                RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 Logging.logCheckedSevere(LOG,
@@ -303,7 +304,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
             }
 
             current = list.next();
-            return current.elemnt;
+            return current.element;
         }
 
         /**
@@ -319,7 +320,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         public boolean hasPrevious() {
 
             if (origModCount != Message.this.getMessageModCount()) {
-                final RuntimeException failure = new ConcurrentModificationException(
+                RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 Logging.logCheckedSevere(LOG,
@@ -340,7 +341,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         public MessageElement previous() {
 
             if (origModCount != Message.this.getMessageModCount()) {
-                final RuntimeException failure = new ConcurrentModificationException(
+                RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 Logging.logCheckedSevere(LOG,
@@ -352,7 +353,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
             }
 
             current = list.previous();
-            return current.elemnt;
+            return current.element;
         }
 
         /**
@@ -376,7 +377,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
          */
         public void remove() {
             if (origModCount != Message.this.getMessageModCount()) {
-                final RuntimeException failure = new ConcurrentModificationException(
+                RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                 Logging.logCheckedSevere(LOG,
@@ -391,10 +392,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
                 throw new IllegalStateException("no current element, call next() or previous()");
             }
 
-            final ListIterator<element> elsPosition = Message.this.elements.listIterator();
-            final ListIterator<MessageElement> nsPosition = namespaces.get(current.namespace).listIterator();
+            ListIterator<element> elsPosition = Message.this.elements.listIterator();
+            ListIterator<MessageElement> nsPosition = namespaces.get(current.namespace).listIterator();
 
-            final int currentPrevious = list.previousIndex();
+            int currentPrevious = list.previousIndex();
 
             // restart this iterator
             while (list.previousIndex() >= 0) {
@@ -403,7 +404,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
 
             // readvance to the current position, but track in ns list and master list
             while (list.previousIndex() < currentPrevious) {
-                final element anElement = list.next();
+                element anElement = list.next();
 
                 try {
                     // advance to the same element in the master list.
@@ -419,12 +420,12 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
                     if (current.namespace.equals(anElement.namespace)) {
                         do {
                             anNsElement = nsPosition.next();
-                        } while (anElement.elemnt != anNsElement);
+                        } while (anElement.element != anNsElement);
                     }
 
                 } catch (NoSuchElementException ranOut) {
 
-                    final RuntimeException failure = new ConcurrentModificationException(
+                    RuntimeException failure = new ConcurrentModificationException(
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                     Logging.logCheckedSevere(LOG,
@@ -442,8 +443,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
             origModCount = Message.this.incMessageModCount();
 
             Logging.logCheckedFiner(LOG, "Removed ", current.namespace, "::",
-                    current.elemnt.getElementName(), "/", current.elemnt.getClass().getName(),
-                    "@", current.elemnt.hashCode(), " from ", Message.this);
+                    current.element.getElementName(), "/", current.element.getClass().getName(),
+                    "@", current.element.hashCode(), " from ", Message.this);
 
             current = null;
             
@@ -458,7 +459,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         public void set(MessageElement obj) {
 
             if (origModCount != Message.this.getMessageModCount()) {
-                final RuntimeException failure = new ConcurrentModificationException(
+                RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. ");
 
                 Logging.logCheckedSevere(LOG,
@@ -473,10 +474,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
                 throw new IllegalStateException("no current element, call next() or previous()");
             }
 
-            final ListIterator<element> elsPosition = Message.this.elements.listIterator();
-            final ListIterator<MessageElement> nsPosition = namespaces.get(current.namespace).listIterator();
+            ListIterator<element> elsPosition = Message.this.elements.listIterator();
+            ListIterator<MessageElement> nsPosition = namespaces.get(current.namespace).listIterator();
 
-            final int currentPrevious = list.previousIndex();
+            int currentPrevious = list.previousIndex();
 
             // restart this iterator
             while (list.previousIndex() >= 0) {
@@ -485,7 +486,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
 
             // readvance to the current position, but track in ns list and master list
             while (list.previousIndex() < currentPrevious) {
-                final element anElement = list.next();
+                element anElement = list.next();
 
                 try {
                     // advance to the same element in the master list.
@@ -501,11 +502,11 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
                     if (current.namespace.equals(anElement.namespace)) {
                         do {
                             anNsElement = nsPosition.next();
-                        } while (anElement.elemnt != anNsElement);
+                        } while (anElement.element != anNsElement);
                     }
                 } catch (NoSuchElementException ranOut) {
 
-                    final RuntimeException failure = new ConcurrentModificationException(
+                    RuntimeException failure = new ConcurrentModificationException(
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
                     Logging.logCheckedSevere(LOG,
@@ -517,7 +518,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
                 }
             }
 
-            final Message.element newCurrent = new Message.element(current.namespace, obj, null);
+            Message.element newCurrent = new Message.element(current.namespace, obj, null);
 
             elsPosition.set(newCurrent);
             nsPosition.set(obj);
@@ -525,10 +526,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
             origModCount = Message.this.incMessageModCount();
 
             Logging.logCheckedFiner(LOG,
-                        "Replaced ", current.namespace, "::", current.elemnt.getElementName(), "/",
-                        current.elemnt.getClass().getName(), "@", current.elemnt.hashCode(), " with ",
-                        newCurrent.namespace, "::", newCurrent.elemnt.getElementName(), "/",
-                        newCurrent.elemnt.getClass().getName(), "@", newCurrent.elemnt.hashCode(),
+                        "Replaced ", current.namespace, "::", current.element.getElementName(), "/",
+                        current.element.getClass().getName(), "@", current.element.hashCode(), " with ",
+                        newCurrent.namespace, "::", newCurrent.element.getElementName(), "/",
+                        newCurrent.element.getClass().getName(), "@", newCurrent.element.hashCode(),
                         " in ", Message.this);
             
             current = newCurrent;
@@ -558,7 +559,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
                 throw new IllegalStateException("no current element, call next() or previous()");
             }
 
-            return (null != current.signature) ? current.signature : current.elemnt.getSignature();
+            return (null != current.signature) ? current.signature : current.element.getSignature();
         }
     }
 
@@ -568,14 +569,13 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * element.
      */
     protected static class element {
-
-        private final String namespace;
-        private final MessageElement elemnt;
-        private final MessageElement signature;
+        final String namespace;
+        final MessageElement element;
+        final MessageElement signature;
 
         element(String namespace, MessageElement element, MessageElement signature) {
             this.namespace = namespace;
-            this.elemnt = element;
+            this.element = element;
             this.signature = signature;
         }
     }
@@ -616,8 +616,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         }
         
         if (!clone && GLOBAL_TRACKING_ELEMENT) {
-            final UUID tracking = UUIDUtilities.newSeqUUID();
-            final MessageElement trackingElement = new StringMessageElement("Tracking UUID", tracking.toString(), null);
+            UUID tracking = UUIDUtilities.newSeqUUID();
+
+            MessageElement trackingElement = new StringMessageElement("Tracking UUID", tracking.toString(), null);
+
             addMessageElement("jxta", trackingElement);
         }
     }
@@ -633,30 +635,15 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      */
     @Override
     public Message clone() {
-
-        final Message clone;
-        try {
-            clone = (Message) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            Logging.logCheckedSevere(LOG, ex.toString());
-            return null;
-        }
-
-        clone.defaultNamespace = this.defaultNamespace;
-        clone.lineage.add(Message.messagenumber.getAndIncrement());
-
-        if (LOG_MODIFICATIONS) {
-            clone.modHistory = new ArrayList<Throwable>();
-            incMessageModCount();
-        }
+        Message clone = new Message(getDefaultNamespace(), true );
 
         clone.lineage.addAll(lineage);
         clone.elements.addAll(elements);
 
         for (String aNamespace : namespaces.keySet()) {
-            final List<MessageElement> namespaceElements = namespaces.get(aNamespace);
+            List<MessageElement> namespaceElements = namespaces.get(aNamespace);
 
-            final List<MessageElement> newNamespaceElements = new ArrayList<MessageElement>(namespaceElements.size());
+            List<MessageElement> newNamespaceElements = new ArrayList<MessageElement>(namespaceElements.size());
 
             newNamespaceElements.addAll(namespaceElements);
             clone.namespaces.put(aNamespace, newNamespaceElements);
@@ -680,24 +667,24 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * {@code false}.
      */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
             return true;
         }
 
-        if (obj instanceof Message) {
-            final Message likeMe = (Message) obj;
+        if (target instanceof Message) {
+            Message likeMe = (Message) target;
 
-            final ElementIterator myElements = getMessageElements();
-            final ElementIterator itsElements = likeMe.getMessageElements();
+            ElementIterator myElements = getMessageElements();
+            ElementIterator itsElements = likeMe.getMessageElements();
 
             while (myElements.hasNext()) {
                 if (!itsElements.hasNext()) {
                     return false; // it has fewer than i do.
                 }
 
-                final MessageElement mine = myElements.next();
-                final MessageElement its = itsElements.next();
+                MessageElement mine = myElements.next();
+                MessageElement its = itsElements.next();
 
                 if (!myElements.getNamespace().equals(itsElements.getNamespace())) {
                     return false; // elements not in the same namespace
@@ -719,12 +706,11 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      */
     @Override
     public int hashCode() {
-
         int result = 0;
-        final Iterator<MessageElement> eachElement = getMessageElements();
+        Iterator<MessageElement> eachElement = getMessageElements();
 
         while (eachElement.hasNext()) {
-            final MessageElement anElement = eachElement.next();
+            MessageElement anElement = eachElement.next();
 
             result += anElement.hashCode();
             result *= 6037; // a prime
@@ -745,8 +731,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      */
     @Override
     public String toString() {
-        
-        final StringBuilder toString = new StringBuilder(128);
+        StringBuilder toString = new StringBuilder(128);
+
         toString.append(getClass().getName());
         toString.append('@');
         toString.append(super.hashCode());
@@ -754,7 +740,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         toString.append(modCount);
         toString.append("){");
 
-        final Iterator allLineage = getMessageLineage();
+        Iterator allLineage = getMessageLineage();
 
         while (allLineage.hasNext()) {
             toString.append(allLineage.next().toString());
@@ -766,9 +752,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         toString.append('}');
 
         if (GLOBAL_TRACKING_ELEMENT) {
-
             toString.append("[");
-            final Iterator eachUUID = getMessageElements("jxta", "Tracking UUID");
+            Iterator eachUUID = getMessageElements("jxta", "Tracking UUID");
 
             while (eachUUID.hasNext()) {
                 toString.append("[");
@@ -796,11 +781,11 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         // reads defaultNamespace, modifiable flag
         s.defaultReadObject();
 
-        final MimeMediaType readType = new MimeMediaType(s.readUTF());
+        MimeMediaType readType = new MimeMediaType(s.readUTF());
 
         // XXX bondolo 20040307 Should do something with encoding here.
 
-        final Message readMessage = WireFormatMessageFactory.fromWire(s, readType, null);
+        Message readMessage = WireFormatMessageFactory.fromWire(s, readType, null);
 
         namespaces = readMessage.namespaces;
         elements = readMessage.elements;
@@ -829,13 +814,13 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
     private void writeObject(ObjectOutputStream s) throws IOException {
         s.defaultWriteObject();
 
-        final MimeMediaType writeType = WireFormatMessageFactory.DEFAULT_WIRE_MIME;
+        MimeMediaType writeType = WireFormatMessageFactory.DEFAULT_WIRE_MIME;
 
         s.writeUTF(writeType.toString());
 
         // XXX bondolo 20040307 Should do something with encoding here.
 
-        final WireFormatMessage serialed = WireFormatMessageFactory.toWire(this, writeType, null);
+        WireFormatMessage serialed = WireFormatMessageFactory.toWire(this, writeType, null);
 
         serialed.sendToStream(s);
     }
@@ -957,10 +942,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
         }
 
         MessageElement removed = null;
-        final Iterator<MessageElement> allMatching = getMessageElements(namespace, replacement.getElementName());
+        Iterator<MessageElement> allMatching = getMessageElements(namespace, replacement.getElementName());
 
         while (allMatching.hasNext()) {
-            final MessageElement anElement = allMatching.next();
+            MessageElement anElement = allMatching.next();
 
             allMatching.remove();
             removed = anElement;
@@ -990,13 +975,13 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      *         found.
      */
     public MessageElement getMessageElement(String name) {
-        final Iterator<element> eachElement = elements.listIterator();
+        Iterator<element> eachElement = elements.listIterator();
 
         while (eachElement.hasNext()) {
-            final element anElement = eachElement.next();
+            element anElement = eachElement.next();
 
-            if (name.equals(anElement.elemnt.getElementName())) {
-                return anElement.elemnt;
+            if (name.equals(anElement.element.getElementName())) {
+                return anElement.element;
             }
         }
 
@@ -1019,17 +1004,17 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
             namespace = getDefaultNamespace();
         }
 
-        final List<MessageElement> namespaceElements = namespaces.get(namespace);
+        List<MessageElement> namespaceElements = namespaces.get(namespace);
 
         // no namespace means no element.
         if (null == namespaceElements) {
             return null;
         }
 
-        final Iterator<MessageElement> eachElement = namespaceElements.listIterator();
+        Iterator<MessageElement> eachElement = namespaceElements.listIterator();
 
         while (eachElement.hasNext()) {
-            final MessageElement anElement = eachElement.next();
+            MessageElement anElement = eachElement.next();
 
             if (name.equals(anElement.getElementName())) {
                 return anElement;
@@ -1050,7 +1035,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return Enumeration of Elements.
      */
     public ElementIterator getMessageElements() {
-        final List<element> theMsgElements = new ArrayList<element>(elements);
+        List<element> theMsgElements = new ArrayList<element>(elements);
 
         return new ElementIterator(theMsgElements.listIterator());
     }
@@ -1069,10 +1054,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return iterator of the elements matching the specified name, if any.
      */
     public ElementIterator getMessageElements(String name) {
-        final List<element> theMsgElements = new ArrayList<element>(elements.size());
+        List<element> theMsgElements = new ArrayList<element>(elements.size());
 
         for (element anElement : elements) {
-            if (name.equals(anElement.elemnt.getElementName())) {
+            if (name.equals(anElement.element.getElementName())) {
                 theMsgElements.add(anElement);
             }
         }
@@ -1096,7 +1081,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return Iterator of Message Elements matching namespace.
      */
     public ElementIterator getMessageElementsOfNamespace(String namespace) {
-        final List<element> theMsgElements = new ArrayList<element>(elements.size());
+        List<element> theMsgElements = new ArrayList<element>(elements.size());
 
         if (null == namespace) {
             namespace = getDefaultNamespace();
@@ -1127,14 +1112,14 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return Iterator of Message Elements matching namespace and name.
      */
     public ElementIterator getMessageElements(String namespace, String name) {
-        final List<element> theMsgElements = new ArrayList<element>(elements.size());
+        List<element> theMsgElements = new ArrayList<element>(elements.size());
 
         if (null == namespace) {
             namespace = getDefaultNamespace();
         }
 
         for (element anElement : elements) {
-            if (namespace.equals(anElement.namespace) && name.equals(anElement.elemnt.getElementName())) {
+            if (namespace.equals(anElement.namespace) && name.equals(anElement.element.getElementName())) {
                 theMsgElements.add(anElement);
             }
         }
@@ -1155,14 +1140,14 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return Iterator of Message Elements matching type.
      */
     public ElementIterator getMessageElements(MimeMediaType type) {
-        
-        final List<element> theMsgElements = new ArrayList<element>(elements.size());
-        final ListIterator<element> eachElement = elements.listIterator();
+        List<element> theMsgElements = new ArrayList<element>(elements.size());
+
+        ListIterator<element> eachElement = elements.listIterator();
 
         while (eachElement.hasNext()) {
-            final element anElement = eachElement.next();
+            element anElement = eachElement.next();
 
-            if (type.equals(anElement.elemnt.getMimeType())) {
+            if (type.equals(anElement.element.getMimeType())) {
                 theMsgElements.add(anElement);
             }
         }
@@ -1186,15 +1171,14 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      *         type.
      */
     public ElementIterator getMessageElements(String namespace, MimeMediaType type) {
-
-        final List<element> theMsgElements = new ArrayList<element>(elements.size());
+        List<element> theMsgElements = new ArrayList<element>(elements.size());
 
         if (null == namespace) {
             namespace = getDefaultNamespace();
         }
 
         for (element anElement : elements) {
-            if (namespace.equals(anElement.namespace) && type.equals(anElement.elemnt.getMimeType())) {
+            if (namespace.equals(anElement.namespace) && type.equals(anElement.element.getMimeType())) {
                 theMsgElements.add(anElement);
             }
         }
@@ -1210,11 +1194,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return boolean returns true if the element was removed, otherwise false.
      */
     public boolean removeMessageElement(MessageElement remove) {
-
-        final Iterator<MessageElement> eachElement = getMessageElements();
+        Iterator<MessageElement> eachElement = getMessageElements();
 
         while (eachElement.hasNext()) {
-            final MessageElement anElement = eachElement.next();
+            MessageElement anElement = eachElement.next();
 
             if (remove == anElement) {
                 eachElement.remove(); // updates mod count
@@ -1236,11 +1219,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return boolean returns true if the element was removed, otherwise false.
      */
     public boolean removeMessageElement(String namespace, MessageElement remove) {
-
-        final Iterator<MessageElement> eachElement = getMessageElementsOfNamespace(namespace);
+        Iterator<MessageElement> eachElement = getMessageElementsOfNamespace(namespace);
 
         while (eachElement.hasNext()) {
-            final MessageElement anElement = eachElement.next();
+            MessageElement anElement = eachElement.next();
 
             if (remove == anElement) {
                 eachElement.remove(); // updates mod count
@@ -1275,19 +1257,17 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return the sum of all element sizes in bytes.
      */
     public synchronized long getByteLength() {
-
-        if (modCount.get() != cachedByteLengthModCount) {
-
+        if (modCount != cachedByteLengthModCount) {
             cachedByteLength = 0;
-            final Iterator<MessageElement> eachElement = getMessageElements();
+            Iterator<MessageElement> eachElement = getMessageElements();
 
             while (eachElement.hasNext()) {
-                final MessageElement anElement = eachElement.next();
+                MessageElement anElement = eachElement.next();
 
                 cachedByteLength += anElement.getByteLength();
             }
 
-            cachedByteLengthModCount = modCount.get();
+            cachedByteLengthModCount = modCount;
         }
 
         return cachedByteLength;
@@ -1301,7 +1281,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return the modification count of this message.
      */
     public int getMessageModCount() {
-        return modCount.get();
+        return modCount;
     }
 
     /**
@@ -1312,15 +1292,15 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
      * @return the modification count of this message.
      */
     protected synchronized int incMessageModCount() {
+        modCount++;
 
-        modCount.incrementAndGet();
-
-        if (LOG_MODIFICATIONS) 
+        if (LOG_MODIFICATIONS) {
             modHistory.add(new Throwable(Long.toString(System.currentTimeMillis()) + " : " + Thread.currentThread().getName()));
+        }
 
         if (!modifiable) {
 
-            final IllegalStateException failure = new IllegalStateException("Unmodifiable message should not have been modified");
+            IllegalStateException failure = new IllegalStateException("Unmodifiable message should not have been modified");
             Logging.logCheckedSevere(LOG, failure);
             throw failure;
             
@@ -1328,7 +1308,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
 
         Logging.logCheckedFiner(LOG, "Modification to ", this);
 
-        return modCount.get();
+        return modCount;
         
     }
 
@@ -1340,14 +1320,13 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
     public synchronized String getMessageModHistory() {
 
         if (LOG_MODIFICATIONS) {
-
-            final StringBuilder modHistoryStr = new StringBuilder("Message Modification History for ");
+            StringBuilder modHistoryStr = new StringBuilder("Message Modification History for ");
 
             modHistoryStr.append(toString());
             modHistoryStr.append("\n\n");
             for (int eachMod = modHistory.size() - 1; eachMod >= 0; eachMod--) {
-                final StringWriter aStackStr = new StringWriter();
-                final Throwable aStack = modHistory.get(eachMod);
+                StringWriter aStackStr = new StringWriter();
+                Throwable aStack = modHistory.get(eachMod);
 
                 aStack.printStackTrace(new PrintWriter(aStackStr));
                 modHistoryStr.append("Modification #");
@@ -1429,7 +1408,7 @@ public class Message extends AbstractSimpleSelectable implements Serializable, C
          }
          */
 
-        final Object res = properties.put(key, value);
+        Object res = properties.put(key, value);
 
         // Any property addition (including redundant) is notified. Removals are
         // too, since removal is done by assigning null.

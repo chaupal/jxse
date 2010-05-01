@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
 
 import net.jxta.endpoint.EndpointAddress;
@@ -62,8 +61,10 @@ import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PipeAdvertisement;
+
 import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

@@ -60,11 +60,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.Properties;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+
 import net.jxta.id.ID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupFactory;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.peergroup.PeerGroupFactory;
+
 import net.jxta.impl.util.TimeUtils;
 
 /**

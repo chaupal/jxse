@@ -55,21 +55,16 @@
  *  
  */
 
+
 package net.jxta.impl.meter;
 
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  * This class is used to extract runtime metering code configuration.
+ *
  */
-public final class ConditionalMeterBuildSettings {
-
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(ConditionalMeterBuildSettings.class.getName());
+public class ConditionalMeterBuildSettings {
 
     /**
      * This method indicates whether {@code METERING} code should be executed or not.
@@ -90,16 +85,9 @@ public final class ConditionalMeterBuildSettings {
                 String meteringValue = userResourceBundle.getString( meteringProperty );
                 runtimeMetering = "on".equalsIgnoreCase( meteringValue );
         } catch (Exception ignored) {
-            Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
         }
 
         return runtimeMetering;
-    }
-
-    /**
-     * Default constructor
-     */
-    private ConditionalMeterBuildSettings() {
     }
 
 }

@@ -56,12 +56,14 @@
 
 package net.jxta.impl.membership.pse;
 
+
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +74,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
+
 
 /**
  * An authenticator associated with the PSE membership service.
@@ -83,30 +85,30 @@ import net.jxta.logging.Logging;
 public class EngineAuthenticator implements Authenticator {
     
     /**
-     *  Log
+     *  Log4J Logger
      */
     private static final Logger LOG = Logger.getLogger(EngineAuthenticator.class.getName());
     
     /**
      * The Membership Service which generated this authenticator.
      **/
-    private transient PSEMembershipService source;
+    transient PSEMembershipService source;
     
     /**
      * The Authentication which was provided to the Apply operation of the
      * membership service.
      **/
-    private transient AuthenticationCredential application;
+    transient AuthenticationCredential application;
     
     /**
      *
      **/
-    private transient X509Certificate seedCert;
+    transient X509Certificate seedCert;
     
     /**
      *
      **/
-    private transient PSEAuthenticatorEngine authenticatorEngine;
+    transient PSEAuthenticatorEngine authenticatorEngine;
     
     /**
      *
@@ -116,17 +118,17 @@ public class EngineAuthenticator implements Authenticator {
     /**
      * the password for that identity.
      **/
-    private transient char[] store_password = null;
+    transient char[] store_password = null;
     
     /**
      * the identity which is being claimed
      **/
-    private transient ID identity = null;
+    transient ID identity = null;
     
     /**
      * the password for that identity.
      **/
-    private transient char[] key_password = null;
+    transient char[] key_password = null;
     
     /**
      * Creates an authenticator for the PSE membership service. Anything entered
@@ -214,18 +216,14 @@ public class EngineAuthenticator implements Authenticator {
     
     /**
      *  Get KeyStore password
-     *
-     * @return the store password
-     */
+     **/
     public char[] getAuth1_KeyStorePassword() {
         return store_password;
     }
     
     /**
      *  Set KeyStore password
-     *
-     * @param store_password the store password
-     */
+     **/
     public void setAuth1_KeyStorePassword(String store_password) {
         if (null == store_password) {
             setAuth1_KeyStorePassword((char[]) null);
@@ -236,9 +234,7 @@ public class EngineAuthenticator implements Authenticator {
     
     /**
      *  Set KeyStore password
-     *
-     * @param store_password the password
-     */
+     **/
     public void setAuth1_KeyStorePassword(char[] store_password) {
         if (null != this.store_password) {
             Arrays.fill(this.store_password, '\0');
@@ -253,43 +249,35 @@ public class EngineAuthenticator implements Authenticator {
     
     /**
      *  Return the available identities.
-     *
-     * @param store_password the store password
-     * @return an array of peer ids
-     */
+     **/
     public PeerID[] getIdentities(char[] store_password) {
         
         if (seedCert != null) {
-
             PeerID[] seed = { source.group.getPeerID() };
+
             return seed;
-
         } else {
-
             try {
-
                 ID[] allkeys = source.pseStore.getKeysList(store_password);
                 
                 // XXX bondolo 20040329 it may be appropriate to login
                 // something other than a peer id.
-                List<PeerID> peersOnly = new ArrayList<PeerID>();
+                List peersOnly = new ArrayList();
+                
                 Iterator eachKey = Arrays.asList(allkeys).iterator();
                 
                 while (eachKey.hasNext()) {
                     ID aKey = (ID) eachKey.next();
                     
                     if (aKey instanceof PeerID) {
-                        peersOnly.add((PeerID) aKey);
+                        peersOnly.add(aKey);
                     }
                 }
                 
-                return peersOnly.toArray(new PeerID[peersOnly.size()]);
-
+                return (PeerID[]) peersOnly.toArray(new PeerID[peersOnly.size()]);
             } catch (IOException failed) {
-                Logging.logCheckedSevere(LOG, failed.toString());
                 return null;
             } catch (KeyStoreException failed) {
-                Logging.logCheckedSevere(LOG, failed.toString());
                 return null;
             }
         }
@@ -315,61 +303,49 @@ public class EngineAuthenticator implements Authenticator {
     
     /**
      *  Get Identity
-     *
-     * @return an ID
-     */
+     **/
     public ID getAuth2Identity() {
         return identity;
     }
     
     /**
      *  Set Identity
-     *
-     * @param id an identity as a string
-     */
+     **/
     public void setAuth2Identity(String id) {
         try {
             URI idURI = new URI(id);
-            ID identityTmp = IDFactory.fromURI(idURI);
+            ID identity = IDFactory.fromURI(idURI);
 
-            setAuth2Identity(identityTmp);
+            setAuth2Identity(identity);
         } catch (URISyntaxException badID) {
-            throw new IllegalArgumentException("Bad ID: " + id);
+            throw new IllegalArgumentException("Bad ID");
         } 
     }
     
     /**
      *  Set Identity
-     *
-     * @param identity an ID
-     */
+     **/
     public void setAuth2Identity(ID identity) {
         this.identity = identity;
     }
     
     /**
      *  Get identity password
-     *
-     * @return a char array containing the identity password
-     */
+     **/
     public char[] getAuth3_IdentityPassword() {
         return key_password;
     }
     
     /**
      *  Set identity password
-     *
-     * @param key_password an identity password
-     */
+     **/
     public void setAuth3_IdentityPassword(String key_password) {
         setAuth3_IdentityPassword(key_password.toCharArray());
     }
     
     /**
      *  Set identity password
-     *
-     * @param key_password an identity password
-     */
+     **/
     public void setAuth3_IdentityPassword(char[] key_password) {
         if (null != this.key_password) {
             Arrays.fill(this.key_password, '\0');

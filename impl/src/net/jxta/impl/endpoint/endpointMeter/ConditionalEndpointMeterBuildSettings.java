@@ -58,18 +58,12 @@
 package net.jxta.impl.endpoint.endpointMeter;
 
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  * This class is used to extract runtime endpoint metering code configuration.
+ *
  */
-public final class ConditionalEndpointMeterBuildSettings {
-
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(ConditionalEndpointMeterBuildSettings.class.getName());
+public class ConditionalEndpointMeterBuildSettings {
 
     /**
      * This method indicates whether endpoint metering code should be executed or not.
@@ -90,16 +84,9 @@ public final class ConditionalEndpointMeterBuildSettings {
                 String meteringValue = userResourceBundle.getString( meteringProperty );
                 runtimeMetering = "on".equalsIgnoreCase( meteringValue );
         } catch (Exception ignored) {
-            Logging.logCheckedFine(LOG, ignored.toString());
         }
 
         return runtimeMetering;
-    }
-
-    /**
-     * Default constructor
-     */
-    private ConditionalEndpointMeterBuildSettings() {
     }
 
 }

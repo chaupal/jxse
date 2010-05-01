@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.tcp;
 
 import net.jxta.document.Advertisement;
@@ -87,6 +86,7 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetAddress;
@@ -101,23 +101,13 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EmptyStackException;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * This class implements the TCP Message Transport.
@@ -141,28 +131,28 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * The size of the buffer used to store outgoing messages
      * This should be set to the maximum message size (smaller is allowed).
      */
-    public static final int SendBufferSize = 64 * 1024; // 64 KBytes
+    static final int SendBufferSize = 64 * 1024; // 64 KBytes
 
     /**
      * The TCP receive buffer size
      */
-    public static final int RecvBufferSize = 64 * 1024; // 64 KBytes
+    static final int RecvBufferSize = 64 * 1024; // 64 KBytes
 
     /**
      * Connection  timeout
      * use the same system property defined by URLconnection, otherwise default to 10 seconds.
      */
-    public static int connectionTimeOut = 10 * (int) TimeUtils.ASECOND;
+    static int connectionTimeOut = 10 * (int) TimeUtils.ASECOND;
 
     // Java's default is 50
-    public static final int MaxAcceptCnxBacklog = 50;
+    static final int MaxAcceptCnxBacklog = 50;
 
     private String serverName = null;
     private final List<EndpointAddress> publicAddresses = new ArrayList<EndpointAddress>();
     private EndpointAddress publicAddress = null;
 
     private String interfaceAddressStr;
-    protected InetAddress usingInterface;
+    InetAddress usingInterface;
     private int serverSocketPort;
     private int restrictionPort = -1;
     private IncomingUnicastServer unicastServer = null;
@@ -175,9 +165,9 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     private long bytesReceived = 0;
     private long connectionsAccepted = 0;
 
-    protected PeerGroup group = null;
-    protected EndpointService endpoint = null;
-    protected Executor executor;
+    PeerGroup group = null;
+    EndpointService endpoint = null;
+    Executor executor;
 
     private String protocolName = "tcp";
     private TransportMeter unicastTransportMeter;
@@ -187,7 +177,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     private MessengerEventListener messengerEventListener = null;
 
     private Thread messengerSelectorThread;
-    private Selector messengerSelector = null;
+    Selector messengerSelector = null;
 
     private final Map<TcpMessenger, SocketChannel> regisMap = new ConcurrentHashMap<TcpMessenger, SocketChannel>();
     private final Set<SocketChannel> unregisMap = Collections.synchronizedSet(new HashSet<SocketChannel>());
@@ -197,7 +187,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * we create. THIS HAS NO EFFECT ON SCHEDULING. Java thread groups are
      * only for organization and naming.
      */
-//    private ThreadGroup myThreadGroup = null;
+    ThreadGroup myThreadGroup = null;
 
     /**
      * The maximum number of write selectors we will maintain in our cache per
@@ -333,18 +323,17 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
             return true;
         }
 
-        if (null == obj) {
+        if (null == target) {
             return false;
         }
 
-        if (obj instanceof TcpTransport) {
-            TcpTransport likeMe = (TcpTransport) obj;
+        if (target instanceof TcpTransport) {
+            TcpTransport likeMe = (TcpTransport) target;
 
             if (!getProtocolName().equals(likeMe.getProtocolName())) {
                 return false;
@@ -374,7 +363,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    @Override
     public int hashCode() {
         return getPublicAddress().hashCode();
     }
@@ -382,10 +370,10 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
+    public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
 
         this.group = group;
-        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) implAdv;
+        ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
 
         this.executor = ((StdPeerGroup) group).getExecutor();
 
@@ -529,6 +517,10 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                     public int compare(EndpointAddress one, EndpointAddress two) {
                         return one.toString().compareTo(two.toString());
                     }
+
+                    public boolean equals(Object that) {
+                        return (this == that);
+                    }
                 });
 
                 // Add public addresses:
@@ -606,8 +598,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         // Tell tell the world about our configuration.
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring TCP Message Transport : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring TCP Message Transport : " + assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -635,15 +626,8 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                     configInfo.append("\n\t\tUnicast Server Bind Addr: ").append(usingInterface.getHostAddress()).append(":").append(
                             serverSocketPort);
                 } else {
-                    configInfo.append("\n\t\tUnicast Server Bind Addr: ")
-                            .append(usingInterface.getHostAddress())
-                            .append(":")
-                            .append(serverSocketPort)
-                            .append(" [")
-                            .append(unicastServer.getStartPort())
-                            .append("-")
-                            .append(unicastServer.getEndPort())
-                            .append("]");
+                    configInfo.append("\n\t\tUnicast Server Bind Addr: ").append(usingInterface.getHostAddress()).append(":").append(serverSocketPort).append(" [").append(unicastServer.getStartPort()).append("-").append(unicastServer.getEndPort()).append(
+                            "]");
                 }
                 configInfo.append("\n\t\tUnicast Server Bound Addr: ").append(unicastServer.getLocalSocketAddress());
             } else {
@@ -664,7 +648,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     /**
      * {@inheritDoc}
      */
-    public synchronized int startApp(String[] args) {
+    public synchronized int startApp(String[] arg) {
 
         endpoint = group.getEndpointService();
 
@@ -859,19 +843,19 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         }
 
         try {
-
             // Right now we do not want to "announce" outgoing messengers because they get pooled and so must
             // not be grabbed by a listener. If "announcing" is to be done, that should be by the endpoint
             // and probably with a subtely different interface.
             return new TcpMessenger(dst, this, selfDestruct);
 
-        } catch (IOException caught) {
+        } catch (Exception caught) {
 
-            Logging.logCheckedFine(LOG, "Could not get messenger for ", dst, " :\n", caught);
+            Logging.logCheckedWarning(LOG, "Could not get messenger for ", dst, " :\n", caught);
+
+            if (caught instanceof RuntimeException) throw (RuntimeException) caught;
+            
             return null;
-
         }
-
     }
 
     /**
@@ -879,11 +863,11 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      *
      * @return Value for property 'restrictionPort'.
      */
-    public int getRestrictionPort() {
+    int getRestrictionPort() {
         return restrictionPort;
     }
 
-    public TransportBindingMeter getUnicastTransportBindingMeter(PeerID peerID, EndpointAddress destinationAddress) {
+    TransportBindingMeter getUnicastTransportBindingMeter(PeerID peerID, EndpointAddress destinationAddress) {
         if (unicastTransportMeter != null) {
             return unicastTransportMeter.getTransportBindingMeter(
                     (peerID != null) ? peerID.toString() : TransportMeter.UNKNOWN_PEER, destinationAddress);
@@ -892,7 +876,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         }
     }
 
-    public void messengerReadyEvent(Messenger newMessenger, EndpointAddress connAddr) {
+    void messengerReadyEvent(Messenger newMessenger, EndpointAddress connAddr) {
         messengerEventListener.messengerReady(new MessengerEvent(this, newMessenger, connAddr));
     }
 
@@ -901,7 +885,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      *
      * @return Value for property 'server'.
      */
-    public IncomingUnicastServer getServer() {
+    IncomingUnicastServer getServer() {
         return unicastServer;
 
     }
@@ -913,7 +897,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * @throws InterruptedException If interrupted while waiting for a selector
      *                              to become available.
      */
-    public Selector getSelector() throws InterruptedException {
+    Selector getSelector() throws InterruptedException {
         synchronized (writeSelectorCache) {
 
             Selector selector = null;
@@ -946,7 +930,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      *
      * @param selector the selector to put back into the pool
      */
-    public void returnSelector(Selector selector) {
+    void returnSelector(Selector selector) {
         synchronized (writeSelectorCache) {
             if (extraWriteSelectors > 0) {
                 // Allow the selector to be discarded.
@@ -954,7 +938,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             } else {
                 writeSelectorCache.push(selector);
                 // it does not hurt to notify, even if there are no waiters
-                writeSelectorCache.notifyAll();
+                writeSelectorCache.notify();
             }
         }
     }
@@ -1029,7 +1013,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                                     }
                                 } catch (CancelledKeyException cce) {
                                     //in case the key was canceled after the selection
-                                    Logging.logCheckedFine(LOG, "Ignored: ", cce.toString());
                                 }
                             } else {
                                 // unregister it, no need to keep invalid/closed channels around
@@ -1037,7 +1020,6 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                                     key.channel().close();
                                 } catch (IOException io) {
                                     // avoids breaking out of the selector loop
-                                    Logging.logCheckedFine(LOG, "Ignored: ", io.toString());
                                 }
                                 key.cancel();
                                 key = null;
@@ -1086,7 +1068,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      * @param channel   the socket channel.
      * @param messenger the messenger to attach to the channel.
      */
-    public void register(SocketChannel channel, TcpMessenger messenger) {
+    void register(SocketChannel channel, TcpMessenger messenger) {
         regisMap.put(messenger, channel);
         messengerSelector.wakeup();
     }
@@ -1096,7 +1078,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
      *
      * @param channel the socket channel.
      */
-    public void unregister(SocketChannel channel) {
+    void unregister(SocketChannel channel) {
         unregisMap.add(channel);
         messengerSelector.wakeup();
     }

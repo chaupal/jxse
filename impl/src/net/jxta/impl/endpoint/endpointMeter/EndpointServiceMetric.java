@@ -56,6 +56,7 @@
 
 package net.jxta.impl.endpoint.endpointMeter;
 
+
 import net.jxta.document.Element;
 import net.jxta.document.TextElement;
 import net.jxta.endpoint.EndpointAddress;
@@ -65,17 +66,18 @@ import net.jxta.meter.ServiceMetric;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+
 /**
  * Basic Service Metric EndpointService Monitoring
  */
-public class EndpointServiceMetric implements ServiceMetric, Cloneable {
-
+public class EndpointServiceMetric implements ServiceMetric {
     private LinkedList<InboundMetric> inboundMetrics = new LinkedList<InboundMetric>();
     private LinkedList<OutboundMetric> outboundMetrics = new LinkedList<OutboundMetric>();
     private LinkedList<PropagationMetric> propagationMetrics = new LinkedList<PropagationMetric>();
@@ -96,7 +98,7 @@ public class EndpointServiceMetric implements ServiceMetric, Cloneable {
         return moduleClassID;
     }
 
-    public void addInboundMetric(InboundMetric inboundMetric) {
+    void addInboundMetric(InboundMetric inboundMetric) {
         inboundMetrics.add(inboundMetric);
     }
 
@@ -128,11 +130,11 @@ public class EndpointServiceMetric implements ServiceMetric, Cloneable {
         return null;
     }
 
-    public void addPropagationMetric(PropagationMetric propagationMetric) {
+    void addPropagationMetric(PropagationMetric propagationMetric) {
         propagationMetrics.add(propagationMetric);
     }
 
-    public void addOutboundMetric(OutboundMetric outboundMetric) {
+    void addOutboundMetric(OutboundMetric outboundMetric) {
         outboundMetrics.add(outboundMetric);
     }
 
@@ -154,7 +156,7 @@ public class EndpointServiceMetric implements ServiceMetric, Cloneable {
         return endpointMetric;
     }
 
-    public void setEndpointMetric(EndpointMetric endpointMetric) {
+    void setEndpointMetric(EndpointMetric endpointMetric) {
         this.endpointMetric = endpointMetric;
     }
 
@@ -188,32 +190,32 @@ public class EndpointServiceMetric implements ServiceMetric, Cloneable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if ("inboundMetric".equals(tagName)) {
+            if (tagName.equals("inboundMetric")) {
                 InboundMetric inboundMetric = (InboundMetric) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         InboundMetric.class);
 
                 inboundMetrics.add(inboundMetric);
             }
-            if ("outboundMetric".equals(tagName)) {
+            if (tagName.equals("outboundMetric")) {
                 OutboundMetric outboundMetric = (OutboundMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, OutboundMetric.class);
 
                 outboundMetrics.add(outboundMetric);
             }
-            if ("propagationMetric".equals(tagName)) {
+            if (tagName.equals("propagationMetric")) {
                 PropagationMetric propagationMetric = (PropagationMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, PropagationMetric.class);
 
                 propagationMetrics.add(propagationMetric);
             }
-            if ("endpointMetric".equals(tagName)) {
+            if (tagName.equals("endpointMetric")) {
                 endpointMetric = (EndpointMetric) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         EndpointMetric.class);
             }
             try {
-                if ("moduleClassID".equals(tagName)) {
+                if (tagName.equals("moduleClassID")) {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));
                 }

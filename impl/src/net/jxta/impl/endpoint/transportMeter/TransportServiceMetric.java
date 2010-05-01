@@ -160,13 +160,13 @@ public class TransportServiceMetric implements ServiceMetric {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if ("transportMetric".equals(tagName)) {
+            if (tagName.equals("transportMetric")) {
                 TransportMetric transportMetric = (TransportMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, TransportMetric.class);
 
                 transportMetrics.add(transportMetric);
             }
-            if ("moduleClassID".equals(tagName)) {
+            if (tagName.equals("moduleClassID")) {
                 try {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));

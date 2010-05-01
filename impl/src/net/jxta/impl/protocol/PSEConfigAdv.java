@@ -56,11 +56,14 @@
 
 package net.jxta.impl.protocol;
 
+
+import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
+
 import javax.crypto.EncryptedPrivateKeyInfo;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -76,17 +79,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Attributable;
-import net.jxta.document.Attribute;
-import net.jxta.document.Document;
-import net.jxta.document.Element;
-import net.jxta.document.ExtendableAdvertisement;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.XMLElement;
+
 
 /**
  *  Contains parameters for configuration of the PSE Membership Service.

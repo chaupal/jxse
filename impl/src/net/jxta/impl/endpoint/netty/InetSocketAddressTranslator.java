@@ -73,7 +73,7 @@ public class InetSocketAddressTranslator implements AddressTranslator {
     }
     
     private InetSocketAddress parseIPv4(String protoAddr) {
-        int indexOfColon = protoAddr.indexOf(':');
+        int indexOfColon = protoAddr.indexOf(":");
         if(indexOfColon == -1 || indexOfColon == protoAddr.length()-1) {
             throw new IllegalArgumentException("No port specified in address <" + protoAddr + ">");
         }
@@ -141,6 +141,9 @@ public class InetSocketAddressTranslator implements AddressTranslator {
                 return one.toString().compareTo(two.toString());
             }
 
+            public boolean equals(Object that) {
+                return (this == that);
+            }
         });
     }
     

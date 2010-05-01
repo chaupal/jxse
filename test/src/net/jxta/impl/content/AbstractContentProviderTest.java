@@ -94,6 +94,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 /**
@@ -101,7 +102,6 @@ import static org.junit.Assert.*;
  * functionality.
  */
 public abstract class AbstractContentProviderTest {
-
     private static Logger LOG =
             Logger.getLogger(AbstractContentProviderTest.class.getName());
     
@@ -121,12 +121,11 @@ public abstract class AbstractContentProviderTest {
      * ClassLoader-nuetral form (i.e., system classes only).
      */
     public static class ContentSharer implements ContentSharerSPI {
-
         NetworkManager nm;
         ContentService service;
         String targetProvClass;
         
-        public ContentSharer(File tempDir, String className)
+        public ContentSharer(final File tempDir, final String className)
                 throws Exception {
             LOG.info("Constructing ContentSharer for class: " + className);
             targetProvClass = className;
@@ -145,7 +144,7 @@ public abstract class AbstractContentProviderTest {
         
         public void init() {
             try {
-                LOG.info("Initializing: " + this.toString());
+                LOG.info("Initializing: ", this);
                 PeerGroup netPeerGroup = nm.startNetwork();
                 nm.waitForRendezvousConnection(15000);
                 LOG.info("Am  RDV? " + netPeerGroup.isRendezvous());
@@ -173,8 +172,8 @@ public abstract class AbstractContentProviderTest {
                 assertEquals(1, service.getActiveContentProviders().size());
             } catch (Exception exc) {
                 // Rethrow as unchecked
-                throw new RuntimeException(
-                        "Could not init: " + exc.getMessage(), exc);
+                throw(new RuntimeException(
+                        "Could not init: " + exc.getMessage(), exc));
             }
         }
         
@@ -201,13 +200,13 @@ public abstract class AbstractContentProviderTest {
                 return byteOut.toByteArray();
             } catch (Exception exc) {
                 // Rethrow as unchecked
-                throw new RuntimeException(
-                        "Could not share: " + exc.getMessage(), exc);
+                throw(new RuntimeException(
+                        "Could not share: " + exc.getMessage(), exc));
             }
         }
 
         public void destroy() {
-            // LOG.info("Destroying: ", this);
+            LOG.info("Destroying: ", this);
             nm.stopNetwork();
             nm = null;
             service = null;
@@ -330,7 +329,7 @@ public abstract class AbstractContentProviderTest {
             }
         } catch (Throwable thr) {
             LOG.log(Level.WARNING, "Caught throwable\n", thr);
-            throw thr;
+            throw(thr);
         } finally {
             spi.destroy();
         }        
@@ -372,7 +371,7 @@ public abstract class AbstractContentProviderTest {
             }
         } catch (Throwable thr) {
             LOG.log(Level.WARNING, "Caught throwable\n", thr);
-            throw thr;
+            throw(thr);
         } finally {
             spi.destroy();
         }        
@@ -408,7 +407,7 @@ public abstract class AbstractContentProviderTest {
             return (ContentSharerSPI) obj;
         } catch (Exception exc) {
             // Rethrow as unchecked
-            throw new RuntimeException("Caught exception", exc);
+            throw(new RuntimeException("Caught exception", exc));
         }
     }
     

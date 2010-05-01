@@ -100,6 +100,7 @@ public abstract class JxseOSGiNetworkManagerService extends JxseOSGiService {
      * creates a new instance and configures it with the current peer configuration. 
      *
      * @return instance of a NetworkManager.
+     * @throws Exception if an issue is encountered while retrieving the {@code NetworkManager}.
      */
     public abstract NetworkManager getConfiguredNetworkManager() throws Exception;
 

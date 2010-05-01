@@ -53,19 +53,23 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
+
  */
 package net.jxta.impl.xindice;
 
 import net.jxta.impl.xindice.util.Named;
+
 import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Debug is a debugging class for the Xindice Server.  Because the class
  * and the Debugging field are final, the Java compiler should always
  * inline the methods and optimize them away if Debugging is set to false.
  */
+
 public final class Debug {
    
     /**
@@ -77,7 +81,7 @@ public final class Debug {
     public static final boolean Debugging = true;
    
     public static void SetPrintStream(PrintStream out) {
-        
+        ;
     }
 
     public static void println(Object obj, Object message) {
@@ -109,16 +113,10 @@ public final class Debug {
     }
    
     public static void setPrintStream(PrintStream outStream) {
-        
+        ;
     }
    
     public static void setPrefix(String debugPrefix) {
-        
-    }
-
-    /**
-     * Default constructor
-     */
-    private Debug() {
+        ;
     }
 }

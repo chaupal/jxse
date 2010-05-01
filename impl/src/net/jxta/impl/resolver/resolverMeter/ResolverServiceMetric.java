@@ -71,20 +71,12 @@ import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 
 /**
  * The Service Monitor Metric for the standard Resolver Service
  **/
-public class ResolverServiceMetric implements ServiceMetric, Cloneable {
-
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(ResolverServiceMetric.class.getName());
-
-    // Attributes
+public class ResolverServiceMetric implements ServiceMetric {
     private ResolverMetric resolverMetric;
     private LinkedList queryHandlerMetrics = new LinkedList();
     private LinkedList srdiHandlerMetrics = new LinkedList();
@@ -111,7 +103,7 @@ public class ResolverServiceMetric implements ServiceMetric, Cloneable {
         return resolverMetric;
     }
 	
-    public void setResolverMetric(ResolverMetric resolverMetric) {
+    void setResolverMetric(ResolverMetric resolverMetric) { 
         this.resolverMetric = resolverMetric; 
     }
 	
@@ -203,26 +195,26 @@ public class ResolverServiceMetric implements ServiceMetric, Cloneable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("queryHandlerMetric".equals(tagName)) {
+            if (tagName.equals("queryHandlerMetric")) {
                 QueryHandlerMetric queryHandlerMetric = (QueryHandlerMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, QueryHandlerMetric.class);
 
                 queryHandlerMetrics.add(queryHandlerMetric);
             }
 
-            if ("srdiHandlerMetric".equals(tagName)) {
+            if (tagName.equals("srdiHandlerMetric")) {
                 SrdiHandlerMetric srdiHandlerMetric = (SrdiHandlerMetric) DocumentSerializableUtilities.getDocumentSerializable(
                         childElement, SrdiHandlerMetric.class);
 
                 srdiHandlerMetrics.add(srdiHandlerMetric);
             }
 
-            if ("resolverMetric".equals(tagName)) {
+            if (tagName.equals("resolverMetric")) {
                 resolverMetric = (ResolverMetric) DocumentSerializableUtilities.getDocumentSerializable(childElement
                         ,
                         ResolverMetric.class);
             }
-            if ("moduleClassID".equals(tagName)) {
+            if (tagName.equals("moduleClassID")) {
                 try {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
                             new URI(DocumentSerializableUtilities.getString(childElement)));

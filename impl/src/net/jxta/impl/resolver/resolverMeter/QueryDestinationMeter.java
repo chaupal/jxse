@@ -56,15 +56,16 @@
 
 package net.jxta.impl.resolver.resolverMeter;
 
+
 import net.jxta.peer.PeerID;
+
 
 public class QueryDestinationMeter {
     private PeerID peerID;
     private QueryDestinationMetric cumulativeMetrics;
     private QueryDestinationMetric deltaMetrics;
 
-    public QueryDestinationMeter(PeerID inPeerID) {
-        peerID = inPeerID;
+    public QueryDestinationMeter(PeerID peerID) {
         cumulativeMetrics = new QueryDestinationMetric(peerID);
     }
 	

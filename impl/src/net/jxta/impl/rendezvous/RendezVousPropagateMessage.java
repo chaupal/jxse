@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
 
 import net.jxta.document.Attributable;
@@ -68,10 +67,12 @@ import net.jxta.document.XMLElement;
 import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
 import net.jxta.logging.Logging;
+
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
 
 import net.jxta.document.MimeMediaType;
@@ -75,6 +74,7 @@ import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,7 +82,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -103,7 +103,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      */
     private static final int MAX_RECORDED_MSGIDS = 250;
 
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private volatile boolean closed = false;
 
     private final PeerGroup peerGroup;
     private final PipeResolver pipeResolver;
@@ -113,7 +113,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     private final RendezVousService rendezvous;
     private final PeerID localPeerId;
     private NonBlockingWireOutputPipe repropagater;
-    private int messagesReceived = 0;
+    int messagesReceived = 0;
 
     /**
      * Table of local input pipes listening on this pipe. Weak map (used as a
@@ -170,7 +170,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     @Override
     protected synchronized void finalize() throws Throwable {
 
-        if (!closed.get()) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
+        if (!closed) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
         close();
         super.finalize();
 
@@ -181,7 +181,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      */
     public synchronized boolean register(InputPipe wireinputpipe) {
 
-        if (closed.get()) return false;
+        if (closed) return false;
 
         Logging.logCheckedFine(LOG, "Registering input pipe for ", pipeAdv.getPipeID());
 
@@ -252,10 +252,11 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * {@inheritDoc}
      */
     public synchronized void close() {
-        
-        if (closed.get()) return;
+        if (closed) {
+            return;
+        }
 
-        closed.set(true);
+        closed = true;
 
         if (null != repropagater) {
             repropagater.close();
@@ -349,7 +350,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * @param srcAddr source
      * @param dstAddr destination
      */
-    public void processIncomingMessage(Message message, WireHeader header, EndpointAddress srcAddr, EndpointAddress dstAddr) {
+    void processIncomingMessage(Message message, WireHeader header, EndpointAddress srcAddr, EndpointAddress dstAddr) {
         
         if (recordSeenMessage(header.getMsgId())) {
 
@@ -409,9 +410,11 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * @param message the message
      * @param header  the header
      */
-    public void repropagate(Message message, WireHeader header) {
+    void repropagate(Message message, WireHeader header) {
 
-        if (closed.get()) return;
+        if (closed) {
+            return;
+        }
 
         if ((header.getTTL() <= 1)) {
 
@@ -431,9 +434,9 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
         Logging.logCheckedFine(LOG, "Repropagating ", msg, " on ", header.getPipeID());
         
         synchronized (this) {
-
-            if (closed.get()) return;
-            
+            if (closed) {
+                return;
+            }
             if (null == repropagater) {
                 repropagater = wireService.createOutputPipe(pipeAdv, Collections.EMPTY_SET);
             }
@@ -470,7 +473,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * @param header message header
      * @throws java.io.IOException if an io error occurs
      */
-    public void sendMessage(Message message, Set<? extends ID> peers, WireHeader header) throws IOException {
+    void sendMessage(Message message, Set<? extends ID> peers, WireHeader header) throws IOException {
         message = message.clone();
 
         // do local listeners if we are to be one of the destinations
@@ -527,7 +530,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      *
      * @return a message sequence uuid
      */
-    public static String createMsgId() {
+    static String createMsgId() {
         return UUIDFactory.newSeqUUID().toString();
     }
 

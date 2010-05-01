@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint.servlethttp;
 
 import net.jxta.document.MimeMediaType;
@@ -68,6 +67,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -79,7 +79,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -125,7 +124,7 @@ public class HttpMessageServlet extends HttpServlet {
     /**
      *  If {@code true} then this servlet has been (or is being) destroyed.
      */
-    private AtomicBoolean destroyed = new AtomicBoolean(false);
+    private volatile boolean destroyed = false;
 
     /**
      *  Recovers the Message Transport which owns this servlet from the context
@@ -155,7 +154,6 @@ public class HttpMessageServlet extends HttpServlet {
             pingResponseBytes = peerId.getBytes("UTF-8");
         } catch (java.io.UnsupportedEncodingException never) {
             // UTF-8 is always available.
-            Logging.logCheckedSevere(LOG, never.toString());
         }
     }
 
@@ -195,7 +193,7 @@ public class HttpMessageServlet extends HttpServlet {
         // now, because we do that only when shutting down the group and then
         // the relay will be shutdown as well, which will take care of the
         // messengers.
-        destroyed.set(true);
+        destroyed = true;
         notifyAll();
 
     }
@@ -386,7 +384,7 @@ public class HttpMessageServlet extends HttpServlet {
                         ? Long.MAX_VALUE
                         : TimeUtils.toAbsoluteTimeMillis(currentRequest.requestStartTime, currentRequest.responseTimeout);
 
-                while ((0 != (messenger.getState() & Messenger.USABLE)) && !destroyed.get()) {
+                while ((0 != (messenger.getState() & Messenger.USABLE)) && !destroyed) {
                     long remaining = TimeUtils.toRelativeTimeMillis(quitAt);
 
                     if ((remaining <= 0)) {
@@ -571,7 +569,7 @@ public class HttpMessageServlet extends HttpServlet {
      */
     private static void printRequest(HttpServletRequest req) {
         
-        char nl = '\n';
+        final char nl = '\n';
 
         StringBuilder builder = new StringBuilder();
 
@@ -650,12 +648,12 @@ public class HttpMessageServlet extends HttpServlet {
         /**
          *  Absolute time in milliseconds at which this request began processing.
          */
-        private final long requestStartTime;
+        final long requestStartTime;
 
         /**
          *  Endpoint address of the requestor.
          */
-        private final EndpointAddress requestorAddr;
+        final EndpointAddress requestorAddr;
 
         /**
          *  Duration of time to wait for the initial response message.
@@ -666,7 +664,7 @@ public class HttpMessageServlet extends HttpServlet {
          *      <li><tt>&gt;0</tt> : Wait specified amount of time for response message.</li>
          *  </ul>
          */
-        private final long responseTimeout;
+        final long responseTimeout;
 
         /**
          *  Duration of time to wait for additional response messages.
@@ -677,17 +675,17 @@ public class HttpMessageServlet extends HttpServlet {
          *      <li><tt>&gt;0</tt> : Wait specified amount of time for additional response messages.</li>
          *  </ul>
          */
-        private final long extraResponsesTimeout;
+        final long extraResponsesTimeout;
 
         /**
          *  Destination address for messages sent in this connection.
          */
-        private final EndpointAddress destAddr;
+        final EndpointAddress destAddr;
 
         /**
          *  If <tt>true</tt> then the requestor is providing a Message.
          */
-        private final boolean messageContent;
+        final boolean messageContent;
 
         /**
          *  Construct a request.

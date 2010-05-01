@@ -116,11 +116,11 @@ public class InboundMeter {
         totals.inboundMessageProcessed(message, time);
     }
 
-    public String getServiceName() {
+    String getServiceName() {
         return serviceName;
     }
 
-    public String getServiceParameter() {
+    String getServiceParameter() {
         return serviceParameter;
     }
 

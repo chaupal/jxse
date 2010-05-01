@@ -132,7 +132,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
     /**
      * Constant for pipe event listeners to signify any query id.
      */
-    public final static int ANYQUERY = 0;
+    final static int ANYQUERY = 0;
 
     /**
      * The current query ID. The next value returned by {@link #getNextQueryID()}
@@ -186,12 +186,12 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         /**
          * The current default credential
          */
-        private final Credential credential;
+        final Credential credential;
 
         /**
          * The current default credential in serialized XML form.
          */
-        private final XMLDocument credentialDoc;
+        final XMLDocument credentialDoc;
 
         CurrentCredential(Credential credential, XMLDocument credentialDoc) {
             this.credential = credential;
@@ -202,7 +202,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
     /**
      * The current Membership service default credential.
      */
-    private CurrentCredential currentCredential;
+    CurrentCredential currentCredential;
 
     /**
      * Listener we use for membership property events.
@@ -251,7 +251,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         }
     }
 
-    private final CredentialListener membershipCredListener = new CredentialListener();
+    final CredentialListener membershipCredListener = new CredentialListener();
 
     /**
      * A pipe resolver event.
@@ -345,7 +345,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      *
      * @return the next eligible query id.
      */
-    public static synchronized int getNextQueryID() {
+    static synchronized int getNextQueryID() {
         currentQueryID++;
         if (currentQueryID == Integer.MAX_VALUE) {
             currentQueryID = 1;
@@ -455,7 +455,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
                 queryReader.close();
             } catch (IOException ignored) {
                 // ignored
-                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
             }
 
             queryReader = null;
@@ -637,9 +636,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             try {
                 resp.close();
-            } catch (IOException ignored) {
-                // ignored
-                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
+            } catch (IOException ignored) {// ignored
             }
 
             resp = null;
@@ -812,7 +809,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
     /**
      * unregisters the resolver handler
      */
-    public void stop() {
+    void stop() {
 
         resolver.unregisterHandler(PipeResolverName);
         resolver.unregisterSrdiHandler(PipeResolverName);
@@ -931,17 +928,22 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
             ip = localInputPipes.remove(pipeID);
         }
 
-        if (pipe != ip)
+        if (pipe != ip) {
+
             Logging.logCheckedWarning(LOG, "Pipe removed was not the same as the pipe to be removed!");
+            
+        }
 
         if (null != ip) {
 
             // remove the queue for the general demux
             EndpointListener removed = endpoint.removeIncomingMessageListener("PipeService", pipeID.toString());
 
-            if ((null == removed) || (pipe != removed))
+            if ((null == removed) || (pipe != removed)) {
+
                 Logging.logCheckedWarning(LOG, "removeIncomingMessageListener() did not remove correct pipe!");
                 
+            }
         }
 
         return (ip != null);
@@ -955,7 +957,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      * @param pipeID The pipe which is the subject of the event.
      * @return true if sucessfully added
      */
-    public synchronized boolean addListener(ID pipeID, Listener listener, int queryID) {
+    synchronized boolean addListener(ID pipeID, Listener listener, int queryID) {
 
         Map<Integer, Listener> perpipelisteners = outputpipeListeners.get(pipeID);
 
@@ -985,7 +987,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      * @param peer   The peer on which the remote input pipe was found.
      * @param NAK indicate whether the event is a nack
      */
-    public void callListener(int qid, ID pipeID, String type, PeerID peer, boolean NAK) {
+    void callListener(int qid, ID pipeID, String type, PeerID peer, boolean NAK) {
 
         Event newevent = new Event(this, peer, pipeID, type, qid);
         boolean handled = false;
@@ -1045,7 +1047,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      * @param queryID matching queryid.
      * @return listener object removed
      */
-    public synchronized Listener removeListener(ID pipeID, int queryID) {
+    synchronized Listener removeListener(ID pipeID, int queryID) {
 
         Map<Integer, Listener> perpipelisteners = outputpipeListeners.get(pipeID);
 
@@ -1073,7 +1075,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      *                        ID will be generated
      * @return the query id under which the request was sent
      */
-    public int sendPipeQuery(PipeAdvertisement adv, Set<? extends ID> acceptablePeers, int queryID) {
+    int sendPipeQuery(PipeAdvertisement adv, Set<? extends ID> acceptablePeers, int queryID) {
 
         // choose a query id if non-prechosen.
         if (0 == queryID) queryID = getNextQueryID();
@@ -1156,7 +1158,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
     /**
      * {@inheritDoc}
      */
-    public Srdi getSrdiIndex() {
+    Srdi getSrdiIndex() {
         return srdiIndex;
     }
 

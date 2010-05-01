@@ -56,6 +56,7 @@
 
 package net.jxta.peergroup;
 
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLElement;
@@ -67,6 +68,7 @@ import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -74,7 +76,9 @@ import java.net.URI;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * A factory for instantiating a Network Peer Group instances. The Network Peer
@@ -141,9 +145,9 @@ public final class NetPeerGroupFactory {
                         Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
                         
                     } catch (MissingResourceException ignored) {
-                        Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
+                        // ingnored
                     } catch (IOException ignored) {
-                        Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
+                        // ingnored
                     }
                 }
             } else {
@@ -501,9 +505,9 @@ public final class NetPeerGroupFactory {
      */
     static class NetGroupTunables {
 
-        protected final ID id;
-        protected final String name;
-        protected final XMLElement desc;
+        final ID id;
+        final String name;
+        final XMLElement desc;
 
         /**
          * Constructor for loading the default Net Peer Group construction

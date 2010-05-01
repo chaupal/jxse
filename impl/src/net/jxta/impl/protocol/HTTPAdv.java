@@ -56,6 +56,7 @@
 
 package net.jxta.impl.protocol;
 
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attributable;
@@ -67,9 +68,12 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.TransportAdvertisement;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import java.util.Arrays;
 import java.util.Enumeration;
+
 
 /**
  * Configuration parameters for HttpServelet Message Transport.

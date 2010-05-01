@@ -53,16 +53,25 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.protocol;
 
+
 import junit.framework.*;
+
+import net.jxta.document.Document;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.MimeMediaType;
+import net.jxta.protocol.SrdiMessage;
 import net.jxta.impl.protocol.SrdiMessageImpl;
+
+import java.net.URL;
 import java.util.Collection;
 import java.util.Vector;
+import java.util.Enumeration;
+import java.io.IOException;
+import java.net.MalformedURLException;
+
 
 /**
  *  A JUnit test for SrdiMessage
@@ -119,7 +128,9 @@ public class SrdiMessageTest extends TestCase {
         Vector entries = new Vector(5);
 
         for (int i = 0; i < 5; i++) {
-            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i, exp);
+            SrdiMessage.Entry entry = new SrdiMessage.Entry(key + i, val + i,
+                                                            exp);
+
             entries.add(entry);
         }
 

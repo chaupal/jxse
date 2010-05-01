@@ -115,14 +115,14 @@ public class RendezvousServiceMonitorFilter implements ServiceMonitorFilter {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 			
-            if ("includeClientConnectionMetrics".equals(tagName)) {
+            if (tagName.equals("includeClientConnectionMetrics")) { 
                 includeClientConnectionMetrics = DocumentSerializableUtilities.getBoolean(childElement);
-            } else if ("includeRendezvousConnectionMetrics".equals(tagName)) {
+            } else if (tagName.equals("includeRendezvousConnectionMetrics")) { 
                 includeRendezvousConnectionMetrics = DocumentSerializableUtilities.getBoolean(childElement);
-            } else if ("moduleClassID".equals(tagName)) {
+            } else if (tagName.equals("moduleClassID")) {
                 try {
                     moduleClassID = (ModuleClassID) IDFactory.fromURI(
-                            new URI(DocumentSerializableUtilities.getString(childElement)));
+                            new URI((DocumentSerializableUtilities.getString(childElement))));
                 } catch (URISyntaxException jex) {
                     throw new DocumentSerializationException("Can't read moduleClassID", jex);
                 }

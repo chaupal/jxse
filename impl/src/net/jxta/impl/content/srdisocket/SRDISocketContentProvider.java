@@ -56,6 +56,7 @@
 
 package net.jxta.impl.content.srdisocket;
 
+import net.jxta.content.*;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
@@ -73,15 +74,12 @@ import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaServerSocket;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,14 +90,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.content.Content;
-import net.jxta.content.ContentID;
-import net.jxta.content.ContentProviderEvent;
-import net.jxta.content.ContentProviderListener;
-import net.jxta.content.ContentProviderSPI;
-import net.jxta.content.ContentShare;
-import net.jxta.content.ContentTransfer;
-import net.jxta.content.NullContentTransfer;
 
 /**
  * Reference implementation of the ContentProvider interface.  This
@@ -235,9 +225,9 @@ public class SRDISocketContentProvider
             URI specURI = new URI(MODULE_SPEC_ID);
             specID = (ModuleSpecID) IDFactory.fromURI(specURI);
         } catch (URISyntaxException urisx) {
-            throw new RuntimeException(
+            throw (new RuntimeException(
                     "Illegal ModuleSpecURI in code: " + MODULE_SPEC_ID,
-                    urisx);
+                    urisx));
         }
     }
 
@@ -432,7 +422,7 @@ public class SRDISocketContentProvider
             }
         }
 
-        if (result.isEmpty()) {
+        if (result.size() == 0) {
             /*
              * This content was already shared.  We'll skip notifying our
              * listeners but will return it in the results.
@@ -563,7 +553,7 @@ public class SRDISocketContentProvider
 
                 } catch (RuntimeException rtx) {
                     LOG.log(Level.WARNING, "Caught runtime exception\n", rtx);
-                    throw rtx;
+                    throw(rtx);
                 }
             }
         } finally {
@@ -631,7 +621,7 @@ public class SRDISocketContentProvider
         } catch (RuntimeException rtx) {
 
             Logging.logCheckedSevere(LOG, "Caught runtime exception\n", rtx);
-            throw rtx;
+            throw (rtx);
 
         } finally {
 

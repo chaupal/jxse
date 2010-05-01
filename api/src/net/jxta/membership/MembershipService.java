@@ -180,8 +180,9 @@ public interface MembershipService extends Service {
      * @param element The StructuredDocument fragment to use for building the
      * credential.
      * @throws PeerGroupException Thrown in the event of errors.
+     * @throws Exception Thrown in the event of errors.
      */
-    public Credential makeCredential(Element element) throws PeerGroupException;
+    public Credential makeCredential(Element element) throws PeerGroupException, Exception;
     
     /**
      *  Add a listener

@@ -125,13 +125,13 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      */
     public WorldPeerGroupFactory() throws PeerGroupException {
-
         // Establish the default store location via long established hackery.
         String jxta_home = System.getProperty("JXTA_HOME", ".jxta/");
         
         // ensure that it ends in a seperator.
-        if (!jxta_home.endsWith(File.separator))
-            jxta_home = jxta_home + File.separator;
+        if (!jxta_home.endsWith(File.separator)) {
+            jxta_home += File.separator;
+        }
         
         File jxta_home_dir = new File(jxta_home);
         

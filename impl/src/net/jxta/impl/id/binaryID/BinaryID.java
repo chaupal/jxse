@@ -56,10 +56,11 @@
 
 package net.jxta.impl.id.binaryID;
 
+
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.id.ID;
+
 
 /**
  * A <code>BinaryID</code> is a 256-byte, identifier.
@@ -268,22 +269,19 @@ public class BinaryID implements Serializable {
      * @return boolean true if IDs are equal, false otherwise.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object target) {
         boolean result = false;
 
-        if (obj == this) {
+        if (target == this) {
             result = true;
-        } else if (obj == null) {
+        } else if (target == null) {
             result = false;
-        } else if (obj instanceof BinaryID) {
-            result = encodedValue().equals(((BinaryID) obj).encodedValue());
-            LOG.fine("((BinaryID)target).encodedValue():" + ((BinaryID) obj).encodedValue());
-        } else if (obj instanceof ID) {
-            ID TempID = (ID) obj;
-            if ( ( TempID.compare(TempID, ID.nullID) == 0 )
-                && ( nullBinaryID.encodedValue().equals(encodedValue()) ) ) {
-                result = true;
-            }
+        } else if (target instanceof BinaryID) {
+            result = encodedValue().equals(((BinaryID) target).encodedValue());
+            LOG.fine("((BinaryID)target).encodedValue():" + ((BinaryID) target).encodedValue());
+        } else if (target instanceof net.jxta.id.ID && ((net.jxta.id.ID) target) == net.jxta.id.ID.nullID
+                && nullBinaryID.encodedValue().equals(encodedValue())) {
+            result = true;
         }
         // LOG.error("this:"+encodedValue()+" type:"+target.getClass().getName()+" target:"+target+" equals:"+result,new RuntimeException("test exception")); 
         return result;

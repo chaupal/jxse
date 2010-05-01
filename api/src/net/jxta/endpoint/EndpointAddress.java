@@ -53,13 +53,14 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.endpoint;
 
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
+
 import java.lang.ref.SoftReference;
 import java.net.URI;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -243,15 +244,15 @@ public class EndpointAddress {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
 
-        if (this == obj) return true;
+        if (target instanceof EndpointAddress) {
+            EndpointAddress likeMe = (EndpointAddress) target;
 
-        if (obj instanceof EndpointAddress) {
-
-            final EndpointAddress likeMe = (EndpointAddress) obj;
-
-            final boolean result = (hierarchical == likeMe.hierarchical) && protocol.equalsIgnoreCase(likeMe.protocol)
+            boolean result = (hierarchical == likeMe.hierarchical) && protocol.equalsIgnoreCase(likeMe.protocol)
                     && protocolAddress.equalsIgnoreCase(likeMe.protocolAddress)
                     && ((service != null)
                     ? ((likeMe.service != null) && service.equals(likeMe.service))
@@ -272,7 +273,7 @@ public class EndpointAddress {
     @Override
     public int hashCode() {
         if (0 == cachedHashCode) {
-            int calcedHashCode = protocol.hashCode();
+            int calcedHashCode = protocol.toLowerCase().hashCode();
 
             calcedHashCode += protocolAddress.hashCode() * 5741; // a prime
             calcedHashCode += ((service != null) ? service.hashCode() : 1) * 7177; // a prime
@@ -299,7 +300,7 @@ public class EndpointAddress {
             }
         }
 
-        final StringBuilder newResult = new StringBuilder(protocol.length() + protocolAddress.length() + 64);
+        StringBuilder newResult = new StringBuilder(protocol.length() + protocolAddress.length() + 64);
 
         newResult.append(protocol);
 
@@ -391,7 +392,7 @@ public class EndpointAddress {
             throw new IllegalArgumentException("name must be non-null and contain at least one character");
         }
 
-        if (-1 != name.indexOf('/')) {
+        if (-1 != name.indexOf("/")) {
             throw new IllegalArgumentException("name may not contain '/' character");
         }
 
@@ -406,7 +407,7 @@ public class EndpointAddress {
             }
         }
 
-        final int colonAt = name.indexOf(':');
+        int colonAt = name.indexOf(':');
 
         if (-1 == colonAt) {
             hierarchical = true;
@@ -436,7 +437,7 @@ public class EndpointAddress {
             throw new IllegalArgumentException("address must be non-null and contain at least one character");
         }
 
-        if (-1 != address.indexOf('/')) {
+        if (-1 != address.indexOf("/")) {
             throw new IllegalArgumentException("address may not contain '/' character");
         }
 
@@ -451,7 +452,7 @@ public class EndpointAddress {
      */
     private void setServiceName(String name) {
         if (null != name) {
-            if (-1 != name.indexOf('/')) {
+            if (-1 != name.indexOf("/")) {
                 throw new IllegalArgumentException("service name may not contain '/' character");
             }
         }
@@ -476,8 +477,7 @@ public class EndpointAddress {
      * @param addr endpoint address to parse
      */
     private void parseURI(String addr) {
-
-        final int index = addr.indexOf("://");
+        int index = addr.indexOf("://");
 
         if (index == -1) {
             parseURN(addr);
@@ -493,7 +493,7 @@ public class EndpointAddress {
      */
     private void parseURN(String addr) {
 
-        final int protocolEnd = addr.indexOf(':');
+        int protocolEnd = addr.indexOf(':');
 
         if (-1 == protocolEnd) {
 
@@ -517,7 +517,7 @@ public class EndpointAddress {
         }
 
         // gather the namespace as well.
-        final int namespaceEnd = addr.indexOf(':', protocolEnd + 1);
+        int namespaceEnd = addr.indexOf(':', protocolEnd + 1);
 
         if (-1 == namespaceEnd) {
 
@@ -536,14 +536,14 @@ public class EndpointAddress {
         }
 
         // check for service and param
-        final int nssEnd = addr.indexOf('#', namespaceEnd + 1);
+        int nssEnd = addr.indexOf('#', namespaceEnd + 1);
 
         if (-1 == nssEnd) {
             setProtocolAddress(addr.substring(namespaceEnd + 1));
         } else {
             setProtocolAddress(addr.substring(namespaceEnd + 1, nssEnd));
 
-            final int serviceEnd = addr.indexOf('/', nssEnd + 1);
+            int serviceEnd = addr.indexOf('/', nssEnd + 1);
 
             if (-1 == serviceEnd) {
                 setServiceName(addr.substring(nssEnd + 1));
@@ -591,7 +591,7 @@ public class EndpointAddress {
 
         }
 
-        index = remainder.indexOf('/');
+        index = remainder.indexOf("/");
 
         if (index == -1) {
             setProtocolAddress(remainder);
@@ -602,7 +602,7 @@ public class EndpointAddress {
 
         remainder = remainder.substring(index + 1);
 
-        index = remainder.indexOf('/');
+        index = remainder.indexOf("/");
         if (index == -1) {
             setServiceName(remainder);
             return;

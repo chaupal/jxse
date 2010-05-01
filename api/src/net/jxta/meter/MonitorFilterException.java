@@ -64,11 +64,10 @@ import net.jxta.platform.ModuleClassID;
  * Monitor Filter Exception
  */
 public class MonitorFilterException extends MonitorException {
-
     public final static String SERVICE_NOT_SUPPORTED = "Service Not Supported";
     public final static String REPORT_RATE_NOT_SUPPORTED = "Report Rate Not Supported";
-    private ModuleClassID moduleClassID;
-    private long reportRate;
+    ModuleClassID moduleClassID;
+    long reportRate;
 	
     /**
      * MonitorFilterException

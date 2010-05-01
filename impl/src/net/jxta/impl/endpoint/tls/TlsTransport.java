@@ -56,7 +56,7 @@
 
 package net.jxta.impl.endpoint.tls;
 
-import java.util.Arrays;
+
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -78,6 +78,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
+
 import javax.security.auth.x500.X500Principal;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -96,6 +97,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 /**
  *  A JXTA {@link net.jxta.endpoint.MessageTransport} implementation which
  *  uses TLS sockets.
@@ -111,47 +113,47 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      *  If true then we can accept incoming connections. Eventually this should
      *  be coming out of the transport advertisement.
      */
-    public static final boolean ACT_AS_SERVER = true;
+    static final boolean ACT_AS_SERVER = true;
     
     private PeerGroup group = null;
-    private ID assignedID = null;
-    private ModuleImplAdvertisement implAdvertisement = null;
+    ID assignedID = null;
+    ModuleImplAdvertisement implAdvertisement = null;
     
-    protected EndpointService endpoint = null;
-    protected PSEMembershipService membership = null;
+    EndpointService endpoint = null;
+    PSEMembershipService membership = null;
     private membershipPCL membershipListener = null;
     
-    private X509Certificate[] serviceCert = null;
+    X509Certificate[] serviceCert = null;
     
-    protected PSECredential credential = null;
+    PSECredential credential = null;
     private credentialPCL credentialListener = null;
     
-    private EndpointAddress localPeerAddr = null;
-    private EndpointAddress localTlsPeerAddr = null;
+    EndpointAddress localPeerAddr = null;
+    EndpointAddress localTlsPeerAddr = null;
     
     /**
      * local peerID
      */
-    private PeerID localPeerId = null;
+    PeerID localPeerId = null;
     
     /**
      *  Amount of a connection must be idle before a reconnection attempt will
      *  be considered.
      */
-    public long MIN_IDLE_RECONNECT = 1 * TimeUtils.AMINUTE;
+    long MIN_IDLE_RECONNECT = 1 * TimeUtils.AMINUTE;
     
     /**
      *  Amount of time after which a connection is considered idle and may be
      *  scavenged.
      */
-    public long CONNECTION_IDLE_TIMEOUT = 5 * TimeUtils.AMINUTE;
+    long CONNECTION_IDLE_TIMEOUT = 5 * TimeUtils.AMINUTE;
     
     /**
      *  Amount if time which retries may remain queued for retransmission. If
      *  still unACKed after this amount of time then the connection is
      *  considered dead.
      */
-    public long RETRMAXAGE = 2 * TimeUtils.AMINUTE;
+    long RETRMAXAGE = 2 * TimeUtils.AMINUTE;
     
     /**
      *  Will manage connections to remote peers.
@@ -163,7 +165,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      *  we create. THIS HAS NO EFFECT ON SCHEDULING. Java thread groups are
      *  only for organization and naming.
      */
-    protected ThreadGroup myThreadGroup = null;
+    ThreadGroup myThreadGroup = null;
     
     /**
      *  Extends LoopbackMessenger to add a message property to passed messages
@@ -213,7 +215,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
 
             } catch (NumberFormatException badvalue) {
-                Logging.logCheckedSevere(LOG, badvalue.toString());
+                
             }
             
             try {
@@ -235,7 +237,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
 
             } catch (NumberFormatException badvalue) {
-                Logging.logCheckedSevere(LOG, badvalue.toString());
+                
             }
             
             try {
@@ -253,7 +255,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                 }
 
             } catch (NumberFormatException badvalue) {
-                Logging.logCheckedSevere(LOG, badvalue.toString());
+                
             }
             
             // reconnect must be less the idle interval.
@@ -264,7 +266,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             RETRMAXAGE = Math.min(RETRMAXAGE, CONNECTION_IDLE_TIMEOUT);
             
         } catch (MissingResourceException notthere) {
-             Logging.logCheckedWarning(LOG, notthere.toString());
+            ;
         }
     }
     
@@ -272,18 +274,17 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
             return true;
         }
         
-        if (null == obj) {
+        if (null == target) {
             return false;
         }
         
-        if (obj instanceof TlsTransport) {
-            TlsTransport likeMe = (TlsTransport) obj;
+        if (target instanceof TlsTransport) {
+            TlsTransport likeMe = (TlsTransport) target;
             
             if (!getProtocolName().equals(likeMe.getProtocolName())) {
                 return false;
@@ -294,36 +295,13 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         
         return false;
     }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 59 * hash + (this.group != null ? this.group.hashCode() : 0);
-        hash = 59 * hash + (this.assignedID != null ? this.assignedID.hashCode() : 0);
-        hash = 59 * hash + (this.implAdvertisement != null ? this.implAdvertisement.hashCode() : 0);
-        hash = 59 * hash + (this.endpoint != null ? this.endpoint.hashCode() : 0);
-        hash = 59 * hash + (this.membership != null ? this.membership.hashCode() : 0);
-        hash = 59 * hash + (this.membershipListener != null ? this.membershipListener.hashCode() : 0);
-        hash = 59 * hash + Arrays.deepHashCode(this.serviceCert);
-        hash = 59 * hash + (this.credential != null ? this.credential.hashCode() : 0);
-        hash = 59 * hash + (this.credentialListener != null ? this.credentialListener.hashCode() : 0);
-        hash = 59 * hash + (this.localPeerAddr != null ? this.localPeerAddr.hashCode() : 0);
-        hash = 59 * hash + (this.localTlsPeerAddr != null ? this.localTlsPeerAddr.hashCode() : 0);
-        hash = 59 * hash + (this.localPeerId != null ? this.localPeerId.hashCode() : 0);
-        hash = 59 * hash + (int) (this.MIN_IDLE_RECONNECT ^ (this.MIN_IDLE_RECONNECT >>> 32));
-        hash = 59 * hash + (int) (this.CONNECTION_IDLE_TIMEOUT ^ (this.CONNECTION_IDLE_TIMEOUT >>> 32));
-        hash = 59 * hash + (int) (this.RETRMAXAGE ^ (this.RETRMAXAGE >>> 32));
-        hash = 59 * hash + (this.manager != null ? this.manager.hashCode() : 0);
-        hash = 59 * hash + (this.myThreadGroup != null ? this.myThreadGroup.hashCode() : 0);
-        return hash;
-    }
     
     /**
      * Get the PeerGroup this service is running in.
      * 
      * @return PeerGroup instance
      */
-    public PeerGroup getPeerGroup() {
+    PeerGroup getPeerGroup() {
         return group;
     }
     
@@ -346,8 +324,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring TLS Transport : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring TLS Transport : " + assignedID);
 
             if (null != implAdvertisement) {
                 configInfo.append("\n\tImplementation:");
@@ -581,7 +558,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      * processReceivedMessage is invoked by the TLS Manager when a message has been
      * completely received and is ready to be delivered to the service/application
      */
-    public void processReceivedMessage(final Message msg) {
+    void processReceivedMessage(final Message msg) {
 
         Logging.logCheckedFine(LOG, "processReceivedMessage starts");
         

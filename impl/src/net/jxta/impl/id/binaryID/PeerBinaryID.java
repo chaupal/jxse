@@ -53,13 +53,16 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.id.binaryID;
+
 
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
+
 import java.net.URI;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * This class implements a PeerID. Each peer is assigned a unique peer id.UUID
@@ -128,25 +131,25 @@ public final class PeerBinaryID extends net.jxta.peer.PeerID {
         id = BinaryIDFactory.newBinaryID(BinaryID.flagPeerID, data, lengthIncluded).getID() + "." + parentStr.replace('-', '.');
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        return obj instanceof PeerBinaryID && getUniqueValue().equals(((PeerBinaryID) obj).getUniqueValue());
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return getUniqueValue().hashCode();
-//    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
+        
+        return target instanceof PeerBinaryID && getUniqueValue().equals(((PeerBinaryID) target).getUniqueValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getUniqueValue().hashCode();
+    }
 
     /**
      * {@inheritDoc}

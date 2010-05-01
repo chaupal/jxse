@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous;
 
 import net.jxta.discovery.DiscoveryService;
@@ -70,8 +69,9 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.util.Enumeration;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -100,7 +100,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     /**
      * If true then we believe we are still connected to the remote peer.
      */
-    protected AtomicBoolean connected = new AtomicBoolean(true);
+    protected volatile boolean connected = true;
 
     /**
      * The absolute time in milliseconds at which we expect this connection to
@@ -151,7 +151,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      */
     @Override
     public String toString() {
-        return getPeerName() + (connected.get() ? " C" : " c") + " : " + Long.toString(TimeUtils.toRelativeTimeMillis(leasedTil));
+        return getPeerName() + (connected ? " C" : " c") + " : " + Long.toString(TimeUtils.toRelativeTimeMillis(leasedTil));
     }
 
     /**
@@ -233,10 +233,9 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * @return The connected value
      */
     public boolean isConnected() {
-        
-        connected.set(connected.get() && (TimeUtils.toRelativeTimeMillis(leasedTil) >= 0));
+        connected &= (TimeUtils.toRelativeTimeMillis(leasedTil) >= 0);
 
-        return connected.get();
+        return connected;
     }
 
     /**
@@ -246,7 +245,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      *                    setting <code>true</code> state without setting a new lease.
      */
     public void setConnected(boolean isConnected) {
-        connected.set(isConnected);
+        connected = isConnected;
     }
 
     /**
@@ -281,7 +280,6 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
                     }
                 } catch (Exception ignored) {
                     //ignored
-                    Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
                 }
             }
             result = getCachedMessenger(padv);

@@ -67,7 +67,7 @@ import net.jxta.service.Service;
  * lifecycle method calls but pass everything else through to the
  * underlying Module instance.
  */
-public final class ModuleWrapperFactory {
+public class ModuleWrapperFactory {
     
     /**
      * Invocation handler which we will use to ignore Module
@@ -166,11 +166,5 @@ public final class ModuleWrapperFactory {
         return (Module) Proxy.newProxyInstance(
                 module.getClass().getClassLoader(), allInterfaces,
                 new Handler(module));
-    }
-
-    /**
-     * Default constructor
-     */
-    private ModuleWrapperFactory() {
     }
 }

@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.peergroup;
 
 import java.util.Arrays;
@@ -61,11 +60,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
+
 import net.jxta.exception.ServiceNotFoundException;
 
 /**

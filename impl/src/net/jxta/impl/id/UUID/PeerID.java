@@ -136,31 +136,31 @@ public class PeerID extends net.jxta.peer.PeerID {
         id.longIntoBytes(PeerID.idOffset + 8, idUUID.getLeastSignificantBits());
     }
     
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        if (obj instanceof PeerID) {
-//            PeerID peerTarget = (PeerID) obj;
-//
-//            return id.equals(peerTarget.id);
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
+        
+        if (target instanceof PeerID) {
+            PeerID peerTarget = (PeerID) target;
+            
+            return id.equals(peerTarget.id);
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
     
     /**
      *  {@inheritDoc}

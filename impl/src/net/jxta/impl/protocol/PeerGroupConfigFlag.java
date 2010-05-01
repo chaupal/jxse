@@ -89,7 +89,7 @@ public enum PeerGroupConfigFlag {
      * @param defEnabled {@code true} if the flag should be considered enabled
      *  if no specific flag state is specified, {@code false} otherwise
      */
-    PeerGroupConfigFlag(String docTagName, boolean defEnabled) {
+    PeerGroupConfigFlag(final String docTagName, final boolean defEnabled) {
         tagName = docTagName;
         defaultEnabled = defEnabled;
     }

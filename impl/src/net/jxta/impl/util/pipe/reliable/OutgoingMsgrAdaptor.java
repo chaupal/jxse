@@ -53,15 +53,18 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.util.pipe.reliable;
+
 
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
+
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  *  OutgoingMessengerAdaptor

@@ -262,9 +262,9 @@ public class TransferAggregator
             }
         }
 
-        if (idle.isEmpty()) {
-            throw new TransferException(
-                    "No transfer providers are able to retrieve this Content");
+        if (idle.size() == 0) {
+            throw(new TransferException(
+                    "No transfer providers are able to retrieve this Content"));
         }
 
         // Randomize the list, effectively randomizing which impl(s) we use
@@ -296,9 +296,9 @@ public class TransferAggregator
             List<ContentTransfer> transfers) {
         provider = origin;
         
-        if (transfers.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "No transfer instances provided");
+        if (transfers.size() == 0) {
+            throw(new IllegalArgumentException(
+                    "No transfer instances provided"));
         }
         for (ContentTransfer xfer : transfers) {
             idle.add(xfer);
@@ -403,11 +403,11 @@ public class TransferAggregator
      */
     public void startTransfer(File destination) {
         if (destination == null) {
-            throw new IllegalArgumentException(
-                    "Destination cannot be null");
+            throw(new IllegalArgumentException(
+                    "Destination cannot be null"));
         } else if (destFile != null) {
-            throw new IllegalArgumentException(
-                    "This transfer has already been started");
+            throw(new IllegalArgumentException(
+                    "This transfer has already been started"));
         }
 
         startSourceLocation();
@@ -555,7 +555,7 @@ public class TransferAggregator
                 Integer locationCount = event.getSourceLocationCount();
 
                 // Try to send events only when useful
-                if ( ( oldState.compareTo(locationState) != 0 ) || locationCount != null) {
+                if (oldState != locationState || locationCount != null) {
 
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                         Logging.logCheckedFiner(LOG, hashHex(),
@@ -595,7 +595,8 @@ public class TransferAggregator
      * This allows us to notify of transfer state differences when selecting
      * new transfer instances.
      */
-    private void contentTransferStateUpdated(ContentTransfer transfer, ContentTransferState state) {
+    private void contentTransferStateUpdated(
+            ContentTransfer transfer, ContentTransferState state) {
 
         ContentTransferEvent toFire = null;
         TransferException exception;
@@ -715,7 +716,7 @@ public class TransferAggregator
                     Logging.logCheckedFiner(LOG, hashHex(), " Ignoring event due to being ",
                                 "in a finished state");
 
-                } else if (transfer == selected && ( transferState.compareTo(state) != 0 ) ) {
+                } else if (transfer == selected && transferState != state) {
                     /*
                      * We need to absorb or transform events which would
                      * otherwise be an illegal strate transition when viewed
@@ -786,9 +787,10 @@ public class TransferAggregator
 
         // Only notify listeners of progress of the selected transfer
         synchronized(this) {
-            if (source != selected) return;
+            if (source != selected) {
+                return;
+            }
         }
-
         for (ContentTransferListener listener : ctListeners) {
             listener.contentTransferProgress(event);
         }
@@ -824,12 +826,12 @@ public class TransferAggregator
             }
 
             if (selectNext) {
-                if (standby.isEmpty()) {
-                    if (idle.isEmpty()) {
+                if (standby.size() == 0) {
+                    if (idle.size() == 0) {
                         // Failed.
                         transferState = FAILED;
-                        throw new TransferException(
-                                "No transfer providers remain");
+                        throw(new TransferException(
+                                "No transfer providers remain"));
                     } else {
                         selected = idle.remove(0);
                     }
@@ -859,7 +861,7 @@ public class TransferAggregator
         // Populate the standby list
         synchronized(this) {
             while (standby.size() < standbyCount) {
-                if (idle.isEmpty()) {
+                if (idle.size() == 0) {
                     // No more to add
                     break;
                 }
@@ -961,12 +963,12 @@ public class TransferAggregator
                 return;
             } else if (transferState.isFinished()) {
                 if (transferState == CANCELLED) {
-                    throw new TransferCancelledException();
+                    throw(new TransferCancelledException());
                 } else {
                     if (failureCause != null) {
-                        throw failureCause;
+                        throw(failureCause);
                     }
-                    throw new TransferException("Transfer failed");
+                    throw(new TransferException("Transfer failed"));
                 }
             } else if (!transferState.isRetrieving() && selected != null) {
 

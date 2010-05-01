@@ -56,9 +56,11 @@
 
 package net.jxta.impl.membership.pse;
 
+
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -74,7 +76,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Manages the state of a Personal Security Enviroment.
@@ -262,7 +266,7 @@ public final class PSEConfig {
      * @return {@code true} if the passwords were valid for the given id
      *         otherwise {@code false}.
      */
-    protected boolean validPasswd(ID id, char[] store_password, char[] key_password) {
+    boolean validPasswd(ID id, char[] store_password, char[] key_password) {
 
         if (null == id) {
             return false;
@@ -337,9 +341,7 @@ public final class PSEConfig {
                         URI id = new URI(anAlias);
 
                         trustedCertsList.add(IDFactory.fromURI(id));
-                    } catch (URISyntaxException badID) {
-                        // ignored
-                        Logging.logCheckedWarning(LOG, "Bad ID: ", anAlias, "\n", badID.toString());
+                    } catch (URISyntaxException badID) {// ignored
                     }
                 }
             }
@@ -370,7 +372,7 @@ public final class PSEConfig {
      * @throws KeyStoreException When the wrong keystore has been provided.
      * @throws IOException       For errors related to processing the keystore.
      */
-    public ID[] getKeysList(char[] store_password) throws KeyStoreException, IOException {
+    ID[] getKeysList(char[] store_password) throws KeyStoreException, IOException {
         List<ID> keyedRootsList = new ArrayList<ID>();
 
         synchronized (keystore_manager) {
@@ -386,9 +388,7 @@ public final class PSEConfig {
                         URI id = new URI(anAlias);
 
                         keyedRootsList.add(IDFactory.fromURI(id));
-                    } catch (URISyntaxException badID) {
-                        // ignored
-                        Logging.logCheckedWarning(LOG, "Bad ID: ", anAlias, "\n", badID.toString());
+                    } catch (URISyntaxException badID) {// ignored
                     }
                 }
             }
@@ -456,7 +456,7 @@ public final class PSEConfig {
      * @throws KeyStoreException When the wrong keystore has been provided.
      * @throws IOException       For errors related to processing the keystore.
      */
-    public X509Certificate getTrustedCertificate(ID id, char[] store_password) throws KeyStoreException, IOException {
+    X509Certificate getTrustedCertificate(ID id, char[] store_password) throws KeyStoreException, IOException {
 
         String alias = id.toString();
 

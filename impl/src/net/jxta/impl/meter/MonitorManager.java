@@ -56,10 +56,12 @@
 
 package net.jxta.impl.meter;
 
+
 import net.jxta.document.Advertisement;
 import net.jxta.exception.JxtaException;
 import net.jxta.id.ID;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.meter.*;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleClassID;
@@ -67,30 +69,15 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
+
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
-import net.jxta.meter.MonitorEvent;
-import net.jxta.meter.MonitorException;
-import net.jxta.meter.MonitorFilter;
-import net.jxta.meter.MonitorFilterException;
-import net.jxta.meter.MonitorListener;
-import net.jxta.meter.MonitorReport;
-import net.jxta.meter.MonitorResources;
-import net.jxta.meter.PeerMonitorInfo;
-import net.jxta.meter.ServiceMetric;
-import net.jxta.meter.ServiceMonitor;
-import net.jxta.meter.ServiceMonitorFilter;
+
 
 public class MonitorManager implements Service {
-
-    /**
-     * logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(MonitorManager.class.getName());
-
     private final static long timeZero = System.currentTimeMillis();
     public static final int NOT_PULSING = -1;
 
@@ -154,13 +141,12 @@ public class MonitorManager implements Service {
     }
 
     private class MonitorListenerInfo {
-
-        private MonitorListener monitorListener;
-        private MonitorFilter monitorFilter;
-        private long reportRate;
-        private int reportRateIndex;
-        private boolean sendCumulativeFirst = false;
-        private boolean wasCumulativeSent = false;
+        MonitorListener monitorListener;
+        MonitorFilter monitorFilter;
+        long reportRate;
+        int reportRateIndex;
+        boolean sendCumulativeFirst = false;
+        boolean wasCumulativeSent = false;
 
         MonitorListenerInfo(MonitorListener monitorListener, long reportRate, MonitorFilter monitorFilter, boolean cumulativeFirst) {
             this.monitorListener = monitorListener;
@@ -169,7 +155,6 @@ public class MonitorManager implements Service {
             this.sendCumulativeFirst = cumulativeFirst;
             this.reportRateIndex = getReportRateIndex(reportRate);
         }
-
     }
 
     public static long[] getReportRates() { // return copy so that users can't modify.
@@ -588,7 +573,7 @@ public class MonitorManager implements Service {
                 }
             }
 
-            supportedModuleClassIDs = supportedModuleClassIDsList.toArray(new ModuleClassID[supportedModuleClassIDsList.size()]);
+            supportedModuleClassIDs = supportedModuleClassIDsList.toArray(new ModuleClassID[0]);
         }
         return supportedModuleClassIDs;
     }
@@ -664,11 +649,9 @@ public class MonitorManager implements Service {
 
                         monitorListener.processMonitorReport(monitorEvent);
                     }
-
-                } catch (MonitorException e) {
-
-                    Logging.logCheckedSevere(LOG, e.toString());
-
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    // Fix-Me: Where should we report an uncaught exception in one of our listeners?
                 }
             }
         }
@@ -693,7 +676,7 @@ public class MonitorManager implements Service {
         }
     }
 
-    public boolean isEvenPulseForRateIndex(int pulseRateIndex) {
+    boolean isEvenPulseForRateIndex(int pulseRateIndex) {
         if (pulseRateIndex < 0 || pulseRateIndex > pulsesPerRate.length) {
             return false;
         }
@@ -736,10 +719,8 @@ public class MonitorManager implements Service {
                                     continue mainLoop;
                                 }
                             } catch (Exception ex) {
-
                                 // don't die forever on exceptions!!
-                                Logging.logCheckedSevere(LOG, ex.toString());
-
+                                ex.printStackTrace(); // fix-me: report this
                             }
                         }
                     }
@@ -772,9 +753,6 @@ public class MonitorManager implements Service {
     /**
      * DO NOT USE THIS METHOD: It will be deprecated when MonitorManager becomes a
      * FULL FLEDGED SERVICE
-     * @param peerGroup a peergroup
-     * @return a Monitor Manager
-     * @throws JxtaException a JXTA exception
      */
 
     public static MonitorManager registerMonitorManager(PeerGroup peerGroup) throws JxtaException {
@@ -823,7 +801,6 @@ public class MonitorManager implements Service {
     /**
      * DO NOT USE THIS METHOD: It will be deprecated when MonitorManager becomes a
      * FULL FLEDGED SERVICE
-     * @param peerGroup a peergroup
      */
 
     public static void unregisterMonitorManager(PeerGroup peerGroup) {

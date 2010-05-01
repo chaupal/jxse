@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.limited;
 
 import net.jxta.document.MimeMediaType;
@@ -66,7 +65,9 @@ import net.jxta.impl.rendezvous.RdvWalker;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
+
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

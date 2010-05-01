@@ -55,7 +55,7 @@ public class ProxiedScheduledExecutorService
      * @param targetExecutor executor service instance to use for task
      *  execution
      */
-    public ProxiedScheduledExecutorService(String name,
+    public ProxiedScheduledExecutorService(final String name,
             final ExecutorService targetExecutor) {
         this(Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(name + "-Local")),
                 targetExecutor, true);
@@ -253,7 +253,7 @@ public class ProxiedScheduledExecutorService
      * 
      * @param <T> return type of the function
      */
-    public <T> Future<T> submit(Callable<T> task) {
+    public <T> Future<T> submit(final Callable<T> task) {
         return targetExec.submit(task);
     }
 
@@ -265,7 +265,7 @@ public class ProxiedScheduledExecutorService
      * 
      * @param <T> return type of the function
      */
-    public <T> Future<T> submit(Runnable task, T result) {
+    public <T> Future<T> submit(final Runnable task, final T result) {
         return targetExec.submit(task, result);
     }
 
@@ -275,7 +275,7 @@ public class ProxiedScheduledExecutorService
      * This implementation is equivalent to calling the equivalent
      * <code>submit()</code> method on the wrapped ExecutorService instance.
      */
-    public Future<?> submit(Runnable task) {
+    public Future<?> submit(final Runnable task) {
         return targetExec.submit(task);
     }
 
@@ -289,7 +289,7 @@ public class ProxiedScheduledExecutorService
     /**
      * {@inheritDoc}
      */
-    public void execute(Runnable command) {
+    public void execute(final Runnable command) {
         targetExec.execute(command);
     }
 

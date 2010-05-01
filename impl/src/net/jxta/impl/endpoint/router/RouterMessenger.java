@@ -56,13 +56,17 @@
 
 package net.jxta.impl.endpoint.router;
 
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Messenger for destinations which are logical peers. This messenger is used

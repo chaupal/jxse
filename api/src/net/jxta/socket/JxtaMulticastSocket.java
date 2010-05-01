@@ -56,6 +56,7 @@
 
 package net.jxta.socket;
 
+
 import net.jxta.credential.Credential;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -74,6 +75,7 @@ import net.jxta.pipe.PipeMsgEvent;
 import net.jxta.pipe.PipeMsgListener;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -88,7 +90,9 @@ import java.util.Enumeration;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * The JxtaMulticastSocket class is useful for sending and receiving
@@ -163,7 +167,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
     protected StructuredDocument credentialDoc = null;
     private int timeout = 60000;
     private byte[] fauxip = new byte[4];
-    // private boolean jxtamode = false;
+    private boolean jxtamode = false;
     private MessageElement srcElement = null;
 
     /**

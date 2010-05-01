@@ -93,7 +93,7 @@ public class SrdiDestinationMetric implements DocumentSerializable {
         return peerID;
     }
 
-    public void messageProcessed() {
+    void messageProcessed() {
         messageProcessed++;
     }
 
@@ -102,7 +102,7 @@ public class SrdiDestinationMetric implements DocumentSerializable {
         return messageProcessed;
     }
 	
-    public void errorWhileProcessing() {
+    void errorWhileProcessing() {
         errorWhileProcessing++;
     }
 
@@ -111,7 +111,7 @@ public class SrdiDestinationMetric implements DocumentSerializable {
         return errorWhileProcessing;
     }
 	
-    public void messageSentViaUnicast() {
+    void messageSentViaUnicast() {
         messageSentViaUnicast++;
     }
 
@@ -152,17 +152,17 @@ public class SrdiDestinationMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if ("peerID".equals(tagName)) {
+            if (tagName.equals("peerID")) {
                 String peerIDText = DocumentSerializableUtilities.getString(childElement);
 
                 peerID = MetricUtilities.getPeerIdFromString(peerIDText);
-            } else if ("messageProcessed".equals(tagName)) {
+            } else if (tagName.equals("messageProcessed")) { 
                 messageProcessed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("errorWhileProcessing".equals(tagName)) {
+            } else if (tagName.equals("errorWhileProcessing")) { 
                 errorWhileProcessing = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("srdiToUnregisteredHandler".equals(tagName)) {
+            } else if (tagName.equals("srdiToUnregisteredHandler")) { 
                 srdiToUnregisteredHandler = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("messageSentViaUnicast".equals(tagName)) {
+            } else if (tagName.equals("messageSentViaUnicast")) { 
                 messageSentViaUnicast = DocumentSerializableUtilities.getInt(childElement);
             }
         }

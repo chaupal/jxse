@@ -56,11 +56,15 @@
 
 package net.jxta.impl.protocol;
 
+
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
+
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Contains parameters for configuration of the Reference Implemenation

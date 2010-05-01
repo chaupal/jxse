@@ -193,7 +193,6 @@ public abstract class ClassFactory<K, I> {
      *         with this factory.
      */
     protected boolean registerProviders(String interfaceName) {
-
         ClassLoader loader = getClass().getClassLoader();
         boolean registeredSomething = false;
 
@@ -242,9 +241,9 @@ public abstract class ClassFactory<K, I> {
             urlStream = providerList.toURL().openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
 
-            String provider = reader.readLine();
+            String provider;
 
-            while (provider != null) {
+            while ((provider = reader.readLine()) != null) {
                 int comment = provider.indexOf('#');
 
                 if (comment != -1) {
@@ -266,8 +265,6 @@ public abstract class ClassFactory<K, I> {
                     }
 
                 }
-
-                provider = reader.readLine();
             }
 
         } catch (IOException ex) {
@@ -278,7 +275,7 @@ public abstract class ClassFactory<K, I> {
                 try {
                     urlStream.close();
                 } catch(IOException ignored) {
-                    Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
+                    
                 }
             }
         }
@@ -295,8 +292,9 @@ public abstract class ClassFactory<K, I> {
      *
      *  @param className The class name which will be registered.
      *  @return boolean true if the class was registered otherwise false.
+     *  @throws Exception   when an error occurs.
      */
-    protected boolean registerAssoc(String className) {
+    protected boolean registerAssoc(final String className) throws Exception {
 
         boolean registeredSomething = false;
 
@@ -306,7 +304,7 @@ public abstract class ClassFactory<K, I> {
              * itself as part of class initialization.
              */
                         
-            Class.forName(className);
+            Class ignored = Class.forName(className);
             registeredSomething = true;
 
         } catch (ClassNotFoundException ignored) {
@@ -329,7 +327,7 @@ public abstract class ClassFactory<K, I> {
      *  @param instantiator The instantiator object which will be registered for this key.
      *  @return boolean true if the key was successfully registered otherwise false.
      */
-    protected boolean registerAssoc(K key, I instantiator) {
+    protected boolean registerAssoc(final K key, final I instantiator) {
 
         // Check the association table to make sure this key is not already present.
         if (null != getAssocTable().get(key)) {
@@ -350,7 +348,7 @@ public abstract class ClassFactory<K, I> {
      *  @return Instantiator Instantiator matching the provided key
      *  @throws NoSuchElementException if the key has not been registered.
      */
-    protected I getInstantiator(K key) throws NoSuchElementException {
+    protected I getInstantiator(final K key) throws NoSuchElementException {
 
         // Get the constructors for this key.
         I instantiator = getAssocTable().get(key);

@@ -36,7 +36,7 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
 	
     private NettyChannelRegistry registry;
     private MessageArrivalListener listener;
-    private final Queue<Message> messages;
+    private Queue<Message> messages;
 
     public MessageDispatchHandler(NettyChannelRegistry registry) {
         this.registry = registry;
@@ -97,18 +97,13 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     }
 
     public synchronized void setMessageArrivalListener(MessageArrivalListener listener) {
-
-        synchronized(messages) {
-
+    	synchronized(messages) {
 	        this.listener = listener;
-	        Object message = messages.poll();
-
-	        while(message != null) {
+	        
+	        Object message;
+	        while((message = messages.poll()) != null) {
 	            sendToListener((Message)message);
-                    message = messages.poll();
 	        }
-                
     	}
-
     }
 }

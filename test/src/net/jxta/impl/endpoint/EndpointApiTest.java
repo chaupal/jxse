@@ -89,7 +89,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
     public void processIncomingMessage(Message message, EndpointAddress src, EndpointAddress dst) {
         synchronized (this) {
             hasMessage = true;
-            notifyAll();
+            notify();
         }
 
     }
@@ -122,7 +122,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         synchronized (this) {
             hasMessenger = true;
             msgrCounter++;
-            notifyAll();
+            notify();
         }
         return true;
     }
@@ -143,14 +143,14 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
     public void messageSendFailed(OutgoingMessageEvent evt) {
         synchronized (this) {
             msgSent = true;
-            notifyAll();
+            notify();
         }
     }
 
     public void messageSendSucceeded(OutgoingMessageEvent evt) {
         synchronized (this) {
             msgSent = true;
-            notifyAll();
+            notify();
         }
     }
 
@@ -231,7 +231,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         for (int i = 0; i < 1000000; i++) {
             EndpointAddress changingSvc = new EndpointAddress("jxta", pg.getPeerID().getUniqueValue().toString()
                     ,
-                    "EndpointApiTest", Integer.toString(i));
+                    "EndpointApiTest", "" + i);
 
             m = endp.getMessengerImmediate(changingSvc, null);
         }
@@ -522,10 +522,10 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
 
         // add/remove 500,000 different listeners
         for (int i = 1; i < 500000; i++) {
-            if (!endp.addIncomingMessageListener(this, "EndpointApiTest", Integer.toString(i))) {
+            if (!endp.addIncomingMessageListener(this, "EndpointApiTest", "" + i)) {
                 fail("Could not add variable listener after " + i + " cycles");
             }
-            if (endp.removeIncomingMessageListener("EndpointApiTest", Integer.toString(i)) != this) {
+            if (endp.removeIncomingMessageListener("EndpointApiTest", "" + i) != this) {
                 fail("Wrong variable listener removed after " + i + " cycles");
             }
         }

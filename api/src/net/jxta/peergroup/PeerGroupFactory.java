@@ -479,11 +479,11 @@ public final class PeerGroupFactory {
                     Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
                     
                 } catch (MissingResourceException ignored) {
-                    Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
+                    
                 } catch (IOException ignored) {
-                    Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
+                    
                 } catch (Exception ignored) {
-                    Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
+                    
                 }
 
             } else {

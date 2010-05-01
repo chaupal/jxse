@@ -56,6 +56,7 @@
 
 package net.jxta.protocol;
 
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -64,6 +65,7 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.logging.Logging;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,7 +76,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  *  This class defines the DiscoveryService message "Response". <p/>
@@ -321,9 +325,7 @@ public abstract class DiscoveryResponseMsg {
         } finally {
             try {
                 is.close();
-            } catch (IOException ignored) {
-                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
-            }
+            } catch (IOException ignored) {}
         }
 
         return stw.toString();

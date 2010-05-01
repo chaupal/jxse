@@ -56,23 +56,18 @@
 
 package net.jxta.protocol;
 
-import java.io.StringReader;
-import java.io.StringWriter;
+
+import java.io.*;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.XMLDocument;
-import net.jxta.impl.protocol.DiscoveryConfigAdv;
-import net.jxta.impl.protocol.GroupConfig;
-import net.jxta.impl.protocol.HTTPAdv;
-import net.jxta.impl.protocol.RdvConfigAdv;
-import net.jxta.impl.protocol.RelayConfigAdv;
+
+import net.jxta.document.*;
 import net.jxta.peergroup.PeerGroup;
+
+import net.jxta.impl.protocol.*;
+import net.jxta.protocol.PipeAdvertisement;
 
 /**
  */

@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.endpoint;
 
 import net.jxta.logging.Logging;
@@ -74,6 +73,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -86,10 +86,10 @@ public final class IPUtils {
      */
     private final static Logger LOG = Logger.getLogger(IPUtils.class.getName());
 
-    public final static String IPV4ANYADDRESS = "0.0.0.0";
-    public final static String IPV6ANYADDRESS = "::";
-    public final static String IPV4LOOPBACK = "127.0.0.1";
-    public final static String IPV6LOOPBACK = "::1";
+    final static String IPV4ANYADDRESS = "0.0.0.0";
+    final static String IPV6ANYADDRESS = "::";
+    final static String IPV4LOOPBACK = "127.0.0.1";
+    final static String IPV6LOOPBACK = "::1";
     /**
      * Constant which works as the IP "Any Address" value
      */
@@ -264,10 +264,10 @@ public final class IPUtils {
 
             if (-1 == percentAt) {
                 // no scoping identifier. Just add the brackets.
-                hostAddress = new StringBuffer().append('[').append(hostAddress).append(']').toString();
+                hostAddress = "[" + hostAddress + "]";
             } else {
                 // Remove scoping identifier. They aren't relevant when published.
-                hostAddress = new StringBuffer().append('[').append(hostAddress.substring(0, percentAt)).append(']').toString();
+                hostAddress = "[" + hostAddress.substring(0, percentAt) + "]";
             }
         } else {
             hostAddress = anAddress.getHostAddress();
@@ -292,7 +292,7 @@ public final class IPUtils {
         String hostAddress;
         String port;
 
-        if (anAddress.charAt(0) == '[') {
+        if (anAddress.startsWith("[")) {
             int endBracketAt = anAddress.indexOf(']');
             int portSeparatorAt = anAddress.lastIndexOf(':');
 
@@ -413,7 +413,7 @@ public final class IPUtils {
     /**
      * Size of port groups we will probe.
      */
-    public final static int rangesize = 200;
+    final static int rangesize = 200;
 
     public static List<InetSocketAddress> createRandomSocketAddressList(InetAddress bindAddress, int preferredPort, int minPort, int maxPort) {
         
@@ -458,7 +458,7 @@ public final class IPUtils {
      * @return a ServerSocket in the specified range.
      * @throws IOException when the socket cannot be opened. (Lame, but that's what ServerSocket says).
      */
-    public static ServerSocket openServerSocketInRange(int start, int end, int backlog, InetAddress bindAddress) throws IOException {
+    public static ServerSocket openServerSocketInRange(int start, int end, final int backlog, final InetAddress bindAddress) throws IOException {
         ServerSocketFactory factory = getServerSocketFactory();
 
         ServerSocket result;
@@ -487,7 +487,7 @@ public final class IPUtils {
      * @return The ServerSocket bound to an address in the requested range.
      * @throws IOException when the socket cannot be opened. (Lame, but that's what ServerSocket says).
      */
-    public static ServerSocket bindServerSocketInRange(ServerSocket socket, int start, int end, int backlog, InetAddress bindAddress) throws IOException {        
+    public static ServerSocket bindServerSocketInRange(ServerSocket socket, final int start, int end, final int backlog, final InetAddress bindAddress) throws IOException {        
         if ((start < 0) || (start > 65535)) {
             throw new IllegalArgumentException("Invalid start port");
         }
@@ -538,9 +538,10 @@ public final class IPUtils {
 
                 try {
                     socket.bind(bindSocketAddress, backlog);
+
                     return socket;
                 } catch (SocketException failed) {
-                    Logging.logCheckedFine(LOG, "Ignoring: ", failed.toString());
+                // this one is busy. try another.
                 }
             }
         }

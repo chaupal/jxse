@@ -56,6 +56,7 @@
 
 package net.jxta.id;
 
+
 import net.jxta.codat.CodatID;
 import net.jxta.content.ContentID;
 import net.jxta.id.jxta.IDFormat;
@@ -625,13 +626,13 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         
         try {
             // Get our resource bundle
-            final ResourceBundle jxtaRsrcs = ResourceBundle.getBundle("net.jxta.impl.config");
+            ResourceBundle jxtaRsrcs = ResourceBundle.getBundle("net.jxta.impl.config");
             
             // set the default ID Format.
             idNewInstances = jxtaRsrcs.getString("IDNewInstances").trim();
         } catch (MissingResourceException notFound) {
             // This is an error because we can't start without a concept of ID.
-            final IllegalStateException failure =
+            IllegalStateException failure =
 		new IllegalStateException("Could not initialize ID defaults", notFound);
             LOG.log(Level.SEVERE, "Could not initialize IDFactory\n", failure);
             throw failure;
@@ -717,14 +718,14 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
                 throw new ClassCastException("INSTANTIATOR is not of type " + Instantiator.class.getName());
             }
             
-            final Instantiator instantiator = (Instantiator) instantiatorField.get(null);
+            Instantiator instantiator = (Instantiator) instantiatorField.get(null);
             
             if (null == instantiator) {
                 LOG.severe("INSTANTIATOR field is null for class  : " + className);
                 return false;
             }
             
-            final String idFormat = instantiator.getSupportedIDFormat();
+            String idFormat = instantiator.getSupportedIDFormat();
             
             registeredSomething = registerAssoc(idFormat, instantiator);
         } catch (Exception failed) {
@@ -761,7 +762,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         
         String decoded = source.getSchemeSpecificPart();
         
-        final int colonAt = decoded.indexOf(':');
+        int colonAt = decoded.indexOf(':');
         
         // There's a colon right?
         if (-1 == colonAt) {
@@ -778,7 +779,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         // skip the namespace portion and the colon
         decoded = decoded.substring(colonAt + 1);
         
-        final int dashAt = decoded.indexOf('-');
+        int dashAt = decoded.indexOf('-');
         
         // there's a dash, right?
         if (-1 == dashAt) {
@@ -786,7 +787,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         }
         
         // get the encoding used for this id
-        final String format = decoded.substring(0, dashAt);
+        String format = decoded.substring(0, dashAt);
         
         Instantiator instantiator;
 
@@ -819,7 +820,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newCodatID(groupID).intern();
     }
@@ -853,7 +854,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newCodatID(groupID, seed).intern();
     }
@@ -875,7 +876,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created CodatID.
      *  @throws IOException I/O Error reading document
      */
-    public static CodatID newCodatID(PeerGroupID groupID, InputStream in) throws IOException {
+    public static CodatID newCodatID(PeerGroupID groupID, InputStream in) throws  IOException {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
@@ -883,7 +884,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newCodatID(groupID, in).intern();
     }
@@ -924,7 +925,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newCodatID(groupID, seed, in).intern();
     }
@@ -941,7 +942,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      * @return the newly created ContentID.
      */
     public static ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic ) {
+            PeerGroupID groupID, boolean contentIsStatic ) {
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
@@ -949,7 +950,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator( useFormat );
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
         return instantiator.newContentID(
                 groupID, contentIsStatic );
@@ -988,7 +989,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator( useFormat );
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed );
@@ -1018,8 +1019,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created ContentID.
      */
     public static ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final InputStream indexSeed)
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed)
             throws IOException{
         String useFormat = groupID.getIDFormat();
         
@@ -1028,7 +1029,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator( useFormat );
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed );
@@ -1061,8 +1062,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created ContentID.
      */
     public static ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final byte[] indexSeed, byte[] variant){
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, byte[] variant){
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
@@ -1070,7 +1071,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator( useFormat );
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
@@ -1103,8 +1104,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created ContentID.
      */
     public static ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final InputStream indexSeed, byte[] variant)
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, byte[] variant)
             throws IOException{
         String useFormat = groupID.getIDFormat();
         
@@ -1113,7 +1114,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator( useFormat );
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
@@ -1147,8 +1148,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created ContentID.
      */
     public static ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final byte[] indexSeed, InputStream variant)
+            PeerGroupID groupID, boolean contentIsStatic,
+            byte[] indexSeed, InputStream variant)
             throws IOException {
         String useFormat = groupID.getIDFormat();
         
@@ -1157,7 +1158,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator( useFormat );
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
@@ -1191,8 +1192,8 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created ContentID.
      */
     public static ContentID newContentID(
-            final PeerGroupID groupID, boolean contentIsStatic,
-            final InputStream indexSeed, InputStream variant)
+            PeerGroupID groupID, boolean contentIsStatic,
+            InputStream indexSeed, InputStream variant)
             throws IOException {
         String useFormat = groupID.getIDFormat();
         
@@ -1201,7 +1202,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator( useFormat );
+        Instantiator instantiator = factory.getInstantiator( useFormat );
         
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
@@ -1217,7 +1218,6 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      *  @return The newly created PeerID.
      */
     public static PeerID newPeerID(PeerGroupID groupID) {
-
         String useFormat = groupID.getIDFormat();
         
         // is the group netpg or worldpg?
@@ -1225,7 +1225,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newPeerID(groupID).intern();
     }
@@ -1250,7 +1250,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             useFormat = factory.idNewInstances;
         }
         
-        final Instantiator instantiator = factory.getInstantiator(useFormat);
+        Instantiator instantiator = factory.getInstantiator(useFormat);
         
         return instantiator.newPeerID(groupID, seed).intern();
     }
@@ -1277,8 +1277,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      * @return The newly created PeerGroupID.
      */
     public static PeerGroupID newPeerGroupID(String idformat) {
-
-        final Instantiator instantiator = factory.getInstantiator(idformat);
+        Instantiator instantiator = factory.getInstantiator(idformat);
         
         return instantiator.newPeerGroupID().intern();
     }

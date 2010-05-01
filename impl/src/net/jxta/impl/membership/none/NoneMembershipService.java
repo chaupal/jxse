@@ -124,7 +124,7 @@ public class NoneMembershipService implements MembershipService {
         /**
          *  Whether the credential is valid.
          **/
-        private boolean valid = true;
+        boolean valid = true;
         
         /**
          *  property change support
@@ -223,7 +223,7 @@ public class NoneMembershipService implements MembershipService {
         /**
          * {@inheritDoc}
          **/
-        public StructuredDocument getDocument(MimeMediaType as) {
+        public StructuredDocument getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
             
             if (doc instanceof Attributable) {
@@ -313,7 +313,7 @@ public class NoneMembershipService implements MembershipService {
             
             String doctype = doc.getName();
             
-            if (!"jxta:NullCred".equals(doctype) && !"jxta:NullCred".equals(typedoctype)) {
+            if (!doctype.equals("jxta:NullCred") && !typedoctype.equals("jxta:NullCred")) {
                 throw new IllegalArgumentException(
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doctype);
             }
@@ -388,10 +388,10 @@ public class NoneMembershipService implements MembershipService {
      **/
     public final static class NoneAuthenticator implements Authenticator {
         
-        private MembershipService source;
-        private AuthenticationCredential application;
+        MembershipService source;
+        AuthenticationCredential application;
         
-        private String whoami = "nobody";
+        String whoami = "nobody";
         
         /**
          * Creates an authenticator for the null membership service. Anything entered
@@ -536,8 +536,7 @@ public class NoneMembershipService implements MembershipService {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring None Membership Service : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring None Membership Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
             configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
@@ -567,7 +566,7 @@ public class NoneMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
         return 0;
     }
     
@@ -674,7 +673,7 @@ public class NoneMembershipService implements MembershipService {
     /**
      * {@inheritDoc}
      **/
-    public Credential makeCredential(Element element) throws PeerGroupException {
+    public Credential makeCredential(Element element) throws PeerGroupException, Exception {
         return new NoneCredential(this, element);
     }
 }

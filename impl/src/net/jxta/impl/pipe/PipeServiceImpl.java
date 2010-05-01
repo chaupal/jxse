@@ -83,7 +83,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -109,13 +108,14 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * The Logger
 	 */
-	private final static Logger LOG = Logger.getLogger(PipeServiceImpl.class.getName());
+	private final static Logger LOG = Logger.getLogger(PipeServiceImpl.class
+			.getName());
 
 	/**
 	 * the interval at which we verify that a pipe is still resolved at a remote
 	 * peer.
 	 */
-	public static final long VERIFYINTERVAL = 20 * TimeUtils.AMINUTE;
+	static final long VERIFYINTERVAL = 20 * TimeUtils.AMINUTE;
 
 	/**
 	 * The group this PipeService is working for.
@@ -160,18 +160,17 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	/**
 	 * Has the pipe service been started?
 	 */
-	private AtomicBoolean started = new AtomicBoolean(false);
+	private volatile boolean started = false;
 
 	/**
 	 * holds a pipe adv and a listener which will be called for resolutions of
 	 * the pipe.
 	 */
 	private static class OutputPipeHolder {
-
-		private final PipeAdvertisement adv;
-		private final Set<? extends ID> peers;
-		private final OutputPipeListener listener;
-		private final int queryid;
+		final PipeAdvertisement adv;
+		final Set<? extends ID> peers;
+		final OutputPipeListener listener;
+		final int queryid;
 
 		OutputPipeHolder(PipeAdvertisement adv, Set<? extends ID> peers,
 				OutputPipeListener listener, int queryid) {
@@ -187,7 +186,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 */
 	private static class syncListener implements OutputPipeListener {
 
-		private volatile OutputPipeEvent event = null;
+		volatile OutputPipeEvent event = null;
 
 		syncListener() {
 		}
@@ -246,8 +245,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		implAdvertisement = (ModuleImplAdvertisement) impl;
 
 		if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-			StringBuilder configInfo = new StringBuilder("Configuring Pipe Service : ");
-                        configInfo.append(assignedID);
+			StringBuilder configInfo = new StringBuilder(
+					"Configuring Pipe Service : " + assignedID);
 
 			if (implAdvertisement != null) {
 				configInfo.append("\n\tImplementation :");
@@ -321,7 +320,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		// XXX 20061221 We could check the result of this.
 		wirePipe.startApp(args);
 
-		started.set(true);
+		started = true;
 
 		return Module.START_OK;
 	}
@@ -330,42 +329,40 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 * {@inheritDoc}
 	 */
 	public synchronized void stopApp() {
-		
-            started.set(false);
+		started = false;
 
-            try {
-                    if (wirePipe != null) {
-                            wirePipe.stopApp();
-                    }
-            } catch (Throwable failed) {
-                    LOG.log(Level.SEVERE, "Failed to stop wire pipe\n", failed);
-            } finally {
-                    wirePipe = null;
-            }
+		try {
+			if (wirePipe != null) {
+				wirePipe.stopApp();
+			}
+		} catch (Throwable failed) {
+			LOG.log(Level.SEVERE, "Failed to stop wire pipe\n", failed);
+		} finally {
+			wirePipe = null;
+		}
 
-            try {
-                    if (pipeResolver != null) {
-                            pipeResolver.stop();
-                    }
-            } catch (Throwable failed) {
-                    LOG.log(Level.SEVERE, "Failed to stop pipe resolver\n", failed);
-            } finally {
-                    pipeResolver = null;
-            }
+		try {
+			if (pipeResolver != null) {
+				pipeResolver.stop();
+			}
+		} catch (Throwable failed) {
+			LOG.log(Level.SEVERE, "Failed to stop pipe resolver\n", failed);
+		} finally {
+			pipeResolver = null;
+		}
 
-            // Avoid cross-reference problem with GC
-            group = null;
-            myInterface = null;
+		// Avoid cross-reference problem with GC
+		group = null;
+		myInterface = null;
 
-            // clear outputPipeListeners
-            Collection<Map<Integer, OutputPipeHolder>> values = outputPipeListeners
-                            .values();
+		// clear outputPipeListeners
+		Collection<Map<Integer, OutputPipeHolder>> values = outputPipeListeners
+				.values();
 
-            for (Map<Integer, OutputPipeHolder> value : values) {
-                    value.clear();
-            }
-            outputPipeListeners.clear();
-
+		for (Map<Integer, OutputPipeHolder> value : values) {
+			value.clear();
+		}
+		outputPipeListeners.clear();
 	}
 
 	/**
@@ -381,7 +378,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	public InputPipe createInputPipe(PipeAdvertisement adv,
 			PipeMsgListener listener) throws IOException {
 
-		if (!started.get()) {
+		if (!started) {
 			throw new IllegalStateException(
 					"Pipe Service has not been started or has been stopped");
 		}
@@ -504,8 +501,10 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 			Set<? extends ID> resolvablePeers, OutputPipeListener listener,
 			int queryid) throws IOException {
 
-		if (!started.get())
-                    throw new IOException("Pipe Service has not been started or has been stopped");
+		if (!started) {
+			throw new IOException(
+					"Pipe Service has not been started or has been stopped");
+		}
 
 		// Recover the PipeId from the PipeServiceImpl Advertisement
 		PipeID pipeId = (PipeID) pipeAdv.getPipeID();

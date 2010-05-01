@@ -65,6 +65,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.endpoint.router.EndpointRouter;
 import net.jxta.impl.endpoint.router.RouteControl;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.ResolverQuery;
@@ -91,6 +92,7 @@ import net.jxta.rendezvous.RendezVousStatus;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.ByteArrayOutputStream;
@@ -177,12 +179,12 @@ public class ResolverServiceImpl implements ResolverService {
         /**
          * The current default credential
          */
-        private final Credential credential;
+        final Credential credential;
 
         /**
          * The current default credential in serialized XML form.
          */
-        private final XMLDocument credentialDoc;
+        final XMLDocument credentialDoc;
 
         CurrentCredential(Credential credential, XMLDocument credentialDoc) {
             this.credential = credential;
@@ -193,7 +195,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * The current Membership service default credential.
      */
-    private CurrentCredential currentCredential;
+    CurrentCredential currentCredential;
 
     /**
      * Listener we use for membership property events.
@@ -240,7 +242,7 @@ public class ResolverServiceImpl implements ResolverService {
         }
     }
 
-    private final CredentialListener membershipCredListener = new CredentialListener();
+    final CredentialListener membershipCredListener = new CredentialListener();
 
     /**
      * Convenience method for constructing an endpoint address from an id
@@ -279,8 +281,7 @@ public class ResolverServiceImpl implements ResolverService {
         // Tell tell the world about our configuration.
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
-            StringBuilder configInfo = new StringBuilder("Configuring Resolver Service : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Resolver Service : " + assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -308,7 +309,7 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * {@inheritDoc}
      */
-    public int startApp(String[] args) {
+    public int startApp(String[] arg) {
 
         endpoint = group.getEndpointService();
 
@@ -1298,9 +1299,8 @@ public class ResolverServiceImpl implements ResolverService {
     /**
      * Listener to find bad destinations and clean srdi tables for them.
      */
-    private class FailureListener implements OutgoingMessageEventListener {
-
-        private final ID dest;
+    class FailureListener implements OutgoingMessageEventListener {
+        final ID dest;
 
         FailureListener(ID dest) {
             this.dest = dest;

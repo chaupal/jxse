@@ -59,7 +59,6 @@ package net.jxta.platform;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import javax.security.cert.CertificateException;
 import net.jxta.credential.AuthenticationCredential;
@@ -143,11 +142,11 @@ public class NetworkManager implements RendezvousListener {
         SUPER
     }
 
-    private final static Object networkConnectLock = "rendezvous connection lock";
+    private final Object networkConnectLock = new String("rendezvous connection lock");
     private PeerGroup netPeerGroup = null;
-    private AtomicBoolean started = new AtomicBoolean(false);
-    // private volatile boolean connected = false;
-    private AtomicBoolean stopped = new AtomicBoolean(false);
+    private volatile boolean started = false;
+    private volatile boolean connected = false;
+    private volatile boolean stopped = false;
     private RendezVousService rendezvous;
     private String instanceName = "NA";
     private ShutdownHook shutdownHook;
@@ -396,11 +395,13 @@ public class NetworkManager implements RendezvousListener {
      */
     public synchronized PeerGroup startNetwork() throws PeerGroupException, IOException {
 
-        if (started.get()) return netPeerGroup;
-        
+        if (started) {
+            return netPeerGroup;
+        }
+
         if (config == null) configure(mode);
         
-        Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = ", mode, ", HOME = ", instanceHome);
+        Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = ", mode, ",  HOME = ", instanceHome);
         
 // Not needed since the TM is completely static now (at least temporarily) -- Bill
 //        TaskManager.getTaskManager().startup();
@@ -417,8 +418,8 @@ public class NetworkManager implements RendezvousListener {
 
         rendezvous = netPeerGroup.getRendezVousService();
         rendezvous.addListener(this);
-        started.set(true);
-        stopped.set(false);
+        started = true;
+        stopped = false;
 
         Logging.logCheckedInfo(LOG, "Started JXTA Network!");
 
@@ -475,16 +476,17 @@ public class NetworkManager implements RendezvousListener {
      */
     public synchronized void stopNetwork() {
 
-        if (stopped.get() || !started.get()) return;
-        
+        if (stopped || !started) {
+            return;
+        }
+
         Logging.logCheckedInfo(LOG, "Stopping JXTA Network!");
 
-        stopped.set(true);
-
-//        synchronized (networkConnectLock) {
-//            connected = false;
-//            networkConnectLock.notifyAll();
-//        }
+        stopped = true;
+        synchronized (networkConnectLock) {
+            connected = false;
+            networkConnectLock.notifyAll();
+        }
 
         rendezvous.removeListener(this);
         netPeerGroup.stopApp();
@@ -494,7 +496,7 @@ public class NetworkManager implements RendezvousListener {
         // Shutting down task manager
         TaskManager.getTaskManager().shutdown();
         // permit restart.
-        started.set(false);
+        started = false;
 
         Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
 
@@ -531,10 +533,8 @@ public class NetworkManager implements RendezvousListener {
             timeoutAt = Long.MAX_VALUE;
         }
 
-        while (started.get() && !stopped.get() && !rendezvous.isConnectedToRendezVous() && !rendezvous.isRendezVous()) {
-
+        while (started && !stopped && !rendezvous.isConnectedToRendezVous() && !rendezvous.isRendezVous()) {
             try {
-
                 long waitFor = timeoutAt - System.currentTimeMillis();
 
                 if (waitFor > 0) {
@@ -564,7 +564,7 @@ public class NetworkManager implements RendezvousListener {
         if (event.getType() == RendezvousEvent.RDVCONNECT || event.getType() == RendezvousEvent.RDVRECONNECT
                 || event.getType() == RendezvousEvent.BECAMERDV) {
             synchronized (networkConnectLock) {
-                // connected = true;
+                connected = true;
                 networkConnectLock.notifyAll();
             }
         }
@@ -628,7 +628,7 @@ public class NetworkManager implements RendezvousListener {
      * @return true if started
      */
     public boolean isStarted() {
-        return (started.get() && (!stopped.get()));
+        return (started && (!stopped));
     }
 
     /**

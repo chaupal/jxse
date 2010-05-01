@@ -53,19 +53,19 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.socket;
+
 
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
+
 
 /**
  * Provides the stream data source for JxtaSocket.
@@ -73,11 +73,6 @@ import net.jxta.logging.Logging;
  * @author Athomas Goldberg
  */
 class JxtaSocketInputStream extends InputStream {
-
-    /**
-     *  Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(JxtaSocketInputStream.class.getName());
 
     /**
      * We push this "poison" value into the accept backlog queue in order to
@@ -199,16 +194,16 @@ class JxtaSocketInputStream extends InputStream {
         queue.clear();
         closeCurrentStream();
         queue.offer(QUEUE_END);
-        notifyAll();
+        notify();
     }
 
     /**
      * Rather than force the InputStream closed we add the EOF at the end of
      * any current data.
      */
-    public synchronized void softClose() {
+    synchronized void softClose() {
         queue.offer(QUEUE_END);
-        notifyAll();
+        notify();
     }
 
     /**
@@ -269,13 +264,12 @@ class JxtaSocketInputStream extends InputStream {
             try {
                 currentMsgStream.close();
             } catch (IOException ignored) {// ignored
-                Logging.logCheckedFine(LOG, "Ignoring: ", ignored.toString());
             }
             currentMsgStream = null;
         }
     }
 
-    public synchronized void enqueue(MessageElement element) {
+    synchronized void enqueue(MessageElement element) {
         if (queue.contains(QUEUE_END)) {
             // We have already marked the end of the queue.
             return;
@@ -283,7 +277,7 @@ class JxtaSocketInputStream extends InputStream {
         if (queue.size() < queueSize) {
             queue.offer(element);
         }
-        notifyAll();
+        notify();
     }
 
     /**
@@ -294,7 +288,7 @@ class JxtaSocketInputStream extends InputStream {
      * @return The timeout value in milliseconds or 0 (zero) for
      *         infinite timeout.
      */
-    private long getTimeout() {
+    long getTimeout() {
         if (timeout < Long.MAX_VALUE) {
             return timeout;
         } else {
@@ -310,7 +304,7 @@ class JxtaSocketInputStream extends InputStream {
      * @param timeout The timeout value in milliseconds or 0 (zero) for
      *                infinite timeout.
      */
-    public void setTimeout(long timeout) {
+    void setTimeout(long timeout) {
         if (timeout < 0) {
             throw new IllegalArgumentException("Negative timeout not allowed.");
         }

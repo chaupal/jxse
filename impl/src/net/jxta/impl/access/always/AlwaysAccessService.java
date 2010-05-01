@@ -99,11 +99,11 @@ public class AlwaysAccessService implements AccessService {
      */
     private static class AlwaysOperation implements PrivilegedOperation {
         
-        private AlwaysAccessService source;
+        AlwaysAccessService source;
         
-        private String op;
+        String op;
         
-        private Credential offerer;
+        Credential offerer;
         
         protected AlwaysOperation(AlwaysAccessService source, String op, Credential offerer) {
             this.source = source;
@@ -258,7 +258,7 @@ public class AlwaysAccessService implements AccessService {
             
             String doctype = doc.getName();
             
-            if (!"jxta:AlwaysOp".equals(doctype) && !"jxta:Cred".equals(doctype) || !"jxta:AlwaysOp".equals(typedoctype)) {
+            if (!doctype.equals("jxta:AlwaysOp") && !doctype.equals("jxta:Cred") || !"jxta:AlwaysOp".equals(typedoctype)) {
                 throw new IllegalArgumentException(
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
             }
@@ -287,14 +287,15 @@ public class AlwaysAccessService implements AccessService {
         }
     }
     
-    private PeerGroup group;
-    private ModuleImplAdvertisement implAdvertisement;
+    PeerGroup group;
+    
+    ModuleImplAdvertisement implAdvertisement;
     
     /**
      *  Default Constructor
      */
     public AlwaysAccessService() {}
-
+    
     /**
      * {@inheritDoc}
      */
@@ -304,8 +305,7 @@ public class AlwaysAccessService implements AccessService {
         this.group = group;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder("Configuring Always Access Service : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring Always Access Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
             configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
@@ -352,7 +352,7 @@ public class AlwaysAccessService implements AccessService {
      * 
      * @return PeerGroup instance
      */
-    private PeerGroup getPeerGroup() {
+    PeerGroup getPeerGroup() {
         return group;
     }
     

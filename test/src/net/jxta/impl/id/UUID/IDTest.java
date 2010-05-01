@@ -56,20 +56,30 @@
 
 package net.jxta.impl.id.UUID;
 
+
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.security.MessageDigest;
+
+import java.io.IOException;
 import java.security.ProviderException;
 import java.security.NoSuchAlgorithmException;
 import java.io.UnsupportedEncodingException;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import net.jxta.codat.CodatID;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeID;
+
 
 /**
  * @author  mike

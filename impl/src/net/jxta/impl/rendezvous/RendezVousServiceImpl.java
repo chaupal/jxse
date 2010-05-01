@@ -100,6 +100,7 @@ import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peer.PeerID;
+import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.Module;
@@ -133,7 +134,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     private static final double DEMOTION_FACTOR = 0.05;
     private static final long DEMOTION_MIN_PEERVIEW_COUNT = 5;
     private static final long DEMOTION_MIN_CLIENT_COUNT = 3;
-    private static final int MAX_MSGIDS = 1000;
+    protected static final int MAX_MSGIDS = 1000;
 
     private final static Random random = new Random();
 
@@ -186,10 +187,10 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      *
-     * @since 2.6 
-     * @deprecated This method has been deprecated and now returns {@code this} rather than
+     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
      * an instance of {@code RendezVousServiceInterface}. It should be removed from the code
      * in a future release.
+     *
      */
     @Deprecated
     public RendezVousService getInterface() {
@@ -241,7 +242,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
                 }
             } catch (NoSuchElementException failed) {
                 //ignored
-                Logging.logCheckedFine(LOG, "Ignored: ", failed.toString());
             }
 
             if (adv instanceof RdvConfigAdv) {
@@ -266,8 +266,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         }
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            StringBuilder configInfo = new StringBuilder("Configuring RendezVous Service : ");
-            configInfo.append(assignedID);
+            StringBuilder configInfo = new StringBuilder("Configuring RendezVous Service : " + assignedID);
 
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
@@ -296,7 +295,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
-    public synchronized int startApp(String[] args) {
+    public int startApp(String[] arg) {
 
         endpoint = group.getEndpointService();
 
@@ -557,8 +556,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
-    public synchronized void startRendezVous() {
-
+    public void startRendezVous() {
         try {
             if (isRendezVous() || PeerGroupID.worldPeerGroupID.equals(group.getPeerGroupID())) {
                 return;
@@ -602,7 +600,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
     /**
      * {@inheritDoc}
      */
-    public synchronized void stopRendezVous() {
+    public void stopRendezVous() {
 
         if (!isRendezVous()) {
             return;
@@ -750,11 +748,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
         // Preparing result
         ArrayList<PeerID> Result = new ArrayList<PeerID>();
 
-        RendezVousServiceProvider TmpProv = provider;
+        if (provider instanceof RdvPeerRdvService) {
 
-        if (TmpProv instanceof RdvPeerRdvService) {
-
-            RdvPeerRdvService Temp = (RdvPeerRdvService) TmpProv;
+            RdvPeerRdvService Temp = (RdvPeerRdvService) provider;
 
             Iterator<PeerViewElement> Iter = Temp.rpv.getView().iterator();
 
@@ -762,9 +758,9 @@ public final class RendezVousServiceImpl implements RendezVousService {
                 Result.add((PeerID)Iter.next().getPeerID());
             }
 
-        } else if (TmpProv instanceof EdgePeerRdvService) {
+        } else if (provider instanceof EdgePeerRdvService) {
 
-            EdgePeerRdvService Temp = (EdgePeerRdvService) TmpProv;
+            EdgePeerRdvService Temp = (EdgePeerRdvService) provider;
 
             Iterator<ID> Iter = Temp.getConnectedPeerIDs().iterator();
 
@@ -1001,7 +997,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
      * @deprecated This is private for debugging and diagnostics only.
      */
     @Deprecated
-    public RendezVousServiceProvider getRendezvousProvider() {
+    net.jxta.impl.rendezvous.RendezVousServiceProvider getRendezvousProvider() {
         return provider;
     }
 }

@@ -76,7 +76,6 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.discovery.DiscoveryService;
@@ -145,29 +144,29 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     /**
      * Our service name
      */
-    public static final String SERVICE_NAME = "PeerView";
+    static final String SERVICE_NAME = "PeerView";
 
     /**
      * Namespace used for rdv message elements.
      */
-    public static final String MESSAGE_NAMESPACE = "jxta";
+    static final String MESSAGE_NAMESPACE = "jxta";
 
     /**
      * Element name of outgoing messages. Note that the element contains a
      * RdvAvertisement and <emphasis>not</emphasis> a Peer Advertisement.
      */
-    public static final String MESSAGE_ELEMENT_NAME = "PeerView.PeerAdv";
+    static final String MESSAGE_ELEMENT_NAME = "PeerView.PeerAdv";
 
     /**
      * Element name of responses. Note that the element contains a
      * RdvAvertisement and <emphasis>not</emphasis> a Peer Advertisement.
      */
-    public static final String RESPONSE_ELEMENT_NAME = "PeerView.PeerAdv.Response";
+    static final String RESPONSE_ELEMENT_NAME = "PeerView.PeerAdv.Response";
 
     /**
      * Message element name for PeerView "Cached" Message Element
      */
-    public static final String CACHED_RADV_ELEMENT_NAME = "PeerView.Cached";
+    static final String CACHED_RADV_ELEMENT_NAME = "PeerView.Cached";
 
     /**
      * Optional message element that specifies by its presence in a peerview
@@ -179,30 +178,30 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * include this element, but when sending another peer's RdvAdvertisement,
      * this element is included.
      */
-    public static final MessageElement CACHED_RADV_ELEMENT = new StringMessageElement(CACHED_RADV_ELEMENT_NAME, Boolean.TRUE.toString(), null);
+    static final MessageElement CACHED_RADV_ELEMENT = new StringMessageElement(CACHED_RADV_ELEMENT_NAME, Boolean.TRUE.toString(), null);
 
     /**
      * Message element name that specifies the route advertisement of the
      * source of the message.
      */
-    public static final String SRCROUTEADV_ELEMENT_NAME = "PeerView.SrcRouteAdv";
+    static final String SRCROUTEADV_ELEMENT_NAME = "PeerView.SrcRouteAdv";
 
     /**
      * Message element name for PeerView "Edge" Message Element
      */
-    public static final String EDGE_ELEMENT_NAME = "PeerView.EdgePeer";
+    static final String EDGE_ELEMENT_NAME = "PeerView.EdgePeer";
 
     /**
      * Optional message element that specifies by its presence in a peerview
      * message that the referenced peer is an edge peer and not a member of the
      * peerview.
      */
-    public static final MessageElement EDGE_ELEMENT = new StringMessageElement(EDGE_ELEMENT_NAME, Boolean.TRUE.toString(), null);
+    static final MessageElement EDGE_ELEMENT = new StringMessageElement(EDGE_ELEMENT_NAME, Boolean.TRUE.toString(), null);
 
     /**
      * Message element name for PeerView "Failure" Message Element
      */
-    public static final String FAILURE_ELEMENT_NAME = "PeerView.Failure";
+    static final String FAILURE_ELEMENT_NAME = "PeerView.Failure";
 
     /**
      * Optional message element that specifies by its presence in a peerview
@@ -210,7 +209,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * "cached" element is also set then the error is being reported by a third
      * party.
      */
-    public static final MessageElement FAILURE_ELEMENT = new StringMessageElement(FAILURE_ELEMENT_NAME, Boolean.TRUE.toString(), null);
+    static final MessageElement FAILURE_ELEMENT = new StringMessageElement(FAILURE_ELEMENT_NAME, Boolean.TRUE.toString(), null);
 
     /**
      * This is the interval between adv exchange in seconds. This is
@@ -396,7 +395,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * If <code>true</code> then this Peer View instance is closed and is
      * shutting down.
      */
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private volatile boolean closed = false;
 
     /**
      * Get an instance of PeerView for the specified PeerGroup and Service.
@@ -431,9 +430,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 if (null != configDoc) {
                     adv = AdvertisementFactory.newAdvertisement(configDoc);
                 }
-            } catch (NoSuchElementException failed) {
-                // ignored
-                Logging.logCheckedFine(LOG, "Ignored: ", failed.toString());
+            } catch (java.util.NoSuchElementException failed) {// ignored
             }
         }
 
@@ -642,9 +639,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                     if (null != pve) 
                         srcPeer = "\"" + pve.getRdvAdvertisement().getName() + "\"";
                     
-                } catch (URISyntaxException failed) {
-                    // ignored
-                    Logging.logCheckedFine(LOG, "Ignored: ", failed.toString());
+                } catch (URISyntaxException failed) {// ignored
                 }
             }
 
@@ -790,7 +785,9 @@ public final class PeerView implements EndpointListener, RendezvousListener {
     @SuppressWarnings("fallsthrough")
     public void rendezvousEvent(RendezvousEvent event) {
 
-        if (closed.get()) return;
+        if (closed) {
+            return;
+        }
 
         boolean notifyFailure = false;
 
@@ -859,11 +856,15 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         // rendezvous events.
     }
 
-    public synchronized void stop() {
+    public void stop() {
 
-        // Only one thread gets to perform the shutdown.
-        if (closed.get()) return;
-        closed.set(true);
+        synchronized (this) {
+            // Only one thread gets to perform the shutdown.
+            if (closed) {
+                return;
+            }
+            closed = true;
+        }
 
         // notify other rendezvous peers that we are going down
         notifyFailure(self, true);
@@ -1064,7 +1065,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         public void run() {
             try {
 
-                if (closed.get()) return;
+                if (closed) return;
                 openWirePipes();
 
             } catch (Throwable all) {
@@ -1279,7 +1280,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      * @param propagateFailure If {@code true} then broadcast the failure to
      *                         other peers otherwise only update the local peerview.
      */
-    public void notifyFailure(PeerViewElement pve, boolean propagateFailure) {
+    void notifyFailure(PeerViewElement pve, boolean propagateFailure) {
 
         Logging.logCheckedFine(LOG, "Notifying failure of ", pve);
 
@@ -1291,8 +1292,10 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             propagateFailure &= (removedFromPeerView || (self == pve));
 
             // Notify local listeners
-            if (removedFromPeerView) generateEvent(PeerViewEvent.FAIL, pve);
-            
+            if (removedFromPeerView) {
+                generateEvent(PeerViewEvent.FAIL, pve);
+            }
+
             boolean emptyPeerView = localView.isEmpty();
 
             // If the local view has become empty, reset the kicker into
@@ -1394,7 +1397,9 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
     private synchronized void rescheduleKick(boolean now) {
 
-        if (closed.get()) return;
+        if (closed) {
+            return;
+        }
 
         // Set the next iteration
         try {
@@ -1438,13 +1443,14 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 // create a new local RdvAdvertisement and set it to self.
                 radv = createRdvAdvertisement(lastPeerAdv, name);
 
-                if (radv != null) self.setRdvAdvertisement(radv);
-                
+                if (radv != null) {
+                    self.setRdvAdvertisement(radv);
+                }
             }
         }
     }
 
-    public static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String serviceName) {
+    static RdvAdvertisement createRdvAdvertisement(PeerAdvertisement padv, String serviceName) {
 
         try {
             // FIX ME: 10/19/2002 lomax@jxta.org. We need to properly set up the service ID. Unfortunately
@@ -1536,7 +1542,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         }
     }
 
-    public static PipeAdvertisement makeWirePipeAdvertisement(PeerGroup destGroup, PeerGroup group, String name) {
+    static PipeAdvertisement makeWirePipeAdvertisement(PeerGroup destGroup, PeerGroup group, String name) {
 
         PipeAdvertisement adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
 
@@ -1724,10 +1730,11 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
     private synchronized void scheduleAdvertisingGroupQuery(long delay) {
 
-        if (closed.get()) return;
+        if (closed) {
+            return;
+        }
 
         addTask(new AdvertisingGroupQueryTask(), delay, -1);
-        
     }
 
     /**
@@ -1739,8 +1746,9 @@ public final class PeerView implements EndpointListener, RendezvousListener {
          */
         public void run() {
             try {
-
-                if (closed.get()) return;
+                if (closed) {
+                    return;
+                }
 
                 OutputPipe op = wirePipeOutputPipe;
 
@@ -1864,7 +1872,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             // but it could still become empty after the test, since it reflects
             // concurrent changes to localView. Not worth synchronizing for that
             // rare occurence. The end-result is still correct.
-            Logging.logCheckedFine(LOG, "Ignored: ", nse.toString());
         }
 
         return null;
@@ -1947,12 +1954,13 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 upPeer = null;
             }
 
-            if ((oldDown != downPeer) && (downPeer != null)) 
+            if ((oldDown != downPeer) && (downPeer != null)) {
                 downPeer.setLastUpdateTime(TimeUtils.timeNow());
-            
-            if ((oldUp != upPeer) && (upPeer != null)) 
+            }
+
+            if ((oldUp != upPeer) && (upPeer != null)) {
                 upPeer.setLastUpdateTime(TimeUtils.timeNow());
-            
+            }
         }
     }
 
@@ -1964,7 +1972,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         /**
          *  The number of iterations that the watchdog task has executed.
          */
-        private int iterations = 0;
+        int iterations = 0;
         
         WatchdogTask() {}
 
@@ -1975,7 +1983,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             
             try {
 
-                if (closed.get()) return;
+                if (closed) return;
 
                 Logging.logCheckedFine(LOG, "Watchdog task executing for group ", PeerView.this.group.getPeerGroupID());
 
@@ -2045,7 +2053,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         public void run() {
             try {
 
-                if (closed.get()) return;
+                if (closed) return;
 
                 PeerView.this.kick();
 

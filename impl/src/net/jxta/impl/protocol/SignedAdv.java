@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
+W * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *  
  *  The Sun Project JXTA(TM) Software License
  *  
@@ -56,21 +56,15 @@
 
 package net.jxta.impl.protocol;
 
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.Attribute;
-import net.jxta.document.Document;
-import net.jxta.document.Element;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentUtils;
-import net.jxta.document.XMLElement;
+
+import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.util.BASE64InputStream;
 import net.jxta.impl.util.BASE64OutputStream;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.SignedAdvertisement;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,14 +72,12 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.security.NoSuchAlgorithmException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.security.Signature;
-import java.security.SignatureException;
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.document.Attributable;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLDocument;
+
 
 /**
  * A container for signed Advertisements
@@ -345,7 +337,6 @@ public class SignedAdv extends SignedAdvertisement {
         StructuredDocument advDoc = (StructuredDocument) adv.getDocument(encodeAs);
 
         try {
-
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             advDoc.sendToStream(bos);
@@ -359,14 +350,14 @@ public class SignedAdv extends SignedAdvertisement {
 
             advSigner.update(advData);
 
-            byte signatureTmp[] = advSigner.sign();
+            byte signature[] = advSigner.sign();
 
             StringWriter signatureB64 = new StringWriter();
             StringWriter advertisementB64 = new StringWriter();
 
             OutputStream signatureOut = new BASE64OutputStream(signatureB64);
 
-            signatureOut.write(signatureTmp);
+            signatureOut.write(signature);
             signatureOut.close();
 
             OutputStream advertisementOut = new BASE64OutputStream(advertisementB64, 72);
@@ -384,27 +375,15 @@ public class SignedAdv extends SignedAdvertisement {
 
             elem = doc.createElement("Advertisement", advertisementB64.toString());
             doc.appendChild(elem);
-
             if (doc instanceof Attributable) {
                 ((Attributable) elem).addAttribute("type", adv.getAdvType());
             }
-
-        } catch (IOException failed) {
-
-            Logging.logCheckedWarning(LOG, failed.toString());
-
-        } catch (SignatureException failed) {
-
-            Logging.logCheckedWarning(LOG, failed.toString());
-
-        } catch (NoSuchAlgorithmException failed) {
-
-            Logging.logCheckedSevere(LOG, "Can't find SHA1WITHRSA algorithm: ", failed.toString());
-
         } catch (Exception failed) {
-
-            Logging.logCheckedSevere(LOG, failed.toString());
-
+            if (failed instanceof RuntimeException) {
+                throw (RuntimeException) failed;
+            } else {
+                throw new UndeclaredThrowableException(failed, "Failure building document");
+            }
         }
 
         return doc;

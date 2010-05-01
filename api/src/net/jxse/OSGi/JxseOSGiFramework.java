@@ -126,7 +126,7 @@ public class JxseOSGiFramework {
     // Creating the framework instance
     static {
 
-        final String FrameworkClassName = Configuration.getProperty("FRAMEWORK_LAUNCHER");
+        String FrameworkClassName = Configuration.getProperty("FRAMEWORK_LAUNCHER");
 
         if (FrameworkClassName==null) {
 
@@ -136,10 +136,10 @@ public class JxseOSGiFramework {
         } else {
 
             // Retrieving OSGi framework launcher class
-            final Class FrameworkLauncherClass = JxseInstantiator.forName(Configuration.getProperty("FRAMEWORK_LAUNCHER"));
+            Class FrameworkLauncherClass = JxseInstantiator.forName(Configuration.getProperty("FRAMEWORK_LAUNCHER"));
 
             // Creating framework instance launcher
-            final JxseOSGiFrameworkLauncher TheLauncher = (JxseOSGiFrameworkLauncher) JxseInstantiator.instantiateWithNoParameterConstructor(FrameworkLauncherClass);
+            JxseOSGiFrameworkLauncher TheLauncher = (JxseOSGiFrameworkLauncher) JxseInstantiator.instantiateWithNoParameterConstructor(FrameworkLauncherClass);
 
             // Initializing OSGi framework object
             INSTANCE = TheLauncher.getOsgiFrameworkInstance();

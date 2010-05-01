@@ -66,6 +66,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
@@ -195,7 +196,7 @@ public class ActiveTransferTracker {
         // Too many clients to serve this request.
         if (result == null) {
             Logging.logCheckedFine(LOG, "Cound not add client node.  Too many clients.");
-            throw new TooManyClientsException();
+            throw(new TooManyClientsException());
         }
         
         // Notify listners

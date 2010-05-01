@@ -56,6 +56,7 @@
 
 package net.jxta.document;
 
+
 /**
  * A name value pair which is associated with some base object.
  *
@@ -124,17 +125,17 @@ public class Attribute {
      * @return boolean if the attributes are equal otherwise false.
      **/
     @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
+    public boolean equals(Object target) {
+        if (this == target) {
             return true;
         }
         
-        if (obj instanceof Attribute) {
-
-            final Attribute targAttrib = (Attribute) obj;
-            return ((owner.equals(targAttrib.owner)) && name.equals(targAttrib.name) && value.equals(targAttrib.name));
-
+        if (target instanceof Attribute) {
+            Attribute targAttrib = (Attribute) target;
+            
+            boolean result = ((owner.equals(targAttrib.owner)) && name.equals(targAttrib.name) && value.equals(targAttrib.name));
+            
+            return result;
         } else {
             return false;
         }
@@ -185,5 +186,4 @@ public class Attribute {
     public String getValue() {
         return value;
     }
-    
 }

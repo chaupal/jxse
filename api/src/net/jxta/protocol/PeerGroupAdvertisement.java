@@ -120,6 +120,11 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
     }
     
     /**
+     *  Construct a new Peer Group Advertisement.
+     **/
+    public PeerGroupAdvertisement() {}
+    
+    /**
      *  {@inheritDoc}
      *
      *@return An object of class PeerGroupAdvertisement that is a
@@ -288,8 +293,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      *
      *@param  params  The whole set of parameters.
      */
-    public void setServiceParams(Map<ID, ? extends Element> params) {
-
+    public void setServiceParams(Hashtable<ID, ? extends Element> params) {
         serviceParams.clear();
         
         if (params == null) {

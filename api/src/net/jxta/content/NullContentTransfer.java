@@ -84,7 +84,7 @@ public class NullContentTransfer implements ContentTransfer {
      * @param wrappedContent local wrappedContent to wrap.
      */
     public NullContentTransfer(
-            final ContentProvider origin, Content wrappedContent) {
+            ContentProvider origin, Content wrappedContent) {
         provider = origin;
         content = wrappedContent;
     }
@@ -99,7 +99,7 @@ public class NullContentTransfer implements ContentTransfer {
      */
     public void addContentTransferListener(ContentTransferListener listener) {
         // Immediately notify of completion
-        final ContentTransferEvent event =
+        ContentTransferEvent event =
                 new ContentTransferEvent.Builder(this)
                     .locationCount(1)
                     .locationState(

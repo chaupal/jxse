@@ -139,10 +139,10 @@ public final class ModuleClassBinaryID extends net.jxta.platform.ModuleClassID {
     /**
      * The id data
      */
-    private BinaryID classID;
-    private BinaryID parentClassID;
-    private BinaryID roleID;
-    private PeerGroupID peerGroupID;
+    protected BinaryID classID;
+    protected BinaryID parentClassID;
+    protected BinaryID roleID;
+    protected PeerGroupID peerGroupID;
 
     /**
      * Constructor.
@@ -208,32 +208,32 @@ public final class ModuleClassBinaryID extends net.jxta.platform.ModuleClassID {
                 new BinaryID(BinaryID.flagModuleClassRoleID), new BinaryID(BinaryID.flagPeerGroupID));
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        if (!(obj instanceof ModuleClassBinaryID)) {
-//            return false;
-//        }
-//
-//        ModuleClassBinaryID targetObj = (ModuleClassBinaryID) obj;
-//
-//        return this.classID.equals(targetObj.getClassID()) && this.parentClassID.equals(targetObj.getBaseClass())
-//                && this.roleID.equals(targetObj.getRoleID()) && this.peerGroupID.equals(targetObj.getPeerGroupID());
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return getUniqueValue().hashCode();
-//    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        } 
+        
+        if (!(target instanceof ModuleClassBinaryID)) {
+            return false;
+        }
+        
+        ModuleClassBinaryID targetObj = (ModuleClassBinaryID) target;
+        
+        return this.classID.equals(targetObj.getClassID()) && this.parentClassID.equals(targetObj.getBaseClass())
+                && this.roleID.equals(targetObj.getRoleID()) && this.peerGroupID.equals(targetObj.getPeerGroupID());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getUniqueValue().hashCode();
+    }
 
     /**
      * {@inheritDoc}

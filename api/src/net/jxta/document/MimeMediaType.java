@@ -56,6 +56,7 @@
 
 package net.jxta.document;
 
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -66,7 +67,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentMap;
+
 import net.jxta.util.ConcurrentWeakHashMap;
+
 
 /**
  * MIME Media Types are used to describe the format of data streams. MIME
@@ -192,13 +195,13 @@ public class MimeMediaType implements Serializable {
         /**
          * Attribute name.
          */
-        private final String attribute;
+        final String attribute;
 
         /**
          * Value for the attribute. <b>Includes quoting characters if they are
          * needed for outputting this value.</b>
          */
-        private final String value;
+        final String value;
 
         parameter(String attr, String val) {
             attribute = attr.intern();
@@ -218,7 +221,7 @@ public class MimeMediaType implements Serializable {
                 return false;
             }
 
-            final parameter asParameter = (parameter) obj;
+            parameter asParameter = (parameter) obj;
 
             return attribute.equalsIgnoreCase(asParameter.attribute) && asParameter.value.equals(value);
 
@@ -229,7 +232,7 @@ public class MimeMediaType implements Serializable {
          */
         @Override
         public int hashCode() {
-            return attribute.hashCode() * 6037 + value.hashCode();
+            return attribute.toLowerCase().hashCode() * 6037 + value.hashCode();
         }
 
         /**
@@ -248,7 +251,7 @@ public class MimeMediaType implements Serializable {
                 return 0;
             }
 
-            final int result = attribute.compareToIgnoreCase(asParameter.attribute);
+            int result = attribute.compareToIgnoreCase(asParameter.attribute);
 
             if (0 != result) {
                 return result;
@@ -258,8 +261,7 @@ public class MimeMediaType implements Serializable {
         }
 
         private static String outputForm(String val) {
-
-            final StringBuilder result = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
             if (-1 == findNextSeperator(val)) {
                 result.append(val);
@@ -267,8 +269,7 @@ public class MimeMediaType implements Serializable {
                 // needs quoting
                 result.append('\"');
                 for (int eachChar = 0; eachChar < val.length(); eachChar++) {
-
-                    final char aChar = val.charAt(eachChar);
+                    char aChar = val.charAt(eachChar);
 
                     if (('\\' == aChar) || ('\"' == aChar) || ('\r' == aChar)) {
                         // needs escaping.
@@ -289,14 +290,14 @@ public class MimeMediaType implements Serializable {
      */
     public MimeMediaType(String mimetype) {
 
-        final String cleaned = mimetype.trim();
+        String cleaned = mimetype.trim();
 
         if (0 == cleaned.length()) {
             throw new IllegalArgumentException("input cannot be empty");
         }
 
         // determine the type
-        final int typeSepAt = findNextSeperator(cleaned);
+        int typeSepAt = findNextSeperator(cleaned);
 
         if ((-1 == typeSepAt) || (0 == typeSepAt) || ('/' != cleaned.charAt(typeSepAt))) {
             throw new IllegalArgumentException("expected seperator or seperator in unexpected location");
@@ -305,7 +306,7 @@ public class MimeMediaType implements Serializable {
         setType(cleaned.substring(0, typeSepAt));
 
         // determine the sub-type
-        final int subtypeSepAt = findNextSeperator(cleaned, typeSepAt + 1);
+        int subtypeSepAt = findNextSeperator(cleaned, typeSepAt + 1);
 
         String itsParams = "";
 
@@ -377,7 +378,7 @@ public class MimeMediaType implements Serializable {
             return false;
         }
 
-        final MimeMediaType asMMT = (MimeMediaType) obj;
+        MimeMediaType asMMT = (MimeMediaType) obj;
 
         if (!type.equalsIgnoreCase(asMMT.type)) {
             return false;
@@ -387,8 +388,8 @@ public class MimeMediaType implements Serializable {
             return false;
         }
 
-        final List<parameter> myParams = new ArrayList<parameter>(parameters);
-        final List<parameter> itsParams = new ArrayList<parameter>(asMMT.parameters);
+        List<parameter> myParams = new ArrayList<parameter>(parameters);
+        List<parameter> itsParams = new ArrayList<parameter>(asMMT.parameters);
 
         Collections.sort(myParams);
         Collections.sort(itsParams);
@@ -403,8 +404,7 @@ public class MimeMediaType implements Serializable {
      * @param obj the object to compare
      * @return true if equal
      */
-    public boolean equalsIgnoringParams(Object obj) {
-
+    public boolean equalsIngoringParams(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -413,8 +413,9 @@ public class MimeMediaType implements Serializable {
             return false;
         }
 
-        final MimeMediaType likeMe = (MimeMediaType) obj;
-        final boolean retValue = getType().equalsIgnoreCase(likeMe.getType()) && getSubtype().equalsIgnoreCase(likeMe.getSubtype());
+        MimeMediaType likeMe = (MimeMediaType) obj;
+
+        boolean retValue = getType().equalsIgnoreCase(likeMe.getType()) && getSubtype().equalsIgnoreCase(likeMe.getSubtype());
 
         return retValue;
     }
@@ -424,14 +425,14 @@ public class MimeMediaType implements Serializable {
      */
     @Override
     public int hashCode() {
-
         if (0 == cachedHashCode) {
-            
-            final List<parameter> myParams = new ArrayList<parameter>(parameters);
+            List<parameter> myParams = new ArrayList<parameter>(parameters);
+
             Collections.sort(myParams);
-            final int calcedHash = type.hashCode() * 2467 + subtype.hashCode() * 3943 + myParams.hashCode();
+
+            int calcedHash = type.hashCode() * 2467 + subtype.hashCode() * 3943 + myParams.hashCode();
+
             cachedHashCode = (0 != calcedHash) ? calcedHash : 1;
-            
         }
         
         return cachedHashCode;
@@ -442,16 +443,15 @@ public class MimeMediaType implements Serializable {
      */
     @Override
     public String toString() {
-        
-        final StringBuilder retValue = new StringBuilder(getMimeMediaType());
+        StringBuilder retValue = new StringBuilder(getMimeMediaType());
 
         for (parameter parameter : parameters) {
             retValue.append(';');
-            retValue.append(parameter.toString());
+            parameter aParam = parameter;
+
+            retValue.append(aParam.toString());
         }
-
         return retValue.toString();
-
     }
 
     /**
@@ -469,8 +469,7 @@ public class MimeMediaType implements Serializable {
      * @return The "base" MIME media type of this type. ie. with no parameters.
      */
     public String getMimeMediaType() {
-
-        final StringBuilder retValue = new StringBuilder(type.length() + 1 + subtype.length());
+        StringBuilder retValue = new StringBuilder(type.length() + 1 + subtype.length());
 
         retValue.append(type);
         retValue.append('/');
@@ -513,12 +512,11 @@ public class MimeMediaType implements Serializable {
      * @param type type value
      */
     private void setType(String type) {
-
         if (null == type) {
             throw new IllegalArgumentException("type cannot be null");
         }
 
-        final String cleaned = type.trim().toLowerCase(Locale.US);
+        String cleaned = type.trim().toLowerCase(Locale.US);
 
         if (0 == cleaned.length()) {
             throw new IllegalArgumentException("type cannot be null");
@@ -560,12 +558,11 @@ public class MimeMediaType implements Serializable {
      * @param subtype subtype value
      */
     private void setSubtype(String subtype) {
-
         if (null == subtype) {
             throw new IllegalArgumentException("subtype cannot be null");
         }
 
-        final String cleaned = subtype.trim().toLowerCase(Locale.US);
+        String cleaned = subtype.trim().toLowerCase(Locale.US);
 
         if (0 == cleaned.length()) {
             throw new IllegalArgumentException("subtype cannot be null");
@@ -587,13 +584,13 @@ public class MimeMediaType implements Serializable {
      *         not found.
      */
     public String getParameter(String param) {
-
         for (parameter parameter : parameters) {
-            if (parameter.attribute.equalsIgnoreCase(param)) {
-                return parameter.value;
+            parameter aParam = parameter;
+
+            if (aParam.attribute.equalsIgnoreCase(param)) {
+                return aParam.value;
             }
         }
-
         return null;
     }
 
@@ -605,7 +602,6 @@ public class MimeMediaType implements Serializable {
      *                  existing params else they are accumulated.
      */
     private void parseParams(String itsParams, boolean replace) {
-
         int currentCharIdx = 0;
         String currentAttribute = null;
         boolean inSeperator = true;
@@ -617,8 +613,7 @@ public class MimeMediaType implements Serializable {
         boolean nextEscaped = false;
 
         while (currentCharIdx < itsParams.length()) {
-            
-            final char currentChar = itsParams.charAt(currentCharIdx);
+            char currentChar = itsParams.charAt(currentCharIdx);
 
             if (inSeperator) {
                 if ('(' == currentChar) {
@@ -643,8 +638,7 @@ public class MimeMediaType implements Serializable {
                     }
                 }
             } else if (inAttribute) {
-
-                final int endAttr = findNextSeperator(itsParams, currentCharIdx);
+                int endAttr = findNextSeperator(itsParams, currentCharIdx);
 
                 if ((-1 == endAttr) || ('=' != itsParams.charAt(endAttr)) || (0 == (endAttr - currentCharIdx))) {
                     throw new IllegalArgumentException("malformed mime parameter at idx = " + currentCharIdx);
@@ -680,11 +674,12 @@ public class MimeMediaType implements Serializable {
                     if ('"' == currentChar) {
                         inQuoted = true;
                     } else {
+                        parameter newparam = new parameter(currentAttribute, currentValue.toString());
 
-                        final parameter newparam = new parameter(currentAttribute, currentValue.toString());
+                        if (replace) {
+                            while (parameters.remove(newparam)) {}
+                        }
 
-                        if (replace) while (parameters.remove(newparam)) {}
-                        
                         parameters.add(newparam);
 
                         inValue = false;
@@ -705,10 +700,12 @@ public class MimeMediaType implements Serializable {
                 throw new IllegalArgumentException("malformed mime parameter at idx = " + currentCharIdx);
             }
 
-            final parameter newparam = new parameter(currentAttribute, currentValue.toString());
+            parameter newparam = new parameter(currentAttribute, currentValue.toString());
 
-            if (replace) while (parameters.remove(newparam)) {}
-            
+            if (replace) {
+                while (parameters.remove(newparam)) {}
+            }
+
             parameters.add(newparam);
 
             inValue = false;
@@ -781,10 +778,9 @@ public class MimeMediaType implements Serializable {
      *                                references to classes which cannot be found.
      */
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
-
         s.defaultReadObject();
 
-        final MimeMediaType readType = MimeMediaType.valueOf(s.readUTF());
+        MimeMediaType readType = MimeMediaType.valueOf(s.readUTF());
 
         type = readType.type;
         subtype = readType.subtype;
@@ -829,20 +825,18 @@ public class MimeMediaType implements Serializable {
      *         guaranteed to be from a pool of unique types.
      */
     public MimeMediaType intern() {
-    	
-        final MimeMediaType singleton = interned.putIfAbsent(this, this);
-
-        if(singleton == null) return this;
+    	MimeMediaType singleton = interned.putIfAbsent(this, this);
+    	if(singleton == null) {
+    		return this;
+    	}
     	
     	return singleton;
-
     }
 
     /**
      * This method should only be used for testing purposes.
      */
-    public static void clearInternMap() {
-        interned.clear();
-    }
-
+	static void clearInternMap() {
+		interned.clear();
+	}
 }

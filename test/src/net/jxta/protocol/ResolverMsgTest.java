@@ -61,6 +61,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * To test the JxseOSGiFramework API class.

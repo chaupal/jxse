@@ -56,10 +56,12 @@
 
 package net.jxta.impl.endpoint.msgframing;
 
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +74,9 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Contains a JXTA connection Welcome Message. The Welcome Message is sent by
@@ -160,7 +164,7 @@ public class WelcomeMessage {
      * The welcome message as UTF-8 byte stream.
      */
     private byte[] welcomeBytes;
-    private final static int MAX_LEN = 4096;
+    private final int MAX_LEN = 4096;
 
     /**
      * Default constructor
@@ -201,9 +205,7 @@ public class WelcomeMessage {
 
         try {
             welcomeBytes = welcomeString.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException never) {
-            // all implementations must support utf-8
-            Logging.logCheckedSevere(LOG, never.toString());
+        } catch (UnsupportedEncodingException never) {// all implementations must support utf-8
         }
     }
 
@@ -334,7 +336,7 @@ public class WelcomeMessage {
     private void parseWelcome(String welcomeString) throws IOException {
         List<String> thePieces = Arrays.asList(welcomeString.split("\\s"));
 
-        if ( thePieces.isEmpty() ) {
+        if (0 == thePieces.size()) {
             throw new IOException("Invalid welcome message, did not contain any tokens.");
         }
 
@@ -384,9 +386,9 @@ public class WelcomeMessage {
 
             String noPropagateStr = thePieces.get(4);
 
-            if ("1".equals(noPropagateStr)) {
+            if (noPropagateStr.equals("1")) {
                 noPropagate = true;
-            } else if ("0".equals(noPropagateStr)) {
+            } else if (noPropagateStr.equals("0")) {
                 noPropagate = false;
             } else {
                 throw new IOException("Invalid welcome message, illegal value for propagate flag");
@@ -401,9 +403,9 @@ public class WelcomeMessage {
 
             String noPropagateStr = thePieces.get(4);
 
-            if ("1".equals(noPropagateStr)) {
+            if (noPropagateStr.equals("1")) {
                 noPropagate = true;
-            } else if ("0".equals(noPropagateStr)) {
+            } else if (noPropagateStr.equals("0")) {
                 noPropagate = false;
             } else {
                 throw new IOException("Invalid welcome message, illegal value for propagate flag");

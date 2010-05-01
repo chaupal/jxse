@@ -280,9 +280,9 @@ public class PipeResolverMsg extends PipeResolverMessage {
             throw new IllegalStateException("Pipe ID not set or invalid.");
         }
 
-        String pipeType = getPipeType().trim();
+        String pipeType = getPipeType();
 
-        if ((null == pipeType) || (0 == pipeType.length())) {
+        if ((null == pipeType) || (0 == pipeType.trim().length())) {
             throw new IllegalStateException("Pipe type was never set or is invalid.");
         }
 

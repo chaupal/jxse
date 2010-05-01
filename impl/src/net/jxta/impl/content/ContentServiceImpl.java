@@ -56,6 +56,7 @@
 
 package net.jxta.impl.content;
 
+import net.jxta.content.*;
 import net.jxta.document.Advertisement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
@@ -65,31 +66,16 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.content.Content;
-import net.jxta.content.ContentID;
-import net.jxta.content.ContentProvider;
-import net.jxta.content.ContentProviderEvent;
-import net.jxta.content.ContentProviderListener;
-import net.jxta.content.ContentProviderSPI;
-import net.jxta.content.ContentService;
-import net.jxta.content.ContentShare;
-import net.jxta.content.ContentTransfer;
-import net.jxta.content.TransferException;
 
 /**
  * Reference implementation of the ContentService.  This implementation
@@ -171,7 +157,7 @@ public class ContentServiceImpl implements ContentService {
     /**
      * Flag indicating that this instance has been started.
      */
-    private AtomicBoolean started = new AtomicBoolean(false);
+    private volatile boolean started = false;
 
     /**
      * Default constructor.
@@ -272,11 +258,14 @@ public class ContentServiceImpl implements ContentService {
     /**
      * {@inheritDoc}
      */
-    public synchronized int startApp(String args[]) {
+    public int startApp(String args[]) {
+        synchronized(lock) {
+            if (started) {
+                return START_OK;
+            }
+            started = true;
+        }
         
-        if (started.get()) return START_OK;
-
-        started.set(true);
         Logging.logCheckedFine(LOG, "Content Service started.");
         
         return START_OK;
@@ -285,14 +274,17 @@ public class ContentServiceImpl implements ContentService {
     /**
      * {@inheritDoc}
      */
-    public synchronized void stopApp() {
-
-        if (!started.get()) return;
-
-        started.set(false);
+    public void stopApp() {
+        synchronized(lock) {
+            if (!started) {
+                return;
+            }
+            started = false;
+        }
 
         manager.stop();
-       Logging.logCheckedFine(LOG, "Content Service stopped.");
+
+        Logging.logCheckedFine(LOG, "Content Service stopped.");
         
     }
 
@@ -547,11 +539,14 @@ public class ContentServiceImpl implements ContentService {
      * where providers are about to be used, allowing their intialization to
      * be deferred until the time of use.
      */
-    private synchronized void checkStart() {
-
-        if (!started.get()) throw new IllegalStateException("Service instance has not yet been started");
+    private void checkStart() {
+        synchronized(lock) {
+            if (!started) {
+                throw(new IllegalStateException(
+                        "Service instance has not yet been started"));
+            }
+        }
         manager.start();
-        
     }
 
     /**
@@ -647,9 +642,9 @@ public class ContentServiceImpl implements ContentService {
 
                 InputStreamReader inReader = new InputStreamReader(resURL.openStream());
                 BufferedReader reader = new BufferedReader(inReader);
-                String str = reader.readLine();
+                String str;
 
-                while (str != null) {
+                while ((str = reader.readLine()) != null) {
                     int idx = str.indexOf('#');
                     if (idx >= 0) {
                         str = str.substring(0, idx);
@@ -662,7 +657,6 @@ public class ContentServiceImpl implements ContentService {
 
                     provClassNames.add(str);
 
-                    str = reader.readLine();
                 }
 
             } catch (IOException iox) {

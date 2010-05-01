@@ -56,17 +56,20 @@
 
 package net.jxta.endpoint;
 
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.logging.Logging;
 import net.jxta.util.ClassFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * This class is a class factory for Wire Format Messages. This class abstracts
@@ -174,7 +177,7 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * If true then the pre-defined set of StructuredDocument sub-classes has
      * been registered from the property containing them.
      */
-    private AtomicBoolean loadedProperty = new AtomicBoolean(false);
+    private volatile boolean loadedProperty = false;
 
     /**
      * This class is in fact a singleton. This is the instance that backs the
@@ -196,12 +199,11 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      *  be registered otherwise false.
      */
     private synchronized boolean loadProviders() {
+        if (!factory.loadedProperty) {
+            factory.loadedProperty = registerProviders(WireFormatMessage.class.getName());
+        }
         
-        if (!factory.loadedProperty.get())
-            factory.loadedProperty.set(registerProviders(WireFormatMessage.class.getName()));
-        
-        
-        return factory.loadedProperty.get();
+        return factory.loadedProperty;
     }
     
     /**
@@ -241,10 +243,11 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
         Logging.logCheckedFine(LOG, "Registering : ", className);
 
         try {
+            Class msgClass = Class.forName(className);
 
-            final Class msgClass = Class.forName(className);
-            final Instantiator instantiator = (Instantiator) (msgClass.getField("INSTANTIATOR").get(null));
-            final MimeMediaType[] mimeTypes = instantiator.getSupportedMimeTypes();
+            Instantiator instantiator = (Instantiator) (msgClass.getField("INSTANTIATOR").get(null));
+
+            MimeMediaType[] mimeTypes = instantiator.getSupportedMimeTypes();
 
             for (MimeMediaType mimeType : mimeTypes) {
 
@@ -275,7 +278,9 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      *                           the instantiator.
      */
     public static boolean registerInstantiator(MimeMediaType mimetype, Instantiator instantiator) {
-        return factory.registerAssoc(mimetype, instantiator);
+        boolean registered = factory.registerAssoc(mimetype, instantiator);
+
+        return registered;
     }
 
     /**
@@ -292,9 +297,9 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      *         representation of the message in its serialized form.
      */
     public static WireFormatMessage toWire(Message msg, MimeMediaType type, MimeMediaType[] preferedEncodings) {
-
         factory.loadProviders();
-        final Instantiator instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
+
+        Instantiator instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
 
         return instantiator.toWire(msg, type, preferedEncodings);
     }

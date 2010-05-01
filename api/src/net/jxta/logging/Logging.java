@@ -56,6 +56,7 @@
 
 package net.jxta.logging;
 
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -360,6 +361,32 @@ public final class Logging {
                 .append("()");
 
         return Result.toString();
+
+    }
+
+    /**
+     * Returns the stack of method calls (excluding this method) as a String.
+     * If a print string is provided, the result is printed to it too.
+     *
+     * @param inPS a print stream or {@code null}
+     * @return a string containing current method call
+     */
+    public static String getMethodCallsTrace(PrintStream inPS) {
+
+        StackTraceElement[] STE = new Exception().getStackTrace();
+        StringBuffer Result = new StringBuffer();
+
+        for (int i=1;i<STE.length;i++) {
+            Result.append("Line ").append(STE[i].getLineNumber())
+                .append(' ').append(STE[i].getClassName())
+                .append('.').append(STE[i].getMethodName())
+                .append("()\n");
+        }
+
+        String Result2 = Result.toString();
+        if ( inPS != null ) inPS.println(Result2);
+
+        return Result2;
 
     }
 

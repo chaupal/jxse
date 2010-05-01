@@ -56,6 +56,7 @@
 
 package net.jxta.impl.protocol;
 
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -70,12 +71,15 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.AccessPointAdvertisement;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Associates a set of EndpointAddresses with a PeerID.

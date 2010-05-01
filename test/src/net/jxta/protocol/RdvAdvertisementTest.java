@@ -56,15 +56,24 @@
 
 package net.jxta.protocol;
 
+
 import junit.framework.*;
+
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.MimeMediaType;
+import net.jxta.impl.protocol.RdvAdv;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.id.IDFactory;
+
 import java.net.URI;
+import java.io.IOException;
+
+import net.jxta.protocol.RdvAdvertisement;
+
 
 public class RdvAdvertisementTest extends TestCase {
   
@@ -195,29 +204,29 @@ public class RdvAdvertisementTest extends TestCase {
 
     private XMLDocument buildXMLTemplate(boolean withName) {
 
-        StringBuffer xmlTemplate = new StringBuffer();
+        String xmlTemplate = null;
 
-        xmlTemplate.append('<').append(RdvAdvertisement.GroupIDTag).append('>');
-        xmlTemplate.append(TestGroupID);
-        xmlTemplate.append("</").append(RdvAdvertisement.GroupIDTag).append('>');
+        xmlTemplate += "<" + RdvAdvertisement.GroupIDTag + ">";
+        xmlTemplate += TestGroupID;
+        xmlTemplate += "</" + RdvAdvertisement.GroupIDTag + ">";
 
-        xmlTemplate.append('<').append(RdvAdvertisement.PeerIDTag).append('>');
-        xmlTemplate.append(TestPeerID);
-        xmlTemplate.append("</").append(RdvAdvertisement.PeerIDTag).append('>');
+        xmlTemplate += "<" + RdvAdvertisement.PeerIDTag + ">";
+        xmlTemplate += TestPeerID;
+        xmlTemplate += "</" + RdvAdvertisement.PeerIDTag + ">";
 
-        xmlTemplate.append('<').append(RdvAdvertisement.ServiceNameTag).append('>');
-        xmlTemplate.append(TestName);
-        xmlTemplate.append("</").append(RdvAdvertisement.ServiceNameTag).append('>');
+        xmlTemplate += "<" + RdvAdvertisement.ServiceNameTag + ">";
+        xmlTemplate += TestName;
+        xmlTemplate += "</" + RdvAdvertisement.ServiceNameTag + ">";
 
         if (withName) {
-            xmlTemplate.append('<').append(RdvAdvertisement.NameTag).append('>');
-            xmlTemplate.append(TestName);
-            xmlTemplate.append("</").append(RdvAdvertisement.NameTag).append('>');
+            xmlTemplate += "<" + RdvAdvertisement.NameTag + ">";
+            xmlTemplate += TestName;
+            xmlTemplate += "</" + RdvAdvertisement.NameTag + ">";
         }
 
         XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
                 ,
-                RdvAdvertisement.getAdvertisementType(), xmlTemplate.toString());
+                RdvAdvertisement.getAdvertisementType(), xmlTemplate);
 
         assertNotNull("cannot create Structured Document for the template", doc);
 

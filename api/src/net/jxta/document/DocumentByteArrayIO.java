@@ -56,6 +56,7 @@
 
 package net.jxta.document;
 
+
 /**
  * Provides {@code byte} array based interfaces for manipulating 
  * {@code Document} contents.

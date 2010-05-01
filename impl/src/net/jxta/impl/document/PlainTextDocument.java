@@ -56,34 +56,21 @@
 
 package net.jxta.impl.document;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
+
+import java.io.*;
 import java.security.ProviderException;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
+
 
 /**
  * This class is an implementation of the StructuredDocument interface using
  * simple text
  */
 public class PlainTextDocument extends PlainTextElement implements StructuredTextDocument<PlainTextElement> {
-
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(PlainTextDocument.class.getName());
 
     private final static class Instantiator implements StructuredDocumentFactory.TextInstantiator {
 
@@ -109,14 +96,14 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
          * {@inheritDoc}
          */
         public MimeMediaType[] getSupportedMimeTypes() {
-            return myTypes;
+            return (myTypes);
         }
 
         /**
          * {@inheritDoc}
          */
         public ExtensionMapping[] getSupportedFileExtensions() {
-            return myExtensions;
+            return (myExtensions);
         }
 
         /**
@@ -156,7 +143,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
     /**
      * Creates new PlainTextDocument
      */
-    public PlainTextDocument(MimeMediaType mimeType, String type) {
+    public PlainTextDocument(final MimeMediaType mimeType, String type) {
         super(null, type);
         doc = this;
         parent = this;
@@ -167,7 +154,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
     /**
      * Creates new PlainTextDocument with a value for the root element
      */
-    public PlainTextDocument(MimeMediaType mimeType, String type, String value) {
+    public PlainTextDocument(final MimeMediaType mimeType, final String type, final String value) {
         super(null, type, value);
         doc = this;
         parent = this;
@@ -180,15 +167,13 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
      */
     @Override
     public String toString() {
-
         StringWriter stringOut = new StringWriter();
 
         try {
             printNice(stringOut, 0, true);
             stringOut.close();
         } catch (IOException caught) {
-            Logging.logCheckedSevere(LOG, caught.toString());
-            return "";
+            return null;
         }
 
         return stringOut.toString();

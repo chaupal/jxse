@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
 
 import net.jxta.document.MimeMediaType;
@@ -66,10 +65,11 @@ import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.protocol.PipeAdvertisement;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -87,7 +87,7 @@ class NonBlockingWireOutputPipe implements OutputPipe {
     /**
      * If true then the pipe has been closed and will no longer accept messages.
      */
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private volatile boolean closed = false;
 
     /**
      * Group in which we are working.
@@ -135,17 +135,18 @@ class NonBlockingWireOutputPipe implements OutputPipe {
     public synchronized void close() {
 
         // Close the queue so that no more messages are accepted
-        if (!closed.get())
+        if (!closed) {
             Logging.logCheckedInfo(LOG, "Closing queue for ", getPipeID());
+        }
 
-        closed.set(true);
+        closed = true;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isClosed() {
-        return closed.get();
+        return closed;
     }
 
     /**
@@ -180,8 +181,7 @@ class NonBlockingWireOutputPipe implements OutputPipe {
      * {@inheritDoc}
      */
     public boolean send(Message message) throws IOException {
-        
-        if (closed.get()) {
+        if (closed) {
             // also throw it here to void the extra operations
             throw new IOException("Pipe closed");
         }
@@ -208,10 +208,10 @@ class NonBlockingWireOutputPipe implements OutputPipe {
      * @throws IOException if an io error occurs
      * @param header message header
      */
-    public boolean sendUnModified(Message msg, WireHeader header) throws IOException {
-        
-        if (closed.get()) throw new IOException("Pipe closed");
-        
+    boolean sendUnModified(Message msg, WireHeader header) throws IOException {
+        if (closed) {
+            throw new IOException("Pipe closed");
+        }
         wire.sendMessage(msg, destPeers, header);
         // we are here, there are not io exception, we assume it succeeded
         return true;

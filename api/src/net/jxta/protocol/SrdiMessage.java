@@ -249,14 +249,14 @@ public abstract class SrdiMessage {
          * Expiration time is not considered in calculation.
          */
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(Object target) {
 
-            if (this == obj) {
+            if (this == target) {
                 return true;
             }
 
-            if (obj instanceof Entry) {
-                Entry likeMe = (Entry) obj;
+            if (target instanceof Entry) {
+                Entry likeMe = (Entry) target;
 
                 return key.equals(likeMe.key) && value.equals(likeMe.value);
             }

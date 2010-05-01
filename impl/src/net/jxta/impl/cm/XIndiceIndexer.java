@@ -137,7 +137,7 @@ public final class XIndiceIndexer {
 
         for (File indexFile : indexFiles) {
             String indexFileName = indexFile.getName();
-            int dash = indexFileName.lastIndexOf('-');
+            int dash = indexFileName.lastIndexOf("-");
             int dot = indexFileName.lastIndexOf(".idx");
 
             if (dot > 0 && dash > 0) {
@@ -516,7 +516,7 @@ public final class XIndiceIndexer {
             Logging.logCheckedWarning(LOG, "Exception during array to byte array conversion", ie);
             
         }
-        return new byte[0];
+        return null;
     }
 
     public static Set<Long> readRecord(Record record) {

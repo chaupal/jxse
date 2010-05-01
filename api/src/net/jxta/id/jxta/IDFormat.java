@@ -91,7 +91,7 @@ public final class IDFormat {
     /**
      * The name associated with this ID Format.
      */    
-    public final static String JXTAFormat = "jxta";
+    final static String JXTAFormat = "jxta";
     
     /**
      * The instantiator for this ID Format which is used by the IDFactory.

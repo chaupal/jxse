@@ -1,4 +1,3 @@
-
 package net.jxta.test.util;
 
 import java.io.IOException;
@@ -119,7 +118,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      *
      * @param parent parent ClassLoader
      */
-    public DelegateClassLoader(ClassLoader parent) {
+    public DelegateClassLoader(final ClassLoader parent) {
         this(null, parent);
     }
     
@@ -134,7 +133,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      *  system class loader
      */
     public DelegateClassLoader(
-            final CodeSource theCodeSource, ClassLoader parent) {
+            final CodeSource theCodeSource, final ClassLoader parent) {
         super(parent);
         
         // Always search the system loader first
@@ -155,7 +154,7 @@ public class DelegateClassLoader extends SecureClassLoader {
                         + toString());
                 codeSource = new CodeSource(url, (Certificate[]) null);
             } catch (MalformedURLException malx) {
-                throw new IllegalStateException("should never happen", malx);
+                throw(new IllegalStateException("should never happen", malx));
             }
         } else {
             codeSource = theCodeSource;
@@ -198,7 +197,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      *
      * @param loader child ClassLoader to delegate requests to
      */
-    public void addClassLoader(ClassLoader loader) {
+    public void addClassLoader(final ClassLoader loader) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("addClassLoader(" + loader + ")");
         }
@@ -214,7 +213,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      * {@inheritDoc}
      */
     @Override
-    public Class loadClass(String name, boolean resolve)
+    public Class loadClass(final String name, final boolean resolve)
             throws ClassNotFoundException {
         Class result = null;
         URL res = null;
@@ -287,14 +286,14 @@ public class DelegateClassLoader extends SecureClassLoader {
             return result;
         }
         
-        throw new ClassNotFoundException("Class not found: " + name);
+        throw(new ClassNotFoundException("Class not found: " + name));
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public URL getResource(String name) {
+    public URL getResource(final String name) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("getResource(" + name + ")");
         }
@@ -308,7 +307,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      * @throws IOException on resource location error
      */
     @Override
-    public Enumeration<URL> findResources(String name) throws IOException {
+    public Enumeration<URL> findResources(final String name) throws IOException {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("findResources(" + name + ")");
         }
@@ -319,7 +318,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      * {@inheritDoc}
      */
     private Enumeration<URL> findResources(
-            final String name, boolean firstOnly)
+            final String name, final boolean firstOnly)
             throws IOException {        
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("findResources(" + name + ", " + firstOnly + ")");
@@ -362,7 +361,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      * {@inheritDoc}
      */
     @Override
-    public URL findResource(String name) {
+    public URL findResource(final String name) {
         Enumeration anEnum;
         
         if (LOG.isLoggable(Level.FINE)) {
@@ -388,7 +387,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      * @return {@code true} if the class should eb forcibly redefined,
      *  {@code false} otherwise
      */
-    private boolean shouldRedefine(String className) {
+    private boolean shouldRedefine(final String className) {
         Iterator<Pattern> iter = redefinePatterns.iterator();
         boolean redefine = false;
         while (iter.hasNext() && !redefine) {
@@ -416,7 +415,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      * @return byte array containing rw definition data
      * @throws IOException on data read failure
      */
-    private static byte[] loadResource(URL res)
+    private static byte[] loadResource(final URL res)
     throws IOException {
         InputStream input;
         byte[] data, tmp;
@@ -472,7 +471,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      * @param classDataURL class data resource URL
      * @return class definition
      */
-    private Class defineClass(String name, URL classDataURL) {
+    private Class defineClass(final String name, final URL classDataURL) {
         byte[] data;
         Class result = null;
         

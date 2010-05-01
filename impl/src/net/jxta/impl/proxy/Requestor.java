@@ -78,7 +78,6 @@ import java.util.logging.Logger;
  */
 @Deprecated
 public class Requestor {
-
     private final static Logger LOG = Logger.getLogger(Requestor.class.getName());
 
     private PeerGroup group;
@@ -308,11 +307,11 @@ public class Requestor {
         return requestor;
     }
 
-    public void setThreshold(int threshold) {
+    void setThreshold(int threshold) {
         this.threshold = threshold;
     }
 
-    public int getThreshold() {
+    int getThreshold() {
         return threshold;
     }
 
@@ -321,5 +320,4 @@ public class Requestor {
 
         message.addMessageElement(ProxyService.PROXYNS, sme);
     }
-
 }

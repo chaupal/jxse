@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.pipe;
 
 import net.jxta.endpoint.EndpointAddress;
@@ -67,6 +66,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.PipeID;
 import net.jxta.protocol.PipeAdvertisement;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,7 +74,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -109,7 +109,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
     /**
      * If true then the pipe has been closed and will no longer accept messages.
      */
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private volatile boolean closed = false;
 
     /**
      * If true then this pipe has just migrated. Used to prevent re-entering
@@ -251,8 +251,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
     @Override
     protected void finalize() throws Throwable {
         
-        if (!closed.get())
-            Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
+        if (!closed) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
         close();
         super.finalize();
 
@@ -264,16 +263,18 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
     public synchronized void close() {
 
         // Close the queue so that no more messages are accepted
-        if (!isClosed()) Logging.logCheckedInfo(LOG, "Closing for ", getPipeID());
-        
-        closed.set(true);
+        if (!isClosed()) {
+            Logging.logCheckedInfo(LOG, "Closing for ", getPipeID());
+        }
+
+        closed = true;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isClosed() {
-        return closed.get();
+        return closed;
     }
 
     /**
@@ -604,7 +605,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                             // is, then we have to be the one to service the
                             // queue.
                             if (null == queue.peek()) {
-                                if (closed.get()) {
+                                if (closed) {
                                     workerstate = WorkerState.CLOSED;
                                     continue;
                                 } else {
@@ -664,7 +665,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
      */
     private synchronized void startServiceThread() {
         // if there is no service thread, start one.
-        if ((null == serviceThread) && !closed.get()) {
+        if ((null == serviceThread) && !closed) {
 
             serviceThread = new Thread(peerGroup.getHomeThreadGroup(), this,
                     "Worker Thread for NonBlockingOutputPipe : " + getPipeID());
@@ -711,7 +712,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                 destMessenger.close();
                 destMessenger = null;
             }
-            notifyAll();
+            notify();
             return true;
         }
 
@@ -748,7 +749,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                 Logging.logCheckedInfo(LOG, "Pipe \'", getPipeID(), "\' has migrated to ", destPeer);
             }
             
-            notifyAll();
+            notify();
             return true;
         }
 

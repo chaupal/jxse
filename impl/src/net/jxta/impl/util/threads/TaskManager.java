@@ -1,4 +1,3 @@
-
 package net.jxta.impl.util.threads;
 
 import java.util.Collections;
@@ -27,11 +26,11 @@ public class TaskManager {
 	
     protected static final Logger LOG = Logger.getLogger(TaskManager.class.getName());
     
-	public static final String CORE_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.corePoolSize";
-	public static final String SCHEDULED_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.scheduledPoolSize";
+	static final String CORE_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.corePoolSize";
+	static final String SCHEDULED_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.scheduledPoolSize";
 	
-	public static final int DEFAULT_CORE_POOL_SIZE =4;
-	public static final int DEFAULT_SCHEDULED_POOL_SIZE = 2;
+	static final int DEFAULT_CORE_POOL_SIZE =4;
+	static final int DEFAULT_SCHEDULED_POOL_SIZE = 2;
 	
 	private static TaskManager singleton;
 	
@@ -43,12 +42,12 @@ public class TaskManager {
 	
 	private static boolean started;
 	
-	public static int getScheduledPoolSize() {
-	    return Math.max(1, Integer.getInteger(SCHEDULED_POOL_SIZE_SYSPROP, DEFAULT_SCHEDULED_POOL_SIZE));
+	static int getScheduledPoolSize() {
+		return Math.max(1, Integer.getInteger(SCHEDULED_POOL_SIZE_SYSPROP, DEFAULT_SCHEDULED_POOL_SIZE));
 	}
 
-	public static int getCorePoolSize() {
-	    return Math.max(1, Integer.getInteger(CORE_POOL_SIZE_SYSPROP, DEFAULT_CORE_POOL_SIZE));
+	static int getCorePoolSize() {
+		return Math.max(1, Integer.getInteger(CORE_POOL_SIZE_SYSPROP, DEFAULT_CORE_POOL_SIZE));
 	}
 
 	public static TaskManager getTaskManager() {
@@ -73,8 +72,8 @@ public class TaskManager {
 	 * discards any existing TaskManager singleton. Intended for testing
 	 * purposes only.
 	 */
-	public static void resetTaskManager() {
-	    TaskManager.singleton = null;
+	static void resetTaskManager() {
+		TaskManager.singleton = null;
 	}
 	
 	/**

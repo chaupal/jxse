@@ -124,7 +124,7 @@ public class OutboundMeter {
         totals.outboundMessageProcessed(message, time);
     }
 
-    public EndpointAddress getEndpointAddress() {
+    EndpointAddress getEndpointAddress() {
         return endpointAddress;
     }
 

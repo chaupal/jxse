@@ -119,7 +119,7 @@ public class PeerInfoQueryMsg extends PeerInfoQueryMessage {
             TextElement element = (TextElement) elements.nextElement();
             String elementName = element.getName();
 
-            if ("sourcePid".equals(elementName)) {
+            if (elementName.equals("sourcePid")) {
                 try {
                     URI peerid = new URI(element.getTextValue());
                     ID id = IDFactory.fromURI(peerid);
@@ -133,7 +133,7 @@ public class PeerInfoQueryMsg extends PeerInfoQueryMessage {
                 continue;
             }
 
-            if ("targetPid".equals(elementName)) {
+            if (elementName.equals("targetPid")) {
                 try {
                     URI peerid = new URI(element.getTextValue());
                     ID id = IDFactory.fromURI(peerid);
@@ -144,7 +144,7 @@ public class PeerInfoQueryMsg extends PeerInfoQueryMessage {
                 } catch (ClassCastException badID) {
                     throw new IllegalArgumentException("Unusable ID in advertisement");
                 }
-            } else if ("request".equals(elementName)) {
+            } else if (elementName.equals("request")) {
                 Enumeration elems = element.getChildren();
 
                 if (elems.hasMoreElements()) {

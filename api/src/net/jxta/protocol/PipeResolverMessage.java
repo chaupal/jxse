@@ -130,6 +130,13 @@ public abstract class PipeResolverMessage {
     }
 
     /**
+     * Creates a new unintialized pipe resolver message
+     */
+    public PipeResolverMessage() {
+        super();
+    }
+
+    /**
      * returns the Message type. This will match the XML doctype declaration.
      *
      * @return a string

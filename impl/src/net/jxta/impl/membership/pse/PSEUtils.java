@@ -56,6 +56,7 @@
 
 package net.jxta.impl.membership.pse;
 
+
 import net.jxta.impl.util.BASE64InputStream;
 import net.jxta.impl.util.BASE64OutputStream;
 import net.jxta.logging.Logging;
@@ -64,6 +65,7 @@ import org.bouncycastle.asn1.x509.X509NameTokenizer;
 import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
+
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
 import javax.crypto.SecretKey;
@@ -80,19 +82,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.security.AlgorithmParameters;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.Provider;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.security.Signature;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
@@ -100,7 +90,9 @@ import java.security.spec.KeySpec;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Singleton class of static utility methods.
@@ -120,7 +112,7 @@ public final class PSEUtils {
     /**
      * A SecureRandom for generating keys.
      */
-    private final transient SecureRandom srng = new SecureRandom();
+    final transient SecureRandom srng = new SecureRandom();
 
     /**
      * Singleton utility class
@@ -491,7 +483,7 @@ public final class PSEUtils {
     /**
      * We are trying to use : PBEWITHMD5ANDDES
      */
-    private static final String PKCS5_PBSE1_ALGO = "PBEWITHMD5ANDDES";
+    static final String PKCS5_PBSE1_ALGO = "PBEWITHMD5ANDDES";
 
     /**
      * Given a private key and a password, encrypt the private key using the

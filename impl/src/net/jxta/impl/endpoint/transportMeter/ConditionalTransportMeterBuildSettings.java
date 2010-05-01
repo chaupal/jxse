@@ -58,19 +58,12 @@
 package net.jxta.impl.endpoint.transportMeter;
 
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  * This class is used to extract runtime transport metering code configuration.
  * 
  */
-public final class ConditionalTransportMeterBuildSettings {
-
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(ConditionalTransportMeterBuildSettings.class.getName());
+public class ConditionalTransportMeterBuildSettings {
 
     /**
      * This method indicates whether the transport metering code should be executed or not.
@@ -92,17 +85,10 @@ public final class ConditionalTransportMeterBuildSettings {
                 String meteringValue = userResourceBundle.getString( meteringProperty );
                 runtimeMetering = "on".equalsIgnoreCase( meteringValue );
         } catch (Exception ignored) {
-                Logging.logCheckedFine(LOG, "Ignored: ", ignored.toString());
         }
 
         return runtimeMetering;
 
-    }
-
-    /**
-     * Default constructor
-     */
-    private ConditionalTransportMeterBuildSettings() {
     }
 
 }

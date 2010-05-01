@@ -91,7 +91,7 @@ public class JxseMulticastTransportConfiguration extends JxtaTransportConfigurat
     public static final JxseMulticastTransportConfiguration getDefaultMulticastTransportConfiguration() {
 
         // Preparing return value
-        final JxseMulticastTransportConfiguration Result = new  JxseMulticastTransportConfiguration();
+        JxseMulticastTransportConfiguration Result = new  JxseMulticastTransportConfiguration();
 
         Result.setDefaultPropertyValue(JXSE_MULTICAST_ADDRESS, DEFAULT_IP_MULTICAST_ADDRESS);
         Result.setDefaultPropertyValue(JXSE_MULTICAST_PORT, Integer.toString(DEFAULT_IP_MULTICAST_PORT));
@@ -158,7 +158,7 @@ public class JxseMulticastTransportConfiguration extends JxtaTransportConfigurat
      */
     public int getMulticastPacketSize() {
 
-        final String Temp = this.getProperty(JXSE_MULTICAST_PACKET_SIZE);
+        String Temp = this.getProperty(JXSE_MULTICAST_PACKET_SIZE);
 
         if ( Temp!=null ) {
             return Integer.parseInt(Temp);
@@ -262,7 +262,7 @@ public class JxseMulticastTransportConfiguration extends JxtaTransportConfigurat
      */
     public int getMulticastPort() {
 
-        final String Temp = this.getProperty(JXSE_MULTICAST_PORT);
+        String Temp = this.getProperty(JXSE_MULTICAST_PORT);
 
         if ( Temp!=null ) {
             return Integer.parseInt(Temp);

@@ -56,6 +56,7 @@
 
 package net.jxta.impl.endpoint.transportMeter;
 
+
 import net.jxta.document.Element;
 import net.jxta.document.TextElement;
 import net.jxta.endpoint.EndpointAddress;
@@ -65,10 +66,11 @@ import net.jxta.peer.PeerID;
 import net.jxta.util.documentSerializable.DocumentSerializable;
 import net.jxta.util.documentSerializable.DocumentSerializableUtilities;
 import net.jxta.util.documentSerializable.DocumentSerializationException;
+
 import java.util.Enumeration;
 
-public class TransportBindingMetric implements DocumentSerializable {
 
+public class TransportBindingMetric implements DocumentSerializable {
     public static final String CONNECTED = "connected";
     public static final String CLOSED = "closed";
     public static final String DROPPED = "dropped";
@@ -648,7 +650,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void resetInitiatorState(String state, long transitionTime) {
+    void resetInitiatorState(String state, long transitionTime) {
         if (isInitiatorConnected()) {
             acceptorTotalTimeConnected += (System.currentTimeMillis() - this.initiatorTransitionTime);
         }
@@ -658,7 +660,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         // System.out.println("initiatorState: " + initiatorState + " " + endpointAddress);
     }
 
-    public void resetAcceptorState(String state, long transitionTime) {
+    void resetAcceptorState(String state, long transitionTime) {
         if (isAcceptorConnected()) {
             initiatorTotalTimeConnected += (System.currentTimeMillis() - this.acceptorTransitionTime);
         }
@@ -668,7 +670,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         // System.out.println("acceptorState: " + acceptorState + " " + endpointAddress);
     }
 
-    public void connectionEstablished(boolean initiator, long timeToConnect, long transitionTime) {
+    void connectionEstablished(boolean initiator, long timeToConnect, long transitionTime) {
         if (initiator) {
             resetInitiatorState(CONNECTED, transitionTime);
             initiatorConnections++;
@@ -681,7 +683,7 @@ public class TransportBindingMetric implements DocumentSerializable {
 
     }
 
-    public void connectionFailed(boolean initiator, long timeToConnect, long transitionTime) {
+    void connectionFailed(boolean initiator, long timeToConnect, long transitionTime) {
         if (initiator) {
             resetInitiatorState(FAILED, transitionTime);
             initiatorConnectionsFailed++;
@@ -693,7 +695,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void connectionClosed(boolean initiator, long transitionTime) {
+    void connectionClosed(boolean initiator, long transitionTime) {
         if (initiator) {
             resetInitiatorState(CLOSED, transitionTime);
             initiatorConnectionsClosed++;
@@ -703,7 +705,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void connectionDropped(boolean initiator, long transitionTime) {
+    void connectionDropped(boolean initiator, long transitionTime) {
         if (initiator) {
             resetInitiatorState(DROPPED, transitionTime);
             initiatorConnectionsDropped++;
@@ -713,21 +715,21 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void pingReceived() {
+    void pingReceived() {
         numPingsReceived++;
     }
 
-    public void ping(long time) {
+    void ping(long time) {
         numPings++;
         pingTime += time;
     }
 
-    public void pingFailed(long time) {
+    void pingFailed(long time) {
         numFailedPings++;
         pingFailedTime += time;
     }
 
-    public void dataReceived(boolean initiator, int size) {
+    void dataReceived(boolean initiator, int size) {
         if (initiator) {
             initiatorBytesReceived += size;
         } else {
@@ -735,7 +737,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void messageReceived(boolean initiator, Message message, long time, long size) {
+    void messageReceived(boolean initiator, Message message, long time, long size) {
         if (initiator) {
             initiatorMessagesReceived++;
             initiatorReceiveProcessingTime += time;
@@ -747,7 +749,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void receiveFailure(boolean initiator, long time, long size) {
+    void receiveFailure(boolean initiator, long time, long size) {
         if (initiator) {
             initiatorReceiveFailures++;
             initiatorReceiveFailureProcessingTime += time;
@@ -759,7 +761,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void dataSent(boolean initiator, long size) {
+    void dataSent(boolean initiator, long size) {
         if (initiator) {
             initiatorBytesSent += size;
         } else {
@@ -767,7 +769,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void sendFailure(boolean initiator, Message message, long time, long size) {
+    void sendFailure(boolean initiator, Message message, long time, long size) {
         if (initiator) {
             initiatorSendFailures++;
             initiatorSendFailureProcessingTime += time;
@@ -779,7 +781,7 @@ public class TransportBindingMetric implements DocumentSerializable {
         }
     }
 
-    public void messageSent(boolean initiator, Message message, long time, long size) {
+    void messageSent(boolean initiator, Message message, long time, long size) {
         if (initiator) {
             initiatorMessagesSent++;
             initiatorSendProcessingTime += time;
@@ -1040,92 +1042,92 @@ public class TransportBindingMetric implements DocumentSerializable {
             Element childElement = (TextElement) e.nextElement();
             String tagName = (String) childElement.getKey();
 
-            if ("peerID".equals(tagName)) {
+            if (tagName.equals("peerID")) {
                 String peerIdString = DocumentSerializableUtilities.getString(childElement);
 
                 peerID = MetricUtilities.getPeerIdFromString(peerIdString);
             }
-            if ("endpointAddress".equals(tagName)) {
+            if (tagName.equals("endpointAddress")) {
                 String endpointAddressString = DocumentSerializableUtilities.getString(childElement);
 
                 endpointAddress = new EndpointAddress(endpointAddressString);
-            } else if ("acceptorBytesReceived".equals(tagName)) {
+            } else if (tagName.equals("acceptorBytesReceived")) {
                 acceptorBytesReceived = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorBytesSent".equals(tagName)) {
+            } else if (tagName.equals("acceptorBytesSent")) {
                 acceptorBytesSent = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorConnections".equals(tagName)) {
+            } else if (tagName.equals("acceptorConnections")) {
                 acceptorConnections = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorConnectionsClosed".equals(tagName)) {
+            } else if (tagName.equals("acceptorConnectionsClosed")) {
                 acceptorConnectionsClosed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorConnectionsDropped".equals(tagName)) {
+            } else if (tagName.equals("acceptorConnectionsDropped")) {
                 acceptorConnectionsDropped = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorConnectionsFailed".equals(tagName)) {
+            } else if (tagName.equals("acceptorConnectionsFailed")) {
                 acceptorConnectionsFailed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorMessagesReceived".equals(tagName)) {
+            } else if (tagName.equals("acceptorMessagesReceived")) {
                 acceptorMessagesReceived = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorMessagesSent".equals(tagName)) {
+            } else if (tagName.equals("acceptorMessagesSent")) {
                 acceptorMessagesSent = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorReceiveFailureProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("acceptorReceiveFailureProcessingTime")) {
                 acceptorReceiveFailureProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("acceptorReceiveFailures".equals(tagName)) {
+            } else if (tagName.equals("acceptorReceiveFailures")) {
                 acceptorReceiveFailures = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorReceiveProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("acceptorReceiveProcessingTime")) {
                 acceptorReceiveProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("acceptorSendFailureProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("acceptorSendFailureProcessingTime")) {
                 acceptorSendFailureProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("acceptorSendFailures".equals(tagName)) {
+            } else if (tagName.equals("acceptorSendFailures")) {
                 acceptorSendFailures = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("acceptorSendProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("acceptorSendProcessingTime")) {
                 acceptorSendProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("acceptorTotalTimeConnected".equals(tagName)) {
+            } else if (tagName.equals("acceptorTotalTimeConnected")) {
                 acceptorTotalTimeConnected = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("acceptorTimeToConnect".equals(tagName)) {
+            } else if (tagName.equals("acceptorTimeToConnect")) {
                 acceptorTimeToConnect = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("acceptorTimeToFail".equals(tagName)) {
+            } else if (tagName.equals("acceptorTimeToFail")) {
                 acceptorTimeToFail = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("initiatorBytesReceived".equals(tagName)) {
+            } else if (tagName.equals("initiatorBytesReceived")) {
                 initiatorBytesReceived = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorBytesSent".equals(tagName)) {
+            } else if (tagName.equals("initiatorBytesSent")) {
                 initiatorBytesSent = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorTotalTimeConnected".equals(tagName)) {
+            } else if (tagName.equals("initiatorTotalTimeConnected")) {
                 initiatorTotalTimeConnected = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("initiatorConnections".equals(tagName)) {
+            } else if (tagName.equals("initiatorConnections")) {
                 initiatorConnections = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorConnectionsClosed".equals(tagName)) {
+            } else if (tagName.equals("initiatorConnectionsClosed")) {
                 initiatorConnectionsClosed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorConnectionsDropped".equals(tagName)) {
+            } else if (tagName.equals("initiatorConnectionsDropped")) {
                 initiatorConnectionsDropped = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorConnectionsFailed".equals(tagName)) {
+            } else if (tagName.equals("initiatorConnectionsFailed")) {
                 initiatorConnectionsFailed = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorMessagesReceived".equals(tagName)) {
+            } else if (tagName.equals("initiatorMessagesReceived")) {
                 initiatorMessagesReceived = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorMessagesSent".equals(tagName)) {
+            } else if (tagName.equals("initiatorMessagesSent")) {
                 initiatorMessagesSent = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorReceiveFailureProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("initiatorReceiveFailureProcessingTime")) {
                 initiatorReceiveFailureProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("initiatorReceiveFailures".equals(tagName)) {
+            } else if (tagName.equals("initiatorReceiveFailures")) {
                 initiatorReceiveFailures = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorReceiveProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("initiatorReceiveProcessingTime")) {
                 initiatorReceiveProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("initiatorSendFailureProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("initiatorSendFailureProcessingTime")) {
                 initiatorSendFailureProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("initiatorSendFailures".equals(tagName)) {
+            } else if (tagName.equals("initiatorSendFailures")) {
                 initiatorSendFailures = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("initiatorSendProcessingTime".equals(tagName)) {
+            } else if (tagName.equals("initiatorSendProcessingTime")) {
                 initiatorSendProcessingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("initiatorTimeToConnect".equals(tagName)) {
+            } else if (tagName.equals("initiatorTimeToConnect")) {
                 initiatorTimeToConnect = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("initiatorTimeToFail".equals(tagName)) {
+            } else if (tagName.equals("initiatorTimeToFail")) {
                 initiatorTimeToFail = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("numPingsReceived".equals(tagName)) {
+            } else if (tagName.equals("numPingsReceived")) {
                 numPingsReceived = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numPings".equals(tagName)) {
+            } else if (tagName.equals("numPings")) {
                 numPings = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("numFailedPings".equals(tagName)) {
+            } else if (tagName.equals("numFailedPings")) {
                 numFailedPings = DocumentSerializableUtilities.getInt(childElement);
-            } else if ("pingTime".equals(tagName)) {
+            } else if (tagName.equals("pingTime")) {
                 pingTime = DocumentSerializableUtilities.getLong(childElement);
-            } else if ("pingFailedTime".equals(tagName)) {
+            } else if (tagName.equals("pingFailedTime")) {
                 pingFailedTime = DocumentSerializableUtilities.getLong(childElement);
             }
         }

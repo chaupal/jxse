@@ -56,6 +56,7 @@
 
 package net.jxta.impl.endpoint.cbjx;
 
+
 import net.jxta.document.Document;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
@@ -69,6 +70,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +80,9 @@ import java.net.URISyntaxException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * this class defines the xml document used to store message information

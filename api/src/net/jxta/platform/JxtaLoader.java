@@ -56,9 +56,12 @@
 
 package net.jxta.platform;
 
+
 import net.jxta.protocol.ModuleImplAdvertisement;
+
 import java.net.URL;
 import java.net.URLClassLoader;
+
 
 /**
  * A ClassLoader which provides additional JXTA functionality. You can load
@@ -95,7 +98,7 @@ public abstract class JxtaLoader extends URLClassLoader {
     public void addURL(URL url) {
         super.addURL(url);
     }
-
+    
     /**
      * Finds and loads the class with the specified spec ID from the URL search
      * path. Any URLs referring to JAR files are loaded and opened as needed

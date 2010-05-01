@@ -94,6 +94,10 @@ public abstract class PeerInfoResponseMessage {
      * "the epoch", namely January 1, 1970, 00:00:00 GMT.
      */
     private long timestamp = 0;
+ 
+    public PeerInfoResponseMessage() {
+        super();
+    }
     
     /**
      * returns the Message type

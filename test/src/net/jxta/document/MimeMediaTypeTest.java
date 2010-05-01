@@ -181,7 +181,7 @@ public class MimeMediaTypeTest extends TestCase {
         
         String spacedparam = spaceparam.getParameter("charset");
         
-        assertTrue("x y z".equals(spacedparam));
+        assertTrue(spacedparam.equals("x y z"));
         
         MimeMediaType roundtrippedspace = new MimeMediaType(spaceparam.toString());
         
@@ -189,7 +189,7 @@ public class MimeMediaTypeTest extends TestCase {
         
         spacedparam = spaceparam.getParameter("ChArSeT");
         
-        assertTrue("attributes should be case insensitive", "x y z".equals(spacedparam));
+        assertTrue("attributes should be case insensitive", spacedparam.equals("x y z"));
     }
     
     public void testValueOf() {
@@ -212,7 +212,7 @@ public class MimeMediaTypeTest extends TestCase {
         MimeMediaType [] mimes = new MimeMediaType[trials];
         
         for(int each = 0; each < trials; each++) {
-            strings[each] = "text/xml; charset=\"UTF-87\"";
+            strings[each] = new String("text/xml; charset=\"UTF-87\"");
         }
         
         long start;

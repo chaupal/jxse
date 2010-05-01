@@ -56,16 +56,20 @@
 
 package net.jxta.impl.endpoint;
 
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
+
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * This class implements local delivery of messages (for example when the

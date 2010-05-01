@@ -113,31 +113,31 @@ public class ModuleSpecID extends net.jxta.platform.ModuleSpecID {
         this(classID.getClassUUID(), UUIDFactory.newUUID());
     }
     
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        if (obj instanceof ModuleSpecID) {
-//            ModuleSpecID msidTarget = (ModuleSpecID) obj;
-//
-//            return id.equals(msidTarget.id);
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     *  {@inheritDoc}
-//     */
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
+        
+        if (target instanceof ModuleSpecID) {
+            ModuleSpecID msidTarget = (ModuleSpecID) target;
+            
+            return id.equals(msidTarget.id);
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     *  {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
     
     /**
      *  {@inheritDoc}

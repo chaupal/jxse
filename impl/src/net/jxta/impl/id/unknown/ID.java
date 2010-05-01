@@ -56,8 +56,10 @@
 
 package net.jxta.impl.id.unknown;
 
+
 import java.net.URI;
 import java.util.logging.Logger;
+
 
 /**
  *  IDs are used to uniquely identify peers, peer groups, pipes and other
@@ -72,52 +74,54 @@ import java.util.logging.Logger;
  *  @see net.jxta.platform.ModuleSpecID
  *
  **/
-public final class IDImpl extends net.jxta.id.ID {
+public final class ID extends net.jxta.id.ID {
     
     /**
      *  Logger
      **/
-    private static final transient Logger LOG = Logger.getLogger(IDImpl.class.getName());
+    private static final transient Logger LOG = Logger.getLogger(ID.class.getName());
     
-    private String  uniqueValue;
+    String  unqiueValue;
     
     /**
      *  Constructor for IDs.
      **/
-    IDImpl(String value) {
-        uniqueValue = value;
+    ID(String value) {
+        unqiueValue = value;
     }
     
-//    /**
-//     *  {@inheritDoc}
-//     **/
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        if (obj instanceof IDImpl) {
-//            return getUniqueValue().toString().equals(((IDImpl) obj).getUniqueValue().toString());
-//        } else {
-//            return false;
-//        }
-//    }
+    /**
+     *  {@inheritDoc}
+     **/
+    @Override
+    public boolean equals(Object target) {
+        if (this == target) {
+            return true;
+        }
+        
+        if (target instanceof ID) {
+            return getUniqueValue().toString().equals(((ID) target).getUniqueValue().toString());
+        } else {
+            return false;
+        }
+    }
+    ;
     
-//    /**
-//     *  {@inheritDoc}
-//     **/
-//    @Override
-//    public int hashCode() {
-//        return getUniqueValue().hashCode();
-//    }
+    /**
+     *  {@inheritDoc}
+     **/
+    @Override
+    public int hashCode() {
+        return getUniqueValue().hashCode();
+    }
+    ;
     
     /**
      *  {@inheritDoc}
      **/
     @Override
     public String getIDFormat() {
-        return uniqueValue.substring(0, uniqueValue.indexOf('-'));
+        return unqiueValue.substring(0, unqiueValue.indexOf('-'));
     }
     
     /**
@@ -125,7 +129,7 @@ public final class IDImpl extends net.jxta.id.ID {
      **/
     @Override
     public Object getUniqueValue() {
-        return uniqueValue;
+        return unqiueValue;
     }
     
     /**
@@ -133,7 +137,6 @@ public final class IDImpl extends net.jxta.id.ID {
      **/
     @Override
     public URI toURI() {
-        return URI.create(IDImpl.URIEncodingName + ":" + IDImpl.URNNamespace + ":" + getUniqueValue());
+        return URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":" + getUniqueValue());
     }
-
 }

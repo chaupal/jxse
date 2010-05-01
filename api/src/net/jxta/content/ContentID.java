@@ -103,7 +103,7 @@ public abstract class ContentID extends ID {
      * @throws  IllegalArgumentException
      *          If the given URI is not a valid ID.
      */
-    public static ContentID create(URI fromURI ) {
+    public static ContentID create( URI fromURI ) {
         return (ContentID) ID.create(fromURI);
     }
     

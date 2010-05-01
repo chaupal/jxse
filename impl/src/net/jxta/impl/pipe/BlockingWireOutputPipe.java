@@ -52,7 +52,6 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
-
 package net.jxta.impl.pipe;
 
 import net.jxta.document.MimeMediaType;
@@ -70,8 +69,9 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -92,7 +92,7 @@ public class BlockingWireOutputPipe implements OutputPipe {
     /**
      * If true then the pipe has been closed and will no longer accept messages.
      */
-    private AtomicBoolean closed = new AtomicBoolean(false);
+    private volatile boolean closed = false;
 
     /**
      * The advertisement we were created from.
@@ -162,18 +162,18 @@ public class BlockingWireOutputPipe implements OutputPipe {
      */
     public synchronized void close() {
 
-        if (closed.get()) return;
+        if (closed) return;
         
         Logging.logCheckedInfo(LOG, "Closing ", getPipeID());
         
-        closed.set(true);
+        closed = true;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isClosed() {
-        return closed.get();
+        return closed;
     }
 
     /**
@@ -241,9 +241,9 @@ public class BlockingWireOutputPipe implements OutputPipe {
      * {@inheritDoc}
      */
     public boolean send(Message message) throws IOException {
-        
-        if (closed.get()) throw new IOException("Pipe closed");
-        
+        if (closed) {
+            throw new IOException("Pipe closed");
+        }
         Message msg = message.clone();
 
         WireHeader header = new WireHeader();

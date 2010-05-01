@@ -119,6 +119,7 @@ public abstract class AbstractPipeContentShareAdvertisement
     /**
      * Clone this AbstractPipeContentShareAdvertisement.
      *
+     *
      * @return a copy of this AbstractPipeContentShareAdvertisement
      */
     @Override

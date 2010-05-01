@@ -53,7 +53,6 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.rendezvous.rpv;
 
 import net.jxta.endpoint.EndpointService;
@@ -64,8 +63,9 @@ import net.jxta.endpoint.OutgoingMessageEventListener;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.RdvAdvertisement;
+
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -113,7 +113,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
     /**
      * If true then we are not accepting new messages until something unclogs.
      */
-    private AtomicBoolean throttling = new AtomicBoolean(false);
+    private volatile boolean throttling = false;
 
     /**
      * PeerView that owns this PeerViewElement.
@@ -156,7 +156,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         asString.append('\"');
         asString.append(alive ? " A " : " a ");
         asString.append(isInPeerView() ? " P " : " p ");
-        asString.append(throttling.get() ? " T " : " t ");
+        asString.append(throttling ? " T " : " t ");
         asString.append(" [");
         asString.append(TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), created) / TimeUtils.ASECOND);
         asString.append("/");
@@ -173,7 +173,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         // As far as we know, connectivity is fine.
         setAlive(true, true);
 
-        throttling.set(false);
+        throttling = false;
     }
 
     /**
@@ -188,7 +188,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
             setAlive(false, true);
         }
 
-        throttling.set(e.getFailure() == null);
+        throttling = (e.getFailure() == null);
     }
 
     /**
@@ -215,7 +215,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
      * @return {@code true} if a failure notification needs to be sent otherwise
      * {@code false}.
      */
-    private boolean setAlive(boolean live, boolean doNotify) {
+    boolean setAlive(boolean live, boolean doNotify) {
         boolean mustNotify;
 
         synchronized (this) {
@@ -237,14 +237,14 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         return mustNotify;
     }
 
-    private boolean isInPeerView() {
+    boolean isInPeerView() {
         return (null != peerview);
     }
 
     /**
      *  Sets the peerview
      */
-    protected synchronized void setPeerView(PeerView pv) {
+    synchronized void setPeerView(PeerView pv) {
         if ((null != peerview) && (null != pv)) {
             throw new IllegalStateException("Element already in " + peerview);
         }
@@ -255,14 +255,14 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
     /**
      *  Return the time in absolute milliseconds at which we last updated this peer.
      */
-    protected long getLastUpdateTime() {
+    long getLastUpdateTime() {
         return lastUpdate;
     }
 
     /**
      *  Sets the time in absolute milliseconds at which we last updated this peer.
      */
-    protected void setLastUpdateTime(long last) {
+    void setLastUpdateTime(long last) {
         lastUpdate = last;
     }
 
@@ -283,7 +283,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
      */
     public boolean sendMessage(Message msg, String serviceName, String serviceParam) {
 
-        if (throttling.get()) {
+        if (throttling) {
 
             Logging.logCheckedWarning(LOG, "Declining to send -- throttling on ", this);
             return false;
@@ -326,7 +326,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
      * @return RdvAdvertisement the old Advertisement of the Peer represented by this
      * object
      */
-    protected RdvAdvertisement setRdvAdvertisement(RdvAdvertisement adv) {
+    RdvAdvertisement setRdvAdvertisement(RdvAdvertisement adv) {
 
         if (!radv.getPeerID().equals(adv.getPeerID())) {
 
