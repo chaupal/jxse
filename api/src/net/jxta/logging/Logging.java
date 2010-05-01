@@ -217,7 +217,7 @@ public final class Logging {
     public static void logCheckedConfig(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
-            StringBuffer Msg = new StringBuffer();
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
             inLog.config(Msg.toString());
         }
@@ -235,7 +235,7 @@ public final class Logging {
     public static void logCheckedFine(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
-            StringBuffer Msg = new StringBuffer();
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
             inLog.fine(Msg.toString());
         }
@@ -253,7 +253,7 @@ public final class Logging {
     public static void logCheckedFiner(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
-            StringBuffer Msg = new StringBuffer();
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
             inLog.finer(Msg.toString());
         }
@@ -271,7 +271,7 @@ public final class Logging {
     public static void logCheckedFinest(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
-            StringBuffer Msg = new StringBuffer();
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
             inLog.finest(Msg.toString());
         }
@@ -289,7 +289,7 @@ public final class Logging {
     public static void logCheckedInfo(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
-            StringBuffer Msg = new StringBuffer();
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
             inLog.info(Msg.toString());
         }
@@ -307,7 +307,7 @@ public final class Logging {
     public static void logCheckedSevere(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
-            StringBuffer Msg = new StringBuffer();
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
             inLog.severe(Msg.toString());
         }
@@ -325,10 +325,41 @@ public final class Logging {
     public static void logCheckedWarning(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
-            StringBuffer Msg = new StringBuffer();
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
             inLog.warning(Msg.toString());
         }
+
+    }
+
+    /**
+     * Extracts the calling method using the [1] stack trace element, and creates a
+     * string containing the line number, package, class and method name.
+     *
+     * @param inSTE a stack trace
+     * @return the coordinates of the calling method
+     */
+    public static String getCaller(StackTraceElement[] inSTE) {
+
+        if ( inSTE == null ) {
+            LOG.severe("Can't get caller: null StackTraceElement");
+            return null;
+        }
+
+        if ( inSTE.length < 2 ) {
+            LOG.severe("Can't get caller: StackTraceElement length < 2");
+            return null;
+        }
+
+        StackTraceElement STE = inSTE[1];
+
+        StringBuffer Result = new StringBuffer();
+        Result.append("Line ").append(STE.getLineNumber())
+                .append(' ').append(STE.getClassName())
+                .append('.').append(STE.getMethodName())
+                .append("()");
+
+        return Result.toString();
 
     }
 
