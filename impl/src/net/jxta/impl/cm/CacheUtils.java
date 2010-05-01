@@ -114,10 +114,15 @@ public class CacheUtils {
 	    return Math.min(Math.max(-1, TimeUtils.toRelativeTimeMillis(absoluteLifetime)), relativeExpiry);
 
 	}
-	
-	public static String convertValueQueryToRegex(String value) {
 
-	    return value.replaceAll("\\*", ".*?");
-            
-	}
+        public static String convertValueQueryToRegex(String value) {
+
+            return value.replaceAll("\\*", ".*?");
+
+        }
+
+        public static boolean hasWildcards(String value) {
+            return value.indexOf('*') != -1;
+        }
+
 }
