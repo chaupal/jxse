@@ -63,7 +63,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
-
+import net.jxta.logging.Logging;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -208,8 +208,10 @@ public class EngineAuthenticator implements Authenticator {
      **/
     synchronized public boolean isReadyForJoin() {
         if (null != seedCert) {
+            Logging.logCheckedFine(LOG, "null seed certificate");
             return authenticatorEngine.isEnginePresent();
         } else {
+
             return source.pseStore.validPasswd(identity, store_password, key_password);
         }
     }

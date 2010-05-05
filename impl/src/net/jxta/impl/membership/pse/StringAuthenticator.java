@@ -63,7 +63,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
-
+import net.jxta.logging.Logging;
 import javax.crypto.EncryptedPrivateKeyInfo;
 import java.io.IOException;
 import java.net.URI;
@@ -74,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
@@ -83,6 +84,11 @@ import java.util.List;
  *@see net.jxta.membership.MembershipService
  **/
 public class StringAuthenticator implements Authenticator {
+
+    /**
+     * Log
+     */
+    private static final Logger LOG = Logger.getLogger(StringAuthenticator.class.getName());
     
     /**
      * The Membership Service which generated this authenticator.
@@ -196,8 +202,10 @@ public class StringAuthenticator implements Authenticator {
      **/
     synchronized public boolean isReadyForJoin() {
         if (null != seedCert) {
+            Logging.logCheckedFine(LOG, "seed certificate:\n", seedCert.toString());
             return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(key_password, seedCert.getPublicKey().getAlgorithm(), seedKey);
         } else {
+            Logging.logCheckedFine(LOG, "null seed certificate");
             return source.pseStore.validPasswd(identity, store_password, key_password);
         }
     }

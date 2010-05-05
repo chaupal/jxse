@@ -1057,4 +1057,5 @@ public interface PeerGroup extends Service {
      * @since JXTA 2.3.7
      */
     public URI getStoreHome();
+    
 }

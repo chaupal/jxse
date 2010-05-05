@@ -72,7 +72,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
-
+import net.jxta.logging.Logging;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
@@ -80,6 +80,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.platform.ModuleSpecID;
 
 
 /**
@@ -100,7 +101,13 @@ public class NoneMembershipService implements MembershipService {
      *  Log4J Logger
      **/
     private static final Logger LOG = Logger.getLogger(NoneMembershipService.class.getName());
-    
+
+    /**
+     * Well known service specification identifier: pse membership
+     */
+    public final static ModuleSpecID noneMembershipSpecID = (ModuleSpecID) ID.create(
+            URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-DeadBeefDeafBabaFeedBabe000000050106"));
+
     /**
      *  Credential format for the None Membership service.
      *
@@ -422,6 +429,7 @@ public class NoneMembershipService implements MembershipService {
          *  <code>join()</code>
          **/
         synchronized public boolean isReadyForJoin() {
+            Logging.logCheckedFine(LOG, "Always ready to join");
             // always ready.
             return true;
         }

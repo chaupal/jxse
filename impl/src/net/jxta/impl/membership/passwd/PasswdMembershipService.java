@@ -474,6 +474,10 @@ public class PasswdMembershipService implements MembershipService {
          * {@inheritDoc}
          */
         synchronized public boolean isReadyForJoin() {
+            if ( null == password )
+                Logging.logCheckedFine(LOG, "null password");
+            if ( null == password )
+                Logging.logCheckedFine(LOG, "null whoami");
             return ((null != password) && (null != whoami));
         }
         
