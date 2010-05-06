@@ -2059,7 +2059,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Throwable all) {
 
-                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread : ", Thread.currentThread().getName(), "\n", all);
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread : ", Thread.currentThread().getName(), "\n", all.toString());
                 
             } finally {
 

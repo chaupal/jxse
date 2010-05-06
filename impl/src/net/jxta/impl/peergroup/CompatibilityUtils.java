@@ -158,7 +158,7 @@ public final class CompatibilityUtils {
         implAdv.setUri(MODULE_IMPL_STD_URI);
         implAdv.setProvider(MODULE_IMPL_STD_PROVIDER);
         implAdv.setDescription(description);
-        
+
         return implAdv;
     }
     

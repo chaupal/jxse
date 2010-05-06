@@ -110,7 +110,7 @@ public class ShadowPeerGroup extends StdPeerGroup {
 
 
         /**
-         * Commenting the below line in 2.6, because of a regression caused by svn rev 521
+         * Commenting the below lines in 2.6, because of a regression caused by svn rev 521
          * after 2.5 was release.
          *
          * NPG used to be a StdPeerGroup in 2.5, however, it should be a ShadowPeerGroup.

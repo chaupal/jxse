@@ -436,7 +436,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 */
 	public OutputPipe createOutputPipe(PipeAdvertisement adv,
 			Set<? extends ID> resolvablePeers, long timeout) throws IOException {
-		// convert zero to max value.
+                // convert zero to max value.
 		if (0 == timeout) {
 			timeout = Long.MAX_VALUE;
 		}
