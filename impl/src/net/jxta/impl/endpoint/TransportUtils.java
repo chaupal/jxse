@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.logging.Logging;
 
@@ -115,6 +117,67 @@ public class TransportUtils {
         }
         
         return result;
+    }
+    
+    /**
+     * Sets a message property on the provided message indicating that it could not be sent
+     * due to messenger saturation.
+     */
+    public static void markMessageWithOverflowFailure(Message message) {
+        message.setMessageProperty(Messenger.class, OutgoingMessageEvent.OVERFLOW);
+    }
+    
+    /**
+     * Sets a message property on the provided message indicating that it could not be sent
+     * due to the provided cause.
+     */
+    public static void markMessageWithSendFailure(Message message, Throwable cause) {
+        message.setMessageProperty(Messenger.class, new OutgoingMessageEvent(message, cause));
+    }
+    
+    /**
+     * Sets a message property on the provided message indicating that it was successfully
+     * sent. This does not, however, mean that the message has yet been successfully received
+     * by the intended recipient.
+     */
+    public static void markMessageWithSendSuccess(Message message) {
+        message.setMessageProperty(Messenger.class, OutgoingMessageEvent.SUCCESS);
+    }
+
+    /**
+     * @return whether or not the provided message has failed to send for whatever
+     * reason (overflow or some other cause).
+     */
+    public static boolean isMarkedWithFailure(Message msg) {
+        Object property = msg.getMessageProperty(Messenger.class);
+        if(property instanceof OutgoingMessageEvent) {
+            OutgoingMessageEvent event = (OutgoingMessageEvent) property;
+            return event == OutgoingMessageEvent.OVERFLOW || event.getFailure() != null;
+        }
+        
+        return false;
+    }
+
+    /**
+     * @return the cause of the failure in sending this message. Note that if the message
+     * failed due to messenger saturation, this method will return null.
+     */
+    public static Throwable getFailureCause(Message msg) {
+        Object property = msg.getMessageProperty(Messenger.class);
+        if(property instanceof OutgoingMessageEvent) {
+            OutgoingMessageEvent event = (OutgoingMessageEvent) property;
+            return event.getFailure();
+        }
+        
+        return null;
+    }
+
+    /**
+     * @return whether or not this message has been marked, stating that it has been
+     * successfully sent.
+     */
+    public static boolean isMarkedWithSuccess(Message msg) {
+        return msg.getMessageProperty(Messenger.class) == OutgoingMessageEvent.SUCCESS;
     }
     
 }
