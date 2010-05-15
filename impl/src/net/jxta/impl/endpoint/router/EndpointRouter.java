@@ -271,7 +271,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * Route controller
      */
-    private RouteController theRouteController = null;
+    private RouteControl theRouteController = null;
 
     class ClearPendingQuery extends SelfCancellingTask {
         final PeerID peerID;
@@ -649,7 +649,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             lastIoe = new IOException("No reachable endpoints for " + destination);
         }
 
-        Logging.logCheckedFine(LOG, "Could not send to ", destination, "\n", lastIoe.toString());
+        Logging.logCheckedFine(LOG, "Could not send to ", destination, "\n", lastIoe);
 
         throw lastIoe;
     }
@@ -813,6 +813,9 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         }
 
         Logging.logCheckedInfo(LOG, group, " : Router Message Transport started.");
+
+        // Starting the route controller
+        theRouteController.start();
         
         return status;
     }
@@ -1562,7 +1565,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
             // Drop it, we do not even know the destination
             Logging.logCheckedWarning(LOG, "Bad routing header or bad message. Dropping ", msg);
-            Logging.logCheckedFine(LOG, "Exception: ", badHdr.toString());
+            Logging.logCheckedFine(LOG, "Exception: ", badHdr);
             return;
 
         }

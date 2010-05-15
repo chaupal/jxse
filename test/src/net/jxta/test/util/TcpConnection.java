@@ -305,7 +305,7 @@ public class TcpConnection implements Runnable {
             + dstAddress + " / " + inetAddress.getHostAddress() + ":" + port);
 
         if (closingDueToFailure) {
-            Logging.logCheckedInfo(LOG, "Failure stack trace\n" + new Throwable("stack trace").toString());
+            Logging.logCheckedInfo(LOG, "Failure stack trace\n", new Throwable("stack trace"));
         }
         
         if (!closed) {
@@ -571,8 +571,8 @@ public class TcpConnection implements Runnable {
 
             } catch (Throwable failure) {
 
-                Logging.logCheckedInfo(LOG, "tcp send - message send failed for "
-                    + inetAddress.getHostAddress() + ":" + port + "\n" + failure.toString());
+                Logging.logCheckedInfo(LOG, "tcp send - message send failed for ",
+                    inetAddress.getHostAddress(), ':', port, '\n', failure);
                 closingDueToFailure = true;
                 close();
 

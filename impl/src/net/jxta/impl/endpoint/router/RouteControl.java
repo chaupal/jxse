@@ -94,7 +94,7 @@ public class RouteControl implements RouteController {
     /**
      * Router CM cache
      */
-    private final RouteCM routeCM;
+    private RouteCM routeCM;
 
     /**
      * local Peer Id
@@ -109,8 +109,15 @@ public class RouteControl implements RouteController {
      */
     public RouteControl(EndpointRouter router, ID pid) {
         this.router = router;
-        this.routeCM = router.getRouteCM();
         this.localPeerId = pid;
+    }
+
+    /**
+     * We can't initialize the routCM variable, because it is not created yet
+     * in the EndpointRouter. We have to wait for init() and startApp().
+     */
+    public void start() {
+        this.routeCM = this.router.getRouteCM();
     }
 
     /**

@@ -742,7 +742,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             } catch (Exception ex) {
 
                 // What happened?
-                Logging.logCheckedSevere(LOG,ex.toString());
+                Logging.logCheckedSevere(LOG,ex);
 
                 try {
                     newMod.stopApp();

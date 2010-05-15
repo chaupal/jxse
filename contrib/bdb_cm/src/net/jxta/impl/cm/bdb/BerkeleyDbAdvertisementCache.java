@@ -504,7 +504,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
             try {
                 c.close();
             } catch(DatabaseException e) {
-                Logging.logCheckedWarning(LOG, e.toString());
+                Logging.logCheckedWarning(LOG, e);
             }
         }
     }

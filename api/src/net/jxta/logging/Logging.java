@@ -219,7 +219,7 @@ public final class Logging {
 
         if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.config(Msg.toString());
         }
 
@@ -237,7 +237,7 @@ public final class Logging {
 
         if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.fine(Msg.toString());
         }
 
@@ -255,7 +255,7 @@ public final class Logging {
 
         if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.finer(Msg.toString());
         }
 
@@ -273,7 +273,7 @@ public final class Logging {
 
         if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.finest(Msg.toString());
         }
 
@@ -291,7 +291,7 @@ public final class Logging {
 
         if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.info(Msg.toString());
         }
 
@@ -309,7 +309,7 @@ public final class Logging {
 
         if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.severe(Msg.toString());
         }
 
@@ -327,9 +327,25 @@ public final class Logging {
 
         if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(inMsg[i]);
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.warning(Msg.toString());
         }
+
+    }
+
+    /**
+     * Retrieves the stack trace as a String if object is a {@code Throwable}.
+     *
+     * @param inObj
+     * @return
+     */
+    private static String checkForThrowables(Object inObj) {
+
+        // Are we dealing with a throwable?
+        if ( inObj instanceof Throwable ) return retrieveStackTrace((Throwable) inObj);
+
+        // Returning the object.toString()
+        return inObj.toString();
 
     }
 
@@ -387,6 +403,30 @@ public final class Logging {
         if ( inPS != null ) inPS.println(Result2);
 
         return Result2;
+
+    }
+
+    /**
+     * Retrieves the stack trace from a throwable.
+     *
+     * @param t a throwable
+     * @return the stack trace as a String
+     */
+    public static String retrieveStackTrace(Throwable t) {
+
+        StackTraceElement[] STE = t.getStackTrace();
+        StringBuffer Result = new StringBuffer();
+
+        Result.append(t.toString()).append('\n');
+
+        for (int i=0;i<STE.length;i++) {
+            Result.append("Line ").append(STE[i].getLineNumber())
+                .append(' ').append(STE[i].getClassName())
+                .append('.').append(STE[i].getMethodName())
+                .append("()\n");
+        }
+
+        return Result.toString();
 
     }
 

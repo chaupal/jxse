@@ -277,8 +277,8 @@ public class IncomingUnicastServer implements Runnable {
                                 transport.executor.execute(builder);
                                 transport.incrementConnectionsAccepted();
                             } catch (RejectedExecutionException re) {
-                                Logging.logCheckedFine(LOG, MessageFormat.format("Executor rejected task : {0}", builder.toString())
-                                    + "\n" + re.toString());
+                                Logging.logCheckedFine(LOG, MessageFormat.format("Executor rejected task : {0}", builder.toString()),
+                                    "\n", re.toString());
                             }
                         }
                     }

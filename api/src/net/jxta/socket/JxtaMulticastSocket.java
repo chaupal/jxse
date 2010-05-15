@@ -433,7 +433,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
         } catch (InterruptedException e) {
 
             Logging.logCheckedFine(LOG, "Exception occured\n", e);
-            throw new IOException(e.toString());
+            throw new IOException(e);
 
         }
 

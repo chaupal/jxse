@@ -421,7 +421,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 try {
                     remove(dn, fn);
                 } catch (IOException e) {
-                    Logging.logCheckedFine(LOG, "Failed to remove record\n", e.toString());
+                    Logging.logCheckedFine(LOG, "Failed to remove record\n", e);
                 }
 
             }
