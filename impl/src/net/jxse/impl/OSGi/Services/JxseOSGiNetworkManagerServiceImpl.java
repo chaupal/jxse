@@ -283,7 +283,6 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
             LOG.log(Level.FINER, "Peer ID: " + PID.toString());
         }
 
-
         // Max relay and rdv clients
         if (this.TheConfig.getRelayMaxClients()>=0) {
             TheNC.setRelayMaxClients(this.TheConfig.getRelayMaxClients());

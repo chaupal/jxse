@@ -344,7 +344,10 @@ public final class Logging {
         // Are we dealing with a throwable?
         if ( inObj instanceof Throwable ) return retrieveStackTrace((Throwable) inObj);
 
-        // Returning the object.toString()
+        // Are we dealing with a null?
+        if ( inObj == null ) return "";
+
+         // Returning the object.toString()
         return inObj.toString();
 
     }

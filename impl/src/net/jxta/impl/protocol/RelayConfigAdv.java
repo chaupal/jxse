@@ -107,6 +107,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
     private static final String RELAY_SERVER_STALL_ATTR = "stallTimeout";
     private static final String RELAY_SERVER_ANNOUNCE_ATTR = "announceInterval";
     private static final String ACL_URI = "acl";
+    private static final String IS_OFF = "isOff";
 
     private static final String[] fields = {};
 
@@ -341,7 +342,7 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
 
         if (useOnlySeeds && clientEnabled && seedRelays.isEmpty() && seedingURIs.isEmpty()) {
             
-            Logging.logCheckedWarning(LOG, "'useOnlySeeds' is true and no seed relay is set!");
+            Logging.logCheckedConfig(LOG, "'useOnlySeeds' is true and no seed relay is set!");
 
         }
 
@@ -591,6 +592,12 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
             if (null != addrElement) aclURI = URI.create(addrElement.trim());
 
             return true;
+
+        } else if (IS_OFF.equals(elem.getName())) {
+
+            // This is an acceptable element
+            return true;
+
         }
 
         return false;
@@ -819,9 +826,9 @@ public final class RelayConfigAdv extends ExtendableAdvertisement implements Clo
      */
     public void setUseOnlySeeds(boolean onlySeeds) {
 
-        // Warning for hazardous configuration, while waiting for a better FIX
-        if ( !onlySeeds )
-            Logging.logCheckedWarning(LOG, "Not using relay seeds ONLY will cause peer to search and use Rdv Advertisments as relay candidates");
+//        // Warning for hazardous configuration, while waiting for a better FIX
+//        if ( !onlySeeds )
+//            Logging.logCheckedWarning(LOG, "Not using relay seeds ONLY will cause peer to search and use Rdv Advertisments as relay candidates");
 
         useOnlySeeds = onlySeeds;
 
