@@ -422,13 +422,15 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
             
             <fileset dir="${api}">
                 <include name="net/jxta/user.properties" />
+                <include name="net/jxse/OSGi/JxseOSGi.properties" />
             </fileset>
             
             <fileset dir="${impl}">
                 <include name="META-INF/services/net.jxta.*" />
                 <include name="net/jxta/impl/config.properties" />
                 <include name="net/jxta/impl/monitor.properties" />
-            </fileset>
+                <include name="net/jxse/impl/OSGi/Felix.properties" />
+           </fileset>
             
             <manifest>
                 <attribute name="Built-By" value="${user.name}" />
