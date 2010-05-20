@@ -56,7 +56,6 @@
 
 package net.jxta.impl.peer;
 
-
 import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
@@ -68,7 +67,6 @@ import net.jxta.endpoint.EndpointService;
 import net.jxta.exception.JxtaException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
 import net.jxta.impl.meter.MeterBuildSettings;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.PeerInfoQueryMsg;
@@ -97,15 +95,12 @@ import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializable;
-
 import java.io.StringReader;
-import java.net.URI;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  Peer Info provides a mechanism to obtain  information about peers.
@@ -169,6 +164,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         startTime = System.currentTimeMillis();
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring PeerInfo Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");
@@ -180,6 +176,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             configInfo.append("\n\t\tGroup: ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID: ").append(group.getPeerGroupID());
             configInfo.append("\n\t\tPeer ID: ").append(group.getPeerID());
+
             LOG.config(configInfo.toString());
         }
     }
@@ -192,11 +189,10 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         resolver = group.getResolverService();
         
         if (null == resolver) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a resolver service");
-            }
-            
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is a resolver service");
             return START_AGAIN_STALLED;
+
         }
         
         /* Fix-Me: When MonitorService is a true service, this should be moved here from init()
@@ -406,22 +402,22 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             try {
                 requestSourceID = (PeerID) query.getSrcPeer();
             } catch (Exception e) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "PeerInfoService.processQuery got a bad query, not valid src", e);
-                }
+                Logging.logCheckedFine(LOG, "PeerInfoService.processQuery got a bad query, not valid src\n", e);
                 return ResolverService.OK;
             }
             
             XMLDocument doc = null;
 
             try {
+
                 doc = (XMLDocument)
                         StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(query.getQuery()));
+
             } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "PeerInfoService.processQuery got a bad adv", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "PeerInfoService.processQuery got a bad adv\n", e);
                 return ResolverService.OK;
+
             }
             
             PeerInfoQueryMessage pipquery = new PeerInfoQueryMsg(doc);
@@ -433,18 +429,14 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 PeerInfoHandler peerInfoHandler = getPeerInfoHandler(queryType);
                 
                 if (peerInfoHandler != null) {
-                    peerInfoHandler.processRequest(queryId, requestSourceID, pipquery, requestElement
-                            ,
-                            resolverServicePeerInfoMessenger);
+                    peerInfoHandler.processRequest(queryId, requestSourceID, pipquery,
+                        requestElement, resolverServicePeerInfoMessenger);
                 } else {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("No registered PeerInfoHandler for this type of request");
-                    }
+                    Logging.logCheckedFine(LOG, "No registered PeerInfoHandler for this type of request");
                 }
+
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("No request PeerInfoQueryMessage Request Element found");
-                }
+                Logging.logCheckedFine(LOG, "No request PeerInfoQueryMessage Request Element found");
             }
             
             return ResolverService.OK;
@@ -460,16 +452,16 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             PeerInfoResponseMessage resp = null;
 
             try {
-                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8
-                        ,
-                        new StringReader(response.getResponse()));
+                StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(
+                        MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
                 
                 resp = new PeerInfoResponseMsg(doc);
+
             } catch (Exception e) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "PeerInfoService.processResponse got a bad adv", e);
-                }
+
+                Logging.logCheckedFine(LOG, "PeerInfoService.processResponse got a bad adv\n", e);
                 return;
+
             }
             
             Element responseElement = resp.getResponse();
@@ -481,14 +473,11 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 if (peerInfoHandler != null) {
                     peerInfoHandler.processResponse(queryId, resp, responseElement, resolverServicePeerInfoMessenger);
                 } else {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("No registered PeerInfoHandler for this type of response");
-                    }
+                    Logging.logCheckedFine(LOG, "No registered PeerInfoHandler for this type of response");
                 }
+
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("No request PeerInfoResponseMessage Response Element found");
-                }
+                Logging.logCheckedFine(LOG, "No request PeerInfoResponseMessage Response Element found");
             }
         }
     }
@@ -528,10 +517,11 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 resolverResponse.setResponse(peerInfoResponse);
 
                 resolver.sendResponse(destinationPeerID.toString(), resolverResponse);
+
             } catch (JxtaException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure building document", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failure building document\n", e);
+                
             }
         }
         
@@ -562,10 +552,11 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 resolverQuery.setQueryId(queryID);
                 
                 resolver.sendQuery(destinationPeerID.toString(), resolverQuery);
+
             } catch (JxtaException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure to build resolver query", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failure to build resolver query\n", e);
+                
             }
         }
     }

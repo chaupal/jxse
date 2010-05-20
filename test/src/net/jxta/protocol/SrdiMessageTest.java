@@ -84,7 +84,7 @@ public class SrdiMessageTest extends TestCase {
     private static final String val = "value";
     private static final long exp = Long.MAX_VALUE;
     private String strdoc;
-    private SrdiMessageImpl srdi = null;
+    private SrdiMessageImpl srdiMsg = null;
 
     /**
      *Constructor for the SrdiMessageTest object
@@ -135,13 +135,13 @@ public class SrdiMessageTest extends TestCase {
         }
 
         try {
-            srdi = new SrdiMessageImpl(srcpeer, 0, "Peers", entries);
+            srdiMsg = new SrdiMessageImpl(srcpeer, 0, "Peers", entries);
         } catch (IllegalArgumentException iae) {
             fail(iae.toString());
             iae.printStackTrace();
         }
 
-        StructuredDocument doc = (StructuredDocument) srdi.getDocument(new MimeMediaType("text/xml"));
+        StructuredDocument doc = (StructuredDocument) srdiMsg.getDocument(new MimeMediaType("text/xml"));
 
         assertNotNull("Failed to construct SrdiMessage", doc);
 
@@ -159,19 +159,19 @@ public class SrdiMessageTest extends TestCase {
         }
 
         try {
-            srdi = new SrdiMessageImpl(srcpeer, 0, "Peers", entries);
+            srdiMsg = new SrdiMessageImpl(srcpeer, 0, "Peers", entries);
         } catch (IllegalArgumentException iae) {
             fail(iae.toString());
             iae.printStackTrace();
         }
 
-        StructuredDocument doc = (StructuredDocument) srdi.getDocument(new MimeMediaType("text/xml"));
+        StructuredDocument doc = (StructuredDocument) srdiMsg.getDocument(new MimeMediaType("text/xml"));
 
         assertNotNull("Failed to construct SrdiMessage", doc);
 
-        this.strdoc = srdi.toString();
+        this.strdoc = srdiMsg.toString();
         assertNotNull("Corrupted SrdiMessage string representation", this.strdoc);
-        createMessagefromString(srdi.toString());
+        createMessagefromString(srdiMsg.toString());
     }
 
     private StructuredDocument createMessagefromString(String strdoc) {
@@ -196,20 +196,20 @@ public class SrdiMessageTest extends TestCase {
         }
 
         try {
-            srdi = new SrdiMessageImpl(srcpeer, 0, "Peers", entries);
+            srdiMsg = new SrdiMessageImpl(srcpeer, 0, "Peers", entries);
         } catch (IllegalArgumentException iae) {
             fail(iae.toString());
             iae.printStackTrace();
         }
 
-        StructuredDocument doc = (StructuredDocument) srdi.getDocument(new MimeMediaType("text/xml"));
+        StructuredDocument doc = (StructuredDocument) srdiMsg.getDocument(new MimeMediaType("text/xml"));
 
         assertNotNull("Failed to construct SrdiMessage", doc);
 
-        assertEquals("Corrupted src peer", srcpeer, srdi.getPeerID().toString());
-        assertEquals("Corrupted Primary Key", "Peers", srdi.getPrimaryKey());
+        assertEquals("Corrupted src peer", srcpeer, srdiMsg.getPeerID().toString());
+        assertEquals("Corrupted Primary Key", "Peers", srdiMsg.getPrimaryKey());
 
-        Collection gotEntries = srdi.getEntries();
+        Collection gotEntries = srdiMsg.getEntries();
         
         assertTrue("all entries didn't make it", gotEntries.containsAll(entries));
         

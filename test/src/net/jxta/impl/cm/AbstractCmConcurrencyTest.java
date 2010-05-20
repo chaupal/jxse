@@ -12,9 +12,9 @@ public abstract class AbstractCmConcurrencyTest extends TestCase {
     
     public void testConcurrentSafety_randomLoad() throws Exception {
         
-        Cm[] caches = new Cm[NUM_CACHES];
+        CacheManager[] caches = new CacheManager[NUM_CACHES];
         for(int i=0; i < caches.length; i++) {
-            caches[i] = new Cm(createWrappedCache("testArea"+i));
+            caches[i] = new CacheManager(createWrappedCache("testArea"+i));
             
             System.out.println("Seeding cache " + i);
             seedCache(caches[i]);
@@ -43,7 +43,7 @@ public abstract class AbstractCmConcurrencyTest extends TestCase {
         System.out.println("Complete");
     }
 
-    private void seedCache(Cm cm) throws IOException {
+    private void seedCache(CacheManager cm) throws IOException {
         for(int i=0; i < 1000; i++) {
             cm.save(Double.toString(Math.random()), Double.toString(Math.random()), new byte[1024], Long.MAX_VALUE, Long.MAX_VALUE);
         }

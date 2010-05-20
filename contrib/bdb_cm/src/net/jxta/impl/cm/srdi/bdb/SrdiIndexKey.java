@@ -67,6 +67,10 @@ public class SrdiIndexKey {
 		return peerId;
 	}
 	
+	public void setValue(String value) {
+        this.value = value;
+    }
+	
 	public DatabaseEntry toDatabaseEntry() {
 		DatabaseEntry entry = new DatabaseEntry();
 		toDatabaseEntry(entry);

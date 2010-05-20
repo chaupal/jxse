@@ -169,12 +169,15 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
         e = adv.createElement(handlernameTag, getHandlerName());
         adv.appendChild(e);
         if (getCredential() != null) {
+            
             try {
+
                 StructuredDocumentUtils.copyElements(adv, adv, (getCredential()).getDocument(asMimeType));
+
             } catch (Exception ce) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Got an Exception during credential creation ", ce);
-                }
+
+                Logging.logCheckedWarning(LOG, "Got an Exception during credential creation\n", ce);
+                
             }
         }
         e = adv.createElement(payloadTag, getPayload());
@@ -203,15 +206,15 @@ public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
                 Credential credential;
 
                 if (elem.getTextValue() != null) {
+
                     try {
                         credential = membership.makeCredential(elem);
                         setCredential(credential);
                     } catch (Exception ce) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Credential creation failed", ce);
-                        }
+                        Logging.logCheckedWarning(LOG, "Credential creation failed\n", ce);
                     }
                 }
+
                 continue;
             }
 

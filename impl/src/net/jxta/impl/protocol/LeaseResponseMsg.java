@@ -203,9 +203,11 @@ public class LeaseResponseMsg {
         Enumeration eachAttr = doc.getAttributes();
         
         while (eachAttr.hasMoreElements()) {
+
             Attribute aRdvAttr = (Attribute) eachAttr.nextElement();
             
             if (SERVER_ID_ATTR.equals(aRdvAttr.getName())) {
+
                 try {
                     URI srcURI = new URI(aRdvAttr.getValue());
                     ID srcID = IDFactory.fromURI(srcURI);
@@ -217,28 +219,32 @@ public class LeaseResponseMsg {
                     iae.initCause(badID);
                     throw iae;
                 }
+
             } else if (OFFERED_LEASE_ATTR.equals(aRdvAttr.getName())) {
+
                 offeredLease = Long.valueOf(aRdvAttr.getValue());
+
             } else if ("type".equals(aRdvAttr.getName())) {
-                ;
+                
             } else if ("xmlns:jxta".equals(aRdvAttr.getName())) {
-                ;
+                
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + aRdvAttr.getName());
-                }
+                
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRdvAttr.getName());
+                
             }
         }
         
         Enumeration elements = doc.getChildren();
         
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
             
             if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem.toString());
-                }
+                
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
+                
             }
         }
         
@@ -460,56 +466,65 @@ public class LeaseResponseMsg {
     protected boolean handleElement(XMLElement elem) {
         
         if (SERVER_ADV_TAG.equals(elem.getName())) {
+
             Enumeration eachAttr = elem.getAttributes();
             
             while (eachAttr.hasMoreElements()) {
+
                 Attribute anAdvAttr = (Attribute) eachAttr.nextElement();
                 
                 if (ADV_GEN_ATTR.equals(anAdvAttr.getName())) {
+
                     serverAdvGen = UUID.fromString(anAdvAttr.getValue());
+
                 } else if (ADV_EXP_ATTR.equals(anAdvAttr.getName())) {
+
                     serverAdvExp = Long.valueOf(anAdvAttr.getValue());
+
                 } else if ("type".equals(anAdvAttr.getName())) {
-                    ;
+                    
                 } else if ("xmlns:jxta".equals(anAdvAttr.getName())) {
-                    ;
+                    
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Attribute: " + anAdvAttr.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", anAdvAttr.getName());
+                    
                 }
             }
             
             serverAdv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement(elem);
             return true;
+
         } else if (REFERRAL_ADV_TAG.equals(elem.getName())) {
+
             long expiration = Long.MIN_VALUE;
             
             Enumeration eachAttr = elem.getAttributes();
             
             while (eachAttr.hasMoreElements()) {
+
                 Attribute anAdvAttr = (Attribute) eachAttr.nextElement();
                 
                 if (ADV_EXP_ATTR.equals(anAdvAttr.getName())) {
+                    
                     expiration = Long.valueOf(anAdvAttr.getValue());
+
                 } else if ("type".equals(anAdvAttr.getName())) {
-                    ;
+                    
                 } else if ("xmlns:jxta".equals(anAdvAttr.getName())) {
-                    ;
+                    
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Attribute: " + anAdvAttr.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", anAdvAttr.getName());
+                    
                 }
             }
             
-            if (Long.MIN_VALUE == expiration) {
+            if (Long.MIN_VALUE == expiration) 
                 throw new IllegalArgumentException("Missing Referral Advertisement Expiration.");
-            }
             
-            if (expiration <= 0) {
+            if (expiration <= 0) 
                 throw new IllegalArgumentException("Illegal Referral Advertisement Expiration.");
-            }
             
             RdvAdvertisement referralAdv = (RdvAdvertisement) AdvertisementFactory.newAdvertisement(elem);
             

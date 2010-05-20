@@ -106,10 +106,10 @@ class HttpMessageSender implements MessageSender {
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
             StringBuilder configInfo = new StringBuilder( "Configuring HTTP Client Message Transport : " + servletHttpTransport.assignedID);
-
             configInfo.append("\n\tPublic Address = ").append(publicAddress);
             LOG.config(configInfo.toString());
-        }        
+        }
+
     }
 
     /**
@@ -134,23 +134,16 @@ class HttpMessageSender implements MessageSender {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-
-    /**
      * shut down all client connections.
      */
     public synchronized void start() throws PeerGroupException {
+
         if (servletHttpTransport.getEndpointService().addMessageTransport(this) == null) {
             throw new PeerGroupException("Transport registration refused");
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("HTTP Client Transport started.");
-        }
+        Logging.logCheckedInfo(LOG, "HTTP Client Transport started.");
+        
     }
 
     /**
@@ -167,25 +160,22 @@ class HttpMessageSender implements MessageSender {
             }
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("HTTP Client Transport stopped.");
-        }
+        Logging.logCheckedInfo(LOG, "HTTP Client Transport stopped.");
+        
     }
 
     /**
      * {@inheritDoc}
      */
     public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("getMessenger for : " + destAddr);
-        }
+
+        Logging.logCheckedFine(LOG, "getMessenger for : ", destAddr);
 
         if (!getProtocolName().equals(destAddr.getProtocolName())) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Cannot make messenger for protocol :" + destAddr.getProtocolName());
-            }
 
+            Logging.logCheckedWarning(LOG, "Cannot make messenger for protocol :", destAddr.getProtocolName());
             return null;
+
         }
 
         try {
@@ -201,18 +191,19 @@ class HttpMessageSender implements MessageSender {
             }
 
             return result;
+
         } catch (SocketTimeoutException noConnect) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Could not connect to " + destAddr + " : " + noConnect.getMessage());
-            }
+
+            Logging.logCheckedWarning(LOG, "Could not connect to ", destAddr, " : ", noConnect.getMessage());
+            
         } catch (ConnectException noConnect) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Failed to connect to " + destAddr + " : " + noConnect.getMessage());
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to connect to ", destAddr + " : ", noConnect.getMessage());
+            
         } catch (Throwable e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Could not make messenger for " + destAddr, e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Could not make messenger for ", destAddr, "\n", e);
+            
         }
 
         // If we got here, we failed.
@@ -230,6 +221,8 @@ class HttpMessageSender implements MessageSender {
      *  {@inheritDoc}
      */
     public EndpointService getEndpointService() {
+
         return servletHttpTransport.getEndpointService();
+        
     }
 }

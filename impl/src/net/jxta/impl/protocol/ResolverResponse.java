@@ -56,13 +56,10 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.*;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.util.Enumeration;
-
 
 /**
  * ResolverResponse provides an implementation for 

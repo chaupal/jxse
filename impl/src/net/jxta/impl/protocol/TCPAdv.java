@@ -53,6 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.protocol;
 
 import net.jxta.document.Advertisement;
@@ -66,10 +67,8 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.TransportAdvertisement;
-
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -86,30 +85,30 @@ public class TCPAdv extends TransportAdvertisement {
     private static final String INDEXFIELDS[] = {/* none */};
 
     private static final String PORT_ELEMENT = "Port";
-    private static final String MCAST_THREAD_POOL = "Mcast_Pool_Size";
+//    private static final String MCAST_THREAD_POOL = "Mcast_Pool_Size";    // To delete in a future release
     private static final String ClientOffTag = "ClientOff";
     private static final String ServerOffTag = "ServerOff";
-    private static final String MULTICAST_OFF_TAG = "MulticastOff";
-    private static final String MULTICAST_INTERFACE_TAG = "MulticastInterface";
-    private static final String MULTICAST_ADDRESS_TAG = "MulticastAddr";
-    private static final String MULTICAST_PORT_TAG = "MulticastPort";
+//    private static final String MULTICAST_OFF_TAG = "MulticastOff";   // To delete in a future release
+//    private static final String MULTICAST_INTERFACE_TAG = "MulticastInterface";   // To delete in a future release
+//    private static final String MULTICAST_ADDRESS_TAG = "MulticastAddr";  // To delete in a future release
+//    private static final String MULTICAST_PORT_TAG = "MulticastPort"; // To delete in a future release
     private static final String FlagsTag = "Flags";
     private static final String PublicAddressOnlyAttr = "PublicAddressOnly";
 
     private String configMode = CONFIGMODES[0];
     private String interfaceAddress = null;
-    private String mcastInterface = null;
+//    private String mcastInterface = null;
     private int startPort = -1;
     private int listenPort = -1;
     private int endPort = -1;
     private String publicAddress = null;
-    private String multicastaddr = null;
-    private int multicastport = -1;
-    private int poolSize = 5;
-    private int multicastsize = -1;
+//    private String multicastaddr = null;  // To delete in a future release
+//    private int multicastport = -1;   // To delete in a future release
+//    private int poolSize = 5; // To delete in a future release
+//    private int multicastsize = -1;   // To delete in a future release
     private boolean clientEnabled = true;
     private boolean serverEnabled = true;
-    private boolean multicastEnabled = true;
+//    private boolean multicastEnabled = true;  // To delete in a future release
     private boolean publicAddressOnly = false;
 
     /**
@@ -195,13 +194,13 @@ public class TCPAdv extends TransportAdvertisement {
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem);
-                }
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
             }
+
         }
 
         // Sanity Check!!!
@@ -233,25 +232,28 @@ public class TCPAdv extends TransportAdvertisement {
             throw new IllegalArgumentException("Dynamic ports not supported with public address port forwarding.");
         }
 
-        if (getMulticastState() && (null == getMulticastAddr())) {
-            throw new IllegalArgumentException("Multicast enabled and no address specified.");
-        }
-
-        if (getMulticastState() && (-1 == getMulticastPort())) {
-            throw new IllegalArgumentException("Multicast enabled and no port specified.");
-        }
-
-        if (getMulticastState() && ((getMulticastPort() <= 0) || (getMulticastPort() > 65536))) {
-            throw new IllegalArgumentException("Illegal Multicast Port Value");
-        }
-
-        if (getMulticastState() && (-1 == getMulticastSize())) {
-            throw new IllegalArgumentException("Multicast enabled and no size specified.");
-        }
-
-        if (getMulticastState() && ((getMulticastSize() <= 0) || (getMulticastSize() > 1048575L))) {
-            throw new IllegalArgumentException("Illegal Multicast datagram size");
-        }
+//
+//        To delete in a future release
+//
+//        if (getMulticastState() && (null == getMulticastAddr())) {
+//            throw new IllegalArgumentException("Multicast enabled and no address specified.");
+//        }
+//
+//        if (getMulticastState() && (-1 == getMulticastPort())) {
+//            throw new IllegalArgumentException("Multicast enabled and no port specified.");
+//        }
+//
+//        if (getMulticastState() && ((getMulticastPort() <= 0) || (getMulticastPort() > 65536))) {
+//            throw new IllegalArgumentException("Illegal Multicast Port Value");
+//        }
+//
+//        if (getMulticastState() && (-1 == getMulticastSize())) {
+//            throw new IllegalArgumentException("Multicast enabled and no size specified.");
+//        }
+//
+//        if (getMulticastState() && ((getMulticastSize() <= 0) || (getMulticastSize() > 1048575L))) {
+//            throw new IllegalArgumentException("Illegal Multicast datagram size");
+//        }
 
         // XXX 20050118 bondolo Some versions apparently don't initialize this field. Eventually make it required.
         if (null == getProtocol()) {
@@ -384,126 +386,129 @@ public class TCPAdv extends TransportAdvertisement {
         this.endPort = endPort;
     }
 
-    /**
-     * Determine whether multicast if off or not
-     *
-     * @return boolean  current multicast state
-     */
-    public boolean getMulticastState() {
-        return multicastEnabled;
-    }
-
-    /**
-     * Enable or disable multicast.
-     *
-     * @param multicastState the desired state.
-     */
-    public void setMulticastState(boolean multicastState) {
-        multicastEnabled = multicastState;
-    }
-
-    /**
-     * returns the multicastaddr
-     *
-     * @return string multicastaddr
-     */
-    public String getMulticastAddr() {
-        return multicastaddr;
-    }
-
-    /**
-     * set the multicastaddr
-     *
-     * @param multicastaddr set multicastaddr
-     */
-    public void setMulticastAddr(String multicastaddr) {
-        if (null != multicastaddr) {
-            multicastaddr = multicastaddr.trim();
-
-            if (0 == multicastaddr.length()) {
-                multicastaddr = null;
-            }
-        }
-        this.multicastaddr = multicastaddr;
-    }
-
-    /**
-     * set the multicast interface
-     *
-     * @param multicastInterface set multicastaddr
-     */
-    public void setMulticastInterface(String multicastInterface) {
-        if (null != multicastInterface) {
-            multicastInterface = multicastInterface.trim();
-
-            if (0 == multicastInterface.length()) {
-                this.mcastInterface = null;
-            }
-        }
-        this.mcastInterface = multicastInterface;
-    }
-
-    /**
-     * Returns the multicast interface
-     * @return the multicast interface, null if none specified, in which case it default to the tcp interface address
-     *
-     */
-    public String getMulticastInterface() {
-        return mcastInterface;
-    }
-
-    /**
-     * returns the multicastport
-     *
-     * @return int multicastport
-     */
-    public int getMulticastPort() {
-        return multicastport;
-    }
-    /**
-     * returns the multicast pool size
-     *
-     * @return the multicast pool size
-     */
-    public int getMulticastPoolSize() {
-        return poolSize;
-    }
-
-    /**
-     * set the multicastport
-     *
-     * @param multicastport set multicastport
-     */
-    public void setMulticastPort(int multicastport) {
-        this.multicastport = multicastport;
-    }
-
-    /**
-     * set the multicast thread pool size
-     *
-     * @param size thread pool size
-     */
-    public void setMulticastPoolSize(int size) {
-        this.poolSize = poolSize;
-    }
-
-    /**
-     * returns the multicastsize
-     *
-     * @return integer containting the multicast size
-     */
-    public int getMulticastSize() {
-        return multicastsize;
-    }
-
-    /**
-     * set the multicastsize
-     *
-     * @param multicastsize set multicast size
-     */
-    public void setMulticastSize(int multicastsize) {
-        this.multicastsize = multicastsize;
-    }
+//
+//    To be deleted in a future release
+//
+//    /**
+//     * Determine whether multicast if off or not
+//     *
+//     * @return boolean  current multicast state
+//     */
+//    public boolean getMulticastState() {
+//        return multicastEnabled;
+//    }
+//
+//    /**
+//     * Enable or disable multicast.
+//     *
+//     * @param multicastState the desired state.
+//     */
+//    public void setMulticastState(boolean multicastState) {
+//        multicastEnabled = multicastState;
+//    }
+//
+//    /**
+//     * returns the multicastaddr
+//     *
+//     * @return string multicastaddr
+//     */
+//    public String getMulticastAddr() {
+//        return multicastaddr;
+//    }
+//
+//    /**
+//     * set the multicastaddr
+//     *
+//     * @param multicastaddr set multicastaddr
+//     */
+//    public void setMulticastAddr(String multicastaddr) {
+//        if (null != multicastaddr) {
+//            multicastaddr = multicastaddr.trim();
+//
+//            if (0 == multicastaddr.length()) {
+//                multicastaddr = null;
+//            }
+//        }
+//        this.multicastaddr = multicastaddr;
+//    }
+//
+//    /**
+//     * set the multicast interface
+//     *
+//     * @param multicastInterface set multicastaddr
+//     */
+//    public void setMulticastInterface(String multicastInterface) {
+//        if (null != multicastInterface) {
+//            multicastInterface = multicastInterface.trim();
+//
+//            if (0 == multicastInterface.length()) {
+//                this.mcastInterface = null;
+//            }
+//        }
+//        this.mcastInterface = multicastInterface;
+//    }
+//
+//    /**
+//     * Returns the multicast interface
+//     * @return the multicast interface, null if none specified, in which case it default to the tcp interface address
+//     *
+//     */
+//    public String getMulticastInterface() {
+//        return mcastInterface;
+//    }
+//
+//    /**
+//     * returns the multicastport
+//     *
+//     * @return int multicastport
+//     */
+//    public int getMulticastPort() {
+//        return multicastport;
+//    }
+//    /**
+//     * returns the multicast pool size
+//     *
+//     * @return the multicast pool size
+//     */
+//    public int getMulticastPoolSize() {
+//        return poolSize;
+//    }
+//
+//    /**
+//     * set the multicastport
+//     *
+//     * @param multicastport set multicastport
+//     */
+//    public void setMulticastPort(int multicastport) {
+//        this.multicastport = multicastport;
+//    }
+//
+//    /**
+//     * set the multicast thread pool size
+//     *
+//     * @param size thread pool size
+//     */
+//    public void setMulticastPoolSize(int size) {
+//        this.poolSize = poolSize;
+//    }
+//
+//    /**
+//     * returns the multicastsize
+//     *
+//     * @return integer containting the multicast size
+//     */
+//    public int getMulticastSize() {
+//        return multicastsize;
+//    }
+//
+//    /**
+//     * set the multicastsize
+//     *
+//     * @param multicastsize set multicast size
+//     */
+//    public void setMulticastSize(int multicastsize) {
+//        this.multicastsize = multicastsize;
+//    }
 
     /**
      * Returns the public address
@@ -639,10 +644,13 @@ public class TCPAdv extends TransportAdvertisement {
 
         XMLElement elem = (XMLElement) raw;
 
-        if (elem.getName().equals(MULTICAST_OFF_TAG)) {
-            setMulticastState(false);
-            return true;
-        }
+//
+//        To delete in a future release
+//
+//        if (elem.getName().equals(MULTICAST_OFF_TAG)) {
+//            setMulticastState(false);
+//            return true;
+//        }
 
         if (elem.getName().equals(ClientOffTag)) {
             setClientEnabled(false);
@@ -682,43 +690,46 @@ public class TCPAdv extends TransportAdvertisement {
             return true;
         }
 
-        if (elem.getName().equals(MULTICAST_ADDRESS_TAG)) {
-            setMulticastAddr(value);
-            return true;
-        }
-
-        if (elem.getName().equals(MULTICAST_INTERFACE_TAG)) {
-           this.setMulticastInterface(value);
-            return true;
-        }
-
-        if (elem.getName().equals(MULTICAST_PORT_TAG)) {
-            try {
-                setMulticastPort(Integer.parseInt(value));
-            } catch (NumberFormatException badPort) {
-                throw new IllegalArgumentException("Illegal multicast port value : " + value);
-            }
-            return true;
-        }
-        if (elem.getName().equals(MCAST_THREAD_POOL)) {
-            try {
-                setMulticastPoolSize(Integer.parseInt(value));
-            } catch (NumberFormatException badPort) {
-                throw new IllegalArgumentException("Illegal multicast port value : " + value);
-            }
-            return true;
-        }
-
-        if (elem.getName().equals("MulticastSize")) {
-            try {
-                int theMulticastSize = Integer.parseInt(value);
-
-                setMulticastSize(theMulticastSize);
-            } catch (NumberFormatException badPort) {
-                throw new IllegalArgumentException("Illegal multicast datagram size : " + value);
-            }
-            return true;
-        }
+//
+//        To delete in a future release
+//
+////        if (elem.getName().equals(MULTICAST_ADDRESS_TAG)) {
+////            setMulticastAddr(value);
+////            return true;
+////        }
+////
+////        if (elem.getName().equals(MULTICAST_INTERFACE_TAG)) {
+////           this.setMulticastInterface(value);
+////            return true;
+////        }
+////
+////        if (elem.getName().equals(MULTICAST_PORT_TAG)) {
+////            try {
+////                setMulticastPort(Integer.parseInt(value));
+////            } catch (NumberFormatException badPort) {
+////                throw new IllegalArgumentException("Illegal multicast port value : " + value);
+////            }
+////            return true;
+////        }
+////        if (elem.getName().equals(MCAST_THREAD_POOL)) {
+////            try {
+////                setMulticastPoolSize(Integer.parseInt(value));
+////            } catch (NumberFormatException badPort) {
+////                throw new IllegalArgumentException("Illegal multicast port value : " + value);
+////            }
+////            return true;
+////        }
+//
+//        if (elem.getName().equals("MulticastSize")) {
+//            try {
+//                int theMulticastSize = Integer.parseInt(value);
+//
+//                setMulticastSize(theMulticastSize);
+//            } catch (NumberFormatException badPort) {
+//                throw new IllegalArgumentException("Illegal multicast datagram size : " + value);
+//            }
+//            return true;
+//        }
 
         if (elem.getName().equals("Server")) {
             setServer(value);
@@ -778,25 +789,28 @@ public class TCPAdv extends TransportAdvertisement {
             throw new IllegalStateException("Dynamic ports not supported with public address port forwarding.");
         }
 
-        if (getMulticastState() && (null == getMulticastAddr())) {
-            throw new IllegalStateException("Multicast enabled and no address specified.");
-        }
-
-        if (getMulticastState() && (-1 == getMulticastPort())) {
-            throw new IllegalStateException("Multicast enabled and no port specified.");
-        }
-
-        if (getMulticastState() && ((getMulticastPort() <= 0) || (getMulticastPort() > 65536))) {
-            throw new IllegalStateException("Illegal Multicast Port Value");
-        }
-
-        if (getMulticastState() && (-1 == getMulticastSize())) {
-            throw new IllegalStateException("Multicast enabled and no size specified.");
-        }
-
-        if (getMulticastState() && ((getMulticastSize() <= 0) || (getMulticastSize() > 1048575L))) {
-            throw new IllegalStateException("Illegal Multicast datagram size");
-        }
+//
+//        To delete in a future release
+//
+//        if (getMulticastState() && (null == getMulticastAddr())) {
+//            throw new IllegalStateException("Multicast enabled and no address specified.");
+//        }
+//
+//        if (getMulticastState() && (-1 == getMulticastPort())) {
+//            throw new IllegalStateException("Multicast enabled and no port specified.");
+//        }
+//
+//        if (getMulticastState() && ((getMulticastPort() <= 0) || (getMulticastPort() > 65536))) {
+//            throw new IllegalStateException("Illegal Multicast Port Value");
+//        }
+//
+//        if (getMulticastState() && (-1 == getMulticastSize())) {
+//            throw new IllegalStateException("Multicast enabled and no size specified.");
+//        }
+//
+//        if (getMulticastState() && ((getMulticastSize() <= 0) || (getMulticastSize() > 1048575L))) {
+//            throw new IllegalStateException("Illegal Multicast datagram size");
+//        }
 
         if (adv instanceof Attributable) {
             // Only one flag for now. Easy.
@@ -847,35 +861,38 @@ public class TCPAdv extends TransportAdvertisement {
             adv.appendChild(server);
         }
 
-        if (!getMulticastState()) {
-            Element mOff = adv.createElement(MULTICAST_OFF_TAG);
-            adv.appendChild(mOff);
-        }
-
-        if (null != getMulticastAddr()) {
-            Element mAddrr = adv.createElement(MULTICAST_ADDRESS_TAG, getMulticastAddr());
-            adv.appendChild(mAddrr);
-        }
-
-        if (null != this.getMulticastInterface()) {
-            Element mInterace = adv.createElement(MULTICAST_INTERFACE_TAG, getMulticastInterface());
-            adv.appendChild(mInterace);
-        }
-
-        if (-1 != getMulticastPort()) {
-            Element mPort = adv.createElement(MULTICAST_PORT_TAG, Integer.toString(getMulticastPort()));
-            adv.appendChild(mPort);
-        }
-
-        if (-1 != getMulticastPoolSize()) {
-            Element poolEl = adv.createElement(MCAST_THREAD_POOL, Integer.toString(getMulticastPoolSize()));
-            adv.appendChild(poolEl);
-        }
-
-        if (-1 != getMulticastSize()) {
-            Element mSize = adv.createElement("MulticastSize", Integer.toString(getMulticastSize()));
-            adv.appendChild(mSize);
-        }
+//
+//        To delete in a future release
+//
+//        if (!getMulticastState()) {
+//            Element mOff = adv.createElement(MULTICAST_OFF_TAG);
+//            adv.appendChild(mOff);
+//        }
+//
+//        if (null != getMulticastAddr()) {
+//            Element mAddrr = adv.createElement(MULTICAST_ADDRESS_TAG, getMulticastAddr());
+//            adv.appendChild(mAddrr);
+//        }
+//
+//        if (null != this.getMulticastInterface()) {
+//            Element mInterace = adv.createElement(MULTICAST_INTERFACE_TAG, getMulticastInterface());
+//            adv.appendChild(mInterace);
+//        }
+//
+//        if (-1 != getMulticastPort()) {
+//            Element mPort = adv.createElement(MULTICAST_PORT_TAG, Integer.toString(getMulticastPort()));
+//            adv.appendChild(mPort);
+//        }
+//
+//        if (-1 != getMulticastPoolSize()) {
+//            Element poolEl = adv.createElement(MCAST_THREAD_POOL, Integer.toString(getMulticastPoolSize()));
+//            adv.appendChild(poolEl);
+//        }
+//
+//        if (-1 != getMulticastSize()) {
+//            Element mSize = adv.createElement("MulticastSize", Integer.toString(getMulticastSize()));
+//            adv.appendChild(mSize);
+//        }
 
         return adv;
     }

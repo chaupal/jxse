@@ -205,6 +205,33 @@ public class JxseInstantiator {
     }
 
     /**
+     * This method instantiates an object from a {@code Class}. The
+     * constructor is fetched using provided parameters values.
+     *
+     * <p>The method logs a SEVERE record and returns {@code null} if an exception
+     * is encountered.
+     *
+     * @param inClass The {@code Class} to instantiate
+     * @param inParamsValues Any number of parameter values for the constructor
+     * @return an {@code Object} class or {@code null}
+     */
+    public static Object instantiate(Class inClass, Object... inParametersValues) {
+
+        Class[] TheTypes = new Class[inParametersValues.length];
+        Object[] TheValues = new Object[inParametersValues.length];
+
+        for (int i=0;i<inParametersValues.length;i++) {
+
+            TheTypes[i] = inParametersValues[i].getClass();
+            TheValues[i] = inParametersValues[i];
+
+        }
+
+        return instantiate(inClass, TheTypes, TheValues);
+
+    }
+
+    /**
      * This method instantiates an object from a {@code Class} using its no
      * parameter constructor. The latter is fetched using reflexion.
      *

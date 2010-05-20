@@ -64,20 +64,28 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        
         Throwable cause = e.getCause();
-		if(cause instanceof ConnectException) {
-			LOG.log(Level.FINE, "Unable to connect to remote host");
+
+        if (cause instanceof ConnectException) {
+
+            LOG.log(Level.FINE, "Unable to connect to remote host");
+
         } else if(cause instanceof ClosedChannelException) {
-    		LOG.log(Level.FINE, "Channel to {0} has been closed", new Object[] { ctx.getChannel().getRemoteAddress() });
+
+    	    LOG.log(Level.FINE, "Channel to {0} has been closed", new Object[] { ctx.getChannel().getRemoteAddress() });
+
         } else if(cause instanceof IOException) {
-        	LOG.log(Level.FINE, "Channel to {0} has failed - {1}", new Object[] { ctx.getChannel().getRemoteAddress(), cause.getMessage() });
-        } else if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+
+            LOG.log(Level.FINE, "Channel to {0} has failed - {1}", new Object[] { ctx.getChannel().getRemoteAddress(), cause.getMessage() });
+
+        } else if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+
             LOG.log(Level.WARNING, "Unhandled exception in netty channel pipeline - closing connection", cause);
+
         }
         
-        if(listener != null) {
-            listener.connectionDied();
-        }
+        if(listener != null) listener.connectionDied();
         
         Channels.close(ctx, ctx.getChannel().getCloseFuture());
     }

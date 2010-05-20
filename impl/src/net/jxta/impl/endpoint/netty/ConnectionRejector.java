@@ -37,7 +37,9 @@ public class ConnectionRejector extends SimpleChannelUpstreamHandler {
 	
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-	    if(!acceptConnections.get()) {
+	    
+            if(!acceptConnections.get()) {
+
 	        if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
 	            SocketAddress localAddr = ctx.getChannel().getParent().getLocalAddress();
 	            SocketAddress remoteAddr = ctx.getChannel().getRemoteAddress();
@@ -45,6 +47,7 @@ public class ConnectionRejector extends SimpleChannelUpstreamHandler {
 	        }
 	        ctx.getChannel().close();
 	        return;
+
 	    }
 	    
 	    super.channelConnected(ctx, e);

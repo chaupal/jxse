@@ -56,7 +56,6 @@
 
 package net.jxta.endpoint;
 
-
 /**
  *  A MessageSender is a MessageTransport that is able to send messages to
  *  remote peers using some protocol. MessageSenders provide facilities for 

@@ -273,32 +273,34 @@ public class WelcomeMessage {
     public boolean read(ByteBuffer buffer) throws IOException {
         int limit = buffer.limit();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("Reading a buffer of size :{0}", limit));
-        }
-        if (limit == 0) {
-            throw new IOException(MessageFormat.format("Invalid welcome message. Invalid length {0}", limit));
-        }
+        Logging.logCheckedFine(LOG, MessageFormat.format("Reading a buffer of size :{0}", limit));
+        
+        if (limit == 0) throw new IOException(MessageFormat.format("Invalid welcome message. Invalid length {0}", limit));
+        
         int eomPos = findEom(buffer, 0, limit);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("Buffer size :{0} Welcome End-Of-Message pos :{1}", limit, eomPos));
-        }
-        if (eomPos < 0) {
-            return false;
-        }
+        Logging.logCheckedFine(LOG, MessageFormat.format("Buffer size :{0} Welcome End-Of-Message pos :{1}", limit, eomPos));
+        
+        if (eomPos < 0) return false;
+        
         welcomeBytes = new byte[eomPos];
+        
         try {
+
             buffer.get(welcomeBytes, 0, eomPos);
+
             // skip <cr><ln>
             buffer.position(eomPos + 2);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("buffer stats :{0}", buffer.toString()));
-            }
+
+            Logging.logCheckedFine(LOG, MessageFormat.format("buffer stats :{0}", buffer.toString()));
+            
         } catch (BufferUnderflowException buf) {
+
             // not enough data, signal for another read
             return false;
+
         }
+
         welcomeString = new String(welcomeBytes, "UTF-8");
         parseWelcome(welcomeString);
         return true;
@@ -426,9 +428,8 @@ public class WelcomeMessage {
             preferredMessageVersion = 0;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Successfuly parsed a welcome message :" + getWelcomeString());
-        }
+        Logging.logCheckedFine(LOG, "Successfuly parsed a welcome message :", getWelcomeString());
+
     }
 
     /**
@@ -450,9 +451,9 @@ public class WelcomeMessage {
      * @throws java.io.IOException if an io error occurs
      */
     public ByteBuffer getByteBuffer() throws IOException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("Sending welcome message of size:{0}", welcomeBytes.length + 2));
-        }
+
+        Logging.logCheckedFine(LOG, MessageFormat.format("Sending welcome message of size:{0}", welcomeBytes.length + 2));
+        
         ByteBuffer buffer = ByteBuffer.allocate(welcomeBytes.length + 2);
 
         buffer.put(welcomeBytes);

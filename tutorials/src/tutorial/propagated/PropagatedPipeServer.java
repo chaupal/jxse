@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package tutorial.propagated;
 
 import net.jxta.document.AdvertisementFactory;
@@ -76,9 +77,6 @@ import net.jxta.pipe.PipeService;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-import net.jxta.impl.endpoint.router.RouteControl;
-import net.jxta.impl.endpoint.router.EndpointRouter;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -86,6 +84,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Hashtable;
+import net.jxta.endpoint.router.RouteController;
 
 /**
  * Simple example to illustrate the use of propagated pipes
@@ -124,7 +123,7 @@ public class PropagatedPipeServer implements PipeMsgListener {
     InputPipe inputPipe = null;
     private transient Map<PeerID, OutputPipe> pipeCache = new Hashtable<PeerID, OutputPipe>();
     public static final String ROUTEADV = "ROUTE";
-    private RouteControl routeControl = null;
+    private RouteController routeControl = null;
     private MessageElement routeAdvElement;
 
     public PropagatedPipeServer() {
@@ -267,15 +266,11 @@ public class PropagatedPipeServer implements PipeMsgListener {
         server.netPeerGroup = manager.getNetPeerGroup();
         pipeService = server.netPeerGroup.getPipeService();
 
-        MessageTransport endpointRouter = (server.netPeerGroup.getEndpointService()).getMessageTransport("jxta");
+        server.routeControl = (RouteController) server.netPeerGroup.getEndpointService().getEndpointRouter().getRouteController();
+        RouteAdvertisement route = server.routeControl.getLocalPeerRoute();
 
-        if (endpointRouter != null) {
-            server.routeControl = (RouteControl) endpointRouter.transportControl(EndpointRouter.GET_ROUTE_CONTROL, null);
-            RouteAdvertisement route = server.routeControl.getMyLocalRoute();
-
-            if (route != null) {
-                server.routeAdvElement = new TextDocumentMessageElement(ROUTEADV, (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8), null);
-            }
+        if (route != null) {
+            server.routeAdvElement = new TextDocumentMessageElement(ROUTEADV, (XMLDocument) route.getDocument(MimeMediaType.XMLUTF8), null);
         }
 
         System.out.println("Creating Propagated InputPipe for " + pipeAdv.getPipeID());

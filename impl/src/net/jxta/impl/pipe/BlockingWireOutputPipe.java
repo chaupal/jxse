@@ -145,6 +145,7 @@ public class BlockingWireOutputPipe implements OutputPipe {
      * @throws IOException for failures creating a pipe to the destination peer.
      */
     public BlockingWireOutputPipe(PeerGroup group, PipeAdvertisement pAdv, PeerID peerID, RouteAdvertisement route) throws IOException {
+
         this.pAdv = pAdv;
         this.group = group;
         this.endpoint = group.getEndpointService();
@@ -152,24 +153,19 @@ public class BlockingWireOutputPipe implements OutputPipe {
         this.route = route;
 
         checkMessenger();
-
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Created output pipe for " + getPipeID());
-        }
+        Logging.logCheckedInfo(LOG, "Created output pipe for ", getPipeID());
+        
     }
 
     /**
      * {@inheritDoc}
      */
     public synchronized void close() {
-        if (closed) {
-            return;
-        }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Closing " + getPipeID());
-        }
-
+        if (closed) return;
+        
+        Logging.logCheckedInfo(LOG, "Closing ", getPipeID());
+        
         closed = true;
     }
 

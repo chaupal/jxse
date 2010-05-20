@@ -56,14 +56,13 @@
 
 package net.jxta.endpoint;
 
-
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
-
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
+import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.peer.PeerID;
-
 
 /**
  * The EndpointService provides the API for sending and receiving messages
@@ -457,7 +456,6 @@ public interface EndpointService extends Service, EndpointListener {
      */
     public void processIncomingMessage(Message msg);
 
-
     /**
      * Adds the specified MessageTransport to this endpoint. A MessageTransport
      * may only be added if there are no other equivalent MessageTransports
@@ -550,5 +548,24 @@ public interface EndpointService extends Service, EndpointListener {
      */
     @Deprecated
     public Messenger getDirectMessenger(EndpointAddress addr, Object hint, boolean exclusive);
+
+    /**
+     * This method indicates whether this peer is currently connected to a Relay peer.
+     *
+     * @return {@code true} if this peer is connected to a relay peer, {@code false} otherwise.
+     */
+    public boolean isConnectedToRelayPeer();
+
+    /**
+     * This method return the collection of relay peer IDs it is connected to.
+     *
+     * @return a collection of peer ids.
+     */
+    public Collection<PeerID> getConnectedRelayPeers();
+
+    /**
+     * This method provides the object implementing the endpoint routing protocol.
+     */
+    public EndpointRoutingTransport getEndpointRouter();
     
 }

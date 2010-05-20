@@ -379,10 +379,11 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
                 LOG.finer("   Registering Type : " + mimeType.getMimeMediaType());
                 registeredSomething |= registerInstantiator(mimeType, instantiator);
             }
+
         } catch (Exception all) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to register \'" + className + "\'", all);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to register \'", className, "\'\n", all);
+            
         }
         
         return registeredSomething;
@@ -542,13 +543,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
         
         if (!(instantiator instanceof TextInstantiator)) {
+
             // XXX 20020502 bondolo@jxta.org we could probably do something
             // really inefficient that would allow it to work, but better not to.
             // if ReaderInputStream existed, it would be easy to do.
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning( "Document Class \'" + instantiator.getClass().getName() + "\' associated with \'" + mimetype 
-                    + "\' is not a text oriented document");
-            }
+            Logging.logCheckedWarning(LOG, "Document Class \'", instantiator.getClass().getName(),
+                    "\' associated with \'", mimetype, "\' is not a text oriented document");
             
             throw new UnsupportedOperationException( "Document Class '" + instantiator.getClass().getName() 
                     + "' associated with '" + mimetype + "' is not a text oriented document");

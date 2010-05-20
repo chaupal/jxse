@@ -125,11 +125,10 @@ public class CbJxMessenger extends BlockingMessenger {
         outBoundMessenger = transport.endpoint.getMessengerImmediate(newDestAddr, null);
 
         if (null == outBoundMessenger) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Could not get messenger for " + newDestAddr);
-            }
 
+            Logging.logCheckedSevere(LOG, "Could not get messenger for ", newDestAddr);
             throw new IOException("Could not get messenger for " + newDestAddr);
+
         }
     }
 
@@ -172,21 +171,17 @@ public class CbJxMessenger extends BlockingMessenger {
 
         EndpointAddress destAddressToUse = getDestAddressToUse(service, serviceParam);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Messenger: sending out " + msg + " to: " + destAddressToUse);
-        }
+        Logging.logCheckedFine(LOG, "Messenger: sending out ", msg, " to: ", destAddressToUse);
 
         // add the cbjx info to the message
         msg = transport.addCryptoInfo(msg, destAddressToUse);
 
             if (isClosed()) {
+
                 IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info(failure.toString());
-                }
-
+                Logging.logCheckedInfo(LOG, failure);
                 throw failure;
+
             }
 
             // and sends out the message
@@ -202,29 +197,25 @@ public class CbJxMessenger extends BlockingMessenger {
     void sendTo( Message msg ) throws IOException {
 
         synchronized (acquireMessengerLock) {
+
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Getting messenger for " + newDestAddr);
-                }
-
+                Logging.logCheckedFine(LOG, "Getting messenger for ", newDestAddr);
                 outBoundMessenger = transport.endpoint.getMessengerImmediate(newDestAddr, null);
 
                 if (outBoundMessenger == null) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("Could not get messenger for " + newDestAddr);
-                    }
 
+                    Logging.logCheckedSevere(LOG, "Could not get messenger for ", newDestAddr);
                     throw new IOException("Underlying messenger could not be repaired");
+
                 }
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending " + msg + " to endpoint " + newDestAddr);
-        }
+        Logging.logCheckedFine(LOG, "Sending ", msg, " to endpoint ", newDestAddr);
 
         // Good we have a messenger. Send the message.
         outBoundMessenger.sendMessageB(msg, null, null);
+
     }
 }

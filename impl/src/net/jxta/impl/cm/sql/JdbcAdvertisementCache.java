@@ -1,3 +1,59 @@
+/*
+ * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
+ *
+ *  The Sun Project JXTA(TM) Software License
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *
+ *  3. The end-user documentation included with the redistribution, if any, must
+ *     include the following acknowledgment: "This product includes software
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology."
+ *     Alternately, this acknowledgment may appear in the software itself, if
+ *     and wherever such third-party acknowledgments normally appear.
+ *
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must
+ *     not be used to endorse or promote products derived from this software
+ *     without prior written permission. For written permission, please contact
+ *     Project JXTA at http://www.jxta.org.
+ *
+ *  5. Products derived from this software may not be called "JXTA", nor may
+ *     "JXTA" appear in their name, without prior written permission of Sun.
+ *
+ *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United
+ *  States and other countries.
+ *
+ *  Please see the license information page at :
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of
+ *  the license in source files.
+ *
+ *  ====================================================================
+ *
+ *  This software consists of voluntary contributions made by many individuals
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see
+ *  http://www.jxta.org.
+ *
+ *  This license is based on the BSD license adopted by the Apache Foundation.
+ */
+
 package net.jxta.impl.cm.sql;
 
 import java.io.ByteArrayInputStream;
@@ -16,9 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.sql.ConnectionPoolDataSource;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
@@ -86,25 +140,28 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 //	}
 	
 	protected static boolean loadDbDriver(String dbDriver) {
-		try {
-			Class.forName(dbDriver).newInstance();
-			return true;
-		} catch(ClassNotFoundException e) {
-			if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Unable to find JDBC driver [" + dbDriver + "]", e);
-			}
-			return false;
-		} catch(InstantiationException e) {
-			if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Unable to instantiate JDBC driver [" + dbDriver + "]", e);
-			}
-			return false;
-		} catch(IllegalAccessException e) {
-			if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Cannot access JDBC driver [" + dbDriver + "]", e);
-			}
-			return false;
-		}
+
+            try {
+		Class.forName(dbDriver).newInstance();
+		return true;
+		
+            } catch(ClassNotFoundException e) {
+
+                Logging.logCheckedWarning(LOG, "Unable to find JDBC driver [", dbDriver, "]\n", e);
+		return false;
+
+	    } catch(InstantiationException e) {
+
+		Logging.logCheckedWarning(LOG, "Unable to instantiate JDBC driver [", dbDriver, "]\n", e);
+		return false;
+
+	    } catch(IllegalAccessException e) {
+
+		Logging.logCheckedWarning(LOG, "Cannot access JDBC driver [", dbDriver, "]\n", e);
+                return false;
+		
+            }
+            
 	}
 	
 	private MiniConnectionPoolManager connPool;
@@ -126,16 +183,17 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		try {
 			configureDatabase();
 		} catch (SQLException e) {
-			try {
-				connPool.dispose();
-			} catch (SQLException e1) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to dispose database pool when recovering from configuring database", e1);
-				}
-			}
-			IOException wrapper = new IOException("Failed to configure database properly");
-			wrapper.initCause(e);
-			throw wrapper;
+
+                    try {
+                        connPool.dispose();
+                    } catch (SQLException e1) {
+                        Logging.logCheckedSevere(LOG, "Failed to dispose database pool when recovering from configuring database\n", e1);
+                    }
+
+                    IOException wrapper = new IOException("Failed to configure database properly");
+                    wrapper.initCause(e);
+                    throw wrapper;
+
 		}
 	}
 
@@ -179,63 +237,60 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 		}
 		
 		if(conn != null) {
-			if(rollBack) {
-				try {
-					conn.rollback();
-				} catch(SQLException e) {
-					if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-						LOG.log(Level.SEVERE, "Failed to roll back connection", e);
-					}
-				}
-			}
+
+                    if(rollBack) {
+                        try {
+                            conn.rollback();
+                        } catch(SQLException e) {
+                            Logging.logCheckedSevere(LOG, "Failed to roll back connection\n", e);
+                        }
+                    }
 			
-			try {
-				conn.close();
-			} catch(SQLException e) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Failed to close connection", e);
-				}
-			}
+                    try {
+                        conn.close();
+                    } catch(SQLException e) {
+                        Logging.logCheckedSevere(LOG, "Failed to close connection\n", e);
+                    }
 		}
 	}
 	
 	private void closeStatement(Statement st) {
-		if(st == null) {
-			return;
-		}
-		try {
-			st.close();
-		} catch(SQLException e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Failed to close statement", e);
-			}
-		}
+
+            if(st == null) return;
+
+            try {
+                st.close();
+            } catch(SQLException e) {
+                Logging.logCheckedSevere(LOG, "Failed to close statement\n", e);
+            }
+
 	}
 	
 	private void closeResultSet(ResultSet rs) {
-		if(rs == null) {
-			return;
-		}
+		if(rs == null) return;
 		
 		try {
-			rs.close();
+		    rs.close();
 		} catch(SQLException e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Failed to close result set", e);
-			}
+                    Logging.logCheckedSevere(LOG, "Failed to close result set\n", e);
 		}
+
 	}
 	
 	private boolean testDatabaseSetUp(Connection conn) throws SQLException {
-		// check to see if the Record table exists
-		return conn.getMetaData().getTables(null, null, "Record", null).next();
+
+            // check to see if the Record table exists
+            return conn.getMetaData().getTables(null, null, "Record", null).next();
+
 	}
 	
 	private Connection getConnection() throws SQLException {
-		Connection connection = connPool.getConnection();
-		connection.setAutoCommit(false);
-		
-		return connection;
+
+            Connection connection = connPool.getConnection();
+            connection.setAutoCommit(false);
+
+            return connection;
+
 	}
 	
 	private void executeCreate(Connection conn, String sql) throws SQLException {
@@ -766,22 +821,29 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	}
 
 	public void setTrackDeltas(boolean trackDeltas) {
-		deltaTracker.setTrackingDeltas(trackDeltas);
+
+	    deltaTracker.setTrackingDeltas(trackDeltas);
+            
 	}
 
 	public void stop() throws IOException {
-		try {
-			connPool.dispose();
-			shutdownDb();
-		} catch(SQLException e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Failed to shut down database", e);
-			}
-			IOException wrapper = new IOException("Failed to shut down database");
-			wrapper.initCause(e);
-			throw wrapper;
-		}
+            
+            try {
+
+                connPool.dispose();
+                shutdownDb();
+
+            } catch(SQLException e) {
+
+                Logging.logCheckedSevere(LOG, "Failed to shut down database\n", e);
+                IOException wrapper = new IOException("Failed to shut down database");
+                wrapper.initCause(e);
+                throw wrapper;
+
+            }
+
 	}
 
 	protected abstract void shutdownDb() throws SQLException;
+
 }

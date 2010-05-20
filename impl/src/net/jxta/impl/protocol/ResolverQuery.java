@@ -53,20 +53,18 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
-import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -190,7 +188,9 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
 
             // Set source route
             if (elem.getName().equals(srcRouteTag)) {
+
                 for (Enumeration eachXpt = elem.getChildren(); eachXpt.hasMoreElements();) {
+
                     XMLElement aXpt = (XMLElement) eachXpt.nextElement();
                     RouteAdvertisement routeAdv = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(aXpt);
 
@@ -198,10 +198,9 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
                         setSrcPeerRoute(routeAdv);
                         setSrcPeer(routeAdv.getDestPeerID());
                     } else {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Incomplete Route Advertisement (missing peer id).");
-                        }
+                        Logging.logCheckedWarning(LOG, "Incomplete Route Advertisement (missing peer id).");
                     }
+
                 }
                 continue;
             }
@@ -217,26 +216,30 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
             // of the SrcRoute Tag. We should be able to remove
             // processing this tag in the future.
             if (elem.getName().equals(srcPeerIdTag)) {
+                
                 try {
+
                     String value = elem.getTextValue();
+
                     if (value != null && value.length() > 0) {
                         URI srcURI = new URI(elem.getTextValue());
                         setSrcPeer(IDFactory.fromURI(srcURI));
                     }
+
                 } catch (URISyntaxException failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Bad ID in message", failed);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Bad ID in message\n", failed);
                     RuntimeException failure = new IllegalArgumentException("Bad ID in message");
                     failure.initCause(failed);
                     throw failure;
+
                 }
                 continue;
             }
+
             // Set query
-            if (elem.getName().equals(queryTag)) {
-                setQuery(elem.getTextValue());
-            }
+            if (elem.getName().equals(queryTag)) setQuery(elem.getTextValue());
+            
         }
     }
 
@@ -365,4 +368,5 @@ public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
 
         return res;
     }
+    
 }

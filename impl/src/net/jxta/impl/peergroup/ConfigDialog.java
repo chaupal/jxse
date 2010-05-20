@@ -1351,12 +1351,12 @@ public class ConfigDialog extends Frame {
             }
 
             noPublicAddressesT = tcpAdv.getPublicAddressOnly();
-            multicastEnabledT = tcpAdv.getMulticastState();
-
-            // we will just pass these to save.
-            tcpMulticastAddr = tcpAdv.getMulticastAddr();
-            tcpMulticastPort = tcpAdv.getMulticastPort();
-            tcpMulticastLength = tcpAdv.getMulticastSize();
+//            multicastEnabledT = tcpAdv.getMulticastState();
+//
+//            // we will just pass these to save.
+//            tcpMulticastAddr = tcpAdv.getMulticastAddr();
+//            tcpMulticastPort = tcpAdv.getMulticastPort();
+//            tcpMulticastLength = tcpAdv.getMulticastSize();
         } catch (Exception failure) {
             throw new ConfiguratorException("Broken Platform Config. Cannot proceed.", failure);
         }
@@ -1520,7 +1520,7 @@ public class ConfigDialog extends Frame {
 
         tcpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_TCP, tcpEnabled, "TCP Settings", defaultInterfaceAddressT,
                 defaultPortT, clientDefaultT, serverDefaultT, defaultServerNameT, defaultServerPortT, noPublicAddressesT,
-                multicastEnabledT);
+                false);
 
         httpPanel = new IPTptPanel(IPTptPanel.TransportType.TYPE_HTTP, httpEnabled, "HTTP Settings", defaultInterfaceAddressH,
                 defaultPortH, clientDefaultH, serverDefaultH, defaultServerNameH, defaultServerPortH, noPublicAddressesH);
@@ -1897,10 +1897,10 @@ public class ConfigDialog extends Frame {
                 tcpAdv.setServer(tcpPanel.publicAddr.getHost() + ":" + tcpPanel.publicAddr.getPort());
             }
 
-            tcpAdv.setMulticastState(tcpPanel.multicast.getState());
-            tcpAdv.setMulticastAddr(tcpMulticastAddr);
-            tcpAdv.setMulticastPort(tcpMulticastPort);
-            tcpAdv.setMulticastSize(tcpMulticastLength);
+//            tcpAdv.setMulticastState(tcpPanel.multicast.getState());
+//            tcpAdv.setMulticastAddr(tcpMulticastAddr);
+//            tcpAdv.setMulticastPort(tcpMulticastPort);
+//            tcpAdv.setMulticastSize(tcpMulticastLength);
 
             tcpAdv.setPublicAddressOnly(tcpPanel.getPubAddrOnly());
 

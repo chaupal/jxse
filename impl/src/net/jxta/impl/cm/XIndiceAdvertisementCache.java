@@ -1,3 +1,59 @@
+/*
+ * Copyright (c) 2001-2009 Sun Microsystems, Inc.  All rights reserved.
+ *
+ *  The Sun Project JXTA(TM) Software License
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *
+ *  3. The end-user documentation included with the redistribution, if any, must
+ *     include the following acknowledgment: "This product includes software
+ *     developed by Sun Microsystems, Inc. for JXTA(TM) technology."
+ *     Alternately, this acknowledgment may appear in the software itself, if
+ *     and wherever such third-party acknowledgments normally appear.
+ *
+ *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must
+ *     not be used to endorse or promote products derived from this software
+ *     without prior written permission. For written permission, please contact
+ *     Project JXTA at http://www.jxta.org.
+ *
+ *  5. Products derived from this software may not be called "JXTA", nor may
+ *     "JXTA" appear in their name, without prior written permission of Sun.
+ *
+ *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN
+ *  MICROSYSTEMS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ *  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United
+ *  States and other countries.
+ *
+ *  Please see the license information page at :
+ *  <http://www.jxta.org/project/www/license.html> for instructions on use of
+ *  the license in source files.
+ *
+ *  ====================================================================
+ *
+ *  This software consists of voluntary contributions made by many individuals
+ *  on behalf of Project JXTA. For more information on Project JXTA, please see
+ *  http://www.jxta.org.
+ *
+ *  This license is based on the BSD license adopted by the Apache Foundation.
+ */
+
 package net.jxta.impl.cm;
 
 import java.io.ByteArrayOutputStream;
@@ -16,15 +72,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -52,12 +107,12 @@ import net.jxta.protocol.SrdiMessage;
 /**
  * This is the original Cm implementation.
  */
-public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implements  AdvertisementCache {
+public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implements AdvertisementCache {
 
     /**
      * Logger.
      */
-    final static Logger LOG = Logger.getLogger(Cm.class.getName());
+    final static Logger LOG = Logger.getLogger(XIndiceAdvertisementCache.class.getName());
     /**
      * adv types
      */
@@ -92,10 +147,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      *  record db
      */
     private final BTreeFiler cacheDB;
+
     /**
      * Record indexer.
      */
-    private final Indexer indexer;
+    private final XIndiceIndexer indexer;
+    
     /**
      * If {@code true} then we will track changes to the indexes.
      */
@@ -202,7 +259,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             }
 
             // Index
-            indexer = new Indexer(chkPoint);
+            indexer = new XIndiceIndexer(chkPoint);
             indexer.setLocation(rootDir.getAbsolutePath(), DATABASE_FILE_NAME);
 
             if (!indexer.open()) {
@@ -219,17 +276,15 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             gcTime = TimeUtils.toAbsoluteTimeMillis(gcMaxInterval);
             gcTaskHandle = executor.scheduleAtFixedRate(new GC_Task(), GC_CHECK_PERIOD, GC_CHECK_PERIOD, TimeUnit.SECONDS);
 
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                LOG.config("Instantiated Cm for: " + rootDir.getAbsolutePath());
-            }
+            Logging.logCheckedConfig(LOG, "Instantiated Cm for: ", rootDir.getAbsolutePath());
+            
         } catch (DBException de) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unable to Initialize databases", de);
-            }
+
+            Logging.logCheckedSevere(LOG, "Unable to Initialize databases\n", de);
             IOException failure = new IOException("Unable to Initialize databases");
             failure.initCause(de);
-
             throw failure;
+
         }
     }
 
@@ -267,11 +322,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 hash = hash.negate();
             }
             return "cm" + hash.toString(16);
+
         } catch (IOException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception creating tmp name: ", ex);
-            }
+
+            Logging.logCheckedWarning(LOG, "Exception creating tmp name: \n", ex);
             throw new IllegalStateException("Could not generate name from document");
+
         }
     }
 
@@ -288,56 +344,52 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     }
 
     public synchronized List<InputStream> getRecords(String dn, int threshold, List<Long> expirations, boolean purge) {
-    	ArrayList<InputStream> res = new ArrayList<InputStream>();
+
+        ArrayList<InputStream> res = new ArrayList<InputStream>();
 
     	if (dn == null) {
-    		if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-    			LOG.fine("null directory name");
-    		}
-    		return res;
+            Logging.logCheckedFine(LOG, "null directory name");
+            return res;
     	} else {
-    		IndexQuery iq = new IndexQuery(IndexQuery.SW, new Value(dn+'/'));
-    		try {
-    			SearchCallback callback = new SearchCallback(cacheDB, indexer, threshold, purge);
-    			cacheDB.query(iq, callback);
 
-    			Collection<SearchResult> searchResults = callback.results;
+            IndexQuery iq = new IndexQuery(IndexQuery.SW, new Value(dn+'/'));
 
-    			res.ensureCapacity(searchResults.size());
-    			if (null != expirations) {
-    				expirations.clear();
-    			}
+            try {
 
-    			for (SearchResult aResult : searchResults) {
-    				res.add(aResult.value.getInputStream());
-    				if (null != expirations) {
-    					expirations.add(aResult.expiration);
-    				}
+                SearchCallback callback = new SearchCallback(cacheDB, indexer, threshold, purge);
+                cacheDB.query(iq, callback);
 
-    			}
-    		} catch (DBException dbe) {
-    			if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-    				LOG.log(Level.FINE, "Exception during getRecords(): ", dbe);
-    			}
-    		} catch (IOException ie) {
-    			if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-    				LOG.log(Level.FINE, "Exception during getRecords(): ", ie);
-    			}
-    		}
+                Collection<SearchResult> searchResults = callback.results;
 
-    		return res;
+                res.ensureCapacity(searchResults.size());
+
+                if (null != expirations) expirations.clear();
+
+                for (SearchResult aResult : searchResults) {
+                    res.add(aResult.value.getInputStream());
+                    if (null != expirations) expirations.add(aResult.expiration);
+                }
+
+            } catch (DBException dbe) {
+                Logging.logCheckedFine(LOG, "Exception during getRecords(): " + dbe);
+            } catch (IOException ie) {
+                Logging.logCheckedFine(LOG, "Exception during getRecords(): " + ie);
+            }
+
+            return res;
     	}
     }
     public synchronized void garbageCollect() {
+
         // calling getRecords() is good enough since it removes expired entries
         Map<String, NameIndexer> map = indexer.getIndexers();
 
         for (String indexName : map.keySet()) {
+
             long t0 = TimeUtils.timeNow();
             getRecords(indexName, Integer.MAX_VALUE, null, true);
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Cm garbageCollect :" + indexName + " in :" + (TimeUtils.timeNow() - t0));
-            }
+            Logging.logCheckedFiner(LOG, "Cm garbageCollect :", indexName, " in :" + (TimeUtils.timeNow() - t0));
+
         }
     }
 
@@ -356,32 +408,31 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Key key = new Key(dn + "/" + fn);
             Record record = cacheDB.readRecord(key);
 
-            if (record == null) {
-                return -1;
-            }
+            if (record == null) return -1;
+            
             Long life = (Long) record.getMetaData(Record.LIFETIME);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Lifetime for :" + fn + "  " + life.toString());
-            }
+            Logging.logCheckedFine(LOG, "Lifetime for :", fn, "  ", life);
+            
             if (life < TimeUtils.timeNow()) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Removing expired record :" + fn);
-                }
+
+                Logging.logCheckedFine(LOG, "Removing expired record :", fn);
+                
                 try {
                     remove(dn, fn);
                 } catch (IOException e) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Failed to remove record", e);
-                    }
+                    Logging.logCheckedFine(LOG, "Failed to remove record\n", e);
                 }
+
             }
+
             return TimeUtils.toRelativeTimeMillis(life);
+
         } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to remove " + dn + "/" + fn, de);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to remove ", dn, "/", fn, de);
             return -1;
+
         }
     }
 
@@ -400,64 +451,84 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         try {
             Key key = new Key(dn + "/" + fn);
             Record record = cacheDB.readRecord(key);
+
+            // Retrieving amount of relative time record should stay in cache
             long expiration = calcExpiration(record);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Expiration for :" + fn + "  " + expiration);
-            }
+            Logging.logCheckedFine(LOG, "Expiration for :", fn, "  ", expiration);
+            
             if (expiration < 0) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Removing expired record :" + fn);
-                }
+
+                Logging.logCheckedFine(LOG, "Removing expired record :", fn);
+                
                 try {
                     remove(dn, fn);
                 } catch (IOException e) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Failed to remove record", e);
-                    }
+                    Logging.logCheckedFine(LOG, "Failed to remove record\n", e);
                 }
             }
+
             return expiration;
+
         } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to get " + dn + "/" + fn, de);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to get ", dn, "/", fn, de);
             return -1;
+
         }
     }
 
     /**
-     * Figures out expiration
+     * Figures out remaing amount of relative expiration time the record
+     * should stay in cache. If delay is expired, the method returns {@code -1}.
      *
      * @param record record
-     * @return expiration in ms
+     * @return expiration in ms or {@code -1} if expired
      */
     private static long calcExpiration(Record record) {
+
         if (record == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Record is null returning expiration of -1");
-            }
+            Logging.logCheckedFine(LOG, "Record is null returning expiration of -1");
             return -1;
         }
-        Long exp = (Long) record.getMetaData(Record.EXPIRATION);
-        Long life = (Long) record.getMetaData(Record.LIFETIME);
-        
+
+        /*
+         * REMINDER:
+         * - We registered an absolute lifetime and a relative expiration
+         * AND:
+         * - lifetime is the maximum amount of relative time an advertisement remains valid
+         * - expiration is the maximum amount of relative time an advertisement lives in cache
+         */
+        Long life = (Long) record.getMetaData(Record.LIFETIME);  // Saved as absolute time
+        Long exp = (Long) record.getMetaData(Record.EXPIRATION); // Saved as relative time
+
+        /*
+         * We (re)compute relative lifetime: life - now();
+         *
+         * In other words, expiresin is the remaining amount of time the record should stay
+         * further in cache as of now in time.
+         */
         long expiresin = TimeUtils.toRelativeTimeMillis(life);
 
         if (expiresin <= 0) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        MessageFormat.format("Record expired lifetime   : {0} expiration: {1} expires in: {2}", life, exp, expiresin));
-                LOG.fine(MessageFormat.format("Record expired on :{0}", new Date(life)));
-            }
+
+            Logging.logCheckedFine(LOG, MessageFormat.format("Record expired lifetime   : {0} expiration: {1} expires in: {2}", life, exp, expiresin));
+            Logging.logCheckedFine(LOG, MessageFormat.format("Record expired on :{0}", new Date(life)));
+
+            // The record has spent more time in cache than required (as of now in time).
             return -1;
+
         } else {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("Record lifetime: {0} expiration: {1} expires in: {2}", life, exp, expiresin));
-                LOG.fine(MessageFormat.format("Record expires on :{0}", new Date(life)));
-            }
+
+            Logging.logCheckedFine(LOG, MessageFormat.format("Record lifetime: {0} expiration: {1} expires in: {2}", life, exp, expiresin));
+            Logging.logCheckedFine(LOG, MessageFormat.format("Record expires on :{0}", new Date(life)));
+
+            // The record should stay in cache a little longer, but not more than
+            // the default maximum amount of relative time it should live in cache
             return Math.min(expiresin, exp);
+
         }
+
     }
 
     /**
@@ -469,15 +540,16 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @throws IOException if an I/O error occurs
      */
     public InputStream getInputStream(String dn, String fn) throws IOException {
+
         Key key = new Key(dn + "/" + fn);
         try {
+
             Record record = cacheDB.readRecord(key);
-            if (record == null) {
-                return null;
-            }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Restored record for " + key);
-            }
+
+            if (record == null) return null;
+            
+            Logging.logCheckedFine(LOG, "Restored record for ", key);
+
             Value val = record.getValue();
 
             if (val != null) {
@@ -485,13 +557,14 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             } else {
                 return null;
             }
+
         } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to restore record for " + key, de);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to restore record for ", key, "\n", de);
             IOException failure = new IOException("Failed to restore record for " + key);
             failure.initCause(de);
             throw failure;
+
         }
     }
 
@@ -522,25 +595,28 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                         Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), asDoc);
 
                         indexer.removeFromIndex(addKey(dn, indexables), removePos);
-                        // add it to deltas to expire it in srdi
+
+                        // add it to deltas to expire it in srdi (0 = remove)
                         addDelta(dn, indexables, 0);
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("removed " + record);
-                        }
+                        Logging.logCheckedFine(LOG, "removed ", record);
+                        
                     }
-                }catch (Exception e) {
+
+                } catch (Exception e) {
+
                     // bad bits we are done
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "failed to remove " + dn + "/" + fn, e);
-                    }
+                    Logging.logCheckedFine(LOG, "failed to remove ", dn, "/", fn, "\n", e);
+                    
                 }
             }
+
         } catch (DBException de) {
+
             // entry does not exist
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("failed to remove " + dn + "/" + fn);
-            }
+            Logging.logCheckedFine(LOG, "failed to remove ", dn, "/", fn);
+            
         }
+        
     }
 
     /** NEW
@@ -568,15 +644,14 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     public synchronized byte[] restoreBytes(String dn, String fn) throws IOException {
 
         try {
+
             Key key = new Key(dn + "/" + fn);
             Record record = cacheDB.readRecord(key);
 
-            if (record == null) {
-                return null;
-            }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("restored " + record);
-            }
+            if (record == null) return null;
+            
+            Logging.logCheckedFine(LOG, "restored ", record);
+            
             Value val = record.getValue();
 
             if (val != null) {
@@ -584,13 +659,14 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             } else {
                 return null;
             }
+
         } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to restore " + dn + "/" + fn, de);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to restore ", dn, "/", fn, "\n", de);
             IOException failure = new IOException("failed to restore " + dn + "/" + fn);
             failure.initCause(de);
             throw failure;
+
         }
     }
 
@@ -620,6 +696,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     public synchronized void save(String dn, String fn, Advertisement adv, long lifetime, long expiration) throws IOException {
 
         try {
+
             if (expiration < 0 || lifetime <= 0) {
                 throw new IllegalArgumentException("Bad expiration or lifetime.");
             }
@@ -633,12 +710,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 throw failure;
             }
 
-            Key key = new Key(dn + "/" + fn);
             // save the new version
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
             doc.sendToStream(baos);
             baos.close();
+
+            Key key = new Key(dn + "/" + fn);
             Value value = new Value(baos.toByteArray());
             Long oldLife = null;
             Record record = cacheDB.readRecord(key);
@@ -650,17 +727,19 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             long absoluteLifetime = TimeUtils.toAbsoluteTimeMillis(lifetime);
 
-
             if (oldLife != null) {
+
                 if (absoluteLifetime < oldLife) {
+
                     // make sure we don't override the original value
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
-                                new Date(oldLife), new Date(absoluteLifetime)));
-                    }
+                    Logging.logCheckedFine(LOG, MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
+                        new Date(oldLife), new Date(absoluteLifetime)));
+                    
                     absoluteLifetime = oldLife;
                 }
+
             }
+
             // make sure expiration does not exceed lifetime
             if (expiration > lifetime) {
                 expiration = lifetime;
@@ -670,16 +749,10 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), doc);
             Map<String, String> keyedIdx = addKey(dn, indexables);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Indexing " + keyedIdx + " at " + pos);
-            }
+            Logging.logCheckedFine(LOG, "Indexing ", keyedIdx, " at ", pos);
             indexer.addToIndex(keyedIdx, pos);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                // too noisy
-                // LOG.debug("Wrote " + key + " = " + value);
-                LOG.fine("Stored " + indexables + " at " + pos);
-            }
+            Logging.logCheckedFine(LOG, "Stored ", indexables, " at ", pos);
 
             if (expiration > 0) {
                 // Update for SRDI with our caches lifetime only if we are prepared to share the advertisement with others.
@@ -687,13 +760,14 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             }
 
         } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, MessageFormat.format("Failed to write {0}/{1} {2} {3}", dn, fn, lifetime, expiration), de);
-            }
+
+            Logging.logCheckedWarning(LOG, MessageFormat.format("Failed to write {0}/{1} {2} {3}", dn, fn, lifetime, expiration), "\n", de);
             IOException failure = new IOException("Failed to write " + dn + "/" + fn + " " + lifetime + " " + expiration);
             failure.initCause(de);
             throw failure;
+            
         }
+
     }
 
     /**
@@ -709,6 +783,13 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      */
     public synchronized void save(String dn, String fn, byte[] data, long lifetime, long expiration) throws IOException {
 
+        /*
+         * REMINDER:
+         *
+         * - lifetime is the maximum amount of relative time an advertisement remains valid
+         * - expiration is the maximum amount of relative time an advertisement lives in cache
+         */
+
         try {
             if (expiration < 0 || lifetime <= 0) {
                 throw new IllegalArgumentException("Bad expiration or lifetime.");
@@ -719,6 +800,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Long oldLife = null;
             Record record = cacheDB.readRecord(key);
 
+            // Checking for any existing absolutelife time
             if (record != null) {
                 // grab the old lifetime
                 oldLife = (Long) record.getMetaData(Record.LIFETIME);
@@ -726,32 +808,45 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             // save the new version
 
+            // Converting relative lifetime to absolute lifetime
             long absoluteLifetime = TimeUtils.toAbsoluteTimeMillis(lifetime);
 
             if (oldLife != null) {
+
                 if (absoluteLifetime < oldLife) {
+
                     // make sure we don't override the original value
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine(MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
-                                new Date(oldLife), new Date(absoluteLifetime)));
-                    }
+                    Logging.logCheckedFine(LOG, MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
+                        new Date(oldLife), new Date(absoluteLifetime)));
+
+                    // We make sure we don't shorten existing lifetime
                     absoluteLifetime = oldLife;
+
                 }
+
             }
 
-            // make sure expiration does not exceed lifetime
+            /*
+             * make sure expiration does not exceed lifetime
+             * (that is, an advertisement cannot stay longer in cache than its lifetime)
+             */
+
             if (expiration > lifetime) {
                 expiration = lifetime;
             }
-            cacheDB.writeRecord(key, value, absoluteLifetime, expiration);
-        } catch (DBException de) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to write " + dn + "/" + fn + " " + lifetime + " " + expiration, de);
-            }
 
+            /*
+             * We register an absolute lifetime and a relative expiration
+             */
+            cacheDB.writeRecord(key, value, absoluteLifetime, expiration);
+
+        } catch (DBException de) {
+
+            Logging.logCheckedWarning(LOG, "Failed to write ", dn, "/", fn, " ", lifetime, " ", expiration, "\n", de);
             IOException failure = new IOException("Failed to write " + dn + "/" + fn + " " + lifetime + " " + expiration);
             failure.initCause(de);
             throw failure;
+
         }
     }
 
@@ -792,37 +887,38 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
          * {@inheritDoc}
          */
         public boolean indexInfo(Value val, long pos) {
-            if (results.size() >= threshold) {
-                return false;
-            }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Found " + val.toString() + " at " + pos);
-            }
+
+            if (results.size() >= threshold) return false;
+            
+            Logging.logCheckedFine(LOG, "Found ", val.toString(), " at ", pos);
 
             Record record;
+
             try {
+
                 record = cacheDB.readRecord(pos);
+
             } catch (DBException ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                }
+
+                Logging.logCheckedWarning(LOG, "Exception while reading indexed\n", ex);
                 return false;
+
             }
-            if (record == null) {
-                return true;
-            }
+
+            if (record == null) return true;
+            
             long exp = calcExpiration(record);
 
             if (exp <= 0) {
                 // skip expired and private entries
                 return true;
             }
+
             Long life = (Long) record.getMetaData(Record.LIFETIME);
             SrdiMessage.Entry entry = new SrdiMessage.Entry(key, val.toString(), life - TimeUtils.timeNow());
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(" key [" + entry.key + "] value [" + entry.value + "] exp [" + entry.expiration + "]");
-            }
+            Logging.logCheckedFine(LOG, " key [", entry.key, "] value [", entry.value, "] exp [", entry.expiration, "]");
+            
             results.add(entry);
             return true;
         }
@@ -842,16 +938,16 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     private final class SearchCallback implements BTreeCallback {
 
         private final BTreeFiler cacheDB;
-        private final Indexer indexer;
+        private final XIndiceIndexer indexer;
         private final int threshold;
         private final Collection<SearchResult> results;
         private final boolean purge;
 
-        SearchCallback(BTreeFiler cacheDB, Indexer indexer, int threshold) {
+        SearchCallback(BTreeFiler cacheDB, XIndiceIndexer indexer, int threshold) {
             this(cacheDB, indexer, threshold, false);
         }
 
-        SearchCallback(BTreeFiler cacheDB, Indexer indexer, int threshold, boolean purge) {
+        SearchCallback(BTreeFiler cacheDB, XIndiceIndexer indexer, int threshold, boolean purge) {
             this.cacheDB = cacheDB;
             this.indexer = indexer;
 //            this.results = results;
@@ -864,48 +960,52 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
          * {@inheritDoc}
          */
         public boolean indexInfo(Value val, long pos) {
+
             if (results.size() >= threshold) {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("SearchCallback.indexInfo reached Threshold :" + threshold);
-                }
+                Logging.logCheckedFiner(LOG, "SearchCallback.indexInfo reached Threshold :", threshold);
                 return false;
             }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Found " + val.toString() + " at " + pos);
-            }
+
+            Logging.logCheckedFine(LOG, "Found ", val.toString(), " at ", pos);
 
             Record record;
+
             try {
+
                 record = cacheDB.readRecord(pos);
+
             } catch (DBException ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                }
+
+                Logging.logCheckedWarning(LOG, "Exception while reading indexed\n", ex);
                 return false;
+
             }
 
-            if (record == null) {
-                return true;
-            }
+            if (record == null) return true;
 
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("Search callback record " + record.toString());
-            }
+            Logging.logCheckedFinest(LOG, "Search callback record ", record.toString());
+            
             long exp = calcExpiration(record);
+
             if (exp < 0) {
+
                 if (purge) {
+
                     try {
+
                         indexer.purge(pos);
                         cacheDB.deleteRecord(record.getKey());
+
                     } catch (DBException ex) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Exception while reading indexed\n", ex);
+
                     } catch (IOException ie) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Exception while reading indexed", ie);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Exception while reading indexed", ie);
+                        
                     }
+
                 } else {
                     inconvenienceLevel.incrementAndGet();
                 }
@@ -933,14 +1033,13 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         } else if (value.charAt(value.length() - 1) == '*' && value.charAt(0) != '*') {
             operator = IndexQuery.SW;
             value = value.substring(0, value.length() - 1);
-        }
-        else {
+        } else {
             operator = IndexQuery.BWX;
             value = value.substring(1, value.length() - 1);
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Index query operator :" + operator);
-        }
+
+        Logging.logCheckedFine(LOG, "Index query operator :", operator);
+        
         return new IndexQuery(operator, new Value(value));
     }
 
@@ -978,12 +1077,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             }
 
             return res;
-        } catch (Exception ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure while searching in index", ex);
-            }
 
+        } catch (Exception ex) {
+
+            Logging.logCheckedWarning(LOG, "Failure while searching in index\n", ex);
             return Collections.emptyList();
+
         }
     }
 
@@ -1008,13 +1107,14 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                     String attr = indexName.substring(dn.length());
                     NameIndexer idxr = map.get(indexName);
                 	System.err.println("Checking indexname " + indexName + " with dn " + dn + " with attr " + attr );
-                    idxr.query(null, new Indexer.SearchCallback(listDB, new EntriesCallback(cacheDB, res, attr, Integer.MAX_VALUE)));
+                    idxr.query(null, new XIndiceIndexer.SearchCallback(listDB, new EntriesCallback(cacheDB, res, attr, Integer.MAX_VALUE)));
                 }
             }
+
         } catch (Exception ex) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Exception while searching in index", ex);
-            }
+
+            Logging.logCheckedSevere(LOG, "Exception while searching in index\n", ex);
+
         }
 
         if (clearDeltas) {
@@ -1069,9 +1169,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 newDeltas.add(entry);
             }
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Adding " + newDeltas.size() + "entires to '" + dn + "' deltas");
-            }
+            Logging.logCheckedFiner(LOG, "Adding ", newDeltas.size(), "entires to '", dn, "' deltas");
 
             synchronized (deltaMap) {
                 List<SrdiMessage.Entry> deltas = deltaMap.get(dn);
@@ -1099,16 +1197,19 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      */
     public synchronized void stop() {
         try {
+
             cacheDB.close();
             indexer.close();
             stop = true;
             gcTaskHandle.cancel(false);
             GC_TIMER.purge();
+
         } catch (DBException ex) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unable to close advertisments.tbl", ex);
-            }
+
+            Logging.logCheckedSevere(LOG, "Unable to close advertisments.tbl\n", ex);
+
         }
+
     }
 
     private final class GC_Task implements Runnable {
@@ -1119,7 +1220,9 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
          * Responsible for initiating GC operations.
          */
         public void run() {
+            
             try {
+
                 if (stop) {
                     // if asked to stop, exit
                     return;
@@ -1132,10 +1235,11 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
                     executor.execute(new RecordGC());
                 }
+
             } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                
             }
         }
     }
@@ -1151,24 +1255,21 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
          * Responsible for exuting record GC operations.
          */
         public void run() {
+            
             try {
+
                 long gcStart = TimeUtils.timeNow();
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Starting Garbage collection");
-                }
-
+                Logging.logCheckedFine(LOG, "Starting Garbage collection");
                 garbageCollect();
 
                 long gcStop = TimeUtils.timeNow();
-
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Garbage collection completed in " + (gcStop - gcStart) + "ms.");
-                }
+                Logging.logCheckedFine(LOG, "Garbage collection completed in ", (gcStop - gcStart), "ms.");
+                
             } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                
             }
         }
     }
@@ -1182,10 +1283,9 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @throws java.io.IOException
      */
     private synchronized void rebuildIndex() throws DBException, IOException {
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Rebuilding indices");
-        }
 
+        Logging.logCheckedInfo(LOG, "Rebuilding indices");
+        
         String pattern = "*";
         IndexQuery any = new IndexQuery(IndexQuery.ANY, pattern);
 
@@ -1195,9 +1295,9 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     private static final class RebuildIndexCallback implements BTreeCallback {
 
         private BTreeFiler database = null;
-        private Indexer index = null;
+        private XIndiceIndexer index = null;
 
-        RebuildIndexCallback(BTreeFiler database, Indexer index) {
+        RebuildIndexCallback(BTreeFiler database, XIndiceIndexer index) {
             this.database = database;
             this.index = index;
         }
@@ -1225,15 +1325,16 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                     String dn = getDirName(adv);
                     Map<String, String> keyedIdx = addKey(dn, indexables);
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Restoring index " + keyedIdx + " at " + pos);
-                    }
+                    Logging.logCheckedFine(LOG, "Restoring index ", keyedIdx, " at ", pos);
+                    
                     index.addToIndex(keyedIdx, pos);
+
                 }
+
             } catch (Exception ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception rebuilding index  at " + pos, ex);
-                }
+
+                Logging.logCheckedWarning(LOG, "Exception rebuilding index  at ", pos, "\n\n", ex);
+                
             }
 
             return true;

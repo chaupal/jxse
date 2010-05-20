@@ -112,12 +112,9 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         pipeID = adv.getPipeID();
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info(
-                    "Creating InputPipe for " + pipeID + " of type " + adv.getType() + " with "
-                    + ((null != listener) ? "listener" : "queue"));
-        }
-
+        Logging.logCheckedInfo(LOG, "Creating InputPipe for ", pipeID, " of type ", adv.getType(),
+            " with ", ((null != listener) ? "listener" : "queue"));
+        
         // queue based inputpipe?
         if (listener == null) {
             queue = new LinkedBlockingQueue<Message>(QUEUESIZE);
@@ -137,13 +134,11 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      */
     @Override
     protected synchronized void finalize() throws Throwable {
-        if (!closed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Pipe is being finalized without being previously closed. This is likely a bug.");
-            }
-        }
+        
+        if (!closed) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
         close();
         super.finalize();
+
     }
 
     /**
@@ -157,14 +152,18 @@ class InputPipeImpl implements EndpointListener, InputPipe {
      * {@inheritDoc}
      */
     public Message poll(int timeout) throws InterruptedException {
+
         if (listener == null) {
+            
             return queue.poll(timeout, TimeUnit.SECONDS);
+
         } else {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("poll() has no effect in listener mode.");
-            }
+
+            Logging.logCheckedWarning(LOG, "poll() has no effect in listener mode.");
             return null;
+
         }
+
     }
 
     /**
@@ -176,17 +175,16 @@ class InputPipeImpl implements EndpointListener, InputPipe {
         }
         closed = true;
         listener = null;
+
         // Remove myself from the pipe registrar.
         if (!registrar.forget(this)) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("close() : pipe was not registered with registrar.");
-            }
+            Logging.logCheckedWarning(LOG, "close() : pipe was not registered with registrar.");
         }
+
         registrar = null;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Closed " + pipeID);
-        }
+        Logging.logCheckedInfo(LOG, "Closed ", pipeID);
+        
     }
 
     /**
@@ -200,9 +198,8 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
         // XXX: header check, security and such should be done here
         // before pushing the message onto the queue.
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Received " + msg + " from " + srcAddr + " for " + pipeID);
-        }
+        Logging.logCheckedFine(LOG, "Received ", msg, " from ", srcAddr, " for ", pipeID);
+
         // determine where demux the msg, to listener, or onto the queue
         if (null == queue) {
             PipeMsgListener temp = listener;
@@ -211,13 +208,17 @@ class InputPipeImpl implements EndpointListener, InputPipe {
             }
 
             PipeMsgEvent event = new PipeMsgEvent(this, msg, (PipeID) pipeID);
+            
             try {
+
                 temp.pipeMsgEvent(event);
+
             } catch (Throwable ignored) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in listener for : " + pipeID + "(" + temp.getClass().getName() + ")", ignored);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for : ", pipeID, "(", temp.getClass().getName(), ")\n", ignored);
+                
             }
+
         } else {
             boolean pushed = false;
             while (!pushed) {
@@ -230,7 +231,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 synchronized (this) {
-                    LOG.fine("Queued " + msg + " for " + pipeID);
+                    Logging.logCheckedFine(LOG, "Queued ", msg, " for ", pipeID);
                 }
             }
         }

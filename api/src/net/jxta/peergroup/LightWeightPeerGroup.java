@@ -145,10 +145,9 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public int startApp(String[] args) {
+        
         if (null == group) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("No base peer group defined.");
-            }
+            Logging.logCheckedSevere(LOG, "No base peer group defined.");
             return -1;
         }
 
@@ -212,14 +211,14 @@ public class LightWeightPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup getParentGroup() {
+
         try {
             return group;
         } catch (Exception ex) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("LightWeightPeerGroup is a base PeerGroup: no parent");
-            }
+            Logging.logCheckedFine(LOG, "LightWeightPeerGroup is a base PeerGroup: no parent");
             throw new RuntimeException("LightWeightPeerGroup is a base PeerGroup: no parent");
         }
+
     }
 
     /**

@@ -159,29 +159,32 @@ public class WirePipeImpl implements EndpointListener {
         endpoint = group.getEndpointService();
 
         if (null == endpoint) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is an endpoint service");
-            }
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         rendezvous = group.getRendezVousService();
         if (null == rendezvous) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a rendezvous service");
-            }
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is a rendezvous service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         // Set our Endpoint Listener
         try {
+
             endpoint.addIncomingMessageListener(this, WIRE_SERVICE_NAME, null);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed registering Endpoint Listener", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed registering Endpoint Listener\n", e);
             throw new IllegalStateException("Failed registering Endpoint Listener");
+
         }
+
         return Module.START_OK;
     }
 
@@ -241,16 +244,18 @@ public class WirePipeImpl implements EndpointListener {
         WirePipe wirePipe;
 
         synchronized (wirePipes) {
+
             // First see if we have already a WirePipe for this pipe
             wirePipe = wirePipes.get(adv.getPipeID());
 
             if (null == wirePipe) {
+
                 // No.. There is none. Create a new one.
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Creating new wire pipe for " + adv.getPipeID());
-                }
+                Logging.logCheckedFine(LOG, "Creating new wire pipe for ", adv.getPipeID());
+
                 wirePipe = new WirePipe(group, pipeResolver, this, adv);
                 wirePipes.put(adv.getPipeID(), wirePipe);
+
             }
         }
         return wirePipe;
@@ -279,9 +284,8 @@ public class WirePipeImpl implements EndpointListener {
                 adv.setPipeID(pipeID);
                 adv.setType(PipeService.PropagateType);
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Creating new wire pipe for " + adv.getPipeID());
-                }
+                Logging.logCheckedFine(LOG, "Creating new wire pipe for ", adv.getPipeID());
+                
                 wirePipe = new WirePipe(group, pipeResolver, this, adv);
                 wirePipes.put(pipeID, wirePipe);
             }
@@ -297,12 +301,14 @@ public class WirePipeImpl implements EndpointListener {
      *         {@code false}.
      */
     boolean forgetWirePipe(ID pipeID) {
+
         synchronized (wirePipes) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Removing wire pipe for " + pipeID);
-            }
+
+            Logging.logCheckedFine(LOG, "Removing wire pipe for ", pipeID);
             return null != wirePipes.remove(pipeID);
+
         }
+
     }
 
     /**
@@ -311,37 +317,40 @@ public class WirePipeImpl implements EndpointListener {
      * Listener for "jxta.service.wirepipe" / &lt;null&gt;
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
+
         // Check if there is a JXTA-WIRE header
         MessageElement elem = message.getMessageElement(WIRE_HEADER_ELEMENT_NAMESPACE, WIRE_HEADER_ELEMENT_NAME);
 
         if (null == elem) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("No JxtaWireHeader element. Discarding " + message);
-            }
+
+            Logging.logCheckedFine(LOG, "No JxtaWireHeader element. Discarding ", message);
             return;
+
         }
 
         WireHeader header;
 
         try {
+
             XMLDocument doc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(elem);
             header = new WireHeader(doc);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "bad wire header for " + message, e);
-            }
+
+            Logging.logCheckedWarning(LOG, "bad wire header for ", message, "\n", e);
             return;
+
         }
         
         // rendezvous is set to null when stopped
         boolean create = rendezvous != null ? rendezvous.isRendezVous() : false;
         WirePipe wirePipe = getWirePipe(header.getPipeID(), create);
+
         if (null != wirePipe) {
             wirePipe.processIncomingMessage(message, header, srcAddr, dstAddr);
         } else {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Ignoring message " + message + " for id " + header.getPipeID());
-            }
+            Logging.logCheckedFine(LOG, "Ignoring message ", message, " for id ", header.getPipeID());
         }
+        
     }
 }

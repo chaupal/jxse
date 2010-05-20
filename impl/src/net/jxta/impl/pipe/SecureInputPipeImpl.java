@@ -106,11 +106,13 @@ public class SecureInputPipeImpl extends InputPipeImpl {
         Object fromTLS = msg.getMessageProperty(TlsTransport.class);
 
         if (null != fromTLS) {
+
             super.processIncomingMessage(msg, srcAddr, dstAddr);
+
         } else {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("processIncomingMessage : Discarding " + msg + " because it did not come from TLS");
-            }
+
+            Logging.logCheckedWarning(LOG, "processIncomingMessage : Discarding ", msg, " because it did not come from TLS");
+            
         }
     }
 }

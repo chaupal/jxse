@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.*;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
@@ -64,14 +63,11 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.PeerGroupAdvertisement;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 public class PeerGroupAdv extends PeerGroupAdvertisement {
 
@@ -148,13 +144,13 @@ public class PeerGroupAdv extends PeerGroupAdvertisement {
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
+
         }
 
         // Sanity Check!!!

@@ -131,6 +131,7 @@ public class Platform extends StdPeerGroup {
         paramAdv.addProto(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
         paramAdv.addProto(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
         paramAdv.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
+        paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
 
         // Do the Applications
 
@@ -193,13 +194,16 @@ public class Platform extends StdPeerGroup {
         }
 
         if (null != jxtaHome) {
+
             try {
+
                 URL downloadablesURL = jxtaHome.resolve("Downloaded/").toURL();
                 loader.addURL(downloadablesURL);
+
             } catch (MalformedURLException badPath) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Could not install path for downloadables into JXTA Class Loader.");
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not install path for downloadables into JXTA Class Loader.");
+                
             }
         }
 

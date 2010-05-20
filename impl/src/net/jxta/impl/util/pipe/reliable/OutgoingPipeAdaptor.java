@@ -98,14 +98,16 @@ public class OutgoingPipeAdaptor implements Outgoing {
      *  {@inheritDoc}
      */
     public boolean send(Message msg) throws IOException {
+        
         try {
+
             return pipe.send(msg);
+
         } catch (IOException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to send message " + msg, ex);
-            }
-            
+
+            Logging.logCheckedWarning(LOG, "Failed to send message ", msg, "\n", ex);
             return false;
+
         }
     }
     

@@ -56,7 +56,6 @@
 
 package net.jxta.peergroup;
 
-
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLElement;
@@ -68,7 +67,6 @@ import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -76,9 +74,8 @@ import java.net.URI;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import net.jxta.impl.peergroup.ShadowPeerGroup;
 
 /**
  * A factory for instantiating a Network Peer Group instances. The Network Peer
@@ -137,13 +134,13 @@ public final class NetPeerGroupFactory {
 
                 if (null != storeHome) {
                     try {
+
                         File configProperties = new File(new File(storeHome), "config.properties");
                         ResourceBundle rsrcs = new PropertyResourceBundle(new FileInputStream(configProperties));
 
                         tunables = new NetGroupTunables(rsrcs, tunables);
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Loaded defaults from " + rsrcs);
-                        }
+                        Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
+                        
                     } catch (MissingResourceException ignored) {
                         // ingnored
                     } catch (IOException ignored) {
@@ -154,7 +151,7 @@ public final class NetPeerGroupFactory {
                 tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
             }
             
-            net = newNetPeerGroup(worldGroup, null, tunables.id, tunables.name, tunables.desc, null);
+            net = newNetPeerGroup(worldGroup, null, tunables.id, tunables.name, tunables.desc);
         } finally {
             worldGroup.unref();
         }
@@ -182,7 +179,8 @@ public final class NetPeerGroupFactory {
             tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
 
-        net = newNetPeerGroup(parentGroup, null, tunables.id, tunables.name, tunables.desc, null);
+        net = newNetPeerGroup(parentGroup, null, tunables.id, tunables.name, tunables.desc);
+
     }
     
     /**
@@ -201,6 +199,7 @@ public final class NetPeerGroupFactory {
      * Group.
      */
     public NetPeerGroupFactory(ConfigParams config, URI storeHome) throws PeerGroupException {
+
         WorldPeerGroupFactory world = new WorldPeerGroupFactory(config, storeHome);
         PeerGroup worldGroup = world.getInterface();
 
@@ -214,7 +213,8 @@ public final class NetPeerGroupFactory {
                 tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
             }
             
-            net = newNetPeerGroup(worldGroup, config, tunables.id, tunables.name, tunables.desc, null);
+            net = newNetPeerGroup(worldGroup, config, tunables.id, tunables.name, tunables.desc);
+
         } finally {
             worldGroup.unref();
         }
@@ -267,7 +267,8 @@ public final class NetPeerGroupFactory {
             tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
         
-        net = newNetPeerGroup(parentGroup, config, tunables.id, tunables.name, tunables.desc, null);
+        net = newNetPeerGroup(parentGroup, config, tunables.id, tunables.name, tunables.desc);
+
     }
 
     /**
@@ -302,9 +303,9 @@ public final class NetPeerGroupFactory {
     public NetPeerGroupFactory(ConfigParams config, URI storeHome, ID id, String name, XMLElement desc) throws PeerGroupException {
         WorldPeerGroupFactory world = new WorldPeerGroupFactory(config, storeHome);
         PeerGroup worldGroup = world.getInterface();
-        
+
         try {
-            net = newNetPeerGroup(worldGroup, config, id, name, desc, null);
+            net = newNetPeerGroup(worldGroup, config, id, name, desc);
         } finally {
             worldGroup.unref();
         }
@@ -337,68 +338,40 @@ public final class NetPeerGroupFactory {
      */
     @Deprecated
     public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc) throws PeerGroupException {
-        net = newNetPeerGroup(parentGroup, null, id, name, desc, null);
+        net = newNetPeerGroup(parentGroup, null, id, name, desc);
     }
 
-    /**
-     * Constructs a Net Peer Group instance using the specified parent peer
-     * group (normally the World Peer Group). This is the preferred constructor
-     * for constructing a private Net Peer Group with a specific implementation.
-     *
-     * @deprecated With the addition of support for {@code PeerGroupConfigAdv}
-     * this constructor is being deprecated as the precedence of settings is
-     * ambiguous.
-     *
-     * @param parentGroup The Peer Group which will be the parent of the newly
-     * created net peer group. This should normally be the World Peer
-     *                      
-     * @param id The PeerGroupID which will be used for the new Net Peer Group
-     * instance.
-     * @param name The name which will be used for the new Net Peer Group
-     * instance.
-     * @param desc The description which will be used for the new Net Peer Group
-     * instance. You can construct an {@code XMLDocument} from a {@code String}
-     * via :
-     * <p/><pre>
-     *     XMLDocument asDoc = StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, "desc", asString );
-     * </pre>
-     * @param moduleImplAdv The Module Impl Advertisement for the new Net Peer
-     * Group instance.
-     * @throws PeerGroupException Thrown for problems constructing the Net Peer
-     * Group.
-     */
-    @Deprecated
-    public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc, ModuleImplAdvertisement moduleImplAdv) throws PeerGroupException {
-        net = newNetPeerGroup(parentGroup, null, id, name, desc, moduleImplAdv);
-    }
-
-    /**
-     * Constructs a Net Peer Group instance using the specified parent peer
-     * group (normally the World Peer Group). This is the preferred constructor
-     * for constructing a Net Peer Group with a specific implementation.
-     *
-     * @param parentGroup The Peer Group which will be the parent of the
-     * newly created net peer group. This should normally be the World Peer
-     * Group.
-     * @param config The configuration parameters for the newly created Net Peer
-     * Group instance.
-     * @param moduleImplAdv The Module Impl Advertisement for the new Net Peer
-     * Group instance.
-     * @throws PeerGroupException Thrown for problems constructing the Net Peer
-     * Group.
-     */
-    public NetPeerGroupFactory(PeerGroup parentGroup, ConfigParams config, ModuleImplAdvertisement moduleImplAdv) throws PeerGroupException {
-        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) config.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
-        NetGroupTunables tunables;
-
-        if (null == netGroupConfig) {
-            tunables = new NetGroupTunables(ResourceBundle.getBundle("net.jxta.impl.config"), new NetGroupTunables());
-        } else {
-            tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
-        }
-
-        net = newNetPeerGroup(parentGroup, config, tunables.id, tunables.name, tunables.desc, moduleImplAdv);
-    }
+//    /**
+//     * Constructs a Net Peer Group instance using the specified parent peer
+//     * group (normally the World Peer Group). This is the preferred constructor
+//     * for constructing a private Net Peer Group with a specific implementation.
+//     *
+//     * @deprecated With the addition of support for {@code PeerGroupConfigAdv}
+//     * this constructor is being deprecated as the precedence of settings is
+//     * ambiguous.
+//     *
+//     * @param parentGroup The Peer Group which will be the parent of the newly
+//     * created net peer group. This should normally be the World Peer
+//     *
+//     * @param id The PeerGroupID which will be used for the new Net Peer Group
+//     * instance.
+//     * @param name The name which will be used for the new Net Peer Group
+//     * instance.
+//     * @param desc The description which will be used for the new Net Peer Group
+//     * instance. You can construct an {@code XMLDocument} from a {@code String}
+//     * via :
+//     * <p/><pre>
+//     *     XMLDocument asDoc = StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, "desc", asString );
+//     * </pre>
+//     * @param moduleImplAdv The Module Impl Advertisement for the new Net Peer
+//     * Group instance.
+//     * @throws PeerGroupException Thrown for problems constructing the Net Peer
+//     * Group.
+//     */
+//    @Deprecated
+//    public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc, ModuleImplAdvertisement moduleImplAdv) throws PeerGroupException {
+//        net = newNetPeerGroup(parentGroup, null, id, name, desc, moduleImplAdv);
+//    }
     
     /**
      * Returns a strong (reference counted) interface object for the Net Peer
@@ -409,7 +382,7 @@ public final class NetPeerGroupFactory {
      * @see PeerGroup#unref()
      */
     public PeerGroup getInterface() {
-        return net.getInterface();
+        return net;
     }
 
     /**
@@ -437,33 +410,30 @@ public final class NetPeerGroupFactory {
      * @throws PeerGroupException Thrown for errors instantiating the new Net
      * Peer Group instance.
      */
-    private PeerGroup newNetPeerGroup(PeerGroup parentGroup, ConfigParams config, ID id, String name, XMLElement desc, ModuleImplAdvertisement implAdv) throws PeerGroupException {
+    private PeerGroup newNetPeerGroup(PeerGroup parentGroup, ConfigParams config, ID id, String name, XMLElement desc) throws PeerGroupException {
+        
         synchronized (PeerGroup.globalRegistry) {
+
             PeerGroup result = PeerGroup.globalRegistry.lookupInstance((PeerGroupID) id);
+            ModuleImplAdvertisement NPGAdv = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
 
             if (null != result) {
                 result.unref();
                 throw new PeerGroupException("Only a single instance of a Peer Group may be instantiated at a single time.");
             }
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info( "Instantiating net peer group : " + id + 
-                        "\n\tParent : " + parentGroup + 
-                        "\n\tID : " + id + 
-                        "\n\tName : " + name + 
-                        "\n\timpl : " + implAdv);
-            }
+            Logging.logCheckedInfo(LOG, "Instantiating net peer group : ", id,
+                        "\n\tParent : ", parentGroup,
+                        "\n\tID : ", id,
+                        "\n\tName : ", name,
+                        "\n\timpl : ", NPGAdv);
 
             try {
-                if (null == implAdv) {
-                    // Use the default Peer Group Impl Advertisement
-                    implAdv = parentGroup.getAllPurposePeerGroupImplAdvertisement();
-                }
 
                 // Build the group
                 GenericPeerGroup.setGroupConfigAdvertisement(id,config);
                 
-                result = (PeerGroup) parentGroup.loadModule(id, implAdv);
+                result = (PeerGroup) parentGroup.loadModule(id, NPGAdv);
                 
                 // Set the name and description
                 // FIXME 20060217 bondolo How sad, we can't use our XML description.
@@ -475,25 +445,28 @@ public final class NetPeerGroupFactory {
 
                 return result;
             } catch (PeerGroupException failed) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "newNetPeerGroup failed", failed);
-                }
+                
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", failed);
+                
                 // rethrow
                 throw failed;
+
             } catch (RuntimeException e) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "newNetPeerGroup failed", e);
-                }
+
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
+                
                 // rethrow
                 throw e;
+
             } catch (Exception e) {
+
                 // should be all other checked exceptions
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "newNetPeerGroup failed", e);
-                }
+                Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
+                
                 // Simplify exception scheme for caller: every sort of problem 
                 // wrapped in a PeerGroupException.
                 throw new PeerGroupException("newNetPeerGroup failed", e);
+
             }
         }
     }
@@ -555,21 +528,22 @@ public final class NetPeerGroupFactory {
                 descTmp = (XMLElement) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "desc",
                         rsrcs.getString("NetPeerGroupDesc").trim());
             } catch (Exception failed) {
+
                 if (null != defaults) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.", failed);
-                    }
+
+                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n\n", failed);
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;
                     descTmp = defaults.desc;
-                } else {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "NetPeerGroup tunables not defined or could not be loaded.", failed);
-                    }
 
+                } else {
+
+                    Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
+                
                 }
+
             }
 
             id = idTmp;

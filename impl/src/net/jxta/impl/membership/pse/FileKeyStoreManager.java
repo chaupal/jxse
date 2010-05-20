@@ -112,6 +112,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
      * @throws KeyStoreException if a keystore error occurs
      */
     public FileKeyStoreManager(String type, String provider, File location) throws NoSuchProviderException, KeyStoreException {
+
         if (null == type) {
             type = DEFAULT_KEYSTORE_TYPE;
             provider = null;
@@ -122,14 +123,10 @@ public class FileKeyStoreManager implements KeyStoreManager {
             location = new File(location, DEFAULT_KEYSTORE_FILENAME);
         }
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("pse location = " + location);
-        }
+        Logging.logCheckedConfig(LOG, "pse location = ", location);
 
         keystore_type = type;
-
         keystore_provider = provider;
-
         keystore_location = location;
 
         // check if we can get an instance.
@@ -138,6 +135,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
         } else {
             KeyStore.getInstance(keystore_type, keystore_provider);
         }
+
     }
 
     /**
@@ -207,11 +205,10 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Loading (" + keystore_type + "," + keystore_provider + ") store from " + keystore_location);
-        }
+        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
 
         try {
+
             KeyStore store;
 
             if (null == keystore_provider) {
@@ -246,10 +243,8 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public void saveKeyStore(KeyStore store, char[] password) throws KeyStoreException, IOException {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Writing " + store + " to " + keystore_location);
-        }
-
+        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
+        
         try {
             OutputStream os = new FileOutputStream(keystore_location);
 

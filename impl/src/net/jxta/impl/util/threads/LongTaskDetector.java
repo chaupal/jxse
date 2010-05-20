@@ -5,7 +5,6 @@ package net.jxta.impl.util.threads;
 
 import java.io.StringWriter;
 import java.util.logging.Level;
-
 import net.jxta.logging.Logging;
 
 /**
@@ -26,9 +25,12 @@ class LongTaskDetector implements Runnable {
     }
     
     public void run() {
+
         if(Logging.SHOW_WARNING && TaskManager.LOG.isLoggable(Level.WARNING)) {
+
             StackTraceElement[] stack = taskToMonitor.getStack();
             StringWriter stackTrace = new StringWriter();
+
             for(StackTraceElement elem : stack) {
                 stackTrace.append(elem.toString());
                 stackTrace.append('\n');

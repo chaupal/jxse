@@ -284,19 +284,18 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
     public boolean sendMessage(Message msg, String serviceName, String serviceParam) {
 
         if (throttling) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Declining to send -- throttling on " + this);
-            }
+
+            Logging.logCheckedWarning(LOG, "Declining to send -- throttling on ", this);
             return false;
+            
         }
 
         Messenger sendVia = getCachedMessenger();
 
         if (null == sendVia) {
+
             // There is nothing really we can do.
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Could not get messenger for " + getPeerID());
-            }
+            Logging.logCheckedWarning(LOG, "Could not get messenger for ", getPeerID());
 
             OutgoingMessageEvent event = new OutgoingMessageEvent(msg,
                     new IOException("Couldn't get messenger for " + getPeerID()));
@@ -330,11 +329,10 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
     RdvAdvertisement setRdvAdvertisement(RdvAdvertisement adv) {
 
         if (!radv.getPeerID().equals(adv.getPeerID())) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("adv refers to a different peer");
-            }
 
+            Logging.logCheckedSevere(LOG, "adv refers to a different peer");
             throw new IllegalArgumentException("adv refers to a different peer");
+
         }
 
         RdvAdvertisement old = radv;
@@ -357,13 +355,12 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
         boolean mustNotify = false;
         
         synchronized (this) {
+
             if ((null == cachedMessenger) || ((cachedMessenger.getState() & Messenger.USABLE) == 0)) {
+
                 cachedMessenger = null;
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Getting cached Messenger for " + radv.getName());
-                }
-
+                Logging.logCheckedFine(LOG, "Getting cached Messenger for ", radv.getName());
                 cachedMessenger = endpoint.getMessengerImmediate(getDestAddress(), radv.getRouteAdv());
                 
                 if (null == cachedMessenger) {

@@ -56,26 +56,27 @@
 
 package net.jxta.impl.util;
 
-
 import net.jxta.impl.access.AccessList;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Provides support for the optional access control list which determines which
  * peers may be used.
+ *
+ * @deprecated Usage of ACL to check seeds has become functionally questionable
+ * now that 'use seed only' booleans are available to do the job too. Problem is:
+ * who is the authority on valid seeds?
  */
+@Deprecated
 public abstract class ACLSeedingManager implements SeedingManager {
     
     /**
@@ -153,11 +154,9 @@ public abstract class ACLSeedingManager implements SeedingManager {
     public synchronized boolean isAcceptablePeer(RouteAdvertisement radv) {
                 
         // Refresh the ACL?
-        
         if (TimeUtils.timeNow() > nextACLrefreshTime) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Updating ACL");
-            }
+
+            Logging.logCheckedFine(LOG, "Updating ACL");
 
             try {
                 URL asURL = aclLocation.toURL();
@@ -174,11 +173,11 @@ public abstract class ACLSeedingManager implements SeedingManager {
                 }
                 
                 nextACLrefreshTime = TimeUtils.toAbsoluteTimeMillis(ACL_REFRESH_INTERVAL);
+
             } catch (IOException failed) {
+
                 // be lenient in response to failures.
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "ACL update failed. GRANTING ALL PERMISSIONS.", failed);
-                }
+                Logging.logCheckedWarning(LOG, "ACL update failed. GRANTING ALL PERMISSIONS.\n", failed);
 
                 acl.setGrantAll(true);
                 

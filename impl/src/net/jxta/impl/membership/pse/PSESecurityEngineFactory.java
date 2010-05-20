@@ -169,23 +169,18 @@ public abstract class PSESecurityEngineFactory {
             
             if (null != cname) {
                 // remove the -CA which is common to ca root certs.
-                if (cname.endsWith("-CA")) {
+                if (cname.endsWith("-CA"))
                     cname = cname.substring(0, cname.length() - 3);
-                }
             }
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Generating new service cert for \'" + cname + "\'");
-            }
+            Logging.logCheckedFine(LOG, "Generating new service cert for \'", cname, "\'");
             
             // generate the service cert and private key
             IssuerInfo serviceinfo = PSEUtils.genCert(cname, info);
 
             // IssuerInfo serviceinfo = membership.genCert( cname, info, "SHA1withRSA" );
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Generated new service cert for \'" + cname + "\'");
-            }
+            Logging.logCheckedFine(LOG, "Generated new service cert for \'", cname, "\'");
             
             return serviceinfo;
         }

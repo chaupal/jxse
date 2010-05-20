@@ -93,42 +93,47 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
     }
     
     public void beginStop() {
+        
         if(!started.get()) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Netty transport server for protocol " + addrTranslator.getProtocolName() + " already stopped or never started!");
-            }
+
+            Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
+
         }
+
         closeChannelsFuture = channels.close();
         stopping.set(true);
+
     }
     
     public void stop() {
+
         if(!stopping.get()) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Netty transport server for protocol " + addrTranslator.getProtocolName() + " already stopped or never started!");
-            }
+
+            Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
+
         }
+
         closeChannelsFuture.awaitUninterruptibly();
         clientFactory.releaseExternalResources();
         timeoutTimer.stop();
         
         endpointService.removeMessageTransport(this);
         endpointService = null;
+
     }
 
     public Messenger getMessenger(EndpointAddress dest, Object hint) {
+        
         if(!started.get()) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Request to get messenger for " + dest.toString() + " when netty transport client stopped or never started");
-            }
+
+            Logging.logCheckedWarning(LOG, "Request to get messenger for ", dest.toString(), " when netty transport client stopped or never started");
             return null;
+
         }
         
-        if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "processing request to open connection to {0}", dest);
-        }
+        Logging.logCheckedInfo(LOG, "processing request to open connection to ", dest);
         
         ClientConnectionRegistrationHandler clientRegistry = new ClientConnectionRegistrationHandler();
         
@@ -136,7 +141,9 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         bootstrap.setPipelineFactory(new NettyTransportChannelPipelineFactory(localPeerID, timeoutTimer, clientRegistry, addrTranslator, dest, returnAddress));
         
         ChannelFuture connectFuture = bootstrap.connect(addrTranslator.toSocketAddress(dest));
+        
         try {
+
             if(!connectFuture.await(5000L, TimeUnit.MILLISECONDS)) {
                 if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                     LOG.log(Level.INFO, "Netty transport for protocol {0} failed to connect to {1} within acceptable time", 
@@ -145,38 +152,43 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
                 return null;
             }
         } catch(InterruptedException e) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Interrupted while waiting for connection to {0} to be established", dest);
-            }
+
+            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection to ", dest, " to be established");
             connectFuture.cancel();
             return null;
         }
         
         if(!connectFuture.isSuccess()) {
+
             if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                 Throwable cause = connectFuture.getCause();
                 String causeString = (cause != null) ? cause.getMessage() : "cause unknown";
 				String message = String.format("Netty transport for protocol %s failed to connect to %s - %s", addrTranslator.getProtocolName(), dest, causeString);
                 LOG.log(Level.INFO, message);
             }
+
             return null;
+
         }
         
         boolean established = false;
+
         try {
+
             established = clientRegistry.latch.await(15L, TimeUnit.SECONDS);
+
         } catch(InterruptedException e) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Interrupted while waiting for connection handover", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection handover\n", e);
+            
         }
         
         if(!established) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Connection handover timed out - either remote host was not a valid JXTA peer or did not respond on time");
-            }
+
+            Logging.logCheckedWarning(LOG, "Connection handover timed out - either remote host was not a valid JXTA peer or did not respond on time");
             connectFuture.getChannel().close();
             return null;
+
         }
         
         if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
@@ -185,6 +197,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         
         channels.add(connectFuture.getChannel());
         return new NettyMessenger(connectFuture.getChannel(), homeGroupID, localPeerID, clientRegistry.directedAt, clientRegistry.logicalEndpointAddress, endpointService);
+
     }
     
     public boolean allowsRouting() {
@@ -212,8 +225,4 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         return addrTranslator.getProtocolName();
     }
 
-    @Deprecated
-    public Object transportControl(Object operation, Object value) {
-        throw new RuntimeException("transportControl is deprecated, do not use!");
-    }
 }

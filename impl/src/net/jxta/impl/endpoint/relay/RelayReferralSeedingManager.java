@@ -62,7 +62,6 @@ import net.jxta.impl.util.URISeedingManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -189,15 +188,15 @@ public class RelayReferralSeedingManager extends URISeedingManager {
                     result.add(rdvAdv.clone());
                 }
             }
+
         } catch (Exception ez1) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Unexpected error getting relays", ez1);
-            }
+
+            Logging.logCheckedWarning(LOG, "Unexpected error getting relays", ez1);
+            
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Found " + result.size() + " relay seeds.");
-        }
+        Logging.logCheckedFine(LOG, "Found ", result.size(), " relay seeds.");
         return result;
+
     }
 }

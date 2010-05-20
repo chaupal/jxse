@@ -237,11 +237,10 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      */
     @Override
     protected boolean registerAssoc(String className) {
+
         boolean registeredSomething = false;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Registering : " + className);
-        }
+        Logging.logCheckedFine(LOG, "Registering : ", className);
 
         try {
             Class msgClass = Class.forName(className);
@@ -251,16 +250,16 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
             MimeMediaType[] mimeTypes = instantiator.getSupportedMimeTypes();
 
             for (MimeMediaType mimeType : mimeTypes) {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("   Registering Type : " + mimeType);
-                }
 
+                Logging.logCheckedFiner(LOG, "   Registering Type : ", mimeType);
                 registeredSomething |= registerInstantiator(mimeType, instantiator);
+
             }
+            
         } catch (Exception all) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to register \'" + className + "\'", all);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to register \'", className, "\'\n", all);
+
         }
 
         return registeredSomething;

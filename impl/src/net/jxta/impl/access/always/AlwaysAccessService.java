@@ -266,24 +266,24 @@ public class AlwaysAccessService implements AccessService {
             Enumeration elements = doc.getChildren();
             
             while (elements.hasMoreElements()) {
+
                 TextElement elem = (TextElement) elements.nextElement();
 
                 if (!handleElement(elem)) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandleded element \'" + elem.getName() + "\' in " + doc.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());
+                    
                 }
             }
             
             // sanity check time!
             
-            if (null == op) {
+            if (null == op) 
                 throw new IllegalArgumentException("operation was never initialized.");
-            }
             
-            if (null == offerer) {
+            if (null == offerer) 
                 throw new IllegalArgumentException("offerer was never initialized.");
-            }
+            
         }
     }
     
@@ -300,6 +300,7 @@ public class AlwaysAccessService implements AccessService {
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
+
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
         this.group = group;
         
@@ -317,6 +318,7 @@ public class AlwaysAccessService implements AccessService {
             configInfo.append("\n\t\tPeer ID: ").append(group.getPeerID());
             LOG.config(configInfo.toString());
         }
+
     }
     
     /**

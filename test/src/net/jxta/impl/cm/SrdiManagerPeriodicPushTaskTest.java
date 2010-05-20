@@ -4,28 +4,28 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import net.jxta.impl.cm.Srdi.SrdiInterface;
+import net.jxta.impl.cm.SrdiManager.SrdiPushEntriesInterface;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
 
-public class SrdiPeriodicPushTaskTest extends MockObjectTestCase {
+public class SrdiManagerPeriodicPushTaskTest extends MockObjectTestCase {
 
     private static final long PUSH_INTERVAL = 10000L;
     
-    private SrdiInterface srdiInterfaceMock;
+    private SrdiPushEntriesInterface srdiInterfaceMock;
     private ScheduledExecutorService executorServiceMock;
     private ScheduledFuture<?> runHandleMock;
     
-    private SrdiPeriodicPushTask pushTask;
+    private SrdiManagerPeriodicPushTask pushTask;
     
     @Override
     protected void setUp() throws Exception {
-        srdiInterfaceMock = mock(SrdiInterface.class);
+        srdiInterfaceMock = mock(SrdiPushEntriesInterface.class);
         executorServiceMock = mock(ScheduledExecutorService.class);
         runHandleMock = mock(ScheduledFuture.class);
         
-        pushTask = new SrdiPeriodicPushTask("testHandler", srdiInterfaceMock, executorServiceMock, PUSH_INTERVAL);
+        pushTask = new SrdiManagerPeriodicPushTask("testHandler", srdiInterfaceMock, executorServiceMock, PUSH_INTERVAL);
     }
     
     @Override

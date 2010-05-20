@@ -193,9 +193,8 @@ public class ContentResponse {
         while (elements.hasMoreElements()) {
             Element elem = (Element) elements.nextElement();
 
-            if ((!handleElement(elem))
-                    && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Unhandled Element : " + elem.toString());
+            if (!handleElement(elem)) {
+                Logging.logCheckedFine(LOG, "Unhandled Element : ", elem);
             }
         }
     }

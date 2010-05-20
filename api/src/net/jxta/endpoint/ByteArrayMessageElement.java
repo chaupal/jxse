@@ -242,12 +242,12 @@ public class ByteArrayMessageElement extends MessageElement {
                     } while ((-1 != mine) && (-1 != its));
 
                     return ((-1 == mine) && (-1 == its)); // end at the same time?
+                
                 } catch (IOException fatal) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE, "MessageElements could not be compared.", fatal);
-                    }
 
+                    Logging.logCheckedSevere(LOG, "MessageElements could not be compared.", fatal);
                     throw new IllegalStateException("MessageElements could not be compared." + fatal);
+
                 }
             }
         }

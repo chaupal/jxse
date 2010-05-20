@@ -71,10 +71,10 @@ import java.util.logging.Logger;
 
 public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTree<T> {
 
-    private static final Logger LOG = Logger.getLogger( WildcardTernarySearchTreeImpl.class.getName(  ) );
+    private static final Logger LOG = Logger.getLogger( WildcardTernarySearchTreeImpl.class.getName() );
     private static final String WILDCARD = "*";
-    private TernarySearchTree prefix = new TernarySearchTreeImpl(  );
-    private TernarySearchTree suffix = new TernarySearchTreeImpl(  );
+    private TernarySearchTree prefix = new TernarySearchTreeImpl();
+    private TernarySearchTree suffix = new TernarySearchTreeImpl();
     private long size = 0;
 
     /* (non-Javadoc)
@@ -93,7 +93,7 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     public boolean delete( String key ) {
 
         prefix.remove( key );
-        suffix.remove( new StringBuffer( key ).reverse(  ).toString(  ) );
+        suffix.remove( new StringBuffer( key ).reverse().toString() );
         size--;
 
         return true;
@@ -102,10 +102,10 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
          * @see net.jxta.impl.util.ternary.wild.WildcardTernarySearchTree#deleteTree()
          */
-    public void deleteTree(  ) {
+    public void deleteTree() {
 
-        prefix.deleteTree(  );
-        suffix.deleteTree(  );
+        prefix.deleteTree();
+        suffix.deleteTree();
         size = 0;
     }
 
@@ -121,7 +121,7 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     /* (non-Javadoc)
      * @see net.jxta.impl.util.ternary.wild.WildcardTernaryTree#getSize()
      */
-    public long getSize(  ) {
+    public long getSize() {
 
         return size;
     }
@@ -132,7 +132,7 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     public void insert( String key, Object value ) throws IllegalStateException {
 
         prefix.put( key, value );
-        suffix.put( new StringBuffer( key ).reverse(  ).toString(  ), value );
+        suffix.put( new StringBuffer( key ).reverse().toString(), value );
         size++;
     }
 
@@ -142,7 +142,7 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
     public List<String> search( String term, int threshold )
         throws IllegalArgumentException {
 
-        if ( ( term.length(  ) - term.replace( WILDCARD, "" ).length(  ) ) != 1 ) {
+        if ( ( term.length() - term.replace( WILDCARD, "" ).length() ) != 1 ) {
 
             throw new IllegalArgumentException( "" );
         }
@@ -151,10 +151,10 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
 
             this.prefix.setNumReturnValues( threshold );
 
-            return toList( prefix.matchPrefix( term.substring( 0, term.length(  ) - 1 ) ), false );
+            return toList( prefix.matchPrefix( term.substring( 0, term.length() - 1 ) ), false );
         } else if ( term.startsWith( WILDCARD ) ) {
 
-            String revTerm = new StringBuffer( term.substring( 1 ) ).reverse(  ).toString(  );
+            String revTerm = new StringBuffer( term.substring( 1 ) ).reverse().toString();
 
             this.suffix.setNumReturnValues( threshold );
 
@@ -172,20 +172,20 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
 
         if ( LOG.isLoggable( Level.FINEST ) ) {
 
-            LOG.finest( "Building result list... linked list size: " + dll.size(  ) );
+            LOG.finest( "Building result list... linked list size: " + dll.size() );
         }
 
-        ArrayList<String> al = new ArrayList<String>(  );
-        Iterator<Object> it = dll.iterator(  );
+        ArrayList<String> al = new ArrayList<String>();
+        Iterator<Object> it = dll.iterator();
         String key;
 
-        while ( it.hasNext(  ) ) {
+        while ( it.hasNext() ) {
 
-            key = (String) it.next(  );
+            key = (String) it.next();
 
             if ( reverse ) {
 
-                key = new StringBuffer( key ).reverse(  ).toString(  );
+                key = new StringBuffer( key ).reverse().toString();
             }
 
             al.add( key );
@@ -198,7 +198,7 @@ public class WildcardTernarySearchTreeImpl<T> implements WildcardTernarySearchTr
 
         if ( LOG.isLoggable( Level.FINEST ) ) {
 
-            LOG.finest( "Result intersection. Collection sizes: " + coll1.size(  ) + " " + coll2.size(  ) );
+            LOG.finest( "Result intersection. Collection sizes: " + coll1.size() + " " + coll2.size() );
         }
 
         Set<String> intersection = new HashSet<String>( coll1 );

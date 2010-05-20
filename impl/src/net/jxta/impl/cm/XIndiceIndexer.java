@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.cm;
 
 import net.jxta.impl.xindice.core.DBException;
@@ -65,7 +66,6 @@ import net.jxta.impl.xindice.core.filer.BTreeFiler;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.impl.xindice.core.indexer.NameIndexer;
 import net.jxta.logging.Logging;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -85,12 +85,12 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class Indexer {
+public final class XIndiceIndexer {
 
     /**
      * The logger
      */
-    private final static transient Logger LOG = Logger.getLogger(Indexer.class.getName());
+    private final static transient Logger LOG = Logger.getLogger(XIndiceIndexer.class.getName());
 
     private final static String listFileName = "offsets";
 
@@ -101,7 +101,7 @@ public final class Indexer {
     private boolean sync = true;
 
     /*
-     *      Indexer manages indexes to various advertisement types,
+     *      XIndiceIndexer manages indexes to various advertisement types,
      *      and maintains a listDB which holds records that hold references
      *      to records in advertisments.tbl
      *
@@ -110,7 +110,7 @@ public final class Indexer {
      *       -------          -------               \    ------- 
      *
      */
-    public Indexer() {}
+    public XIndiceIndexer() {}
 
     /**
      * Creates an indexer
@@ -118,7 +118,7 @@ public final class Indexer {
      * @param sync passed through to xindice to determine a lazy checkpoint or not
      *             false == lazy checkpoint
      */
-    public Indexer(boolean sync) {
+    public XIndiceIndexer(boolean sync) {
         this.sync = sync;
     }
 
@@ -155,14 +155,14 @@ public final class Indexer {
                             indexer.create();
                             indexer.open();
                         }
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Adding :" + indexFileName + " under " + name);
-                        }
+
+                        Logging.logCheckedFine(LOG, "Adding :", indexFileName, " under ", name);
                         indices.put(name, indexer);
+
                     } catch (DBException ignore) {
-                        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                            LOG.log(Level.SEVERE, "Failed to create Index " + name, ignore);
-                        }
+                        
+                        Logging.logCheckedSevere(LOG, "Failed to create Index ", name, "\n", ignore);
+                        
                     }
                 }
             }
@@ -177,14 +177,15 @@ public final class Indexer {
                 // now open it
                 listDB.open();
             }
+
         } catch (DBException dbe) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed during listDB Creation", dbe);
-            }
+
+            Logging.logCheckedSevere(LOG, "Failed during listDB Creation\n", dbe);
+            
         } catch (IOException ie) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed during listDB Creation", ie);
-            }
+
+            Logging.logCheckedSevere(LOG, "Failed during listDB Creation\n", ie);
+            
         }
     }
 
@@ -198,24 +199,24 @@ public final class Indexer {
 
     public synchronized boolean close() throws DBException {
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Closing Indexer");
-        }
+        Logging.logCheckedInfo(LOG, "Closing Indexer");
                 
         Iterator<Map.Entry<String, NameIndexer>> eachIndex = indices.entrySet().iterator();
+
         while (eachIndex.hasNext()) {
+
             Map.Entry<String, NameIndexer> anEntry = eachIndex.next();
             
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Closing Index :" + anEntry.getKey());
-            }
+            Logging.logCheckedFiner(LOG, "Closing Index :", anEntry.getKey());
             
             try {
+
                 anEntry.getValue().close();
+
             } catch (Exception failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure closing index :" + anEntry.getKey(), failed);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failure closing index :", anEntry.getKey(), "\n", failed);
+                
             }
             
             eachIndex.remove();
@@ -224,9 +225,7 @@ public final class Indexer {
         // clear just in case.
         indices.clear();
         
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Closing listDB");
-        }
+        Logging.logCheckedFiner(LOG, "Closing listDB");
         
         listDB.close();
         return true;
@@ -263,9 +262,7 @@ public final class Indexer {
          */
         public boolean indexInfo(Value val, long pos) {
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("value :" + val + " pattern :" + pattern);
-            }
+            Logging.logCheckedFiner(LOG, "value :", val, " pattern :", pattern);
 
             switch (op) {
             case IndexQuery.EW:
@@ -310,23 +307,20 @@ public final class Indexer {
             if (indices != null) {
                 Iterator<NameIndexer> i = indices.values().iterator();
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Searching all indexes");
-                }
+                Logging.logCheckedFine(LOG, "Searching all indexes");
+                
                 while (i.hasNext()) {
                     NameIndexer index = i.next();
                     index.query(query, new SearchCallback(listDB, callback));
                 }
             }
         } else {
+
             NameIndexer indexer = indices.get(name);
-            if (indexer == null) {
-                return;
-            }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Searching Index : " + name);
-            }
+            if (indexer == null) return;
+            Logging.logCheckedFine(LOG, "Searching Index : ", name);
             indexer.query(query, cb);
+
         }
     }
 
@@ -337,9 +331,8 @@ public final class Indexer {
         }
         // FIXME add indexer name to NameIndexer, to optimize this loop
         for (String name : indexables.keySet()) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("looking up NameIndexer : " + name);
-            }
+
+            Logging.logCheckedFine(LOG, "looking up NameIndexer : ", name);
             NameIndexer indexer = indices.get(name);
 
             if (indexer == null) {
@@ -363,7 +356,7 @@ public final class Indexer {
             if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
                 StringBuilder message = new StringBuilder().append("Adding a reference at position :").append(listPos).append(" to ").append(name).append(" index, Key: ").append(
                         indexables.get(name));
-                LOG.finer(message.toString());
+                Logging.logCheckedFiner(LOG, message);
             }
             indexer.add(indexKey, listPos);
         }
@@ -491,12 +484,15 @@ public final class Indexer {
                         }
                     }
                 }
+
             } catch (DBException ignore) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "An exception occured", ignore);
-                }
+
+                Logging.logCheckedWarning(LOG, "An exception occured", ignore);
+                
             }
+
             return true;
+            
         }
     }
 
@@ -507,15 +503,18 @@ public final class Indexer {
             DataOutputStream dos = new DataOutputStream(bos);
 
             dos.writeInt(size);
+
             for (Long lpos : offsets) {
                 dos.writeLong(lpos.longValue());
             }
+
             dos.close();
             return bos.toByteArray();
+
         } catch (IOException ie) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception during array to byte array conversion", ie);
-            }
+
+            Logging.logCheckedWarning(LOG, "Exception during array to byte array conversion", ie);
+            
         }
         return null;
     }
@@ -536,33 +535,39 @@ public final class Indexer {
             for (int i = 0; i < size; i++) {
                 result.add(ois.readLong());
             }
+
             ois.close();
+
         } catch (IOException ie) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception while reading Entry", ie);
-            }
+
+            Logging.logCheckedWarning(LOG, "Exception while reading Entry", ie);
+            
         }
+
         return result;
     }
 
     private static long writeRecord(BTreeFiler listDB, Key key, long pos) throws DBException, IOException {
 
         synchronized (listDB) {
+
             Long lpos = pos;
+
             Record record = listDB.readRecord(key);
             Set<Long> offsets = readRecord(record);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE) && offsets != null) {
-                LOG.finer("list.contains " + pos + " : " + offsets.contains(lpos));
+            if (offsets != null) {
+                Logging.logCheckedFine(LOG, "list.contains ", pos, " : ", offsets.contains(lpos));
             }
 
             if (offsets != null && !offsets.contains(lpos)) {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Adding a reference to record at :" + lpos);
-                    LOG.finer("Writing :" + offsets.size() + " references");
-                }
+                
+                Logging.logCheckedFiner(LOG, "Adding a reference to record at :", lpos);
+                Logging.logCheckedFiner(LOG, "Writing :", offsets.size(), " references");
                 offsets.add(lpos);
+
             }
+
             Value recordValue = new Value(toByteArray(offsets));
 
             return listDB.writeRecord(key, recordValue);
@@ -583,33 +588,35 @@ public final class Indexer {
          * {@inheritDoc}
          */
         public boolean indexInfo(Value val, long pos) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("Found " + val.toString() + " at " + pos);
-            }
+
+            Logging.logCheckedFiner(LOG, "Found ", val.toString(), " at ", pos);
+            
             Record record = null;
             Set<Long> offsets = null;
             boolean result = true;
 
             try {
                 synchronized (listDB) {
+
                     record = listDB.readRecord(pos);
                     offsets = readRecord(record);
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Found " + offsets.size() + " entries");
-                    }
+
+                    Logging.logCheckedFiner(LOG, "Found ", offsets.size(), " entries");
+                    
                 }
 
                 for (Long lpos : offsets) {
+
                     result &= callback.indexInfo(val, lpos);
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Callback result : " + result);
-                    }
+                    Logging.logCheckedFiner(LOG, "Callback result : ", result);
+                    
                 }
+
             } catch (DBException ex) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception while reading indexed", ex);
-                }
+
+                Logging.logCheckedWarning(LOG, "Exception while reading indexed\n", ex);
                 return false;
+
             }
             return result;
         }

@@ -776,15 +776,14 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
                 // FIXME 20051007 bondolo Fix handling of signature type.
 
-                if (!PSEUtils.verifySignature("SHA1WITHRSA", getCertificate(), signatureToCompare, signStream)) {
+                if (!PSEUtils.verifySignature("SHA1WITHRSA", getCertificate(), signatureToCompare, signStream)) 
                     throw new IllegalArgumentException("Certificated did not match");
-                }
+                
             } catch (Throwable failed) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to validate signature ", failed);
-                }
 
+                Logging.logCheckedWarning(LOG, "Failed to validate signature \n", failed);
                 throw new IllegalArgumentException("Failed to validate signature " + failed.getMessage());
+
             }
 
             return true;
@@ -823,13 +822,13 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled element \'" + elem.getName() + "\' in " + doc.getName());
-                }
+                Logging.logCheckedWarning(LOG, "Unhandled element \'", elem.getName(), "\' in ", doc.getName());
             }
+
         }
 
         // sanity check time!

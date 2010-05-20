@@ -55,28 +55,18 @@
  */
 package tutorial.directmessenger;
 
-
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.platform.NetworkManager;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.MessageTransport;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
-import net.jxta.impl.endpoint.router.EndpointRouter;
-import net.jxta.impl.endpoint.router.RouteControl;
+import net.jxta.endpoint.router.RouteController;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
 
@@ -125,11 +115,9 @@ public class Receiver {
                         
                         System.out.println("Proudly announcing the existance of " + npg.getPeerID());
                         
-                        MessageTransport router = endpoint.getMessageTransport("jxta");
+                        RouteController routeControl = endpoint.getEndpointRouter().getRouteController();
                         
-                        RouteControl routeControl = (RouteControl) router.transportControl(EndpointRouter.GET_ROUTE_CONTROL, null);
-                        
-                        RouteAdvertisement myRoute = routeControl.getMyLocalRoute();
+                        RouteAdvertisement myRoute = routeControl.getLocalPeerRoute();
                         
                         Message announce = new Message();
                         

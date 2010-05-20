@@ -56,10 +56,9 @@
 
 package net.jxta.logging;
 
-
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class defines constants for JXTA JSE's logging facilities. In this
@@ -174,6 +173,7 @@ public final class Logging {
 
     /* Initialize the constants */
     static {
+
         Level setLevel = DEFAULT_LOGGING_LEVEL;
 
         try {
@@ -198,13 +198,239 @@ public final class Logging {
         SHOW_WARNING = MIN_SHOW_LEVEL.intValue() <= Level.WARNING.intValue();
         SHOW_SEVERE = MIN_SHOW_LEVEL.intValue() <= Level.SEVERE.intValue();
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("Logging enabled for level : " + MIN_SHOW_LEVEL);
-        }
+        logCheckedConfig(LOG, "Logging enabled for level : ", MIN_SHOW_LEVEL);
+
     }
 
     /**
      * This class is not meant be instantiated.
      */
     private Logging() {}
+
+    /**
+     * This method checks whether {@code SHOW_CONFIG} is set to {@code true),
+     * and whether the provided logger allows config messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the messages to concatenate
+     */
+    public static void logCheckedConfig(Logger inLog, Object... inMsg) {
+
+        if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
+            inLog.config(Msg.toString());
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_FINE} is set to {@code true),
+     * and whether the provided logger allows fine messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the messages to concatenate
+     */
+    public static void logCheckedFine(Logger inLog, Object... inMsg) {
+
+        if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
+            inLog.fine(Msg.toString());
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_FINER} is set to {@code true),
+     * and whether the provided logger allows finer messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the messages to concatenate
+     */
+    public static void logCheckedFiner(Logger inLog, Object... inMsg) {
+
+        if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
+            inLog.finer(Msg.toString());
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_FINEST} is set to {@code true),
+     * and whether the provided logger allows finest messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the messages to concatenate
+     */
+    public static void logCheckedFinest(Logger inLog, Object... inMsg) {
+
+        if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
+            inLog.finest(Msg.toString());
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_INFO} is set to {@code true),
+     * and whether the provided logger allows info messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the messages to concatenate
+     */
+    public static void logCheckedInfo(Logger inLog, Object... inMsg) {
+
+        if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
+            inLog.info(Msg.toString());
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_SEVERE} is set to {@code true),
+     * and whether the provided logger allows severe messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the messages to concatenate
+     */
+    public static void logCheckedSevere(Logger inLog, Object... inMsg) {
+
+        if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
+            inLog.severe(Msg.toString());
+        }
+
+    }
+
+    /**
+     * This method checks whether {@code SHOW_WARNING} is set to {@code true),
+     * and whether the provided logger allows warnings messages. If yes, the
+     * message is logged.
+     *
+     * @param inLog a logger
+     * @param inMsg the messages to concatenate
+     */
+    public static void logCheckedWarning(Logger inLog, Object... inMsg) {
+
+        if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
+            inLog.warning(Msg.toString());
+        }
+
+    }
+
+    /**
+     * Retrieves the stack trace as a String if object is a {@code Throwable}.
+     *
+     * @param inObj
+     * @return
+     */
+    private static String checkForThrowables(Object inObj) {
+
+        // Are we dealing with a throwable?
+        if ( inObj instanceof Throwable ) return retrieveStackTrace((Throwable) inObj);
+
+        // Are we dealing with a null?
+        if ( inObj == null ) return "";
+
+         // Returning the object.toString()
+        return inObj.toString();
+
+    }
+
+    /**
+     * Extracts the calling method using the [1] stack trace element, and creates a
+     * string containing the line number, package, class and method name.
+     *
+     * @param inSTE a stack trace
+     * @return the coordinates of the calling method
+     */
+    public static String getCaller(StackTraceElement[] inSTE) {
+
+        if ( inSTE == null ) {
+            LOG.severe("Can't get caller: null StackTraceElement");
+            return null;
+        }
+
+        if ( inSTE.length < 2 ) {
+            LOG.severe("Can't get caller: StackTraceElement length < 2");
+            return null;
+        }
+
+        StackTraceElement STE = inSTE[1];
+
+        StringBuffer Result = new StringBuffer();
+        Result.append("Line ").append(STE.getLineNumber())
+                .append(' ').append(STE.getClassName())
+                .append('.').append(STE.getMethodName())
+                .append("()");
+
+        return Result.toString();
+
+    }
+
+    /**
+     * Returns the stack of method calls (excluding this method) as a String.
+     * If a print string is provided, the result is printed to it too.
+     *
+     * @param inPS a print stream or {@code null}
+     * @return a string containing current method call
+     */
+    public static String getMethodCallsTrace(PrintStream inPS) {
+
+        StackTraceElement[] STE = new Exception().getStackTrace();
+        StringBuffer Result = new StringBuffer();
+
+        for (int i=1;i<STE.length;i++) {
+            Result.append("Line ").append(STE[i].getLineNumber())
+                .append(' ').append(STE[i].getClassName())
+                .append('.').append(STE[i].getMethodName())
+                .append("()\n");
+        }
+
+        String Result2 = Result.toString();
+        if ( inPS != null ) inPS.println(Result2);
+
+        return Result2;
+
+    }
+
+    /**
+     * Retrieves the stack trace from a throwable.
+     *
+     * @param t a throwable
+     * @return the stack trace as a String
+     */
+    public static String retrieveStackTrace(Throwable t) {
+
+        StackTraceElement[] STE = t.getStackTrace();
+        StringBuffer Result = new StringBuffer();
+
+        Result.append(t.toString()).append('\n');
+
+        for (int i=0;i<STE.length;i++) {
+            Result.append("Line ").append(STE[i].getLineNumber())
+                .append(' ').append(STE[i].getClassName())
+                .append('.').append(STE[i].getMethodName())
+                .append("()\n");
+        }
+
+        return Result.toString();
+
+    }
+
 }

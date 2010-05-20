@@ -223,17 +223,16 @@ public class RefJxtaLoader extends JxtaLoader {
                 }
                 
                 URI contentURI = retrieveContent((ContentID) id);
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest(hashHex() + ": Using Content URI: " + contentURI);
-                }
+
+                Logging.logCheckedFinest(LOG, hashHex(), ": Using Content URI: ", contentURI);
                 
                 // Switch to the Content URI and fall through
                 uri = contentURI;
             } catch (URISyntaxException urisx) {
+
                 // Not a JXTA ID.  Fall through and try as URL.
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest(hashHex() + ": Not a JXTA ID: " + uri);
-                }
+                Logging.logCheckedFinest(LOG, hashHex(), ": Not a JXTA ID: ", uri);
+
             }
 
             /*
@@ -296,9 +295,8 @@ public class RefJxtaLoader extends JxtaLoader {
      */
     @Override
     public synchronized Class<? extends Module> findClass(ModuleSpecID spec) throws ClassNotFoundException {
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashHex() + ": findClass(MSID=" + spec + ")");
-        }
+
+        Logging.logCheckedFinest(LOG, hashHex(), ": findClass(MSID=", spec, ")");
         
         // search through already existing compats for something that works
         // if found, return it
@@ -320,10 +318,9 @@ public class RefJxtaLoader extends JxtaLoader {
             return result;
         }
         
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashHex() + "    No class found for MSID");
-        }
+        Logging.logCheckedFinest(LOG, hashHex(), "    No class found for MSID");
         throw new ClassNotFoundException(spec.toString());
+
     }
 
     /**
@@ -340,44 +337,47 @@ public class RefJxtaLoader extends JxtaLoader {
          * do so for Modules.  The only main difference is that we only
          * defer to our parent loader (since it is the only JxtaLoader).
          */
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashHex() + ": loadClass(MSID=" + spec + ")");
-        }
+        Logging.logCheckedFinest(LOG, hashHex(), ": loadClass(MSID=", spec, ")");
         
         // Try the parent JxtaLoader, if present
         try {
+
             ClassLoader parentLoader = getParent();
+
             if (parentLoader instanceof JxtaLoader) {
+
                 JxtaLoader jxtaLoader = (JxtaLoader) parentLoader;
                 Class<? extends Module> result = jxtaLoader.loadClass(spec);
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest(hashHex() + ": Parent found: " + result);
-                }
+
+                Logging.logCheckedFinest(LOG, hashHex(), ": Parent found: ", result);
+
                 return result;
+
             } else {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest(hashHex() + ": No parent loader to try.");
-                }
+
+                Logging.logCheckedFinest(LOG, hashHex(), ": No parent loader to try.");
+
             }
         } catch (ClassNotFoundException cnfx) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.log(Level.FINER, hashHex() + ": Parent could not load MSID: " + spec);
-            }
+
+            Logging.logCheckedFiner(LOG, hashHex(), ": Parent could not load MSID: ", spec);
             // Fall through
+            
         }
         
         // Now try locally
         try {
+
             Class found = findClass(spec);
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(hashHex() + ": Self loaded: " + found);
-            }
+            Logging.logCheckedFinest(LOG, hashHex(), ": Self loaded: ", found);
+
             return verifyAndCast(found);
+
         } catch (ClassNotFoundException cnfx) {
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(hashHex() + ": Self loader threw: "
-                        + cnfx.getClass() + ": " + cnfx.getMessage());
-            }
+
+            Logging.logCheckedFinest(LOG, hashHex(), ": Self loader threw: ",
+                        cnfx.getClass(), ": ", cnfx.getMessage());
+
             throw(cnfx);
         }
     }
@@ -404,22 +404,25 @@ public class RefJxtaLoader extends JxtaLoader {
         Class<? extends Module> loaded = compats.get(asString);
 
         if (null == loaded) {
+
             try {
+
                 URI uri = URI.create(impl.getUri());
                 Class<?> clazz = loadClass(impl.getCode(), uri, false);
                 loaded = verifyAndCast(clazz);
+
             } catch (IllegalArgumentException iax) {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.log(Level.FINER, hashHex() + ": Caught exception", iax);
-                }
+
+                Logging.logCheckedFiner(LOG, ": Caught exception\n", iax);
                 throw new ClassFormatError("Class '" + impl.getCode()
                         + "' could not be loaded from : " + impl.getUri());
+
             } catch (ClassNotFoundException failed) {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.log(Level.FINER, hashHex() + ": Caught exception", failed);
-                }
+
+                Logging.logCheckedFiner(LOG, hashHex(), ": Caught exception\n", failed);
                 throw new ClassFormatError("Class '" + impl.getCode()
                         + "' could not be loaded from : " + impl.getUri());
+
             }
 
             // Remember the class along with the matching compatibility statement.
@@ -445,9 +448,8 @@ public class RefJxtaLoader extends JxtaLoader {
             return null;
         }
         
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashHex() + ": findModuleImplAdv(" + clazz + ")");
-        }
+        Logging.logCheckedFinest(LOG, hashHex(), ": findModuleImplAdv(", clazz, ")");
+
         ClassLoader parentLoader = getParent();
         if (parentLoader instanceof JxtaLoader) {
             JxtaLoader jxtaLoader = (JxtaLoader) parentLoader;
@@ -458,13 +460,16 @@ public class RefJxtaLoader extends JxtaLoader {
         }
         
         ModuleImplAdvertisement result = implAdvs.get(modClass);
+
         if (result == null) {
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest(hashHex() + ":    MIA for class not found");
-            }
+
+            Logging.logCheckedFinest(LOG, hashHex(), ":    MIA for class not found");
             return null;
+
         } else {
+
             return result.clone();
+
         }
     }
 
@@ -473,18 +478,21 @@ public class RefJxtaLoader extends JxtaLoader {
      */
     @Override
     public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
+
         Class<? extends Module> moduleClass;
 
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashHex() + ": findModuleImplAdvertisement(MSID=" + msid + ")");
-        }
+        Logging.logCheckedFinest(LOG, hashHex(), ": findModuleImplAdvertisement(MSID=", msid, ")");
+        
         try {
+
             moduleClass = loadClass(msid);
+
         } catch (ClassNotFoundException failed) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.log(Level.FINER, hashHex() + ": Failed to find class for " + msid, failed);
-            }
+
+            Logging.logCheckedFiner(LOG, hashHex(), ": Failed to find class for ", msid,
+                    "\n", failed);
             return null;
+
         }
 
         return findModuleImplAdvertisement(moduleClass);
@@ -539,10 +547,10 @@ public class RefJxtaLoader extends JxtaLoader {
                 asDoc = StructuredDocumentFactory.newStructuredDocument(
                         MimeMediaType.XMLUTF8, new StringReader(aCompat));
             } catch (IOException iox) {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.log(Level.FINEST, hashHex() + ": Caught exception", iox);
-                }
+                
+                Logging.logCheckedFinest(LOG, hashHex(), ": Caught exception ", iox);
                 continue;
+                
             }
 
             if (equator.compatible(asDoc)) {
@@ -562,28 +570,32 @@ public class RefJxtaLoader extends JxtaLoader {
      * @param msid ModuleSpecID to search for
      */
     private void locateModuleImplementations(ModuleSpecID msid) {
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashHex() + ": discoverModuleImplementations(MSID=" + msid + ")");
-        }
+
+        Logging.logCheckedFinest(LOG, hashHex(), ": discoverModuleImplementations(MSID=", msid, ")");
 
         List<ModuleImplAdvertisement> locatedAdvs = null;
+
         try {
-            Enumeration<URL> allProviderLists =
-                    getResources("META-INF/services/net.jxta.platform.Module");
+
+            Enumeration<URL> allProviderLists = getResources("META-INF/services/net.jxta.platform.Module");
+
             for (URL providers : Collections.list(allProviderLists)) {
-                List<ModuleImplAdvertisement> located =
-                        locateModuleImplementations(msid, providers);
+
+                List<ModuleImplAdvertisement> located = locateModuleImplementations(msid, providers);
+
                 if (located != null) {
                     if (locatedAdvs == null) {
                         locatedAdvs = new ArrayList<ModuleImplAdvertisement>();
                     }
                     locatedAdvs.addAll(located);
                 }
+
             }
+
         } catch (IOException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to locate provider lists", ex);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to locate provider lists\n", ex);
+
         }
         
         if (locatedAdvs == null) {
@@ -608,20 +620,20 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return list of discovered ModuleImplAdvertisements for the specified
      *  ModuleSpecID, or null if no results were found.
      */
-    private List<ModuleImplAdvertisement> locateModuleImplementations(
-            ModuleSpecID specID, URL providers) {
+    private List<ModuleImplAdvertisement> locateModuleImplementations(ModuleSpecID specID, URL providers) {
+
         List<ModuleImplAdvertisement> result = null;
         InputStream urlStream = null;
         
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest(hashHex() + ": discoverModuleImplementations(MSID="+ specID + ", URL=" + providers + ")");
-        }
+        Logging.logCheckedFinest(LOG, hashHex(), ": discoverModuleImplementations(MSID=", specID, ", URL=", providers, ")");
+
         try {
+
             urlStream = providers.openStream();
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(urlStream, "UTF-8"));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"));
             
             String provider;
+
             while ((provider = reader.readLine()) != null) {
                 int comment = provider.indexOf('#');
                 
@@ -636,12 +648,17 @@ public class RefJxtaLoader extends JxtaLoader {
                 }
                 
                 try {
+
                     ModuleImplAdvertisement mAdv = null;
                     String[] parts = provider.split("\\s", 3);
+
                     if (parts.length == 1) {
+
                         // Standard Jar SPI format:  Class name
                         mAdv = locateModuleImplAdvertisement(parts[0]);
+
                     } else if (parts.length == 3) {
+
                         // Current non-standard format: MSID, Class name, Description
                         ModuleSpecID msid = ModuleSpecID.create(URI.create(parts[0]));
                         String code = parts[1];
@@ -653,14 +670,16 @@ public class RefJxtaLoader extends JxtaLoader {
                         }
                         
                         mAdv = locateModuleImplAdvertisement(code);
+
                         if (mAdv == null) {
                             // Create one
                             mAdv = CompatibilityUtils.createModuleImplAdvertisement(msid, code, description);
                         }
+
                     } else {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, hashHex() + ": Failed to register \'" + provider + "\'");
-                        }
+
+                        Logging.logCheckedWarning(LOG, hashHex(), ": Failed to register \'", provider, "\'");
+
                     }
                     
                     if (mAdv != null) {
@@ -670,15 +689,17 @@ public class RefJxtaLoader extends JxtaLoader {
                         result.add(mAdv);
                     }
                 } catch (Exception allElse) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, hashHex() + ": Failed to register \'" + provider + "\'", allElse);
-                    }
+
+                    Logging.logCheckedWarning(LOG, hashHex(), ": Failed to register \'", provider, "\'\n", allElse);
+                    
                 }
+
             }
+
         } catch (IOException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, hashHex() + ": Failed to read provider list " + providers, ex);
-            }
+
+            Logging.logCheckedWarning(LOG, hashHex(), ": Failed to read provider list ", providers, "\n", ex);
+            
         } finally {
             if (null != urlStream) {
                 try {
@@ -690,6 +711,7 @@ public class RefJxtaLoader extends JxtaLoader {
         }
         
         return result;
+
     }
     
     /**
@@ -701,17 +723,22 @@ public class RefJxtaLoader extends JxtaLoader {
      *  the ModuleImplAdvertisement could not be discovered in this manner
      */
     private ModuleImplAdvertisement locateModuleImplAdvertisement(String className) {
+        
         try {
+
             Class<?> moduleClass = (Class<?>) Class.forName(className);
             Class<? extends Module> modClass = verifyAndCast(moduleClass);
             Method getImplAdvMethod = modClass.getMethod("getDefaultModuleImplAdvertisement");
             return (ModuleImplAdvertisement) getImplAdvMethod.invoke(null);
+
         } catch(Exception ex) {
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, hashHex() + ": Could not introspect Module for MIA: " + className, ex);
-            }
+
+            Logging.logCheckedFinest(LOG, hashHex(), ": Could not introspect Module for MIA: ", className, "\n", ex);
+
         }
+
         return null;
+        
     }
     
     /**
@@ -748,14 +775,13 @@ public class RefJxtaLoader extends JxtaLoader {
                 group.getPeerGroupID().getUniqueValue().toString());
         File modHome = new File(grpHome, groupMSID.getUniqueValue().toString());
         File svcHome = new File(modHome, getClass().getSimpleName());
+
         if (!svcHome.isDirectory() && !svcHome.mkdirs()) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, hashHex() 
-                        + ": Could not create Content dir: " + svcHome);
-            }
+            
+            Logging.logCheckedWarning(LOG, hashHex(), ": Could not create Content dir: ", svcHome);
         }
-        File result =
-                new File(svcHome, forContentID.getUniqueValue().toString());
+
+        File result = new File(svcHome, forContentID.getUniqueValue().toString());
         
         return result;
     }
@@ -783,13 +809,15 @@ public class RefJxtaLoader extends JxtaLoader {
         
         // Get the storage location for this Content
         File file = getContentFile(contentID);
+
         if (file.exists()) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(hashHex()
-                        + ": Using previously retrieved package Content: "
-                        + file);
-            }
+
+            Logging.logCheckedFine(LOG, hashHex(),
+                ": Using previously retrieved package Content: ",
+                file);
+
             return file.toURI();
+            
         }
         
         // Obtain and check content service instances from local and parent
@@ -808,22 +836,22 @@ public class RefJxtaLoader extends JxtaLoader {
         }
         
         // Commence the transfer, creating an aggregation as necessary
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(hashHex()
-                    + ": Starting retrieval of Module package Content: "
-                    + contentID);
-        }
+        Logging.logCheckedFine(LOG, hashHex(),
+            ": Starting retrieval of Module package Content: ",
+            contentID);
+        
         ContentTransfer xfer;
+
         if (groupService == null) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.fine(hashHex() + ": Using only the parent ContentService");
-            }
+
+            Logging.logCheckedFiner(LOG, hashHex(), ": Using only the parent ContentService");
             xfer = parentService.retrieveContent(contentID);
+
         } else if (parentService == null) {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.fine(hashHex() + ": Using only the local ContentService");
-            }
+
+            Logging.logCheckedFiner(LOG, hashHex(), ": Using only the local ContentService");
             xfer = groupService.retrieveContent(contentID);
+
         } else {
             /*
              * We have both group and parent ContentServices.  Aggregate them
@@ -832,10 +860,7 @@ public class RefJxtaLoader extends JxtaLoader {
              * groups to respond immediately if the Content is being shared
              * by the local peer in either of the groups.
              */
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.fine(hashHex()
-                        + ": Using both the local and parent ContentService");
-            }
+            Logging.logCheckedFiner(LOG, hashHex(), ": Using both the local and parent ContentService");
             
             List<ContentTransfer> toAgg = new ArrayList<ContentTransfer>();
             xfer = groupService.retrieveContent(contentID);
@@ -863,27 +888,33 @@ public class RefJxtaLoader extends JxtaLoader {
         attachDebugListeners(xfer);
         
         Content content = null;
+
         try {
+
             xfer.startTransfer(file);
             xfer.waitFor(MAX_XFER_TIME);
+
             if (!xfer.getTransferState().isFinished()) {
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer(hashHex() + ": Transfer did not complete in "
-                            + "maximum allotted time");
-                }
+
+                Logging.logCheckedFiner(LOG, ": Transfer did not complete in maximum allotted time");
                 xfer.cancel();
+
             }
+
             content = xfer.getContent();
+
         } catch (InterruptedException intx) {
+
             xfer.cancel();
             file.delete();
-            throw(new ClassNotFoundException(
-                    "Thread was interrupted during transfer attempt", intx));
+            throw(new ClassNotFoundException("Thread was interrupted during transfer attempt", intx));
+
         } catch (TransferException xferx) {
+
             xfer.cancel();
             file.delete();
-            throw(new ClassNotFoundException(
-                    "Package Content transfer failed", xferx));
+            throw(new ClassNotFoundException("Package Content transfer failed", xferx));
+
         }
         
         // If the Content is not stored in the file, persist it
@@ -910,6 +941,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @param xfer transfer to attach listeners to
      */
     private void attachDebugListeners(ContentTransfer xfer) {
+
         if (!(Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST))) {
             // Early out.
             return;
@@ -918,6 +950,7 @@ public class RefJxtaLoader extends JxtaLoader {
         final String prefix = hashHex();
 
         final ContentTransferListener xListener = new ContentTransferListener() {
+
             public void contentLocationStateUpdated(ContentTransferEvent event) {
                 LOG.finest(prefix + ": Received event: " + event);
             }
@@ -929,10 +962,11 @@ public class RefJxtaLoader extends JxtaLoader {
             public void contentTransferProgress(ContentTransferEvent event) {
                 LOG.finest(prefix + ": Received event: " + event);
             }
+
         };
 
-        final ContentTransferAggregatorListener xaListener =
-                new ContentTransferAggregatorListener() {
+        final ContentTransferAggregatorListener xaListener = new ContentTransferAggregatorListener() {
+
             public void selectedContentTransfer(ContentTransferAggregatorEvent event) {
                 LOG.finest(prefix + ": Received event: " + event);
             }
@@ -940,10 +974,12 @@ public class RefJxtaLoader extends JxtaLoader {
             public void updatedContentTransferList(ContentTransferAggregatorEvent event) {
                 LOG.finest(prefix + ": Received event: " + event);
             }
+
         };
 
         LOG.finest(hashHex() + ": Attaching ContentTransferListener to: " + xfer);
         xfer.addContentTransferListener(xListener);
+
         if (xfer instanceof ContentTransferAggregator) {
             ContentTransferAggregator xferAgg = (ContentTransferAggregator) xfer;
             LOG.finest(hashHex() + ": Attaching ContentTransferAggregatorListener to: " + xfer);
@@ -953,7 +989,9 @@ public class RefJxtaLoader extends JxtaLoader {
             for (ContentTransfer child : xferAgg.getContentTransferList()) {
                 attachDebugListeners(child);
             }
+
         }
+
     }
     
     /**

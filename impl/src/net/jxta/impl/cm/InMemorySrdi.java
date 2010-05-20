@@ -53,6 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.cm;
 
 import java.io.IOException;
@@ -61,10 +62,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.backport.java.util.NavigableSet;
 import net.jxta.impl.util.backport.java.util.TreeMap;
@@ -75,30 +74,29 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 
+public class InMemorySrdi implements SrdiAPI {
 
-public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
-
-    private final static transient Logger LOG = Logger.getLogger( InMemorySrdiIndexBackend.class.getName(  ) );
+    private final static transient Logger LOG = Logger.getLogger( InMemorySrdi.class.getName() );
     private static final String WILDCARD = "*";
     private static final String REGEX_WILDCARD = ".*";
 
     // Store of back end objects in use so we can support the static clear functionality
-    private static Hashtable<PeerGroup, List<SrdiIndexBackend>> backends = new Hashtable<PeerGroup, List<SrdiIndexBackend>>(  );
+    private static Hashtable<PeerGroup, List<SrdiAPI>> backends = new Hashtable<PeerGroup, List<SrdiAPI>>();
 
     // Dummy object used in HashMaps
-    private static final Object OBJ = new Object(  );
+    private static final Object OBJ = new Object();
 
     // Value counter - used to index ItemIndex objects 
     static long counter = 0;
     
     // Wild card ternary tree of values to peerID lists
-    WildcardTernarySearchTree<List<PeerIDItem>> peeridValueIndex = new WildcardTernarySearchTreeImpl<List<PeerIDItem>>(  );
+    WildcardTernarySearchTree<List<PeerIDItem>> peeridValueIndex = new WildcardTernarySearchTreeImpl<List<PeerIDItem>>();
     
     // The GC Index
-    TreeMap expiryIndex = new TreeMap(  );
+    TreeMap expiryIndex = new TreeMap();
 
     // Used by removal to complete expire time for gc cleanup
-    TernarySearchTreeImpl peerRemovalIndex = new TernarySearchTreeImpl(  );
+    TernarySearchTreeImpl peerRemovalIndex = new TernarySearchTreeImpl();
 
     // Stopped indicator
     private boolean stopped = false;
@@ -106,15 +104,15 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     // Usage name for this index
     private final String indexName;
 
-    public InMemorySrdiIndexBackend( PeerGroup group, String indexName ) {
+    public InMemorySrdi( PeerGroup group, String indexName ) {
 
         this.indexName = indexName;
 
-        List<SrdiIndexBackend> idxs = backends.get( group );
+        List<SrdiAPI> idxs = backends.get( group );
 
         if ( null == idxs ) {
 
-            idxs = new ArrayList<SrdiIndexBackend>( 1 );
+            idxs = new ArrayList<SrdiAPI>( 1 );
             backends.put( group, idxs );
         }
 
@@ -122,72 +120,59 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
         peerRemovalIndex.setNumReturnValues( -1 );
 
-        if ( Logging.SHOW_INFO && LOG.isLoggable( Level.INFO ) ) {
+        Logging.logCheckedInfo(LOG, "[", ( ( group == null ) ? "none" : group.toString() ), "] : Initialized ", indexName);
 
-            LOG.info( "[" + ( ( group == null ) ? "none" : group.toString(  ) ) + "] : Initialized " + indexName );
-        }
     }
 
     public static void clearSrdi( PeerGroup group ) {
 
-        if ( Logging.SHOW_INFO && LOG.isLoggable( Level.INFO ) ) {
+        Logging.logCheckedInfo(LOG, "Clearing SRDIs for ", group );
 
-            LOG.info( "Clearing SRDIs for " + group );
-        }
-
-        List<SrdiIndexBackend> idxs = backends.get( group );
+        List<SrdiAPI> idxs = backends.get( group );
 
         if ( null != idxs ) {
 
-            for ( SrdiIndexBackend idx : idxs ) {
+            for ( SrdiAPI idx : idxs ) {
 
                 try {
-
-                    idx.clear(  );
+                    idx.clear();
                 } catch ( IOException e ) {
-
-                    if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
-
-                        LOG.log( Level.SEVERE, "Failed clearing index for group: " + group.getPeerGroupName(  ), e );
-                    }
+                    Logging.logCheckedSevere(LOG, "Failed clearing index for group: ", group.getPeerGroupName(), e );
                 }
+
             }
 
             backends.remove( group );
         }
     }
 
-    private void stoppedCheck(  ) throws IllegalStateException {
+    private void stoppedCheck() throws IllegalStateException {
 
         if ( stopped ) {
 
-            throw new IllegalStateException( this.getClass(  ).getName(  ) + " has been stopped!" );
+            throw new IllegalStateException( this.getClass().getName() + " has been stopped!" );
         }
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#clear()
+     * @see net.jxta.impl.cm.SrdiAPI#clear()
      */
-    public synchronized void clear(  ) throws IOException {
+    public synchronized void clear() throws IOException {
 
         if ( !stopped ) {
-
-            if ( Logging.SHOW_WARNING && LOG.isLoggable( Level.WARNING ) ) {
-
-                LOG.warning( "Clearing an index that has not been stopped!" );
-            }
+            Logging.logCheckedWarning(LOG, "Clearing an index that has not been stopped!" );
         }
 
-        this.expiryIndex.clear(  );
-        this.peerRemovalIndex.deleteTree(  );
-        this.peeridValueIndex.deleteTree(  );
+        this.expiryIndex.clear();
+        this.peerRemovalIndex.deleteTree();
+        this.peeridValueIndex.deleteTree();
 
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#garbageCollect()
+     * @see net.jxta.impl.cm.SrdiAPI#garbageCollect()
      */
-    public synchronized void garbageCollect(  ) throws IOException {
+    public synchronized void garbageCollect() throws IOException {
 
         if ( this.stopped ) {
 
@@ -195,26 +180,23 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
             return;
         }
 
-        if ( Logging.SHOW_INFO && LOG.isLoggable( Level.INFO ) ) {
+        Logging.logCheckedInfo(LOG, "gc... " );
+        
+        Long now = Long.valueOf( TimeUtils.timeNow() );
 
-            LOG.info( "gc... " );
-        }
-
-        Long now = Long.valueOf( TimeUtils.timeNow(  ) );
-
-        NavigableSet exps = this.expiryIndex.navigableKeySet(  );
+        NavigableSet exps = this.expiryIndex.navigableKeySet();
 
         // If we have some work to do...
-        if ( !exps.isEmpty(  ) ) {
+        if ( !exps.isEmpty() ) {
 
-            if ( ((Long)exps.first(  )).compareTo( now ) < 0 ) {
+            if ( ((Long)exps.first()).compareTo( now ) < 0 ) {
 
-                Iterator it = exps.iterator(  );
+                Iterator it = exps.iterator();
                 Long exp;
 
-                while ( it.hasNext(  ) ) {
+                while ( it.hasNext() ) {
 
-                    exp = (Long)it.next(  );
+                    exp = (Long)it.next();
 
                     if ( exp.compareTo( now ) > 0 ) {
 
@@ -222,36 +204,32 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
                         break;
                     }
 
-                    if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
-
-                        LOG.fine( "Expired: " + exp + " is less than:" + now );
-                    }
-
+                    Logging.logCheckedFine(LOG, "Expired: ", exp, " is less than:", now );
+                    
                     HashMap items = (HashMap)this.expiryIndex.get( exp );
 
-                    ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>(  );
+                    ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>();
 
                     if( null != items ){
                     	
-	                    for ( Object itemObj : items.values(  ) ) {
-	                    	IndexItem item = (IndexItem) itemObj;
-	                        List<PeerIDItem> pids = this.peeridValueIndex.find( item.getTreeKey(  ) );
+	                    for ( Object itemObj : items.values() ) {
+
+                                IndexItem item = (IndexItem) itemObj;
+	                        List<PeerIDItem> pids = this.peeridValueIndex.find( item.getTreeKey() );
 	
-	                        if ( !this.peeridValueIndex.delete( item.getTreeKey(  ) ) ) {
+	                        if ( !this.peeridValueIndex.delete( item.getTreeKey() ) ) {
 	
-	                            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
-	
-	                                LOG.severe( "Failed deleting from PeerId Value Index using key: " + item.getTreeKey(  ) );
-	                            }
+	                            Logging.logCheckedSevere(LOG, "Failed deleting from PeerId Value Index using key: ", item.getTreeKey() );
+	                            
 	                        }
 	
-	                        if ( null != pids && pids.size(  ) > 1 ) {
+	                        if ( null != pids && pids.size() > 1 ) {
 	
 	                            // Other peer IDs sharing the same key
 	                            for ( PeerIDItem pid : pids ) {
 	
-	                                if ( pid.getPeerid(  ).getUniqueValue(  ).toString(  )
-	                                            .equals( item.getIpid(  ).getPeerid(  ).getUniqueValue(  ).toString(  ) ) ) {
+	                                if ( pid.getPeerid().getUniqueValue().toString()
+	                                            .equals( item.getIpid().getPeerid().getUniqueValue().toString() ) ) {
 	
 	                                    pids.remove( pid );
 	
@@ -259,22 +237,20 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 	                                }
 	                            }
 	
-	                            this.peeridValueIndex.insert( item.getTreeKey(  ), pids );
+	                            this.peeridValueIndex.insert( item.getTreeKey(), pids );
 	                        }
 	
-	                        if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
-	
-	                            LOG.fine( "TST size: " + this.peeridValueIndex.getSize(  ) );
-	                        }
-	
-	                        removalKeys.add( item );
+	                        Logging.logCheckedFine(LOG, "TST size: ", this.peeridValueIndex.getSize());
+	                        
+                                removalKeys.add( item );
+
 	                    }
 	
 	                    items = null;
                     }
                     
                     // Must delete via the iterator
-                    it.remove(  );
+                    it.remove();
 
                     for ( IndexItem item : removalKeys ) {
 
@@ -289,14 +265,14 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#getRecord(java.lang.String, java.lang.String, java.lang.String)
+     * @see net.jxta.impl.cm.SrdiAPI#getRecord(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized List<Entry> getRecord( String pkey, String skey, String value )
         throws IOException {
 
-        stoppedCheck(  );
+        stoppedCheck();
 
-        ArrayList<Entry> entries = new ArrayList<Entry>(  );
+        ArrayList<Entry> entries = new ArrayList<Entry>();
 
         String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 
@@ -306,9 +282,9 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
             for ( PeerIDItem ipid : ipids ) {
 
-                if ( ipid.getExpiry(  ) > TimeUtils.timeNow(  ) ) {
+                if ( ipid.getExpiry() > TimeUtils.timeNow() ) {
 
-                    entries.add( ipid.toEntry(  ) );
+                    entries.add( ipid.toEntry() );
                 }
             }
         }
@@ -343,9 +319,9 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 	
 	                for ( PeerIDItem pid : pids ) {
 	
-	                    if ( !results.containsKey( pid.getPeerid(  ) ) && ( pid.getExpiry(  ) >= TimeUtils.timeNow(  ) ) ) {
+	                    if ( !results.containsKey( pid.getPeerid() ) && ( pid.getExpiry() >= TimeUtils.timeNow() ) ) {
 	
-	                        results.put( pid.getPeerid(  ), OBJ );
+	                        results.put( pid.getPeerid(), OBJ );
 	                        resultCount++;
 	
 	                        if ( resultCount == threshold ) {
@@ -360,14 +336,17 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#query(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see net.jxta.impl.cm.SrdiAPI#query(java.lang.String, java.lang.String, java.lang.String, int)
      */
     public synchronized List<PeerID> query( String pkey, String skey, String value, int threshold )
         throws IOException {
 
-        stoppedCheck(  );
+        stoppedCheck();
 
-        HashMap<PeerID, Object> results = new HashMap<PeerID, Object>(  );
+        if ( null == pkey )
+            throw new IOException( "Null primary key is not supported in query." );
+
+        HashMap<PeerID, Object> results = new HashMap<PeerID, Object>();
 
         if ( null == skey ) {
 
@@ -377,6 +356,12 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
             processKeyList( keys, results, threshold );
         } else {
+
+            if ( null == value ) {
+
+                // No value specified so assume all values are required
+                value = WILDCARD;
+            }
 
             String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 
@@ -406,9 +391,9 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
                     for ( PeerIDItem pid : pids ) {
 
-                        if ( !results.containsKey( pid.getPeerid(  ) ) && ( pid.getExpiry(  ) >= TimeUtils.timeNow(  ) ) ) {
+                        if ( !results.containsKey( pid.getPeerid() ) && ( pid.getExpiry() >= TimeUtils.timeNow() ) ) {
 
-                            results.put( pid.getPeerid(  ), OBJ );
+                            results.put( pid.getPeerid(), OBJ );
                             resultCount++;
 
                             if ( resultCount == threshold ) {
@@ -421,32 +406,32 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
             }
         }
 
-        return new ArrayList<PeerID>( results.keySet(  ) );
+        return new ArrayList<PeerID>( results.keySet() );
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#remove(net.jxta.peer.PeerID)
+     * @see net.jxta.impl.cm.SrdiAPI#remove(net.jxta.peer.PeerID)
      */
     @SuppressWarnings( "unchecked" )
     public synchronized void remove( PeerID pid ) throws IOException {
 
-        stoppedCheck(  );
+        stoppedCheck();
 
-        HashMap<Long, IndexItem> items = (HashMap<Long, IndexItem>) this.peerRemovalIndex.get( pid.getUniqueValue(  ).toString(  ) );
+        HashMap<Long, IndexItem> items = (HashMap<Long, IndexItem>) this.peerRemovalIndex.get( pid.getUniqueValue().toString() );
         if(items == null)  // Nothing to do...
         	return;
-        Iterator<Long> it = items.keySet(  ).iterator(  );
+        Iterator<Long> it = items.keySet().iterator();
         IndexItem iitem = null;
-        ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>(  );
+        ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>();
 
-        while ( it.hasNext(  ) ) {
+        while ( it.hasNext() ) {
 
-            iitem = items.get( it.next(  ) );
+            iitem = items.get( it.next() );
 
             removalKeys.add( iitem );
 
             // Expire this entry
-            iitem.getIpid(  ).setExpiry( -1 );
+            iitem.getIpid().setExpiry( -1 );
 
             // Re-add at new position in gc index
             addGcItem( iitem );
@@ -456,41 +441,38 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
             // Remove from current position in the expire index
             removeGcItem( item );
+            
         }
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#stop()
+     * @see net.jxta.impl.cm.SrdiAPI#stop()
      */
-    public synchronized void stop(  ) {
-
+    public synchronized void stop() {
         this.stopped = true;
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.cm.SrdiIndexBackend#add(java.lang.String, java.lang.String, java.lang.String, net.jxta.peer.PeerID, long)
+     * @see net.jxta.impl.cm.SrdiAPI#add(java.lang.String, java.lang.String, java.lang.String, net.jxta.peer.PeerID, long)
      */
     @SuppressWarnings( "unchecked" )
     public synchronized void add( String pkey, String skey, String value, PeerID pid, long expiry ) {
 
-        stoppedCheck(  );
+        stoppedCheck();
 
-        if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
-
-            LOG.fine( "[" + indexName + "] Adding " + pkey + "/" + skey + " = \'" + value + "\' for " + pid );
-        }
+        Logging.logCheckedFine(LOG, "[", indexName, "] Adding ", pkey, "/", skey, " = \'", value, "\' for ", pid );
 
         String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 
         List<PeerIDItem> pids;
-        String pidString = pid.getUniqueValue(  ).toString(  );
+        String pidString = pid.getUniqueValue().toString();
 
         if ( null != ( pids = this.peeridValueIndex.find( treeKey ) ) ) {
 
             // Check for a PeerID entry already added
             for ( PeerIDItem item : pids ) {
 
-                String peerIDString = item.getPeerid(  ).getUniqueValue(  ).toString(  );
+                String peerIDString = item.getPeerid().getUniqueValue().toString();
 
                 if ( peerIDString.equals( pidString ) ) {
 
@@ -526,7 +508,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
             pitems = new HashMap<Long, IndexItem>( 1 );
         }
 
-        pitems.put( idxItem.getId(  ), idxItem );
+        pitems.put( idxItem.getId(), idxItem );
         this.peerRemovalIndex.put( pidString, pitems );
     }
 
@@ -534,7 +516,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     private boolean removeGcItem( PeerIDItem piitem, String peerIDString ) {
 
         boolean ret = false;
-        Long oldExpiry = Long.valueOf( piitem.getExpiry(  ) );
+        Long oldExpiry = Long.valueOf( piitem.getExpiry() );
 
         // Remove from current position in the expire index
         HashMap gcItems = (HashMap) this.expiryIndex.get( oldExpiry );
@@ -543,11 +525,11 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         	
             Long id = null;
 
-	        for ( Object iitemObj : gcItems.values(  ) ) {
+	        for ( Object iitemObj : gcItems.values() ) {
 	        	IndexItem iitem = (IndexItem) iitemObj;
-	            if ( iitem.getIpid(  ).getPeerid(  ).getUniqueValue(  ).toString(  ).equals( peerIDString ) ) {
+	            if ( iitem.getIpid().getPeerid().getUniqueValue().toString().equals( peerIDString ) ) {
 	
-	                id = iitem.getId(  );
+	                id = iitem.getId();
 	
 	                break;
 	            }
@@ -561,7 +543,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 	            }
 	        }
 	
-	        if ( gcItems.isEmpty(  ) ) {
+	        if ( gcItems.isEmpty() ) {
 	
 	            this.expiryIndex.remove( oldExpiry );
 	        }
@@ -573,17 +555,17 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
     private boolean removeGcItem( IndexItem iitem ) {
 
         boolean ret = false;
-        Long oldExpiry = Long.valueOf( iitem.getIpid(  ).getExpiry(  ) );
+        Long oldExpiry = Long.valueOf( iitem.getIpid().getExpiry() );
 
         // Remove from current position in the expire index
         HashMap gcItems = (HashMap) this.expiryIndex.get( oldExpiry );
 
         if ( null != gcItems ) {
 
-            gcItems.remove( iitem.getId(  ) );
+            gcItems.remove( iitem.getId() );
             ret = true;
 
-            if ( gcItems.isEmpty(  ) ) {
+            if ( gcItems.isEmpty() ) {
 
                 this.expiryIndex.remove( oldExpiry );
             }
@@ -594,7 +576,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
 
     private HashMap<Long, IndexItem> addGcItem( IndexItem iitem ) {
 
-        Long expiryKey = Long.valueOf( iitem.getIpid(  ).getExpiry(  ) );
+        Long expiryKey = Long.valueOf( iitem.getIpid().getExpiry() );
         HashMap gcItems = (HashMap) this.expiryIndex.get( expiryKey );
 
         if ( null == gcItems ) {
@@ -603,7 +585,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
             this.expiryIndex.put( expiryKey, gcItems );
         }
 
-        gcItems.put( iitem.getId(  ), iitem );
+        gcItems.put( iitem.getId(), iitem );
 
         return gcItems;
     }
@@ -619,12 +601,12 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
             this.expiry = TimeUtils.toAbsoluteTimeMillis( ttl );
         }
 
-        public PeerID getPeerid(  ) {
+        public PeerID getPeerid() {
 
             return peerid;
         }
 
-        public long getExpiry(  ) {
+        public long getExpiry() {
 
             return expiry;
         }
@@ -634,7 +616,7 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
             this.expiry = expiry;
         }
 
-        Entry toEntry(  ) {
+        Entry toEntry() {
 
             return new Entry( this.peerid, this.expiry );
         }
@@ -649,23 +631,26 @@ public class InMemorySrdiIndexBackend implements SrdiIndexBackend {
         public IndexItem( PeerIDItem ipid, String treeKey ) {
 
             this.ipid = ipid;
-            this.id = InMemorySrdiIndexBackend.counter++;
+            this.id = InMemorySrdi.counter++;
             this.treeKey = treeKey;
         }
 
-        public String getTreeKey(  ) {
+        public String getTreeKey() {
 
             return treeKey;
         }
 
-        public Long getId(  ) {
+        public Long getId() {
 
             return id;
         }
 
-        public PeerIDItem getIpid(  ) {
+        public PeerIDItem getIpid() {
 
             return ipid;
+
         }
+
     }
+
 }

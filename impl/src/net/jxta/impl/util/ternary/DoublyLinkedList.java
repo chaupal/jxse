@@ -75,7 +75,7 @@ public class DoublyLinkedList {
 
     public void addFirst( Object data ) {
 
-        DLLNode newNode = new DLLNode(  );
+        DLLNode newNode = new DLLNode();
 
         newNode.data = data;
 
@@ -95,7 +95,7 @@ public class DoublyLinkedList {
 
     public void addLast( Object data ) {
 
-        DLLNode newNode = new DLLNode(  );
+        DLLNode newNode = new DLLNode();
 
         newNode.data = data;
 
@@ -112,7 +112,7 @@ public class DoublyLinkedList {
         size++;
     }
 
-    public void removeFirst(  ) {
+    public void removeFirst() {
 
         if ( size <= 1 ) {
 
@@ -130,7 +130,7 @@ public class DoublyLinkedList {
         size--;
     }
 
-    public void removeLast(  ) {
+    public void removeLast() {
 
         if ( size <= 1 ) {
 
@@ -146,12 +146,12 @@ public class DoublyLinkedList {
         size--;
     }
 
-    public int size(  ) {
+    public int size() {
 
         return size;
     }
 
-    public void clear(  ) {
+    public void clear() {
 
         DLLNode currentNode = last;
         DLLNode tempNode;
@@ -170,9 +170,9 @@ public class DoublyLinkedList {
         size = 0;
     }
 
-    public Iterator<Object> iterator(  ) {
+    public Iterator<Object> iterator() {
 
-        return new DLLIterator(  );
+        return new DLLIterator();
     }
 
     protected class DLLNode {
@@ -187,7 +187,7 @@ public class DoublyLinkedList {
         private DLLNode currentPreviousNode = null;
         private DLLNode currentNextNode = head;
 
-        public boolean hasNext(  ) {
+        public boolean hasNext() {
 
             if ( currentNextNode == null ) {
 
@@ -198,7 +198,7 @@ public class DoublyLinkedList {
             }
         }
 
-        public boolean hasPrevious(  ) {
+        public boolean hasPrevious() {
 
             if ( currentPreviousNode == null ) {
 
@@ -209,7 +209,7 @@ public class DoublyLinkedList {
             }
         }
 
-        public Object next(  ) {
+        public Object next() {
 
             if ( currentNextNode == null ) {
 
@@ -227,7 +227,7 @@ public class DoublyLinkedList {
             return data;
         }
 
-        public Object previous(  ) {
+        public Object previous() {
 
             if ( currentPreviousNode == null ) {
 
@@ -244,19 +244,19 @@ public class DoublyLinkedList {
             return data;
         }
 
-        public void resetToBeginning(  ) {
+        public void resetToBeginning() {
 
             currentNextNode = head;
             currentPreviousNode = null;
         }
 
-        public void resetToEnd(  ) {
+        public void resetToEnd() {
 
             currentNextNode = null;
             currentPreviousNode = last;
         }
 
-        public void remove(  ) {
+        public void remove() {
         	// Not implemented
         }
     }

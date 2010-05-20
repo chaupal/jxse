@@ -359,31 +359,28 @@ public class CbJxMessageInfo {
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.getName());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem.getName());
             }
+
         }
 
         // sanity checking time.
 
-        if (null == rootCert) {
+        if (null == rootCert)
             throw new IllegalArgumentException("Document did not contain a root cert element");
-        }
 
-        if (null == destinationAddress) {
+        if (null == destinationAddress)
             throw new IllegalArgumentException("Document did not contain a destination address element");
-        }
-
-        if (null == sourceAddress) {
+        
+        if (null == sourceAddress)
             throw new IllegalArgumentException("Document did not contain a source address element");
-        }
 
-        if (null == sourceID) {
+        if (null == sourceID) 
             throw new IllegalArgumentException("Document did not contain a source ID element");
-        }
+        
     }
 }

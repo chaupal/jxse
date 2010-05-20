@@ -125,17 +125,18 @@ public class LimitedRangeWalker implements RdvWalker {
             PeerViewElement upPeer = walk.getPeerView().getUpPeer();
 
             if ((upPeer != null) && upPeer.isAlive()) {
+
                 Message newMsg = msg.clone();
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Walking " + newMsg + " [UP] to " + upPeer);
-                }
+                Logging.logCheckedFine(LOG, "Walking ", newMsg, " [UP] to ", upPeer);
 
                 rdvMsg.setDirection(LimitedRangeRdvMsg.WalkDirection.UP);
 
                 updateRdvMessage(newMsg, rdvMsg);
                 upPeer.sendMessage(newMsg, walk.getWalkServiceName(), walk.getWalkServiceParam());
+
             }
+
         }
 
         if ((dir == LimitedRangeRdvMsg.WalkDirection.BOTH) || (dir == LimitedRangeRdvMsg.WalkDirection.DOWN)) {
@@ -144,10 +145,7 @@ public class LimitedRangeWalker implements RdvWalker {
             if ((downPeer != null) && downPeer.isAlive()) {
                 Message newMsg = msg.clone();
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Walking " + newMsg + " [DOWN] to " + downPeer);
-                }
-
+                Logging.logCheckedFine(LOG, "Walking ", newMsg, " [DOWN] to ", downPeer);
                 rdvMsg.setDirection(LimitedRangeRdvMsg.WalkDirection.DOWN);
 
                 updateRdvMessage(newMsg, rdvMsg);
@@ -161,17 +159,14 @@ public class LimitedRangeWalker implements RdvWalker {
      */
     public void walkMessage(PeerID destination, Message msg, String srcSvcName, String srcSvcParam, int ttl) throws IOException {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Walking " + msg + " to " + srcSvcName + "/" + srcSvcParam);
-        }
+        Logging.logCheckedFine(LOG, "Walking ", msg, " to ", srcSvcName, "/", srcSvcParam);
 
         // Check if there is already a Rdv Message
         LimitedRangeRdvMsg rdvMsg = LimitedRangeWalk.getRdvMessage(msg);
 
         if (rdvMsg == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Creating new Walk Header for " + msg + " with TTL=" + ttl);
-            }
+
+            Logging.logCheckedFine(LOG, "Creating new Walk Header for ", msg, " with TTL=", ttl);
 
             // Create a new one.
             rdvMsg = new LimitedRangeRdvMsg();
@@ -193,11 +188,10 @@ public class LimitedRangeWalker implements RdvWalker {
         rdvMsg.setTTL(useTTL);
 
         if (useTTL <= 0) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("LimitedRangeWalker was not able to send " + msg + " : No TTL remaining");
-            }
 
+            Logging.logCheckedFine(LOG, "LimitedRangeWalker was not able to send ", msg, " : No TTL remaining");
             return;
+
         }
 
         // Forward the message according to the direction set in the Rdv Message.

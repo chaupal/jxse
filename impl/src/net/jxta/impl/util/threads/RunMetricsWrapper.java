@@ -41,7 +41,10 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
     
     public T call() throws Exception {
         executorThread = Thread.currentThread();
-        ScheduledFuture<?> future = longTaskMonitor.scheduleAtFixedRate(new LongTaskDetector(this), 1L, 5L, TimeUnit.SECONDS);
+        ScheduledFuture<?> future = longTaskMonitor.scheduleAtFixedRate(new LongTaskDetector(this), 
+                Long.getLong("net.jxta.impl.util.threads.RunMetricsWrapper.delay",1L), 
+                Long.getLong("net.jxta.impl.util.threads.RunMetricsWrapper.interval",20L),
+                TimeUnit.SECONDS);
 
         startTime = System.currentTimeMillis();
         T returnVal = wrappedRunnable.call();

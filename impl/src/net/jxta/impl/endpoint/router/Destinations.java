@@ -220,10 +220,7 @@ class Destinations {
             Messenger currentIncoming = getIncoming();
 
             if (currentIncoming == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Accepted new incoming messenger for " + m.getDestinationAddress());
-                }
-
+                Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
                 incomingMessenger = m;
                 return true;
             }
@@ -252,9 +249,7 @@ class Destinations {
 
             incomingMessenger = m;
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Accepted new incoming messenger for " + m.getDestinationAddress());
-            }
+            Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
 
             return true;
         }
@@ -267,10 +262,9 @@ class Destinations {
             xportDest = m.getDestinationAddress();
             expiresAt = TimeUtils.toAbsoluteTimeMillis(EXPIRATION);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Accepted new outgoing messenger for " + xportDest);
-            }
+            Logging.logCheckedFine(LOG, "Accepted new outgoing messenger for ", xportDest);
             return true;
+
         }
 
         void noOutgoingMessenger() {
@@ -472,10 +466,11 @@ class Destinations {
                         }
                     }
                 }
+
             } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && Destinations.LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in ScheduledTask :" + Thread.currentThread().getName(), all);
-                }
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in ScheduledTask :" + Thread.currentThread().getName(), "\n", all);
+                
             }
         }
     }

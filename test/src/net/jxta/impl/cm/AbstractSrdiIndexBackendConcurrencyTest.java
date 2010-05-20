@@ -42,16 +42,16 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	@Test
 	public void testSeparateIndexConcurrentSafety() throws Exception {
 		PeerGroup group = createGroup(PeerGroupID.defaultNetPeerGroupID, "group1");
-		SrdiIndex[] indices = new SrdiIndex[NUM_INDICES];
+		Srdi[] indices = new Srdi[NUM_INDICES];
 		
 		for(int i=0; i < NUM_INDICES; i++) {
-			indices[i] = new SrdiIndex(createBackend(group, "index" + i), SrdiIndex.NO_AUTO_GC);
+			indices[i] = new Srdi(createBackend(group, "index" + i), Srdi.NO_AUTO_GC);
 		}
 		
 		randomLoadTest(indices);
 	}
 
-	private void randomLoadTest(SrdiIndex[] indices) throws InterruptedException {
+	private void randomLoadTest(Srdi[] indices) throws InterruptedException {
 		CountDownLatch completionLatch = new CountDownLatch(indices.length);
 		IndexRandomLoadTester[] testers = new IndexRandomLoadTester[indices.length];
 		
@@ -77,11 +77,11 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	
 	@Test
 	public void testSeparateGroupConcurrentSafety() throws Exception {
-		SrdiIndex[] indices = new SrdiIndex[NUM_INDICES * NUM_GROUPS];
+		Srdi[] indices = new Srdi[NUM_INDICES * NUM_GROUPS];
 		for(int groupNum = 0; groupNum < NUM_GROUPS; groupNum++) {
 			PeerGroup group = createGroup(IDFactory.newPeerGroupID(), "group" + groupNum);
 			for(int indexNum = 0; indexNum < NUM_INDICES; indexNum++) {
-				indices[NUM_INDICES * groupNum + indexNum] = new SrdiIndex(createBackend(group, "index" + indexNum), SrdiIndex.NO_AUTO_GC);
+				indices[NUM_INDICES * groupNum + indexNum] = new Srdi(createBackend(group, "index" + indexNum), Srdi.NO_AUTO_GC);
 			}
 		}
 		
@@ -100,5 +100,5 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 		return group;
 	}
 
-	protected abstract SrdiIndexBackend createBackend(PeerGroup group, String indexName) throws IOException;
+	protected abstract SrdiAPI createBackend(PeerGroup group, String indexName) throws IOException;
 }

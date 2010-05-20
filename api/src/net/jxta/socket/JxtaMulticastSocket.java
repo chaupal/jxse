@@ -208,9 +208,9 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
         String id = group.getPeerID().toString();
 
         srcElement = new StringMessageElement(SRCIDTAG, id, null);
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Starting JxtaMulticastSocket on pipe id :" + pipeAdv.getID());
-        }
+
+        Logging.logCheckedInfo(LOG, "Starting JxtaMulticastSocket on pipe id :", pipeAdv.getID());
+        
         String pipeStr = pipeAd.getPipeID().getUniqueValue().toString();
 
         localAddress = InetAddress.getByAddress(pipeStr, fauxip);
@@ -236,9 +236,9 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
                 return credential.getDocument(MimeMediaType.XMLUTF8);
             }
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to get credential", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to get credential\n", e);
+            
         }
         return null;
     }
@@ -287,20 +287,20 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
             return;
         }
         try {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Pushing a message onto queue");
-            }
+
+            Logging.logCheckedFine(LOG, "Pushing a message onto queue");
+
             if(!queue.offer(message, -1, TimeUnit.MILLISECONDS))
             	LOG.fine("Failed to push the message onto queue due to no available space");
            
         } catch (InterruptedException e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Interrupted", e);
-            }
+
+            Logging.logCheckedFine(LOG, "Interrupted\n" + e);
+            
         } catch (IllegalArgumentException e){
-        	if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Failed to push the message onto queue", e);
-            }
+
+            Logging.logCheckedFine(LOG, "Failed to push the message onto queue\n", e);
+
         }
     }
 
@@ -364,23 +364,24 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
 
         msg.addMessageElement(NAMESPACE, srcElement);
         msg.addMessageElement(NAMESPACE, new ByteArrayMessageElement(DATATAG, MimeMediaType.AOS, data, null));
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending a data packet");
-        }
+
+        Logging.logCheckedFine(LOG, "Sending a data packet");
+        
         InetAddress address = packet.getAddress();
         PeerID pid = null;
 
         if (address != null) {
+
             String pidStr = address.getHostName();
 
             try {
                 pid = (PeerID) IDFactory.fromURI(new URI(pidStr));
             } catch (Exception ex) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Invalid source PeerID multicasting instead");
-                }
+                Logging.logCheckedFine(LOG, "Invalid source PeerID multicasting instead");
             }
+
         }
+        
         if (pid != null) {
             // Unicast datagram
             // create a op pipe to the destination peer
@@ -417,35 +418,34 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
             }
             del = msg.getMessageElement(NAMESPACE, DATATAG);
             sel = msg.getMessageElement(NAMESPACE, SRCIDTAG);
+
             if (del == null || sel == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Message contains no data element, returning");
-                }
+
+                Logging.logCheckedFine(LOG, "Message contains no data element, returning");
                 return;
+
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Popped a message off the queue");
-                }
+
+                Logging.logCheckedFine(LOG, "Popped a message off the queue");
+
             }
+
         } catch (InterruptedException e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Exception occured", e);
-            }
-            throw new IOException(e.toString());
+
+            Logging.logCheckedFine(LOG, "Exception occured\n", e);
+            throw new IOException(e);
+
         }
-        if (del.getByteLength() > packet.getLength()) {
+
+        if (del.getByteLength() > packet.getLength()) 
             throw new IOException("Datagram can not accomodate message of size :" + del.getByteLength());
-        }
+
         String addrStr = new String(sel.getBytes(false), 0, (int) sel.getByteLength(), "UTF8");
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Src Address :" + addrStr);
-        }
+        Logging.logCheckedFine(LOG, "Src Address :", addrStr);
         InetAddress address = InetAddress.getByAddress(addrStr, fauxip);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Setting Data, and Src Address :" + address);
-        }
+        Logging.logCheckedFine(LOG, "Setting Data, and Src Address :", address);
         packet.setAddress(address);
         packet.setData(del.getBytes(false));
     }

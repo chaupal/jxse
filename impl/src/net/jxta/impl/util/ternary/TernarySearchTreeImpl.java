@@ -81,7 +81,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
     private String matchAlmostKey; // convenience variable for matchAlmost
     private int matchAlmostDiff; // convenience variable for matchAlmost
     private int maxMatchAlmostDiff = 4; // convenience variable for matchAlmost
-    private StringBuffer getKeyBuffer = new StringBuffer(  ); // convenience variable for getKey method
+    private StringBuffer getKeyBuffer = new StringBuffer(); // convenience variable for getKey method
     private int numNodes; // convenience variable for numNodes methods
     private boolean checkData; // convenience variable for numNodes methods
 
@@ -132,7 +132,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
     /** Returns the number of values returned by the last call to matchAlmostString or matchPrefixString methods.
     *   (This is really just for the purposes of the demo applet.)
     */
-    public int getLastNumReturnValues(  ) {
+    public int getLastNumReturnValues() {
 
         return lastNumberOfReturnValues;
     }
@@ -155,7 +155,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
     */
     protected TSTNode getNode( String key, TSTNode startNode ) {
 
-        if ( ( key == null ) || ( startNode == null ) || ( key.length(  ) == 0 ) ) {
+        if ( ( key == null ) || ( startNode == null ) || ( key.length() == 0 ) ) {
 
             return null;
         }
@@ -176,7 +176,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
                 charIndex++;
 
-                if ( charIndex == key.length(  ) ) {
+                if ( charIndex == key.length() ) {
 
                     return currentNode;
                 }
@@ -210,7 +210,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
     public DoublyLinkedList matchPrefix( String prefix, int numReturnValues ) {
 
         sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        sortKeysResult = new DoublyLinkedList(  );
+        sortKeysResult = new DoublyLinkedList();
 
         TSTNode startNode = getNode( prefix );
 
@@ -260,7 +260,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
         lastNumberOfReturnValues = sortKeysNumReturnValues;
-        sortKeysBuffer = new StringBuffer(  );
+        sortKeysBuffer = new StringBuffer();
 
         if ( startNode.data != null ) {
 
@@ -271,7 +271,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
         sortKeysList = false;
         sortKeysRecursion( startNode.relatives [ TSTNode.EQKID ] );
 
-        int bufferLength = sortKeysBuffer.length(  );
+        int bufferLength = sortKeysBuffer.length();
 
         if ( bufferLength > 0 ) {
 
@@ -280,7 +280,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         lastNumberOfReturnValues = lastNumberOfReturnValues - sortKeysNumReturnValues;
 
-        return sortKeysBuffer.toString(  );
+        return sortKeysBuffer.toString();
     }
 
     /* Returns keys sorted in alphabetical order. Includes currentNode and all nodes connected to currentNode. Sorted keys will
@@ -327,7 +327,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
     protected DoublyLinkedList sortKeys( TSTNode startNode, int numReturnValues ) {
 
         sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        sortKeysResult = new DoublyLinkedList(  );
+        sortKeysResult = new DoublyLinkedList();
         sortKeysRecursion( startNode );
 
         return sortKeysResult;
@@ -338,7 +338,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
         return sortKeysString( rootNode, numReturnValues );
     }
 
-    public String sortKeysString(  ) {
+    public String sortKeysString() {
 
         return sortKeysString( rootNode, defaultNumReturnValues );
     }
@@ -359,7 +359,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
         lastNumberOfReturnValues = sortKeysNumReturnValues;
-        sortKeysBuffer = new StringBuffer(  );
+        sortKeysBuffer = new StringBuffer();
 
         if ( startNode.data != null ) {
 
@@ -370,7 +370,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
         sortKeysList = false;
         sortKeysRecursion( startNode );
 
-        int bufferLength = sortKeysBuffer.length(  );
+        int bufferLength = sortKeysBuffer.length();
 
         if ( bufferLength > 0 ) {
 
@@ -379,7 +379,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         lastNumberOfReturnValues = lastNumberOfReturnValues - sortKeysNumReturnValues;
 
-        return sortKeysBuffer.toString(  );
+        return sortKeysBuffer.toString();
     }
 
     /** Returns a list of keys that almost match argument key.
@@ -408,7 +408,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         matchAlmostListAction = true;
         matchAlmostNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        matchAlmostResult = new DoublyLinkedList(  );
+        matchAlmostResult = new DoublyLinkedList();
         matchAlmostKey = key;
         matchAlmostRecursion( rootNode, 0, matchAlmostDiff );
 
@@ -444,11 +444,11 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
         matchAlmostListAction = false;
         matchAlmostNumReturnValues = checkNumberOfReturnValues( numReturnValues );
         lastNumberOfReturnValues = matchAlmostNumReturnValues;
-        matchAlmostBuffer = new StringBuffer(  );
+        matchAlmostBuffer = new StringBuffer();
         matchAlmostKey = key;
         matchAlmostRecursion( rootNode, 0, matchAlmostDiff );
 
-        int bufferLength = matchAlmostBuffer.length(  );
+        int bufferLength = matchAlmostBuffer.length();
 
         if ( bufferLength > 0 ) {
 
@@ -457,12 +457,12 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         lastNumberOfReturnValues = lastNumberOfReturnValues - matchAlmostNumReturnValues;
 
-        return matchAlmostBuffer.toString(  );
+        return matchAlmostBuffer.toString();
     }
 
     private void matchAlmostRecursion( TSTNode currentNode, int charIndex, int d ) {
 
-        if ( ( currentNode == null ) || ( d < 0 ) || ( matchAlmostNumReturnValues == 0 ) || ( charIndex >= matchAlmostKey.length(  ) ) ) {
+        if ( ( currentNode == null ) || ( d < 0 ) || ( matchAlmostNumReturnValues == 0 ) || ( charIndex >= matchAlmostKey.length() ) ) {
 
             return;
         }
@@ -478,7 +478,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
         //equal branch
         int nextD = ( charComp == 0 ) ? d : ( d - 1 );
 
-        if ( ( matchAlmostKey.length(  ) == ( charIndex + 1 ) ) && ( nextD == 0 ) && ( currentNode.data != null ) ) {
+        if ( ( matchAlmostKey.length() == ( charIndex + 1 ) ) && ( nextD == 0 ) && ( currentNode.data != null ) ) {
 
             // Note: the condition nextD == 0 causes keys to be included in the result only if they have exactly matchAlmostDiff number 
             // of mismatched letters
@@ -537,7 +537,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
             throw new NullPointerException( "attempt to get or create node with null key" );
         }
 
-        if ( key.length(  ) == 0 ) {
+        if ( key.length() == 0 ) {
 
             throw new IllegalArgumentException( "attempt to get or create node with key of zero length" );
         }
@@ -558,7 +558,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
                 charIndex++;
 
-                if ( charIndex == key.length(  ) ) {
+                if ( charIndex == key.length() ) {
 
                     return currentNode;
                 }
@@ -634,15 +634,15 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
             currentNode = currentNode.relatives [ TSTNode.PARENT ];
         }
 
-        getKeyBuffer.reverse(  );
+        getKeyBuffer.reverse();
 
-        return getKeyBuffer.toString(  );
+        return getKeyBuffer.toString();
     }
 
     /** Returns the total number of nodes in the tree. Counts nodes whether or not they have data.
     *   @return int The total number of nodes in the tree.
     */
-    public int numNodes(  ) {
+    public int numNodes() {
 
         return numNodes( rootNode );
     }
@@ -663,7 +663,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
     /** Returns the number of nodes in the tree that have non-null data.
     *   @return int The number of nodes in the tree that have non-null data.
     */
-    public int numDataNodes(  ) {
+    public int numDataNodes() {
 
         return numDataNodes( rootNode );
     }
@@ -704,7 +704,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
         }
     }
 
-    public void deleteTree(  ) {
+    public void deleteTree() {
 
         if ( rootNode == null ) {
 
@@ -715,12 +715,12 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
         rootNode.relatives = new TSTNode[ 4 ];
         rootNode.data = null;
 
-        System.gc(  );
+        System.gc();
     }
 
     /** Prints entire tree structure to standard output, beginning with the root node and workind down.
     */
-    protected void printTree(  ) {
+    protected void printTree() {
 
         System.out.println( "" );
 
@@ -874,7 +874,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
         if ( deltaHi == deltaLo ) {
 
-            if ( Math.random(  ) < 0.5 ) {
+            if ( Math.random() < 0.5 ) {
 
                 deltaHi++;
             } else {

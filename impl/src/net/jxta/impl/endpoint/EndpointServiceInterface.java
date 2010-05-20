@@ -55,9 +55,11 @@
  */
 package net.jxta.impl.endpoint;
 
+import java.util.Collection;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.*;
 import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
 import net.jxta.impl.peergroup.StdPeerGroup;
@@ -65,7 +67,6 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
@@ -555,6 +556,24 @@ class EndpointServiceInterface implements EndpointService {
     public Messenger getDirectMessenger(EndpointAddress addr, Object hint, boolean exclusive) {
 
         return theRealThing.getDirectMessenger(addr, hint, exclusive);
+
+    }
+
+    public boolean isConnectedToRelayPeer() {
+
+        return theRealThing.isConnectedToRelayPeer();
+
+    }
+
+    public Collection<PeerID> getConnectedRelayPeers() {
+
+        return theRealThing.getConnectedRelayPeers();
+
+    }
+
+    public EndpointRoutingTransport getEndpointRouter() {
+
+        return theRealThing.getEndpointRouter();
 
     }
 }

@@ -89,7 +89,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
 	private static final int NO_THRESHOLD = Integer.MAX_VALUE;
     protected String cacheImplClassName;
 	protected AdvertisementCache wrappedCache;
-    protected Cm cm;
+    protected CacheManager cm;
 
     protected PeerAdvertisement adv;
     protected PeerGroupID groupId;
@@ -102,7 +102,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
         
         TimeUtils.setClock(fakeTimer);
         wrappedCache = createWrappedCache("testArea"); 
-        cm = new Cm(wrappedCache);
+        cm = new CacheManager(wrappedCache);
         groupId = IDFactory.newPeerGroupID();
         adv = createPeerAdvert(groupId, "MyPeer100");
     }
@@ -576,7 +576,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     }
     
     public void testSaveIsolation_differentAreaNames() throws Exception {
-        Cm alternateArea = new Cm(createWrappedCache("testArea2"));
+        CacheManager alternateArea = new CacheManager(createWrappedCache("testArea2"));
         cm.save("a", "b", adv);
         
         assertEquals(1, cm.getRecords("a", NO_THRESHOLD, null).size());
@@ -592,7 +592,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     }
     
     public void testRemoveIsolation_differentAreaNames() throws Exception {
-        Cm alternateArea = new Cm(createWrappedCache("testArea2"));
+        CacheManager alternateArea = new CacheManager(createWrappedCache("testArea2"));
         cm.save("a", "b", adv);
         alternateArea.remove("a", "b");
         
@@ -603,15 +603,15 @@ public abstract class AbstractCmTest extends FileSystemTest {
     }
     
     public void testConstruct() throws IOException {
-    	System.setProperty(Cm.CACHE_IMPL_SYSPROP, getCacheClassName());
-        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2");
+    	System.setProperty(CacheManager.CACHE_IMPL_SYSPROP, getCacheClassName());
+        CacheManager cmFromConstructor = new CacheManager(testRootDir.toURI(), "testArea2");
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }
     
     public void testConstructWithGcIntervalAndTrackDeltasParams() throws IOException {
-        System.setProperty(Cm.CACHE_IMPL_SYSPROP, getCacheClassName());
-        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2", 30000, false);
+        System.setProperty(CacheManager.CACHE_IMPL_SYSPROP, getCacheClassName());
+        CacheManager cmFromConstructor = new CacheManager(testRootDir.toURI(), "testArea2", 30000, false);
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }

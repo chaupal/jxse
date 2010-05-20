@@ -187,12 +187,11 @@ public class Certificate {
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             Element elem = (Element) elements.nextElement();
 
             if (!elem.getKey().equals("Issuer")) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
                 continue;
             }
 

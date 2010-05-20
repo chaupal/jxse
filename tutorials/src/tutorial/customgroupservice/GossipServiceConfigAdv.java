@@ -59,7 +59,6 @@ package tutorial.customgroupservice;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
-import net.jxta.document.Document;
 import net.jxta.document.Element;
 import net.jxta.document.ExtendableAdvertisement;
 import net.jxta.document.MimeMediaType;
@@ -68,10 +67,8 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.document.Attributable;
-
 
 /**
  * Defines Gossip Service configuration parameters.
@@ -209,13 +206,17 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
             Attribute aConfigAttr = eachAttr.nextElement();
 
             if (super.handleAttribute(aConfigAttr)) {
+
                 // nothing to do
+
             } else if (SHOW_OWN_ATTR.equals(aConfigAttr.getName())) {
+
                 setShowOwn(Boolean.valueOf(aConfigAttr.getValue().trim()));
+
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + aConfigAttr.getName());
-                }
+
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aConfigAttr.getName());
+                
             }
         }
 
@@ -226,9 +227,7 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
             XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedWarning(LOG, "Unhandled Element: " + elem.toString());
             }
         }
     }

@@ -56,7 +56,6 @@
 
 package net.jxta.rendezvous;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
@@ -64,11 +63,11 @@ import net.jxta.id.ID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.service.Service;
-
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
-
+import net.jxta.peer.PeerID;
 
 /**
  * The RendezVous Service provides propagation of messages within a JXTA
@@ -82,7 +81,7 @@ import java.util.Vector;
  * a PeerGroup to act as a Rendezvous. Rendezvous peers may dynamically join or
  * leave the PeerGroup over time.
  *
- * @see    <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target='_blank'>JXTA Protocols Specification : Rendezvous</a>
+ * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-rvp" target='_blank'>JXTA Protocols Specification : Rendezvous</a>
  */
 public interface RendezVousService extends Service {
 
@@ -97,11 +96,12 @@ public interface RendezVousService extends Service {
     /**
      * Attempt connection to the specified RendezVous peer.
      *
-     * @deprecated Directly connecting to rendezvous peers is not recommended.
-     * Seed rendezvous should be specified using the RdvConfigAdv mechanisms.
-     *
      * @param  adv           the advertisement of the RendezVousService peer
      * @throws  IOException  When the specified peer is unreachable
+     * @since 2.5
+     * @deprecated Directly connecting to rendezvous peers is not recommended.
+     * Seed rendezvous should be specified using the RdvConfigAdv mechanisms.
+     * This method will be removed in a future release.
      */
     @Deprecated
     public void connectToRendezVous(PeerAdvertisement adv) throws IOException;
@@ -109,11 +109,12 @@ public interface RendezVousService extends Service {
     /**
      * Attempt connection to the specified RendezVous peer.
      *
-     * @deprecated Directly connecting to rendezvous peers is not recommended.
-     * Seed rendezvous should be specified using the RdvConfigAdv mechanisms.
-     *
      * @param  addr          EndpointAddress of the rendezvous peer
      * @throws  IOException  When the specified peer is unreachable
+     * @since 2.5
+     * @deprecated Directly connecting to rendezvous peers is not recommended.
+     * Seed rendezvous should be specified using the RdvConfigAdv mechanisms.
+     * This method will be removed in a future release.
      */
     @Deprecated
     public void connectToRendezVous(EndpointAddress addr) throws IOException;
@@ -122,7 +123,10 @@ public interface RendezVousService extends Service {
      * Disconnect from the specified rendezvous.
      *
      * @param  peerID  the PeerId of the RendezVous to disconnect from.
+     * @since 2.6
+     * @deprecated This method will be removed in a future release.
      */
+    @Deprecated
     public void disconnectFromRendezVous(ID peerID);
 
     /**
@@ -131,18 +135,24 @@ public interface RendezVousService extends Service {
      * {@link #getConnectedPeers()}.
      *
      * @return    Enumeration enumeration of RendezVous.
+     *
+     * @deprecated This method does not work properly. It relies on the
+     * {@code getConnectedPeerIDs()} method which returns the list of EDGE
+     * peers connected to this peer if this peer acts as a RENDEZVOUS.
+     * </p>Use {@code getLocalRendezVousView()} instead.
      */
+    @Deprecated
     public Enumeration<ID> getConnectedRendezVous();
 
     /**
      * Returns an Enumeration of the PeerID all the RendezVous on which this
      * Peer failed to connect to.
      *
-     * @deprecated Due to design changes this no longer returns accurate nor
-     * complete results. It will eventually be removed.
-     *
      * @return    Enumeration of the PeerID all the RendezVous on which this
      * Peer failed to connect to.
+     *
+     * @deprecated Due to design changes this no longer returns accurate nor
+     * complete results. It will eventually be removed.
      */
     @Deprecated
     public Enumeration<ID> getDisconnectedRendezVous();
@@ -165,7 +175,14 @@ public interface RendezVousService extends Service {
      * peers.
      *
      * @return Enumeration of {@link net.jxta.peer.PeerID} connected to this peer.
+     *
+     * @deprecated This method is not helpful at all functionally sepaking, since
+     * it does not help providing the list of EDGE peers connected to this peer if
+     * this peer is a RENDEZVOUS.
+     * </p>It will be removed after 2.6. Use {@code getLocalRendezVousView()} and
+     * {@code getLocalEdgeView()} instead.
      */
+    @Deprecated
     public Enumeration<ID> getConnectedPeers();
 
     /**
@@ -175,7 +192,14 @@ public interface RendezVousService extends Service {
      * peers.
      *
      * @return Vector of {@link net.jxta.peer.PeerID} connected to this peer.
+     *
+     * @deprecated This method is not helpful at all functionally sepaking, since
+     * it does not help providing the list of EDGE peers connected to this peer if
+     * this peer is a RENDEZVOUS.
+     * </p>It will be removed after 2.6. Use {@code getLocalRendezVousView()} and
+     * {@code getLocalEdgeView()} instead.
      */
+    @Deprecated
     public Vector<ID> getConnectedPeerIDs();
 
     /**
@@ -328,6 +352,18 @@ public interface RendezVousService extends Service {
     /**
      * Return {@code true} if connected to a rendezvous.
      *
+     * {@since 2.6 The behavior of this method changes to reflect the true connectivity
+     * status to RDVs. If this peer is an ADHOC, it always returns {@code false}. If this
+     * peer is a RDV, it will return {@code true} if it knows about other RDVs through its
+     * peerview. If this peer is an EDGE, the returned value depends on the fact that
+     * the EDGE is connected to a RDV or not (not change in behavior).}
+     *
+     * </p>REM: Before release 2.6, the information returned by this method was
+     * ambiguous. For ADHOC peers, it would always return {@code true} although
+     * the peer was never connected to a RDV. For RDV peers, it would always return
+     * {@code false}. For EDGE peers, the returned value depended on the fact that
+     * the EDGE was connected to a RDV or not.
+     *
      * @return {@code true} if connected to a rendezvous otherwise {@code false}.
      */
     public boolean isConnectedToRendezVous();
@@ -432,14 +468,34 @@ public interface RendezVousService extends Service {
     /**
      * Returns a vector of RdvAdvertisement of the local view of rendezvous peers.
      *
-     * @deprecated Due to design changes, the list of peers may be empty in
-     * configurations which previously returned a non-empty result. Future 
-     * JXTA versions are likely to use a different API.
-     *
      * @return The local view of RDV peers.
+     *
+     * @deprecated Due to design changes, the list of peers may be empty in
+     * configurations which previously returned a non-empty result. This method will
+     * be removed after release 2.6.
      */
     @Deprecated
     public Vector<RdvAdvertisement> getLocalWalkView();
+
+    /**
+     * Provides a list of locally visible RendezVous peer IDs.
+     * </p>If this peer is a RENDEZVOUS, the method will return all know RDVs from its peer view.
+     * If this peer is an EDGE it will return the rendezvous it is connected to. If this peer is
+     * ADHOC, it will return an empty list.
+     *
+     * @return a local view of RDV peer IDs.
+     */
+    public List<PeerID> getLocalRendezVousView();
+
+    /**
+     * Provides a list of locally connected EDGE peer IDs.
+     * </p>If this peer is a RENDEZVOUS, the method will return the list of EDGE peer
+     * IDs connected to this peer. If this peer is an EDGE or ADHOC, it will return an
+     * empty list.
+     *
+     * @return a local view of connected EDGE peer IDs.
+     */
+    public List<PeerID> getLocalEdgeView();
 
     /**
      * Set a new deadline for the rendezvous to be proven alive.
@@ -447,9 +503,17 @@ public interface RendezVousService extends Service {
      * specified delay or the rdv is considered disconnected.
      *
      * <p/>A timeout of 0 or less triggers immediate disconnection.
+     * 
+     * <p/>This method does nothing if this peer is a RDV or an ADHOC.
      *
      * @param  peer     The peer to be challenged
      * @param  timeout  The delay
+     * 
+     * @deprecated Since 2.6, this method is deprecated, since connection to
+     * RDVs is handled by core code itself. This method will be removed in
+     * a future release.
      */
+    @Deprecated
     public void challengeRendezVous(ID peer, long timeout);
+
 }

@@ -54,10 +54,6 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-/**
- * This class is used to manage a persistent CM cache  of route
- * for the router
- */
 package net.jxta.impl.endpoint.router;
 
 import net.jxta.discovery.DiscoveryService;
@@ -78,17 +74,20 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This class is used to manage a persistent CM cache  of route
+ * for the router
+ */
 class RouteCM implements Module {
     
     /**
@@ -165,6 +164,7 @@ class RouteCM implements Module {
         this.group = group;
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : " + assignedID);
             
             if (implAdvertisement != null) {
@@ -231,17 +231,17 @@ class RouteCM implements Module {
      * @param peerID the target peer's ID.
      * @return Route Advertisements for the specified peer.
      */
-    protected Iterator<RouteAdvertisement> getRouteAdv(ID peerID) {
+    protected Collection<RouteAdvertisement> getRouteAdv(ID peerID) {
         DiscoveryService discovery;
         
         // check if we use the CM, if not then nothing
         // to retrieve
         if (!useCM) {
-            return Collections.<RouteAdvertisement>emptyList().iterator();
+            return Collections.<RouteAdvertisement>emptyList();
         } else {
             discovery = group.getDiscoveryService();
             if (null == discovery) {
-                return Collections.<RouteAdvertisement>emptyList().iterator();
+                return Collections.<RouteAdvertisement>emptyList();
             }
         }
         
@@ -249,17 +249,19 @@ class RouteCM implements Module {
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(2);
         if (lruCache.contains(peerID)) {
             result.add(lruCache.get(peerID));
-            return result.iterator();
+            return result;
         }
         // check first if we have a route advertisement
         Enumeration<Advertisement> advs = null;
         
         try {
+
             advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, peerIDStr);
+
         } catch (IOException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed discovering routes for " + peerIDStr, failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed discovering routes for ", peerIDStr, failed);
+            
         }
         
         while ((null != advs) && advs.hasMoreElements()) {
@@ -278,12 +280,15 @@ class RouteCM implements Module {
         
         // get the local peer advertisements for the peer.
         advs = null;
+
         try {
+
             advs = discovery.getLocalAdvertisements(DiscoveryService.PEER, "PID", peerIDStr);
+
         } catch (IOException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed discovering peer advertisements for " + peerIDStr, failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for ", peerIDStr, "\n", failed);
+            
         }
         
         while ((null != advs) && advs.hasMoreElements()) {
@@ -306,15 +311,20 @@ class RouteCM implements Module {
 
                     //FIXME by hamada: This operation may lead to overwriting an existing and valid rout adv, no?
                     discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
+
                 } catch (IOException failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Failed publishing route", failed);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Failed publishing route\n", failed);
+
                 }
+
                 result.add(route);
+
             }
         }
-        return result.iterator();
+
+        return result;
+
     }
     
     /**
@@ -337,9 +347,8 @@ class RouteCM implements Module {
             }
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("try to publish route ");
-        }
+        Logging.logCheckedFine(LOG, "try to publish route ");
+
         // we need to retrieve the current adv to get all the known
         // endpoint addresses
         try {
@@ -355,9 +364,7 @@ class RouteCM implements Module {
             
             if (!advs.hasMoreElements()) {
                 // No route, sorry
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("could not find a route advertisement " + realPeerID);
-                }
+                Logging.logCheckedFine(LOG, "could not find a route advertisement ", realPeerID);
                 return;
             }
             
@@ -385,9 +392,7 @@ class RouteCM implements Module {
                 advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
                 if (!advs.hasMoreElements()) {
                     // No route, sorry
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("could not find a route advertisement for hop " + realPeerID);
-                    }
+                    Logging.logCheckedFine(LOG, "could not find a route advertisement for hop ", realPeerID);
                     return;
                 }
                 adv = advs.nextElement();
@@ -404,17 +409,18 @@ class RouteCM implements Module {
             
             newRoute.setHops(newHops);
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("publishing new route \n" + newRoute.display());
-            }
+            Logging.logCheckedFine(LOG, "publishing new route \n", newRoute.display());
+            
             lruCache.put(route.getDestPeerID(), route);
+
             // XXX 20060106 bondolo These publication values won't be obeyed if
             // the route had been previously published.
             discovery.publish(newRoute, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
+
         } catch (Exception ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "error publishing route" + route.display(), ex);
-            }
+
+            Logging.logCheckedWarning(LOG, "error publishing route", route.display(), "\n", ex);
+            
         }
     }
     
@@ -436,20 +442,21 @@ class RouteCM implements Module {
             }
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Publishing route for " + route.getDestPeerID());
-        }
+        Logging.logCheckedFine(LOG, "Publishing route for ", route.getDestPeerID());
         
         // publish route adv
         if (!lruCache.contains(route.getDestPeerID())) {
+            
             try {
+
                 // XXX 20060106 bondolo These publication values won't be obeyed if
                 // the route had been previously published.
                 discovery.publish(route, DEFAULT_EXPIRATION, DEFAULT_EXPIRATION);
+
             } catch (Exception ex) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "error publishing route adv \n" + route, ex);
-                }
+
+                Logging.logCheckedSevere(LOG, "error publishing route adv \n", route, "\n", ex);
+                
             }
         }
         lruCache.put(route.getDestPeerID(), route);
@@ -482,11 +489,13 @@ class RouteCM implements Module {
         
         // Flush the local route advertisements for the peer.
         try {
+
             advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, peerIDStr);
+
         } catch (IOException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure recovering route advertisements.", failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failure recovering route advertisements.\n", failed);
+            
         }
         
         while ((null != advs) && advs.hasMoreElements()) {
@@ -498,22 +507,26 @@ class RouteCM implements Module {
             
             // ok so let's delete the advertisement
             try {
+
                 discovery.flushAdvertisement(adv);
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("removed RouteAdvertisement for " + peerIDStr);
-                }
+                Logging.logCheckedFine(LOG, "removed RouteAdvertisement for ", peerIDStr);
+
             } catch (IOException ex) {// protect against flush IOException when the entry is not there
+
             }
         }
         
         // Flush the local peer advertisements for the peer.
         advs = null;
+
         try {
+
             advs = discovery.getLocalAdvertisements(DiscoveryService.PEER, "PID", peerIDStr);
+
         } catch (IOException failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed discovering peer advertisements for " + peerIDStr, failed);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for ", peerIDStr, "\n", failed);
+            
         }
         
         while ((null != advs) && advs.hasMoreElements()) {
@@ -526,9 +539,7 @@ class RouteCM implements Module {
             // ok so let's delete the advertisement
             try {
                 discovery.flushAdvertisement(adv);
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("removed PeerAdvertisement for " + peerIDStr);
-                }
+                Logging.logCheckedFine(LOG, "removed PeerAdvertisement for ", peerIDStr);
             } catch (IOException ex) {// protect against flush IOException when the entry is not there
             }
         }
@@ -584,9 +595,7 @@ class RouteCM implements Module {
                 return true;
             }
         } catch (Exception e) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "  failure to publish route advertisement response", e);
-            }
+            Logging.logCheckedFine(LOG, "  failure to publish route advertisement response\n", e);
         }
         return false;
     }

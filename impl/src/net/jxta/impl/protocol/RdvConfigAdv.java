@@ -56,18 +56,14 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.logging.Logging;
-
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Contains parameters for configuration of the Reference Implementation
@@ -311,57 +307,88 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
         Enumeration eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
+
             Attribute aRdvAttr = (Attribute) eachAttr.nextElement();
 
-            if (super.handleAttribute(aRdvAttr)) {// nothing to do
+            if (super.handleAttribute(aRdvAttr)) {
+                
+                // nothing to do
+
             } else if (RDV_CONFIG_ATTR.equals(aRdvAttr.getName())) {
+
                 String config = aRdvAttr.getValue().trim();
 
                 if ("adhoc".equals(config)) {
-                    configuration = RendezVousConfiguration.AD_HOC;
-                } else if ("client".equals(config)) {
-                    configuration = RendezVousConfiguration.EDGE;
-                } else if ("rendezvous".equals(config)) {
-                    configuration = RendezVousConfiguration.RENDEZVOUS;
-                } else {
-                    throw new IllegalArgumentException("Unrecognized Rendezvous configuration :" + config);
-                }
-            } else if (MAX_TTL_ATTR.equals(aRdvAttr.getName())) {
-                maximumTTL = Integer.parseInt(aRdvAttr.getValue().trim());
-            } else if (AUTO_RDV_INTERVAL_ATTR.equals(aRdvAttr.getName())) {
-                autoRendezvousCheckInterval = Long.parseLong(aRdvAttr.getValue().trim());
-            } else if (PROBE_RELAYS_ATTR.equals(aRdvAttr.getName())) {
-                probeRelays = Boolean.valueOf(aRdvAttr.getValue().trim());
-            } else if (MAX_CLIENTS_ATTR.equals(aRdvAttr.getName())) {
-                maxClients = Integer.parseInt(aRdvAttr.getValue().trim());
-            } else if (LEASE_DURATION_ATTR.equals(aRdvAttr.getName())) {
-                leaseDuration = Long.parseLong(aRdvAttr.getValue().trim());
-            } else if (LEASE_MARGIN_ATTR.equals(aRdvAttr.getName())) {
-                leaseMargin = Long.parseLong(aRdvAttr.getValue().trim());
-            } else if (MIN_HAPPY_PEERVIEW_ATTR.equals(aRdvAttr.getName())) {
-                minHappyPeerView = Integer.parseInt(aRdvAttr.getValue().trim());
-            } else if (PROPAGATE_RESPOND_ATTR.equals(aRdvAttr.getName())) {// Ignored; deprecated.
-            } else if ("Flags".equals(aRdvAttr.getName())) { // deprecated
-                boolean onlySeeds = (aRdvAttr.getValue().indexOf("UseOnlySeeds") != -1);
 
-                setUseOnlySeeds(onlySeeds);
-            } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + aRdvAttr.getName());
+                    configuration = RendezVousConfiguration.AD_HOC;
+
+                } else if ("client".equals(config)) {
+
+                    configuration = RendezVousConfiguration.EDGE;
+
+                } else if ("rendezvous".equals(config)) {
+
+                    configuration = RendezVousConfiguration.RENDEZVOUS;
+
+                } else {
+
+                    throw new IllegalArgumentException("Unrecognized Rendezvous configuration :" + config);
+
                 }
+
+            } else if (MAX_TTL_ATTR.equals(aRdvAttr.getName())) {
+
+                maximumTTL = Integer.parseInt(aRdvAttr.getValue().trim());
+
+            } else if (AUTO_RDV_INTERVAL_ATTR.equals(aRdvAttr.getName())) {
+
+                autoRendezvousCheckInterval = Long.parseLong(aRdvAttr.getValue().trim());
+
+            } else if (PROBE_RELAYS_ATTR.equals(aRdvAttr.getName())) {
+
+                probeRelays = Boolean.valueOf(aRdvAttr.getValue().trim());
+
+            } else if (MAX_CLIENTS_ATTR.equals(aRdvAttr.getName())) {
+
+                maxClients = Integer.parseInt(aRdvAttr.getValue().trim());
+
+            } else if (LEASE_DURATION_ATTR.equals(aRdvAttr.getName())) {
+
+                leaseDuration = Long.parseLong(aRdvAttr.getValue().trim());
+
+            } else if (LEASE_MARGIN_ATTR.equals(aRdvAttr.getName())) {
+
+                leaseMargin = Long.parseLong(aRdvAttr.getValue().trim());
+
+            } else if (MIN_HAPPY_PEERVIEW_ATTR.equals(aRdvAttr.getName())) {
+
+                minHappyPeerView = Integer.parseInt(aRdvAttr.getValue().trim());
+
+            } else if (PROPAGATE_RESPOND_ATTR.equals(aRdvAttr.getName())) {
+
+                // Ignored; deprecated.
+
+            } else if ("Flags".equals(aRdvAttr.getName())) { // deprecated
+
+                boolean onlySeeds = (aRdvAttr.getValue().indexOf("UseOnlySeeds") != -1);
+                setUseOnlySeeds(onlySeeds);
+
+            } else {
+
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aRdvAttr.getName());
+                
             }
         }
 
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
-            if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem.toString());
-                }
-            }
+            if (!handleElement(elem))
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
+                
         }
 
         // Sanity Check!!!
@@ -444,38 +471,45 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
                             seedRendezvous.add(endpAddr);
                         }
                     }
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Element: " + aSeedElem.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Element: ", aSeedElem.getName());
+                    
                 }
             }
 
             Enumeration eachAttr = elem.getAttributes();
 
             while (eachAttr.hasMoreElements()) {
+
                 Attribute aSeedAttr = (Attribute) eachAttr.nextElement();
 
                 if (USE_ONLY_SEEDS_ATTR.equals(aSeedAttr.getName())) {
+
                     useOnlySeeds = Boolean.valueOf(aSeedAttr.getValue().trim());
+
                 } else if (CONNECT_DELAY_ATTR.equals(aSeedAttr.getName())) {
+
                     seedRendezvousConnectDelay = Long.parseLong(aSeedAttr.getValue().trim());
+
                 } else {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled Attribute: " + aSeedAttr.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aSeedAttr.getName());
+                    
                 }
             }
 
             return true;
+
         } else if (ACL_URI.equals(elem.getName())) {
+
             String addrElement = elem.getTextValue();
 
-            if (null != addrElement) {
-                aclURI = URI.create(addrElement.trim());
-            }
+            if (null != addrElement) aclURI = URI.create(addrElement.trim());
 
             return true;
+
         }
 
         return false;
@@ -664,7 +698,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * If true then rendezvous clients will probe relay servers for rendezvous.
      *
      * @return If true then rendezvous clients will probe relay servers for rendezvous.
+     *
+     * @deprecated This method is not exposed in the NetworkConfigurator. It should not
+     * be used elsewhere and will probably be removed in a future release.
      */
+    @Deprecated
     public boolean getProbeRelays() {
         return probeRelays;
     }
@@ -673,7 +711,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * Set whether rendezvous clients will probe relay servers for rendezvous.
      *
      * @param doProbe If true then rendezvous clients will probe relay servers for rendezvous.
+     *
+     * @deprecated This method is not exposed in the NetworkConfigurator. It should not
+     * be used elsewhere and will probably be removed in a future release.
      */
+    @Deprecated
     public void setProbeRelays(boolean doProbe) {
         probeRelays = doProbe;
     }
@@ -755,7 +797,8 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
 
     /**
      * Set whether this peer will use only seed rendezvous when configured as
-     * an edge peer.
+     * an edge peer. In other words, only registered endpoint address seeds
+     * and seeds fetched from seeding URIs will be used.
      *
      * @param onlySeeds If true then this peer will use only seed rendezvous
      *                  when configured as an edge peer.
@@ -923,7 +966,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * Return ACL URI if set
      *
      * @return ACL URI if set, null otherwise
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public URI getAclUri() {
         return aclURI;
     }
@@ -932,7 +979,11 @@ public final class RdvConfigAdv extends ExtendableAdvertisement implements Clone
      * Sets ACL URI
      *
      * @param uri URI if set, null otherwise
+     *
+     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+     * They will be deprecated and removed in a future release.
      */
+    @Deprecated
     public void setAclUri(URI uri) {
         aclURI = uri;
     }

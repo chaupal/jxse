@@ -56,7 +56,6 @@
 
 package net.jxta.impl.access;
 
-
 import net.jxta.document.Attributable;
 import net.jxta.document.Attribute;
 import net.jxta.document.Document;
@@ -69,7 +68,6 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -84,7 +82,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Manages Access Permissions.
@@ -189,9 +186,8 @@ public class AccessList {
     }
 
     private InputStream getInputStream(URI uri) throws IOException {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Loading ACL : " + uri.toString());
-        }
+
+        Logging.logCheckedFine(LOG, "Loading ACL : ", uri);
 
         URL url = uri.toURL();
 
@@ -400,19 +396,13 @@ public class AccessList {
             
             if (GRANTALL_TAG.equals(elem.getName())) {
                 grantAll = Boolean.getBoolean(elem.getTextValue());
-                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                    LOG.config("Grant all access = [ " + grantAll + " ]");
-                }
-
+                Logging.logCheckedConfig(LOG, "Grant all access = [ ", grantAll, " ]");
                 continue;
             }
             
             if (DESCRIPTION_TAG.equals(elem.getName())) {
                 description = elem.getTextValue();
-                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                    LOG.config("Loading [ " + description + " ] access list :");
-                }
-                
+                Logging.logCheckedConfig(LOG, "Loading [ ", description, " ] access list :");
                 continue;
             }
             
@@ -443,18 +433,14 @@ public class AccessList {
                 
                 Entry entry = new Entry(pid, name, acl);
 
-                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                    LOG.config("Adding entry to access list :" + entry);
-                }
-                
+                Logging.logCheckedConfig(LOG, "Adding entry to access list :", entry);
                 accessMap.put(entry.id, entry);
                 
                 continue;
             }
             
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Unrecognized tag : " + elem.getName());
-            }            
+            Logging.logCheckedWarning(LOG, "Unrecognized tag : ", elem.getName());
+            
         }
     }
 

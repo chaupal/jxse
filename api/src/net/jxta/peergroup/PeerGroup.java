@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.peergroup;
 
 import java.io.IOException;
@@ -62,7 +63,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -115,6 +115,7 @@ import net.jxta.service.Service;
  * @see net.jxta.platform.ModuleSpecID
  * @see net.jxta.platform.ModuleClassID
  */
+
 public interface PeerGroup extends Service {
 
     /**
@@ -373,6 +374,12 @@ public interface PeerGroup extends Service {
      */
     public final static ModuleClassID tcpProtoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000905"));
+
+    /**
+     * Well known module class identifier: mutlicast protocol
+     */
+    public final static ModuleClassID multicastProtoClassID =
+            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000001105"));
 
     /**
      * Well known module class identifier: http protocol
@@ -740,6 +747,10 @@ public interface PeerGroup extends Service {
      * again).</li>
      * </ul>
      *
+     * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
+     * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
+     * instanced object are copied from this peer group.
+     *
      * @param pgAdv The advertisement for the group to be instantiated.
      * @return PeerGroup the initialized (but not started) peergroup.
      * @throws PeerGroupException For problems instantiating the peer group.
@@ -772,6 +783,10 @@ public interface PeerGroup extends Service {
      * newPGAdv.setDescription(description);
      * newGrp = thisGroup.newGroup(newPGAdv);
      * </pre>
+     *
+     * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
+     * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
+     * instanced object are copied from this peer group.
      *
      * @param gid         The ID of that group. If <code>null</code> then a new group ID
      *                    will be chosen.
@@ -807,6 +822,10 @@ public interface PeerGroup extends Service {
      * </code>
      * <p/>
      * then, <strong>REMEMBER TO PUBLISH THE GROUP IF IT IS ALL NEW.</strong>
+     *
+     * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
+     * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
+     * instanced object are copied from this peer group.
      *
      * @param gid the groupID.
      * @return PeerGroup the initialized (but not started) peergroup.
@@ -962,12 +981,22 @@ public interface PeerGroup extends Service {
      * 
      * @return If {@code true} then interface was unreferenced. If {@code false}
      * then the interface had previously been unreferenced.
+     *
+     * @deprecated Since 2.6. The interface mechanisms is being removed from core 
+     * code. Users are ultimately responsible for using service methods appropriately.
+     * The corresponding issue should be solved via OSGi (for example).
      */
+    @Deprecated
     public boolean unref();
 
     /**
     *   {@inheritDoc}
+     *
+     * @deprecated Since 2.6. The interface mechanisms is being removed from core
+     * code. Users are ultimately responsible for using service methods appropriately.
+     * The corresponding issue should be solved via OSGi (for example).
     */
+    @Deprecated
     public PeerGroup getInterface();
 
     /**
@@ -999,7 +1028,12 @@ public interface PeerGroup extends Service {
      *
      * @return A weak interface object that represents this PeerGroup object.
      * @since JXTA 2.2
+     *
+     * @deprecated Since 2.6. The interface mechanisms is being removed from core
+     * code. Users are ultimately responsible for using service methods appropriately.
+     * The corresponding issue should be solved via OSGi (for example).
      */
+    @Deprecated
     public PeerGroup getWeakInterface();
 
     /**
@@ -1023,4 +1057,5 @@ public interface PeerGroup extends Service {
      * @since JXTA 2.3.7
      */
     public URI getStoreHome();
+    
 }

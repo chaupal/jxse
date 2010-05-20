@@ -74,7 +74,6 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.service.Service;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -282,34 +281,34 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		Service needed = group.getEndpointService();
 
 		if (null == needed) {
-			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.warning("Stalled until there is an endpoint service");
-			}
-			return START_AGAIN_STALLED;
+
+		    Logging.logCheckedWarning(LOG, "Stalled until there is an endpoint service");
+		    return START_AGAIN_STALLED;
+
 		}
 
 		needed = group.getResolverService();
 		if (null == needed) {
-			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.warning("Stalled until there is a resolver service");
-			}
-			return START_AGAIN_STALLED;
+
+		    Logging.logCheckedWarning(LOG, "Stalled until there is a resolver service");
+  		    return START_AGAIN_STALLED;
+
 		}
 
 		needed = group.getMembershipService();
 		if (null == needed) {
-			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.warning("Stalled until there is a membership service");
-			}
-			return START_AGAIN_STALLED;
+
+		    Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
+  		    return START_AGAIN_STALLED;
+
 		}
 
 		needed = group.getRendezVousService();
 		if (null == needed) {
-			if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.warning("Stalled until there is a rendezvous service");
-			}
-			return START_AGAIN_STALLED;
+
+                    Logging.logCheckedWarning(LOG, "Stalled until there is a rendezvous service");
+		    return START_AGAIN_STALLED;
+
 		}
 
 		// create our resolver handler; it will register itself w/ the resolver.
@@ -337,7 +336,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 				wirePipe.stopApp();
 			}
 		} catch (Throwable failed) {
-			LOG.log(Level.SEVERE, "Failed to stop wire pipe", failed);
+			LOG.log(Level.SEVERE, "Failed to stop wire pipe\n", failed);
 		} finally {
 			wirePipe = null;
 		}
@@ -347,7 +346,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 				pipeResolver.stop();
 			}
 		} catch (Throwable failed) {
-			LOG.log(Level.SEVERE, "Failed to stop pipe resolver", failed);
+			LOG.log(Level.SEVERE, "Failed to stop pipe resolver\n", failed);
 		} finally {
 			pipeResolver = null;
 		}
@@ -398,9 +397,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 					"PipeAdvertisement PipeID may not be null");
 		}
 
-		if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-			LOG.fine("Create " + type + " InputPipe for " + pipeId);
-		}
+		Logging.logCheckedFine(LOG, "Create ", type, " InputPipe for ", pipeId);
 
 		InputPipe inputPipe;
 		// create an InputPipe.
@@ -414,14 +411,15 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 			} else {
 				throw new IOException("No propagated pipe servive available");
 			}
+
 		} else {
+
 			// Unknown type
-			if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.severe("Cannot create pipe for unknown type : " + type);
-			}
-			throw new IOException("Cannot create pipe for unknown type : "
-					+ type);
+                        Logging.logCheckedSevere(LOG, "Cannot create pipe for unknown type : ", type);
+			throw new IOException("Cannot create pipe for unknown type : " + type);
+
 		}
+                
 		return inputPipe;
 	}
 
@@ -438,7 +436,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 */
 	public OutputPipe createOutputPipe(PipeAdvertisement adv,
 			Set<? extends ID> resolvablePeers, long timeout) throws IOException {
-		// convert zero to max value.
+                // convert zero to max value.
 		if (0 == timeout) {
 			timeout = Long.MAX_VALUE;
 		}
@@ -453,10 +451,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
 		createOutputPipe(adv, resolvablePeers, localListener, queryid);
 
-		if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-			LOG.fine("Waiting synchronously for " + timeout
-					+ "ms to resolve OutputPipe for " + adv.getPipeID());
-		}
+		Logging.logCheckedFine(LOG, "Waiting synchronously for ", timeout,
+                    "ms to resolve OutputPipe for ", adv.getPipeID());
 
 		try {
 			synchronized (localListener) {
@@ -515,17 +511,15 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		String type = pipeAdv.getType();
 
 		if (null == type) {
-			IllegalArgumentException failed = new IllegalArgumentException(
-					"Pipe type was not set");
-			if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, failed.getMessage(), failed);
-			}
+
+			IllegalArgumentException failed
+                            = new IllegalArgumentException("Pipe type was not set");
+                        Logging.logCheckedSevere(LOG, failed);
 			throw failed;
+
 		}
 
-		if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-			LOG.fine("Create " + type + " OutputPipe for " + pipeId);
-		}
+		Logging.logCheckedFine(LOG, "Create ", type, " OutputPipe for ", pipeId);
 
 		if (PipeService.PropagateType.equals(type)) {
 			OutputPipe op;
@@ -548,14 +542,14 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 						PipeResolver.ANYQUERY);
 
 				try {
-					listener.outputPipeEvent(newevent);
+
+				    listener.outputPipeEvent(newevent);
+
 				} catch (Throwable ignored) {
-					if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-						LOG.log(Level.SEVERE,
-								"Uncaught Throwable in listener for " + pipeId
-										+ " (" + listener.getClass().getName()
-										+ ")", ignored);
-					}
+
+					Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for ", pipeId,
+					    " (", listener.getClass().getName(), ")", ignored);
+					
 				}
 			}
 		} else if (PipeService.UnicastType.equals(type)
@@ -578,27 +572,21 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 						pipeResolver.callListener(queryid, pipeId, local
 								.getType(), group.getPeerID(), false);
 					} else {
-						if (Logging.SHOW_WARNING
-								&& LOG.isLoggable(Level.WARNING)) {
-							LOG
-									.warning(MessageFormat
-											.format(
-													"rejecting local pipe ({0}) because type is not ({1})",
-													local.getType(), pipeAdv
-															.getType()));
-						}
+
+                                            Logging.logCheckedWarning(LOG,
+                                                MessageFormat.format("rejecting local pipe ({0}) because type is not ({1})",
+                                                    local.getType(), pipeAdv.getType()));
+						
 					}
 				}
 			}
+
 		} else {
+
 			// Unknown type
-			if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG
-						.severe("createOutputPipe: cannot create pipe for unknown type : "
-								+ type);
-			}
-			throw new IOException("cannot create pipe for unknown type : "
-					+ type);
+			Logging.logCheckedSevere(LOG, "createOutputPipe: cannot create pipe for unknown type : ", type);
+			throw new IOException("cannot create pipe for unknown type : " + type);
+                        
 		}
 	}
 
@@ -615,14 +603,15 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 				perpipelisteners = new HashMap<Integer, OutputPipeHolder>();
 				outputPipeListeners.put(pipeId, perpipelisteners);
 			}
+
 			if (perpipelisteners.get(pipeHolder.queryid) != null) {
 				LOG.warning("Clobbering output pipe listener for query "
 						+ pipeHolder.queryid);
 			}
-			if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-				LOG.fine("Adding pipe listener for pipe " + pipeId
-						+ " and query " + pipeHolder.queryid);
-			}
+
+			Logging.logCheckedFine(LOG, "Adding pipe listener for pipe ", pipeId,
+		            " and query ", pipeHolder.queryid);
+
 			perpipelisteners.put(pipeHolder.queryid, pipeHolder);
 		}
 	}
@@ -633,84 +622,81 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	public OutputPipeListener removeOutputPipeListener(ID pipeID,
 			OutputPipeListener listener) {
 
-		// remove all instances of this listener, regardless of queryid
-		if (pipeResolver == null) {
-			return null;
-		}
+            // remove all instances of this listener, regardless of queryid
+            if (pipeResolver == null) return null;
 
-		if (!(pipeID instanceof PipeID)) {
-			throw new IllegalArgumentException("pipeID must be a PipeID.");
-		}
+            if (!(pipeID instanceof PipeID))
+                    throw new IllegalArgumentException("pipeID must be a PipeID.");
 
-		synchronized (outputPipeListeners) {
-			Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners
-					.get(pipeID);
+            synchronized (outputPipeListeners) {
 
-			if (perpipelisteners != null) {
-				Set<Map.Entry<Integer, OutputPipeHolder>> entries = perpipelisteners
-						.entrySet();
+                Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners.get(pipeID);
 
-				for (Map.Entry<Integer, OutputPipeHolder> entry : entries) {
-					OutputPipeHolder pl = entry.getValue();
+                if (perpipelisteners != null) {
 
-					if (pl.listener == listener) {
-						pipeResolver
-								.removeListener((PipeID) pipeID, pl.queryid);
-						if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-							LOG.fine("Removing listener for query "
-									+ pl.queryid);
-						}
-						perpipelisteners.remove(entry.getKey());
-					}
-				}
-				// clean up the map if there are no more listeners for the pipe
-				if (perpipelisteners.isEmpty()) {
-					outputPipeListeners.remove(pipeID);
-				}
-			}
-		}
-		return listener;
+                    Set<Map.Entry<Integer, OutputPipeHolder>> entries = perpipelisteners.entrySet();
+
+                    for (Map.Entry<Integer, OutputPipeHolder> entry : entries) {
+
+                        OutputPipeHolder pl = entry.getValue();
+
+                        if (pl.listener == listener) {
+                                pipeResolver.removeListener((PipeID) pipeID, pl.queryid);
+                                Logging.logCheckedFine(LOG, "Removing listener for query ", pl.queryid);
+                                perpipelisteners.remove(entry.getKey());
+                        }
+
+                    }
+
+                    // clean up the map if there are no more listeners for the pipe
+                    if (perpipelisteners.isEmpty()) outputPipeListeners.remove(pipeID);
+
+                }
+            }
+
+            return listener;
+
 	}
 
 	private OutputPipeListener removeOutputPipeListener(String opID, int queryID) {
 
-		if (pipeResolver == null) {
-			return null;
-		}
+            if (pipeResolver == null) return null;
 
-		PipeID pipeID;
-		try {
-			URI aPipeID = new URI(opID);
-			pipeID = (PipeID) IDFactory.fromURI(aPipeID);
-		} catch (URISyntaxException badID) {
-			throw new IllegalArgumentException("Bad pipe ID: " + opID);
-		} catch (ClassCastException badID) {
-			throw new IllegalArgumentException("id was not a pipe id: " + opID);
-		}
+            PipeID pipeID;
 
-		synchronized (outputPipeListeners) {
-			Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners
-					.get(pipeID);
+            try {
+                URI aPipeID = new URI(opID);
+                pipeID = (PipeID) IDFactory.fromURI(aPipeID);
+            } catch (URISyntaxException badID) {
+                throw new IllegalArgumentException("Bad pipe ID: " + opID);
+            } catch (ClassCastException badID) {
+                throw new IllegalArgumentException("id was not a pipe id: " + opID);
+            }
 
-			if (perpipelisteners != null) {
-				OutputPipeHolder pipeHolder = perpipelisteners.get(queryID);
+            synchronized (outputPipeListeners) {
 
-				perpipelisteners.remove(queryID);
-				if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-					LOG.fine("Removing listener for query " + queryID);
-				}
-				// clean up the map if there are no more listeners for the pipe
-				if (perpipelisteners.isEmpty()) {
-					outputPipeListeners.remove(pipeID);
-				}
-				pipeResolver.removeListener(pipeID, queryID);
-				if (pipeHolder != null) {
-					return pipeHolder.listener;
-				}
-			}
+                Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners.get(pipeID);
 
-		}
-		return null;
+                if (perpipelisteners != null) {
+
+                    OutputPipeHolder pipeHolder = perpipelisteners.get(queryID);
+                    perpipelisteners.remove(queryID);
+
+                    Logging.logCheckedFine(LOG, "Removing listener for query ", queryID);
+
+                    // clean up the map if there are no more listeners for the pipe
+                    if (perpipelisteners.isEmpty()) outputPipeListeners.remove(pipeID);
+
+                    pipeResolver.removeListener(pipeID, queryID);
+
+                    if (pipeHolder != null) return pipeHolder.listener;
+
+                }
+
+            }
+
+            return null;
+                
 	}
 
 	/**
@@ -718,83 +704,90 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 	 */
 	public boolean pipeResolveEvent(PipeResolver.Event event) {
 
-		try {
-			ID peerID = event.getPeerID();
-			ID pipeID = event.getPipeID();
-			int queryID = event.getQueryID();
-			OutputPipeHolder pipeHolder;
+            try {
 
-			synchronized (outputPipeListeners) {
-				Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners
-						.get(pipeID);
+                ID peerID = event.getPeerID();
+                ID pipeID = event.getPipeID();
+                int queryID = event.getQueryID();
+                OutputPipeHolder pipeHolder;
 
-				if (perpipelisteners == null) {
-					if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-						LOG.fine("No listener for event for pipe " + pipeID);
-					}
-					return false;
-				}
-				pipeHolder = perpipelisteners.get(queryID);
-				if (pipeHolder == null) {
-					if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-						LOG.fine("No listener for event for query " + queryID);
-					}
-					return false;
-				}
-			}
+                synchronized (outputPipeListeners) {
 
-			// check if they wanted a resolve from a specific peer.
-			if (!pipeHolder.peers.isEmpty()
-					&& !pipeHolder.peers.contains(peerID)) {
-				if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-					LOG.warning("Event was for wrong peer \'" + peerID
-							+ "\'. Discarding.");
-				}
-				return false;
-			}
+                    Map<Integer, OutputPipeHolder> perpipelisteners = outputPipeListeners.get(pipeID);
 
-			// create op
-			String type = pipeHolder.adv.getType();
-			OutputPipe op;
+                    if (perpipelisteners == null) {
 
-			if (PipeService.UnicastType.equals(type)) {
-				op = new NonBlockingOutputPipe(group, pipeResolver,
-						pipeHolder.adv, peerID, pipeHolder.peers);
-			} else if (PipeService.UnicastSecureType.equals(type)) {
-				op = new SecureOutputPipe(group, pipeResolver, pipeHolder.adv,
-						peerID, pipeHolder.peers);
-			} else {
-				if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-					LOG.warning("Could not create output pipe of type \'"
-							+ type + "\'. Discarding.");
-				}
-				return false;
-			}
+                        Logging.logCheckedFine(LOG, "No listener for event for pipe ", pipeID);
+                        return false;
 
-			// Generate an event when the output pipe was succesfully opened.
-			OutputPipeEvent newevent = new OutputPipeEvent(this.getInterface(),
-					op, pipeID.toString(), queryID);
-			try {
-				pipeHolder.listener.outputPipeEvent(newevent);
-			} catch (Throwable ignored) {
-				if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Uncaught Throwable in listener for "
-							+ pipeID + "(" + pipeHolder.getClass().getName()
-							+ ")", ignored);
-				}
-			}
-			removeOutputPipeListener(pipeID.toString(), queryID);
-			return true;
-		} catch (IOException ie) {
-			if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Error creating output pipe "
-						+ event.getPipeID(), ie);
-			}
-		}
-		if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-			LOG.fine("No listener for event for " + event.getPipeID());
-		}
-		return false;
+                    }
+
+                    pipeHolder = perpipelisteners.get(queryID);
+
+                    if (pipeHolder == null) {
+
+                        Logging.logCheckedFine(LOG, "No listener for event for query ", queryID);
+                        return false;
+
+                    }
+
+                }
+
+                // check if they wanted a resolve from a specific peer.
+                if (!pipeHolder.peers.isEmpty() && !pipeHolder.peers.contains(peerID)) {
+
+                    Logging.logCheckedWarning(LOG, "Event was for wrong peer \'",
+                        peerID, "\'. Discarding.");
+
+                    return false;
+
+                }
+
+                // create op
+                String type = pipeHolder.adv.getType();
+                OutputPipe op;
+
+                if (PipeService.UnicastType.equals(type)) {
+                        op = new NonBlockingOutputPipe(group, pipeResolver,
+                                        pipeHolder.adv, peerID, pipeHolder.peers);
+                } else if (PipeService.UnicastSecureType.equals(type)) {
+                        op = new SecureOutputPipe(group, pipeResolver, pipeHolder.adv,
+                                        peerID, pipeHolder.peers);
+                } else {
+
+                    Logging.logCheckedWarning(LOG, "Could not create output pipe of type \'",
+                        type, "\'. Discarding.");
+                    return false;
+
+                }
+
+                // Generate an event when the output pipe was succesfully opened.
+                OutputPipeEvent newevent = new OutputPipeEvent(this.getInterface(),
+                                op, pipeID.toString(), queryID);
+                
+                try {
+
+                    pipeHolder.listener.outputPipeEvent(newevent);
+
+                } catch (Throwable ignored) {
+
+                    Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener for ",
+                        pipeID, "(", pipeHolder.getClass().getName(), ")\n", ignored);
+
+                }
+
+                removeOutputPipeListener(pipeID.toString(), queryID);
+                return true;
+
+            } catch (IOException ie) {
+
+                Logging.logCheckedSevere(LOG, "Error creating output pipe ", event.getPipeID(), "\n", ie);
+
+            }
+
+            Logging.logCheckedFine(LOG, "No listener for event for ", event.getPipeID());
+            return false;
+
 	}
 
 	/**

@@ -207,9 +207,7 @@ public abstract class AbstractSimpleSelectable implements SimpleSelectable {
             try {
                 listener.itemChanged(srcObject);
             } catch(Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in listener " + listener, all);
-                }
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in listener ", listener, "\n", all);
             }
         }
         

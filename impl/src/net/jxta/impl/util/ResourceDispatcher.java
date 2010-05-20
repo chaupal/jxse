@@ -256,11 +256,10 @@ public class ResourceDispatcher {
             }
             
             if (nbReserved < (fromReservedItems + fromExtraItems)) {
+
                 // !!! someone just gave up on its resource controller
                 // without returning the resources !
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("An account was abandoned with resources still allocated.");
-                }
+                Logging.logCheckedWarning(LOG, "An account was abandoned with resources still allocated.");
                 
                 // Release whatever we can.
                 if (nbReserved >= fromReservedItems) {
@@ -332,10 +331,8 @@ public class ResourceDispatcher {
             // account was in the eligible list. That's not realy a problem.
             // Either it will be released immediately, or we could filter
             // it in mostEligible().
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                if (nbReserved <= extraLimit) {
-                    LOG.warning("An account that should not get an item was found in the eligibles list");
-                }
+            if (nbReserved <= extraLimit) {
+                Logging.logCheckedWarning(LOG, "An account that should not get an item was found in the eligibles list");
             }
             
             --nbReserved;
@@ -369,11 +366,8 @@ public class ResourceDispatcher {
             // Now record it.
             nbReserved -= quantity;
             
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                if (nbReserved > fromReservedItems + fromExtraItems) {
-                    LOG.severe("Incorrect values after obtaining " + quantity + " : [" + this + "]");
-                }
-            }
+            if (nbReserved > fromReservedItems + fromExtraItems)
+                Logging.logCheckedSevere(LOG, "Incorrect values after obtaining ", quantity, " : [", this, "]");
             
             return true;
         }
@@ -416,15 +410,14 @@ public class ResourceDispatcher {
          * {@inheritDoc}
          */
         public void releaseQuantity(long quantity) {
-            if (nbReserved < 0) {
-                releaseExtra(quantity < -nbReserved ? quantity : -nbReserved);
-            }
+
+            if (nbReserved < 0) releaseExtra(quantity < -nbReserved ? quantity : -nbReserved);
+            
             nbReserved += quantity;
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                if (nbReserved > fromReservedItems + fromExtraItems) {
-                    LOG.severe("Incorrect values after releasing " + quantity + " : [" + this + "]");
-                }
-            }
+
+            if (nbReserved > fromReservedItems + fromExtraItems)
+                Logging.logCheckedSevere(LOG, "Incorrect values after releasing ", quantity, " : [", this, "]");
+
         }
         
         /**
@@ -696,18 +689,19 @@ public class ResourceDispatcher {
         // more items from extra, but the app should start getting rid
         // of stale accounts if it can.
         if (nbReq > 0) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Accepting extra account on a best effort basis.");
-            }
+
+            Logging.logCheckedInfo(LOG, "Accepting extra account on a best effort basis.");
             
             extra += holdExtraKeepSome(nbReq);
+
             if (extra + reserved < minReservedPerAccount) {
+
                 // Even that was not enough to reach our minimal commitment.
                 // The app should realy consider some cleanup.
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("[" + myName + "] Accepting extra account with below-minimal commitment:[" + userObject + "]");
-                }
+                Logging.logCheckedWarning(LOG, "[", myName, "] Accepting extra account with below-minimal commitment:[", userObject, "]");
+
             }
+
         }
         
         if ((maxExtra > maxExtraPerAccount) || (maxExtra < 0)) {

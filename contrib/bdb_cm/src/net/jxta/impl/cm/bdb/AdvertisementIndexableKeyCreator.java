@@ -56,9 +56,7 @@ public class AdvertisementIndexableKeyCreator implements SecondaryMultiKeyCreato
                 results.add(newSearchKey.toDatabaseEntry());
 	        }
 		} catch(IOException e) {
-			if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-				LOG.log(Level.SEVERE, "Unable to parse XML for advertisement that is being added to the DB!", e);
-			}
+			Logging.logCheckedSevere(LOG, "Unable to parse XML for advertisement that is being added to the DB!\n", e);
 		}
 	}
 }

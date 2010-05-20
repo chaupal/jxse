@@ -190,6 +190,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *  @param root The XMLElement which is the root element of the PSEConfigAdv.
      */
     private PSEConfigAdv(Element root) {
+
         if (!XMLElement.class.isInstance(root)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
         }
@@ -201,9 +202,8 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
         String typedoctype = "";
         Attribute itsType = doc.getAttribute("type");
 
-        if (null != itsType) {
+        if (null != itsType) 
             typedoctype = itsType.getValue();
-        }
 
         if (!doctype.equals(getAdvertisementType()) && !getAdvertisementType().equals(typedoctype)) {
             throw new IllegalArgumentException(
@@ -213,19 +213,24 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
         Enumeration eachAttr = doc.getAttributes();
 
         while (eachAttr.hasMoreElements()) {
+
             Attribute anAttr = (Attribute) eachAttr.nextElement();
 
             if (super.handleAttribute(anAttr)) {
                 // nothing to do
-                ;
+                
             } else if (KEY_STORE_TYPE_ATTR.equals(anAttr.getName())) {
+
                 keyStoreType = anAttr.getValue().trim();
+
             } else if (KEY_STORE_PROVIDER_ATTR.equals(anAttr.getName())) {
+
                 keyStoreProvider = anAttr.getValue().trim();
+
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + anAttr.getName());
-                }
+
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", anAttr.getName());
+                
             }
         }
 
@@ -234,13 +239,12 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
-            if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
-                }
-            }
+            if (!handleElement(elem)) 
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
         }
 
         // Sanity Check!!!
@@ -359,16 +363,16 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
             CertificateFactory cf = CertificateFactory.getInstance("X509");
 
             setCertificate((X509Certificate) cf.generateCertificate(new ByteArrayInputStream(cert_der)));
+        
         } catch (Exception failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed to process seed cert", failed);
-            }
+
+            Logging.logCheckedSevere(LOG, "Failed to process seed cert\n", failed);
 
             IllegalArgumentException failure = new IllegalArgumentException("Failed to process seed cert");
-
             failure.initCause(failed);
-
+            
             throw failure;
+
         }
     }
 
@@ -380,9 +384,8 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *  to clear the seed certificates and private key.
      */
     public void setCertificate(X509Certificate newCert) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("setCert : " + newCert);
-        }
+
+        Logging.logCheckedFine(LOG, "setCert : ", newCert);
 
         certs.clear();
 
@@ -401,9 +404,8 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *  to clear the seed certificates and private key.
      */
     public void setCertificateChain(X509Certificate[] newCerts) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("setCert : " + newCerts);
-        }
+
+        Logging.logCheckedFine(LOG, "setCert : ", newCerts);
 
         certs.clear();
 
@@ -460,15 +462,16 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
             }
 
             return PSEUtils.base64Encode(encryptedPrivateKey.getEncoded());
+
         } catch (Exception failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed to process private key", failed);
-            }
+
+            Logging.logCheckedSevere(LOG, "Failed to process private key\n", failed);
 
             IllegalStateException failure = new IllegalStateException("Failed to process private key");
-
             failure.initCause(failed);
+
             throw failure;
+
         }
     }
 
@@ -569,21 +572,20 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setEncryptedPrivateKey(String newPriv, String algorithm) {
         try {
+
             byte[] key_der = PSEUtils.base64Decode(new StringReader(newPriv));
-
             EncryptedPrivateKeyInfo newEncryptedPriv = new EncryptedPrivateKeyInfo(key_der);
-
             setEncryptedPrivateKey(newEncryptedPriv, algorithm);
+
         } catch (Exception failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failed to process private key", failed);
-            }
+
+            Logging.logCheckedSevere(LOG, "Failed to process private key\n", failed);
 
             IllegalArgumentException failure = new IllegalArgumentException("Failed to process private key");
-
             failure.initCause(failed);
 
             throw failure;
+
         }
     }
 
@@ -595,12 +597,12 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *  Currently only "RSA" is supported.
      */
     public void setEncryptedPrivateKey(EncryptedPrivateKeyInfo newPriv, String algorithm) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("setPrivateKey : " + newPriv);
-        }
+
+        Logging.logCheckedFine(LOG, "setPrivateKey : ", newPriv);
 
         encryptedPrivateKey = newPriv;
         privAlgorithm = algorithm;
+
     }
 
     /**
@@ -610,13 +612,12 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      *  @param newPriv  The private key to be stored in encrypted form.
      */
     public void setPrivateKey(PrivateKey newPriv, char[] password) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("setPrivateKey : " + newPriv);
-        }
 
+        Logging.logCheckedFine(LOG, "setPrivateKey : ", newPriv);
+        
         EncryptedPrivateKeyInfo encypted = PSEUtils.pkcs5_Encrypt_pbePrivateKey(password, newPriv, 500);
-
         setEncryptedPrivateKey(encypted, newPriv.getAlgorithm());
+        
     }
 
     /**
@@ -668,9 +669,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
                     continue;
                 }
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + eachcertelem.getName());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", eachcertelem.getName());
 
             }
 

@@ -56,7 +56,6 @@
 
 package net.jxta.impl.peergroup;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
@@ -74,14 +73,12 @@ import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.TransportAdvertisement;
-
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A simple platform configurator. This implementation provides reasonable
@@ -122,13 +119,14 @@ public class AutomaticConfigurator extends NullConfigurator {
         boolean reconf;
 
         try {
-            reconf = buildPlatformConfig();
-        } catch (RuntimeException serious) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Trouble while fixing PlatformConfig. Hope for the best.", serious);
-            }
 
+            reconf = buildPlatformConfig();
+
+        } catch (RuntimeException serious) {
+
+            Logging.logCheckedSevere(LOG, "Trouble while fixing PlatformConfig. Hope for the best.\n", serious);
             reconf = true;
+
         }
 
         // See if we need a reconf
@@ -208,6 +206,7 @@ public class AutomaticConfigurator extends NullConfigurator {
                     }
                 }
             } catch (RuntimeException advTrouble) {
+
                 if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
                     LOG.log(Level.WARNING, "HTTP advertisement corrupted", advTrouble);
                 }
@@ -332,10 +331,7 @@ public class AutomaticConfigurator extends NullConfigurator {
 
             tcpAdv.setProtocol("tcp");
             tcpAdv.setPort(port);
-            tcpAdv.setMulticastAddr("224.0.1.85");
-            tcpAdv.setMulticastPort(1234);
-            tcpAdv.setMulticastSize(16384);
-            tcpAdv.setMulticastState(true);
+
         }
 
         tcp = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
@@ -360,7 +356,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             }
         } catch (Exception failure) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading relay configuration", failure);
+                LOG.log(Level.WARNING, "Problem reading relay configuration\n", failure);
             }
         }
 
@@ -403,7 +399,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             }
         } catch (Exception failure) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading rendezvous configuration", failure);
+                LOG.log(Level.WARNING, "Problem reading rendezvous configuration\n", failure);
             }
         }
 
@@ -457,7 +453,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             }
         } catch (Exception failure) {
             if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading pse configuration", failure);
+                LOG.log(Level.WARNING, "Problem reading pse configuration\n", failure);
             }
         }
 

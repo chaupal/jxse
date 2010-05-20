@@ -3,7 +3,7 @@ package net.jxta.impl.cm.bdb;
 import java.io.File;
 import java.io.IOException;
 
-import net.jxta.impl.cm.Cm;
+import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.bdb.BerkeleyDbAdvertisementCache;
 
 public class MultiInstanceTest {
@@ -13,7 +13,7 @@ public class MultiInstanceTest {
 		int numInstances = 10;
 		
 		File[] storeRoots = new File[numInstances];
-		Cm[] instances = new Cm[numInstances];
+		CacheManager[] instances = new CacheManager[numInstances];
 		
 		for(int i=0; i < instances.length; i++) {
 			storeRoots[i] = File.createTempFile("multiinstance", null);
@@ -22,7 +22,7 @@ public class MultiInstanceTest {
 			
 			System.out.println("Cycle " + i);
 			long startTime = System.currentTimeMillis();
-			instances[i] = new Cm(new BerkeleyDbAdvertisementCache(storeRoots[i].toURI(), "testArea"));
+			instances[i] = new CacheManager(new BerkeleyDbAdvertisementCache(storeRoots[i].toURI(), "testArea"));
 			
 			for(int j=0; j < 100000; j++) {
 				instances[i].save("dn", "fn" + j, new byte[1024], 1000000L, 1000000L);

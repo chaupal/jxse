@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -70,13 +69,10 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Configuration container for the World Peer Group. For historical reasons the
@@ -166,13 +162,13 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
         Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
+
         }
     }
 

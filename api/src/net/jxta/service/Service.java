@@ -56,10 +56,8 @@
 
 package net.jxta.service;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.platform.Module;
-
 
 /**
  * This interface implements the peer group service interface. Peer groups
@@ -92,7 +90,10 @@ public interface Service extends Module {
      *
      * @return Service public interface of the service
      *
+     * @deprecated Since 2.6. Users are responsible for using services and their
+     * methods appropriately. Ultimately, this issue may/will be solved via OSGi.
      */
+    @Deprecated
     public Service getInterface();
     
     /**
@@ -103,4 +104,5 @@ public interface Service extends Module {
      *
      **/
     public Advertisement getImplAdvertisement();
+
 }

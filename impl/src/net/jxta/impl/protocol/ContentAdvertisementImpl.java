@@ -119,14 +119,14 @@ public class ContentAdvertisementImpl extends ContentAdvertisement {
         /**
          *  {@inheritDoc}
          */
-        public String getAdvertisementType( ) {
+        public String getAdvertisementType() {
             return ContentAdvertisement.getAdvertisementType();
         }
 
         /**
          *  {@inheritDoc}
          */
-        public Advertisement newInstance( ) {
+        public Advertisement newInstance() {
             return new ContentAdvertisementImpl();
         }
 
@@ -169,9 +169,8 @@ public class ContentAdvertisementImpl extends ContentAdvertisement {
         while (elements.hasMoreElements()) {
             XMLElement elem = (XMLElement) elements.nextElement();
 
-            if ((!handleElement( elem ))
-                    && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine( "Unhandled Element: " + elem.toString());
+            if ( !handleElement(elem) ) {
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
         }
 

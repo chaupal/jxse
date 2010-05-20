@@ -53,8 +53,8 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package net.jxta.protocol;
 
+package net.jxta.protocol;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -64,7 +64,6 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.peer.PeerID;
 import net.jxta.test.util.AdvUtil;
-
 
 /**
  *  A JUnit test for ResolverQueryMsgTest

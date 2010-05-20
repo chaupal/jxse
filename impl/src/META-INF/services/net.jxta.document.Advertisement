@@ -5,6 +5,7 @@ net.jxta.impl.protocol.PlatformConfig
 net.jxta.impl.protocol.PeerGroupAdv
 net.jxta.impl.protocol.PeerGroupConfigAdv
 net.jxta.impl.protocol.TCPAdv
+net.jxta.impl.protocol.MulticastAdv
 net.jxta.impl.protocol.HTTPAdv
 net.jxta.impl.protocol.PSEConfigAdv
 net.jxta.impl.protocol.RdvConfigAdv

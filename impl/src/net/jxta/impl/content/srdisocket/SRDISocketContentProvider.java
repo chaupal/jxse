@@ -192,11 +192,10 @@ public class SRDISocketContentProvider
         }
 
         public void uncaughtException(Thread thread, Throwable throwable) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE,
-                        "Uncaught throwable in pool thread: "
-                                + thread, throwable);
-            }
+
+            Logging.logCheckedSevere(LOG, "Uncaught throwable in pool thread: ",
+                thread, "\n", throwable);
+            
         }
     }
 
@@ -239,9 +238,9 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("initProvider(): group=" + group);
-        }
+
+        Logging.logCheckedFine(LOG, "initProvider(): group=", group);
+        
         peerGroup = group;
         executor = Executors.newScheduledThreadPool(
                 5, new ThreadFactoryImpl(group));
@@ -259,19 +258,16 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public synchronized int startApp(String[] args) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("startApp()");
-        }
 
-        if (running) {
-            return Module.START_OK;
-        }
+        Logging.logCheckedFine(LOG, "startApp()");
+
+        if (running) return Module.START_OK;
         
         if (peerGroup.getPipeService() == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a PipeService");
-            }
+
+            Logging.logCheckedWarning(LOG, "Stalled until there is a PipeService");
             return Module.START_AGAIN_STALLED;
+
         }
         
         running = true;
@@ -290,12 +286,10 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public synchronized void stopApp() {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("stopApp()");
-        }
-        if (!running) {
-            return;
-        }
+
+        Logging.logCheckedFine(LOG, "stopApp()");
+        
+        if (!running) return;
 
         /*
          * XXX 20070911 mcumings: We really need to be able to abort all
@@ -310,6 +304,7 @@ public class SRDISocketContentProvider
 
         running = false;
         notifyAll();
+
     }
 
     /**
@@ -357,20 +352,22 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("retrieveContent(" + contentID + ")");
-        }
+
+        Logging.logCheckedFine(LOG, "retrieveContent(" + contentID + ")");
+        
         synchronized (this) {
             if (!running) {
                 return null;
             }
         }
+
         synchronized (shares) {
             ContentShare share = getShare(contentID);
             if (share != null) {
                 return new NullContentTransfer(this, share.getContent());
             }
         }
+
         return new SRDISocketContentTransfer(
                 this, executor, peerGroup, contentID);
     }
@@ -379,9 +376,9 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("retrieveContent(ContentShareAdvertisement)");
-        }
+
+        Logging.logCheckedFine(LOG, "retrieveContent(ContentShareAdvertisement)");
+        
         synchronized (this) {
             if (!running) {
                 return null;
@@ -401,16 +398,13 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public List<ContentShare> shareContent(Content content) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("shareContent(): Content=" + content);
-        }
 
+        Logging.logCheckedFine(LOG, "shareContent(): Content=", content);
+        
         PipeAdvertisement pAdv;
         synchronized (this) {
             if (pipeAdv == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Cannot create share before initialization");
-                }
+                Logging.logCheckedFine(LOG, "Cannot create share before initialization");
                 return null;
             }
             pAdv = pipeAdv;
@@ -444,9 +438,9 @@ public class SRDISocketContentProvider
      * {@inheritDoc}
      */
     public boolean unshareContent(ContentID contentID) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("unhareContent(): ContentID=" + contentID);
-        }
+
+        Logging.logCheckedFine(LOG, "unhareContent(): ContentID=", contentID);
+        
         ContentShare oldShare;
         synchronized (shares) {
             oldShare = shares.remove(contentID);
@@ -500,10 +494,11 @@ public class SRDISocketContentProvider
      * Server execution mainline.
      */
     private void acceptExecution() {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Acceptor thread starting");
-        }
+
+        Logging.logCheckedFine(LOG, "Acceptor thread starting");
+        
         JxtaServerSocket serverSocket = null;
+
         try {
             while (true) {
                 synchronized (this) {
@@ -513,49 +508,51 @@ public class SRDISocketContentProvider
                 }
 
                 try {
+
                     if (serverSocket == null) {
                         LOG.fine("Creating new server socket");
                         serverSocket = new JxtaServerSocket(peerGroup, pipeAdv);
                     }
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("Waiting to accept client...");
-                    }
+
+                    Logging.logCheckedFiner(LOG, "Waiting to accept client...");
+                    
                     Socket socket = serverSocket.accept();
+
                     if (socket != null) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Incoming socket connection");
-                        }
+                        Logging.logCheckedFine(LOG, "Incoming socket connection");
                         executor.execute(new Client(socket));
                     }
+
                 } catch (SocketTimeoutException socktox) {
-                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Socket timed out");
-                    }
+
+                    Logging.logCheckedFinest(LOG, "Socket timed out");
+                    
                 } catch (IOException iox) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE,
-                                "Caught exception in acceptor loop", iox);
-                    }
+
+                    Logging.logCheckedSevere(LOG, "Caught exception in acceptor loop\n", iox);
                     
                     // Close and deref the current socket
                     try {
                         serverSocket.close();
                     } catch (IOException iox2) {
-                        LOG.log(Level.WARNING, "Could not close socket", iox);
+                        LOG.log(Level.WARNING, "Could not close socket\n", iox);
                     } finally {
                         serverSocket = null;
                     }
                     
                     // Wait a while before the next attempt
                     try {
+
                         Thread.sleep(ACCEPT_RETRY_DELAY);
+
                     } catch (InterruptedException intx) {
-                        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                            LOG.log(Level.SEVERE, "Interrupted", intx);
-                        }
+
+                        Logging.logCheckedSevere(LOG, "Interrupted\n", intx);
+
                     }
+
                 } catch (RuntimeException rtx) {
-                    LOG.log(Level.WARNING, "Caught runtime exception", rtx);
+                    LOG.log(Level.WARNING, "Caught runtime exception\n", rtx);
                     throw(rtx);
                 }
             }
@@ -565,26 +562,26 @@ public class SRDISocketContentProvider
                 try {
                     serverSocket.close();
                 } catch (IOException iox) {
-                    LOG.log(Level.WARNING, "Could not close socket", iox);
+                    LOG.log(Level.WARNING, "Could not close socket\n", iox);
                 }
             }
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Accceptor thread exiting");
-        }
+
+        Logging.logCheckedFine(LOG, "Accceptor thread exiting");
+
     }
 
     /**
      * Per-client server execution mainline.
      */
     private void clientExecution(Socket socket) {
+
         SocketAddress remote = socket.getRemoteSocketAddress();
         SRDIContentShare share = null;
 
         try {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Client executing against socket: " + socket);
-            }
+
+            Logging.logCheckedFine(LOG, "Client executing against socket: ", socket);
 
             InputStream inStream = socket.getInputStream();
             ContentRequest request = ContentRequest.readFromStream(inStream);
@@ -592,21 +589,19 @@ public class SRDISocketContentProvider
             ContentResponse response = new ContentResponse(request);
             share = getShare(request.getContentID());
             response.setSuccess(share != null);
-            if (share != null) {
-                share.fireShareSessionOpened(remote);
-            }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Client response being sent:\n"
-                        + response.getDocument(MimeMediaType.XMLUTF8));
-            }
+
+            if (share != null) share.fireShareSessionOpened(remote);
+
+            Logging.logCheckedFine(LOG, "Client response being sent:\n",
+                        response.getDocument(MimeMediaType.XMLUTF8));
 
             OutputStream outStream = socket.getOutputStream();
             response.writeToStream(outStream);
+
             if (response.getSuccess()) {
+
                 // Send the content data
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Client transfer starting");
-                }
+                Logging.logCheckedFine(LOG, "Client transfer starting");
 
                 // Notify listeners of access by remote peer
                 share.fireShareSessionAccessed(remote);
@@ -616,29 +611,30 @@ public class SRDISocketContentProvider
                 contentDocument.sendToStream(outStream);
                 outStream.flush();
             }
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Client transaction completed");
-            }
+
+            Logging.logCheckedFine(LOG, "Client transaction completed");
+            
         } catch (IOException iox) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Caught exception in client thread", iox);
-            }
+
+            Logging.logCheckedWarning(LOG, "Caught exception in client thread\n", iox);
+            
         } catch (RuntimeException rtx) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Caught runtime exception", rtx);
-            }
+
+            Logging.logCheckedSevere(LOG, "Caught runtime exception\n", rtx);
             throw (rtx);
+
         } finally {
+
             if (share != null) {
                 share.fireShareSessionClosed(remote);
             }
+
             try {
                 socket.close();
             } catch (IOException ignore) {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.log(Level.FINEST, "Ignoring exception", ignore);
-                }
+                Logging.logCheckedFinest(LOG, "Ignoring exception", ignore);
             }
+
         }
     }
 

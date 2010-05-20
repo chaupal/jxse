@@ -89,13 +89,12 @@ public final class EndpointUtils {
     public static RouteAdvertisement extractRouteAdv(PeerAdvertisement adv) {
         
         try {
+
             // Get its EndpointService advertisement
             XMLElement endpParam = (XMLElement) adv.getServiceParam(PeerGroup.endpointClassID);
             
             if (endpParam == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("No Endpoint Params");
-                }
+                Logging.logCheckedFine(LOG, "No Endpoint Params");
                 return null;
             }
             
@@ -106,9 +105,7 @@ public final class EndpointUtils {
             if (paramChilds.hasMoreElements()) {
                 param = (XMLElement) paramChilds.nextElement();
             } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("No Route Adv in Peer Adv");
-                }
+                Logging.logCheckedFine(LOG, "No Route Adv in Peer Adv");
                 return null;
             }
             
@@ -119,10 +116,11 @@ public final class EndpointUtils {
             route.setDestPeerID(adv.getPeerID());
             
             return route;
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "failed to extract radv", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "failed to extract radv\n", e);
+            
         }
         
         return null;

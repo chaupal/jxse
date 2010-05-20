@@ -149,13 +149,11 @@ class RouterMessenger extends BlockingMessenger {
     public void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
 
         if (isClosed()) {
+
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
-
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, failure.getMessage(), failure);
-            }
-
+            Logging.logCheckedWarning(LOG, failure);
             throw failure;
+
         }
 
         EndpointAddress dest = getDestAddressToUse(service, serviceParam);
@@ -167,39 +165,38 @@ class RouterMessenger extends BlockingMessenger {
             EndpointAddress sendTo = null;
 
             try {
+
                 sendTo = router.addressMessage(message, dest);
-                if (null == sendTo) {
-                    break;
-                }
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Sending " + message + " to " + sendTo);
-                }
-
+                if (null == sendTo) break;
+                
+                Logging.logCheckedFine(LOG, "Sending ", message, " to ", sendTo);
                 router.sendOnLocalRoute(sendTo, message);
 
                 // it worked! We are done.
                 return;
+
             } catch (RuntimeException rte) {
+
                 // Either the message is invalid, or there is
                 // a transport loop and the upper layer should close.
                 // Either way, we must not retry. The loop could be
                 // unbounded.
 
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failure while routing " + message, rte);
-                }
-
+                Logging.logCheckedWarning(LOG, "Failure while routing ", message, rte);
+                
                 lastFailure = rte;
                 break;
+
             } catch (Throwable theMatter) {
+
                 if (sendTo == null) {
+
                     // This is bad: address message was not able to
                     // do anything. Stop the loop.
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Unknown failure while routing " + message, theMatter);
-                    }
+                    Logging.logCheckedWarning(LOG, "Unknown failure while routing ", message, "\n", theMatter);
                     break;
+
                 }
 
                 // Everything else is treated like a bad route.
@@ -238,10 +235,7 @@ class RouterMessenger extends BlockingMessenger {
 
         // Kind of stupid. Have to convert the runtime exceptions so that we
         // can re-throw them.
-
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.log(Level.FINE, "Messenger failed:", lastFailure);
-        }
+        Logging.logCheckedFine(LOG, "Messenger failed:\n", lastFailure);
 
         if (lastFailure instanceof IOException) {
             throw (IOException) lastFailure;

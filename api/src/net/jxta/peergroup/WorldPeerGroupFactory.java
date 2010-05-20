@@ -282,9 +282,8 @@ public final class WorldPeerGroupFactory {
             PeerGroup result = null;
             
             try {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Making a new World Peer Group instance using : " + worldPeerGroupClass.getName());
-                }
+
+                Logging.logCheckedInfo(LOG, "Making a new World Peer Group instance using : ", worldPeerGroupClass.getName());
                 
                 Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);
                 
@@ -309,7 +308,7 @@ public final class WorldPeerGroupFactory {
                 return result;
             } catch (RuntimeException e) {
                 // should be all other checked exceptions
-                LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.", e);
+                LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.\n", e);
                 
                 // cleanup broken instance
                 if (null != result) {
@@ -320,7 +319,7 @@ public final class WorldPeerGroupFactory {
                 throw e;
             } catch (Exception e) {
                 // should be all other checked exceptions
-                LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.", e);
+                LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.\n", e);
                 
                 // cleanup broken instance
                 if (null != result) {

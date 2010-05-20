@@ -138,6 +138,7 @@ class HttpMessageReceiver implements MessageReceiver {
     private MessengerEventListener messengerEventListener;
 
     public HttpMessageReceiver(ServletHttpTransport servletHttpTransport, List<EndpointAddress> publicAddresses, InetAddress useInterface, int port) throws PeerGroupException {
+
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddresses = publicAddresses;
        
@@ -147,6 +148,7 @@ class HttpMessageReceiver implements MessageReceiver {
         initFromProperties(prop);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
 
             configInfo.append("\n\tMin threads=").append(MIN_LISTENER_THREADS);
@@ -154,6 +156,7 @@ class HttpMessageReceiver implements MessageReceiver {
             configInfo.append("\n\tMax thread idle time=").append(MAX_THREAD_IDLE_DURATION).append("ms");
             
             LOG.config(configInfo.toString());
+
         }
         
         // Configure Jetty Logging
@@ -168,13 +171,16 @@ class HttpMessageReceiver implements MessageReceiver {
             Logger jettyLogger = Logger.getLogger(org.mortbay.http.HttpServer.class.getName());
 
             logSink.setLogger(jettyLogger);
+            
             try {
+
                 logSink.start();
                 Log.instance().add(logSink);
+
             } catch (Exception ex) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.severe("Could not configure LoggerLogSink");
-                }
+
+                Logging.logCheckedSevere(LOG, "Could not configure LoggerLogSink");
+                
             }
         }
 
@@ -230,16 +236,19 @@ class HttpMessageReceiver implements MessageReceiver {
     }
 
     synchronized void start() throws PeerGroupException {
+        
         try {
+
             server.start();
             handler.getServletContext().setAttribute("HttpMessageReceiver", this);
+
         } catch (Exception e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not start server", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Could not start server\n", e);
             PeerGroupException failure = new PeerGroupException("Could not start server");
             failure.initCause(e);
             throw failure;
+
         }
 
         messengerEventListener = servletHttpTransport.getEndpointService().addMessageTransport(this);
@@ -247,26 +256,27 @@ class HttpMessageReceiver implements MessageReceiver {
             throw new PeerGroupException("Transport registration refused");
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("HTTP Servlet Transport started.");
-        }
+        Logging.logCheckedInfo(LOG, "HTTP Servlet Transport started.");
+        
     }
     
     synchronized void stop() {
+
         servletHttpTransport.getEndpointService().removeMessageTransport(this);
         messengerEventListener = null;
         
         try {
+
             server.stop();
+
         } catch (InterruptedException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Interrupted during stop()", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Interrupted during stop()\n", e);
+            
         }
         
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("HTTP Servlet Transport stopped.");
-        }
+        Logging.logCheckedInfo(LOG, "HTTP Servlet Transport stopped.");
+        
     }
 
     /**
@@ -304,13 +314,6 @@ class HttpMessageReceiver implements MessageReceiver {
         return servletHttpTransport.getEndpointService();
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    public Object transportControl(Object operation, Object Value) {
-        return null;
-    }
-
     ServletHttpTransport getServletHttpTransport() {
         return servletHttpTransport;
     }
@@ -328,20 +331,21 @@ class HttpMessageReceiver implements MessageReceiver {
         
         try {
             in = new FileInputStream(fromFile);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Read properties from " + fromFile.getPath());
-            }
+            Logging.logCheckedFine(LOG, "Read properties from ", fromFile.getPath());
         } catch (FileNotFoundException e) {
             return null;
         }
         
         try {
+
             prop.load(in);
+
         } catch (IOException e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Error reading " + fromFile.getPath(), e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Error reading ", fromFile.getPath(), "\n", e);
+            
         } finally {
+
             try {
                 in.close();
             } catch (IOException ignored) {
@@ -360,46 +364,46 @@ class HttpMessageReceiver implements MessageReceiver {
     private void initFromProperties(Properties prop) {
         
         if (prop == null) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                LOG.fine("jxta.properties not found: using default values");
-            }
+
+            Logging.logCheckedConfig(LOG, "jxta.properties not found: using default values");
+
         } else {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                LOG.config("Using jxta.properties to configure HTTP server");
-            }
+
+            Logging.logCheckedConfig(LOG, "Using jxta.properties to configure HTTP server");
             
             String minThreadsStr = prop.getProperty("HttpServer.MinThreads");
             String maxThreadsStr = prop.getProperty("HttpServer.MaxThreads");
             String maxThreadIdleTimeStr = prop.getProperty("HttpServer.MaxThreadIdleTime");
             
             try {
-                if (minThreadsStr != null) {
-                    MIN_LISTENER_THREADS = Integer.parseInt(minThreadsStr);
-                }
+
+                if (minThreadsStr != null) MIN_LISTENER_THREADS = Integer.parseInt(minThreadsStr);
+
             } catch (NumberFormatException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Invalid HttpServer.MinThreads value; using default");
-                }
+
+                Logging.logCheckedWarning(LOG, "Invalid HttpServer.MinThreads value; using default");
+                
             }
             
             try {
-                if (maxThreadsStr != null) {
+                if (maxThreadsStr != null) 
                     MAX_LISTENER_THREADS = Integer.parseInt(maxThreadsStr);
-                }
+                
             } catch (NumberFormatException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Invalid HttpServer.MaxThreads value; using default");
-                }
+
+                Logging.logCheckedWarning(LOG, "Invalid HttpServer.MaxThreads value; using default");
+                
             }
             
             try {
-                if (maxThreadIdleTimeStr != null) {
+
+                if (maxThreadIdleTimeStr != null) 
                     MAX_THREAD_IDLE_DURATION = Integer.parseInt(maxThreadIdleTimeStr);
-                }
+                
             } catch (NumberFormatException e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Invalid HttpServer.MaxThreadIdleTime value; using default");
-                }
+
+                Logging.logCheckedWarning(LOG, "Invalid HttpServer.MaxThreadIdleTime value; using default");
+                
             }
         }
     }    

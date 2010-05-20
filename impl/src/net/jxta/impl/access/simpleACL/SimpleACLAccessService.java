@@ -56,7 +56,6 @@
 
 package net.jxta.impl.access.simpleACL;
 
-
 import net.jxta.access.AccessService;
 import net.jxta.credential.Credential;
 import net.jxta.credential.PrivilegedOperation;
@@ -70,13 +69,11 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.service.Service;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Implements the {@link net.jxta.access.AccessService} using a simple ACL
@@ -305,13 +302,15 @@ public class SimpleACLAccessService implements AccessService {
             Enumeration elements = doc.getChildren();
             
             while (elements.hasMoreElements()) {
+
                 TextElement elem = (TextElement) elements.nextElement();
 
                 if (!handleElement(elem)) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Unhandled element \'" + elem.getName() + "\' in " + doc.getName());
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Unhandled element \'", elem.getName(), "\' in ", doc.getName());
+                    
                 }
+
             }
             
             // sanity check time!
@@ -350,6 +349,7 @@ public class SimpleACLAccessService implements AccessService {
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
+
         this.group = group;
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
         
@@ -413,11 +413,8 @@ public class SimpleACLAccessService implements AccessService {
                 allowed.add(anIdentity);
             }
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(
-                        "Adding operation  : \'" + ((null == operation) ? "<<DEFAULT>>" : operation) + "\' with " + allowed.size()
-                        + " identities.");
-            }
+            Logging.logCheckedFine(LOG, "Adding operation  : \'", ((null == operation) ? "<<DEFAULT>>" : operation),
+                "\' with ", allowed.size(), " identities.");
             
             ACLs.put(operation, allowed);
         }
@@ -508,4 +505,5 @@ public class SimpleACLAccessService implements AccessService {
     PeerGroup getPeerGroup() {
         return group;
     }
+    
 }

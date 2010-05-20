@@ -386,15 +386,18 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
                     break;
                 }
             }
+
         } catch (Throwable any) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Uncaught throwable in background thread", any);
-                // Hope the next thread has more luck. It'll need it.
-            }
+
+            Logging.logCheckedSevere(LOG, "Uncaught throwable in background thread\n", any);
+            // Hope the next thread has more luck. It'll need it.
+            
         } finally {
+
             synchronized (stateMachine) {
                 bgThread = null;
             }
+
         }
     }
 

@@ -161,33 +161,32 @@ public class JxtaServerPipeExample {
             try {
                 // grab the message from the event
                 Message msg = event.getMessage();
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("[" + Thread.currentThread().getName() + "] Received a response");
-                }
+
+                Logging.logCheckedFiner(LOG, "[" + Thread.currentThread().getName() + "] Received a response");
                 
                 // get the message element named SenderMessage
                 MessageElement msgElement = msg.getMessageElement(MESSAGE_NAMESPACE_NAME, RESPONSE_ELEMENT_NAME);
                 
                 if(null == msgElement) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "[" + Thread.currentThread().getName() + "] Missing message element");
-                    }
+
+                    Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Missing message element");
                     return;
+
                 }
                 
                 // Get message
                 if (msgElement.toString() == null) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "[" + Thread.currentThread().getName() + "] Null message receved");
-                    }
+
+                    Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Null message receved");
                     return;
+
                 } 
                 
                 // System.out.println("Got Message :" + msgElement.toString());
             } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "[" + Thread.currentThread().getName() + "] Failure during message receipt.", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Failure during message receipt.\n", e);
+
             }
         }
         
@@ -243,7 +242,7 @@ public class JxtaServerPipeExample {
                 System.out.println("[" + Thread.currentThread().getName() + "] Closing the pipe");
                 pipe.close();
             } catch (Throwable all) {
-                LOG.log(Level.SEVERE, "[" + Thread.currentThread().getName() + "] Failure in ConnectionHandler", all);
+                LOG.log(Level.SEVERE, "[" + Thread.currentThread().getName() + "] Failure in ConnectionHandler\n", all);
             }
         }
     }
@@ -278,7 +277,7 @@ public class JxtaServerPipeExample {
                 }
             }
         } catch (Throwable all) {
-            LOG.log(Level.SEVERE,"Failure opening server pipe.", all);
+            LOG.log(Level.SEVERE,"Failure opening server pipe.\n", all);
             System.exit(-1);
         }
     }

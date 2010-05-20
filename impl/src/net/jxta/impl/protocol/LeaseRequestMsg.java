@@ -196,45 +196,53 @@ public class LeaseRequestMsg {
         Enumeration eachAttr = doc.getAttributes();
         
         while (eachAttr.hasMoreElements()) {
+
             Attribute aLeaseReqAttr = (Attribute) eachAttr.nextElement();
             
             if (REQUESTED_LEASE_ATTR.equals(aLeaseReqAttr.getName())) {
+
                 requestedLease = Long.valueOf(aLeaseReqAttr.getValue());
+
             } else if (SERVER_ADV_GEN_ATTR.equals(aLeaseReqAttr.getName())) {
+
                 serverAdvGen = UUID.fromString(aLeaseReqAttr.getValue());
+
             } else if (CLIENT_ID_ATTR.equals(aLeaseReqAttr.getName())) {
+                
                 try {
+
                     URI srcURI = new URI(aLeaseReqAttr.getValue());
                     ID srcID = IDFactory.fromURI(srcURI);
-                    
                     setClientID(srcID);
+
                 } catch (URISyntaxException badID) {
+
                     IllegalArgumentException iae = new IllegalArgumentException("Bad ID in message");
-                    
                     iae.initCause(badID);
                     throw iae;
+
                 }
+
             } else if ("type".equals(aLeaseReqAttr.getName())) {
-                ;
+                
             } else if ("xmlns:jxta".equals(aLeaseReqAttr.getName())) {
-                ;
+                
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Attribute: " + aLeaseReqAttr.getName());
-                }
+
+                Logging.logCheckedWarning(LOG, "Unhandled Attribute: ", aLeaseReqAttr.getName());
+                
             }
         }
         
         Enumeration elements = doc.getChildren();
         
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
             
-            if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem.toString());
-                }
-            }
+            if (!handleElement(elem)) 
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
+
         }
         
         // Sanity Check!!!

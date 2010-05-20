@@ -176,9 +176,7 @@ public abstract class ClassFactory<K, I> {
             try {
                 registeredSomething |= registerAssoc(eachInstanceClass);
             } catch (Exception allElse) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to register \'" + eachInstanceClass + "\'", allElse);
-                }
+                Logging.logCheckedWarning(LOG, "Failed to register \'", eachInstanceClass, "\'", allElse);
             }
         }
 
@@ -202,20 +200,24 @@ public abstract class ClassFactory<K, I> {
             Enumeration<URL> providerLists = loader.getResources("META-INF/services/" + interfaceName);
 
             while (providerLists.hasMoreElements()) {
+                
                 try {
-                    URI providerList = providerLists.nextElement().toURI();
 
+                    URI providerList = providerLists.nextElement().toURI();
                     registeredSomething |= registerFromFile(providerList);
+
                 } catch (URISyntaxException badURI) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Failed to convert service URI", badURI);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Failed to convert service URI", badURI);
+
                 }
+
             }
+
         } catch (IOException ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to locate provider lists", ex);
-            }
+            
+            Logging.logCheckedWarning(LOG, "Failed to locate provider lists\n", ex);
+            
         }
 
         return registeredSomething;
@@ -251,15 +253,20 @@ public abstract class ClassFactory<K, I> {
                 provider = provider.trim();
 
                 if (provider.length() > 0) {
+                    
                     try {
+
                         registeredSomething |= registerAssoc(provider);
+
                     } catch (Exception allElse) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Failed to register \'" + provider + "\'", allElse);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Failed to register \'", provider, "\'", allElse);
+                        
                     }
+
                 }
             }
+
         } catch (IOException ex) {
             LOG.log(Level.WARNING, "Failed to read provider list " + providerList, ex);
             return false;
@@ -298,16 +305,16 @@ public abstract class ClassFactory<K, I> {
              */
                         
             Class ignored = Class.forName(className);
-                        
             registeredSomething = true;
+
         } catch (ClassNotFoundException ignored) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Failed to locate \'" + className + "\'");
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to locate \'", className, "\'");
+            
         } catch (NoClassDefFoundError ignored) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Failed to locate \'" + className + "\'");
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to locate \'", className, "\'");
+            
         }
 
         return registeredSomething;
@@ -329,9 +336,7 @@ public abstract class ClassFactory<K, I> {
 
         getAssocTable().put(key, instantiator);
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Factory : " + getClass().getName() + " Registered instantiator \'" + instantiator + "\' for \'" + key + "\'");
-        }
+        Logging.logCheckedFine(LOG, "Factory : ", getClass().getName(), " Registered instantiator \'", instantiator, "\' for \'", key, "\'");
 
         return true;
     }

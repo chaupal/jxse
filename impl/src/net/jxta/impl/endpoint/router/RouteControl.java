@@ -54,12 +54,9 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-/**
- * This class is used to control the Router route options
- *
- */
 package net.jxta.impl.endpoint.router;
 
+import net.jxta.endpoint.router.RouteController;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
@@ -70,8 +67,9 @@ import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -81,21 +79,12 @@ import java.util.logging.Logger;
 /**
  * Provides an "IOCTL" style interface to the JXTA router transport
  */
-public class RouteControl {
+public class RouteControl implements RouteController {
 
     /**
      * Logger
      */
     private static transient final Logger LOG = Logger.getLogger(RouteControl.class.getName());
-
-    /**
-     * return value for operation
-     */
-    public final static int OK = 0; // operation succeeded
-    public final static int ALREADY_EXIST = 1; // failed route already exists
-    public final static int FAILED = -1; // failed operation
-    public final static int DIRECT_ROUTE = 2; // failed direct route
-    public final static int INVALID_ROUTE = 3; // invalid route
 
     /**
      * Endpoint Router pointer
@@ -105,7 +94,7 @@ public class RouteControl {
     /**
      * Router CM cache
      */
-    private final RouteCM routeCM;
+    private RouteCM routeCM;
 
     /**
      * local Peer Id
@@ -120,16 +109,35 @@ public class RouteControl {
      */
     public RouteControl(EndpointRouter router, ID pid) {
         this.router = router;
-        this.routeCM = router.getRouteCM();
         this.localPeerId = pid;
+    }
+
+    /**
+     * We can't initialize the routCM variable, because it is not created yet
+     * in the EndpointRouter. We have to wait for init() and startApp().
+     */
+    public void start() {
+        this.routeCM = this.router.getRouteCM();
     }
 
     /**
      * get my local route
      *
      * @return RoutAdvertisement of the local route
+     * @deprecated Use {@code getLocalPeerRoute()} instead. This methods will be removed
+     * in a future release.
      */
+    @Deprecated
     public RouteAdvertisement getMyLocalRoute() {
+        return router.getMyLocalRoute();
+    }
+
+    /**
+     * Return a route advertisement for this peer.
+     *
+     * @return a route advertisement for this peer.
+     */
+    public RouteAdvertisement getLocalPeerRoute() {
         return router.getMyLocalRoute();
     }
 
@@ -146,9 +154,7 @@ public class RouteControl {
 
         // check if the destination is not ourself
         if (route.getDestPeerID().equals(localPeerId)) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Skipping Local peer addRoute");
-            }
+            Logging.logCheckedFine(LOG, "Skipping Local peer addRoute");
             return ALREADY_EXIST;
         }
 
@@ -177,31 +183,29 @@ public class RouteControl {
             }
 
             if (router.isLocalRoute(destAddress) || router.isRoutedRoute(route.getDestPeerID())) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Skipping add Route " + destAddress + " already exists");
-                    LOG.fine("isLocalRoute() " + router.isLocalRoute(destAddress) + " isRoutedRoute() : "
-                            + router.isRoutedRoute(route.getDestPeerID()));
-                }
+                Logging.logCheckedFine(LOG, "Skipping add Route ", destAddress, " already exists");
+                Logging.logCheckedFine(LOG, "isLocalRoute() ", router.isLocalRoute(destAddress),
+                        " isRoutedRoute() : ", router.isRoutedRoute(route.getDestPeerID()));
                 return ALREADY_EXIST;
             }
 
             // ok go ahead try to connect to the destination using the route info
             if (router.ensureLocalRoute(destAddress, route) == null) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Failed to connect to address :" + destAddress);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to connect to address :", destAddress);
                 return FAILED;
+
             }
 
             // Use the original route for publication as we may later supply the advertisement to othe peers
             // which may make good use of ourselves as a first and only hop. (Normally routes are discovered
             // via route discovery, which automatically stiches routes to the respondant ahead of the
             // discovered route. But a discovered route adv is sometimes used as well).
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Publishing route :" + newRoute);
-            }
+            Logging.logCheckedFine(LOG, "Publishing route :", newRoute);
+
             routeCM.publishRoute(newRoute);
             return OK;
+
         }
 
         // we have a long route
@@ -330,6 +334,44 @@ public class RouteControl {
     }
 
     /**
+     * {@inheritDoc }
+     */
+    public Collection<RouteAdvertisement> getAllRoutes() {
+
+        return getAllRoutesInfo();
+
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    public Collection<RouteAdvertisement> getRoutes(PeerID inPID) {
+
+        // Preparing result
+        Collection<RouteAdvertisement> Result = new ArrayList<RouteAdvertisement>();
+
+        // Checking PID
+        if ( inPID == null ) return Result;
+
+        // Preparing result
+        Vector<RouteAdvertisement> TempRI = getAllRoutesInfo();
+
+        for (int i=0;i<TempRI.size();i++) {
+
+            if (TempRI.get(i).getDestPeerID().toString().compareTo(inPID.toString())==0) {
+
+                Result.add(TempRI.get(i));
+
+            }
+
+        }
+
+        // Returning result
+        return Result;
+
+    }
+
+    /**
      * get all the know routes by the router. Return a vector of all
      * the routes known.
      * <p/>
@@ -394,11 +436,13 @@ public class RouteControl {
                 r.setDest(ap);
                 routes.add(r);
             }
+
         } catch (Exception ex) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "getAllRoutesInfo error : ", ex);
-            }
+
+            Logging.logCheckedWarning(LOG, "getAllRoutesInfo error :\n", ex);
+
         }
+
         return routes;
     }
 
@@ -466,13 +510,29 @@ public class RouteControl {
      * @param destination the destination endpoint address
      * @param hint        route hint
      * @return the messenger for the destination
+     * @deprecated Use {@code getMessengerFor(EndpointAddress destination)} instead.
+     * This method will be removed in a future release.
+     * Hints should be processed via the {@code addRoute()} method. 
      */
+    @Deprecated
     public Messenger getMessengerFor(EndpointAddress destination, Object hint) {
         if ((hint != null) && !(hint instanceof RouteAdvertisement)) {
             hint = null;
         }
 
         return router.ensureLocalRoute(destination, (RouteAdvertisement) hint);
+    }
+
+    /**
+     * Get the low level messenger for a destination.
+     *
+     * @param destination the destination endpoint address
+     * @return the messenger for the destination
+     */
+    public Messenger getMessengerFor(EndpointAddress destination) {
+
+        return router.ensureLocalRoute(destination, null);
+
     }
 
     /**
@@ -489,14 +549,10 @@ public class RouteControl {
     }
 
     /**
-     * Determines whether a connection to a specific node exists, or if one can be created.
-     * This method can block to ensure a usable connection exists, it does so by sending an empty
-     * message.
-     *
-     * @param pid Node ID
-     * @param route Destination route advertisement
-     * @return true, if a connection already exists, or a new was sucessfully created
+     * @deprecated Use {@code isConnected(PeerID pid)} only. This method will be removed
+     * in a future release. Hints should be processed via the {@code addRoute()} method.
      */
+    @Deprecated
     public boolean isConnected(PeerID pid, RouteAdvertisement route) {
 
         Messenger messenger = getMessengerFor(new EndpointAddress("jxta", pid.getUniqueValue().toString(), null, null), route);

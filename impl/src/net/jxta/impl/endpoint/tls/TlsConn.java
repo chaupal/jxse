@@ -197,16 +197,15 @@ class TlsConn {
      * Create a new connection
      */
     TlsConn(TlsTransport tp, EndpointAddress destAddr, boolean client) throws Exception {
+
         this.transport = tp;
         this.destAddr = destAddr;
         this.client = client;
         this.currentState = client ? HandshakeState.CLIENTSTART : HandshakeState.SERVERSTART;
         this.lastAccessed = TimeUtils.timeNow();
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info((client ? "Initiating" : "Accepting") + " new connection for : " + destAddr.getProtocolAddress());
-        }
-
+        Logging.logCheckedInfo(LOG, (client ? "Initiating" : "Accepting"), " new connection for : ", destAddr.getProtocolAddress());
+        
         boolean choseTMF = false;
         javax.net.ssl.TrustManagerFactory tmf = null;
         String overrideTMF = System.getProperty("net.jxta.impl.endpoint.tls.TMFAlgorithm");
@@ -309,13 +308,10 @@ class TlsConn {
      */
     void finishHandshake() throws IOException {
 
-        long startTime = 0;
+        long startTime = TimeUtils.timeNow();
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            startTime = TimeUtils.timeNow();
-            LOG.info((client ? "Client:" : "Server:") + " Handshake START");
-        }
-
+        Logging.logCheckedInfo(LOG, (client ? "Client:" : "Server:"), " Handshake START");
+        
         setHandshakeState(HandshakeState.HANDSHAKESTARTED);
 
         // this starts a handshake
@@ -328,11 +324,9 @@ class TlsConn {
 
         setHandshakeState(HandshakeState.HANDSHAKEFINISHED);
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            long hsTime = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startTime) / TimeUtils.ASECOND;
+        long hsTime = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), startTime) / TimeUtils.ASECOND;
 
-            LOG.info((client ? "Client:" : "Server:") + "Handshake DONE in " + hsTime + " secs");
-        }
+        Logging.logCheckedInfo(LOG, (client ? "Client:" : "Server:"), "Handshake DONE in ", hsTime, " secs");
 
         // set up plain text i/o
         // writes to be encrypted
@@ -349,16 +343,17 @@ class TlsConn {
      * @throws java.io.IOException if an error occurs
      */
     void close(HandshakeState finalstate) throws IOException {
+
         synchronized (lastAccessedLock) {
             lastAccessed = Long.MIN_VALUE;
         }
+
         synchronized (closeLock) {
+
             closing = true;
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Shutting down " + this);
-            }
-
+            Logging.logCheckedInfo(LOG, "Shutting down ", this);
+            
             setHandshakeState(HandshakeState.CONNECTIONCLOSING);
 
             try {
@@ -383,19 +378,21 @@ class TlsConn {
                     outBoundMessenger.close();
                     outBoundMessenger = null;
                 }
+
             } catch (Throwable failed) {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.log(Level.INFO, "Throwable during close " + this, failed);
-                }
+
+                Logging.logCheckedInfo(LOG, "Throwable during close ", this, "\n", failed);
 
                 IOException failure = new IOException("Throwable during close()");
-
                 failure.initCause(failed);
                 throw failure;
+
             } finally {
+
                 closeLock.notifyAll();
                 closing = false;
                 setHandshakeState(finalstate);
+
             }
         }
     }
@@ -411,10 +408,10 @@ class TlsConn {
     boolean sendToRemoteTls(Message msg) throws IOException {
 
         synchronized (acquireMessengerLock) {
+
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Getting messenger for " + destAddr);
-                }
+
+                Logging.logCheckedFine(LOG, "Getting messenger for ", destAddr);
 
                 EndpointAddress realAddr = new EndpointAddress(destAddr, JTlsDefs.ServiceName, null);
 
@@ -422,17 +419,15 @@ class TlsConn {
                 outBoundMessenger = transport.endpoint.getMessenger(realAddr);
 
                 if (outBoundMessenger == null) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Could not get messenger for " + realAddr);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Could not get messenger for ", realAddr);
                     return false;
+
                 }
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Sending " + msg + " to " + destAddr);
-        }
+        Logging.logCheckedFine(LOG, "Sending ", msg, " to ", destAddr);
 
         // Good we have a messenger. Send the message.
         return outBoundMessenger.sendMessage(msg);
@@ -453,18 +448,17 @@ class TlsConn {
     void sendMessage(Message msg) throws IOException {
 
         try {
+
             WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, JTlsDefs.MTYPE, null);
-
             serialed.sendToStream(new IgnoreFlushFilterOutputStream(plaintext_out));
-
             plaintext_out.flush();
-        } catch (IOException failed) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Closing " + this + " due to exception ", failed);
-            }
 
+        } catch (IOException failed) {
+
+            Logging.logCheckedInfo(LOG, "Closing ", this, " due to exception\n", failed);
             close(HandshakeState.CONNECTIONDEAD);
             throw failed;
+
         }
     }
 
@@ -485,9 +479,8 @@ class TlsConn {
             workerThread.setDaemon(true);
             workerThread.start();
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Started ReadPlaintextMessage thread for " + TlsConn.this.destAddr);
-            }
+            Logging.logCheckedInfo(LOG, "Started ReadPlaintextMessage thread for ", TlsConn.this.destAddr);
+            
         }
 
         /**
@@ -504,34 +497,33 @@ class TlsConn {
                         }
 
                         // dispatch it to TlsTransport for demuxing
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Dispatching " + msg + " to TlsTransport");
-                        }
-
+                        Logging.logCheckedFine(LOG, "Dispatching ", msg, " to TlsTransport");
                         TlsConn.this.transport.processReceivedMessage(msg);
 
                         synchronized (TlsConn.this.lastAccessedLock) {
                             TlsConn.this.lastAccessed = TimeUtils.timeNow(); // update idle timer
                         }
-                    } catch (IOException iox) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "I/O error while reading decrypted Message", iox);
-                        }
 
+                    } catch (IOException iox) {
+
+                        Logging.logCheckedWarning(LOG, "I/O error while reading decrypted Message\n", iox);
                         break;
+
                     }
                 }
+
             } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-                }
+                
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+                
             } finally {
+
                 workerThread = null;
+
             }
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Finishing ReadPlaintextMessage thread");
-            }
+            Logging.logCheckedInfo(LOG, "Finishing ReadPlaintextMessage thread");
+            
         }
     }
 
@@ -582,13 +574,12 @@ class TlsConn {
             List<X509Certificate> certificates = Arrays.asList(cred.getCertificateChain());
 
             for (X509Certificate certificate : certificates) {
+
                 if (!certificate.getPublicKey().getAlgorithm().equals(keyType)) {
                     continue;
                 }
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("CHECKING: " + certificate.getIssuerX500Principal() + " in " + allIssuers);
-                }
+                Logging.logCheckedFine(LOG, "CHECKING: ", certificate.getIssuerX500Principal(), " in ", allIssuers);
 
                 if (allIssuers.contains(certificate.getIssuerX500Principal())) {
                     return "theone";
@@ -690,24 +681,29 @@ class TlsConn {
          * {@inheritDoc}
          */
         public String[] getServerAliases(String keyType, java.security.Principal[] issuers) {
+
             if (keyType.equals(cred.getCertificate().getPublicKey().getAlgorithm())) {
+
                 if (null == issuers) {
                     return new String[]{"theone"};
                 } else {
+
                     Collection<Principal> allIssuers = Arrays.asList(issuers);
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Looking for : " + cred.getCertificate().getIssuerX500Principal());
-                        LOG.fine("Issuers : " + allIssuers);
-                        java.security.Principal prin = cred.getCertificate().getIssuerX500Principal();
+                        
+                        Logging.logCheckedFine(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
+                        Logging.logCheckedFine(LOG, "Issuers : ", allIssuers);
 
-                        LOG.fine("  Principal Type :" + prin.getClass().getName());
+                        java.security.Principal prin = cred.getCertificate().getIssuerX500Principal();
+                        Logging.logCheckedFine(LOG, "  Principal Type :", prin.getClass().getName());
 
                         for (Principal issuer : allIssuers) {
-                            LOG.fine("Issuer Type : " + issuer.getClass().getName());
-                            LOG.fine("Issuer value : " + issuer);
-                            LOG.fine("tmp.equals(prin) : " + issuer.equals(prin));
+                            Logging.logCheckedFine(LOG, "Issuer Type : ", issuer.getClass().getName());
+                            Logging.logCheckedFine(LOG, "Issuer value : ", issuer);
+                            Logging.logCheckedFine(LOG, "tmp.equals(prin) : ", issuer.equals(prin));
                         }
+
                     }
 
                     X509Certificate[] chain = cred.getCertificateChain();

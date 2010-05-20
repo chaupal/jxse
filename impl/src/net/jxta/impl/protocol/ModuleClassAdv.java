@@ -165,13 +165,13 @@ public class ModuleClassAdv extends ModuleClassAdvertisement {
         Enumeration<XMLElement> elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Unhandled Element: " + elem.toString());
-                }
+                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
+
         }
 
         // Sanity Check!!!

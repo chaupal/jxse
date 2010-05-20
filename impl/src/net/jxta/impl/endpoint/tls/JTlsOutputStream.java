@@ -365,9 +365,7 @@ class JTlsOutputStream extends OutputStream {
 
                 jmsg.addMessageElement(JTlsDefs.TLSNameSpace, ciphertext);
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("TLS CT WRITE : seqn#" + sequenceNumber + " length=" + len);
-                }
+                Logging.logCheckedFine(LOG, "TLS CT WRITE : seqn#", sequenceNumber, " length=", len);
 
                 // (1)  See if the most recent remote input queue size is close to
                 // it's maximum input queue size
@@ -388,24 +386,28 @@ class JTlsOutputStream extends OutputStream {
 
                 // check if the queue has gone dead.
                 if (retrQ.size() > 0) {
+
                     long inQueue = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), retrQ.get(0).enqueuedAt);
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("write : Retry queue idle for " + inQueue);
-                    }
-
+                    Logging.logCheckedFine(LOG, "write : Retry queue idle for ", inQueue);
+                    
                     if (inQueue > tp.RETRMAXAGE) {
+
                         if (inQueue > (2 * tp.RETRMAXAGE)) {
-                            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                                LOG.info("Closing stale connection " + conn);
-                            }
+                            
+                            Logging.logCheckedInfo(LOG, "Closing stale connection ", conn);
+                            
                             // SPT - set flag for connection close in finally block
                             closeStale = true;
                             throw new IOException("Stale connection closure in progress");
+
                         } else if (retrQ.size() >= MAXRETRQSIZE) {
+
                             // if the the queue is "full" and we are long idle, delay new writes forever.
                             waitCt = Integer.MAX_VALUE;
+
                         }
+
                     }
                 }
 
@@ -415,17 +417,13 @@ class JTlsOutputStream extends OutputStream {
 
                     // see if max. wait has arrived.
                     if (i++ == waitCt) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("write() wait for ACK, maxwait timer expired while enqueuing seqn#" + sequenceNumber);
-                        }
+                        Logging.logCheckedFine(LOG, "write() wait for ACK, maxwait timer expired while enqueuing seqn#", sequenceNumber);
                         break;
                     }
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("write() wait 60ms for ACK while enqueuing seqn#" + sequenceNumber + "\n\tremote IQ free space = "
-                                + mrrIQFreeSpace + "\n\tMIN free space to continue = " + (rmaxQSize / 5) + "" + "\n\tretQ.size()="
-                                + retrQ.size());
-                    }
+                    Logging.logCheckedFine(LOG, "write() wait 60ms for ACK while enqueuing seqn#", sequenceNumber, "\n\tremote IQ free space = ",
+                                mrrIQFreeSpace, "\n\tMIN free space to continue = ", (rmaxQSize / 5), "\n\tretQ.size()=",
+                                retrQ.size());
 
                     // Less than 20% free queue space is left. Wait.
                     try {
@@ -440,9 +438,8 @@ class JTlsOutputStream extends OutputStream {
 
                 retrQ.add(r);
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Retrans Enqueue added seqn#" + sequenceNumber + " retQ.size()=" + retrQ.size());
-                }
+                Logging.logCheckedFine(LOG, "Retrans Enqueue added seqn#", sequenceNumber, " retQ.size()=", retrQ.size());
+
             }
 
             // Here we will send the message to the transport
@@ -450,10 +447,10 @@ class JTlsOutputStream extends OutputStream {
             // assume we have now taken a slot
             mrrIQFreeSpace--;
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("TLS CT SENT : seqn#" + sequenceNumber + " length=" + len);
-            }
+            Logging.logCheckedFine(LOG, "TLS CT SENT : seqn#", sequenceNumber, " length=", len);
+            
         } finally {
+
             if (closeStale) {
                 // The retry queue has really gone stale.
                 try {
@@ -497,9 +494,8 @@ class JTlsOutputStream extends OutputStream {
             RTO = Math.min(RTO, maxRTO);
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("TLS!! RTT = " + dt + "ms aveRTT = " + aveRTT + "ms" + " RTO = " + RTO + "ms" + " maxRTO = " + maxRTO + "ms");
-        }
+        Logging.logCheckedFine(LOG, "TLS!! RTT = ", dt, "ms aveRTT = ", aveRTT, "ms RTO = ", RTO, "ms maxRTO = ", maxRTO, "ms");
+        
     }
 
     private int calcAVEIQ(int iq) {
@@ -530,47 +526,44 @@ class JTlsOutputStream extends OutputStream {
      *   sequences.
      **/
     void ackReceived(int seqnum, int[] sackList) {
+
         lastACKTime = TimeUtils.timeNow();
         int numberACKed = 0;
 
         // remove acknowledged messages from retrans Q.
 
         synchronized (retrQ) {
+
             maxACK = Math.max(maxACK, seqnum);
 
             // dump the current Retry queue and the SACK list
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+
                 StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append('\n');
-                }
+                dumpRETRQ.append('\n');
                 dumpRETRQ.append("\tRETRQ (size=").append(retrQ.size()).append(")");
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append(" : ");
-                    for (int y = 0; y < retrQ.size(); y++) {
-                        if (0 != y) {
-                            dumpRETRQ.append(", ");
-                        }
-                        RetrQElt r = retrQ.get(y);
+                dumpRETRQ.append(" : ");
 
-                        dumpRETRQ.append(r.seqnum);
-                    }
+                for (int y = 0; y < retrQ.size(); y++) {
+
+                    if (0 != y) dumpRETRQ.append(", ");
+                    RetrQElt r = retrQ.get(y);
+                    dumpRETRQ.append(r.seqnum);
+
                 }
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append('\n');
-                }
+
+                dumpRETRQ.append('\n');
                 dumpRETRQ.append("\tSACKLIST (size=").append(sackList.length).append(")");
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append(" : ");
-                    for (int y = 0; y < sackList.length; y++) {
-                        if (0 != y) {
-                            dumpRETRQ.append(", ");
-                        }
-                        dumpRETRQ.append(sackList[y]);
-                    }
+                dumpRETRQ.append(" : ");
+
+                for (int y = 0; y < sackList.length; y++) {
+                    if (0 != y) dumpRETRQ.append(", ");
+                    dumpRETRQ.append(sackList[y]);
                 }
+
                 LOG.fine(dumpRETRQ.toString());
+
             }
 
             Iterator eachRetryQueueEntry = retrQ.iterator();
@@ -580,17 +573,13 @@ class JTlsOutputStream extends OutputStream {
                 RetrQElt r = (RetrQElt) eachRetryQueueEntry.next();
 
                 if (r.seqnum > seqnum) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("r.seqnum :" + r.seqnum + " > seqnum :" + seqnum);
-                    }
+                    Logging.logCheckedFine(LOG, "r.seqnum :", r.seqnum, " > seqnum :", seqnum);
                     break;
                 }
 
                 // Acknowledged
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("seqnum :" + seqnum);
-                    LOG.fine("Removing :" + r.seqnum + " from retransmit queue");
-                }
+                Logging.logCheckedFine(LOG, "seqnum :", seqnum);
+                Logging.logCheckedFine(LOG, "Removing :", r.seqnum, " from retransmit queue");
                 eachRetryQueueEntry.remove();
 
                 // Update RTT, RTO
@@ -609,9 +598,7 @@ class JTlsOutputStream extends OutputStream {
                 conn.lastAccessed = TimeUtils.timeNow();
             }
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("TLS!! SEQUENTIALLY ACKD SEQN = " + seqnum + ", (" + numberACKed + " acked)");
-            }
+            Logging.logCheckedFine(LOG, "TLS!! SEQUENTIALLY ACKD SEQN = ", seqnum, ", (", numberACKed, " acked)");
 
             // most recent remote IQ free space
             rmaxQSize = Math.max(rmaxQSize, sackList.length);
@@ -624,9 +611,7 @@ class JTlsOutputStream extends OutputStream {
             // We will keep the rwin <= ave real input queue size.
             int aveIQ = calcAVEIQ(sackList.length);
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("remote IQ free space = " + mrrIQFreeSpace + " remote avg IQ occupancy = " + aveIQ);
-            }
+            Logging.logCheckedFine(LOG, "remote IQ free space = ", mrrIQFreeSpace, " remote avg IQ occupancy = ", aveIQ);
 
             int retrans = 0;
 
@@ -663,9 +648,7 @@ class JTlsOutputStream extends OutputStream {
                             calcRTT(enqueuetime);
                         }
 
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("TLS!! SACKD SEQN = " + r.seqnum);
-                        }
+                        Logging.logCheckedFine(LOG, "TLS!! SACKD SEQN = ", r.seqnum);
 
                         // GC this stuff
                         r.msg.clear();
@@ -683,17 +666,12 @@ class JTlsOutputStream extends OutputStream {
                         // We retransmit 12.
                         if (seqnum < r.seqnum) {
                             retrans++;
-
-                            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                                LOG.fine("RETR: Fill hole, SACK, seqn#" + r.seqnum + ", Window =" + retrans);
-                            }
+                            Logging.logCheckedFine(LOG, "RETR: Fill hole, SACK, seqn#", r.seqnum, ", Window =", retrans);
                         }
                     }
                 }
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("TLS!! SELECTIVE ACKD (" + numberACKed + ") " + retrans + " retrans wanted");
-                }
+                Logging.logCheckedFine(LOG, "TLS!! SELECTIVE ACKD (", numberACKed, ") ", retrans, " retrans wanted");
 
                 // retransmit 1 retq mem. only
                 if (retrans > 0) {
@@ -721,8 +699,8 @@ class JTlsOutputStream extends OutputStream {
         synchronized (retrQ) {
             numberToRetrans = Math.min(retrQ.size(), rwin);
 
-            if (numberToRetrans > 0 && Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("RETRANSMITING [rwindow = " + numberToRetrans + "]");
+            if (numberToRetrans > 0) {
+                Logging.logCheckedFine(LOG, "RETRANSMITING [rwindow = ", numberToRetrans, "]");
             }
 
             for (int j = 0; j < numberToRetrans; j++) {
@@ -779,9 +757,8 @@ class JTlsOutputStream extends OutputStream {
             eachRetrans.remove();
 
             try {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("TLS!! RETRANSMIT seqn#" + r.seqnum);
-                }
+
+                Logging.logCheckedFine(LOG, "TLS!! RETRANSMIT seqn#", r.seqnum);
 
                 Message sending = r.msg;
 
@@ -798,17 +775,14 @@ class JTlsOutputStream extends OutputStream {
                     } // don't bother continuing.
                 }
             } catch (IOException e) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "FAILED RETRANS seqn#" + r.seqnum, e);
-                }
+
+                Logging.logCheckedFine(LOG, "FAILED RETRANS seqn#", r.seqnum, "\n", e);
                 break; // don't bother continuing.
+
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("RETRANSMITED " + retransmitted + " of " + numberToRetrans);
-        }
-
+        Logging.logCheckedFine(LOG, "RETRANSMITED ", retransmitted, " of ", numberToRetrans);
         return retransmitted;
     }
 
@@ -827,9 +801,8 @@ class JTlsOutputStream extends OutputStream {
             retransmitterThread.setDaemon(true);
             retransmitterThread.start();
 
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("STARTED TLS Retransmit thread, RTO = " + RTO);
-            }
+            Logging.logCheckedInfo(LOG, "STARTED TLS Retransmit thread, RTO = ", RTO);
+            
         }
 
         public int getRetransCount() {
@@ -847,25 +820,29 @@ class JTlsOutputStream extends OutputStream {
                 while (!closed) {
                     long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), conn.lastAccessed);
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("RETRANS : " + conn + " idle for " + conn_idle);
-                    }
+                    Logging.logCheckedFine(LOG, "RETRANS : ", conn, " idle for ", conn_idle);
 
                     // check to see if we have not idled out.
                     if (tp.CONNECTION_IDLE_TIMEOUT < conn_idle) {
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("RETRANS : Shutting down idle connection: " + conn);
-                        }
+
+                        Logging.logCheckedInfo(LOG, "RETRANS : Shutting down idle connection: ", conn);
+                        
                         try {
+
                             setClosing();
+
                             // the following call eventually closes this stream
                             conn.close(HandshakeState.CONNECTIONDEAD);
+
                             // Leave. Otherwise we'll be spinning forever
                             return;
+
                         } catch (IOException ignored) {
-                            ;
+                            
                         }
+
                         continue;
+
                     }
 
                     synchronized (retrQ) {
@@ -883,10 +860,7 @@ class JTlsOutputStream extends OutputStream {
                     long sinceLastSACKRetr = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), sackRetransTime);
 
                     if (sinceLastSACKRetr < RTO) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("RETRANS : SACK retrans " + sinceLastSACKRetr + "ms ago");
-                        }
-
+                        Logging.logCheckedFine(LOG, "RETRANS : SACK retrans ", sinceLastSACKRetr, "ms ago");
                         continue;
                     }
 
@@ -902,22 +876,23 @@ class JTlsOutputStream extends OutputStream {
                         }
                     }
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("RETRANS : Last ACK " + sinceLastACK + "ms ago. Age of oldest in Queue " + oldestInQueueWait + "ms");
-                    }
+                    Logging.logCheckedFine(LOG, "RETRANS : Last ACK ", sinceLastACK, "ms ago. Age of oldest in Queue ", oldestInQueueWait, "ms");
 
                     // see if the queue has gone dead
                     if (oldestInQueueWait > (tp.RETRMAXAGE * 2)) {
-                        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                            LOG.info("RETRANS : Shutting down stale connection: " + conn);
-                        }
+
+                        Logging.logCheckedInfo(LOG, "RETRANS : Shutting down stale connection: ", conn);
+                        
                         try {
+
                             setClosing();
                             conn.close(HandshakeState.CONNECTIONDEAD);
+
                             // Leave. Otherwise we'll be spinning forever.
                             return;
+
                         } catch (IOException ignored) {
-                            ;
+                            
                         }
                         continue;
                     }
@@ -936,9 +911,7 @@ class JTlsOutputStream extends OutputStream {
                     // has not been idle for the RTO.
                     if ((realWait >= RTO) && (oldestInQueueWait >= RTO)) {
 
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("RETRANS : RTO RETRANSMISSION [" + RWINDOW + "]");
-                        }
+                        Logging.logCheckedFine(LOG, "RETRANS : RTO RETRANSMISSION [", RWINDOW, "]");
 
                         // retrasmit
                         int retransed = retransmit(RWINDOW, TimeUtils.timeNow());
@@ -959,11 +932,11 @@ class JTlsOutputStream extends OutputStream {
                             nAtThisRTO = 0;
                         }
 
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("RETRANS : RETRANSMISSION " + retransed + " retrans " + nAtThisRTO + " at this RTO (" + RTO
-                                    + ") " + nretransmitted + " total retrans");
-                        }
+                        Logging.logCheckedFine(LOG, "RETRANS : RETRANSMISSION ", retransed, " retrans ", nAtThisRTO, " at this RTO (", RTO,
+                                    ") ", nretransmitted, " total retrans");
+
                     } else {
+
                         idleCounter += 1;
 
                         // reset RTO to min if we are idle
@@ -973,22 +946,21 @@ class JTlsOutputStream extends OutputStream {
                             nAtThisRTO = 0;
                         }
 
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("RETRANS : IDLE : RTO=" + RTO + " WAIT=" + realWait);
-                        }
+                        Logging.logCheckedFine(LOG, "RETRANS : IDLE : RTO=", RTO, " WAIT=", realWait);
+
                     }
                 }
-            } catch (Throwable all) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-                }
-            } finally {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.info("STOPPED TLS Retransmit thread");
-                }
 
+            } catch (Throwable all) {
+
+                Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+
+            } finally {
+
+                Logging.logCheckedInfo(LOG, "STOPPED TLS Retransmit thread");
                 retransmitterThread = null;
                 retransmitter = null;
+
             }
         }
     }

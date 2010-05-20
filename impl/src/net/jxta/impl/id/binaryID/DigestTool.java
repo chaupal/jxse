@@ -236,7 +236,7 @@ public class DigestTool {
 
             return base64.toString();
         } catch (Exception failed) {
-            LOG.log(Level.SEVERE, "Unable to encode hash value.", failed);
+            LOG.log(Level.SEVERE, "Unable to encode hash value.\n", failed);
             throw new RuntimeException("Unable to encode hash value.");
         }
     }
@@ -258,7 +258,7 @@ public class DigestTool {
 
             return base64.toString();
         } catch (Exception failed) {
-            LOG.log(Level.SEVERE, "Unable to encode hash value.", failed);
+            LOG.log(Level.SEVERE, "Unable to encode hash value.\n", failed);
             throw new RuntimeException("Unable to encode hash value.");
         }
     }
@@ -297,7 +297,7 @@ public class DigestTool {
         try {
             algorithm = MessageDigest.getInstance(algorithmType);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Cannot load selected Digest Hash implementation", e);
+            LOG.log(Level.SEVERE, "Cannot load selected Digest Hash implementation\n", e);
             return null;
         }
 
@@ -310,7 +310,7 @@ public class DigestTool {
 
             return digest1;
         } catch (Exception de) {
-            LOG.log(Level.SEVERE, "Failed to creat a digest.", de);
+            LOG.log(Level.SEVERE, "Failed to creat a digest.\n", de);
             return null;
         }
     }
@@ -360,7 +360,7 @@ public class DigestTool {
 
             digest2 = bos.toByteArray();
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Failed to create a digest.", e);
+            LOG.log(Level.SEVERE, "Failed to create a digest.\n", e);
             return false;
         }
 

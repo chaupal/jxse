@@ -80,22 +80,26 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         boundAddresses = Collections.unmodifiableList(addrTranslator.translateToExternalAddresses(chosenAddress));
         
         if(serverChannel == null) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to bind to any of the addresses in the configured range");
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed to bind to any of the addresses in the configured range");
             throw new PeerGroupException("Failed to bind to any address in the configured range");
+
         }
         
         if(usePublicOnly) {
+
             if(publicAddress == null) {
-                if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Instructed to use public address only, but no public address specified! Using all bound addresses instead");
-                }
+
+                Logging.logCheckedWarning(LOG, "Instructed to use public address only, but no public address specified! Using all bound addresses instead");
                 publicAddresses = new ArrayList<EndpointAddress>(boundAddresses);
+
             } else {
+
                 publicAddresses = new ArrayList<EndpointAddress>(1);
                 publicAddresses.add(publicAddress);
+
             }
+
         } else {
             int size = boundAddresses.size() + ((publicAddress != null) ? 1 : 0);
             publicAddresses = new ArrayList<EndpointAddress>(size);
@@ -107,17 +111,18 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
     }
 
     private SocketAddress bindServerChannel(List<? extends SocketAddress> potentialBindpoints) {
+        
         for(SocketAddress nextBP : potentialBindpoints) {
+
             try {
                 serverChannel = serverBootstrap.bind(nextBP);
                 channels.add(serverChannel);
                 return nextBP;
             } catch(ChannelException e) {
-                if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    String failReason = (e.getCause() != null) ? e.getCause().getMessage() : e.getMessage();
-                    LOG.log(Level.INFO, "Attempt to bind to " + nextBP + " failed (" + failReason + "), trying another address");
-                }
+                String failReason = (e.getCause() != null) ? e.getCause().getMessage() : e.getMessage();
+                Logging.logCheckedInfo(LOG, "Attempt to bind to ", nextBP, " failed (", failReason, "), trying another address");
             }
+            
         }
         
         return null;
@@ -132,10 +137,10 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         listener = endpointService.addMessageTransport(this);
         
         if(listener == null) {
-            if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Transport registration failed for netty transport server, protocol=" + addrTranslator.getProtocolName());
-            }
+
+            Logging.logCheckedSevere(LOG, "Transport registration failed for netty transport server, protocol=", addrTranslator.getProtocolName());
             return false;
+
         }
         
         started.set(true);
@@ -143,11 +148,12 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
     }
     
     public void beginStop() {
+
         if(!started.compareAndSet(true, false)) {
-            if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Netty transport server for protocol " + addrTranslator.getProtocolName() + " already stopped or never started!");
-            }
+
+            Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
             return;
+
         }
         
         closeChannelsFuture = channels.close();
@@ -181,23 +187,19 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         return addrTranslator.getProtocolName();
     }
 
-    @Deprecated
-    public Object transportControl(Object operation, Object value) {
-        throw new RuntimeException("transportControl is deprecated - do not use");
-    }
-    
     @ChannelPipelineCoverage("all")
     private final class ConnectionGroupAddHandler extends SimpleChannelUpstreamHandler {
+
         @Override
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-            if(Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                String logMessage = String.format("Incoming connection for transport %s from %s to %s (handled by %s)",
-                                                  getProtocolName(),
-                                                  e.getChildChannel().getRemoteAddress(),
-                                                  e.getChildChannel().getLocalAddress(),
-                                                  ctx.getChannel().getLocalAddress());
-                LOG.log(Level.FINE, logMessage);
-            }
+            
+            Logging.logCheckedFine(LOG, String.format("Incoming connection for transport %s from %s to %s (handled by %s)",
+                  getProtocolName(),
+                  e.getChildChannel().getRemoteAddress(),
+                  e.getChildChannel().getLocalAddress(),
+                  ctx.getChannel().getLocalAddress()
+                  ));
+                
             channels.add(e.getChildChannel());
             super.childChannelOpen(ctx, e);
         }

@@ -55,12 +55,15 @@
  */
 package net.jxta.impl.rendezvous;
 
+import java.util.List;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
 import net.jxta.impl.rendezvous.rpv.PeerView;
+import net.jxta.peer.PeerID;
+import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -70,7 +73,6 @@ import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezVousStatus;
 import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.service.Service;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -376,5 +378,16 @@ public class RendezVousServiceInterface implements RendezVousService {
     @Deprecated
     public net.jxta.impl.rendezvous.RendezVousServiceProvider getRendezvousProvider() {
         return impl.getRendezvousProvider();
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    public List<PeerID> getLocalRendezVousView() {
+        return impl.getLocalRendezVousView();
+    }
+
+    public List<PeerID> getLocalEdgeView() {
+        return impl.getLocalEdgeView();
     }
 }

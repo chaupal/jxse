@@ -95,5 +95,5 @@ public interface TernarySearchTree {
     /**
      * Allow all heap space used by this tree to be garbage collected
      */
-    public void deleteTree(  );
+    public void deleteTree();
 }

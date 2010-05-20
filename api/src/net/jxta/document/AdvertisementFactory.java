@@ -56,19 +56,12 @@
 
 package net.jxta.document;
 
-
 import net.jxta.logging.Logging;
 import net.jxta.util.ClassFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A Factory class for constructing Advertisements. This class abstracts the
@@ -215,10 +208,11 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
             String advType = instantiator.getAdvertisementType();
             
             registeredSomething = registerAdvertisementInstance(advType, instantiator);
+
         } catch (Exception all) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Failed to register \'" + className + "\'", all);
-            }
+
+            Logging.logCheckedFine(LOG, "Failed to register \'", className, "\'\n", all);
+
         }
         
         return registeredSomething;
@@ -284,7 +278,6 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
                 instantiator = factory.getInstantiator(type.getValue());
             } catch (NoSuchElementException notThere) {
                 // do nothing, its not fatal
-                ;
             }
         }
         

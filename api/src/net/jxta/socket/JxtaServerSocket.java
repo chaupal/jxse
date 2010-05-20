@@ -280,13 +280,11 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     @Override
     protected void finalize() throws Throwable {
+        
         super.finalize();
-        if (!closed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "JxtaServerSocket is being finalized without being previously closed. This is likely an application level bug.", creatorTrace);
-            }
-        }
+        if (!closed) Logging.logCheckedWarning(LOG, "JxtaServerSocket is being finalized without being previously closed. This is likely an application level bug.", creatorTrace);
         close();
+
     }
 
     /**
@@ -294,44 +292,40 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     @Override
     public Socket accept() throws IOException {
-        if (!isBound()) {
-            throw new SocketException("Socket is not bound yet");
-        }
+
+        if (!isBound()) throw new SocketException("Socket is not bound yet");
 
         try {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Waiting for a connection");
-            }
+
+            Logging.logCheckedFine(LOG, "Waiting for a connection");
 
             while (true) {
-                if (isClosed()) {
-                    throw new SocketException("Socket is closed");
-                }
+
+                if (isClosed()) throw new SocketException("Socket is closed");
+
                 Message msg = queue.poll(timeout, TimeUnit.MILLISECONDS);
 
-                if (isClosed()) {
-                    throw new SocketException("Socket is closed");
-                }
-                if (msg == null) {
-                    throw new SocketTimeoutException("Timeout reached");
-                }
+                if (isClosed()) throw new SocketException("Socket is closed");
+                
+                if (msg == null) throw new SocketTimeoutException("Timeout reached");
 
-                if (QUEUE_END_MESSAGE == msg) {
-                    throw new SocketException("Socket is closed.");
-                }
+                if (QUEUE_END_MESSAGE == msg) throw new SocketException("Socket is closed.");
 
                 JxtaSocket socket = processMessage(msg);
 
                 // make sure we have a socket returning
                 if (socket != null) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("New socket connection " + socket);
-                    }
+
+                    Logging.logCheckedFine(LOG, "New socket connection ", socket);
                     return socket;
-                } else if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("No connection.");
+
+                } else {
+                    
+                    Logging.logCheckedWarning(LOG, "No connection.");
+
                 }
             }
+
         } catch (InterruptedException ie) {
             SocketException interrupted = new SocketException("interrupted");
 
@@ -441,9 +435,9 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                 Thread.interrupted();
             }
         }
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Closed : " + this);
-        }
+
+        Logging.logCheckedInfo(LOG, "Closed : ", this);
+        
     }
 
     /**
@@ -549,17 +543,19 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         }
 
         boolean pushed = false;
+
         try {
+
             pushed = queue.offer(message, timeout, TimeUnit.MILLISECONDS);
+
         } catch (InterruptedException woken) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Interrupted", woken);
-            }
+
+            Logging.logCheckedFine(LOG, "Interrupted\n", woken);
+
         }
 
-        if (!pushed && Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("backlog queue full, connect request dropped");
-        }
+        Logging.logCheckedWarning(LOG, "backlog queue full, connect request dropped");
+        
     }
 
     /**
@@ -577,9 +573,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         PeerAdvertisement remotePeerAdv = null;
         Credential credential = null;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Processing a connection message : " + msg);
-        }
+        Logging.logCheckedFine(LOG, "Processing a connection message : ", msg);
 
         try {
             MessageElement el = msg.getMessageElement(MSG_ELEMENT_NAMESPACE, reqPipeTag);
@@ -600,10 +594,10 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                     XMLDocument credDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(el);
                     credential = group.getMembershipService().makeCredential(credDoc);
                     if (!checkCred(credential)) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "Invalid credential");
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Invalid credential");
                         return null;
+
                     }
                 } catch (Exception ignored) {
                     // ignored
@@ -618,23 +612,26 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
             }
 
             if ((null != remoteEphemeralPipeAdv) && (null != remotePeerAdv)) {
+
                 return createEphemeralSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable);
+
             } else {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Connection message did not contain valid connection information.");
-                }
+
+                Logging.logCheckedWarning(LOG, "Connection message did not contain valid connection information.");
                 return null;
+
             }
+
         } catch (IOException e) {
+
             // deal with the error
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "IOException occured", e);
-            }
+            Logging.logCheckedWarning(LOG, "IOException occured\n", e);
+            
         } catch (RuntimeException e) {
+
             // deal with the error
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception occured", e);
-            }
+            Logging.logCheckedWarning(LOG, "Exception occured\n", e);
+            
         }
         return null;
     }

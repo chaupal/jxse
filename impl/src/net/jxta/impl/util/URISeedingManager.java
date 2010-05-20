@@ -56,7 +56,6 @@
 
 package net.jxta.impl.util;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
 import net.jxta.document.MimeMediaType;
@@ -70,7 +69,6 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,9 +86,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  A seeding manager that supports both explicit seed peers and loading of
@@ -119,7 +115,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
     /**
      * Whether we are restricted to using seed rdvs only.
      */
-    private boolean allowOnlySeeds = false;
+    private boolean useSeedsOnly = false;
     
     /**
      * These URIs specify location of seed peer lists. The URIs will be resolved
@@ -168,13 +164,13 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      *
      * @param aclLocation The location of the ACL file or {@code null} if no
      * ACL file should be used.
-     * @param allowOnlySeeds If {@code true} then the only peers which are part
+     * @param useSeedsOnly If {@code true} then the only peers which are part
      * of the seed peer set will be
      */
-    public URISeedingManager(URI aclLocation, boolean allowOnlySeeds, PeerGroup group, String serviceName) {
+    public URISeedingManager(URI aclLocation, boolean inUseSeedsOnly, PeerGroup group, String serviceName) {
         super(aclLocation, group, serviceName);
         
-        this.allowOnlySeeds = allowOnlySeeds;
+        this.useSeedsOnly = inUseSeedsOnly;
     }
     
     /**
@@ -186,7 +182,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
     
     /**
      * Adds the specified URI to the list of permanent seeds. Even if
-     * {@code allowOnlySeeds} is in effect, this seed may now be used, as if it
+     * {@code useSeedsOnly} is in effect, this seed may now be used, as if it
      * was part of the initial configuration.
      *
      * @param seed The URI of the seed peer.
@@ -205,7 +201,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
     
     /**
      * Adds the specified URI to the list of permanent seeds. Even if
-     * {@code allowOnlySeeds} is in effect, this seed may now be used, as if it
+     * {@code useSeedsOnly} is in effect, this seed may now be used, as if it
      * was part of the initial configuration.
      *
      * @param seed The RouteAdvertisement of the seed peer.
@@ -245,25 +241,29 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                 List<String> eas = aRA.getDest().getVectorEndpointAddresses();
                 
                 if (eaIndex < eas.size()) {
+
                     String anEndpointAddress = eas.get(eaIndex);
                     
                     try {
+
                         result.add(new URI(anEndpointAddress));
                         addedEA = true;
+
                     } catch (URISyntaxException failed) {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.log(Level.WARNING, "bad address in route : " + anEndpointAddress, failed);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "bad address in route : ", anEndpointAddress, failed);
+                        
                     }
                 }
             }
             
             // Next loop we use the next most preferred address.
             eaIndex++;
+
         } while (addedEA);
         
         // Add more primordial seeds.
-        if(!allowOnlySeeds) {
+        if(!useSeedsOnly) {
             for(URI eachURI : Arrays.asList(super.getActiveSeedURIs())) {
                 if(!result.contains(eachURI)) {
                     result.add(eachURI);
@@ -284,7 +284,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(activeSeeds);
                 
         // Add more primordial seeds.
-        if(!allowOnlySeeds) {
+        if(!useSeedsOnly) {
             for(RouteAdvertisement eachRoute : Arrays.asList(super.getActiveSeedRoutes())) {
                 if(!result.contains(eachRoute)) {
                     result.add(eachRoute);
@@ -304,7 +304,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         
         boolean acceptable = true;
         
-        if (allowOnlySeeds) {
+        if (useSeedsOnly) {
             acceptable = isSeedPeer(route);
         }
         
@@ -326,7 +326,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
     public synchronized boolean isAcceptablePeer(RouteAdvertisement radv) {
         boolean acceptable = true;
         
-        if (allowOnlySeeds) {
+        if (useSeedsOnly) {
             acceptable = isSeedPeer(radv);
         }
         
@@ -334,13 +334,12 @@ public class URISeedingManager extends RdvAdvSeedingManager {
     }
     
     private void refreshActiveSeeds() {
+
         if (TimeUtils.timeNow() < nextSeedingURIrefreshTime) {
             return;
         }
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Regenerating active seeds list.");
-        }
+        Logging.logCheckedFine(LOG, "Regenerating active seeds list.");
         
         activeSeeds.clear();
         
@@ -351,10 +350,10 @@ public class URISeedingManager extends RdvAdvSeedingManager {
             Collections.shuffle(allSeedingURIs);
             
             for (URI aSeedingURI : allSeedingURIs) {
+
                 try {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Loading seeding list from : " + aSeedingURI);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Loading seeding list from : ", aSeedingURI);
                     
                     RouteAdvertisement ras[] = loadSeeds(aSeedingURI);
                     
@@ -365,11 +364,13 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                             allLoadsFailed = false;
                         }
                     }
+
                 } catch (IOException failed) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Failed loading seeding list from : " + aSeedingURI);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Failed loading seeding list from : ", aSeedingURI);
+                    
                 }
+
             }
             
             if (allLoadsFailed) {
@@ -395,11 +396,11 @@ public class URISeedingManager extends RdvAdvSeedingManager {
     
     /**
      * Evaluates if the given route corresponds to one of our seeds. This is
-     * to support the allowOnlySeeds flag. The test is not completely foolproof
+     * to support the useSeedsOnly flag. The test is not completely foolproof
      * since our list of seeds is just transport addresses. We could be given a
      * pve that exhibits an address that corresponds to one of our seeds but is
      * fake. And we might later succeed in connecting to that peer via one
-     * the other, real addresses. As a result, allowOnlySeeds is *not* a 
+     * the other, real addresses. As a result, useSeedsOnly is *not* a
      * security feature, just a convenience for certain kind of deployments. 
      * The remote peer's certificates should be examined in order to fully
      * establish that it an appropriate peer. 
@@ -534,20 +535,20 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                     
                     // Add the world's most pathetic RouteAdvertisement to the result.
                     result.add(ra);
+
                 } catch (IllegalArgumentException badURI) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "bad URI in seeding list : " + aSeed, badURI);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "bad URI in seeding list : ", aSeed, badURI);
+                    
                 }
             }
         }
         
         is.close();
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine(MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
-        }
+        Logging.logCheckedFine(LOG, MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
         
         return result.toArray(new RouteAdvertisement[result.size()]);
+
     }
 }

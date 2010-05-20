@@ -316,11 +316,12 @@ public abstract class DiscoveryResponseMsg {
                 }
                 stw.append(buf, 0, c);
             } while (true);
+
         } catch (IOException ie) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Got an Exception during stream conversion", ie);
-            }
+
+            Logging.logCheckedWarning(LOG, "Got an Exception during stream conversion", ie);
             return null;
+
         } finally {
             try {
                 is.close();
@@ -369,10 +370,11 @@ public abstract class DiscoveryResponseMsg {
                     Advertisement anAdv = AdvertisementFactory.newAdvertisement(anXMLDoc);
                     
                     advertisements.add(anAdv);
+
                 } catch (IOException badAdvertisement) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Invalid response in message : ", badAdvertisement);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Invalid response in message : ", badAdvertisement);
+                    
                 }
             }
         }

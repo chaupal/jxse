@@ -56,15 +56,11 @@
 
 package net.jxta.platform;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.security.cert.CertificateException;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.exception.PeerGroupException;
@@ -83,7 +79,6 @@ import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 
-
 /**
  * NetworkManager provides a simplified JXTA platform configuration abstraction, and provides a JXTA platform life-cycle
  * management. The node configuration is created during construction of this object and can be obtained for fine tuning
@@ -98,6 +93,7 @@ import net.jxta.rendezvous.RendezvousListener;
  * PROXY: provide JXME JXTA for J2ME proxying services
  * SUPER: provide the functionality of a Rendezvous, Relay, Proxy node.
  */
+
 public class NetworkManager implements RendezvousListener {
 
     /**
@@ -311,8 +307,8 @@ public class NetworkManager implements RendezvousListener {
     }
 
     /**
-     * Setter for property 'configPersistent'. if disabled a PlatformConfig is not persisted. It assumed that
-     * the PeerID is will be set, or a new PeerID will always be generated.
+     * Setter for property 'configPersistent'. If enabled, the PlatformConfig is persisted
+     * when {@code startNetwork()} is called.
      *
      * @param persisted Value to set for property 'configPersistent'.
      */
@@ -353,23 +349,24 @@ public class NetworkManager implements RendezvousListener {
             default:
                 config = NetworkConfigurator.newAdHocConfiguration(instanceHome);
         }
+
         if (!config.exists()) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Created new configuration. mode = " + mode.toString());
-            }
+
+            Logging.logCheckedInfo(LOG, "Created new configuration. mode = ", mode);
 
             config.setDescription("Created by NetworkManager");
             config.setPeerID(peerID);
             config.setInfrastructureID(infrastructureID);
             config.setName(instanceName);
+
             if (useDefaultSeeds) {
                 config.addRdvSeedingURI(publicSeedingRdvURI);
                 config.addRelaySeedingURI(publicSeedingRelayURI);
             }
+
         } else {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Loading existing configuration. mode = " + mode.toString());
-            }
+
+            Logging.logCheckedInfo(LOG, "Loading existing configuration. mode = ", mode);
 
             File pc = new File(config.getHome(), "PlatformConfig");
 
@@ -402,13 +399,9 @@ public class NetworkManager implements RendezvousListener {
             return netPeerGroup;
         }
 
-        if (config == null) {
-            configure(mode);
-        }
-
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Starting JXTA Network! MODE = " + mode.toString() + ",  HOME = " + instanceHome);
-        }
+        if (config == null) configure(mode);
+        
+        Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = ", mode, ",  HOME = ", instanceHome);
         
 // Not needed since the TM is completely static now (at least temporarily) -- Bill
 //        TaskManager.getTaskManager().startup();
@@ -418,6 +411,7 @@ public class NetworkManager implements RendezvousListener {
 
         netPeerGroup = factory.getInterface();
 
+        // Saving if config is persistent
         if (configPersistent) {
             config.save();
         }
@@ -427,11 +421,10 @@ public class NetworkManager implements RendezvousListener {
         started = true;
         stopped = false;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Started JXTA Network!");
-        }
+        Logging.logCheckedInfo(LOG, "Started JXTA Network!");
 
         return netPeerGroup;
+
     }
 
     /**
@@ -482,13 +475,12 @@ public class NetworkManager implements RendezvousListener {
      * Stops and unreferences the NetPeerGroup
      */
     public synchronized void stopNetwork() {
+
         if (stopped || !started) {
             return;
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Stopping JXTA Network!");
-        }
+        Logging.logCheckedInfo(LOG, "Stopping JXTA Network!");
 
         stopped = true;
         synchronized (networkConnectLock) {
@@ -501,13 +493,13 @@ public class NetworkManager implements RendezvousListener {
         netPeerGroup.unref();
         netPeerGroup = null;
         
+        // Shutting down task manager
         TaskManager.getTaskManager().shutdown();
         // permit restart.
         started = false;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Stopped JXTA Network!");
-        }
+        Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
+
     }
 
     /**
@@ -526,9 +518,13 @@ public class NetworkManager implements RendezvousListener {
      * @return true if connected to a rendezvous, false otherwise
      */
     public boolean waitForRendezvousConnection(long timeout) {
-        if (0 == timeout) {
-            timeout = Long.MAX_VALUE;
+
+        // Are we an EDGE?
+        if (this.getMode().compareTo(ConfigMode.EDGE)!=0) {
+            Logging.logCheckedWarning(LOG, "Trying to wait for RendezVous connection while not being an EDGE.");
         }
+
+        if (0 == timeout) timeout = Long.MAX_VALUE;
 
         long timeoutAt = System.currentTimeMillis() + timeout;
 
@@ -556,6 +552,7 @@ public class NetworkManager implements RendezvousListener {
         }
 
         return rendezvous.isConnectedToRendezVous() || rendezvous.isRendezVous();
+
     }
 
     /**
@@ -632,6 +629,40 @@ public class NetworkManager implements RendezvousListener {
      */
     public boolean isStarted() {
         return (started && (!stopped));
+    }
+
+    /**
+     * Recursively deletes the content of a directory directory. This can be usefull
+     * to clean-up persisted cache content.
+     *
+     * @param TheFile the directory to delete
+     */
+    public static void RecursiveDelete(File TheFile) {
+
+        // Checking parameter
+        if ( TheFile == null )
+            Logging.logCheckedSevere(LOG, "Attempting to recursively delete a NULL directoy");
+
+        if ( TheFile.isDirectory() ) {
+            try {
+                Logging.logCheckedFine(LOG, "Recursively deleting: ", TheFile.getCanonicalPath());
+            } catch (IOException ex) {
+                Logging.logCheckedSevere(LOG, "Cannot retrieve canonical path:", ex);
+            }
+        }
+
+        File[] SubFiles = TheFile.listFiles();
+
+        if (SubFiles!=null) {
+            for(int i=0;i<SubFiles.length;i++) {
+                if (SubFiles[i].isDirectory()) {
+                    RecursiveDelete(SubFiles[i]);
+                }
+                SubFiles[i].delete();
+            }
+        TheFile.delete();
+        }
+
     }
 
 }

@@ -246,10 +246,9 @@ public class DefaultContentProvider implements
         }
 
         public void uncaughtException(Thread thread, Throwable throwable) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE,
-                        "Uncaught throwable in pool thread: " + thread, throwable);
-            }
+            
+            Logging.logCheckedSevere(LOG, "Uncaught throwable in pool thread: ", thread, "\n", throwable);
+            
         }
     }
 
@@ -277,9 +276,9 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("initProvider(): group=" + group);
-        }
+
+        Logging.logCheckedFine(LOG, "initProvider(): group=", group);
+        
         peerGroup = group;
         executor = Executors.newScheduledThreadPool(
                 5, new ThreadFactoryImpl(group));
@@ -300,31 +299,34 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public synchronized int startApp(String[] args) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("startApp()");
-        }
 
-        if (running) {
-            return Module.START_OK;
-        }
+        Logging.logCheckedFine(LOG, "startApp()");
+        
+        if (running) return Module.START_OK;
+        
         running = true;
 
         if (requestPipe == null) {
+
             try {
+
                 PipeService pipeService = peerGroup.getPipeService();
+
                 if (pipeService == null) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.warning("Stalled until there is a pipe service");
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Stalled until there is a pipe service");
                     return Module.START_AGAIN_STALLED;
+
                 }
+
                 requestPipe = pipeService.createInputPipe(pipeAdv, this);
+
             } catch (IOException iox) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not create input pipe", iox);
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not create input pipe\n", iox);
                 requestPipe = null;
                 return Module.START_AGAIN_STALLED;
+
             }
         }
 
@@ -334,9 +336,7 @@ public class DefaultContentProvider implements
                 try {
                     processMessages();
                 } catch (InterruptedException intx) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Interrupted", intx);
-                    }
+                    Logging.logCheckedFine(LOG, "Interrupted\n" + intx);
                     Thread.interrupted();
                 }
             }
@@ -351,13 +351,11 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public synchronized void stopApp() {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("stopApp()");
-        }
-        if (!running) {
-            return;
-        }
-
+        
+        Logging.logCheckedFine(LOG, "stopApp()");
+        
+        if (!running) return;
+        
         tracker.stop();
         msgQueue.clear();
 
@@ -424,14 +422,13 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("retrieveContent(" + contentID + ")");
-        }
+
+        Logging.logCheckedFine(LOG, "retrieveContent(", contentID, ")");
+        
         synchronized(this) {
-            if (!running) {
-                return null;
-            }
+            if (!running) return null;
         }
+
         synchronized(shares) {
             ContentShare share = getShare(contentID);
             if (share != null) {
@@ -445,14 +442,13 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("retrieveContent(" + adv + ")");
-        }
+
+        Logging.logCheckedFine(LOG, "retrieveContent(", adv, ")");
+        
         synchronized(this) {
-            if (!running) {
-                return null;
-            }
+            if (!running) return null;
         }
+
         synchronized(shares) {
             ContentShare share = getShare(adv.getContentID());
             if (share != null) {
@@ -466,18 +462,17 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public List<ContentShare> shareContent(Content content) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("shareContent(): Content=" + content + " " + this);
-        }
+
+        Logging.logCheckedFine(LOG, "shareContent(): Content=", content, " ", this);
 
         PipeAdvertisement pAdv;
+
         synchronized(this) {
             pAdv = pipeAdv;
         }
+
         if (pipeAdv == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Cannot create share before initialization");
-            }
+            Logging.logCheckedFine(LOG, "Cannot create share before initialization");
             return null;
         }
 
@@ -509,9 +504,9 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public boolean unshareContent(ContentID contentID) {
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("unhareContent(): ContentID=" + contentID);
-        }
+
+        Logging.logCheckedFine(LOG, "unhareContent(): ContentID=", contentID);
+        
         ContentShare oldShare;
         synchronized(shares) {
             oldShare = shares.remove(contentID);
@@ -576,9 +571,7 @@ public class DefaultContentProvider implements
         if (msgQueue.offer(pme)) {
             notifyAll();
         } else {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Dropped message due to full queue");
-            }
+            Logging.logCheckedFine(LOG, "Dropped message due to full queue");
         }
     }
 
@@ -621,12 +614,12 @@ public class DefaultContentProvider implements
      * reentrant.
      */
     private void processMessages() throws InterruptedException {
+
         PipeMsgEvent pme;
         Message msg;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Worker thread starting");
-        }
+        Logging.logCheckedFine(LOG, "Worker thread starting");
+        
         while (true) {
             synchronized(this) {
                 if (!running) {
@@ -641,86 +634,91 @@ public class DefaultContentProvider implements
             }
 
             try {
+
                 msg = pme.getMessage();
                 processMessage(msg);
+
             } catch (Exception x) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Uncaught exception", x);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught exception\n", x);
+                
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Worker thread closing up shop");
-        }
+        Logging.logCheckedFine(LOG, "Worker thread closing up shop");
+
     }
 
     /**
      * Process the incoming message.
      */
     private void processMessage(Message msg) {
+
         MessageElement msge;
         ListIterator it;
         StructuredDocument doc;
         DataRequest req;
 
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("Incoming message:\n" + msg.toString() + "\n");
-        }
+        Logging.logCheckedFinest(LOG, "Incoming message:\n", msg.toString(), "\n");
 
         it = msg.getMessageElementsOfNamespace(MSG_NAMESPACE);
+
         while (it.hasNext()) {
+
             msge = (MessageElement) it.next();
+
             if (!MSG_ELEM_NAME.endsWith(msge.getElementName())) {
                 // Not a data request
                 continue;
             }
 
             try {
+
                 doc = StructuredDocumentFactory.newStructuredDocument(msge);
                 req = new DataRequest(doc);
+
             } catch (IOException iox) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Could not process message", iox);
-                }
+
+                Logging.logCheckedFine(LOG, "Could not process message\n", iox);
                 return;
+
             }
 
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("Request: "
-                        + req.getDocument(MimeMediaType.XMLUTF8).toString());
-            }
+            Logging.logCheckedFinest(LOG, "Request: ", req.getDocument(MimeMediaType.XMLUTF8));
             processDataRequest(req);
+
         }
+
     }
 
     /**
      * Processes an incoming data request.
      */
     private void processDataRequest(DataRequest req) {
+
         ByteArrayOutputStream byteOut = null;
         DataResponse resp;
         DefaultContentShare share;
         int written;
 
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("DataRequest:");
-            LOG.finest("   ContentID: " + req.getContentID());
-            LOG.finest("   Offset : " + req.getOffset());
-            LOG.finest("   Length : " + req.getLength());
-            LOG.finest("   QID    : " + req.getQueryID());
-            LOG.finest("   PipeAdv: " + req.getResponsePipe());
-        }
+        Logging.logCheckedFinest(LOG, "DataRequest:");
+        Logging.logCheckedFinest(LOG, "   ContentID: ", req.getContentID());
+        Logging.logCheckedFinest(LOG, "   Offset : ", req.getOffset());
+        Logging.logCheckedFinest(LOG, "   Length : ", req.getLength());
+        Logging.logCheckedFinest(LOG, "   QID    : ", req.getQueryID());
+        Logging.logCheckedFinest(LOG, "   PipeAdv: ", req.getResponsePipe());
 
         share = getShare(req.getContentID());
+
         if (share == null) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Content not shared");
-            }
+
+            Logging.logCheckedWarning(LOG, "Content not shared");
             return;
+
         }
 
         try {
+
             ActiveTransfer session = tracker.getSession(
                     share, req.getResponsePipe());
             byteOut = new ByteArrayOutputStream();
@@ -738,14 +736,15 @@ public class DefaultContentProvider implements
 
             sendDataResponse(resp, session.getOutputPipe(),
                     (written == 0) ? null : byteOut.toByteArray());
+
         } catch (TooManyClientsException tmcx) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Too many concurrent clients.  Discarding.");
-            }
+
+            Logging.logCheckedWarning(LOG, "Too many concurrent clients.  Discarding.");
+            
         } catch (IOException iox) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception while handling data request", iox);
-            }
+
+            Logging.logCheckedWarning(LOG, "Exception while handling data request\n", iox);
+            
         }
     }
 
@@ -770,21 +769,16 @@ public class DefaultContentProvider implements
             msg.addMessageElement(MSG_NAMESPACE, msge);
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Sending response: " + msg.toString());
-        }
+        Logging.logCheckedFiner(LOG, "Sending response: " + msg);
+
         try {
-            if (destPipe.send(msg)) {
-                return;
-            }
+            if (destPipe.send(msg)) return;
         } catch (IOException iox) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "IOException during message send", iox);
-            }
+            Logging.logCheckedWarning(LOG, "IOException during message send\n", iox);
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Did not send message");
-        }
+
+        Logging.logCheckedFine(LOG, "Did not send message");
+        
     }
     
     /**

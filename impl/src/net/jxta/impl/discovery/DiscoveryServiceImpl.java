@@ -52,6 +52,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.discovery;
 
 import net.jxta.credential.Credential;
@@ -67,9 +68,9 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
-import net.jxta.impl.cm.Cm;
+import net.jxta.impl.cm.CacheManager;
+import net.jxta.impl.cm.SrdiManager;
 import net.jxta.impl.cm.Srdi;
-import net.jxta.impl.cm.SrdiIndex;
 import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.protocol.DiscoveryConfigAdv;
 import net.jxta.impl.protocol.DiscoveryQuery;
@@ -92,7 +93,6 @@ import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
 import net.jxta.service.Service;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -125,34 +125,40 @@ import java.util.logging.Logger;
  * @see net.jxta.resolver.ResolverService
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#proto-pdp" target="_blank">JXTA Protocols Specification : Peer Discovery Protocol</a>
  */
-public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHandler, RendezvousListener, SrdiHandler, Srdi.SrdiInterface {
+public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHandler, RendezvousListener, SrdiHandler, SrdiManager.SrdiPushEntriesInterface {
 
     /**
      * Logger
      */
     private final static Logger LOG = Logger.getLogger(DiscoveryServiceImpl.class.getName());
+
     /**
      * adv types
      */
     final static String[] dirname = {"Peers", "Groups", "Adv"};
+
     /**
      * The Query ID which will be associated with remote publish operations.
      */
     private final static int REMOTE_PUBLISH_QUERYID = 0;
     private final static String srdiIndexerFileName = "discoverySrdi";
+
     /**
      * The current discovery query ID. static to make debugging easier.
      */
     private final static AtomicInteger qid = new AtomicInteger(0);
+
     /**
      * The maximum number of responses we will return for ANY query.
      */
     private final static int MAX_RESPONSES = 50;
+
     /**
      * The cache manager we're going to use to cache jxta advertisements
      */
-    protected Cm cm;
+    protected CacheManager cm;
     private PeerGroup group = null;
+
     /**
      * assignedID as a String.
      */
@@ -166,10 +172,12 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private boolean alwaysUseReplicaPeer = false;
     private boolean forwardBelowThreshold = false;
     private boolean stopped = true;
+
     /**
      * The table of global discovery listeners.
      */
     private final Set<DiscoveryListener> listeners = new HashSet<DiscoveryListener>();
+
     /**
      * The table of discovery query listeners.
      */
@@ -178,8 +186,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private PeerAdvertisement lastPeerAdv = null;
     private int lastModCount = -1;
     private boolean isRdv = false;
-    private SrdiIndex srdiIndex = null;
-    private Srdi srdi = null;
+    private Srdi srdiIndex = null;
+    private SrdiManager srdiManager = null;
     private long runInterval = 30 * TimeUtils.ASECOND;
 
     /**
@@ -201,6 +209,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             this.credentialDoc = credentialDoc;
         }
     }
+
     /**
      * The current Membership service default credential.
      */
@@ -215,32 +224,39 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
          * {@inheritDoc}
          */
         public void propertyChange(PropertyChangeEvent evt) {
+
             if (MembershipService.DEFAULT_CREDENTIAL_PROPERTY.equals(evt.getPropertyName())) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("New default credential event");
-                }
+
+                Logging.logCheckedFine(LOG, "New default credential event");
 
                 synchronized (DiscoveryServiceImpl.this) {
                     Credential cred = (Credential) evt.getNewValue();
                     XMLDocument credentialDoc;
 
                     if (null != cred) {
+
                         try {
+
                             credentialDoc = (XMLDocument) cred.getDocument(MimeMediaType.XMLUTF8);
                             currentCredential = new CurrentCredential(cred, credentialDoc);
+
                         } catch (Exception all) {
-                            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                                LOG.log(Level.WARNING, "Could not generate credential document", all);
-                            }
+
+                            Logging.logCheckedWarning(LOG, "Could not generate credential document\n", all);
                             currentCredential = null;
+
                         }
+
                     } else {
+
                         currentCredential = null;
+
                     }
                 }
             }
         }
     }
+
     /** 
      * Our listener for membership credential change events.
      */
@@ -282,18 +298,18 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         int myQueryID = qid.incrementAndGet();
 
         if (localonly || stopped) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("localonly, no network operations performed");
-            }
+
+            Logging.logCheckedFine(LOG, "localonly, no network operations performed");
             return myQueryID;
+            
         }
 
         if (resolver == null) {
+
             // warn about calling the service before it started
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("resolver has not started yet, query discarded.");
-            }
+            Logging.logCheckedWarning(LOG, "resolver has not started yet, query discarded.");
             return myQueryID;
+
         }
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
@@ -334,47 +350,42 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         query.setQuery(dquery.getDocument(MimeMediaType.XMLUTF8).toString());
         query.setQueryId(myQueryID);
 
-        // check srdi
+        // check srdiManager
         if (peer == null && srdiIndex != null) {
             List<PeerID> res = srdiIndex.query(dirname[type], attribute, value, threshold);
 
             if (!res.isEmpty()) {
-                srdi.forwardQuery(res, query, threshold);
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Srdi forward a query #" + myQueryID + " in " + (System.currentTimeMillis() - t0) + "ms.");
-                }
+
+                srdiManager.forwardQuery(res, query, threshold);
+                Logging.logCheckedFine(LOG, "Srdi forward a query #", myQueryID, " in ", (System.currentTimeMillis() - t0), "ms.");
                 return myQueryID;
-            // nothing in srdi, get a starting point in rpv
+
+            // nothing in srdiManager, get a starting point in rpv
             } else if (group.isRendezvous() && attribute != null && value != null) {
-                PeerID destPeer = srdi.getReplicaPeer(dirname[type] + attribute + value);
+                PeerID destPeer = srdiManager.getReplicaPeer(dirname[type] + attribute + value);
 
                 if (destPeer != null) {
+
                     if (!destPeer.equals(localPeerId)) {
+
                         // forward query increments the hopcount to indicate getReplica
                         // has been invoked once
-                        srdi.forwardQuery(destPeer, query);
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine(
-                                    "Srdi forward query #" + myQueryID + " to " + destPeer + " in " + (System.currentTimeMillis() - t0) + "ms.");
-                        }
+                        srdiManager.forwardQuery(destPeer, query);
+                        Logging.logCheckedFine(LOG, "Srdi forward query #", myQueryID, " to ", destPeer, " in ", (System.currentTimeMillis() - t0), "ms.");
                         return myQueryID;
+
                     }
                 }
             }
         }
 
-        // no srdi, not a rendezvous, start the walk
+        // no srdiManager, not a rendezvous, start the walk
         resolver.sendQuery(peer, query);
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            if (peer == null) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Sent a query #" + myQueryID + " in " + (System.currentTimeMillis() - t0) + "ms.");
-                }
-            } else {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Sent a query #" + myQueryID + " to " + peer + " in " + (System.currentTimeMillis() - t0) + "ms.");
-                }
-            }
+
+        if (peer == null) {
+            Logging.logCheckedFine(LOG, "Sent a query #", myQueryID, " in ", (System.currentTimeMillis() - t0), "ms.");
+        } else {
+            Logging.logCheckedFine(LOG, "Sent a query #", myQueryID, " to ", peer, " in ", (System.currentTimeMillis() - t0), "ms.");
         }
 
         return myQueryID;
@@ -390,15 +401,14 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+
             StringBuilder query = new StringBuilder("Searching for " + dirname[type] + " advs");
 
-            if (attribute != null) {
-                query.append("\n\tattr = ").append(attribute);
-            }
-            if (value != null) {
-                query.append("\tvalue = ").append(value);
-            }
+            if (attribute != null) query.append("\n\tattr = ").append(attribute);
+            if (value != null) query.append("\tvalue = ").append(value);
+            
             LOG.fine(query.toString());
+
         }
 
         return Collections.enumeration(search(type, attribute, value, Integer.MAX_VALUE, null));
@@ -446,6 +456,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         cm.setTrackDeltas(!localonly);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Discovery Service : " + assignedID);
 
             if (implAdvertisement != null) {
@@ -455,6 +466,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             }
+
             configInfo.append("\n\tGroup Params :");
             configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
@@ -463,55 +475,57 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             configInfo.append("\n\t\tLocal Only : ").append(localonly);
             configInfo.append("\n\t\tAlways Use ReplicaPeer : ").append(alwaysUseReplicaPeer);
             configInfo.append("\n\t\tForward when below threshold responses : ").append(forwardBelowThreshold);
+
             LOG.config(configInfo.toString());
         }
+
     }
 
     /**
      * {@inheritDoc}
      */
     public int startApp(String[] arg) {
+
         resolver = group.getResolverService();
 
         if (null == resolver) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a resolver service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a resolver service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         membership = group.getMembershipService();
 
         if (null == membership) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a membership service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a membership service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         rendezvous = group.getRendezVousService();
 
         if (null == rendezvous) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Stalled until there is a rendezvous service");
-            }
 
+            Logging.logCheckedWarning(LOG, "Stalled until there is a rendezvous service");
             return Module.START_AGAIN_STALLED;
+
         }
 
         // Get the initial credential doc
         synchronized (this) {
+
             membership.addPropertyChangeListener("defaultCredential", membershipCredListener);
 
             try {
-                membershipCredListener.propertyChange(
-                        new PropertyChangeEvent(membership, "defaultCredential", null, membership.getDefaultCredential()));
+
+                membershipCredListener.propertyChange(new PropertyChangeEvent(membership, "defaultCredential", null, membership.getDefaultCredential()));
+
             } catch (Exception all) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not get credential", all);
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not get credential\n", all);
+                
             }
         }
 
@@ -530,11 +544,10 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         stopped = false;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Discovery service started");
-        }
-
+        Logging.logCheckedInfo(LOG, "Discovery service started");
+        
         return Module.START_OK;
+
     }
 
     /**
@@ -561,23 +574,21 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             }
         }
 
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) && failed) {
-            LOG.warning("failed to unregister discovery from resolver.");
+        if (failed) {
+            Logging.logCheckedWarning(LOG, "failed to unregister discovery from resolver.");
         }
 
         // stop SRDI
-        if (srdi != null) {
-            srdi.stop();
-        }
+        if (srdiManager != null) srdiManager.stop();
+        
         srdiIndex = null;
 
         // Forget about all remaining listeners.
         listeners.clear();
         queryListeners.clear();
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Discovery service stopped.");
-        }
+        Logging.logCheckedInfo(LOG, "Discovery service stopped.");
+        
     }
 
     /**
@@ -588,23 +599,26 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             return;
         }
         if ((type >= PEER) && (type <= ADV)) {
+
             if (null != id) {
+
                 ID advID = ID.create(URI.create(id));
                 String advName = advID.getUniqueValue().toString();
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("flushing adv " + advName + " of type " + dirname[type]);
-                }
+                Logging.logCheckedFine(LOG, "flushing adv ", advName, " of type ", dirname[type]);
                 cm.remove(dirname[type], advName);
-            } else {
-                // XXX bondolo 20050902 For historical purposes we ignore null
 
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Flush request by type IGNORED. You must delete advertisements individually.");
-                }
+            } else {
+
+                // XXX bondolo 20050902 For historical purposes we ignore null
+                Logging.logCheckedWarning(LOG, "Flush request by type IGNORED. You must delete advertisements individually.");
+
             }
+
         } else {
+
             throw new IllegalArgumentException("Invalid Advertisement type.");
+
         }
     }
 
@@ -630,11 +644,12 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         String advName;
 
         if (id != null && !id.equals(ID.nullID)) {
+
             advName = id.getUniqueValue().toString();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Flushing adv " + advName + " of type " + dirname[type]);
-            }
+            Logging.logCheckedFine(LOG, "Flushing adv ", advName, " of type ", dirname[type]);
+            
         } else {
+
             XMLDocument doc;
 
             try {
@@ -645,7 +660,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 failure.initCause(everything);
                 throw failure;
             }
-            advName = Cm.createTmpName(doc);
+            advName = CacheManager.createTmpName(doc);
         }
 
         if (advName != null) {
@@ -686,22 +701,25 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         // if we dont have a unique id for the adv, use the hash method
         if ((null == advID) || advID.equals(ID.nullID)) {
+
             XMLDocument doc;
 
             try {
-                doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
-            } catch (Exception everything) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to generated document from advertisement", everything);
-                }
-                IOException failure = new IOException("Failed to generate document from advertisement");
 
+                doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
+
+            } catch (Exception everything) {
+
+                Logging.logCheckedWarning(LOG, "Failed to generated document from advertisement\n", everything);
+                IOException failure = new IOException("Failed to generate document from advertisement");
                 failure.initCause(everything);
                 throw failure;
+
             }
 
             try {
-                advName = Cm.createTmpName(doc);
+
+                advName = CacheManager.createTmpName(doc);
             } catch (IllegalStateException ise) {
                 IOException failure = new IOException("Failed to generate tempname from advertisement");
 
@@ -712,9 +730,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             advName = advID.getUniqueValue().toString();
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Publishing a " + adv.getAdvType() + " as " + dirname[type] + " / " + advName + "\n\texpiration : " + expiration + "\tlifetime :" + lifetime);
-        }
+        Logging.logCheckedFine(LOG, "Publishing a ", adv.getAdvType(), " as ", dirname[type], " / ", advName, "\n\texpiration : ", expiration, "\tlifetime :", lifetime);
 
         // save it
         cm.save(dirname[type], advName, adv, lifetime, expiration);
@@ -760,16 +776,19 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         DiscoveryResponse res;
 
         try {
+
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(
                     MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
 
             res = new DiscoveryResponse(asDoc);
+
         } catch (Exception e) {
+
             // we don't understand this msg, let's skip it
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed to Read Discovery Response", e);
-            }
+            Logging.logCheckedWarning(LOG, "Failed to Read Discovery Response\n", e);
+            
             return;
+
         }
 
         /*
@@ -797,9 +816,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
          */
         Advertisement adv;
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Processing responses for query #" + response.getQueryId());
-        }
+        Logging.logCheckedFine(LOG, "Processing responses for query #", response.getQueryId());
 
         Enumeration<Advertisement> en = res.getAdvertisements();
         Enumeration<Long> exps = res.getExpirations();
@@ -809,12 +826,15 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             long exp = exps.nextElement();
 
             if (exp > 0 && adv != null) {
+
                 try {
+
                     publish(adv, exp, exp);
+
                 } catch (Exception e) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Error publishing Advertisement", e);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Error publishing Advertisement\n", e);
+                    
                 }
             }
         }
@@ -835,9 +855,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("processed a response for query #" + response.getQueryId() + " in :" + (System.currentTimeMillis() - t0));
-        }
+        Logging.logCheckedFine(LOG, "processed a response for query #", response.getQueryId(), " in :", (System.currentTimeMillis() - t0));
 
         // Callback any registered discovery listeners.
         t0 = System.currentTimeMillis();
@@ -848,18 +866,20 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
 
         for (DiscoveryListener aListener : allListeners) {
+            
             try {
+
                 aListener.discoveryEvent(newevent);
+
             } catch (Throwable all) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING,
-                            "Uncaught Throwable in listener (" + aListener.getClass().getName() + ") :" + Thread.currentThread().getName(), all);
-                }
+
+                Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener (", aListener.getClass().getName(), ") :", Thread.currentThread().getName(), "\n", all);
+                
             }
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Called all listeners to query #" + response.getQueryId() + " in :" + (System.currentTimeMillis() - t0));
-        }
+
+        Logging.logCheckedFine(LOG, "Called all listeners to query #", response.getQueryId(), " in :", (System.currentTimeMillis() - t0));
+
     }
 
     /**
@@ -874,41 +894,39 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * {@inheritDoc}
      */
     public int processQuery(ResolverQueryMsg query, EndpointAddress srcAddress) {
-        if (stopped) {
-            return ResolverService.OK;
-        }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            if (srcAddress != null) {
-                LOG.fine("Processing query #" + query.getQueryId() + " from:" + srcAddress);
-            } else {
-                LOG.fine("Processing query #" + query.getQueryId() + " from: unknown");
-            }
+
+        if (stopped) return ResolverService.OK;
+        
+        if (srcAddress != null) {
+            Logging.logCheckedFine(LOG, "Processing query #", query.getQueryId(), " from:", srcAddress);
+        } else {
+            Logging.logCheckedFine(LOG, "Processing query #", query.getQueryId(), " from: unknown");
         }
 
         DiscoveryQuery dq;
         long t0 = System.currentTimeMillis();
 
         try {
+
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(query.getQuery()));
 
             dq = new DiscoveryQuery(asDoc);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Malformed query : ", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Malformed query : \n", e);
             return ResolverService.OK;
+
         }
 
         if ((dq.getThreshold() < 0) || (dq.getDiscoveryType() < PEER) || (dq.getDiscoveryType() > ADV)) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("Malformed query");
-            }
+
+            Logging.logCheckedWarning(LOG, "Malformed query");
             return ResolverService.OK;
+
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Got a " + dirname[dq.getDiscoveryType()] + " query #" + query.getQueryId() + " query :" + dq.getAttr() + " = " + dq.getValue());
-        }
+        Logging.logCheckedFine(LOG, "Got a ", dirname[dq.getDiscoveryType()], " query #", query.getQueryId(), " query :", dq.getAttr(), " = ", dq.getValue());
 
         /*
         // Get the Peer Adv from the query and publish it.
@@ -924,7 +942,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
         } catch (Exception e) {
         if (LOG.isLoggable(Level.FINE)) {
-        LOG.fine("Bad Peer Adv in Discovery Query", e);
+        LOG.fine("Bad Peer Adv in Discovery Query\n", e);
         }
         }
          */
@@ -936,29 +954,27 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
          *  responding for the purpose of providing our own adv only.
          */
         if ((dq.getDiscoveryType() == PEER) && (0 == dq.getThreshold())) {
+
             respond(query, dq, Collections.singletonList(group.getPeerAdvertisement().toString()),
                     Collections.singletonList(DiscoveryService.DEFAULT_EXPIRATION));
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Responding to query #" + query.getQueryId() + " in :" + (System.currentTimeMillis() - t0));
-            }
+
+            Logging.logCheckedFine(LOG, "Responding to query #", query.getQueryId(), " in :", (System.currentTimeMillis() - t0));
+            
             return ResolverService.OK;
+
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("start local search query" + dq.getAttr() + " " + dq.getValue());
-        }
+        Logging.logCheckedFine(LOG, "start local search query", dq.getAttr(), " ", dq.getValue());
 
         List<Long> expirations = new ArrayList<Long>();
         List<InputStream> results = rawSearch(dq.getDiscoveryType(), dq.getAttr(), dq.getValue(), thresh, expirations);
 
         if (!results.isEmpty()) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Responding to " + dirname[dq.getDiscoveryType()] + " Query : " + dq.getAttr() + " = " + dq.getValue());
-            }
+
+            Logging.logCheckedFine(LOG, "Responding to ", dirname[dq.getDiscoveryType()], " Query : ", dq.getAttr(), " = ", dq.getValue());
             respond(query, dq, results, expirations);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Responded to query #" + query.getQueryId() + " in :" + (System.currentTimeMillis() - t0));
-            }
+            Logging.logCheckedFine(LOG, "Responded to query #", query.getQueryId(), " in :", (System.currentTimeMillis() - t0));
+            
         }
 
         // If this peer is not a rendezvous, just discard the query.
@@ -966,16 +982,17 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             return ResolverService.OK;
         }
 
-        PeerID replicaPeer = srdi.getReplicaPeer(dirname[dq.getDiscoveryType()] + dq.getAttr() + dq.getValue());
+        PeerID replicaPeer = srdiManager.getReplicaPeer(dirname[dq.getDiscoveryType()] + dq.getAttr() + dq.getValue());
 
         if ((null != replicaPeer) && !localPeerId.equals(replicaPeer)) {
+
             if (alwaysUseReplicaPeer || (forwardBelowThreshold && (results.size() < dq.getThreshold()))) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Forwarding query #" + query.getQueryId() + " to replica peer " + replicaPeer);
-                }
+
+                Logging.logCheckedFine(LOG, "Forwarding query #", query.getQueryId(), " to replica peer ", replicaPeer);
 
                 // forward to SRDI replica.
-                srdi.forwardQuery(replicaPeer, query);
+                srdiManager.forwardQuery(replicaPeer, query);
+
             }
 
             // In either case we are done.
@@ -986,19 +1003,19 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         // We didn't have sufficient local results or there is no known replica.
         // See if there are any in SRDI.
         if (results.isEmpty() || (forwardBelowThreshold && (results.size() < dq.getThreshold()))) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Querying SrdiIndex for query #" + query.getQueryId());
-            }
+
+            Logging.logCheckedFine(LOG, "Querying SrdiIndex for query #", query.getQueryId());
 
             List<PeerID> res = srdiIndex.query(dirname[dq.getDiscoveryType()], dq.getAttr(), dq.getValue(), thresh);
 
             if (!res.isEmpty()) {
-                srdi.forwardQuery(res, query, thresh);
+                srdiManager.forwardQuery(res, query, thresh);
             } else {
                 // start the walk since this peer is this the starting peer
                 query.incrementHopCount();
                 return ResolverService.Repropagate;
             }
+
         }
 
         return ResolverService.OK;
@@ -1011,6 +1028,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * @param expirations   Expiration values for the results.
      */
     private void respond(ResolverQueryMsg query, DiscoveryQuery dq, List results, List<Long> expirations) {
+
         if (localonly || stopped) {
             return;
         }
@@ -1031,13 +1049,13 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         if (null != current) {
             response.setCredential(current.credentialDoc);
         }
+
         response.setResponse(dresponse.toString());
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Responding to query #" + query.getQueryId() + " " + query.getSrcPeer());
-        }
+        Logging.logCheckedFine(LOG, "Responding to query #", query.getQueryId(), " ", query.getSrcPeer());
 
         resolver.sendResponse(query.getSrcPeer().toString(), response);
+
     }
 
     /**
@@ -1079,11 +1097,10 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     public void remotePublish(String peerid, Advertisement adv, long timeout) {
 
         if (localonly || stopped) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("localonly, no network operations performed");
-            }
+            Logging.logCheckedFine(LOG, "localonly, no network operations performed");
             return;
         }
+
         int type;
 
         if (adv instanceof PeerAdvertisement) {
@@ -1102,35 +1119,33 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     private void remotePublish(String peerid, Advertisement adv, int type, long expiration) {
 
         if (localonly || stopped) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("localonly, no network operations performed");
-            }
+            Logging.logCheckedFine(LOG, "localonly, no network operations performed");
             return;
         }
 
         // In case this is invoked before startApp().
-        if (resolver == null) {
-            return;
-        }
+        if (resolver == null) return;
 
         switch (type) {
+
             case PEER:
-                if (adv instanceof PeerAdvertisement) {
-                    break;
-                }
+
+                if (adv instanceof PeerAdvertisement) break;
                 throw new IllegalArgumentException("Not a peer advertisement");
 
             case GROUP:
-                if (adv instanceof PeerGroupAdvertisement) {
-                    break;
-                }
+
+                if (adv instanceof PeerGroupAdvertisement) break;
                 throw new IllegalArgumentException("Not a peergroup advertisement");
 
             case ADV:
+
                 break;
 
             default:
+
                 throw new IllegalArgumentException("Unknown advertisement type");
+
         }
 
         DiscoveryResponseMsg dresponse = new DiscoveryResponse();
@@ -1149,9 +1164,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         pushRes.setQueryId(REMOTE_PUBLISH_QUERYID);
         pushRes.setResponse(dresponse.toString());
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Remote publishing");
-        }
+        Logging.logCheckedFine(LOG, "Remote publishing");
 
         resolver.sendResponse(peerid, pushRes);
     }
@@ -1184,27 +1197,25 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             throw new IllegalArgumentException("threshold must be greater than zero");
         }
 
-        if (expirations != null) {
-            expirations.clear();
-        }
+        if (expirations != null) expirations.clear();
 
         if (attr != null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Searching for " + threshold + " entries of type : " + dirname[type]);
-            }
+
+            Logging.logCheckedFine(LOG, "Searching for ", threshold, " entries of type : ", dirname[type]);
+            
             // a discovery query with a specific search criteria.
             results = cm.search(dirname[type], attr, value, threshold, expirations);
+
         } else {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Getting " + threshold + " entries of type : " + dirname[type]);
-            }
+
+            Logging.logCheckedFine(LOG, "Getting ", threshold, " entries of type : ", dirname[type]);
+            
             // Returning any entry that exists
             results = cm.getRecords(dirname[type], threshold, expirations);
+
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Returning " + results.size() + " results");
-        }
+        Logging.logCheckedFine(LOG, "Returning ", results.size(), " results");
 
         // nothing more to do;
         return results;
@@ -1230,48 +1241,42 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         for (int i = 0; (i < results.size()) && (advertisements.size() < threshold); i++) {
             try {
+
                 InputStream bis = results.get(i);
                 XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, bis);
                 Advertisement adv = AdvertisementFactory.newAdvertisement(asDoc);
-
                 advertisements.add(adv);
+
             } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed building advertisment", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed building advertisment\n", e);
 
                 // we won't be including this advertisement so remove it's expiration.
-                if (null != expirations) {
-                    expirations.remove(i);
-                }
+                if (null != expirations) expirations.remove(i);
+                
             }
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Returning " + advertisements.size() + " advertisements");
-        }
+        Logging.logCheckedFine(LOG, "Returning ", advertisements.size(), " advertisements");
 
         return advertisements;
+
     }
 
     /**
      * {@inheritDoc}
      */
     public long getAdvExpirationTime(ID id, int type) {
-        if (stopped) {
-            return -1;
-        }
+
+        if (stopped) return -1;
+
         String advName;
 
         if (id != null && !id.equals(ID.nullID)) {
             advName = id.getUniqueValue().toString();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Getting expiration time of " + advName + " of type " + dirname[type]);
-            }
+            Logging.logCheckedFine(LOG, "Getting expiration time of ", advName, " of type ", dirname[type]);
         } else {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("invalid attempt to get advertisement expiration time of NullID");
-            }
+            Logging.logCheckedFine(LOG, "invalid attempt to get advertisement expiration time of NullID");
             return -1;
         }
 
@@ -1282,18 +1287,17 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * {@inheritDoc}
      */
     public long getAdvLifeTime(ID id, int type) {
+
         if (id == null || id.equals(ID.nullID) || stopped) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("invalid attempt to get advertisement lifetime of a NullID");
-            }
+
+            Logging.logCheckedWarning(LOG, "invalid attempt to get advertisement lifetime of a NullID");
             return -1;
+
         }
 
         String advName = id.getUniqueValue().toString();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Getting lifetime of " + advName + " of type " + dirname[type]);
-        }
+        Logging.logCheckedFine(LOG, "Getting lifetime of ", advName, " of type ", dirname[type]);
 
         return cm.getLifetime(dirname[type], advName);
     }
@@ -1319,22 +1323,26 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         ID id = adv.getID();
 
         if (id != null && !id.equals(ID.nullID)) {
+
             advName = id.getUniqueValue().toString();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("attempting to getAdvExpirationTime on " + advName + " of type " + dirname[type]);
-            }
+            Logging.logCheckedFine(LOG, "attempting to getAdvExpirationTime on ", advName, " of type ", dirname[type]);
+            
         } else {
+
             XMLDocument doc;
 
             try {
+
                 doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
+
             } catch (Exception everything) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to get document", everything);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to get document\n", everything);
                 return -1;
+
             }
-            advName = Cm.createTmpName(doc);
+
+            advName = CacheManager.createTmpName(doc);
         }
 
         return cm.getExpirationtime(dirname[type], advName);
@@ -1361,22 +1369,26 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         String advName;
 
         if (id != null && !id.equals(ID.nullID)) {
+
             advName = id.getUniqueValue().toString();
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("attempting to getAdvLifeTime " + advName + " of type " + dirname[type]);
-            }
+            Logging.logCheckedFine(LOG, "attempting to getAdvLifeTime ", advName, " of type ", dirname[type]);
+            
         } else {
+
             XMLDocument doc;
 
             try {
+
                 doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
+
             } catch (Exception everything) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to get document", everything);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to get document\n", everything);
                 return -1;
+
             }
-            advName = Cm.createTmpName(doc);
+
+            advName = CacheManager.createTmpName(doc);
         }
         return cm.getLifetime(dirname[type], advName);
     }
@@ -1385,38 +1397,36 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * {@inheritDoc}
      */
     public boolean processSrdi(ResolverSrdiMsg message) {
-        if (stopped) {
-            return true;
-        }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("[" + group.getPeerGroupID() + "] Received an SRDI messsage");
-        }
+        if (stopped) return true;
+        
+        Logging.logCheckedFine(LOG, "[", group.getPeerGroupID(), "] Received an SRDI messsage");
 
         SrdiMessage srdiMsg;
 
         try {
-            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
 
+            XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(message.getPayload()));
             srdiMsg = new SrdiMessageImpl(asDoc);
+
         } catch (Exception e) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failed parsing srdi message", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Failed parsing srdi message\n", e);
             return false;
+
         }
 
         PeerID pid = srdiMsg.getPeerID();
 
         for (Object o : srdiMsg.getEntries()) {
-            SrdiMessage.Entry entry = (SrdiMessage.Entry) o;
 
+            SrdiMessage.Entry entry = (SrdiMessage.Entry) o;
             srdiIndex.add(srdiMsg.getPrimaryKey(), entry.key, entry.value, pid, entry.expiration);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Primary Key [" + srdiMsg.getPrimaryKey() + "] key [" + entry.key + "] value [" + entry.value + "] exp [" + entry.expiration + "]");
-            }
+            Logging.logCheckedFine(LOG, "Primary Key [", srdiMsg.getPrimaryKey(), "] key [", entry.key, "] value [", entry.value, "] exp [", entry.expiration, "]");
+            
         }
-        srdi.replicateEntries(srdiMsg);
+
+        srdiManager.replicateEntries(srdiMsg);
         return true;
     }
 
@@ -1440,7 +1450,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
     }
 
     /**
-     * push srdi entries
+     * push srdiManager entries
      *
      * @param all  if true push all entries, otherwise just deltas
      * @param peer peer id
@@ -1463,23 +1473,24 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             SrdiMessage srdiMsg;
 
             try {
+
                 srdiMsg = new SrdiMessageImpl(localPeerId, 1, // ttl of 1, ensure it is replicated
                         dirname[type], entries);
 
-                if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                    LOG.finer("Pushing " + entries.size() + (all ? " entries" : " deltas") + " of type " + dirname[type]);
-                }
-                srdi.pushSrdi(peer, srdiMsg);
+                Logging.logCheckedFiner(LOG, "Pushing ", entries.size(), (all ? " entries" : " deltas"), " of type ", dirname[type]);
+                srdiManager.pushSrdi(peer, srdiMsg);
+
             } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Exception pushing SRDI Entries", e);
-                }
+
+                Logging.logCheckedWarning(LOG, "Exception pushing SRDI Entries\n", e);
+                
             }
+
         } else {
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer("No" + (all ? " entries" : " deltas") + " of type " + dirname[type] + " to push");
-            }
+
+            Logging.logCheckedFiner(LOG, "No", (all ? " entries" : " deltas"), " of type ", dirname[type], " to push");
         }
+
     }
 
     /**
@@ -1489,9 +1500,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         int theEventType = event.getType();
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("[" + group.getPeerGroupName() + "] Processing " + event);
-        }
+        Logging.logCheckedFine(LOG, "[", group.getPeerGroupName(), "] Processing ", event);
 
         switch (theEventType) {
 
@@ -1524,10 +1533,10 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 break;
 
             default:
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning(MessageFormat.format("[{0}] Unexpected RDV event : {1}", group.getPeerGroupName(), event));
-                }
+
+                Logging.logCheckedWarning(LOG, MessageFormat.format("[{0}] Unexpected RDV event : {1}", group.getPeerGroupName(), event));
                 break;
+                
         }
     }
 
@@ -1550,18 +1559,19 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
 
         if (updated) {
+
             // Publish the local Peer Advertisement
             try {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("publishing local advertisement");
-                }
+
+                Logging.logCheckedFine(LOG, "publishing local advertisement");
 
                 // This is our own; we can publish it for a long time in our cache
                 publish(newPadv, INFINITE_LIFETIME, DEFAULT_EXPIRATION);
+
             } catch (Exception ignoring) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not publish local peer advertisement: ", ignoring);
-                }
+
+                Logging.logCheckedWarning(LOG, "Could not publish local peer advertisement: \n", ignoring);
+                
             }
         }
     }
@@ -1572,10 +1582,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      */
     private synchronized void beRendezvous() {
 
-        if (isRdv && (srdi != null || srdiIndex != null)) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Already a rendezvous -- No Switch is needed");
-            }
+        if (isRdv && (srdiManager != null || srdiIndex != null)) {
+            Logging.logCheckedInfo(LOG, "Already a rendezvous -- No Switch is needed");
             return;
         }
 
@@ -1585,30 +1593,28 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         cm.setTrackDeltas(false);
 
         if (srdiIndex == null) {
-            srdiIndex = new SrdiIndex(group, srdiIndexerFileName);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("srdiIndex created");
-            }
+
+            srdiIndex = new Srdi(group, srdiIndexerFileName);
+            Logging.logCheckedFine(LOG, "srdiIndex created");
 
         }
 
         // Kill SRDI, create a new one.
-        if (srdi != null) {
-            srdi.stop();
-            srdi = null;
+        if (srdiManager != null) {
+            srdiManager.stop();
+            srdiManager = null;
         }
 
         if (!localonly) {
-            srdi = new Srdi(group, handlerName, this, srdiIndex);
+
+            srdiManager = new SrdiManager(group, handlerName, this, srdiIndex);
             resolver.registerSrdiHandler(handlerName, this);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("srdi created, and registered as an srdi handler ");
-            }
+            Logging.logCheckedFine(LOG, "srdi created, and registered as an srdi handler ");
+
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Switched to Rendezvous peer role.");
-        }
+        Logging.logCheckedInfo(LOG, "Switched to Rendezvous peer role.");
+        
     }
 
     /**
@@ -1619,9 +1625,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         // make sure we have been here before
         if (!isRdv) {
-            if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                LOG.info("Already an Edge peer -- No Switch is needed.");
-            }
+            Logging.logCheckedInfo(LOG, "Already an Edge peer -- No Switch is needed.");
             return;
         }
 
@@ -1632,28 +1636,27 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             cm.setTrackDeltas(true);
         }
         if (srdiIndex != null) {
+
             srdiIndex.stop();
             srdiIndex = null;
             resolver.unregisterSrdiHandler(handlerName);
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine("stopped cache and unregistered from resolver");
-            }
+            Logging.logCheckedFine(LOG, "stopped cache and unregistered from resolver");
+
         }
 
         // Kill SRDI
-        if (srdi != null) {
-            srdi.stop();
-            srdi = null;
+        if (srdiManager != null) {
+            srdiManager.stop();
+            srdiManager = null;
         }
 
         if (!localonly) {
-            // Create a new SRDI
-            srdi = new Srdi(group, handlerName, this, null);
-            srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
+            // Create a new SRDI manager
+            srdiManager = new SrdiManager(group, handlerName, this, null);
+            srdiManager.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
         }
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Switched to a Edge peer role.");
-        }
+        Logging.logCheckedInfo(LOG, "Switched to a Edge peer role.");
+        
     }
 }

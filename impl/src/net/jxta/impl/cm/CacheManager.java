@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.cm;
 
 import java.io.IOException;
@@ -61,9 +62,7 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.StructuredTextDocument;
@@ -71,7 +70,6 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.SrdiMessage.Entry;
-
 
 /**
  * <p>
@@ -97,12 +95,12 @@ import net.jxta.protocol.SrdiMessage.Entry;
  * {@link AdvertisementCache}.
  * </p>
  */
-public final class Cm {
+public final class CacheManager {
 
     public static final int NO_THRESHOLD = Integer.MAX_VALUE;
 	public static final String CACHE_IMPL_SYSPROP = "net.jxta.impl.cm.cache.impl";
 
-	private final static Logger LOG = Logger.getLogger(Cm.class.getName());
+	private final static Logger LOG = Logger.getLogger(CacheManager.class.getName());
 	
     /**
      * @deprecated use {@link XIndiceAdvertisementCache#DEFAULT_GC_MAX_INTERVAL } instead
@@ -112,7 +110,7 @@ public final class Cm {
 
     private AdvertisementCache wrappedImpl;
 
-    public Cm(AdvertisementCache wrappedImpl) {
+    public CacheManager(AdvertisementCache wrappedImpl) {
         this.wrappedImpl = wrappedImpl;
     }
 
@@ -125,22 +123,29 @@ public final class Cm {
 	 * XXX yet another pool floating around.  SingleThreadExecutor is used in the default impl.
      * @throws IOException 
      */
-    public Cm(URI storeRoot, String areaName) throws IOException {
+    public CacheManager(URI storeRoot, String areaName) throws IOException {
+
     	String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
-    	if(cacheImpl == null) {
-    		this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName);
+    	
+        if(cacheImpl == null) {
+
+    	    this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName);
+
     	} else {
-    		try {
-				Class<?> cacheClass = Class.forName(cacheImpl);
-				Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
-				Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class);
-				this.wrappedImpl = constructor.newInstance(storeRoot, areaName);
-			} catch (Exception e) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Unable to construct cache type [" + cacheImpl + "] specified by system property, constructing default", e);
-				}
-				this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName);
-			}
+
+            try {
+
+                Class<?> cacheClass = Class.forName(cacheImpl);
+                Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
+                Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class);
+                this.wrappedImpl = constructor.newInstance(storeRoot, areaName);
+
+            } catch (Exception e) {
+
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property, constructing default\n", e);
+                this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName);
+
+            }
     	}
     }
 
@@ -150,22 +155,29 @@ public final class Cm {
      * @throws IOException 
      */
     
-    public Cm(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
-    	String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
+    public CacheManager(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
+    	
+        String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
+
     	if(cacheImpl == null) {
-    		this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, gcinterval, trackDeltas);
+
+    	    this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, gcinterval, trackDeltas);
+
     	} else {
-    		try {
-				Class<?> cacheClass = Class.forName(cacheImpl);
-				Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
-				Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class, long.class, boolean.class);
-				this.wrappedImpl = constructor.newInstance(storeRoot, areaName, gcinterval, trackDeltas);
-			} catch (Exception e) {
-				if(Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-					LOG.log(Level.SEVERE, "Unable to construct cache type [" + cacheImpl + "] specified by system property, constructing default", e);
-				}
-				this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, gcinterval, trackDeltas);
-			}
+
+            try {
+
+                Class<?> cacheClass = Class.forName(cacheImpl);
+                Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
+                Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class, long.class, boolean.class);
+                this.wrappedImpl = constructor.newInstance(storeRoot, areaName, gcinterval, trackDeltas);
+                    
+            } catch (Exception e) {
+
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property, constructing default\n", e);
+                this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, gcinterval, trackDeltas);
+
+            }
     	}
     }
 
@@ -174,25 +186,33 @@ public final class Cm {
     }
 
     public List<Entry> getEntries(String dn, boolean clearDeltas) {
+        
         try {
+
             return wrappedImpl.getEntries(dn, clearDeltas);
+
         } catch(IOException e) {
-            if(Logging.SHOW_WARNING || LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Exception occurred when getting entries for dn=[" + dn + "], clearDeltas=[" + clearDeltas + "]", e);
-            }
+
+            Logging.logCheckedWarning(LOG, "Exception occurred when getting entries for dn=[", dn, "], clearDeltas=[", clearDeltas, "]\n", e);
             return new ArrayList<Entry>(0);
+
         }
+
     }
 
     public long getExpirationtime(String dn, String fn) {
+
         try {
-			return wrappedImpl.getExpirationtime(dn, fn);
-		} catch (IOException e) {
-			if(Logging.SHOW_WARNING || LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Exception occurred when attempting to determine expiration time of dn=[" + dn + "], fn=[" + fn + "]", e);
-			}
-			return -1;
-		}
+
+	    return wrappedImpl.getExpirationtime(dn, fn);
+
+	} catch (IOException e) {
+
+            Logging.logCheckedWarning(LOG, "Exception occurred when attempting to determine expiration time of dn=[", dn, "], fn=[", fn, "]\n", e);
+	    return -1;
+
+	}
+        
     }
 
     public InputStream getInputStream(String dn, String fn) throws IOException {
@@ -200,14 +220,18 @@ public final class Cm {
     }
 
     public long getLifetime(String dn, String fn) {
+        
         try {
-			return wrappedImpl.getLifetime(dn, fn);
-		} catch (IOException e) {
-			if(Logging.SHOW_WARNING || LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Exception occurred when attempting to determine lifetime of dn=[" + dn + "], fn=[" + fn + "]", e);
-			}
-			return -1;
-		}
+
+	    return wrappedImpl.getLifetime(dn, fn);
+
+	} catch (IOException e) {
+
+	    Logging.logCheckedWarning(LOG, "Exception occurred when attempting to determine lifetime of dn=[", dn, "], fn=[", fn, "]\n", e);
+            return -1;
+
+	}
+
     }
 
     /**
@@ -224,14 +248,18 @@ public final class Cm {
     }
 
     public List<InputStream> getRecords(String dn, int threshold, List<Long> expirations, boolean purge) {
+        
         try {
-			return wrappedImpl.getRecords(dn, threshold, expirations, purge);
-		} catch (IOException e) {
-			if(Logging.SHOW_WARNING || LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Exception occurred when to fetch records at dn=[" + dn + "]", e);
-			}
-			return new ArrayList<InputStream>(0);
-		}
+
+	    return wrappedImpl.getRecords(dn, threshold, expirations, purge);
+
+	} catch (IOException e) {
+
+            Logging.logCheckedWarning(LOG, "Exception occurred when to fetch records at dn=[", dn, "]\n", e);
+            return new ArrayList<InputStream>(0);
+
+        }
+	
     }
 
     public void remove(String dn, String fn) throws IOException {
@@ -263,23 +291,23 @@ public final class Cm {
     }
 
     public void stop() {
+        
         try {
-			wrappedImpl.stop();
-		} catch (IOException e) {
-			if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Error occurred while stopped cache implementation", e);
-			}
-		}
+	    wrappedImpl.stop();
+	} catch (IOException e) {
+            Logging.logCheckedWarning(LOG, "Error occurred while stopped cache implementation\n", e);
+	}
+        
     }
 
     public void garbageCollect() {
+
         try {
-			wrappedImpl.garbageCollect();
-		} catch (IOException e) {
-			if(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-				LOG.log(Level.WARNING, "Error occurred while garbage collecting", e);
-			}
-		}
+            wrappedImpl.garbageCollect();
+	} catch (IOException e) {
+            Logging.logCheckedWarning(LOG, "Error occurred while garbage collecting\n", e);
+	}
+
     }
 
     /**

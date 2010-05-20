@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.cm.Cm;
+import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.bdb.BerkeleyDbAdvertisementCache;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
@@ -28,7 +28,7 @@ public class BDBStressTest {
 			
 			System.out.println("Cycle " + i + " start");
 			long startTime = System.currentTimeMillis();
-			Cm cm = new Cm(new BerkeleyDbAdvertisementCache(storeRoot.toURI(), "testArea"));
+			CacheManager cm = new CacheManager(new BerkeleyDbAdvertisementCache(storeRoot.toURI(), "testArea"));
 			//Cm cm = new Cm(new XIndiceAdvertisementCache(storeRoot.toURI(), "testArea"));
 			
 			PeerGroupID groupId = IDFactory.newPeerGroupID();
@@ -50,7 +50,7 @@ public class BDBStressTest {
 		System.out.println("Average run length: " + calculateAverage(timeResults) + "ms");
 	}
 
-	private static void performSearches(long[] searchTime, int i, Cm cm) {
+	private static void performSearches(long[] searchTime, int i, CacheManager cm) {
 		long searchStartTime = System.currentTimeMillis();
 		for(int j=0; j < 1000000; j++) {
 			int index = (int)(Math.random() * 10000);
@@ -59,7 +59,7 @@ public class BDBStressTest {
 		searchTime[i] = System.currentTimeMillis() - searchStartTime;
 	}
 
-	private static void performSaves(long[] saveTime, int i, Cm cm,
+	private static void performSaves(long[] saveTime, int i, CacheManager cm,
 			PeerGroupID groupId) throws IOException {
 		long saveStartTime = System.currentTimeMillis();
 		for(int j=0; j < 10000; j++) {
@@ -69,7 +69,7 @@ public class BDBStressTest {
 		saveTime[i] = System.currentTimeMillis() - saveStartTime;
 	}
 
-	private static void performRemoves(long[] removeTime, int i, Cm cm)
+	private static void performRemoves(long[] removeTime, int i, CacheManager cm)
 			throws IOException {
 		long removeStartTime = System.currentTimeMillis();
 		for(int j=0; j < 10000; j++) {

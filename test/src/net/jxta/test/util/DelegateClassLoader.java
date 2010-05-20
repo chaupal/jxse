@@ -481,7 +481,7 @@ public class DelegateClassLoader extends SecureClassLoader {
             result = defineClass(name, data, 0, data.length, codeSource);
         } catch (Exception x) {
             if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Couldn't load resource data", x);
+                LOG.log(Level.FINE, "Couldn't load resource data\n", x);
             }
         }
         

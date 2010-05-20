@@ -125,14 +125,10 @@ public class URIKeyStoreManager implements KeyStoreManager {
             }
         }
         
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("pse location = " + location);
-        }
+        Logging.logCheckedConfig(LOG, "pse location = ", location);
         
         keystore_type = type;
-        
         keystore_provider = provider;
-        
         keystore_location = location;
         
         // check if we can get an instance.
@@ -210,11 +206,10 @@ public class URIKeyStoreManager implements KeyStoreManager {
      **/
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Loading (" + keystore_type + "," + keystore_provider + ") store from " + keystore_location);
-        }
+        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
         
         try {
+
             KeyStore store;
 
             if (null == keystore_provider) {
@@ -249,11 +244,10 @@ public class URIKeyStoreManager implements KeyStoreManager {
      **/
     public void saveKeyStore(KeyStore store, char[] password) throws KeyStoreException, IOException {
         
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Writing " + store + " to " + keystore_location);
-        }
+        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
         
         try {
+
             OutputStream os = null;
             
             if ("file".equalsIgnoreCase(keystore_location.getScheme())) {
@@ -285,15 +279,13 @@ public class URIKeyStoreManager implements KeyStoreManager {
         if ("file".equalsIgnoreCase(keystore_location.getScheme())) {
             File asFile = new File(keystore_location);
             
-            if (asFile.exists() && asFile.isFile() && asFile.canWrite()) {
-                asFile.delete();
-            }
+            if (asFile.exists() && asFile.isFile() && asFile.canWrite()) asFile.delete();
+
         } else {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Unable to delete non-file URI :" + keystore_location);
-            }
-            
+
+            Logging.logCheckedSevere(LOG, "Unable to delete non-file URI :", keystore_location);
             throw new UnsupportedOperationException("Unable to delete non-file URI");
+
         }
     }
 

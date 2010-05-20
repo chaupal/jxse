@@ -176,13 +176,15 @@ public class ModuleImplAdv extends ModuleImplAdvertisement {
         Enumeration elements = doc.getChildren();
 
         while (elements.hasMoreElements()) {
+
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.warning("Unhandled Element: " + elem.toString());
-                }
+
+                Logging.logCheckedWarning(LOG, "Unhandled Element: ", elem);
+                
             }
+
         }
 
         // Sanity Check!!!

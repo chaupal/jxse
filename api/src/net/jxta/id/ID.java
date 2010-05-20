@@ -56,7 +56,6 @@
 
 package net.jxta.id;
 
-
 import java.io.ObjectStreamException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -64,7 +63,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.WeakHashMap;
-
 
 /**
  *  IDs are used to uniquely identify peers, peer groups, pipes and other
@@ -251,52 +249,5 @@ public abstract class ID implements java.io.Serializable {
      */
     public URI toURI() {
         return URI.create(URIEncodingName + ":" + URNNamespace + ":" + getUniqueValue());
-    }
-}
-
-
-/**
- * The NullID is often used as a placeholder in fields which are uninitialized.
- */
-final class NullID extends ID {
-    final static String JXTAFormat = "jxta";
-    
-    final static String UNIQUEVALUE = "Null";
-    
-    /**
-     *  NullID is not intended to be constructed. You should use the
-     *  {@link #nullID} constant instead.
-     */
-    NullID() {}
-    
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object target) {
-        return (this == target); // null is only itself.
-    }
-    
-    /**
-     * deserialization has to point back to the singleton in this VM.
-     */
-    private Object readResolve() {
-        return ID.nullID;
-    }
-    
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public String getIDFormat() {
-        return JXTAFormat;
-    }
-    
-    /**
-     *  {@inheritDoc}
-     */
-    @Override
-    public Object getUniqueValue() {
-        return getIDFormat() + "-" + UNIQUEVALUE;
     }
 }

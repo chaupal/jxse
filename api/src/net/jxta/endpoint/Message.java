@@ -271,16 +271,16 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
          * {@inheritDoc}
          */
         public boolean hasNext() {
+
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                Logging.logCheckedSevere(LOG,
+                            Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                            Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
-                }
+                
                 throw failure;
             }
             return list.hasNext();
@@ -290,16 +290,16 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
          * {@inheritDoc}
          */
         public MessageElement next() {
+
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                Logging.logCheckedSevere(LOG,
+                            Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                            Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
-                }
+                
                 throw failure;
             }
 
@@ -318,36 +318,37 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
          * {@inheritDoc}
          */
         public boolean hasPrevious() {
+
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                Logging.logCheckedSevere(LOG,
+                            Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                            Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
-                }
+                
                 throw failure;
             }
 
             return list.hasPrevious();
+
         }
 
         /**
          * {@inheritDoc}
          */
         public MessageElement previous() {
+
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                Logging.logCheckedSevere(LOG,
+                            Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                            Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
-                }
+                
                 throw failure;
             }
 
@@ -379,13 +380,11 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                Logging.logCheckedSevere(LOG,
+                            Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                            Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
-                }
-
+                
                 throw failure;
             }
 
@@ -423,16 +422,16 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                             anNsElement = nsPosition.next();
                         } while (anElement.element != anNsElement);
                     }
+
                 } catch (NoSuchElementException ranOut) {
+
                     RuntimeException failure = new ConcurrentModificationException(
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE,
-                                Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                                + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                    Logging.logCheckedSevere(LOG,
+                                Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                                Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                                 failure);
-                    }
 
                     throw failure;
                 }
@@ -442,12 +441,13 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             nsPosition.remove();
             list.remove();
             origModCount = Message.this.incMessageModCount();
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(
-                        "Removed " + current.namespace + "::" + current.element.getElementName() + "/"
-                        + current.element.getClass().getName() + "@" + current.element.hashCode() + " from " + Message.this);
-            }
+
+            Logging.logCheckedFiner(LOG, "Removed ", current.namespace, "::",
+                    current.element.getElementName(), "/", current.element.getClass().getName(),
+                    "@", current.element.hashCode(), " from ", Message.this);
+
             current = null;
+            
         }
 
         /**
@@ -457,16 +457,16 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
          * replaced element.
          */
         public void set(MessageElement obj) {
+
             if (origModCount != Message.this.getMessageModCount()) {
                 RuntimeException failure = new ConcurrentModificationException(
                         Message.this + " concurrently modified. ");
 
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE,
-                            Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                            + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                Logging.logCheckedSevere(LOG,
+                            Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                            Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                             failure);
-                }
+                
                 throw failure;
             }
 
@@ -505,15 +505,15 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
                         } while (anElement.element != anNsElement);
                     }
                 } catch (NoSuchElementException ranOut) {
+
                     RuntimeException failure = new ConcurrentModificationException(
                             Message.this + " concurrently modified. Iterator was made at mod " + origModCount);
 
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.log(Level.SEVERE,
-                                Message.this + " concurrently modified. iterator mod=" + origModCount + " current mod="
-                                + Message.this.getMessageModCount() + "\n" + getMessageModHistory(),
+                    Logging.logCheckedSevere(LOG,
+                                Message.this, " concurrently modified. iterator mod=", origModCount, " current mod=",
+                                Message.this.getMessageModCount(), "\n", getMessageModHistory(),
                                 failure);
-                    }
+                    
                     throw failure;
                 }
             }
@@ -524,14 +524,16 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             nsPosition.set(obj);
             list.set(newCurrent);
             origModCount = Message.this.incMessageModCount();
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                LOG.finer(
-                        "Replaced " + current.namespace + "::" + current.element.getElementName() + "/"
-                        + current.element.getClass().getName() + "@" + current.element.hashCode() + " with "
-                        + newCurrent.namespace + "::" + newCurrent.element.getElementName() + "/"
-                        + newCurrent.element.getClass().getName() + "@" + newCurrent.element.hashCode() + " in " + Message.this);
-            }
+
+            Logging.logCheckedFiner(LOG,
+                        "Replaced ", current.namespace, "::", current.element.getElementName(), "/",
+                        current.element.getClass().getName(), "@", current.element.hashCode(), " with ",
+                        newCurrent.namespace, "::", newCurrent.element.getElementName(), "/",
+                        newCurrent.element.getClass().getName(), "@", newCurrent.element.hashCode(),
+                        " in ", Message.this);
+            
             current = newCurrent;
+
         }
 
         /**
@@ -647,11 +649,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             clone.namespaces.put(aNamespace, newNamespaceElements);
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Created clone " + clone + " of " + this);
-        }
-
+        Logging.logCheckedFiner(LOG, "Created clone ", clone, " of ", this);
+        
         return clone;
+
     }
 
     /**
@@ -885,10 +886,10 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
 
         namespaceElements.add(add);
         incMessageModCount();
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer( "Added " + namespace + "::" + add.getElementName() + "/" + 
-                    add.getClass().getName() + "@" + add.hashCode() + " to " + this);
-        }
+
+        Logging.logCheckedFiner(LOG, "Added ", namespace, "::", add.getElementName(), "/",
+                    add.getClass().getName(), "@", add.hashCode(), " to ", this);
+        
     }
 
     /**
@@ -1246,9 +1247,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
 
         incMessageModCount();
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Cleared " + this);
-        }
+        Logging.logCheckedFiner(LOG, "Cleared ", this);
+        
     }
 
     /**
@@ -1299,19 +1299,17 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         }
 
         if (!modifiable) {
+
             IllegalStateException failure = new IllegalStateException("Unmodifiable message should not have been modified");
-
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, failure.getMessage(), failure);
-            }
+            Logging.logCheckedSevere(LOG, failure);
             throw failure;
+            
         }
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Modification to " + this);
-        }
+        Logging.logCheckedFiner(LOG, "Modification to ", this);
 
         return modCount;
+        
     }
 
     /**

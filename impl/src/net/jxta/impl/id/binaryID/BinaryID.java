@@ -156,7 +156,7 @@ public class BinaryID implements Serializable {
 
                     encodedValue = ((char) type) + base64.toString();
                 } catch (Exception e) {
-                    LOG.log(Level.SEVERE, "Unable to encode binary value.", e);
+                    LOG.log(Level.SEVERE, "Unable to encode binary value.\n", e);
                     throw new RuntimeException("Unable to encode binary value.");
                 }
             } else {
@@ -177,7 +177,7 @@ public class BinaryID implements Serializable {
 
                 encodedValue = ((char) type) + base64.toString();
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Unable to encode binary value.", e);
+                LOG.log(Level.SEVERE, "Unable to encode binary value.\n", e);
                 throw new RuntimeException("Unable to encode binary value.");
             }
         } else if (lengthIncluded && (data.length > 256 || data.length == 0)) {
@@ -212,7 +212,7 @@ public class BinaryID implements Serializable {
 
             return bos.toByteArray();
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Unable to decode binary value.", e);
+            LOG.log(Level.SEVERE, "Unable to decode binary value.\n", e);
             throw new RuntimeException("Unable to encode binary value.");
         }
 

@@ -56,7 +56,6 @@
 
 package net.jxta.endpoint;
 
-
 /**
  *  A MessageTransport is responsible for sending and/or receiving JXTA
  *  messages from an external network. A MessageTransport may use whatever
@@ -88,19 +87,6 @@ public interface MessageTransport {
      *  registered.
      */
     public EndpointService getEndpointService();
-
-    /**
-     * Pass a transport control object to a message transport.
-     *
-     * @param operation Object that specifies the type of control operation 
-     * to be performed
-     * @param value Object that specifies a value object associated 
-     *              with the control operation
-     * @return returned object
-     * @deprecated Under development, may change.
-     */
-    @Deprecated
-    public Object transportControl(Object operation, Object value);
 
 }
 

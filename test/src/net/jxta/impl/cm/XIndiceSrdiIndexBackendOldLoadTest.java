@@ -71,10 +71,10 @@ import net.jxta.peer.PeerID;
 
 /**
  * This class was formerly known as SrdiIndexTest. It contains a number
- * of stress tests of the XIndiceSrdiIndexBackend, which is the original
- * SrdiIndex implementation. The tests take some time to run so are not
+ * of stress tests of the XIndiceSrdi, which is the original
+ * Srdi implementation. The tests take some time to run so are not
  * technically unit tests. In future, these tests may be refactored into
- * a more generic load testing suite for all SrdiIndexBackend implementations.
+ * a more generic load testing suite for all SrdiAPI implementations.
  */
 public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     static final String peerStr = "urn:jxta:uuid-59616261646162614A7874615032503346A235E18A1D427FAB4E8CA426964ADD03";
@@ -142,7 +142,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     }
 
     public void testRefAddDelGC() {
-        SrdiIndex srdi = new SrdiIndex(null, "SrdiIndexTest");
+        Srdi srdi = new Srdi(null, "SrdiIndexTest");
 
         srdi.add("pkey", "ID", pipeID, pid, 1000);
         srdi.add("pkey", "ID", pipeID, pid, 0);
@@ -154,7 +154,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     }
 
     public void testQuery() {
-        SrdiIndex srdi = new SrdiIndex(null, "SrdiIndexTest");
+        Srdi srdi = new Srdi(null, "SrdiIndexTest");
 
         for (int i = 0; i < ITERATIONS; i++) {
             srdi.add("pkey", "attr", "value" + i, pid, Long.MAX_VALUE);
@@ -173,7 +173,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     }
 
     public void testGC() {
-        SrdiIndex srdi = new SrdiIndex(null, "SrdiIndexTest");
+        Srdi srdi = new Srdi(null, "SrdiIndexTest");
 
         for (int i = 0; i < ITERATIONS; i++) {
             srdi.add("pkey", "attr", "value" + i, pid, 1000);
@@ -184,7 +184,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     }
 
     public void testRemovePath() {
-        SrdiIndex srdi = new SrdiIndex(null, "SrdiIndexTest");
+        Srdi srdi = new Srdi(null, "SrdiIndexTest");
 
         for (int i = 0; i < ITERATIONS; i++) {
             srdi.add("pkey", "attr", "value" + i, pid, 100000000);
@@ -203,7 +203,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     }
 
     public void testRemovePhantom() {
-        SrdiIndex srdi = new SrdiIndex(null, "SrdiIndexTest");
+        Srdi srdi = new Srdi(null, "SrdiIndexTest");
 
         for (int i = 0; i < ITERATIONS; i++) {
             srdi.add("pkey", "attr", "value" + i, pid, 1000);
@@ -213,7 +213,7 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
     }
 
     public void testMultithread() {
-        SrdiIndex srdi = new SrdiIndex(null, "SrdiIndexTest");
+        Srdi srdi = new Srdi(null, "SrdiIndexTest");
 
         System.out.println("mt starting...");
         final int THREADS = 5;
@@ -252,9 +252,9 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
 
     private class Remover implements Runnable {
         private int id = 0;
-        private SrdiIndex srdi;
+        private Srdi srdi;
 
-        public Remover(int id, SrdiIndex srdi) {
+        public Remover(int id, Srdi srdi) {
             this.id = id;
             this.srdi = srdi;
         }
@@ -279,9 +279,9 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
 
     private class Adder implements Runnable {
         private int id = 0;
-        private SrdiIndex srdi;
+        private Srdi srdi;
 
-        public Adder(int id, SrdiIndex srdi) {
+        public Adder(int id, Srdi srdi) {
             this.id = id;
             this.srdi = srdi;
         }
@@ -299,9 +299,9 @@ public class XIndiceSrdiIndexBackendOldLoadTest extends TestCase {
 
     private class Searcher implements Runnable {
         private int id = 0;
-        private SrdiIndex srdi;
+        private Srdi srdi;
 
-        public Searcher(int id, SrdiIndex srdi) {
+        public Searcher(int id, Srdi srdi) {
             this.id = id;
             this.srdi = srdi;
         }

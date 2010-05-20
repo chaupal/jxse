@@ -105,13 +105,15 @@ class SecureOutputPipe extends NonBlockingOutputPipe {
         }
 
         if (!sent && isClosed()) {
+
             IOException failed = new IOException("Could not enqueue " + msg + " for sending. Pipe is closed.");
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, failed.getMessage(), failed);
-            }
+            Logging.logCheckedWarning(LOG, failed);
             throw failed;
+
         }
+
         return sent;
+
     }
 
     /**

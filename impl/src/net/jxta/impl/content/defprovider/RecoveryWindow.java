@@ -123,180 +123,190 @@ public class RecoveryWindow {
         int totalRead;
         int written = 0;
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Data request: offset=" + offset +", length=" + length);
-        }
+        Logging.logCheckedFiner(LOG, "Data request: offset=", offset, ", length=", length);
 
         try {
 
             // Walk backwards through exiting nodes, looking for an appropriate
             // starting point.
             if (head != null) {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Walking backwards to find starting node");
-                }
+
+                Logging.logCheckedFinest(LOG, "Walking backwards to find starting node");
+
                 idx=0;
+
                 while (node != null) {
-                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Now at node: offset=" + node.offset
-                                + ", length=" + node.data.length);
-                    }
+
+                    Logging.logCheckedFinest(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
+
                     if (node.offset <= offset) {
                         // Beginning of chain found.
                         break;
                     }
+
                     idx++;
                     node = (Node) node.previous.get();
+
                 }
+
                 if (node == null) {
+
                     // Cannot recover data that far back.
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Data requested extends beyond recovery window");
-                    }
-                    throw(new IOException(
-                            "Data requested extends beyond recovery window"));
+                    Logging.logCheckedFinest(LOG, "Data requested extends beyond recovery window");
+                    throw(new IOException("Data requested extends beyond recovery window"));
+
                 }
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Walked backwards " + idx + " nodes from head");
-                }
+
+                Logging.logCheckedFinest(LOG, "Walked backwards ", idx, " nodes from head");
+                
             }
 
 
             // Walk forwards through nodes that we do have
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("Beginning forward walk");
-            }
+            Logging.logCheckedFinest(LOG, "Beginning forward walk");
+            
             while (node != null) {
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Now at node: offset=" + node.offset
-                            + ", length=" + node.data.length);
-                }
+
+                Logging.logCheckedFinest(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
 
                 idx = (int) (offset - node.offset);
                 adjustedLen = node.data.length - idx;
                 len = (adjustedLen > length) ? length : adjustedLen;
 
                 if (len > 0) {
-                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Writing: idx=" + idx
-                                + ", len=" + len );
-                    }
+
+                    Logging.logCheckedFinest(LOG, "Writing: idx=", idx, ", len=", len );
 
                     out.write(node.data, idx, len);
                     written += len;
                     offset += len;
                     length -= len;
+
                 }
+
                 if (length == 0) {
+
                     // No more data is required.
                     // Already, know you, that which you need.
-                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Request fulfilled.  written=" + written);
-                    }
+                    Logging.logCheckedFinest(LOG, "Request fulfilled.  written=", written);
+                    
                     return written;
+
                 }
 
                 if (node.next == node) {
+
                     // This is EOF.  We're done.
-                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer("EOF encountered.  written=" + -written);
-                    }
+                    Logging.logCheckedFinest(LOG, "EOF encountered.  written=", -written);
+
                     return -written;
+
                 }
 
                 last = node;
                 node = node.next;
+
             }
 
             // Now try to read the data we dont have
             // Walk forwards through nodes that we do have
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("Beginning new data reads");
-            }
+            Logging.logCheckedFinest(LOG, "Beginning new data reads");
+            
             while (length > 0) {
+
                 // Figure out where this node starts and ends
                 idx = (int) ((last == null) ? 0 : (last.offset + last.data.length));
+
                 if (idx < offset) {
+
                     // We need to save and pass data before the requested position
                     len = (int) (offset - idx);
+
                 } else {
+
                     // We can collect the desired data
                     len = length;
+
                 }
+
                 if (len > maxNodeLength) {
                     len = maxNodeLength;
                 }
 
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Now at: offset=" + idx
-                            + ", length=" + len);
-                }
-
+                Logging.logCheckedFinest(LOG, "Now at: offset=", idx, ", length=", len);
+                
                 // Allocate and link the new node
                 node = new Node();
                 node.data = new byte[len];
                 node.offset = idx;
+
                 if (last != null) {
                     node.previous = new SoftReference<Node>(last);
                     last.next = node;
                 }
+
                 head = node;
 
-                if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                    LOG.finest("Allocated new data node.  offset=" + node.offset
-                            + ", length=" + node.data.length);
-                }
+                Logging.logCheckedFinest(LOG, "Allocated new data node.  offset=", node.offset,
+                            ", length=", node.data.length);
 
                 // Read in the node's data
                 totalRead = 0;
+
                 while (totalRead < node.data.length) {
+
                     read = in.read(node.data, totalRead, node.data.length - totalRead);
+
                     if (read < 0) {
+
                         // EOF.  Create resized copy of data and stop.
                         tooBig = node.data;
                         node.data = new byte[totalRead];
                         System.arraycopy(tooBig, 0, node.data, 0, totalRead);
                         node.next = node;
-                        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                            LOG.finest("Reallocating node.  offset=" + node.offset
-                                    + ", len=" + node.data.length);
-                        }
+
+                        Logging.logCheckedFinest(LOG, "Reallocating node.  offset=", node.offset,
+                                    ", len=", node.data.length);
+                        
                     } else {
+
                         totalRead += read;
+
                     }
+
                 }
 
                 // Write the node's data
                 if (idx == offset) {
-                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Writing node data.  offset=" + node.offset
-                                + ", len=" + node.data.length);
-                    }
 
+                    Logging.logCheckedFinest(LOG, "Writing node data.  offset=", node.offset,
+                                ", len=", node.data.length);
+                    
                     out.write(node.data);
                     written += node.data.length;
                     offset += node.data.length;
                     length -= node.data.length;
+
                 }
 
                 if (node.next == node) {
+
                     // This was EOF.  We're done.
-                    if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("EOF encountered.  written=" + -written);
-                    }
+                    Logging.logCheckedFinest(LOG, "EOF encountered.  written=", -written);
                     return -written;
+
                 }
 
                 last = node;
+
             }
 
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                LOG.finest("Request fulfilled.  written=" + written);
-            }
+            Logging.logCheckedFinest(LOG, "Request fulfilled.  written=", written);
+            
         } catch (Exception x) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Uncaught exception", x);
-            }
+
+            Logging.logCheckedFine(LOG, "Uncaught exception\n", x);
+            
         }
         return written;
     }

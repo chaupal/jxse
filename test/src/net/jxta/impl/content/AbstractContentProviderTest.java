@@ -144,7 +144,7 @@ public abstract class AbstractContentProviderTest {
         
         public void init() {
             try {
-                LOG.info("Initializing: " + this);
+                LOG.info("Initializing: ", this);
                 PeerGroup netPeerGroup = nm.startNetwork();
                 nm.waitForRendezvousConnection(15000);
                 LOG.info("Am  RDV? " + netPeerGroup.isRendezvous());
@@ -206,7 +206,7 @@ public abstract class AbstractContentProviderTest {
         }
 
         public void destroy() {
-            LOG.info("Destroying: " + this);
+            LOG.info("Destroying: ", this);
             nm.stopNetwork();
             nm = null;
             service = null;
@@ -328,7 +328,7 @@ public abstract class AbstractContentProviderTest {
                 fail("Caught transfer exception: " + xferx);
             }
         } catch (Throwable thr) {
-            LOG.log(Level.WARNING, "Caught throwable", thr);
+            LOG.log(Level.WARNING, "Caught throwable\n", thr);
             throw(thr);
         } finally {
             spi.destroy();
@@ -370,7 +370,7 @@ public abstract class AbstractContentProviderTest {
                 fail("Caught transfer exception: " + xferx);
             }
         } catch (Throwable thr) {
-            LOG.log(Level.WARNING, "Caught throwable", thr);
+            LOG.log(Level.WARNING, "Caught throwable\n", thr);
             throw(thr);
         } finally {
             spi.destroy();

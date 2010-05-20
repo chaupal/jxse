@@ -56,14 +56,10 @@
 
 package net.jxta.impl.util.pipe.reliable;
 
-
 import net.jxta.endpoint.Message;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.InputPipe;
-
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 public class IncomingPipeAdaptor implements Runnable {
 
@@ -100,14 +96,13 @@ public class IncomingPipeAdaptor implements Runnable {
                     continue;
                 }
 
-                if (msg != null) {
-                    incoming.recv(msg);
-                }
+                if (msg != null) incoming.recv(msg);
+                
             }
         } catch (Throwable all) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-            }
+
+            Logging.logCheckedWarning(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
+            
         }
     }
 }

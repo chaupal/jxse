@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
@@ -75,8 +74,8 @@ import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
-import net.jxta.impl.cm.Cm;
-import net.jxta.impl.cm.SrdiIndex;
+import net.jxta.impl.cm.CacheManager;
+import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.content.ContentServiceImpl;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.logging.Logging;
@@ -180,7 +179,7 @@ public class StdPeerGroup extends GenericPeerGroup {
     /**
      * Cache for this group.
      */
-    private Cm cm = null;
+    private CacheManager cm = null;
     
     /**
      *  Create and populate the default module impl Advertisement for this class.
@@ -279,33 +278,39 @@ public class StdPeerGroup extends GenericPeerGroup {
                     // Load module will republish locally but not in the
                     // parent since that adv does not come from there.
                     theModule = loadModule(classID, (ModuleImplAdvertisement) value, privileged);
+
                 } else if (value instanceof ModuleSpecID) {
+
                     // loadModule will republish both locally and in the parent
                     // Where the module was fetched.
                     theModule = loadModule(classID, (ModuleSpecID) value, FromParent, privileged);
+
                 } else {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                        LOG.severe("Skipping: " + classID + " Unsupported module descriptor : " + value.getClass().getName());
-                    }
+
+                    Logging.logCheckedSevere(LOG, "Skipping: ", classID, " Unsupported module descriptor : ", value.getClass().getName());
                     eachModule.remove();
                     continue;
+
                 }
                 
-                if (theModule == null) {
-                    throw new PeerGroupException("Could not find a loadable implementation for : " + classID);
-                }
+                if (theModule == null) throw new PeerGroupException("Could not find a loadable implementation for : " + classID);
                 
                 anEntry.setValue(theModule);
+
             } catch (Exception e) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not load module for class ID : " + classID, e);
-                    if (value instanceof ModuleImplAdvertisement) {
-                        LOG.log(Level.WARNING, "Will be missing from peer group : " +
-                                ((ModuleImplAdvertisement) value).getDescription());
-                    } else {
-                        LOG.log(Level.WARNING, "Will be missing from peer group: " + value);
-                    }
+
+                Logging.logCheckedWarning(LOG, "Could not load module for class ID : ", classID, "\n", e);
+
+                if (value instanceof ModuleImplAdvertisement) {
+
+                    Logging.logCheckedWarning(LOG, "Will be missing from peer group : " + ((ModuleImplAdvertisement) value).getDescription());
+
+                } else {
+
+                    Logging.logCheckedWarning(LOG, "Will be missing from peer group: ", value);
+
                 }
+
                 eachModule.remove();
             }
         }
@@ -324,10 +329,10 @@ public class StdPeerGroup extends GenericPeerGroup {
     public int startApp(String[] arg) {
         
         if (!initComplete) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.severe("Group has not been initialized or init failed.");
-            }
+
+            Logging.logCheckedSevere(LOG, "Group has not been initialized or init failed.");
             return -1;
+
         }
         
         // FIXME: maybe concurrent callers should be blocked until the
@@ -369,10 +374,11 @@ public class StdPeerGroup extends GenericPeerGroup {
                 } else {
                     removeService(aModule);
                 }
+
             } catch (Exception any) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to stop module: " + aModule, any);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to stop module: ", aModule, "\n", any);
+                
             }
         }
         
@@ -412,12 +418,11 @@ public class StdPeerGroup extends GenericPeerGroup {
         boolean progress = true;
         
         while (!services.isEmpty() && (progress || (iterations < maxIterations))) {
+
             progress = false;
             iterations++;
             
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                LOG.fine(MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
-            }
+            Logging.logCheckedFine(LOG, MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
             
             Iterator<Map.Entry<ModuleClassID, Module>> eachService = services.entrySet().iterator();
             
@@ -429,19 +434,22 @@ public class StdPeerGroup extends GenericPeerGroup {
                 int res;
                 
                 try {
+
                     res = aModule.startApp(null);
+
                 } catch (Throwable all) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                        LOG.log(Level.WARNING, "Exception in startApp() : " + aModule, all);
-                    }
+
+                    Logging.logCheckedWarning(LOG, "Exception in startApp() : ", aModule, "\n", all);
                     res = -1;
+
                 }
                 
                 switch (res) {
+
                     case Module.START_OK:
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Module started : " + aModule);
-                        }
+
+                        Logging.logCheckedFine(LOG, "Module started : ", aModule);
+
                         if (aModule instanceof Service) {
                             addService(mcid, (Service) aModule);
                         } else {
@@ -454,33 +462,30 @@ public class StdPeerGroup extends GenericPeerGroup {
                         break;
                         
                     case Module.START_AGAIN_PROGRESS:
-                        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                            LOG.finer("Service made progress during start : " + aModule);
-                        }
+
+                        Logging.logCheckedFiner(LOG, "Service made progress during start : ", aModule);
                         progress = true;
                         break;
                         
                     case Module.START_AGAIN_STALLED:
-                        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                            LOG.finer("Service stalled during start : " + aModule);
-                        }
+
+                        Logging.logCheckedFiner(LOG, "Service stalled during start : ", aModule);
                         break;
                         
                     case Module.START_DISABLED:
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Service declined to start : " + aModule);
-                        }
+
+                        Logging.logCheckedFine(LOG, "Service declined to start : ", aModule);
                         eachService.remove();
                         progress = true;
                         break;
                         
                     default: // (negative)
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Service failed to start (" + res + ") : " + aModule);
-                        }
+
+                        Logging.logCheckedWarning(LOG, "Service failed to start (", res, ") : ", aModule);
                         eachService.remove();
                         progress = true;
                         break;
+
                 }
             }
             
@@ -491,6 +496,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // Uh-oh. Services co-dependency prevented them from starting.
         if (!services.isEmpty()) {
+
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 StringBuilder failed = new StringBuilder( "No progress is being made in starting services after "
                         + iterations + " iterations. Giving up.");
@@ -563,10 +569,10 @@ public class StdPeerGroup extends GenericPeerGroup {
     protected synchronized void initFirst(PeerGroup parent, ID assignedID, Advertisement impl) throws PeerGroupException {
         
         if (initComplete) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.warning("You cannot initialize a PeerGroup more than once !");
-            }
+
+            Logging.logCheckedWarning(LOG, "You cannot initialize a PeerGroup more than once !");
             return;
+
         }
         
         // Set-up the minimal GenericPeerGroup
@@ -577,16 +583,18 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // initialize cm before starting services.
         try {
-            cm = new Cm(getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
+
+            cm = new CacheManager(getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
+
         } catch (Exception e) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Failure instantiating local store", e);
-            }
+
+            Logging.logCheckedSevere(LOG, "Failure instantiating local store\n", e);
             throw new PeerGroupException("Failure instantiating local store", e);
+
         }
         
         // flush srdi for this group
-        SrdiIndex.clearSrdi(this);
+        Srdi.clearSrdi(this);
         
         // Load the list of peer group services from the impl advertisement params.
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(implAdvertisement.getParam());
@@ -605,12 +613,11 @@ public class StdPeerGroup extends GenericPeerGroup {
                 ModuleClassID aModule = eachModule.next();
                 
                 if(!conf.isSvcEnabled(aModule)) {
+
                     // remove disabled module
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Module disabled in configuration : " + aModule);
-                    }
-                    
+                    Logging.logCheckedFine(LOG, "Module disabled in configuration : ", aModule);
                     eachModule.remove();
+
                 }
             }
         }
@@ -622,16 +629,17 @@ public class StdPeerGroup extends GenericPeerGroup {
             Iterator<ModuleClassID> eachModule = applications.keySet().iterator();
             
             while(eachModule.hasNext()) {
+
                 ModuleClassID aModule = eachModule.next();
                 
                 if(!conf.isSvcEnabled(aModule)) {
+
                     // remove disabled module
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.fine("Application disabled in configuration : " + aModule);
-                    }
-                    
+                    Logging.logCheckedFine(LOG, "Application disabled in configuration : ", aModule);
                     eachModule.remove();
+
                 }
+
             }
         }
         
@@ -647,7 +655,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         try {
             checkServices();
         } catch (ServiceNotFoundException e) {
-            LOG.log(Level.SEVERE, "Missing peer group service", e);
+            LOG.log(Level.SEVERE, "Missing peer group service\n", e);
             throw new PeerGroupException("Missing peer group service", e);
         }
         
@@ -668,10 +676,11 @@ public class StdPeerGroup extends GenericPeerGroup {
                 // Try to publish our impl adv within this group. (it was published
                 // in the parent automatically when loaded.
                 discoveryService.publish(implAdvertisement, DEFAULT_LIFETIME, DEFAULT_EXPIRATION);
+
             } catch (Exception nevermind) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Failed to publish Impl adv within group.", nevermind);
-                }
+
+                Logging.logCheckedWarning(LOG, "Failed to publish Impl adv within group.", nevermind);
+                
             }
         }
     }
@@ -688,10 +697,12 @@ public class StdPeerGroup extends GenericPeerGroup {
         super.initLast();
         
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+
             StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
             
             configInfo.append("\n\tConfiguration :");
             configInfo.append("\n\t\tCompatibility Statement :\n\t\t\t");
+
             StringBuilder indent = new StringBuilder(
                     CompatibilityUtils.createDefaultCompatStatement().toString().trim());
             int from = indent.length();
@@ -732,12 +743,13 @@ public class StdPeerGroup extends GenericPeerGroup {
                 
                 if (anApp instanceof ModuleImplAdvertisement) {
                     ModuleImplAdvertisement adv = (ModuleImplAdvertisement) anApp;
-                    
                     configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(adv.getCode());
                 } else {
                     configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(anApp.getClass().getName());
                 }
+
             }
+
             LOG.config(configInfo.toString());
         }
     }
@@ -761,7 +773,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      *
      * @return the cache manager associated with this group.
      */
-    public Cm getCacheManager() {
+    public CacheManager getCacheManager() {
         return cm;
     }
     

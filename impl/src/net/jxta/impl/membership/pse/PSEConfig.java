@@ -76,9 +76,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import net.jxta.logging.Logging;
 
 /**
  * Manages the state of a Personal Security Enviroment.
@@ -173,25 +172,21 @@ public final class PSEConfig {
      */
     public void initialize() throws KeyStoreException, IOException {
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            LOG.info("Initializing new PSE keystore...");
-        }
-
+        Logging.logCheckedInfo(LOG, "Initializing new PSE keystore...");
+        
         synchronized (keystore_manager) {
             try {
-                if (keystore_manager.isInitialized(keystore_password)) {
-                    return;
-                }
 
+                if (keystore_manager.isInitialized(keystore_password)) return;
+                
                 keystore_manager.createKeyStore(keystore_password);
+
             } catch (KeyStoreException failed) {
-                if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "Failure accessing or creating keystore.", failed);
-                }
 
+                Logging.logCheckedSevere(LOG, "Failure accessing or creating keystore.\n", failed);
                 keystore_manager.eraseKeyStore();
-
                 throw failed;
+                
             }
         }
     }
@@ -216,19 +211,24 @@ public final class PSEConfig {
      * @return The keystore or {@code null} if it cannot be retrieved.
      */
     public KeyStore getKeyStore() {
+
         Throwable failure;
 
         try {
+
             return getKeyStore(keystore_password);
+
         } catch (KeyStoreException failed) {
+
             failure = failed;
+
         } catch (IOException failed) {
+
             failure = failed;
+
         }
 
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Failure recovering keystore : " + failure);
-        }
+        Logging.logCheckedWarning(LOG, "Failure recovering keystore : \n", failure);
 
         return null;
     }
@@ -268,6 +268,7 @@ public final class PSEConfig {
     boolean validPasswd(ID id, char[] store_password, char[] key_password) {
 
         if (null == id) {
+            Logging.logCheckedFine(LOG, "null id");
             return false;
         }
 
@@ -290,23 +291,33 @@ public final class PSEConfig {
                 String alias = id.toString();
 
                 Key key = store.getKey(alias, key_password);
+                
+                if ( key == null )
+                    Logging.logCheckedFine(LOG, "Can't retrieve key for alias: ", alias);
 
                 return (null != key);
             }
+
         } catch (UnrecoverableKeyException failed) {
+
             failure = failed;
+
         } catch (NoSuchAlgorithmException failed) {
+
             failure = failed;
+
         } catch (KeyStoreException failed) {
+
             failure = failed;
+
         } catch (IOException failed) {
+
             failure = failed;
+
         }
 
-        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-            LOG.warning("Failure checking passphrase : " + failure);
-        }
-
+        Logging.logCheckedWarning(LOG, "Failure checking passphrase : \n", failure);
+        
         return false;
     }
 
@@ -521,24 +532,24 @@ public final class PSEConfig {
 
                 return (PrivateKey) store.getKey(alias, key_password);
             }
+
         } catch (NoSuchAlgorithmException failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Something failed", failed);
-            }
+
+            Logging.logCheckedSevere(LOG, "Something failed\n", failed);
 
             KeyStoreException failure = new KeyStoreException("Something Failed");
 
             failure.initCause(failed);
             throw failure;
+
         } catch (UnrecoverableKeyException failed) {
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Key passphrase failure", failed);
-            }
+
+            Logging.logCheckedSevere(LOG, "Key passphrase failure\n", failed);
 
             KeyStoreException failure = new KeyStoreException("Key passphrase failure");
-
             failure.initCause(failed);
             throw failure;
+
         }
     }
 

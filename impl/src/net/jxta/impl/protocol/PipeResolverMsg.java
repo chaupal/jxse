@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attributable;
 import net.jxta.document.Document;
@@ -72,16 +71,13 @@ import net.jxta.logging.Logging;
 import net.jxta.pipe.PipeID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeResolverMessage;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements {@link net.jxta.protocol.PipeResolverMessage} by
@@ -223,10 +219,10 @@ public class PipeResolverMsg extends PipeResolverMessage {
 											MimeMediaType.XMLUTF8,
 											new StringReader(peerAdv))));
                 } catch (IOException caught) {
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        LOG.log(Level.FINE, "Malformed peer adv in message", caught);
-                    }
+
+                    Logging.logCheckedFine(LOG, "Malformed peer adv in message\n", caught);
                     throw new IllegalArgumentException("Malformed peer adv in message : " + caught.getMessage());
+
                 }
             }
 

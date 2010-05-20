@@ -197,18 +197,18 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
                 e = adv.createElement(responsesTag, response);
 
                 adv.appendChild(e);
+
                 if (adv instanceof Attributable) {
                     ((Attributable) e).addAttribute(expirationTag, l.toString());
                 }
             }
         } catch (Exception failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Got an Exception during doc creation", failed);
-            }
-            IllegalStateException failure = new IllegalStateException("Got an Exception during doc creation");
 
+            Logging.logCheckedWarning(LOG, "Got an Exception during doc creation\n", failed);
+            IllegalStateException failure = new IllegalStateException("Got an Exception during doc creation");
             failure.initCause(failed);
             throw failure;
+
         }
         return adv;
     }
@@ -265,39 +265,41 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
                     String aResponse = elem.getTextValue();
 
                     if (null == aResponse) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine("Discarding an empty response tag");
-                        }
+                        Logging.logCheckedFine(LOG, "Discarding an empty response tag");
                         continue;
                     }
+
                     res.add(aResponse);
 
                     long exp;
+
                     // get expiration associated with this response
                     Attribute attr = (elem).getAttribute(expirationTag);
 
                     if (null != attr) {
+
                         exp = Long.parseLong(attr.getValue());
+
                     } else {
+
                         // if there are no attribute use DEFAULT_EXPIRATION
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                            LOG.fine(
-                                    "Received an old-style DiscoveryResponse.\n You received a response from a peer that does \nnot support advertisement aging. \nSetting expiration to DiscoveryService.DEFAULT_EXPIRATION ");
-                        }
+                        Logging.logCheckedFine(LOG,
+                            "Received an old-style DiscoveryResponse.\n You received a response from a peer that does \nnot support advertisement aging. \nSetting expiration to DiscoveryService.DEFAULT_EXPIRATION ");
                         exp = DiscoveryService.DEFAULT_EXPIRATION;
+
                     }
 
                     exps.add(exp);
                 }
             }
-        } catch (Exception failed) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Got an Exception during Parse ", failed);
-            }
-            IllegalArgumentException failure = new IllegalArgumentException("Got an Exception during parse");
 
+        } catch (Exception failed) {
+
+            Logging.logCheckedWarning(LOG, "Got an Exception during Parse \n", failed);
+            IllegalArgumentException failure = new IllegalArgumentException("Got an Exception during parse");
             failure.initCause(failed);
             throw failure;
+            
         }
         
         setResponses(res);
