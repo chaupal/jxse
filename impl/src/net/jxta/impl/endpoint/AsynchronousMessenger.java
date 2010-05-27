@@ -103,11 +103,15 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             }
 
             public void sendMessageB(Message msg, String service, String serviceParam) throws IOException {
-                AsynchronousMessenger.this.sendMessageB(msg, service, serviceParam);
+                String effectiveService = effectiveService(service);
+                String effectiveParam = effectiveParam(service, serviceParam);
+                AsynchronousMessenger.this.sendMessageB(msg, effectiveService, effectiveParam);
             }
 
             public boolean sendMessageN(Message msg, String service, String serviceParam) {
-                return AsynchronousMessenger.this.sendMessageN(msg, service, serviceParam);
+                String effectiveService = effectiveService(service);
+                String effectiveParam = effectiveParam(service, serviceParam);
+                return AsynchronousMessenger.this.sendMessageN(msg, effectiveService, effectiveParam);
             }
             
         };
@@ -228,7 +232,7 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
      * It is intended that subclasses will invoke this method when the physical connection
      * fails for whatever reason.
      */
-    protected final void connectionDied() {
+    protected final void connectionFailed() {
         downEvent();
     }
     

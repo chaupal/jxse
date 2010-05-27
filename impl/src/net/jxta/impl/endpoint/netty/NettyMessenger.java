@@ -154,6 +154,11 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	    close();
 	}
 	
+	public void channelSaturated(boolean saturated) {
+	    // we do not do anything with channel saturation info in the blocking form
+	    // of netty messenger
+	}
+	
 	private boolean isLoopback(EndpointAddress srcAddr) {
 		if (localAddress.equals(srcAddr)) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {

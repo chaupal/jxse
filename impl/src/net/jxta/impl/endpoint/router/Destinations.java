@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -114,12 +115,7 @@ class Destinations {
      */
     private final static transient Logger LOG = Logger.getLogger(Destinations.class.getName());
 
-    /**
-     * Shared Timer which handles cleanup of expired Wisdom.
-     */
-    private final static transient Timer cleanup = new Timer("Endpoint Destinations GC", true);
-
-    private final Map<EndpointAddress, Wisdom> wisdoms = new HashMap<EndpointAddress, Wisdom>(64);
+    private final ConcurrentHashMap<EndpointAddress, Wisdom> wisdoms = new ConcurrentHashMap<EndpointAddress, Wisdom>(64);
 
     /**
      * If {@code true} then we are shutting down.
@@ -214,7 +210,7 @@ class Destinations {
             return res;
         }
 
-        boolean addIncomingMessenger(Messenger m) {
+        synchronized boolean addIncomingMessenger(Messenger m) {
 
             // If we have no other incoming, we take it. No questions asked.
             Messenger currentIncoming = getIncoming();
@@ -259,7 +255,7 @@ class Destinations {
             return true;
         }
 
-        boolean addOutgoingMessenger(Messenger m) {
+        synchronized boolean addOutgoingMessenger(Messenger m) {
             if (getOutgoing() != null) {
                 return false;
             }
@@ -273,7 +269,7 @@ class Destinations {
             return true;
         }
 
-        void noOutgoingMessenger() {
+        synchronized void noOutgoingMessenger() {
             outgoingMessenger = null;
             xportDest = null;
             expiresAt = 0;
@@ -357,7 +353,7 @@ class Destinations {
          *
          * @return a channel for this destination
          */
-        Messenger getCurrentMessenger() {
+        synchronized Messenger getCurrentMessenger() {
             Messenger res = getIncoming();
 
             if (res != null) {
@@ -370,7 +366,7 @@ class Destinations {
         /**
          * @return true if we do have an outgoing messenger or, failing that, we had one not too long ago.
          */
-        boolean isNormallyReachable() {
+        synchronized boolean isNormallyReachable() {
             return ((getOutgoing() != null) || (TimeUtils.toRelativeTimeMillis(expiresAt) >= 0));
         }
 
@@ -379,14 +375,14 @@ class Destinations {
          *
          * @return true if we have any kind of messenger or, failing that, we had an outgoing one not too long ago.
          */
-        boolean isCurrentlyReachable() {
+        synchronized boolean isCurrentlyReachable() {
             return ((getIncoming() != null) || (getOutgoing() != null) || (TimeUtils.toRelativeTimeMillis(expiresAt) >= 0));
         }
 
         /**
          * @return true if this wisdom carries no positive information whatsoever.
          */
-        boolean isExpired() {
+        synchronized boolean isExpired() {
             return !isCurrentlyReachable();
         }
     }
@@ -436,7 +432,7 @@ class Destinations {
     /**
      * Shutdown this cache. (stop the gc)
      */
-    public synchronized void close() {
+    public void close() {
         stopped = true;
 
         // forget everything.
@@ -480,7 +476,7 @@ class Destinations {
         }
     }
 
-    public synchronized Collection<EndpointAddress> allDestinations() {
+    public Collection<EndpointAddress> allDestinations() {
 
         Set<EndpointAddress> allKeys = wisdoms.keySet();
         List<EndpointAddress> res = new ArrayList<EndpointAddress>(allKeys);
@@ -498,13 +494,9 @@ class Destinations {
      * @param destination The destination as an endpoint address (is automatically normalized to protocol and address only).
      * @return A messenger to that destination if a resolved and usable one is available or can be made instantly. null otherwise.
      */
-    public synchronized Messenger getCurrentMessenger(EndpointAddress destination) {
+    public Messenger getCurrentMessenger(EndpointAddress destination) {
         Wisdom wisdom = getWisdom(destination);
-
-        if (wisdom == null) {
-            return null;
-        }
-        return wisdom.getCurrentMessenger();
+        return (wisdom != null) ? wisdom.getCurrentMessenger() : null;
     }
 
     /**
@@ -516,9 +508,8 @@ class Destinations {
      * @param destination The destination as an endpoint address (is automatically normalized to protocol and address only).
      * @return true if it is likely that we can get a messenger to that destination in the future.
      */
-    public synchronized boolean isNormallyReachable(EndpointAddress destination) {
+    public boolean isNormallyReachable(EndpointAddress destination) {
         Wisdom wisdom = getWisdom(destination);
-
         return ((wisdom != null) && wisdom.isNormallyReachable());
     }
 
@@ -537,9 +528,8 @@ class Destinations {
      * @return true is we are confident that we can obtain a messenger, either because we can get one instantly, or because
      *         this destination is normally reachable. (So, it is ok to try and route to that destination, now).
      */
-    public synchronized boolean isCurrentlyReachable(EndpointAddress destination) {
+    public boolean isCurrentlyReachable(EndpointAddress destination) {
         Wisdom wisdom = getWisdom(destination);
-
         return ((wisdom != null) && wisdom.isCurrentlyReachable());
     }
 
@@ -550,9 +540,8 @@ class Destinations {
      * @param destination The destination as an endpoint address (is automatically normalized to protocol and address only).
      * @return true if this a destination to whish we can't remember sending a welcome message.
      */
-    public synchronized boolean isWelcomeNeeded(EndpointAddress destination) {
+    public boolean isWelcomeNeeded(EndpointAddress destination) {
         Wisdom wisdom = getWisdom(destination);
-
         return ((wisdom != null) && wisdom.isWelcomeNeeded());
     }
 
@@ -567,7 +556,7 @@ class Destinations {
      * @param messenger   The incoming messenger for that destination.
      * @return true if this messenger was added (keep it open). false otherwise (do what you want with it).
      */
-    public synchronized boolean addOutgoingMessenger(EndpointAddress destination, Messenger messenger) {
+    public boolean addOutgoingMessenger(EndpointAddress destination, Messenger messenger) {
         Wisdom wisdom = getWisdom(destination);
 
         if (wisdom != null) {
@@ -584,7 +573,7 @@ class Destinations {
      * @param messenger   The incoming messenger for that destination.
      * @return true if this messenger was added (keep it open). false otherwise (do what you want with it).
      */
-    public synchronized boolean addIncomingMessenger(EndpointAddress destination, Messenger messenger) {
+    public boolean addIncomingMessenger(EndpointAddress destination, Messenger messenger) {
         Wisdom wisdom = getWisdom(destination);
 
         if (wisdom != null) {
@@ -601,7 +590,7 @@ class Destinations {
      *
      * @param destination The destination as an endpoint address (is automatically normalized to protocol and address only).
      */
-    public synchronized void noOutgoingMessenger(EndpointAddress destination) {
+    public void noOutgoingMessenger(EndpointAddress destination) {
         Wisdom wisdom = getWisdom(destination);
 
         if (wisdom != null) {

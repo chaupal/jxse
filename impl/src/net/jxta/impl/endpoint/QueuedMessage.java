@@ -7,7 +7,7 @@ import net.jxta.endpoint.Message;
  * used by asynchronous messengers.
  * @author Iain McGinniss (iain.mcginniss@onedrum.com)
  */
-class QueuedMessage {
+public class QueuedMessage {
 
     private Message message;
     private MessageWriteListener writeListener;

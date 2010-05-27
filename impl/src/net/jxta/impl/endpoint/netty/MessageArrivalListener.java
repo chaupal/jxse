@@ -12,5 +12,6 @@ public interface MessageArrivalListener {
 
     public void messageArrived(Message m);
     public void connectionDied();
+    public void channelSaturated(boolean saturated);
     
 }

@@ -91,6 +91,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.LoopbackMessenger;
+import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.impl.util.threads.TaskManager;
@@ -614,23 +615,11 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                 LOG.fine("Sending " + message + " to " + destination + " via " + sendVia);
             }
 
-            try {
-                // FIXME 20040413 jice Maybe we should use the non-blocking mode
-                // and let excess messages be dropped given the threading issue
-                // still existing in the input circuit (while routing messages
-                // through).
-
-                sendVia.sendMessageB(message, EndpointRouter.ROUTER_SERVICE_NAME, null);
-
-                // If we reached that point, we're done.
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Sent " + message + " to " + destination);
-                }
+            if (sendVia.sendMessageN(message, EndpointRouter.ROUTER_SERVICE_NAME, null)) {
                 return;
-
-            } catch (IOException ioe) {
-                // Can try again, with another messenger (most likely).
-                lastIoe = ioe;
+            } else if (TransportUtils.isMarkedWithOverflow(message)) {
+                LOG.log(Level.INFO, "messenger to {0} is saturated, dropping message", sendVia.getDestinationAddress());
+                return;
             }
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {

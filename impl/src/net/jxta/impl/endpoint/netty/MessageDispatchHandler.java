@@ -13,8 +13,9 @@ import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
 import net.jxta.logging.Logging;
 
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -27,7 +28,6 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  * 
  * @author iain.mcginniss@onedrum.com
  */
-@ChannelPipelineCoverage("one")
 public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger LOG = Logger.getLogger(MessageDispatchHandler.class.getName());
@@ -80,6 +80,11 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
         }
         
         Channels.close(ctx, ctx.getChannel().getCloseFuture());
+    }
+    
+    @Override
+    public void channelInterestChanged(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        listener.channelSaturated(ctx.getChannel().getInterestOps() == Channel.OP_READ_WRITE);
     }
 
     private void sendToListener(Message message) {

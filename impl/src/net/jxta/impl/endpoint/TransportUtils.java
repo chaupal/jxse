@@ -157,6 +157,16 @@ public class TransportUtils {
         
         return false;
     }
+    
+    public static boolean isMarkedWithOverflow(Message msg) {
+        Object property = msg.getMessageProperty(Messenger.class);
+        if(property instanceof OutgoingMessageEvent) {
+            OutgoingMessageEvent event = (OutgoingMessageEvent) property;
+            return event == OutgoingMessageEvent.OVERFLOW;
+        }
+        
+        return false;
+    }
 
     /**
      * @return the cause of the failure in sending this message. Note that if the message

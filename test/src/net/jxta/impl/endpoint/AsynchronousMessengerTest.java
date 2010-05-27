@@ -407,7 +407,7 @@ public class AsynchronousMessengerTest {
         
         public void emulateConnectionDeath() {
             connectionDead.set(true);
-            connectionDied();
+            connectionFailed();
         }
     }
     
