@@ -193,7 +193,7 @@ $Id: build.xml,v 1.188 2007/05/14 20:22:08 bondolo Exp $
         </condition>
         
         <path id="compile.classpath">
-            <pathelement location="${lib}/netty/netty-3.2.0.BETA1.jar" />
+            <pathelement location="${lib}/netty/netty-3.2.0.CR1.jar" />
         	<pathelement location="${lib}/netty/NettyHttpTunnel-0.9.jar"/>
             <pathelement location="${lib}/h2/h2-1.2.127.jar" />
             <pathelement location="${lib}/derby/derby-10.5.1.1.jar" />
