@@ -246,9 +246,11 @@ public class AsynchronousMessengerTest {
         mockContext.assertIsSatisfied();
         
         mockContext.checking(new Expectations() {{
-            one(mockListener).messengerStateChanged(Messenger.CLOSED); will(returnValue(true)); inSequence(seq);
+            one(mockListener).messengerStateChanged(Messenger.RECONCLOSING); will(returnValue(true)); inSequence(seq);
+            one(mockListener).messengerStateChanged(Messenger.BROKEN); will(returnValue(true)); inSequence(seq);
         }});
-        messenger.pullMessages();
+        messenger.connectionClosed();
+        mockContext.assertIsSatisfied();
     }
     
     @Test
@@ -407,7 +409,7 @@ public class AsynchronousMessengerTest {
         
         public void emulateConnectionDeath() {
             connectionDead.set(true);
-            connectionFailed();
+            connectionClosed();
         }
     }
     

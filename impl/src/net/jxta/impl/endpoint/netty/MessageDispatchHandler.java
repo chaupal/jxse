@@ -44,6 +44,11 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     }
     
     @Override
+    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        listener.connectionDied();
+    }
+    
+    @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         if(e.getMessage() instanceof WelcomeMessage) {
             WelcomeMessage message = (WelcomeMessage) e.getMessage();

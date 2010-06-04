@@ -34,7 +34,7 @@ import net.jxta.peergroup.PeerGroupID;
 public class AsynchronousNettyMessenger extends AsynchronousMessenger implements MessageArrivalListener {
 
     private static final Logger LOG = Logger.getLogger(NettyMessenger.class.getName());
-    private static final int QUEUE_SIZE = Integer.getInteger("net.jxta.impl.endpoint.async.queuesize", 20);
+    private static final int QUEUE_SIZE = Integer.getInteger("net.jxta.impl.endpoint.async.queuesize", 100);
 
     private Channel channel;
     private EndpointAddress logicalDestinationAddr;
@@ -133,7 +133,7 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
     
     public void connectionDied() {
         LOG.log(Level.INFO, "Underlying channel for messenger to {0} has died", logicalDestinationAddr);
-        connectionFailed();
+        connectionClosed();
     }
     
     public void channelSaturated(boolean saturated) {

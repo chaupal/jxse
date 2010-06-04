@@ -182,10 +182,19 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
         }
         
         try {
-            while(pushSingleMessage());
+            while(ableToSend() && pushSingleMessage());
         } finally {
             sending.set(false);
         }
+    }
+
+    private boolean ableToSend() {
+        int sendableState = Messenger.CONNECTED
+                          | Messenger.SENDING
+                          | Messenger.SENDINGSATURATED
+                          | Messenger.IDLE
+                          | Messenger.SATURATED;
+        return (getState() & sendableState) != 0;
     }
     
     private boolean pushSingleMessage() {
@@ -209,7 +218,7 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             
             if(TransportUtils.isMarkedWithFailure(message.getMessage())) {
                 sendQueue.poll();
-                return true;
+                return false;
             }
         } else {
             idleEvent();
@@ -217,7 +226,7 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
         
         return false;
     }
-    
+
     /**
      * It is intended that subclasses will invoke this method when space become available
      * on the write buffer for more messages. This will push any queued messages to the
@@ -230,9 +239,9 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
     
     /**
      * It is intended that subclasses will invoke this method when the physical connection
-     * fails for whatever reason.
+     * is closed or fails for whatever reason.
      */
-    protected final void connectionFailed() {
+    protected final void connectionClosed() {
         downEvent();
     }
     
