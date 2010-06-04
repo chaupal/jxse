@@ -28,9 +28,11 @@ public class TaskManager {
     
 	static final String CORE_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.corePoolSize";
 	static final String SCHEDULED_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.scheduledPoolSize";
+	static final String IDLE_THREAD_TIMEOUT_SYSPROP = "net.jxta.util.threads.TaskManager.idleThreadTimeout";
 	
 	static final int DEFAULT_CORE_POOL_SIZE =4;
 	static final int DEFAULT_SCHEDULED_POOL_SIZE = 2;
+	static final int DEFAULT_IDLE_THREAD_TIMEOUT = 10;
 	
 	private static TaskManager singleton;
 	
@@ -49,6 +51,10 @@ public class TaskManager {
 	static int getCorePoolSize() {
 		return Math.max(1, Integer.getInteger(CORE_POOL_SIZE_SYSPROP, DEFAULT_CORE_POOL_SIZE));
 	}
+	
+	static int getIdleThreadTimeout() {
+	    return Math.max(1, Integer.getInteger(IDLE_THREAD_TIMEOUT_SYSPROP, DEFAULT_IDLE_THREAD_TIMEOUT));
+	}
 
 	public static TaskManager getTaskManager() {
 		if(TaskManager.singleton == null) {
@@ -57,7 +63,7 @@ public class TaskManager {
 			normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor, 
 			                                              getCorePoolSize(), 
 			                                              Integer.MAX_VALUE, 
-			                                              60, 
+			                                              getIdleThreadTimeout(), 
 			                                              TimeUnit.SECONDS, 
 			                                              new SynchronousQueue<Runnable>(), 
 			                                              new NamedThreadFactory("JxtaWorker"));
