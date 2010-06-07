@@ -5,6 +5,7 @@ import java.net.ConnectException;
 import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,18 +35,26 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     
 	public static final String NAME = "messageDispatch";
 	
-    private NettyChannelRegistry registry;
-    private MessageArrivalListener listener;
-    private Queue<Message> messages;
+    private final NettyChannelRegistry registry;
+    private final ReentrantLock listenerLock;
+    // guarded by listenerLock
+    private volatile MessageArrivalListener listener;
+    // guarded by listenerLock
+    private final Queue<Runnable> events;
 
     public MessageDispatchHandler(NettyChannelRegistry registry) {
         this.registry = registry;
-        messages = new LinkedList<Message>();
+        listenerLock = new ReentrantLock();
+        events = new LinkedList<Runnable>();
     }
     
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        listener.connectionDied();
+    	dispatchImportantListenerEvent(new Runnable() {
+			public void run() {
+				listener.connectionDied();
+			}
+    	});
     }
     
     @Override
@@ -57,14 +66,13 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
             return;
         }
         
-    	synchronized(messages) {
-		    if(listener == null) {
-		        messages.offer((Message)e.getMessage());
-		        return;
-		    }
-    	}
+        final Message message = (Message) e.getMessage();
         
-        sendToListener((Message)e.getMessage());
+        dispatchImportantListenerEvent(new Runnable() {
+        	public void run() {
+        		listener.messageArrived(message);
+        	}
+        });
     }
     
     @Override
@@ -80,32 +88,69 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
             LOG.log(Level.WARNING, "Unhandled exception in netty channel pipeline - closing connection", cause);
         }
         
-        if(listener != null) {
-            listener.connectionDied();
-        }
+		dispatchImportantListenerEvent(new Runnable() {
+			public void run() {
+				listener.connectionDied();
+			}
+		});
         
         Channels.close(ctx, ctx.getChannel().getCloseFuture());
     }
     
     @Override
-    public void channelInterestChanged(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        listener.channelSaturated(ctx.getChannel().getInterestOps() == Channel.OP_READ_WRITE);
-    }
-
-    private void sendToListener(Message message) {
-        if(message instanceof Message) {
-            listener.messageArrived(message);
-        }
+    public void channelInterestChanged(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+    	dispatchListenerEvent(new Runnable() {
+    		public void run() {
+    			listener.channelSaturated(ctx.getChannel().getInterestOps() == Channel.OP_READ_WRITE);
+    		}
+    	});
     }
 
     public synchronized void setMessageArrivalListener(MessageArrivalListener listener) {
-    	synchronized(messages) {
+    	listenerLock.lock();
+    	try {
 	        this.listener = listener;
 	        
-	        Object message;
-	        while((message = messages.poll()) != null) {
-	            sendToListener((Message)message);
+	        Runnable eventDispatcher;
+	        while((eventDispatcher = events.poll()) != null) {
+	        	eventDispatcher.run();
 	        }
+    	} finally {
+    		listenerLock.unlock();
+    	}
+    }
+    
+    /**
+     * Runs the provided runnable if the listener has been set, otherwise
+     * queues the runnable until the listener has been set. Use this for
+     * critical events that the listener must know about.
+     */
+    private void dispatchImportantListenerEvent(Runnable r) {
+    	listenerLock.lock();
+    	try {
+    		if(listener == null) {
+    			events.add(r);
+    		} else {
+    			r.run();
+    		}
+    	} finally {
+    		listenerLock.unlock();
+    	}
+    }
+    
+    /**
+     * Runs the provided runnable if the listener has been set. Use this
+     * instead of {@link #dispatchImportantListenerEvent(Runnable)} if the
+     * event is a transient hint rather than critical information.
+     */
+    private void dispatchListenerEvent(Runnable r) {
+    	listenerLock.lock();
+    	try {
+    		if(listener != null) {
+    			r.run();
+    		}
+    	} finally {
+    		listenerLock.unlock();
     	}
     }
 }
