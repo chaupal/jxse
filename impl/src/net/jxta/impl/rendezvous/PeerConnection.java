@@ -56,12 +56,7 @@
 package net.jxta.impl.rendezvous;
 
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointService;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.OutgoingMessageEvent;
-import net.jxta.endpoint.OutgoingMessageEventListener;
+import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.util.TimeUtils;
@@ -70,6 +65,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -158,11 +154,27 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * {@inheritDoc}
      */
     public void messageSendFailed(OutgoingMessageEvent event) {
-        // If it's just a case of queue overflow, ignore it.
+        // If it's just a case of queue overflow, ignore it, report warning
         if (event.getFailure() == null) {
+            final StringBuilder builder = createLogMessage(event);
+            LOG.warning(builder.toString());
             return;
         }
         setConnected(false);
+    }
+
+    private StringBuilder createLogMessage(OutgoingMessageEvent event)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Message send failed ").append(event).append(" ");
+        Message msg = (Message)event.getSource();
+        final Message.ElementIterator messageElements = msg.getMessageElements();
+        while(messageElements.hasNext())
+        {
+            final MessageElement element = messageElements.next();
+            builder.append(element.getElementName()).append(",");
+        }
+        return builder;
     }
 
     /**
@@ -358,6 +370,33 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
 
         if (null != messenger) {
             messenger.sendMessage(msg, service, param, this);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Send a message to remote peer, blocking until on network or connection failed
+     *
+     * @param msg the message to send
+     * @param service the destination service
+     * @param param Parameters for the destination service.
+     * @return  <true>true</true> if the message has been queued for send and should succeed if connection maintained.
+     */
+    public boolean sendMessageB(Message msg, String service, String param)
+    {
+        Messenger messenger = getCachedMessenger();
+
+        if (null != messenger) {
+            try
+            {
+                messenger.sendMessageB(msg, service, param);
+            }
+            catch (IOException e)
+            {
+                LOG.log(Level.WARNING, "Failed to send blocking message owing to IOException " + e);
+            }
             return true;
         } else {
             return false;

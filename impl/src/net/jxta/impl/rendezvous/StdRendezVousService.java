@@ -449,6 +449,10 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
             if (pConn.sendMessage(msg.clone(), PropSName, PropPName)) {
                 sentToPeers++;
             }
+            else
+            {
+                LOG.severe("Failed to send RDV Message to peer, this can result in inconsistent SRDI entries.");
+            }
         }
 
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
