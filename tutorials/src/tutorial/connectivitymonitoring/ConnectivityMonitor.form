@@ -212,7 +212,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jScrollPane2" alignment="0" pref="372" max="32767" attributes="0"/>
                       <Component id="jScrollPane1" alignment="0" pref="372" max="32767" attributes="0"/>
-                      <Component id="IsConnectedToRelayTextField" alignment="0" pref="372" max="32767" attributes="1"/>
+                      <Component id="RelayIDTextField" alignment="0" pref="372" max="32767" attributes="1"/>
                       <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="CurrentModeLabel2" min="-2" max="-2" attributes="0"/>
@@ -246,7 +246,7 @@
                       <Component id="CurrentModeLabel2" alignment="3" min="-2" pref="17" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="6" max="32767" attributes="0"/>
-                  <Component id="IsConnectedToRelayTextField" min="-2" max="-2" attributes="0"/>
+                  <Component id="RelayIDTextField" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="jScrollPane2" min="-2" pref="111" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -323,7 +323,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JTextField" name="IsConnectedToRelayTextField">
+        <Component class="javax.swing.JTextField" name="RelayIDTextField">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">

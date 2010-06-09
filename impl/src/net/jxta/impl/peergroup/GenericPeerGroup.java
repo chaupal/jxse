@@ -1392,31 +1392,39 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public PeerGroup getInterface() {
-        if (stopping) {
-            throw new IllegalStateException("Group has been shutdown. getInterface() is not available");
-        }
 
-        if (initComplete) {
-            // If init is complete the group can become sensitive to its ref
-            // count reaching zero. Before there could be transient references
-            // before there is a chance to give a permanent reference to the
-            // invoker of newGroup.
-            stopWhenUnreferenced = true;
-        }
+        /*
+         * Interfaces try to solve a problem solved by OSGi. We should rely on OSGi in the
+         * future to solve reference issues.
+         */
+        return this;
 
-        int new_count = masterRefCount.incrementAndGet();
-
-        PeerGroupInterface pgInterface = new RefCountPeerGroupInterface(this);
-
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-            Throwable trace = new Throwable("Stack Trace");
-            StackTraceElement elements[] = trace.getStackTrace();
-
-            LOG.info("[" + pgInterface + "] GROUP REF COUNT INCREMENTED TO: " + new_count + " by\n\t" + elements[2]);
-        }
-
-        return pgInterface;
+//        if (stopping) {
+//            throw new IllegalStateException("Group has been shutdown. getInterface() is not available");
+//        }
+//
+//        if (initComplete) {
+//            // If init is complete the group can become sensitive to its ref
+//            // count reaching zero. Before there could be transient references
+//            // before there is a chance to give a permanent reference to the
+//            // invoker of newGroup.
+//            stopWhenUnreferenced = true;
+//        }
+//
+//        int new_count = masterRefCount.incrementAndGet();
+//
+//        PeerGroupInterface pgInterface = new RefCountPeerGroupInterface(this);
+//
+//        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+//            Throwable trace = new Throwable("Stack Trace");
+//            StackTraceElement elements[] = trace.getStackTrace();
+//
+//            LOG.info("[" + pgInterface + "] GROUP REF COUNT INCREMENTED TO: " + new_count + " by\n\t" + elements[2]);
+//        }
+//
+//        return pgInterface;
     }
 
     /**

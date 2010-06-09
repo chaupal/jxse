@@ -56,7 +56,6 @@
 
 package net.jxta.impl.access.pse;
 
-
 import net.jxta.access.AccessService;
 import net.jxta.credential.Credential;
 import net.jxta.credential.PrivilegedOperation;
@@ -73,7 +72,6 @@ import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
@@ -81,7 +79,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Implements the {@link net.jxta.access.AccessService} using PKIX validation.

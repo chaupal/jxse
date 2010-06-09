@@ -53,7 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-package tutorial.psesample;
+package tutorial.psesample.old;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileReader;
@@ -398,7 +398,7 @@ public class Main {
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
                 public void run() {
-                    new tutorial.psesample.SwingUI(npg, ui_pga).setVisible(true);
+                    new tutorial.psesample.old.SwingUI(npg, ui_pga).setVisible(true);
                 }
             });
         }

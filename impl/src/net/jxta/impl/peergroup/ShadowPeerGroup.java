@@ -61,9 +61,7 @@ import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.impl.content.ContentServiceImpl;
-import net.jxta.impl.endpoint.cbjx.CbJxDefs;
 import net.jxta.impl.membership.none.NoneMembershipService;
-import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Application;
 import net.jxta.platform.Module;
@@ -110,22 +108,15 @@ public class ShadowPeerGroup extends StdPeerGroup {
 
 
         /**
-         * Commenting the below lines in 2.6, because of a regression caused by svn rev 521
-         * after 2.5 was release.
-         *
          * NPG used to be a StdPeerGroup in 2.5, however, it should be a ShadowPeerGroup.
          * StdPeerGroup does defines the below protos transports. There is no reason why
-         * the NPG should in 2.6
-         *
-         * This method was not used in 2.5 and will now be used to retrieve the NPG module
-         * implementation advertisement.
-         *
+         * the NPG should define tls and CbJxDefs in 2.6.
          */
 //        // High-level Message Transports.
-//        paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
+        paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
 //        paramAdv.addProto(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
 //        paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
-//        paramAdv.addProto(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
+        paramAdv.addProto(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
 
         // Pour our newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);

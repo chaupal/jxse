@@ -74,6 +74,7 @@ import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.access.pse.PSEAccessService;
 import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.content.ContentServiceImpl;
@@ -186,7 +187,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      *
      *  @return The default module impl advertisement for this class.
      */
-    private static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
+    public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
         ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(
                 PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(),
                 "General Purpose Peer Group Implementation");
@@ -205,7 +206,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
         
-        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
+        paramAdv.addService(PeerGroup.accessClassID, PSEAccessService.PSE_ACCESS_SPEC_ID);
         
         // standard services
         paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);

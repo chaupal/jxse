@@ -60,6 +60,7 @@ import java.awt.Component;
 import java.awt.Toolkit;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -205,7 +206,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
         LocalEdgeTable = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         LocalRDVTable = new javax.swing.JTable();
-        IsConnectedToRelayTextField = new javax.swing.JTextField();
+        RelayIDTextField = new javax.swing.JTextField();
         IsConnectedToRelayCheckBox = new javax.swing.JCheckBox();
         IsConnectedToRDVCheckBox = new javax.swing.JCheckBox();
         CurrentModeLabel2 = new javax.swing.JLabel();
@@ -356,8 +357,8 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
         jScrollPane2.setViewportView(LocalRDVTable);
         LocalRDVTable.getColumnModel().getColumn(0).setResizable(false);
 
-        IsConnectedToRelayTextField.setEditable(false);
-        IsConnectedToRelayTextField.setFont(new java.awt.Font("Tahoma", 0, 9));
+        RelayIDTextField.setEditable(false);
+        RelayIDTextField.setFont(new java.awt.Font("Tahoma", 0, 9)); // NOI18N
 
         IsConnectedToRelayCheckBox.setFont(new java.awt.Font("Tahoma", 1, 11));
         IsConnectedToRelayCheckBox.setText("is connected to Relay");
@@ -375,7 +376,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
             }
         });
 
-        CurrentModeLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
+        CurrentModeLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         CurrentModeLabel2.setText("Relay ID");
 
         AliveRadioButton.setFont(new java.awt.Font("Tahoma", 1, 11));
@@ -398,7 +399,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
                 .addGroup(DisplayPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
-                    .addComponent(IsConnectedToRelayTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
+                    .addComponent(RelayIDTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DisplayPanelLayout.createSequentialGroup()
                         .addGroup(DisplayPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(CurrentModeLabel2)
@@ -424,7 +425,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
                     .addComponent(IsConnectedToRelayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(CurrentModeLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)
-                .addComponent(IsConnectedToRelayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(RelayIDTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -495,7 +496,6 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
     private javax.swing.JPanel DisplayPanel;
     private javax.swing.JCheckBox IsConnectedToRDVCheckBox;
     private javax.swing.JCheckBox IsConnectedToRelayCheckBox;
-    private javax.swing.JTextField IsConnectedToRelayTextField;
     private javax.swing.JCheckBox IsRDVCheckBox;
     private javax.swing.JTable LocalEdgeTable;
     private javax.swing.JTable LocalRDVTable;
@@ -509,6 +509,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
     private javax.swing.JLabel PeerIDLabel;
     private javax.swing.JTextField PeerIDTextField;
     private javax.swing.JTextField PeerNameTextField;
+    private javax.swing.JTextField RelayIDTextField;
     private javax.swing.JScrollPane ScrollLogPane;
     private javax.swing.JPanel StatusPane;
     private javax.swing.JScrollPane jScrollPane1;
@@ -622,11 +623,25 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
 
         }
 
-        EndpointService TmpRelay = this.ThePeerGroup.getEndpointService();
+        EndpointService TmpES = this.ThePeerGroup.getEndpointService();
 
-        if ( TmpRelay != null ) {
+        if ( TmpES != null ) {
 
-            this.IsConnectedToRelayCheckBox.setSelected(TmpRelay.isConnectedToRelayPeer());
+            Collection<PeerID> x = TmpES.getConnectedRelayPeers();
+
+            if ( x.isEmpty() ) {
+
+                this.IsConnectedToRelayCheckBox.setSelected(false);
+                this.RelayIDTextField.setText("");
+
+            } else {
+                
+                this.IsConnectedToRelayCheckBox.setSelected(true);
+                PeerID[] TmpPID = x.toArray(new PeerID[x.size()]);
+
+                this.RelayIDTextField.setText(TmpPID[0].toString());
+
+            }
 
             List<PeerID> Items = TmpRDVS.getLocalEdgeView();
 

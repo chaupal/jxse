@@ -54,7 +54,7 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package tutorial.psesample;
+package tutorial.psesample.old;
 
 
 import net.jxta.credential.AuthenticationCredential;
