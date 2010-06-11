@@ -55,18 +55,14 @@
  */
 package net.jxta.impl.rendezvous;
 
-import net.jxta.endpoint.EndpointAddress;
-import net.jxta.endpoint.EndpointListener;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.Messenger;
-import net.jxta.endpoint.TextDocumentMessageElement;
+import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
@@ -78,8 +74,6 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -141,7 +135,7 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
     /**
      * Start the rendezvous service with a listener.
-     * 
+     *
      * @param argv module start arguments
      * @param handler rdv protocol handler instance
      * @return module start status code
@@ -446,7 +440,17 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
                 LOG.fine("Sending " + msg + "(" + propHdr.getMsgId() + ") to " + pConn);
             }
 
-            if (pConn.sendMessage(msg.clone(), PropSName, PropPName)) {
+            boolean sent;
+            if (TransportUtils.isAnSRDIMessage(msg))
+            {
+                sent = pConn.sendMessageB(msg.clone(), PropSName, PropPName);
+            }
+            else
+            {
+                sent = pConn.sendMessage(msg.clone(), PropSName, PropPName);
+            }
+            if (sent)
+            {
                 sentToPeers++;
             }
             else

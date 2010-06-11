@@ -614,12 +614,34 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Sending " + message + " to " + destination + " via " + sendVia);
             }
-
-            if (sendVia.sendMessageN(message, EndpointRouter.ROUTER_SERVICE_NAME, null)) {
-                return;
-            } else if (TransportUtils.isMarkedWithOverflow(message)) {
-                LOG.log(Level.INFO, "messenger to {0} is saturated, dropping message", sendVia.getDestinationAddress());
-                return;
+            int maxRetries = 20;
+            long delayBeforeRetry = 100;
+            for (int retries = 0 ;retries < maxRetries; retries++)
+            {
+                if (sendVia.sendMessageN(message, EndpointRouter.ROUTER_SERVICE_NAME, null)) {
+                    return;
+                } else if (TransportUtils.isMarkedWithOverflow(message)) {
+                    if (TransportUtils.isAnSRDIMessage(message))
+                    {
+                        LOG.log(Level.WARNING, "messenger to {0} is saturated, retrying SRDI message", sendVia.getDestinationAddress());
+                        TransportUtils.clearOverflowMarker(message);
+                        try
+                        {
+                            Thread.sleep(delayBeforeRetry);
+                        }
+                        catch (InterruptedException e)
+                        {
+                            LOG.log(Level.SEVERE, e.getMessage());
+                        }
+                        continue;
+                    }
+                    else
+                    {
+                        LOG.log(Level.WARNING, "messenger to {0} is saturated, dropping message", sendVia.getDestinationAddress());
+                        return;
+                    }
+                }
+                break;
             }
 
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {

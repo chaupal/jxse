@@ -168,6 +168,10 @@ public class TransportUtils {
         return false;
     }
 
+    public static void clearOverflowMarker(Message msg) {
+        msg.setMessageProperty(Messenger.class, null);
+    }
+
     /**
      * @return the cause of the failure in sending this message. Note that if the message
      * failed due to messenger saturation, this method will return null.
@@ -189,5 +193,12 @@ public class TransportUtils {
     public static boolean isMarkedWithSuccess(Message msg) {
         return msg.getMessageProperty(Messenger.class) == OutgoingMessageEvent.SUCCESS;
     }
-    
+
+    public static boolean isAnSRDIMessage(Message msg)
+    {
+        final MessageElement firstElement = msg.getMessageElements().next();
+        boolean sent = false;
+        boolean aBoolean = firstElement.getElementName().equals("jxta-NetGroupSrdi");
+        return aBoolean;
+    }
 }
