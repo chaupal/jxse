@@ -1180,18 +1180,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 hardClose();
                 return;
             }
-            final TimerTask previous = currentTask;
-            currentTask = new TimerTask(){
-                @Override
-                public void run()
-                {
-                    if (delay == 0 && previous != null)
-                    {
-                       previous.cancel();
-                    }
-                   Retransmitter.this.run();
-                }
-            };
+            currentTask = new RetransmitTimerTask(delay, currentTask);
             retransmissionTimer.schedule(currentTask,delay);
 
         }
@@ -1306,6 +1295,35 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
                 if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
                     LOG.info("STOPPED Retransmit thread");
+                }
+            }
+        }
+
+        private class RetransmitTimerTask extends TimerTask
+        {
+            private final long delay;
+            private TimerTask previous;
+
+            public RetransmitTimerTask(long delay, TimerTask previous)
+            {
+                this.delay = delay;
+                this.previous = previous;
+            }
+
+            @Override
+            public void run()
+            {
+                try
+                {
+                    if (delay == 0 && previous != null)
+                    {
+                        previous.cancel();
+                    }
+                    Retransmitter.this.run();
+                }
+                finally
+                {
+                    previous = null;
                 }
             }
         }
