@@ -154,6 +154,12 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	    close();
 	}
 	
+	public void connectionDisposed() {
+	    // do nothing - this is only needed if we are
+	    // responding to close asynchronously, which we are not
+	    // in this case
+	}
+	
 	public void channelSaturated(boolean saturated) {
 	    // we do not do anything with channel saturation info in the blocking form
 	    // of netty messenger

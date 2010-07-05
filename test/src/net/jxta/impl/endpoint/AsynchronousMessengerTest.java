@@ -64,17 +64,6 @@ public class AsynchronousMessengerTest {
     }
     
     @Test
-    public void testClose_firesCloseEvent() {
-        messenger.addStateListener(mockListener);
-        mockContext.checking(new Expectations() {{
-            one(mockListener).messengerStateChanged(Messenger.CLOSED);
-        }});
-        
-        messenger.close();
-        mockContext.assertIsSatisfied();
-    }
-    
-    @Test
     public void testSendMessageN_returnsTrueOnEnqueue() {
         assertTrue(messenger.sendMessageN(new Message(), "TestService", null));
     }
@@ -233,7 +222,7 @@ public class AsynchronousMessengerTest {
     }
     
     @Test
-    public void testCloseWhenSending() {
+    public void testConnectionFailureWhenClosing() {
         enqueueMessages(1);
         
         messenger.addStateListener(mockListener);
@@ -243,14 +232,44 @@ public class AsynchronousMessengerTest {
         }});
         
         messenger.close();
+        assertFalse(messenger.closeRequested.get());
         mockContext.assertIsSatisfied();
+        
+        // now emulate the connection failing before we have sent all pending messages
+        // this should result initially in a state change indicating an attempt to reconnect
+        // then an immediate failure (as AsynchMessenger does not yet support reconnecting)
         
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.RECONCLOSING); will(returnValue(true)); inSequence(seq);
             one(mockListener).messengerStateChanged(Messenger.BROKEN); will(returnValue(true)); inSequence(seq);
         }});
-        messenger.connectionClosed();
+        messenger.connectionFailed();
         mockContext.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCloseWithPendingMessages() {
+        enqueueMessages(2);
+        
+        messenger.addStateListener(mockListener);
+        final Sequence seq = mockContext.sequence("close-events");
+        mockContext.checking(new Expectations() {{
+            one(mockListener).messengerStateChanged(Messenger.CLOSING); will(returnValue(true)); inSequence(seq);
+        }});
+        
+        messenger.close();
+        assertFalse(messenger.closeRequested.get());
+        mockContext.assertIsSatisfied();
+        
+        mockContext.checking(new Expectations() {{
+            one(mockListener).messengerStateChanged(Messenger.CLOSED); will(returnValue(true)); inSequence(seq);
+        }});
+        messenger.pullMessages();
+        mockContext.assertIsSatisfied();
+        
+        assertTrue(messenger.closeRequested.get());
+        messenger.emulateConnectionGracefulClose();
+        assertEquals(2, messenger.sentMessages.size());
     }
     
     @Test
@@ -409,7 +428,12 @@ public class AsynchronousMessengerTest {
         
         public void emulateConnectionDeath() {
             connectionDead.set(true);
-            connectionClosed();
+            connectionFailed();
+        }
+        
+        public void emulateConnectionGracefulClose() {
+            connectionDead.set(true);
+            connectionCloseComplete();
         }
     }
     

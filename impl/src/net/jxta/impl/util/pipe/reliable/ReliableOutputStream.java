@@ -64,6 +64,8 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 
 import java.io.ByteArrayOutputStream;
@@ -71,6 +73,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -238,7 +242,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      */
     private volatile int stabalizationAckCount = 0;
 
-    private static Timer retransmissionTimer = new Timer("JXTAReliableOutputStreamRetransmissionTimer");
     private ReliableOutputStream.Retransmitter retransmitter;
 
     /**
@@ -832,34 +835,27 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
 
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append('\n');
-                }
+                dumpRETRQ.append('\n');
                 dumpRETRQ.append("\tRETRQ (size=").append(retrQ.size()).append(")");
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append(" : ");
-                    for (int y = 0; y < retrQ.size(); y++) {
-                        if (0 != y) {
-                            dumpRETRQ.append(", ");
-                        }
-                        RetrQElt r = retrQ.get(y);
+                dumpRETRQ.append(" : ");
+                for (int y = 0; y < retrQ.size(); y++) {
+                    if (0 != y) {
+                        dumpRETRQ.append(", ");
+                    }
+                    RetrQElt r = retrQ.get(y);
 
-                        dumpRETRQ.append(r.seqnum);
-                    }
+                    dumpRETRQ.append(r.seqnum);
                 }
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append('\n');
-                }
+                dumpRETRQ.append('\n');
                 dumpRETRQ.append("\tSACKLIST (size=").append(sackList.length).append(")");
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                    dumpRETRQ.append(" : ");
-                    for (int y = 0; y < sackList.length; y++) {
-                        if (0 != y) {
-                            dumpRETRQ.append(", ");
-                        }
-                        dumpRETRQ.append(sackList[y]);
+                dumpRETRQ.append(" : ");
+                for (int y = 0; y < sackList.length; y++) {
+                    if (0 != y) {
+                        dumpRETRQ.append(", ");
                     }
+                    dumpRETRQ.append(sackList[y]);
                 }
+                
                 LOG.fine(dumpRETRQ.toString());
             }
 
@@ -1135,7 +1131,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
         int nAtThisRTO = 0;
         volatile int nretransmitted = 0;
-        private TimerTask currentTask;
+        private volatile SelfCancellingTask currentTask;
 
         /**
          * Constructor for the Retransmitter object
@@ -1180,9 +1176,14 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 hardClose();
                 return;
             }
-            currentTask = new RetransmitTimerTask(delay, currentTask);
-            retransmissionTimer.schedule(currentTask,delay);
-
+            
+            if(currentTask != null && delay > 0) {
+                currentTask.cancel();
+            }
+            
+            currentTask = new RetransmitTask();
+            ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+            executor.schedule(currentTask, delay, TimeUnit.MILLISECONDS);
         }
 
         /**
@@ -1299,32 +1300,12 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             }
         }
 
-        private class RetransmitTimerTask extends TimerTask
+        private class RetransmitTask extends SelfCancellingTask
         {
-            private final long delay;
-            private TimerTask previous;
-
-            public RetransmitTimerTask(long delay, TimerTask previous)
-            {
-                this.delay = delay;
-                this.previous = previous;
-            }
-
             @Override
-            public void run()
+            public void execute()
             {
-                try
-                {
-                    if (delay == 0 && previous != null)
-                    {
-                        previous.cancel();
-                    }
-                    Retransmitter.this.run();
-                }
-                finally
-                {
-                    previous = null;
-                }
+                Retransmitter.this.run();
             }
         }
     }

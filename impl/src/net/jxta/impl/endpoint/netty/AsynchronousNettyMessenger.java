@@ -5,23 +5,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.StringMessageElement;
 import net.jxta.impl.endpoint.AsynchronousMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.QueuedMessage;
-import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
+
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 
 /**
  * Netty channel based messenger implementation. Unfortunately, this extends BlockingMessenger despite
@@ -133,7 +131,11 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
     
     public void connectionDied() {
         LOG.log(Level.INFO, "Underlying channel for messenger to {0} has died", logicalDestinationAddr);
-        connectionClosed();
+        connectionFailed();
+    }
+    
+    public final void connectionDisposed() {
+        connectionCloseComplete();
     }
     
     public void channelSaturated(boolean saturated) {

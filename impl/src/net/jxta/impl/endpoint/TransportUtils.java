@@ -150,7 +150,7 @@ public class TransportUtils {
      */
     public static boolean isMarkedWithFailure(Message msg) {
         Object property = msg.getMessageProperty(Messenger.class);
-        if(property instanceof OutgoingMessageEvent) {
+        if(property != null && property instanceof OutgoingMessageEvent) {
             OutgoingMessageEvent event = (OutgoingMessageEvent) property;
             return event == OutgoingMessageEvent.OVERFLOW || event.getFailure() != null;
         }
@@ -160,7 +160,7 @@ public class TransportUtils {
     
     public static boolean isMarkedWithOverflow(Message msg) {
         Object property = msg.getMessageProperty(Messenger.class);
-        if(property instanceof OutgoingMessageEvent) {
+        if(property != null && property instanceof OutgoingMessageEvent) {
             OutgoingMessageEvent event = (OutgoingMessageEvent) property;
             return event == OutgoingMessageEvent.OVERFLOW;
         }
@@ -194,6 +194,10 @@ public class TransportUtils {
         return msg.getMessageProperty(Messenger.class) == OutgoingMessageEvent.SUCCESS;
     }
 
+    public static void clearSendResult(Message msg) {
+        msg.setMessageProperty(Messenger.class, null);
+    }
+    
     public static boolean isAnSRDIMessage(Message msg)
     {
         final MessageElement firstElement = msg.getMessageElements().next();

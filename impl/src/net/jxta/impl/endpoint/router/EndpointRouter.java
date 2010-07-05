@@ -614,6 +614,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Sending " + message + " to " + destination + " via " + sendVia);
             }
+
             int maxRetries = 20;
             long delayBeforeRetry = 100;
             for (int retries = 0 ;retries < maxRetries; retries++)
@@ -637,7 +638,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
                     }
                     else
                     {
-                        LOG.log(Level.WARNING, "messenger to {0} is saturated, dropping message", sendVia.getDestinationAddress());
+                        LOG.log(Level.INFO, "messenger to {0} is saturated, dropping message", sendVia.getDestinationAddress());
                         return;
                     }
                 }

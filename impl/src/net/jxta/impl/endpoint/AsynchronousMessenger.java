@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.endpoint.AbstractMessenger;
@@ -37,11 +38,13 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
         
         @Override
         protected void closeInputAction() {
+            LOG.log(Level.FINE, "Closing input for messenger to {0}", getDestinationAddress());
             inputClosed.set(true);
         }
 
         @Override
         protected void closeOutputAction() {
+            LOG.log(Level.FINE, "Closing output for messenger to {0}", getDestinationAddress());
             requestClose();
         }
 
@@ -54,6 +57,7 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
 
         @Override
         protected void failAllAction() {
+            LOG.log(Level.FINE, "Marking all queued messages on messenger to {0} as failed", getDestinationAddress());
             LinkedList<QueuedMessage> allMessages = new LinkedList<QueuedMessage>();
             sendQueue.drainTo(allMessages);
             for(QueuedMessage message : allMessages) {
@@ -176,15 +180,35 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
      * is doing this the method will simply return without doing anything.
      */
     private void attemptPushMessages() {
-        if(!sending.compareAndSet(false, true)) {
-            // another thread is already sending
-            return;
-        }
         
-        try {
-            while(ableToSend() && pushSingleMessage());
-        } finally {
-            sending.set(false);
+        boolean sendSucceeding = true;
+        while(ableToSend() && sendSucceeding) {
+            if(sendQueue.size() == 0) {
+                idleEvent();
+                return;
+            }
+            
+            if(!sending.compareAndSet(false, true)) {
+                // nothing to send, or another thread is already sending
+                return;
+            }
+            
+            try {
+                SendStatus status = pushSingleMessage();
+                switch(status) {
+                case SATURATED:
+                case FAIL:
+                    sendSucceeding = false;
+                    break;
+                }
+                
+                if(inputClosed.get() && sendQueue.isEmpty()) {
+                    // this is our prompt to close the connection gracefully
+                    requestClose();
+                }
+            } finally {
+                sending.set(false);
+            }
         }
     }
 
@@ -192,17 +216,18 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
         int sendableState = Messenger.CONNECTED
                           | Messenger.SENDING
                           | Messenger.SENDINGSATURATED
-                          | Messenger.IDLE
-                          | Messenger.SATURATED;
+                          | Messenger.CLOSING;
         return (getState() & sendableState) != 0;
     }
     
-    private boolean pushSingleMessage() {
-        if(!sending.get()) {
-            // another thread is already sending
-            return false;
-        }
-        
+    private enum SendStatus {
+        SUCCESS,
+        SATURATED,
+        FAIL,
+        QUEUE_EMPTY
+    }
+    
+    private SendStatus pushSingleMessage() {
         // Strategy designed to avoid losing messages:
         // tenatively peek at the queue and attempt to send the message
         // if the real implementation accepts sending this message at this
@@ -213,36 +238,16 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             if(sendMessageImpl(message)) {
                 sendQueue.poll();
                 msgsEvent();
-                return true;
-            }
-            
-            if(TransportUtils.isMarkedWithFailure(message.getMessage())) {
+                return SendStatus.SUCCESS;
+            } else if(TransportUtils.isMarkedWithFailure(message.getMessage())) {
                 sendQueue.poll();
-                return false;
+                return SendStatus.FAIL;
+            } else {
+                return SendStatus.SATURATED;
             }
-        } else {
-            idleEvent();
         }
         
-        return false;
-    }
-
-    /**
-     * It is intended that subclasses will invoke this method when space become available
-     * on the write buffer for more messages. This will push any queued messages to the
-     * child implementation via the {@link #sendMessageImpl(Message)} method, until it
-     * indicates that the write buffer is full again.
-     */
-    protected final void pullMessages() {
-        attemptPushMessages();
-    }
-    
-    /**
-     * It is intended that subclasses will invoke this method when the physical connection
-     * is closed or fails for whatever reason.
-     */
-    protected final void connectionClosed() {
-        downEvent();
+        return SendStatus.QUEUE_EMPTY;
     }
     
     private void closeEvent() {
@@ -274,6 +279,45 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             stateMachine.saturatedEvent();
         }
     }
+
+    /* ************ METHODS RELATED TO CHILD IMPLEMENTATIONS ********************* */
+    
+    /**
+     * It is intended that subclasses will invoke this method when space become available
+     * on the write buffer for more messages. This will push any queued messages to the
+     * child implementation via the {@link #sendMessageImpl(Message)} method, until it
+     * indicates that the write buffer is full again.
+     */
+    protected final void pullMessages() {
+        attemptPushMessages();
+    }
+    
+    /**
+     * It is intended that subclasses will invoke this method when the underlying transport
+     * is disconnected or fails unexpectedly.
+     */
+    protected final void connectionFailed() {
+        downEvent();
+    }
+    
+    /**
+     * It is intended that subclasses will invoke this method when the underlying transport
+     * has been closed gracefully in response to a call to {@link #requestClose()}.
+     */
+    protected final void connectionCloseComplete() {
+        synchronized(stateMachine) {
+            if(stateMachine.getState() == Messenger.CLOSING) {
+                // during a graceful close, all messages are sent and then a close is requested.
+                // at this point, the implementation has finished closing so we indicate
+                // that we are idle, signalling the end of the graceful close.
+                idleEvent();
+            } else {
+                // otherwise, this is a close in response to some sort of panic event,
+                // and we simply signal the connection is down.
+                downEvent();
+            }
+        }
+    }
     
     /*
      *  IMPLEMENTER RESPONSIBILITIES BELOW THIS POINT:
@@ -293,6 +337,12 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
     
     public abstract EndpointAddress getLogicalDestinationAddress();
     
+    /**
+     * Requests that the underlying transport used for this messenger be closed and disposed.
+     * Implementations of this method MUST be asynchronous, and call {@link #connectionCloseComplete()}
+     * once the transport is closed.
+     * Implementations of this method MUST NOT BLOCK for any substantial amount of time.
+     */
     protected abstract void requestClose();
     
 }

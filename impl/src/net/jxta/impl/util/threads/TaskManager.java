@@ -27,10 +27,12 @@ public class TaskManager {
     protected static final Logger LOG = Logger.getLogger(TaskManager.class.getName());
     
 	static final String CORE_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.corePoolSize";
+	static final String MAX_WORKER_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.maxWorkerPoolSize";
 	static final String SCHEDULED_POOL_SIZE_SYSPROP = "net.jxta.util.threads.TaskManager.scheduledPoolSize";
 	static final String IDLE_THREAD_TIMEOUT_SYSPROP = "net.jxta.util.threads.TaskManager.idleThreadTimeout";
 	
 	static final int DEFAULT_CORE_POOL_SIZE =4;
+	static final int DEFAULT_MAX_WORKER_POOL_SIZE = Integer.MAX_VALUE;
 	static final int DEFAULT_SCHEDULED_POOL_SIZE = 2;
 	static final int DEFAULT_IDLE_THREAD_TIMEOUT = 10;
 	
@@ -49,11 +51,19 @@ public class TaskManager {
 	}
 
 	static int getCorePoolSize() {
-		return Math.max(1, Integer.getInteger(CORE_POOL_SIZE_SYSPROP, DEFAULT_CORE_POOL_SIZE));
+		return Math.max(0, Integer.getInteger(CORE_POOL_SIZE_SYSPROP, DEFAULT_CORE_POOL_SIZE));
 	}
 	
 	static int getIdleThreadTimeout() {
-	    return Math.max(1, Integer.getInteger(IDLE_THREAD_TIMEOUT_SYSPROP, DEFAULT_IDLE_THREAD_TIMEOUT));
+	    return Math.max(0, Integer.getInteger(IDLE_THREAD_TIMEOUT_SYSPROP, DEFAULT_IDLE_THREAD_TIMEOUT));
+	}
+	
+	static int getMaxWorkerPoolSize() {
+	    // while core pool size is allowed to be zero, max pool size
+	    // must be greater than the core pool size AND greater than
+	    // 0.
+	    int leastUpperBound = Math.max(1, getCorePoolSize());
+	    return Math.max(leastUpperBound, Integer.getInteger(MAX_WORKER_POOL_SIZE_SYSPROP, DEFAULT_MAX_WORKER_POOL_SIZE));
 	}
 
 	public static TaskManager getTaskManager() {
@@ -62,8 +72,8 @@ public class TaskManager {
 			monitoringExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("JxtaTaskMonitor"));
 			normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor, 
 			                                              getCorePoolSize(), 
-			                                              Integer.MAX_VALUE, 
-			                                              getIdleThreadTimeout(), 
+			                                              getMaxWorkerPoolSize(), 
+			                                              getIdleThreadTimeout(),
 			                                              TimeUnit.SECONDS, 
 			                                              new SynchronousQueue<Runnable>(), 
 			                                              new NamedThreadFactory("JxtaWorker"));
