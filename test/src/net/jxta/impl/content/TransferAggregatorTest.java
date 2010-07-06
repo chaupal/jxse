@@ -76,6 +76,7 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.ContentShareAdvertisement;
+import net.jxta.test.util.JUnitRuleMockery;
 import net.jxta.test.util.TempDir;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -83,6 +84,7 @@ import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
@@ -90,7 +92,6 @@ import static org.junit.Assert.*;
 /**
  * Test the workings of the TransferAggregator class.
  */
-@RunWith(JMock.class)
 public class TransferAggregatorTest {
     private static Logger LOG =
             Logger.getLogger(TransferAggregatorTest.class.getName());
@@ -117,7 +118,8 @@ public class TransferAggregatorTest {
 
     private Content content;
     
-    private Mockery context = new Mockery();
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
 
     /**
      * Default constructor.

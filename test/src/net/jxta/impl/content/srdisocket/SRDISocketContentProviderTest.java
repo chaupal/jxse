@@ -53,11 +53,14 @@
 
 package net.jxta.impl.content.srdisocket;
 
+import org.junit.Ignore;
+
 import net.jxta.impl.content.AbstractContentProviderTest;
 
 /**
  * Test the workings of the SRDISocketContentProvider class.
  */
+@Ignore
 public class SRDISocketContentProviderTest extends AbstractContentProviderTest {
     
     /**

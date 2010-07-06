@@ -1,19 +1,20 @@
 package net.jxta.endpoint;
 
 
+import net.jxta.test.util.JUnitRuleMockery;
+
 import org.jmock.Expectations;
 import org.jmock.Sequence;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
 public class MessengerStateListenerListTest {
 
     private MessengerStateListenerSet list;
-    private final JUnit4Mockery mockContext = new JUnit4Mockery();
+    
+    @Rule
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
     
     
     @Before

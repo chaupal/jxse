@@ -20,21 +20,20 @@ import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
 public class EndToEndTest {
 
     public static final String TEST_PROTO_NAME = "test";
@@ -42,7 +41,9 @@ public class EndToEndTest {
     private static final PeerID LOCAL_PEER_ID = PeerID.create(URI.create("urn:jxta:uuid-59616261646162614E5047205032503304F8E1DEBB4942C0BF16DD923DEC949803"));
     private static final PeerID REMOTE_PEER_ID = PeerID.create(URI.create("urn:jxta:uuid-59616261646162614E50472050325033E7E1335996F44E38BD66B16349BB1F1E03"));
     
-    private Mockery mockContext = new JUnit4Mockery();
+    @Rule
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
+    
     private FakeEndpointService clientEndpoint;
     private FakeEndpointService serverEndpoint;
     
@@ -73,7 +74,7 @@ public class EndToEndTest {
     
     @After
     public void tearDown() {
-        TaskManager.getTaskManager().shutdown();
+        TaskManager.resetTaskManager();
     }
     
     @Test

@@ -5,9 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.junit.Test;
+
 import net.jxta.impl.cm.AbstractCmTest;
 import net.jxta.impl.cm.AdvertisementCache;
 import net.jxta.impl.cm.bdb.BerkeleyDbAdvertisementCache;
+
+import static org.junit.Assert.*;
 
 public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 
@@ -21,6 +25,7 @@ public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 		return BerkeleyDbAdvertisementCache.class.getName();
 	}
 	
+	@Test
 	public void testGarbageCollection() throws Exception {
 		fakeTimer.currentTime = 0;
 		cm.save("a", "b", adv, 10000L, 10000L);
@@ -61,6 +66,7 @@ public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 		assertEquals(0, search.size());
 	}
 	
+	@Test
 	public void testCreation_withStoreRootThatIsAFile() throws Exception {
 		File testRoot = File.createTempFile("bdbtest", null);
 		

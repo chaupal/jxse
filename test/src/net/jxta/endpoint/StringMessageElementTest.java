@@ -76,7 +76,10 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 
 /**
- *
+ * Note (2010/07/06, iainmcg): This test was originally dangerously using the platform character encoding, adding
+ * a random element to whether the tests would work depending on the operating system and locale the
+ * tests were run under. This has been changed so that all StringMessageElements are now parsed as
+ * some form of UTF.
  * @author mike
  */
 public class StringMessageElementTest extends TestCase {
@@ -105,9 +108,9 @@ public class StringMessageElementTest extends TestCase {
         try {
             testElements.add(new ElementTestCase(one, new StringMessageElement("element1", one, (MessageElement) null)));
             testElements.add(new ElementTestCase(two, new StringMessageElement("element2", two, "UTF-16", (MessageElement) null)));
-            testElements.add(new ElementTestCase(three, new StringMessageElement("element3", three, null, (MessageElement) null)));
-            testElements.add(new ElementTestCase(four, new StringMessageElement("element4", four, null, (MessageElement) null)));
-            testElements.add(new ElementTestCase(five, new StringMessageElement("element5", five, null, (MessageElement) null)));
+            testElements.add(new ElementTestCase(three, new StringMessageElement("element3", three, (MessageElement) null)));
+            testElements.add(new ElementTestCase(four, new StringMessageElement("element4", four, (MessageElement) null)));
+            testElements.add(new ElementTestCase(five, new StringMessageElement("element5", five, (MessageElement) null)));
         } catch (IOException failed) {
             throw new IllegalStateException("Could not create elements", failed);
         }
@@ -165,11 +168,11 @@ public class StringMessageElementTest extends TestCase {
                 byte sourceBytes[] = elem.source.toString().getBytes(elem.element.getMimeType().getParameter("charset"));
                 byte elemBytes[] = elem.element.getBytes(false);
 
-                this.assertTrue("values not equal", Arrays.equals(sourceBytes, elemBytes));
+                assertTrue("values not equal", Arrays.equals(sourceBytes, elemBytes));
 
                 elemBytes = elem.element.getBytes(true);
 
-                this.assertTrue("values not equal", Arrays.equals(sourceBytes, elemBytes));
+                assertTrue("values not equal", Arrays.equals(sourceBytes, elemBytes));
             }
         } catch (Exception caught) {
             caught.printStackTrace();
@@ -177,26 +180,21 @@ public class StringMessageElementTest extends TestCase {
         }
     }
 
-    public void testInputStream() {
-        try {
-            for (ElementTestCase elem : testElements) {
-                byte sourceBytes[] = elem.source.toString().getBytes(elem.element.getMimeType().getParameter("charset"));
-                InputStream is = elem.element.getStream();
-                DataInput dis = new DataInputStream(is);
-                byte streamBytes[] = new byte[sourceBytes.length];
+    public void testInputStream() throws Exception {
+        for (ElementTestCase elem : testElements) {
+            byte sourceBytes[] = elem.source.toString().getBytes(elem.element.getMimeType().getParameter("charset"));
+            InputStream is = elem.element.getStream();
+            DataInput dis = new DataInputStream(is);
+            byte streamBytes[] = new byte[sourceBytes.length];
 
-                dis.readFully(streamBytes);
-                try {
-                    dis.readByte();
-                    fail("Not at EOF");
-                } catch (EOFException atEOF) {
-                }
-
-                this.assertTrue("values not equal", Arrays.equals(sourceBytes, streamBytes));
+            dis.readFully(streamBytes);
+            try {
+                dis.readByte();
+                fail("Not at EOF");
+            } catch (EOFException atEOF) {
             }
-        } catch (Exception caught) {
-            caught.printStackTrace();
-            fail("exception thrown : " + caught.getMessage());
+
+            assertTrue("values not equal", Arrays.equals(sourceBytes, streamBytes));
         }
     }
 
@@ -225,7 +223,7 @@ public class StringMessageElementTest extends TestCase {
                 char sourceChars[] = elem.source.toString().toCharArray();
                 char elemChars[] = elem.element.getChars(false);
 
-                this.assertTrue("values not equal", Arrays.equals(sourceChars, elemChars));
+                assertTrue("values not equal", Arrays.equals(sourceChars, elemChars));
 
                 elemChars = elem.element.getChars(true);
 

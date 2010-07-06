@@ -53,11 +53,14 @@
 
 package net.jxta.impl.content.defprovider;
 
+import org.junit.Ignore;
+
 import net.jxta.impl.content.AbstractContentProviderTest;
 
 /**
  * Test the workings of the DefaultContentProvider class.
  */
+@Ignore
 public class DefaultContentProviderTest extends AbstractContentProviderTest {
     
     /**

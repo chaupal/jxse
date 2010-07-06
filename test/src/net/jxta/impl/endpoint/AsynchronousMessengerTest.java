@@ -24,26 +24,28 @@ import net.jxta.endpoint.MessengerStateListener;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
 public class AsynchronousMessengerTest {
 
     private static final int QUEUE_SIZE = 10;
     
     private TestableAsynchronousMessenger messenger;
-    private JUnit4Mockery mockContext = new JUnit4Mockery();
     private MessengerStateListener mockListener;
     private Message msg;
     private ExecutorService concurrentExecutor;
+    
+    @Rule
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
     
     @Before
     public void setUp() throws Exception {

@@ -8,35 +8,34 @@ import java.util.concurrent.TimeUnit;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.test.util.FileSystemTest;
+import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 
 public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	
-    private JUnit4Mockery mockContext = new JUnit4Mockery();
+    @Rule
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
     
 	private static final int NUM_INDICES = 8;
 	private static final int NUM_GROUPS = 8;
-	private static final int OPS_PER_INDEX = 1000;
+	private static final int OPS_PER_INDEX = 500;
 	private static final long TEST_TIMEOUT = 120L;
 	
-	private File storeRoot;
+	@Rule
+	public TemporaryFolder testFileStore = new TemporaryFolder();
+	protected File storeRoot;
 	
 	@Before
 	public void setUp() throws Exception {
-		storeRoot = FileSystemTest.createTempDirectory("SrdiIndexBackendConcurrencyTest");
-	}
-	
-	@After
-	public void tearDown() throws Exception {
-		FileSystemTest.deleteDir(storeRoot);
+	    storeRoot = testFileStore.getRoot();
 	}
 	
 	@Test
@@ -75,7 +74,12 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 		}
 	}
 	
-	@Test
+	/* this test is particularly slow running for the in memory srdi index test, which
+	 * perhaps isn't optimised for this kind of multi-threaded brutality.
+	 * FIXME: revisit this, improve performance of in-memory index so that this can be
+	 * run.
+	 */
+	@Ignore @Test
 	public void testSeparateGroupConcurrentSafety() throws Exception {
 		SrdiIndex[] indices = new SrdiIndex[NUM_INDICES * NUM_GROUPS];
 		for(int groupNum = 0; groupNum < NUM_GROUPS; groupNum++) {

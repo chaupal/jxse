@@ -1,15 +1,23 @@
 package net.jxta.impl.cm;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-public abstract class AbstractCmConcurrencyTest extends TestCase {
+public abstract class AbstractCmConcurrencyTest {
 
     private static final int NUM_CACHES = 8;
     private static final int NUM_OPERATIONS = 1000;
     
+    @Rule
+    public TemporaryFolder testFileStore = new TemporaryFolder();
+
+    @Test
     public void testConcurrentSafety_randomLoad() throws Exception {
         
         Cm[] caches = new Cm[NUM_CACHES];

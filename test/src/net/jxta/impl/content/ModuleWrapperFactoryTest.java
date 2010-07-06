@@ -57,11 +57,14 @@ import net.jxta.content.Content;
 import net.jxta.content.ContentService;
 import net.jxta.platform.Module;
 import net.jxta.service.Service;
+import net.jxta.test.util.JUnitRuleMockery;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
@@ -69,14 +72,15 @@ import static org.junit.Assert.*;
 /**
  * Test the workings of the ModuleWrapperFactory class.
  */
-@RunWith(JMock.class)
 public class ModuleWrapperFactoryTest {
     private static final Logger LOG =
             Logger.getLogger(ModuleWrapperFactoryTest.class.getName());
     private Module module;
     private Service service;
     private ContentService contentService;
-    private Mockery context = new Mockery();
+    
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
 
     /**
      * Default constructor.
