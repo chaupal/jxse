@@ -85,10 +85,13 @@ public class TaskManager {
 	}
 	
 	/**
-	 * discards any existing TaskManager singleton. Intended for testing
-	 * purposes only.
+	 * FOR TESTING PURPOSES ONLY.
+	 * discards any existing TaskManager singleton.
 	 */
-	static void resetTaskManager() {
+	public static void resetTaskManager() {
+	    if(TaskManager.singleton != null && started) {
+	        getTaskManager().shutdown();
+	    }
 		TaskManager.singleton = null;
 	}
 	
