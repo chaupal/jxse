@@ -235,12 +235,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
      */
     private final Map<PeerID, ClearPendingQuery> pendingQueries = 
             Collections.synchronizedMap(new HashMap<PeerID, ClearPendingQuery>());
-
-    /**
-     * Timer by which we schedule the clearing of pending queries.
-     */
-    private final ScheduledExecutorService timer = TaskManager.getTaskManager().getScheduledExecutorService();
-
+    
     /**
      * PeerAdv tracking.
      * The peer adv is modified every time a new public address is
@@ -276,7 +271,7 @@ public class EndpointRouter implements EndpointListener, MessageReceiver, Messag
             this.peerID = peerID;
             // We schedule for one tick at one minute and another at 5 minutes
             // after the second, we cancel ourselves.
-            setHandle(timer.scheduleAtFixedRate(this, 60, 60 * 5, TimeUnit.SECONDS));
+            setHandle(group.getTaskManager().getScheduledExecutorService().scheduleAtFixedRate(this, 60, 60 * 5, TimeUnit.SECONDS));
             nextRouteResolveAt = TimeUtils.toAbsoluteTimeMillis(20L * TimeUtils.ASECOND);
         }
 

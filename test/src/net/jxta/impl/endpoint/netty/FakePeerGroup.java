@@ -14,6 +14,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
@@ -90,6 +91,11 @@ public class FakePeerGroup implements PeerGroup {
 
     public DiscoveryService getDiscoveryService() {
         throw new RuntimeException("not implemented");
+    }
+
+    public GlobalRegistry getGlobalRegistry()
+    {
+        throw new UnsupportedOperationException("getGlobalRegistry not implemented");
     }
 
     public ThreadGroup getHomeThreadGroup() {
@@ -202,6 +208,10 @@ public class FakePeerGroup implements PeerGroup {
     }
 
     public ContentService getContentService() {
+        throw new RuntimeException("not implemented");
+    }
+
+    public TaskManager getTaskManager() {
         throw new RuntimeException("not implemented");
     }
 

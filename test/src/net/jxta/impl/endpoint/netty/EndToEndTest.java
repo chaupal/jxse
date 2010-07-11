@@ -72,11 +72,6 @@ public class EndToEndTest {
         }});
     }
     
-    @After
-    public void tearDown() {
-        TaskManager.resetTaskManager();
-    }
-    
     @Test
     public void testConnectClientAndSendMessages() throws Exception {
         ServerChannelFactory factory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());

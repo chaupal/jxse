@@ -438,8 +438,9 @@ public final class NetPeerGroupFactory {
      * Peer Group instance.
      */
     private PeerGroup newNetPeerGroup(PeerGroup parentGroup, ConfigParams config, ID id, String name, XMLElement desc, ModuleImplAdvertisement implAdv) throws PeerGroupException {
-        synchronized (PeerGroup.globalRegistry) {
-            PeerGroup result = PeerGroup.globalRegistry.lookupInstance((PeerGroupID) id);
+        final PeerGroup.GlobalRegistry globalRegistry = parentGroup.getGlobalRegistry();
+        synchronized (globalRegistry) {
+            PeerGroup result = globalRegistry.lookupInstance((PeerGroupID) id);
 
             if (null != result) {
                 result.unref();

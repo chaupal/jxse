@@ -139,7 +139,7 @@ public class LoopbackMessenger extends BlockingMessenger {
      * @param logicalDest The logical destination address.
      */
     public LoopbackMessenger(PeerGroup group, EndpointService ep, EndpointAddress src, EndpointAddress dest, EndpointAddress logicalDest) {
-        super(group.getPeerGroupID(), dest, false);
+        super(group.getPeerGroupID(), dest, group.getTaskManager(), false);
         
         this.group = group;
         endpoint = ep;
@@ -195,7 +195,7 @@ public class LoopbackMessenger extends BlockingMessenger {
         orderingLock.lock();
         try {
             // Process the message with the appropriate src and dest address
-            ((GenericPeerGroup)group).getExecutor().execute( new Runnable() {
+            group.getTaskManager().getExecutorService().execute( new Runnable() {
                 public void run() {
                     try {
                         endpoint.processIncomingMessage(message, srcAddress, getDestAddressToUse(service, serviceParam));

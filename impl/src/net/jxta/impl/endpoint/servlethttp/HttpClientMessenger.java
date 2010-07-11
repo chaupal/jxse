@@ -179,7 +179,10 @@ final class HttpClientMessenger extends BlockingMessenger {
     HttpClientMessenger(ServletHttpTransport servletHttpTransport, EndpointAddress srcAddr, EndpointAddress destAddr) throws IOException {
         
         // We do use self destruction.
-        super(servletHttpTransport.getEndpointService().getGroup().getPeerGroupID(), destAddr, true);
+        super(servletHttpTransport.getEndpointService().getGroup().getPeerGroupID(), 
+              destAddr,
+              servletHttpTransport.getEndpointService().getGroup().getTaskManager(),
+              true);
         
         this.servletHttpTransport = servletHttpTransport;
 
@@ -823,8 +826,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                                 LOG.fine("Received " + incomingMsg + " from " + senderURL);
                             }
-                            
-                            servletHttpTransport.executor.execute(new MessageProcessor(incomingMsg));
+                            servletHttpTransport.group.getTaskManager().getExecutorService().execute(new MessageProcessor(incomingMsg));
                             
                             // note that we received a message
                             lastUsed = TimeUtils.timeNow();

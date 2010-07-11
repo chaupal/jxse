@@ -63,6 +63,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.document.*;
+import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.protocol.ConfigParams;
@@ -301,12 +302,12 @@ public class XportConfTest extends TestCase {
                 if (count++ > 0) {
                     return;
                 }
-
+                final PeerGroup wpg = new WorldPeerGroupFactory().getInterface();
                 // Create one for nothing. Just to make sure the config
                 // is created.
                 System.setProperty("net.jxta.tls.password", "password");
                 System.setProperty("net.jxta.tls.principal", "password");
-                pg = PeerGroupFactory.newNetPeerGroup();
+                pg = PeerGroupFactory.newNetPeerGroup(wpg);
 
                 // Throw that one away.
                 pg.unref();
@@ -317,7 +318,7 @@ public class XportConfTest extends TestCase {
 
                 System.setProperty("net.jxta.tls.password", "password");
                 System.setProperty("net.jxta.tls.principal", "password");
-                pg = PeerGroupFactory.newNetPeerGroup();
+                pg = PeerGroupFactory.newNetPeerGroup(wpg);
             } catch (Exception e) {
                 if (pg != null) {
                     pg.unref();

@@ -106,14 +106,15 @@ public class CmXIndiceImplTest {
 
     private List<PeerAdvertisement> queue = Collections.synchronizedList(new ArrayList<PeerAdvertisement>());
     
+    private TaskManager taskManager;
+    
     @Rule
     public TemporaryFolder testFileStore = new TemporaryFolder();
     
     @Before
     public void setUp() throws Exception {
-        TaskManager.resetTaskManager();
-        
-        cm = new XIndiceAdvertisementCache(testFileStore.getRoot().toURI(), "CmTest");
+        taskManager = new TaskManager();
+        cm = new XIndiceAdvertisementCache(testFileStore.getRoot().toURI(), "CmTest", taskManager);
     }
     
     @After
@@ -121,6 +122,7 @@ public class CmXIndiceImplTest {
         cm.stop();
         cm = null;
         TimeUtils.resetClock();
+        taskManager.shutdown();
     }
 
     /**

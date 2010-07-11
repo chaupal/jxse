@@ -203,17 +203,17 @@ final class HttpServletMessenger extends BlockingMessenger {
      * @param logicalAddress logical address
      * @param validFor validity in milliseconds
      */
-    HttpServletMessenger(PeerGroupID peerGroupID, EndpointAddress srcAddress, EndpointAddress logicalAddress, long validFor) {
+    HttpServletMessenger(PeerGroupID peerGroupID, TaskManager taskManager, EndpointAddress srcAddress, EndpointAddress logicalAddress, long validFor) {
         
         // We do not use self destruction.
-        super(peerGroupID, nullEndpointAddr, false);
+        super(peerGroupID, nullEndpointAddr, taskManager, false);
         
         this.logicalAddress = logicalAddress;
         
         this.srcAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, srcAddress.toString(), null);
         
         if ((0 != validFor) && (validFor < Long.MAX_VALUE)) {
-            ScheduledExecutorService scheduledExecutorService = TaskManager.getTaskManager().getScheduledExecutorService();
+            ScheduledExecutorService scheduledExecutorService = taskManager.getScheduledExecutorService();
             expirationTaskHandle = scheduledExecutorService.schedule(new ScheduledExpiry(this), validFor, TimeUnit.MILLISECONDS);
         }
         

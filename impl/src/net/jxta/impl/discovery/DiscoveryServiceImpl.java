@@ -1649,7 +1649,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         if (!localonly) {
             // Create a new SRDI
             srdi = new Srdi(group, handlerName, this, null);
-            srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
+            srdi.startPush(group.getTaskManager().getScheduledExecutorService(), runInterval);
         }
 
         if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {

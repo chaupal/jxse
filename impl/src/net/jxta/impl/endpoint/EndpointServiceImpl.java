@@ -583,7 +583,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         // TODO: This listener should probably go at some stage (legacy stuff)
-        listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) this.getGroup()).getExecutor());
+        listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), group.getTaskManager().getExecutorService());
 
         // FIXME  when Load order Issue is resolved this should fail
         // until it is able to get a non-failing service Monitor (or

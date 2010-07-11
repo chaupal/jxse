@@ -294,14 +294,16 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      */
     protected final List<RetrQElt> retrQ = new ArrayList<RetrQElt>();
 
+    private ScheduledExecutorService executor;
+
     /**
      * Constructor for the ReliableOutputStream object
      *
      * @param outgoing the outgoing object
      */
-    public ReliableOutputStream(Outgoing outgoing) {
+    public ReliableOutputStream(Outgoing outgoing, ScheduledExecutorService executor) {
         // By default use the old behaviour: fixed fc with a rwin of 20
-        this(outgoing, new FixedFlowControl(20));
+        this(outgoing, new FixedFlowControl(20), executor);
     }
 
     /**
@@ -310,8 +312,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      * @param outgoing the outgoing object
      * @param fc       flow-control
      */
-    public ReliableOutputStream(Outgoing outgoing, FlowControl fc) {
+    public ReliableOutputStream(Outgoing outgoing, FlowControl fc, ScheduledExecutorService executor) {
         this.outgoing = outgoing;
+        this.executor = executor;
 
         String minrto = System.getProperty( "net.jxta.reliable.minrto" );
         if( null != minrto ){
@@ -1182,7 +1185,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             }
             
             currentTask = new RetransmitTask();
-            ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
             executor.schedule(currentTask, delay, TimeUnit.MILLISECONDS);
         }
 

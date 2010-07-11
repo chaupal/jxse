@@ -530,48 +530,4 @@ public final class PeerGroupFactory {
             throw e;
         }
     }
-
-    /**
-     * Instantiates the World Peer Group and then instantiates the Net Peer
-     * Group. This simplifies the method by which applications can start JXTA.
-     *
-     * @return The newly instantiated Net Peer Group.
-     * @deprecated Consider converting to use {@link NetPeerGroupFactory#NetPeerGroupFactory()}
-     *             or preferably one of the other {@code NetPeerGroupFactory} constructors.
-     */
-    @Deprecated
-    public static PeerGroup newNetPeerGroup() throws PeerGroupException {
-        // get/create the World Peer Group.
-        PeerGroup wpg = getWorldPeerGroup();
-
-        try {
-            PeerGroup npg = newNetPeerGroup(wpg);
-
-            return npg;
-        } finally {
-            wpg.unref();
-        }
-    }
-
-    /**
-     * Retrieves or constructs a new World Peer Group instance suitable for
-     * use as the parent for Net Peer Group instances. This implementation
-     * makes an important trade-off worth noting; it will use an existing
-     * world peer group instance if available and ignore any changes which have
-     * been made to the static configuration methods provided by this class.
-     *
-     * @return The World Peer Group.
-     * @throws PeerGroupException For failures in recovering the World Peer Group.
-     */
-    private static PeerGroup getWorldPeerGroup() throws PeerGroupException {
-        synchronized (PeerGroup.globalRegistry) {
-            PeerGroup result = PeerGroup.globalRegistry.lookupInstance(PeerGroupID.worldPeerGroupID);
-
-            if (null != result) {
-                return result;
-            }
-
-            return newPlatform();
-        }
-    }
 }

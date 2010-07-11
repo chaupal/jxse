@@ -3,6 +3,8 @@ package net.jxta.impl.cm;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import net.jxta.id.IDFactory;
@@ -11,6 +13,7 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,9 +36,17 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	public TemporaryFolder testFileStore = new TemporaryFolder();
 	protected File storeRoot;
 	
+	private ScheduledExecutorService executorService;
+	
 	@Before
 	public void setUp() throws Exception {
 	    storeRoot = testFileStore.getRoot();
+	    executorService = new ScheduledThreadPoolExecutor(2);
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+	    executorService.shutdownNow();
 	}
 	
 	@Test
@@ -44,7 +55,7 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 		SrdiIndex[] indices = new SrdiIndex[NUM_INDICES];
 		
 		for(int i=0; i < NUM_INDICES; i++) {
-			indices[i] = new SrdiIndex(createBackend(group, "index" + i), SrdiIndex.NO_AUTO_GC);
+			indices[i] = new SrdiIndex(createBackend(group, "index" + i), SrdiIndex.NO_AUTO_GC, executorService);
 		}
 		
 		randomLoadTest(indices);
@@ -85,7 +96,7 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 		for(int groupNum = 0; groupNum < NUM_GROUPS; groupNum++) {
 			PeerGroup group = createGroup(IDFactory.newPeerGroupID(), "group" + groupNum);
 			for(int indexNum = 0; indexNum < NUM_INDICES; indexNum++) {
-				indices[NUM_INDICES * groupNum + indexNum] = new SrdiIndex(createBackend(group, "index" + indexNum), SrdiIndex.NO_AUTO_GC);
+				indices[NUM_INDICES * groupNum + indexNum] = new SrdiIndex(createBackend(group, "index" + indexNum), SrdiIndex.NO_AUTO_GC, executorService);
 			}
 		}
 		

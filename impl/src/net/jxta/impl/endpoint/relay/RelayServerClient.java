@@ -600,7 +600,10 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
 		public RelayMessenger(EndpointAddress destAddress, boolean outOfBand) {
 			// We do not use self destruction
-			super(RelayServerClient.this.server.group.getPeerGroupID(), destAddress, false);
+			super(RelayServerClient.this.server.group.getPeerGroupID(),
+			      destAddress,
+			      RelayServerClient.this.server.group.getTaskManager(),
+			      false);
 
 			this.outOfBand = outOfBand;
 		}

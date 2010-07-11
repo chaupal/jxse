@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.List;
 
 import net.jxta.impl.cm.SrdiIndex.Entry;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 
@@ -77,7 +78,11 @@ public class XIndiceSrdiIndexBackendTest extends AbstractSrdiIndexBackendTest {
 		String oldBackend = System.getProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
 		try {
 			System.clearProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
-			PeerGroup group = mockContext.mock(PeerGroup.class);
+			final TaskManager taskMan = taskManager;
+			final PeerGroup group = mockContext.mock(PeerGroup.class);
+			mockContext.checking(new Expectations() {{
+			    ignoring(group).getTaskManager(); will(returnValue(taskManager));
+			}});
 			
 			mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 			

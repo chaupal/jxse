@@ -12,8 +12,8 @@ import net.jxta.protocol.SrdiMessage;
  * the {@link Cm} cache wrapper.
  * 
  * <p>All AdvertisementCache implementations must also provide two constructors, with the
- * same signatures as {@link Cm#Cm(java.net.URI, String)} and 
- * {@link Cm#Cm(java.net.URI, String, long, boolean)}. This allows them
+ * same signatures as {@link Cm#Cm(java.net.URI, String, TaskManager)} and 
+ * {@link Cm#Cm(java.net.URI, String, TaskManager, long, boolean)}. This allows them
  * to be used by specifying their full class name in the 
  * {@link Cm#CACHE_IMPL_SYSPROP system property defined in Cm}.
  */

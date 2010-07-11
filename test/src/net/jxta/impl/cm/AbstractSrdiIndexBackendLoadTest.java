@@ -10,21 +10,17 @@ import java.util.List;
 import java.util.Random;
 
 import net.jxta.id.IDFactory;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 public abstract class AbstractSrdiIndexBackendLoadTest {
     
@@ -38,8 +34,6 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	
 	@Before
 	public void setUp() throws Exception {
-	    TaskManager.resetTaskManager();
-	    
 		storeRoot = testFileStore.getRoot();
 		assertNotNull(storeRoot);
 		oldSrdiImplName = System.getProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);

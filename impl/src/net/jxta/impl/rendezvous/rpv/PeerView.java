@@ -416,7 +416,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         this.uniqueGroupId = group.getPeerGroupID().getUniqueValue().toString();
 
-        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService("PeerView");
+        scheduledExecutor = group.getTaskManager().getLocalScheduledExecutorService("PeerView");
 
         Advertisement adv = null;
         ConfigParams confAdv = group.getConfigAdvertisement();

@@ -368,7 +368,7 @@ class PipeResolver implements SrdiInterface, InternalQueryHandler, SrdiHandler, 
         srdiIndex = new SrdiIndex(myGroup, srdiIndexerFileName, GcDelay);
 
         srdi = new Srdi(myGroup, PipeResolverName, this, srdiIndex);
-        srdi.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), 1 * TimeUtils.AYEAR);
+        srdi.startPush(myGroup.getTaskManager().getScheduledExecutorService(), 1 * TimeUtils.AYEAR);
 
         resolver.registerSrdiHandler(PipeResolverName, this);
         synchronized (this) {

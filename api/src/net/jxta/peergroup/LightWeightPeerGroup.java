@@ -64,6 +64,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -175,9 +176,15 @@ public class LightWeightPeerGroup implements PeerGroup {
         return implAdv;
     }
 
+    public GlobalRegistry getGlobalRegistry()
+    {
+        return group.getGlobalRegistry(); 
+    }
+
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     public ThreadGroup getHomeThreadGroup() {
         if (group != null) {
             return group.getHomeThreadGroup();
@@ -554,5 +561,13 @@ public class LightWeightPeerGroup implements PeerGroup {
      */
     public PeerGroup getWeakInterface() {
         return this;
+    }
+
+    public TaskManager getTaskManager() {
+        if(group != null) {
+            return group.getTaskManager();
+        } else {
+            throw new RuntimeException("No wrapped group initialised to delegate to");
+        }
     }
 }

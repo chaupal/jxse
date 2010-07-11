@@ -7,7 +7,7 @@ public class DerbyAdvertisementCacheTest extends AbstractCmTest {
 
 	@Override
 	public AdvertisementCache createWrappedCache(String areaName) throws Exception {
-		return new DerbyAdvertisementCache(testRootDir.toURI(), areaName);
+		return new DerbyAdvertisementCache(testRootDir.toURI(), areaName, taskManager);
 	}
 
 	@Override

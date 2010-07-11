@@ -7,7 +7,7 @@ public class H2AdvertisementCacheTest extends AbstractCmTest {
 
 	@Override
 	public AdvertisementCache createWrappedCache(String areaName) throws Exception {
-		return new H2AdvertisementCache(testRootDir.toURI(), areaName);
+		return new H2AdvertisementCache(testRootDir.toURI(), areaName, taskManager);
 	}
 
 	@Override

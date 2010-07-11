@@ -5,19 +5,38 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import net.jxta.impl.cm.AbstractCmTest;
 import net.jxta.impl.cm.AdvertisementCache;
 import net.jxta.impl.cm.bdb.BerkeleyDbAdvertisementCache;
+import net.jxta.impl.util.threads.TaskManager;
 
 import static org.junit.Assert.*;
 
 public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 
+    private TaskManager taskManager;
+    
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        taskManager = new TaskManager();
+        super.setUp();
+    }
+    
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        taskManager.shutdown();
+    }
+    
 	@Override
 	public AdvertisementCache createWrappedCache(String areaName) throws Exception {
-		return new BerkeleyDbAdvertisementCache(testRootDir.toURI(), areaName, false);
+		return new BerkeleyDbAdvertisementCache(testRootDir.toURI(), areaName, taskManager, false);
 	}
 	
 	@Override
@@ -71,7 +90,7 @@ public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 		File testRoot = File.createTempFile("bdbtest", null);
 		
 		try {
-			new BerkeleyDbAdvertisementCache(testRoot.toURI(), "test");
+			new BerkeleyDbAdvertisementCache(testRoot.toURI(), "test", taskManager);
 			fail("IOException expected");
 		} catch(IOException e) {
 			assertTrue("Error message does not contain expected prefix: " + e.getMessage(), e.getMessage().startsWith("Provided store root URI does not point to a directory: "));

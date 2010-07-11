@@ -327,7 +327,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
         // }
         //
 
-        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService("RendezVousService");
+        scheduledExecutor = group.getTaskManager().getLocalScheduledExecutorService("RendezVousService");
 
         if (!rdvProviderSwitchStatus.compareAndSet(true, true)) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {

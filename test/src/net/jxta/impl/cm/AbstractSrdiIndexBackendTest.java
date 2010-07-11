@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import net.jxta.id.IDFactory;
 import net.jxta.impl.cm.SrdiIndex.Entry;
@@ -56,6 +58,8 @@ public abstract class AbstractSrdiIndexBackendTest {
 	protected SrdiIndex srdiIndexForGroup2;
 	private SrdiIndex alternativeIndexForGroup1;
 	
+	protected TaskManager taskManager;
+	
 	@Rule
 	public JUnitRuleMockery mockContext = new JUnitRuleMockery();
 	
@@ -64,25 +68,27 @@ public abstract class AbstractSrdiIndexBackendTest {
 	
 	@Before
 	public void setUp() throws Exception {
-        TaskManager.resetTaskManager();
+	    taskManager = new TaskManager();
 	    
 	    oldBackendValue = System.getProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
 		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
 		
 		group1 = mockContext.mock(PeerGroup.class, "group1");
 		group2 = mockContext.mock(PeerGroup.class, "group2");
+		mockContext.checking(new Expectations() {{
+		    ignoring(group1).getTaskManager(); will(returnValue(taskManager));
+		    ignoring(group2).getTaskManager(); will(returnValue(taskManager));
+		}});
 		
 		mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group1, GROUP_ID_1, "group1"));
 		mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group2, GROUP_ID_2, "group2"));
 		
-		srdiIndex = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC);
-		srdiIndexForGroup2 = new SrdiIndex(createBackend(group2, "testIndex"), SrdiIndex.NO_AUTO_GC);
-		alternativeIndexForGroup1 = new SrdiIndex(createBackend(group1, "testIndex2"), SrdiIndex.NO_AUTO_GC);
+		srdiIndex = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC, taskManager.getScheduledExecutorService());
+		srdiIndexForGroup2 = new SrdiIndex(createBackend(group2, "testIndex"), SrdiIndex.NO_AUTO_GC, taskManager.getScheduledExecutorService());
+		alternativeIndexForGroup1 = new SrdiIndex(createBackend(group1, "testIndex2"), SrdiIndex.NO_AUTO_GC, taskManager.getScheduledExecutorService());
 		clock = new FakeSystemClock();
 		comparator = new EntryComparator();
 		TimeUtils.setClock(clock);
-		
-		
 	}
 	
 	protected abstract SrdiIndexBackend createBackend(PeerGroup group, String indexName) throws Exception;
@@ -91,6 +97,7 @@ public abstract class AbstractSrdiIndexBackendTest {
 	public void tearDown() throws Exception {
 		srdiIndex.stop();
 		TimeUtils.resetClock();
+		taskManager.shutdown();
 		if(oldBackendValue == null) {
 			System.clearProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP);
 		} else {
@@ -327,7 +334,7 @@ public abstract class AbstractSrdiIndexBackendTest {
 	@Test
 	public void testGarbageCollect_automatic() throws Exception {
 	    TimeUtils.setClock(new JavaSystemClock());
-	    SrdiIndex srdiIndexWithAutoGC = new SrdiIndex(createBackend(group1, "gcIndex"), 500L);
+	    SrdiIndex srdiIndexWithAutoGC = new SrdiIndex(createBackend(group1, "gcIndex"), 500L, taskManager.getScheduledExecutorService());
 	    srdiIndexWithAutoGC.add("a", "b", "c", PEER_ID, 500L);
 	    assertEquals(1, srdiIndexWithAutoGC.query("a", "b", "c", NO_THRESHOLD).size());
 	    
@@ -354,7 +361,7 @@ public abstract class AbstractSrdiIndexBackendTest {
 		srdiIndex.add("a", "b", "c", PEER_ID, 1000L);
 		srdiIndex.stop();
 		
-		SrdiIndex restarted = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC);
+		SrdiIndex restarted = new SrdiIndex(createBackend(group1, "testIndex"), SrdiIndex.NO_AUTO_GC, taskManager.getScheduledExecutorService());
 		
 		assertEquals(1, restarted.query("a", "b", "c", NO_THRESHOLD).size());
 		assertEquals(PEER_ID, restarted.query("a", "b", "c", NO_THRESHOLD).get(0));
@@ -473,6 +480,9 @@ public abstract class AbstractSrdiIndexBackendTest {
 	public void testConstruction_withGroup_IndexName() {
 		System.setProperty(SrdiIndex.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
 		final PeerGroup group = mockContext.mock(PeerGroup.class);
+		mockContext.checking(new Expectations() {{
+		    ignoring(group).getTaskManager(); will(returnValue(taskManager));
+		}});
 		
 		mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 		

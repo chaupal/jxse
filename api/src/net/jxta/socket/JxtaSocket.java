@@ -308,6 +308,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * MTU size of the messenger to the remote peer.
      */
     private int outputBufferSize = -1;
+    private PeerGroup netPeerGroup;
 
     /**
      * This constructor does not establish a connection. Use this constructor
@@ -499,6 +500,24 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     }
 
     /**
+     * The netPeerGroup needs to be set when resolving SocketAddresses with only the peerID supplied.
+     * @param netPeerGroup
+     */
+    public void setNetPeerGroup(PeerGroup netPeerGroup)
+    {
+        this.netPeerGroup = netPeerGroup;
+    }
+
+    private PeerGroup.GlobalRegistry getGlobalRegistry() throws IOException
+    {
+        if (netPeerGroup == null)
+        {
+            throw new IOException("Can not resolve the peerID in socket address, must setNetPeerGroup() on JXTAServerSocket");
+        }
+        return netPeerGroup.getGlobalRegistry();
+    }
+
+    /**
      * {@inheritDoc}
      * <p/>
      * Unsupported operation, an IOException will be thrown.
@@ -532,7 +551,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             throw new IOException("Subclass of SocketAddress not supported. Use JxtaSocketAddress instead.");
         }
         JxtaSocketAddress socketAddress = (JxtaSocketAddress) address;
-        PeerGroup pg = PeerGroup.globalRegistry.lookupInstance(socketAddress.getPeerGroupId());
+        PeerGroup pg = getGlobalRegistry().lookupInstance(socketAddress.getPeerGroupId());
 
         if (pg == null) {
             throw new IOException("Can't connect socket in PeerGroup with id " + socketAddress.getPeerGroupId()
@@ -891,7 +910,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (isReliable) {
             outgoing = makeOutgoing(remoteEphemeralPipeMsgr, retryTimeout);
             ris = new ReliableInputStream(outgoing, soTimeout);
-            ros = new ReliableOutputStream(outgoing, new FixedFlowControl(windowSize));
+            ros = new ReliableOutputStream(outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService());
             try {
                 ros.setSendBufferSize(outputBufferSize);
             } catch (IOException ignored) {// it's only a preference...

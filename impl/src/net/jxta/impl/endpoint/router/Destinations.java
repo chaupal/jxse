@@ -425,7 +425,7 @@ class Destinations {
 
         this.endpoint = endpoint;
 
-        ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+        ScheduledExecutorService executor = endpoint.getGroup().getTaskManager().getScheduledExecutorService();
         wisdomGCHandle = executor.scheduleAtFixedRate(new WisdomGCTask(), 60, 60, TimeUnit.SECONDS);
     }
 

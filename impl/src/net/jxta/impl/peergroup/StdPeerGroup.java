@@ -79,6 +79,7 @@ import net.jxta.impl.cm.Cm;
 import net.jxta.impl.cm.SrdiIndex;
 import net.jxta.impl.content.ContentServiceImpl;
 import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.JxtaLoader;
@@ -577,7 +578,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         
         // initialize cm before starting services.
         try {
-            cm = new Cm(getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
+            cm = new Cm(getStoreHome(), assignedID.getUniqueValue().toString(), getTaskManager(), 0L, false);
         } catch (Exception e) {
             if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Failure instantiating local store", e);

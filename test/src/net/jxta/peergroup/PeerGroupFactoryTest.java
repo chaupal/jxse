@@ -67,6 +67,7 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 import net.jxta.id.ID;
+import net.jxta.impl.peergroup.Platform;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
@@ -95,12 +96,12 @@ public class PeerGroupFactoryTest extends TestCase {
         return suite;
     }
     
-    private static void waitForPeerGroupShutdown(PeerGroupID pgid, long maxWait) throws Exception {
+    private static void waitForPeerGroupShutdown(PeerGroup pg, PeerGroupID pgid, long maxWait) throws Exception {
         
         long waitUntil = TimeUtils.toAbsoluteTimeMillis(maxWait);
                 
         while (TimeUtils.timeNow() < waitUntil) {
-            if (!PeerGroup.globalRegistry.registeredInstance(pgid)) {
+            if (!pg.getGlobalRegistry().registeredInstance(pgid)) {
                 return;
             }
             
@@ -121,7 +122,7 @@ public class PeerGroupFactoryTest extends TestCase {
             wpg.unref();
             wpg = null;
             
-            waitForPeerGroupShutdown(PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(wpg, PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
         } catch (Exception caught) {
             caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
@@ -140,7 +141,7 @@ public class PeerGroupFactoryTest extends TestCase {
         
     public void testSimpleNewNetPeerGroup() {
         try {
-            PeerGroup npg = PeerGroupFactory.newNetPeerGroup();
+            PeerGroup npg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
                                    
             assertTrue("Group ID was not as expected.", npg.getPeerGroupID().equals(PeerGroupID.defaultNetPeerGroupID));
             
@@ -149,8 +150,8 @@ public class PeerGroupFactoryTest extends TestCase {
             npg.unref();
             npg = null;
             
-            waitForPeerGroupShutdown(PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
-            waitForPeerGroupShutdown(PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
         } catch (Exception caught) {
             caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
@@ -177,8 +178,8 @@ public class PeerGroupFactoryTest extends TestCase {
             npg.unref();
             npg = null;
            
-            waitForPeerGroupShutdown(PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
-            waitForPeerGroupShutdown(PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(wpg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(wpg, PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
         } catch (Exception caught) {
             caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
@@ -193,7 +194,7 @@ public class PeerGroupFactoryTest extends TestCase {
             PeerGroupFactory.setNetPGName("Custom Net Group");
             PeerGroupFactory.setNetPGDesc("Custom Net Peer Group");
             
-            PeerGroup npg = PeerGroupFactory.newNetPeerGroup();
+            PeerGroup npg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
                                    
             assertTrue("Group ID was not as expected.", npg.getPeerGroupID().equals(pgid));    
             
@@ -202,8 +203,8 @@ public class PeerGroupFactoryTest extends TestCase {
             npg.unref();
             npg = null;
            
-            waitForPeerGroupShutdown(pgid, 60 * TimeUtils.ASECOND);
-            waitForPeerGroupShutdown(PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, pgid, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
             
             // reset
             PeerGroupFactory.setNetPGID(null);
@@ -225,7 +226,7 @@ public class PeerGroupFactoryTest extends TestCase {
 
             PeerGroupFactory.setStoreHome(tmpHome.toURI());
             
-            PeerGroup npg = PeerGroupFactory.newNetPeerGroup();
+            PeerGroup npg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
                                               
             Thread.sleep(TimeUtils.ASECOND * 10);
             
@@ -234,8 +235,8 @@ public class PeerGroupFactoryTest extends TestCase {
             npg.unref();
             npg = null;
            
-            waitForPeerGroupShutdown(PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
-            waitForPeerGroupShutdown(PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
             
             // reset
             PeerGroupFactory.setStoreHome(original);
@@ -267,7 +268,7 @@ public class PeerGroupFactoryTest extends TestCase {
 
             PeerGroupFactory.setStoreHome(tmpHome.toURI());
             
-            PeerGroup npg = PeerGroupFactory.newNetPeerGroup();
+            PeerGroup npg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
                                               
             Thread.sleep(TimeUtils.ASECOND * 10);
             
@@ -278,8 +279,8 @@ public class PeerGroupFactoryTest extends TestCase {
             npg.unref();
             npg = null;
            
-            waitForPeerGroupShutdown(PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
-            waitForPeerGroupShutdown(PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
+            waitForPeerGroupShutdown(npg, PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
             
             // reset
             PeerGroupFactory.setStoreHome(original);

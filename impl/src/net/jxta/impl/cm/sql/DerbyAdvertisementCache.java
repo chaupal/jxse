@@ -4,17 +4,19 @@ import java.io.IOException;
 import java.net.URI;
 import java.sql.SQLException;
 
+import net.jxta.impl.util.threads.TaskManager;
+
 import org.apache.derby.jdbc.EmbeddedConnectionPoolDataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 
 public class DerbyAdvertisementCache extends JdbcAdvertisementCache {
 
-	public DerbyAdvertisementCache(URI storeRoot, String areaName) throws IOException {
-		super(storeRoot, areaName);
+	public DerbyAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager) throws IOException {
+		super(storeRoot, areaName, taskManager);
 	}
 	
-	public DerbyAdvertisementCache(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
-		super(storeRoot, areaName, gcinterval, trackDeltas);
+	public DerbyAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager, long gcinterval, boolean trackDeltas) throws IOException {
+		super(storeRoot, areaName, taskManager, gcinterval, trackDeltas);
 	}
 	
 	@Override

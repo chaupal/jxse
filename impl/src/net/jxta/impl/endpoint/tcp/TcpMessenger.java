@@ -70,6 +70,7 @@ import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
@@ -215,8 +216,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      */
     TcpMessenger(SocketChannel socketChannel, TcpTransport transport) throws IOException {
         super(transport.group.getPeerGroupID(),
-                new EndpointAddress(transport.getProtocolName(),
-                        socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null), true);
+              new EndpointAddress(transport.getProtocolName(),
+                        socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null),
+              transport.group.getTaskManager(),
+              true);
 
         initiator = false;
         this.socketChannel = socketChannel;
@@ -299,7 +302,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     TcpMessenger(EndpointAddress destaddr, TcpTransport tcpTransport, boolean selfDestruct) throws IOException {
         // We need self destruction: tcp messengers are expensive to make and they refer to
         // a connection that must eventually be closed.
-        super(tcpTransport.group.getPeerGroupID(), destaddr, selfDestruct);
+        super(tcpTransport.group.getPeerGroupID(), 
+              destaddr, 
+              tcpTransport.group.getTaskManager(),
+              selfDestruct);
         this.selfDestruct = selfDestruct;
         this.origAddress = destaddr;
 

@@ -64,6 +64,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -297,6 +298,11 @@ class PeerGroupInterface implements PeerGroup {
         }
 
         return temp.getImplAdvertisement();
+    }
+
+    public GlobalRegistry getGlobalRegistry()
+    {
+        return groupImpl.getGlobalRegistry();
     }
 
     /**
@@ -737,5 +743,15 @@ class PeerGroupInterface implements PeerGroup {
         }
 
         return temp.getParentGroup();
+    }
+
+    public TaskManager getTaskManager() {
+        PeerGroup temp = groupImpl;
+        
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used. {" + instance + "}");
+        }
+        
+        return temp.getTaskManager();
     }
 }

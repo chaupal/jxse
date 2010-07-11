@@ -36,64 +36,76 @@ public class TaskManager {
 	static final int DEFAULT_SCHEDULED_POOL_SIZE = 2;
 	static final int DEFAULT_IDLE_THREAD_TIMEOUT = 10;
 	
-	private static TaskManager singleton;
+	private SharedThreadPoolExecutor normalExecutor;
+	private SharedScheduledThreadPoolExecutor scheduledExecutor;
+	private ScheduledExecutorService monitoringExecutor;
 	
-	private static SharedThreadPoolExecutor normalExecutor;
-	private static SharedScheduledThreadPoolExecutor scheduledExecutor;
-	private static ScheduledExecutorService monitoringExecutor;
+	private Map<String, ProxiedScheduledExecutorService> proxiedExecutors;
 	
-	private static Map<String, ProxiedScheduledExecutorService> proxiedExecutors;
+	private boolean started;
 	
-	private static boolean started;
-	
-	static int getScheduledPoolSize() {
-		return Math.max(1, Integer.getInteger(SCHEDULED_POOL_SIZE_SYSPROP, DEFAULT_SCHEDULED_POOL_SIZE));
+	static int getScheduledPoolSize(Integer scheduledPoolSize) {
+		int size = scheduledPoolSize == null ? Integer.getInteger(SCHEDULED_POOL_SIZE_SYSPROP, DEFAULT_SCHEDULED_POOL_SIZE)
+		                                     : scheduledPoolSize;
+        return Math.max(1, size);
 	}
 
-	static int getCorePoolSize() {
-		return Math.max(0, Integer.getInteger(CORE_POOL_SIZE_SYSPROP, DEFAULT_CORE_POOL_SIZE));
+	static int getCorePoolSize(Integer coreWorkerPoolSize) {
+	    int size = coreWorkerPoolSize == null ? Integer.getInteger(CORE_POOL_SIZE_SYSPROP, DEFAULT_CORE_POOL_SIZE)
+	                                          : coreWorkerPoolSize;
+		return Math.max(0, size);
 	}
 	
-	static int getIdleThreadTimeout() {
-	    return Math.max(0, Integer.getInteger(IDLE_THREAD_TIMEOUT_SYSPROP, DEFAULT_IDLE_THREAD_TIMEOUT));
+	static int getIdleThreadTimeout(Integer idleThreadTimeout) {
+	    int timeout = idleThreadTimeout == null ? Integer.getInteger(IDLE_THREAD_TIMEOUT_SYSPROP, DEFAULT_IDLE_THREAD_TIMEOUT)
+	                                            : idleThreadTimeout;
+        return Math.max(0, timeout);
 	}
 	
-	static int getMaxWorkerPoolSize() {
+	static int getMaxWorkerPoolSize(int coreWorkerPoolSize, Integer maxWorkerPoolSize) {
 	    // while core pool size is allowed to be zero, max pool size
 	    // must be greater than the core pool size AND greater than
 	    // 0.
-	    int leastUpperBound = Math.max(1, getCorePoolSize());
-	    return Math.max(leastUpperBound, Integer.getInteger(MAX_WORKER_POOL_SIZE_SYSPROP, DEFAULT_MAX_WORKER_POOL_SIZE));
+	    int leastUpperBound = Math.max(1, coreWorkerPoolSize);
+	    Integer size = maxWorkerPoolSize == null ? Integer.getInteger(MAX_WORKER_POOL_SIZE_SYSPROP, DEFAULT_MAX_WORKER_POOL_SIZE)
+	                                             : maxWorkerPoolSize;
+        return Math.max(leastUpperBound, size);
 	}
 
-	public static TaskManager getTaskManager() {
-		if(TaskManager.singleton == null) {
-			TaskManager.singleton = new TaskManager();
-			monitoringExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("JxtaTaskMonitor"));
-			normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor, 
-			                                              getCorePoolSize(), 
-			                                              getMaxWorkerPoolSize(), 
-			                                              getIdleThreadTimeout(),
-			                                              TimeUnit.SECONDS, 
-			                                              new SynchronousQueue<Runnable>(), 
-			                                              new NamedThreadFactory("JxtaWorker"));
-			scheduledExecutor = new SharedScheduledThreadPoolExecutor(monitoringExecutor, getScheduledPoolSize(), new NamedThreadFactory("JxtaScheduledWorker"));
-			proxiedExecutors = Collections.synchronizedMap(new HashMap<String, ProxiedScheduledExecutorService>());
-			started=true;
-		}
-		return TaskManager.singleton;
+	/**
+	 * Creates a task manager that uses the default or system property specified values for core pool size,
+	 * max pool size, idle thread timeout and scheduled pool size.
+	 */
+	public TaskManager() {
+	    this(null, null, null, null);
 	}
 	
 	/**
-	 * FOR TESTING PURPOSES ONLY.
-	 * discards any existing TaskManager singleton.
+	 * Allows the construction of a task manager with explicitly specified values for each of core pool size,
+	 * max pool size, idle thread timeout and scheduled pool size. If null is passed for any of these parameters,
+	 * the system property value, if specified, will be used. Failing that, a sensible default will be applied.
+	 * 
+	 * @param coreWorkerPoolSize the number of threads that will be maintained in the executor service. 
+	 * @param maxWorkerPoolSize the maximum number of threads that will be allowed in the executor service.
+	 * @param idleThreadTimeoutSecs the minimum amount of time that additional threads (beyond the core pool size) 
+	 * will stay alive before terminating.
+	 * @param scheduledPoolSize the number of threads that will be used for the execution of deferred and periodic
+	 * tasks.
 	 */
-	public static void resetTaskManager() {
-	    if(TaskManager.singleton != null && started) {
-	        getTaskManager().shutdown();
-	    }
-		TaskManager.singleton = null;
-	}
+	public TaskManager(Integer coreWorkerPoolSize, Integer maxWorkerPoolSize, Integer idleThreadTimeoutSecs, Integer scheduledPoolSize) {
+	    monitoringExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("JxtaTaskMonitor"));
+        int corePoolSize = getCorePoolSize(coreWorkerPoolSize);
+        normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor, 
+                                                      corePoolSize, 
+                                                      getMaxWorkerPoolSize(corePoolSize, maxWorkerPoolSize), 
+                                                      getIdleThreadTimeout(idleThreadTimeoutSecs),
+                                                      TimeUnit.SECONDS, 
+                                                      new SynchronousQueue<Runnable>(), 
+                                                      new NamedThreadFactory("JxtaWorker"));
+        scheduledExecutor = new SharedScheduledThreadPoolExecutor(monitoringExecutor, getScheduledPoolSize(scheduledPoolSize), new NamedThreadFactory("JxtaScheduledWorker"));
+        proxiedExecutors = Collections.synchronizedMap(new HashMap<String, ProxiedScheduledExecutorService>());
+        started=true;
+    }
 	
 	/**
 	 * Provides a potentially shared executor service.

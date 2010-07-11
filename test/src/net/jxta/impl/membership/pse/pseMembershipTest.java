@@ -110,7 +110,7 @@ public class pseMembershipTest extends TestCase {
         synchronized (pseMembershipTest.class) {
             try {
                 if (null == npg) {
-                    npg = PeerGroupFactory.newNetPeerGroup();
+                    npg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
                     // npg.startApp( new String[0]);
                     
                     ModuleImplAdvertisement newGroupImpl = npg.getAllPurposePeerGroupImplAdvertisement();

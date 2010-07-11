@@ -66,6 +66,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -108,11 +109,12 @@ public abstract class AbstractCmTest {
     protected PeerGroupID groupId;
 	
     protected FakeSystemClock fakeTimer = new FakeSystemClock();
+    
+    protected TaskManager taskManager;
 
     @Before
     public void setUp() throws Exception {
-        TaskManager.resetTaskManager();
-        
+        taskManager = new TaskManager();
         testRootDir = tempFolder.getRoot();
         TimeUtils.setClock(fakeTimer);
         wrappedCache = createWrappedCache("testArea"); 
@@ -127,6 +129,7 @@ public abstract class AbstractCmTest {
         cm = null;
         wrappedCache = null;
         TimeUtils.resetClock();
+        taskManager.shutdown();
     }
     
     /**
@@ -655,7 +658,7 @@ public abstract class AbstractCmTest {
     @Test
     public void testConstruct() throws IOException {
     	System.setProperty(Cm.CACHE_IMPL_SYSPROP, getCacheClassName());
-        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2");
+        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2", taskManager);
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }
@@ -663,7 +666,7 @@ public abstract class AbstractCmTest {
     @Test
     public void testConstructWithGcIntervalAndTrackDeltasParams() throws IOException {
         System.setProperty(Cm.CACHE_IMPL_SYSPROP, getCacheClassName());
-        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2", 30000, false);
+        Cm cmFromConstructor = new Cm(testRootDir.toURI(), "testArea2", taskManager, 30000, false);
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }

@@ -172,8 +172,6 @@ public class RefJxtaLoaderTest {
         System.err.flush();
         System.out.flush();
         Thread.sleep(500);
-        
-        TaskManager.resetTaskManager();
     }
     
     @Before

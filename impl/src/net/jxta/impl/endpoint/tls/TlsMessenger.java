@@ -91,7 +91,10 @@ public class TlsMessenger extends BlockingMessenger {
     TlsMessenger(EndpointAddress destAddress, TlsConn conn, TlsTransport tp) {
         
         // No need for self destruction.
-        super(tp.getPeerGroup().getPeerGroupID(), destAddress, false);
+        super(tp.getPeerGroup().getPeerGroupID(), 
+              destAddress,
+              tp.getPeerGroup().getTaskManager(),
+              false);
         
         if (conn == null) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {

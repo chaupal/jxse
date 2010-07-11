@@ -40,7 +40,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	private EndpointAddress localAddress;
     
     public NettyMessenger(Channel channel, PeerGroupID homeGroupID, PeerID localPeerID, EndpointAddress localAddress, EndpointAddress logicalDestinationAddress, EndpointService endpointService) {
-        super(homeGroupID, localAddress, true);
+        super(homeGroupID, localAddress, endpointService.getGroup().getTaskManager(), true);
         this.channel = channel;
         this.localPeerId = localPeerID;
         this.localAddress = new EndpointAddress(localPeerId, null, null);
@@ -141,7 +141,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 			return;
 		}
 		
-		ExecutorService executorService = TaskManager.getTaskManager().getExecutorService();
+		ExecutorService executorService = taskManager.getExecutorService();
 		executorService.execute(new Runnable() {
 		    public void run() {
 		        endpointService.processIncomingMessage(msg, srcAddr, dstAddr);

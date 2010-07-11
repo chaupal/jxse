@@ -57,57 +57,51 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import net.jxta.id.IDFactory;
-import net.jxta.id.ID;
-import net.jxta.pipe.PipeID;
-import net.jxta.pipe.PipeService;
-import net.jxta.pipe.InputPipe;
-import net.jxta.pipe.OutputPipe;
-import net.jxta.pipe.OutputPipeEvent;
-import net.jxta.pipe.OutputPipeListener;
-import net.jxta.pipe.PipeMsgListener;
-import net.jxta.pipe.PipeMsgEvent;
-import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.peergroup.PeerGroupFactory;
-import net.jxta.rendezvous.RendezVousService;
-import net.jxta.rendezvous.RendezvousEvent;
-import net.jxta.rendezvous.RendezvousListener;
-import net.jxta.discovery.DiscoveryService;
-import net.jxta.discovery.DiscoveryListener;
-import net.jxta.discovery.DiscoveryEvent;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLDocument;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.ByteArrayMessageElement;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.Message.ElementIterator;
-import java.util.Vector;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Enumeration;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Enumeration;
 import java.util.Random;
-import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.io.IOException;
-import java.io.StringReader;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.textui.TestRunner;
 
-import net.jxta.impl.util.threads.TaskManager;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+import net.jxta.discovery.DiscoveryEvent;
+import net.jxta.discovery.DiscoveryListener;
+import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.XMLDocument;
+import net.jxta.endpoint.ByteArrayMessageElement;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.endpoint.Message.ElementIterator;
+import net.jxta.id.IDFactory;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupFactory;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.pipe.InputPipe;
+import net.jxta.pipe.OutputPipe;
+import net.jxta.pipe.OutputPipeEvent;
+import net.jxta.pipe.OutputPipeListener;
+import net.jxta.pipe.PipeID;
+import net.jxta.pipe.PipeMsgEvent;
+import net.jxta.pipe.PipeMsgListener;
+import net.jxta.pipe.PipeService;
+import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.rendezvous.RendezVousService;
+import net.jxta.rendezvous.RendezvousEvent;
+import net.jxta.rendezvous.RendezvousListener;
 
 
 public class ReliableTest extends TestCase implements 
@@ -271,7 +265,7 @@ public class ReliableTest extends TestCase implements
  
     @Override
     protected void setUp() {
-        scheduledExecutor = TaskManager.getTaskManager().getLocalScheduledExecutorService("ReliableTest");
+        scheduledExecutor = new ScheduledThreadPoolExecutor(2);
         loadElements = new ArrayList();
         for (int size = MIN_LOAD; size <= MAX_LOAD; size = size << 1) {
             byte[] le = new byte[size];
@@ -284,7 +278,7 @@ public class ReliableTest extends TestCase implements
         System.setProperty("net.jxta.tls.principal", PRINCIPAL);
 
         try {
-            netPeerGroup = PeerGroupFactory.newNetPeerGroup();
+            netPeerGroup = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
             discoverySvc = netPeerGroup.getDiscoveryService();
             pipeSvc = netPeerGroup.getPipeService();
             rendezvousService = netPeerGroup.getRendezVousService();
@@ -502,8 +496,8 @@ public class ReliableTest extends TestCase implements
 
             outgoing = new OutgoingPipeAdaptorSync(null);
             ros = ADAPTIVE
-                    ? new ReliableOutputStream(outgoing, new AdaptiveFlowControl())
-                    : new ReliableOutputStream(outgoing, new FixedFlowControl(40));
+                    ? new ReliableOutputStream(outgoing, new AdaptiveFlowControl(), scheduledExecutor)
+                    : new ReliableOutputStream(outgoing, new FixedFlowControl(40), scheduledExecutor);
 
             for (int i = 0; i < ITERATIONS; i++) {
                 

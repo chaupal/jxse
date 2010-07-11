@@ -191,6 +191,8 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      */
     private boolean lieToOldTransports = false;
 
+    protected final TaskManager taskManager;
+
     /**
      * Our statemachine implementation; just connects the standard AbstractMessengerState action methods to
      * this object.
@@ -401,10 +403,11 @@ public abstract class BlockingMessenger extends AbstractMessenger {
      *                     this messenger will remained referenced for as long as isIdleImpl returns false.
      */
 
-    public BlockingMessenger(PeerGroupID homeGroupID, EndpointAddress dest, boolean selfDestruct) {
+    public BlockingMessenger(PeerGroupID homeGroupID, EndpointAddress dest, TaskManager taskManager, boolean selfDestruct) {
         super(dest);
 
         this.homeGroupID = homeGroupID;
+        this.taskManager = taskManager;
         stateMachine = new BlockingMessengerState(distributingListener);
 
         /*
@@ -444,7 +447,7 @@ public abstract class BlockingMessenger extends AbstractMessenger {
         		}
             };
 
-            ScheduledExecutorService scheduledExecutorService = TaskManager.getTaskManager().getScheduledExecutorService();
+            ScheduledExecutorService scheduledExecutorService = taskManager.getScheduledExecutorService();
             selfDestructTaskHandle = scheduledExecutorService.scheduleAtFixedRate(selfDestructTask, 60, 60, TimeUnit.SECONDS);
             selfDestructTask.setHandle(selfDestructTaskHandle);
         } else {

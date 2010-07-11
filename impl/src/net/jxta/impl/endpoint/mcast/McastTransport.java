@@ -506,7 +506,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         // Cannot start before registration
-        multicastProcessor = new DatagramProcessor(((StdPeerGroup) group).getExecutor(), poolSize);
+        multicastProcessor = new DatagramProcessor(group.getTaskManager().getExecutorService(), poolSize);
         multicastThread = new Thread(group.getHomeThreadGroup(), this, "IP Multicast Listener for " + publicAddress);
         multicastThread.setDaemon(true);
         multicastThread.start();

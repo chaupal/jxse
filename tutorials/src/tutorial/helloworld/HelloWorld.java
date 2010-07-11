@@ -80,21 +80,24 @@ public class HelloWorld {
             // Configure this peer as an ad-hoc peer named "HelloWorld" and
             // store configuration into ".cache/HelloWorld" directory.
             System.out.println("Configuring JXTA");
-            NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "HelloWorld", new File(new File(".cache"), "HelloWorld").toURI());
+            NetworkManager manager1 = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "HelloWorld", new File(new File(".cache1"), "HelloWorld").toURI());
+//            NetworkManager manager2 = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "HelloWorld", new File(new File(".cache2"), "HelloWorld").toURI());
             
             // Start the JXTA 
             System.out.println("Starting JXTA");
-            manager.startNetwork();
+            manager1.startNetwork();
+//            manager2.startNetwork();
             System.out.println("JXTA Started");
             
             // Wait up to 20 seconds for a connection to the JXTA Network.
             System.out.println("Waiting for a rendezvous connection");
-            boolean connected = manager.waitForRendezvousConnection(20 * 1000);
+            boolean connected = manager1.waitForRendezvousConnection(20 * 1000);
             System.out.println(MessageFormat.format("Connected :{0}", connected));
             
             // Stop JXTA
             System.out.println("Stopping JXTA");
-            manager.stopNetwork();
+            manager1.stopNetwork();
+//            manager2.stopNetwork();
             System.out.println("JXTA stopped");            
         } catch (Throwable e) {
             // Some type of error occurred. Print stack trace and quit.

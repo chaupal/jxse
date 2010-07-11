@@ -73,6 +73,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
@@ -559,15 +560,18 @@ public interface PeerGroup extends Service {
      * instantiation or orderly shutdown of Peer Groups should synchronize upon
      * this object.
      */
-    final static GlobalRegistry globalRegistry = new GlobalRegistry();
-
+    
+    GlobalRegistry getGlobalRegistry();
+    
     /**
      * Returns the Thread Group in which threads for this peer group will live.
      * This is currently used only for debugging purposes so that the source of
      * a thread can be determined.
      *
      * @return ThreadGroup
+     * @deprecated since 2.7.
      */
+    @Deprecated
     public ThreadGroup getHomeThreadGroup();
 
     /**
@@ -1036,4 +1040,15 @@ public interface PeerGroup extends Service {
      * @since JXTA 2.3.7
      */
     public URI getStoreHome();
+    
+    
+    /**
+     * FOR JXTA MODULE IMPLEMENTATIONS ONLY. If you are simply using existing
+     * services on a peer group (pipe service, etc) then you should not use
+     * this task manager - use your own thread pools. If you are implementing
+     * a new service that will run on a peer group, then you must use this
+     * task manager for all asynchronous and periodic tasks.
+     * @return the task manager associated with this peer group.
+     */
+    public TaskManager getTaskManager();
 }

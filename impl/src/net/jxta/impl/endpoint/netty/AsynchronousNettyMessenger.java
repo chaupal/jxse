@@ -121,7 +121,7 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
             return;
         }
         
-        ExecutorService executorService = TaskManager.getTaskManager().getExecutorService();
+        ExecutorService executorService = endpointService.getGroup().getTaskManager().getExecutorService();
         executorService.execute(new Runnable() {
             public void run() {
                 endpointService.processIncomingMessage(msg, srcAddr, dstAddr);

@@ -106,7 +106,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     RemoteMonitorPeerInfoHandler(PeerGroup peerGroup, PeerInfoServiceImpl peerInfoServiceImpl) {
         this.peerGroup = peerGroup;
         this.peerInfoServiceImpl = peerInfoServiceImpl;
-        this.executor = TaskManager.getTaskManager().getLocalScheduledExecutorService("RemoteMonitorPeerInfoHandler");
+        this.executor = peerGroup.getTaskManager().getLocalScheduledExecutorService("RemoteMonitorPeerInfoHandler");
     }
 
     public void stop() {

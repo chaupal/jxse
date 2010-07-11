@@ -63,6 +63,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.impl.endpoint.mcast.McastTransport;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -97,6 +98,8 @@ public class Platform extends StdPeerGroup {
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(Platform.class.getName());
+    private final GlobalRegistry globalRegistry = new GlobalRegistry();
+    private final TaskManager taskManager = new TaskManager();
 
     /**
      *  Create and populate the default module impl Advertisement for this class.
@@ -166,6 +169,7 @@ public class Platform extends StdPeerGroup {
 
         // initialize the configuration advertisement.
         setConfigAdvertisement(config);
+
     }
 
     /**
@@ -223,6 +227,11 @@ public class Platform extends StdPeerGroup {
         }
     }
 
+    public GlobalRegistry getGlobalRegistry()
+    {
+        return globalRegistry;
+    }
+
     /**
      * Returns a ModuleImplAdvertisement suitable for the Network Peer Group.
      * <p/>
@@ -256,5 +265,16 @@ public class Platform extends StdPeerGroup {
         ignored = lookupService(discoveryClassID);
         ignored = lookupService(rendezvousClassID);
         ignored = lookupService(peerinfoClassID);
+    }
+    
+    @Override
+    public TaskManager getTaskManager() {
+        return taskManager;
+    }
+    
+    @Override
+    public void stopApp() {
+        super.stopApp();
+        taskManager.shutdown();
     }
 }

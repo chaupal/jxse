@@ -72,7 +72,7 @@ public class XIndiceCmTest extends AbstractCmTest {
 	@Override
 	public AdvertisementCache createWrappedCache(String areaName) {
 		try {
-		    return new XIndiceAdvertisementCache(testRootDir.toURI(), areaName);
+		    return new XIndiceAdvertisementCache(testRootDir.toURI(), areaName, taskManager);
 		} catch (IOException e) {
 			System.err.println("Failed to construct the CM");
 			e.printStackTrace();

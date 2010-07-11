@@ -85,6 +85,7 @@ import net.jxta.id.IDFactory;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
+import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
@@ -103,7 +104,8 @@ public class SimpleACLAccessServiceTest extends TestCase {
         synchronized (SimpleACLAccessServiceTest.class) {
             try {
                 if (null == npg) {
-                    npg = PeerGroupFactory.newNetPeerGroup();
+                    final PeerGroup wpg = new WorldPeerGroupFactory().getInterface();
+                    npg = PeerGroupFactory.newNetPeerGroup(wpg);
                     
                     ModuleImplAdvertisement newGroupImpl = npg.getAllPurposePeerGroupImplAdvertisement();
                     
