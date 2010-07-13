@@ -1,0 +1,28 @@
+
+This directory contains the tutorials for JSE JXTA. 
+ 
+
+
+Building
+========
+
+- First, Build the JXTA platform ;
+	cd ..
+	ant
+
+- Second, Build the tutorials :
+	cd tutorials
+	ant
+
+
+
+Configuration
+=============
+
+All of the tutorials programs are pre-configured to use AD-HOC networking. You can run all of these tutorials on a local sub-net without needing to do any additional configuration. However, as configured, the peers will not easily communicate with peers across the Internet or through firewalls or NAT. 
+
+** IMPORTANT ** 
+
+In order to use these examples with peers which are on different subnets it will be necessary to change the peer configurations! 
+
+** IMPORTANT **
