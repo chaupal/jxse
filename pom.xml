@@ -165,7 +165,7 @@
 
 				<configuration>
 
-					<skipTests>false</skipTests>
+					<skipTests>true</skipTests>
 
                                         <testFailureIgnore>true</testFailureIgnore>
 
