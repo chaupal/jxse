@@ -285,7 +285,7 @@ public final class WorldPeerGroupFactory {
             final PeerGroup worldPeerGroup = worldPeerGroups.get(storeHomeString);
             if (worldPeerGroup != null)
             {
-                throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a single time.");
+                throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a time.");
             }
             
             PeerGroup result = null;
