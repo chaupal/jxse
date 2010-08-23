@@ -1,36 +1,41 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.jxta</groupId>
-	<artifactId>jxse-parent</artifactId>
-	<packaging>pom</packaging>
-	<version>2.6</version>
+	<artifactId>jxse</artifactId>
+	<groupId>com.kenai.jxse</groupId>
+        <version>2.Cheeseburger-SNAPSHOT</version>
+        <packaging>jar</packaging>
 
-	<name>JXSE Parent</name>
-	<url>http://jxse.kenai.com/</url>
+        <parent>
+            <groupId>org.sonatype.oss</groupId>
+            <artifactId>oss-parent</artifactId>
+            <version>3</version>
+        </parent>
 
-	<modules>
-		<module>jxse</module>
-		<module>jxse-tutorial</module>
-	</modules>
+        <scm>
+            <connection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</connection>
+            <developerConnection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</developerConnection>
+            <url>http://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</url>
+        </scm>
 
+        <name>JXSE</name>
 	<organization>
-		<name>Project JXTA</name>
-		<url>http://jxta.org/</url>
+		<name>Project JXSE</name>
+		<url>http://jxse.kenai.com/</url>
 	</organization>
 
 	<description>JXTA technology is a set of open protocols that allow any connected device on the
         network ranging from cell phones and wireless PDAs to PCs and servers to communicate and
         collaborate in a P2P manner. JXTA peers create a virtual network where any peer can interact
         with other peers and resources directly even when some of the peers and resources are behind
-        firewalls and NATs or are on different network transports.</description>
+        firewalls and NATs or are on different network transports. JXSE is the Java implementation
+        of the JXTA protocols.</description>
 
 	<issueManagement>
 		<system>Project Issues</system>
 		<url>http://kenai.com/jira/browse/JXSE</url>
 	</issueManagement>
-	
+
 	<licenses>
 		<license>
 			<name>Sun Project JXTA(TM) Software License</name>
@@ -66,16 +71,434 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<repositories>
+		<repository>
+			<!-- Repository needed to include the jboss netty library -->
+			<id>repository.jboss.org</id>
+			<url>http://repository.jboss.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<build>
+
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>1.5</source>
-					<target>1.5</target>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+			<!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
+
+			<plugin>
+
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.0.1</version>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+							<goals>
+								<goal>manifest</goal>
+							</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<instructions>
+
+						<!-- Officially, we only export one bundle/service from an OSGi perspective 
+
+						     REM: This configuration triggers a warning, because our .jar is not a  
+						          a 'pure' OSGi bundle. It exports (de facto) many non-OSGi items.  
+						          This warning can be ignored.                                      -->
+
+
+					        <Export-Package>
+							net.jxse.OSGi.Services.JxseOSGiNetworkManagerService
+						</Export-Package>
+
+						<!-- But, our jar is full of non-OSGi stuff and we want to make sure BND does not strip it -->
+						<Private-Package>
+							*
+						</Private-Package>
+
+						<!-- Our activator will start the OSGi party by creating and registering our service  -->
+						<Bundle-Activator>
+							net.jxse.impl.OSGi.Activators.JxseOSGiNetworkManagerActivator
+						</Bundle-Activator>
+
+					</instructions>
+				</configuration>
+			</plugin>
+
+                        <plugin>
+
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-source-plugin</artifactId>
+                            
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                    <phase>package</phase>
+                                        <goals>
+                                            <goal>jar</goal>
+                                        </goals>
+                            </execution>
+                        </executions>
+
+                        </plugin>
+
+                        <!-- Configuring JUnits / Surefire -->
+			<plugin>
+
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+
+				<configuration>
+
+					<skipTests>true</skipTests>
+
+                                        <testFailureIgnore>true</testFailureIgnore>
+
+					<excludes>
+
+						<!-- We exclude some slow tests and some requiring 
+                                                     fundamental refactoring -->
+						<exclude>**/NetworkConfiguratorTest.java</exclude>
+						<exclude>**/PipeTest.java</exclude>
+						<exclude>**/SignedAdvertisementTest.java</exclude>
+						<exclude>**/DiscoveryQueryResponseMsgTest.java</exclude>
+						<exclude>**/DiscoveryResponseMsgTest.java</exclude>
+						<exclude>**/CountingOutputStreamTest.java</exclude>
+                                                <exclude>**/PeerGroupFactoryTest.java</exclude>
+                                                <exclude>**/LightWeightPeerGroupTest.java</exclude>
+
+						<exclude>**/alwaysAccessTest.java</exclude>
+						<exclude>**/SimpleACLAccessServiceTest.java</exclude>
+						<exclude>**/EndpointApiTest.java</exclude>
+						<exclude>**/ReliableTest.java</exclude>
+						<exclude>**/XportConfTest.java</exclude>
+						<exclude>**/pseMembershipTest.java</exclude>
+						<exclude>**/LRUCacheTest.java</exclude>
+						<exclude>**/PeerGroupTest.java</exclude>
+						<exclude>**/RefJxtaLoaderTest.java</exclude>
+						<exclude>**/DefaultContentProviderTest.java</exclude>
+						<exclude>**/SRDISocketContentProviderTest.java</exclude>
+
+						<exclude>**/InMemorySrdiTest.java</exclude>
+                                                <exclude>**/InMemorySrdiConcurrencyTest.java</exclude>
+                                                <exclude>**/H2CmConcurrencyTest.java</exclude>
+						<exclude>**/SrdiReplicaTest.java</exclude>
+						<exclude>**/SrdiTest.java</exclude>
+						<exclude>**/XIndiceCmConcurrencyTest.java</exclude>
+						<exclude>**/XIndiceCmTest.java</exclude>
+						<exclude>**/XIndiceSrdiConcurrencyTest.java</exclude>
+						<exclude>**/XIndiceSrdiIndexBackendOldLoadTest.java</exclude>
+						<exclude>**/XIndiceSrdiLoadTest.java</exclude>
+						<exclude>**/XIndiceSrdiTest.java</exclude>
+						<exclude>**/DerbyAdvertisementCacheTest.java</exclude>
+
+					</excludes>
+
+				</configuration>
+
+			</plugin>
+			
+			<!-- We use assembly to package the source code as a project ready for Maven. -->
+
+			<plugin>
+
+			        <artifactId>maven-assembly-plugin</artifactId>
+			        <version>2.2-beta-5</version>
+			        <configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/distribution-descriptor.xml</descriptor>
+					</descriptors>
+				</configuration>
+
+			        <executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <passphrase />
+                        </configuration>
+                    </plugin>
+
+		</plugins>
+	</build>
+
+	<dependencies>
+		
+		<dependency>
+			<groupId>bouncycastle</groupId>
+			<artifactId>bcprov-jdk15</artifactId>
+			<version>140</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.3</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.main</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<!--
+			The following dependencies are not always needed in normal JXTA use,
+			so they are flagged as "optional". Include it manually in your
+			project's pom.xml if you want to use the parts of JXTA that depend on
+			them.
+		-->
+		<dependency>
+			<groupId>jetty</groupId>
+			<artifactId>org.mortbay.jetty</artifactId>
+			<version>4.2.25</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.1.5.GA</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.5.3.0_1</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.1.118</version>
+			<optional>true</optional>
+		</dependency>
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-junit4</artifactId>
+			<version>2.5.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency> <!-- To be removed -->
+			<groupId>org.jmock</groupId>
+			<artifactId>jmock-junit3</artifactId>
+			<version>2.5.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.4.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>
+	</reporting>
+
+	<profiles>
+
+		<profile>
+			<id>replace-if-jre-6</id>
+			<activation>
+				<jdk>[1.6,)</jdk>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>tweak-sources-for-java-6</id>
+								<phase>process-sources</phase>
+								<configuration>
+									<tasks>
+										<replace file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+											<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+											<replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
+										</replace>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>replace-if-jre-5</id>
+			<activation>
+				<jdk>(,1.6)</jdk>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>tweak-sources-for-java-5</id>
+								<phase>process-sources</phase>
+								<configuration>
+									<tasks>
+										<replace file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+											<replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+											<replacevalue><![CDATA[Collection<Callable<T>>]]></replacevalue>
+										</replace>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+                <profile>
+                        <id>create-kenai-packaging</id>
+                        <build>
+                            <plugins>
+
+                                <!-- We add Javadoc creation to the build process  -->
+
+                                <plugin>
+
+                                    <groupId>org.apache.maven.plugins</groupId>
+                                    <artifactId>maven-javadoc-plugin</artifactId>
+
+                                    <executions>
+                                            <execution>
+						<phase>prepare-package</phase>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+                                            </execution>
+                                    </executions>
+
+                                    <!-- We exclude Impl Javadoc
+                                    <configuration>
+                                        <excludePackageNames>net.jxta.impl</excludePackageNames>
+                                    </configuration>  -->
+
+                                </plugin>
+
+                                    <!-- Kenai packaging -->
+
+                                    <plugin>
+                                        <artifactId>maven-antrun-plugin</artifactId>
+                                        <executions>
+                                            <execution>
+						<id>packaging</id>
+						<phase>package</phase>
+
+						<goals>
+							<goal>run</goal>
+						</goals>
+
+						<configuration>
+							<tasks>
+
+								<!-- Deleting kenai dir content -->
+								<delete dir="${project.build.directory}/kenai" />
+
+                                                                <!-- Making dir -->
+                                                                <mkdir dir="${project.build.directory}/kenai" />
+
+								<!-- Copying site (including online Javadoc)
+								<copy todir="${project.build.directory}/kenai/site">
+									<fileset dir="${project.build.directory}/site" />
+								</copy>   -->
+
+								<!-- Tar-gz & zip dependencies -->
+								<tar destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" basedir="${project.basedir}/../lib" />
+
+								<gzip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar.gz" src="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
+
+								<delete file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
+
+								<zip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip" basedir="${project.basedir}/../lib" />
+
+
+								<!-- Tar-gz & zip Javadoc 
+								<tar destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" basedir="${project.build.directory}/kenai/site/apidocs" />
+
+								<gzip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar.gz" src="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
+
+								<delete file="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
+
+								<zip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.zip" basedir="${project.build.directory}/kenai/site/apidocs" /> -->
+
+								<!-- Moving the src code packaging -->
+								<copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.tar.gz" todir="${project.build.directory}/kenai" />
+								<copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.zip" todir="${project.build.directory}/kenai" />
+
+								<!-- Moving the .jar -->
+								<copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" todir="${project.build.directory}/kenai" />
+
+							</tasks>
+						</configuration>
+                                            </execution>
+                                        </executions>
+                                    </plugin>
+
+                                </plugins>
+                        </build>
+                </profile>
+
+	</profiles>
+		
 </project>
+
