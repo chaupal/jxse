@@ -72,7 +72,7 @@ public class ConditionalMeterBuildSettings {
      * <p>It searches a {@code net.jxta.meter.conditionalMetering} property entry in
      * the {@code net.jxta.user} property file included as part of the generated .jar file.
      * If this property is set to ON, the returned value will be {@code true}. Else, if the
-     * property is not defined or if it has another value, this method will return {@code false}.
+     * property is not defined or if it has another value, this method will return {@false}.
      *
      * @return {@code true} if {@code METERING} code should be executed, else {@code false}
      */

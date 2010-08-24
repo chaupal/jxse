@@ -164,9 +164,8 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      *
      * @param aclLocation The location of the ACL file or {@code null} if no
      * ACL file should be used.
-     * @param inUseSeedsOnly If {@code true} then the only peers which are part
+     * @param useSeedsOnly If {@code true} then the only peers which are part
      * of the seed peer set will be
-     * @param group the corresponding peer group
      */
     public URISeedingManager(URI aclLocation, boolean inUseSeedsOnly, PeerGroup group, String serviceName) {
         super(aclLocation, group, serviceName);

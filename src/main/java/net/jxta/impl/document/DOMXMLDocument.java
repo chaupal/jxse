@@ -57,17 +57,6 @@
 package net.jxta.impl.document;
 
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
@@ -83,9 +72,11 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.lang.reflect.UndeclaredThrowableException;
 
 
@@ -97,6 +88,7 @@ import java.lang.reflect.UndeclaredThrowableException;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/java-binding.html">DOM Java Language Binding</a>
  * @see <a href="http://www.w3.org/TR/2004/REC-DOM-Level-3-LS-20040407">Document Object Model (DOM) Level 3 Load and Save Specification</a>
  * @see <a href="http://java.sun.com/xml/jaxp/index.html">Java API for XML Processing (JAXP)</a>
+ * @see org.w3c.dom
  */
 public class DOMXMLDocument extends DOMXMLElement implements XMLDocument<DOMXMLElement> {
 

@@ -67,7 +67,7 @@ import net.jxta.logging.Logging;
 
 /**
  * Collection of utility methods useful to {@link AdvertisementCache} implementations,
- * extracted from the original {@link CacheManager} implementation.
+ * extracted from the original {@link Cm} implementation.
  */
 public class CacheUtils {
 

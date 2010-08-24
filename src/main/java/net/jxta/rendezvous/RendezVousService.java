@@ -352,11 +352,11 @@ public interface RendezVousService extends Service {
     /**
      * Return {@code true} if connected to a rendezvous.
      *
-     * Since 2.6 The behavior of this method changes to reflect the true connectivity
+     * {@since 2.6 The behavior of this method changes to reflect the true connectivity
      * status to RDVs. If this peer is an ADHOC, it always returns {@code false}. If this
      * peer is a RDV, it will return {@code true} if it knows about other RDVs through its
      * peerview. If this peer is an EDGE, the returned value depends on the fact that
-     * the EDGE is connected to a RDV or not (not change in behavior).
+     * the EDGE is connected to a RDV or not (not change in behavior).}
      *
      * </p>REM: Before release 2.6, the information returned by this method was
      * ambiguous. For ADHOC peers, it would always return {@code true} although

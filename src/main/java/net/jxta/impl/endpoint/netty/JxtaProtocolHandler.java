@@ -6,12 +6,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelFuture;
@@ -30,7 +33,7 @@ import org.jboss.netty.util.Timer;
 
 /**
  * Implementation of the JXTA TCP/IP choreography protocol as specified in
- * https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#trans-tcpipt Section 7.1 of the JXTA v2.0
+ * {@link https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#trans-tcpipt Section 7.1} of the JXTA v2.0
  * Protocols Specification. This should be usable for any bidirectional, stream-based network transport.
 
  * @author iain.mcginniss@onedrum.com

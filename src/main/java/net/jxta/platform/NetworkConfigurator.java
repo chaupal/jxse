@@ -654,7 +654,7 @@ public class NetworkConfigurator {
     /**
      * Returns the HTTP interface Address
      *
-     * @return the HTTP interface address
+     * @param address the HTTP interface address
      */
     public String getHttpInterfaceAddress() {
         return httpConfig.getInterfaceAddress();
@@ -2206,6 +2206,7 @@ public class NetworkConfigurator {
      * Retrieves the rendezvous seeds
      *
      * @return the array of rendezvous seeds URL
+     * @see #addRdvSeedURI
      */
     public URI[] getRdvSeedURIs() {
         return rdvConfig.getSeedRendezvous();
@@ -2215,6 +2216,7 @@ public class NetworkConfigurator {
      * Retrieves the relay seeds
      *
      * @return the array of relay seeds URL
+     * @see #addRelaySeedURI
      */
     public URI[] getRelaySeedURIs() {
         return relayConfig.getSeedRelayURIs();

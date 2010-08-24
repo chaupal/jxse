@@ -69,7 +69,7 @@ public class JxtaConfigurationException extends Exception {
     private final static Logger LOG = Logger.getLogger(JxtaConfiguration.class.getName());
 
     /**
-     * Default constructor.
+     * {@inheritdoc}
      */
     public JxtaConfigurationException() {
 
@@ -79,9 +79,7 @@ public class JxtaConfigurationException extends Exception {
     }
 
     /**
-     * Constructor with a message.
-     *
-     * @param message the exception message
+     * {@inheritdoc}
      */
     public JxtaConfigurationException(String message) {
 
@@ -91,10 +89,7 @@ public class JxtaConfigurationException extends Exception {
     }
 
     /**
-     * Constructor with a message and a cause.
-     *
-     * @param message the exception message
-     * @param cause the cause of the exception
+     * {@inheritdoc}
      */
     public JxtaConfigurationException(String message, Throwable cause) {
 
@@ -104,9 +99,7 @@ public class JxtaConfigurationException extends Exception {
     }
 
     /**
-     * Constructor with a cause.
-     *
-     * @param cause the cause of the exception
+     * {@inheritdoc}
      */
     public JxtaConfigurationException(Throwable cause) {
 

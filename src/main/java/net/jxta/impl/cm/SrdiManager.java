@@ -170,7 +170,7 @@ public class SrdiManager implements RendezvousListener {
      * @param handlername         the SRDI handlername
      * @param srdiService         the service utilizing this SrdiManager, for purposes of
      *                            callback push entries on events such as rdv connect/disconnect, etc.
-     * @param srdiIndex           The index instance associated with this service
+     * @param srdimsg           The index instance associated with this service
      */
     public SrdiManager(PeerGroup group, String handlername, SrdiPushEntriesInterface srdiService, SrdiAPI srdiIndex) {
 
@@ -252,7 +252,7 @@ public class SrdiManager implements RendezvousListener {
      *
      * @param peer peer to push message to, if peer is null it is
      *             the message is propagated
-     * @param srdi SRDI message to send
+     * @param srdimsg SRDI message to send
      */
     public void pushSrdi(ID peer, SrdiMessage srdi) {
         try {

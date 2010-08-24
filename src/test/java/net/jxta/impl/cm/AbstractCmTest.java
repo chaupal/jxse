@@ -119,7 +119,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     /**
      * @return the full class name of the implementation to be tested. Used
      * to ensure the cache can be instantiated from the reflection based approach
-     * used in the standard {@link CacheManager} constructors.
+     * used in the standard {@link Cm} constructors.
      */
     public abstract String getCacheClassName();
     

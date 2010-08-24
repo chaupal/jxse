@@ -125,8 +125,8 @@ public class JxseInstantiator {
      * is encountered.
      *
      * @param inClass The {@code Class} to instantiate
-     * @param inParamTypes An array of parameter types
-     * @param inParamValues An array of parameter values
+     * @param inParamsTypes An array of parameter types
+     * @param inParamsValues An array of parameter values
      * @return an {@code Object} class or {@code null}
      */
     public static Object instantiate(Class inClass, Class[] inParamTypes, Object[] inParamValues) {
@@ -212,7 +212,7 @@ public class JxseInstantiator {
      * is encountered.
      *
      * @param inClass The {@code Class} to instantiate
-     * @param inParametersValues Any number of parameter values for the constructor
+     * @param inParamsValues Any number of parameter values for the constructor
      * @return an {@code Object} class or {@code null}
      */
     public static Object instantiate(Class inClass, Object... inParametersValues) {
@@ -245,9 +245,6 @@ public class JxseInstantiator {
 
         return instantiate(inClass, new Class[0], new Object[0]);
         
-    }
-
-    private JxseInstantiator() {
     }
 
 }

@@ -110,8 +110,6 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
     /**
      * Return an HTTP transport configuration containing defaults
-     *
-     * @return a JXSE peer configuration
      */
     public static final JxsePeerConfiguration getDefaultJxsePeerConfiguration() {
 
@@ -291,8 +289,6 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
     /**
      * Returns the connection mode configuration or {@code null} if none is available.
-     *
-     * @return a connection mode or {@code null}
      */
     public ConnectionMode getConnectionMode() {
 
@@ -371,8 +367,6 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
 
     /**
      * Returns the peer instance name or {@code null} if none is available.
-     *
-     * @return the peer instance name
      */
     public String getPeerInstanceName() {
 
@@ -406,6 +400,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      * Returns the URI to the persistence location, or {@code null} if none is available.
      *
      * @return persistence location URI, or {@code null} if none is available.
+     * @throws URISyntaxException if the persistence location cannot be parsed properly.
      */
     public URI getPersistenceLocation() {
 
@@ -425,10 +420,10 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
     public static final String JXSE_PEER_ID = "JXSE_PEER_ID";
 
     /**
-     * Sets the peer ID configuration. If {@code null}, any existing peer ID
+     * Sets the infrastructure ID configuration. If {@code null}, any existing infrastructure ID
      * configuration is removed.
      *
-     * @param peerID The peer ID or {@code null} to remove any existing peer ID
+     * @param infrastructureID Connection mode configuration or {@code null} to remove any existing.
      */
     public void setPeerID(PeerID peerID) {
 
@@ -441,9 +436,10 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
     }
 
     /**
-     * Returns the peer ID configuration or {@code null} if none is available.
+     * Returns the infrastructure ID configuration or {@code null} if none is available.
      *
-     * @return peer ID or {@code null} if none available.
+     * @return Infrastructure ID or {@code null} if none available.
+     * @throws URISyntaxException if the infrastructure ID cannot be parsed properly.
      */
     public PeerID getPeerID() {
 
@@ -666,7 +662,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      * Determines whether to restrict RendezvousService leases to those defined in
      * the seed list
      *
-     * @param useOnlyRdvSeeds restrict RendezvousService lease to seed list
+     * @param useOnlyRendezvouSeeds restrict RendezvousService lease to seed list
      */
     public void setUseOnlyRdvSeeds(boolean useOnlyRdvSeeds) {
 
@@ -719,8 +715,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      * Return the relay seed URI corresponding to the item number or {@code null} if none is
      * available.
      *
-     * @param itemNumber the URI item number
-     * @return a relay seed URI or {@code null}
+     * @param itemNumber
      */
     public URI getSeedRelay(int itemNumber) {
 
@@ -806,9 +801,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      * Return the rendezvous seed URI corresponding to the item number or {@code null} if none is
      * available.
      *
-     * @param itemNumber the URI item number
-     * @return a rendezvous seed URI or {@code null}
-     *
+     * @param itemNumber
      */
     public URI getSeedRendezvous(int itemNumber) {
 
@@ -894,8 +887,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      * Return the relay seeding URI corresponding to the item number or {@code null}
      * if none is available.
      *
-     * @param itemNumber the URI item number
-     * @return a relay seeding URI or {@code null}
+     * @param itemNumber
      */
     public URI getSeedingRelay(int itemNumber) {
 
@@ -981,8 +973,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      * Return the rendezvous seeding URI corresponding to the item number or {@code null}
      * if none is available.
      *
-     * @param itemNumber the URI item number
-     * @return a rendezvous seeding URI or {@code null}
+     * @param itemNumber
      */
     public URI getSeedingRendezvous(int itemNumber) {
 
@@ -1141,6 +1132,7 @@ public class JxsePeerConfiguration extends JxtaPeerConfiguration {
      * In addition to loading this configuration, it creates the HTTP, TCP and Multicasting
      * configuration too.
      *
+     * @param an input stream
      */
     @Override
     public synchronized void loadFromXML(InputStream in) throws IOException {

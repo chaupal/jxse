@@ -208,7 +208,7 @@ public final class Logging {
     private Logging() {}
 
     /**
-     * This method checks whether {@code SHOW_CONFIG} is set to {@code true},
+     * This method checks whether {@code SHOW_CONFIG} is set to {@code true),
      * and whether the provided logger allows config messages. If yes, the
      * message is logged.
      *
@@ -226,7 +226,7 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_FINE} is set to {@code true},
+     * This method checks whether {@code SHOW_FINE} is set to {@code true),
      * and whether the provided logger allows fine messages. If yes, the
      * message is logged.
      *
@@ -244,7 +244,7 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_FINER} is set to {@code true},
+     * This method checks whether {@code SHOW_FINER} is set to {@code true),
      * and whether the provided logger allows finer messages. If yes, the
      * message is logged.
      *
@@ -262,7 +262,7 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_FINEST} is set to {@code true},
+     * This method checks whether {@code SHOW_FINEST} is set to {@code true),
      * and whether the provided logger allows finest messages. If yes, the
      * message is logged.
      *
@@ -280,7 +280,7 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_INFO} is set to {@code true},
+     * This method checks whether {@code SHOW_INFO} is set to {@code true),
      * and whether the provided logger allows info messages. If yes, the
      * message is logged.
      *
@@ -298,7 +298,7 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_SEVERE} is set to {@code true},
+     * This method checks whether {@code SHOW_SEVERE} is set to {@code true),
      * and whether the provided logger allows severe messages. If yes, the
      * message is logged.
      *
@@ -316,7 +316,7 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_WARNING} is set to {@code true},
+     * This method checks whether {@code SHOW_WARNING} is set to {@code true),
      * and whether the provided logger allows warnings messages. If yes, the
      * message is logged.
      *

@@ -277,9 +277,9 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
     }
 
     /**
-     * Returns the TCP transport server incoming mode (default is on)
+     * Returns the TCP transport server (incoming) mode (default is on)
      *
-     * @return {@code true} if TCP communication is allowed, {@code false} otherwise
+     * @param incoming the new TCP server mode
      */
     public boolean getTcpIncoming() {
 
@@ -293,9 +293,9 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
     public static final String JXSE_TCP_OUTGOING = "JXSE_TCP_OUTGOING";
 
     /**
-     * Sets TCP transport server (outgoing) mode.
+     * Toggles TCP transport server (outgoing) mode (default is on)
      *
-     * @param outgoing the TCP server outgoing mode
+     * @param incoming the new TCP server mode
      */
     public void setTcpOutgoing(boolean outgoing) {
 
@@ -304,9 +304,9 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
     }
 
     /**
-     * Returns the TCP transport server outgoing mode
+     * Returns the TCP transport server (incoming) mode (default is on)
      *
-     * @return the new TCP server outgoing mode
+     * @param incoming the new TCP server mode
      */
     public boolean getTcpOutgoing() {
 

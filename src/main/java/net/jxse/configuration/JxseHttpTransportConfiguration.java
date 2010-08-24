@@ -81,9 +81,7 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
     public static final int DEFAULT_HTTP_PORT = 9901;
 
     /**
-     * Return an HTTP transport configuration containing defaults.
-     *
-     * @return a default HTTP transport configuration
+     * Return an HTTP transport configuration containing defaults
      */
     public static final JxseHttpTransportConfiguration getDefaultHttpTransportConfiguration() {
 
@@ -100,6 +98,8 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
 
     /**
      * Simple constructor.
+     *
+     * @param toCopy entries to copy in this object.
      */
     public JxseHttpTransportConfiguration() {
 
@@ -147,8 +147,6 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
 
     /**
      * Returns the HTTP incoming communication configuration.
-     *
-     * @return {@code true} if incoming HTTP communication is allowed, {@code false} otherwise
      */
     public boolean getHttpIncoming() {
 
@@ -164,7 +162,7 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
     /**
      * To allow or disable outgoing HTTP communication.
      *
-     * @param outgoing Allows HTTP outgoing communication if {@code true}, else does not.
+     * @param incoming
      */
     public void setHttpOutgoing(boolean outgoing) {
 
@@ -174,8 +172,6 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
 
     /**
      * Returns the HTTP outgoing communication configuration.
-     *
-     * @return {@code true} if outgoing HTTP communication is allowed, {@code false} otherwise
      */
     public boolean getHttpOutgoing() {
 
@@ -206,8 +202,6 @@ public class JxseHttpTransportConfiguration extends JxtaTransportConfiguration {
 
     /**
      * Returns the HTTP listening port value. If no configuration is available, -1 is return.
-     *
-     * @return the HTTP listening port value
      */
     public int getHttpPort() {
 

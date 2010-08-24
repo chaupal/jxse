@@ -431,7 +431,7 @@ class RouteCM implements Module {
      */
     protected void publishRoute(RouteAdvertisement route) {
         DiscoveryService discovery;
-
+                
         // check if CM is in used, if not nothing to do
         if (!useCM) {
             return;
@@ -441,21 +441,7 @@ class RouteCM implements Module {
                 return;
             }
         }
-
-        /**
-         * While testing 2.6, a user found out that route parameter was sometimes
-         * null. Exact conditions triggering this issue could not be established. 
-         * 
-         * However, calling an object's method without checking for null is not
-         * good practice. Hence, this new test.
-         */
-        if ( route == null ) {
-
-            Logging.logCheckedWarning(LOG, "Attempting to publish a null route");
-            return;
-
-        }
-
+        
         Logging.logCheckedFine(LOG, "Publishing route for ", route.getDestPeerID());
         
         // publish route adv

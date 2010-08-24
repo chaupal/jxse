@@ -110,7 +110,7 @@ public abstract class JxtaTransportConfiguration extends JxtaConfiguration {
     /**
      * Provides the corresponding transport name.
      *
-     * @return the transport name
+     * @return
      */
     public abstract String getTransportName();
     

@@ -71,7 +71,7 @@ import net.jxta.peer.PeerID;
  * which is useful for comparative benchmarking with other implementations.
  * <p>
  * In order to specify an alternative SrdiAPI from the default, change the system property {@link net.jxta.impl.cm.Srdi#SRDI_INDEX_BACKEND_SYSPROP} to
- * the full class name of the required alternative, or construct Srdi directly using {@link net.jxta.impl.cm.Srdi}.
+ * the full class name of the required alternative, or construct Srdi directly using {@link net.jxta.impl.cm.Srdi#Srdi(SrdiAPI)}.
  */
 public interface SrdiAPI {
 	
@@ -89,24 +89,20 @@ public interface SrdiAPI {
 	void add(String primaryKey, String attribute, String value, PeerID pid, long expiration) throws IOException;
 	
 	/**
-         * retrieves all entries exactly matching the provided primary key, secondary key and value.
-         *
-         * @param pkey  primary key
-         * @param skey  secondary key
-         * @param value value
-         * @return List of Entry objects
-         * @throws IOException if an I/O exception is encounter
-         */
+     * retrieves all entries exactly matching the provided primary key, secondary key and value.
+     *
+     * @param pkey  primary key
+     * @param skey  secondary key
+     * @param value value
+     * @return List of Entry objects
+     */
 	List<Srdi.Entry> getRecord(String pkey, String skey, String value) throws IOException;
 	
 	/**
 	 * Marks all records added to the index for the specified peer ID for garbage collection. If
 	 * add is subsequently called before garbage collection occurs, this removal request will be
 	 * canceled.
-         *
-         * @param pid a peer ID
-         * @throws IOException if an I/O exception is encounter
-         */
+	 */
 	void remove(PeerID pid) throws IOException;
 	
 	/**
@@ -121,22 +117,17 @@ public interface SrdiAPI {
 	 * return all Peer IDs under the primary key with a matching attribute.
          *
 	 * @param threshold the maximum number of results to return.
-         * @return a list of peer IDs who have records matching the specified criteria of this query.
-         * @throws IOException if an I/O exception is encountered.
+	 * @return a list of peer IDs who have records matching the specified criteria of this query.
 	 */
 	List<PeerID> query(String primaryKey, String attribute, String value, int threshold) throws IOException;
 	
 	/**
-         * Empties the index completely.
-         *
-         * @throws IOException if an I/O exception is encountered.
-         */
+     * Empties the index completely.
+     */
 	void clear() throws IOException;
 	
 	/**
 	 * Triggers a clean-up of the index, removing all records whose expiry has passed.
-         *
-         * @throws IOException if an I/O exception is encountered.
 	 */
 	void garbageCollect() throws IOException;
 	
