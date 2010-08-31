@@ -34,19 +34,21 @@ public class NettyTransportServerTest {
     private ServerChannelFactory factory;
     private FakePeerGroup group;
     private List<InetSocketAddress> bindpoints;
-    
+    private static int START_PORT = 12345;
+
     @Before
     public void setUp() throws UnknownHostException {
+        START_PORT++;
         factory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
         
         group = new FakePeerGroup();
         endpointService = group.endpointService;
         
         bindpoints = new LinkedList<InetSocketAddress>();
-        bindpoints.add(new InetSocketAddress(InetAddress.getLocalHost(), 12345));
+        bindpoints.add(new InetSocketAddress(InetAddress.getLocalHost(), START_PORT));
         
         List<EndpointAddress> publicAddresses = new ArrayList<EndpointAddress>();
-        publicAddresses.add(new EndpointAddress("test", "[::1]:12345", null, null));
+        publicAddresses.add(new EndpointAddress("test", "[::1]:" + START_PORT, null, null));
         server = new NettyTransportServer(factory, new InetSocketAddressTranslator("tcp2"), group);
     }
     

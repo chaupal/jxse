@@ -108,8 +108,10 @@ import junit.framework.Test;
 import junit.textui.TestRunner;
 
 import net.jxta.impl.util.threads.TaskManager;
+import org.junit.Ignore;
 
 
+@Ignore("JXTA Configurator required")
 public class ReliableTest extends TestCase implements 
         RendezvousListener, DiscoveryListener, PipeMsgListener, OutputPipeListener {
 

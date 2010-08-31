@@ -78,10 +78,12 @@ import net.jxta.exception.PeerGroupException;
 
 import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.impl.protocol.SignedAdv;
+import org.junit.Ignore;
 
 
 /**
  * */
+@Ignore("JXTA Configurator required")
 public class SignedAdvertisementTest extends TestCase {
     
     static PeerGroup pg;

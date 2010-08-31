@@ -98,8 +98,9 @@ import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.PSEConfigAdv;
+import org.junit.Ignore;
 
-
+@Ignore("JXTA Configurator required")
 public class pseMembershipTest extends TestCase {
     
     static PeerGroup npg = null;

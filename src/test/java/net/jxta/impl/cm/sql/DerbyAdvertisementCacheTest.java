@@ -12,6 +12,6 @@ public class DerbyAdvertisementCacheTest extends AbstractCmTest {
 
 	@Override
 	public String getCacheClassName() {
-		return JdbcAdvertisementCache.class.getName();
+		return DerbyAdvertisementCache.class.getName();
 	}
 }

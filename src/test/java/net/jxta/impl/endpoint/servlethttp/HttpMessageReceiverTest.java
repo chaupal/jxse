@@ -60,6 +60,9 @@ package net.jxta.impl.endpoint.servlethttp;
 import net.jxta.test.http.GetMessage;
 import net.jxta.test.http.PostMessage;
 import net.jxta.test.http.Message;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -67,6 +70,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -76,7 +81,8 @@ import java.util.Properties;
  * @author james todd [gonzo at jxta dot org]
  */
 
-public class HttpMessageReceiverTest extends junit.framework.TestCase {
+@Ignore("Needs some work, Investigate")
+public class HttpMessageReceiverTest {
 
     private static final String RESOURCE_PREFIX = "/net/jxta/test/resources/";
     private static final String RESOURCE_SUFFIX = ".properties";
@@ -97,26 +103,7 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
     private URL relayGet = null;
     private URL relayPost = null;
 
-    public static void main(String[] argv) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    public static junit.framework.TestSuite suite() {
-        junit.framework.TestSuite suite = new junit.framework.TestSuite();
-
-        suite.addTest(new junit.framework.TestSuite(HttpMessageReceiverTest.class));
-
-        return suite;
-    }
-
-    public HttpMessageReceiverTest() {
-        this(HttpMessageReceiverTest.class.getName());
-    }
-
-    public HttpMessageReceiverTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testHello() {
         assertNotNull("relay is null", this.relay);
 
@@ -146,6 +133,7 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
         assertTrue("missing prefix" + HELLO_PREFIX, r != null && r.startsWith(HELLO_PREFIX));
     }
 
+    @Test
     public void testPutOneKMessage() {
         assertNotNull("relay is null", this.relayPost);
         assertNotNull("1k is null", this.oneKMessage);
@@ -179,6 +167,7 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
         assertTrue("empty response", r == null || r.trim().length() == 0);
     }
 
+    @Test
     public void testGetOneKMessage() {
         assertNotNull("relay is null", this.relayGet);
 
@@ -212,15 +201,17 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
          */
     }
 
+    @Test
     public void testPutSixtyFourKMessage() {
         assertNotNull("64k is null", this.sixtyFourKMessage);
     }
 
+    @Test
     public void testGetSixtyFourKMessage() {
         assertNotNull("64k is null", this.sixtyFourKMessage);
     }
 
-    @Override
+    @Before
     protected void setUp() {
         Properties props = new Properties();
         String base = this.getClass().getName();
@@ -256,7 +247,7 @@ public class HttpMessageReceiverTest extends junit.framework.TestCase {
         }
     }
 
-    @Override
+    @Before
     protected void tearDown() {
         System.gc();
     }

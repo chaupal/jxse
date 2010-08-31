@@ -165,15 +165,14 @@
 
 				<configuration>
 
-					<skipTests>true</skipTests>
-
-                                        <testFailureIgnore>true</testFailureIgnore>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <forkMode>pertest</forkMode>
 
 					<excludes>
 
 						<!-- We exclude some slow tests and some requiring 
                                                      fundamental refactoring -->
-						<exclude>**/NetworkConfiguratorTest.java</exclude>
+						<!--<exclude>**/NetworkConfiguratorTest.java</exclude>
 						<exclude>**/PipeTest.java</exclude>
 						<exclude>**/SignedAdvertisementTest.java</exclude>
 						<exclude>**/DiscoveryQueryResponseMsgTest.java</exclude>
@@ -206,6 +205,10 @@
 						<exclude>**/XIndiceSrdiLoadTest.java</exclude>
 						<exclude>**/XIndiceSrdiTest.java</exclude>
 						<exclude>**/DerbyAdvertisementCacheTest.java</exclude>
+                                                          -->
+                        <!-- These tests never return -->
+                        <exclude>**/XindiceTest.java</exclude>
+                        <!-- These tests fail -->
 
 					</excludes>
 
@@ -305,7 +308,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.4</version>
+			<version>4.8.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -316,7 +319,7 @@
 		</dependency>
 		<dependency> <!-- To be removed -->
 			<groupId>org.jmock</groupId>
-			<artifactId>jmock-junit3</artifactId>
+			<artifactId>jmock-junit4</artifactId>
 			<version>2.5.1</version>
 			<scope>test</scope>
 		</dependency>

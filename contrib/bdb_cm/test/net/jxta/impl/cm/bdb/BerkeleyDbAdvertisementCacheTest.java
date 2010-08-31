@@ -21,7 +21,7 @@ public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 		return BerkeleyDbAdvertisementCache.class.getName();
 	}
 	
-	public void testGarbageCollection() throws Exception {
+	@Test public void testGarbageCollection() throws Exception {
 		fakeTimer.currentTime = 0;
 		cm.save("a", "b", adv, 10000L, 10000L);
 		cm.garbageCollect();
@@ -61,7 +61,7 @@ public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 		assertEquals(0, search.size());
 	}
 	
-	public void testCreation_withStoreRootThatIsAFile() throws Exception {
+	@Test public void testCreation_withStoreRootThatIsAFile() throws Exception {
 		File testRoot = File.createTempFile("bdbtest", null);
 		
 		try {

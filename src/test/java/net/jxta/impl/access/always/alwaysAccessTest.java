@@ -73,8 +73,9 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupFactory;
+import org.junit.Ignore;
 
-
+@Ignore("JXTA Configurator required")
 public class alwaysAccessTest extends TestCase {
     
     static PeerGroup pg;

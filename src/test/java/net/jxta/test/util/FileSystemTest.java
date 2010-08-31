@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * Test helper which creates a temporary directory on setUp and recursively deletes it
  * on tearDown.
  */
-public abstract class FileSystemTest extends TestCase {
+public abstract class FileSystemTest {
 
 	/**
 	 * The test directory that is created by setUp, for use in subclasses.
@@ -22,17 +24,15 @@ public abstract class FileSystemTest extends TestCase {
      */
     protected String testDirPrefix = "fstest";
     
-    @Override
-    protected void setUp() throws Exception {
-    	super.setUp();
+    @Before
+    public void setUp() throws Exception {
     	
     	this.testRootDir = createTempDirectory(testDirPrefix);
     }
     
-    @Override
-    protected void tearDown() throws Exception {
-    	super.tearDown();
-    	
+    @After
+    public void tearDown() throws Exception {
+
     	deleteDir(testRootDir);
     }
     

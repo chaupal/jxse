@@ -12,11 +12,7 @@ import net.jxta.test.util.FileSystemTest;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.*;
 
 public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	

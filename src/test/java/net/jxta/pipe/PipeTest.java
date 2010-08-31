@@ -79,8 +79,9 @@ import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.peer.PeerID;
 
 import net.jxta.impl.endpoint.tls.TlsTransport;
+import org.junit.Ignore;
 
-
+@Ignore("JXTA Configurator required")
 public class PipeTest extends TestCase {
     
     static final String pipeid = "urn:jxta:uuid-59616261646162614E504720503250330171AB9DD280488AA6429589D17FC95404";

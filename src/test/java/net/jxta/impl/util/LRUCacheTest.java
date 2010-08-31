@@ -58,11 +58,13 @@ package net.jxta.impl.util;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.junit.Ignore;
 
 /**
  *
  * @author hamada
  */
+@Ignore("Takes way too long")
 public class LRUCacheTest extends TestCase {
     int iterations = 1000 * 1000 * 1000;
     LRUCache<Integer, Integer> cache = new LRUCache<Integer, Integer>(50);

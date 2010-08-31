@@ -71,6 +71,7 @@ import net.jxta.protocol.TransportAdvertisement;
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.protocol.TCPAdv;
+import org.junit.Ignore;
 
 import java.util.Enumeration;
 import java.util.Vector;
@@ -79,7 +80,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Collections;
 
-
+@Ignore("JXTA Configurator required")
 public class XportConfTest extends TestCase {
 
     static PeerGroup pg;

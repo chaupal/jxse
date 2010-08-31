@@ -61,9 +61,11 @@ import junit.framework.*;
 
 import net.jxta.peergroup.*;
 import net.jxta.endpoint.*;
+import org.junit.Ignore;
+
 import java.io.IOException;
 
-
+@Ignore("JXTA Configurator Required")
 public class EndpointApiTest extends TestCase implements EndpointListener, MessengerEventListener, OutgoingMessageEventListener {
 
     static PeerGroup pg;

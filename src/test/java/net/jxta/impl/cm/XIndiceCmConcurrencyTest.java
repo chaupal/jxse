@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import net.jxta.test.util.FileSystemTest;
+import org.junit.Ignore;
 
+@Ignore("Takes too long to run")
 public class XIndiceCmConcurrencyTest extends AbstractCmConcurrencyTest {
 
     private File storeHome;
