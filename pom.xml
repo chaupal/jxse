@@ -75,7 +75,7 @@
 		<repository>
 			<!-- Repository needed to include the jboss netty library -->
 			<id>repository.jboss.org</id>
-			<url>http://repository.jboss.org/maven2</url>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -286,7 +286,13 @@
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
-			<version>3.1.5.GA</version>
+			<version>3.2.2.Final</version>
+			<optional>true</optional>
+		</dependency>
+        <dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty-http-tunnel</artifactId>
+			<version>0.9</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
