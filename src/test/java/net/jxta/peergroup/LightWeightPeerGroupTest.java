@@ -61,7 +61,9 @@ import net.jxta.document.AdvertisementFactory;
 import net.jxta.id.IDFactory;
 
 import junit.framework.*;
+import org.junit.Ignore;
 
+@Ignore("JXTA Configurator Required")
 public class LightWeightPeerGroupTest extends TestCase {
     
     static int inits = 0;

@@ -165,47 +165,14 @@
 
 				<configuration>
 
-					<skipTests>true</skipTests>
-
-                                        <testFailureIgnore>true</testFailureIgnore>
+					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <forkMode>pertest</forkMode>
 
 					<excludes>
 
-						<!-- We exclude some slow tests and some requiring 
-                                                     fundamental refactoring -->
-						<exclude>**/NetworkConfiguratorTest.java</exclude>
-						<exclude>**/PipeTest.java</exclude>
-						<exclude>**/SignedAdvertisementTest.java</exclude>
-						<exclude>**/DiscoveryQueryResponseMsgTest.java</exclude>
-						<exclude>**/DiscoveryResponseMsgTest.java</exclude>
-						<exclude>**/CountingOutputStreamTest.java</exclude>
-                                                <exclude>**/PeerGroupFactoryTest.java</exclude>
-                                                <exclude>**/LightWeightPeerGroupTest.java</exclude>
-
-						<exclude>**/alwaysAccessTest.java</exclude>
-						<exclude>**/SimpleACLAccessServiceTest.java</exclude>
-						<exclude>**/EndpointApiTest.java</exclude>
-						<exclude>**/ReliableTest.java</exclude>
-						<exclude>**/XportConfTest.java</exclude>
-						<exclude>**/pseMembershipTest.java</exclude>
-						<exclude>**/LRUCacheTest.java</exclude>
-						<exclude>**/PeerGroupTest.java</exclude>
-						<exclude>**/RefJxtaLoaderTest.java</exclude>
-						<exclude>**/DefaultContentProviderTest.java</exclude>
-						<exclude>**/SRDISocketContentProviderTest.java</exclude>
-
-						<exclude>**/InMemorySrdiTest.java</exclude>
-                                                <exclude>**/InMemorySrdiConcurrencyTest.java</exclude>
-                                                <exclude>**/H2CmConcurrencyTest.java</exclude>
-						<exclude>**/SrdiReplicaTest.java</exclude>
-						<exclude>**/SrdiTest.java</exclude>
-						<exclude>**/XIndiceCmConcurrencyTest.java</exclude>
-						<exclude>**/XIndiceCmTest.java</exclude>
-						<exclude>**/XIndiceSrdiConcurrencyTest.java</exclude>
-						<exclude>**/XIndiceSrdiIndexBackendOldLoadTest.java</exclude>
-						<exclude>**/XIndiceSrdiLoadTest.java</exclude>
-						<exclude>**/XIndiceSrdiTest.java</exclude>
-						<exclude>**/DerbyAdvertisementCacheTest.java</exclude>
+                        <!-- These tests never return -->
+                        <exclude>**/XindiceTest.java</exclude>
+                        <!-- These tests fail -->
 
 					</excludes>
 
@@ -311,7 +278,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.4</version>
+			<version>4.8.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -322,7 +289,7 @@
 		</dependency>
 		<dependency> <!-- To be removed -->
 			<groupId>org.jmock</groupId>
-			<artifactId>jmock-junit3</artifactId>
+			<artifactId>jmock-junit4</artifactId>
 			<version>2.5.1</version>
 			<scope>test</scope>
 		</dependency>

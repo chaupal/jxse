@@ -6,7 +6,9 @@ import java.io.IOException;
 import net.jxta.impl.cm.AbstractCmConcurrencyTest;
 import net.jxta.impl.cm.AdvertisementCache;
 import net.jxta.test.util.FileSystemTest;
+import org.junit.Ignore;
 
+@Ignore("Takes way too long for unit test")
 public class H2CmConcurrencyTest extends AbstractCmConcurrencyTest {
 
 	File storeHome;

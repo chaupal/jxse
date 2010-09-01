@@ -73,20 +73,22 @@ import java.io.InputStream;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Test;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.Element;
 import net.jxta.document.AdvertisementFactory;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * A CmTest unit test
  */
-public class CmXIndiceImplTest extends TestCase {
+public class CmXIndiceImplTest {
 
     private static final int ITERATIONS = 1000;
 
@@ -100,31 +102,14 @@ public class CmXIndiceImplTest extends TestCase {
 
     private List<PeerAdvertisement> queue = Collections.synchronizedList(new ArrayList<PeerAdvertisement>());
 
-    /**
-     * Constructor for the CmTest object
-     *
-     * @param testName test name
-     * @throws IOException 
-     */
-    public CmXIndiceImplTest(String testName) throws IOException {
-        super(testName);
+    @Before
+    public void setUp() throws IOException {
         synchronized (CmXIndiceImplTest.class) {
             if (null == cm) {
                 cm = new XIndiceAdvertisementCache(new File(new File(".cache"), "CmTest").toURI(), "CmTest");
             }
         }
     }
-
-    /**
-     * A unit test suite for JUnit
-     *
-     * @return The test suite
-     */
-    public static Test suite() {
-
-        return new TestSuite(CmXIndiceImplTest.class);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -136,6 +121,8 @@ public class CmXIndiceImplTest extends TestCase {
     /**
      * Create expired adv, and GarbageCollect
      */
+    @Test
+    @Ignore("Investigate")
     public void testGarbageCollect() {
         deletePeer();
         createPeer(true);
@@ -147,7 +134,8 @@ public class CmXIndiceImplTest extends TestCase {
      * Run all the Cm tests sequentially. There can only be one single Cm test because
      * otherwise tearDown (which is called after every test case) will stop the Cm.
      */
-    public void testEverything() {
+    @Ignore("Investigate")
+    @Test public void testEverything() {
         deletePeer();
         createPeer(false);
         createPipe(false);
@@ -155,7 +143,7 @@ public class CmXIndiceImplTest extends TestCase {
         multithreadPeer();
     }
 
-    public void testRaw() {
+    @Test public void testRaw() {
         createRaw();
         checkRaw();
     }

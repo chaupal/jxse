@@ -73,12 +73,14 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.peergroup.PeerGroupFactory;
 
 import net.jxta.impl.util.TimeUtils;
+import org.junit.Ignore;
 
 /**
  * Test the PeerGroupFactory.
  * 
  * @deprecated PeerGroupFactory is deprecated but still needs to be tested....
  */
+@Ignore("JXTA Configurator required")
 @Deprecated
 public class PeerGroupFactoryTest extends TestCase {
     

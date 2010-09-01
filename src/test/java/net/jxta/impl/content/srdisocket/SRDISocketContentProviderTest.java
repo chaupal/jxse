@@ -54,10 +54,12 @@
 package net.jxta.impl.content.srdisocket;
 
 import net.jxta.impl.content.AbstractContentProviderTest;
+import org.junit.Ignore;
 
 /**
  * Test the workings of the SRDISocketContentProvider class.
  */
+@Ignore("Should not override default constructor in junit")
 public class SRDISocketContentProviderTest extends AbstractContentProviderTest {
     
     /**

@@ -78,6 +78,12 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.SrdiMessage.Entry;
 import net.jxta.test.util.FileSystemTest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * Comprehensive suite of unit tests for AdvertisementCache implementations.
@@ -96,8 +102,8 @@ public abstract class AbstractCmTest extends FileSystemTest {
 	
     protected FakeSystemClock fakeTimer = new FakeSystemClock();
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         
         TimeUtils.setClock(fakeTimer);
@@ -107,8 +113,8 @@ public abstract class AbstractCmTest extends FileSystemTest {
         adv = createPeerAdvert(groupId, "MyPeer100");
     }
     
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         cm.stop();
         cm = null;
         wrappedCache = null;
@@ -139,13 +145,13 @@ public abstract class AbstractCmTest extends FileSystemTest {
 		return peerAdv;
 	}
     
-    public void testGetRecords_withNullDn_returnsEmptyResultSet() {
+    @Test public void testGetRecords_withNullDn_returnsEmptyResultSet() {
     	List<InputStream> records = cm.getRecords(null, 10, null);
     	assertNotNull(records);
     	assertEquals(0, records.size());
     }
     
-    public void testGetRecords_withThresholdBeneathNumResults() throws IOException {
+    @Test public void testGetRecords_withThresholdBeneathNumResults() throws IOException {
     	createTestData();
     	
     	List<InputStream> records = cm.getRecords("a", 3, null);
@@ -153,7 +159,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertTrue("expected peers not found", containsXOf(extractNames(records), 3, "Peer1", "Peer2", "Peer3", "Peer4", "SuperPeerX", "other"));
     }
     
-    public void testGetRecords_checkExpirationsMatch() throws Exception {
+    @Test public void testGetRecords_checkExpirationsMatch() throws Exception {
     	fakeTimer.currentTime = 50000;
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 120000, 100000);
     	cm.save("a", "c", createPeerAdvert(groupId, "Peer2"), 160000, 160000);
@@ -182,7 +188,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
 		}
     }
     
-    public void testGetRecords() throws Exception {
+    @Test public void testGetRecords() throws Exception {
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"));
     	cm.save("a", "c", createPeerAdvert(groupId, "Peer1"));
     	cm.save("a", "d", createPeerAdvert(groupId, "Peer1"));
@@ -198,11 +204,11 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(1, cm.getRecords("bc", 100, null).size());
     }
     
-    public void testGetLifetime_withUnknownDnFnPair() throws Exception {
+    @Test public void testGetLifetime_withUnknownDnFnPair() throws Exception {
     	assertEquals(-1L, cm.getLifetime("does", "notexist"));
 	}
     
-    public void testGetLifetime() throws Exception {
+    @Test public void testGetLifetime() throws Exception {
     	fakeTimer.currentTime = 0;
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 50000, 100000);
     	
@@ -215,11 +221,11 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(-10000L, cm.getLifetime("a", "b"));
     }
     
-    public void testGetExpirationTime_withUnknownDnFnPair() throws Exception {
+    @Test public void testGetExpirationTime_withUnknownDnFnPair() throws Exception {
     	assertEquals(-1, cm.getExpirationtime("does", "notexist"));
     }
     
-    public void testGetExpirationTime() throws Exception {
+    @Test public void testGetExpirationTime() throws Exception {
     	fakeTimer.currentTime = 10000;
 
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 50000, 30000);
@@ -234,11 +240,11 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(-1L, cm.getExpirationtime("a", "b"));
     }
     
-    public void testGetInputStream_withUnknownDnFnPair() throws Exception {
+    @Test public void testGetInputStream_withUnknownDnFnPair() throws Exception {
     	assertNull(cm.getInputStream("does", "notexist"));
     }
     
-    public void testGetInputStream() throws IOException {
+    @Test public void testGetInputStream() throws IOException {
     	byte[] data = new byte[64];
     	for(int i=0; i < data.length; i++) {
     		data[i] = (byte)i;
@@ -256,7 +262,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals("input stream is not depleted when expected", -1, inputStream.read());
     }
     
-    public void testRemove() throws Exception {
+    @Test public void testRemove() throws Exception {
     	cm.save("a", "b", new byte[64], 10000L, 20000L);
     	
     	assertNotNull(cm.getInputStream("a", "b"));
@@ -267,7 +273,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertNull(cm.getInputStream("a", "b"));
     }
     
-    public void testSaveAdvWithIllegalLifetime() throws Exception {
+    @Test public void testSaveAdvWithIllegalLifetime() throws Exception {
         try {
             cm.save("test", "test2", adv, -1, 100);
             fail("IllegalArgumentException expected");
@@ -276,7 +282,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
         }
     }
 
-    public void testSaveAdvWithIllegalExpiry() throws Exception {
+    @Test public void testSaveAdvWithIllegalExpiry() throws Exception {
         try {
             cm.save("test", "test2", adv, 100, -1);
             fail("IllegalArgumentException expected");
@@ -285,7 +291,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
         }
     }
 
-    public void testSaveBytesWithIllegalLifetime() throws Exception {
+    @Test public void testSaveBytesWithIllegalLifetime() throws Exception {
         try {
             cm.save("test", "test2", new byte[64], -1, 100);
             fail("IllegalArgumentException expected");
@@ -294,7 +300,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
         }
     }
 
-    public void testSaveBytesWithIllegalExpiry() throws Exception {
+    @Test public void testSaveBytesWithIllegalExpiry() throws Exception {
         try {
             cm.save("test", "test2", new byte[64], 100, -1);
             fail("IllegalArgumentException expected");
@@ -303,7 +309,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
         }
     }
     
-    public void testSaveAdv_overridesLifetimeIfLower() throws Exception {
+    @Test public void testSaveAdv_overridesLifetimeIfLower() throws Exception {
     	PeerAdvertisement ad = createPeerAdvert(groupId, "Peer1");
     	cm.save("a", "b", ad, 20000L, 30000L);
     	cm.save("a", "b", ad, 10000L, 30000L);
@@ -311,7 +317,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(20000L, cm.getLifetime("a", "b"));
     }
     
-    public void testSaveBytes_overridesLifetimeIfLower() throws Exception {
+    @Test public void testSaveBytes_overridesLifetimeIfLower() throws Exception {
     	byte[] bytes = new byte[64];
     	cm.save("a", "b", bytes, 20000L, 30000L);
     	cm.save("a", "b", bytes, 10000L, 30000L);
@@ -319,7 +325,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(20000L, cm.getLifetime("a", "b"));
     }
     
-    public void testSearch_exactMatch() throws IOException {
+    @Test public void testSearch_exactMatch() throws IOException {
     	cm.save("a", "b", adv, 100000, 200000);
     	List<InputStream> results = cm.search("a", "Name", "MyPeer100", 5, null);
     	assertEquals(1, results.size());
@@ -332,7 +338,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	return (String)((Element<?>)children.nextElement()).getValue();
 	}
     
-    public void testSearch_endsWith() throws IOException {
+    @Test public void testSearch_endsWith() throws IOException {
     	createTestData();
     	
     	List<InputStream> results = cm.search("a", "Name", "*PeerX", 10, null);
@@ -340,7 +346,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	checkContains(extractNames(results), "SuperPeerX");
     }
     
-    public void testSearch_startsWith() throws IOException {
+    @Test public void testSearch_startsWith() throws IOException {
     	createTestData();
     	
     	List<InputStream> results = cm.search("a", "Name", "Peer*", 10, null);
@@ -348,7 +354,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	checkContains(extractNames(results), "Peer1", "Peer2", "Peer3", "Peer4");    	
     }
     
-    public void testSearch_contains() throws IOException {
+    @Test public void testSearch_contains() throws IOException {
     	createTestData();
     	
     	List<InputStream> results = cm.search("a", "Name", "*Peer*", 10, null);
@@ -356,7 +362,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	checkContains(extractNames(results), "Peer1", "Peer2", "Peer3", "Peer4", "SuperPeerX");
     }
     
-    public void testSearch_matchAnything() throws IOException {
+    @Test public void testSearch_matchAnything() throws IOException {
     	createTestData();
     	
     	List<InputStream> results = cm.search("a", "Name", "*", 10, null);
@@ -373,7 +379,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	cm.save("a", "g", createPeerAdvert(groupId, "other"), 100000, 200000);
 	}
     
-    public void testSearch_withThreshold() throws IOException {
+    @Test public void testSearch_withThreshold() throws IOException {
     	createTestData();
     	
     	// search could return 6 results with this query, but we only want 2
@@ -388,7 +394,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertTrue(containsXOf(extractNames(result), 3, "Peer1", "Peer2", "Peer3", "Peer4"));
     }
     
-    public void testSearch_expiredEntriesNotReturned() throws IOException {
+    @Test public void testSearch_expiredEntriesNotReturned() throws IOException {
     	createTestData();
     	
     	fakeTimer.currentTime = 150000;
@@ -415,7 +421,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	}
     }
     
-    public void testGetDeltas_generatedBySave() throws Exception {
+    @Test public void testGetDeltas_generatedBySave() throws Exception {
     	cm.setTrackDeltas(true);
     	assertNotNull(cm.getDeltas("a"));
     	assertEquals(0, cm.getDeltas("a").size());
@@ -443,7 +449,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	checkContains(keys, "PID", "Name");
     }
     
-    public void testGetDeltas_generatedByRemove() throws Exception {
+    @Test public void testGetDeltas_generatedByRemove() throws Exception {
     	cm.setTrackDeltas(false);
     	PeerAdvertisement advert = createPeerAdvert(groupId, "Peer 1");
     	cm.save("a", "b", advert, 100000L, 200000L);
@@ -460,7 +466,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertTrue(deltas.containsAll(expectedDeltas));
     }
     
-    public void testGetDeltas_clearsOnEachConsecutiveCall() throws Exception {
+    @Test public void testGetDeltas_clearsOnEachConsecutiveCall() throws Exception {
     	cm.setTrackDeltas(true);
     	cm.save("a","b",createPeerAdvert(groupId, "Peer 1"), 100000L, 200000L);
     	assertEquals(2, cm.getDeltas("a").size());
@@ -471,19 +477,19 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(0, cm.getDeltas("a").size());
     }
     
-    public void testSave_deltasNotGeneratedWithZeroExpiration() throws Exception {
+    @Test public void testSave_deltasNotGeneratedWithZeroExpiration() throws Exception {
     	cm.setTrackDeltas(true);
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer1"), 10000L, 0L);
     	assertEquals(0, cm.getDeltas("a").size());
     }
     
-    public void testSave_deltasNotGeneratedWithTrackingOff() throws Exception {
+    @Test public void testSave_deltasNotGeneratedWithTrackingOff() throws Exception {
     	cm.setTrackDeltas(false);
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer2"), 100000L, 200000L);
     	assertEquals(0, cm.getDeltas("a").size());
     }
     
-    public void testRemove_deltasNotGeneratedWithTrackingOff() throws Exception {
+    @Test public void testRemove_deltasNotGeneratedWithTrackingOff() throws Exception {
     	cm.save("a", "b", createPeerAdvert(groupId, "Peer 1"), 100000L, 200000L);
     	// clear any deltas generated by save
     	cm.getDeltas("a");
@@ -492,7 +498,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
     	assertEquals(0, cm.getDeltas("a").size());
     }
     
-    public void testGetEntries() throws Exception {
+    @Test public void testGetEntries() throws Exception {
         PeerAdvertisement peerAdv = createPeerAdvert(groupId, "Test peer");
 
         cm.save("a", "b", adv, 100000L, 100000L);
@@ -523,14 +529,14 @@ public abstract class AbstractCmTest extends FileSystemTest {
         }
     }
     
-    public void testGetEntries_flushesDeltasIfRequested() throws IOException {
+    @Test public void testGetEntries_flushesDeltasIfRequested() throws IOException {
         cm.setTrackDeltas(true);
         cm.save("a", "b", adv, 100000L, 100000L);
         cm.getEntries("a", true);
         assertEquals(0, cm.getDeltas("a").size());
     }
     
-    public void testGetEntries_doesNotFlushDeltasIfNotRequested() throws IOException {
+    @Test public void testGetEntries_doesNotFlushDeltasIfNotRequested() throws IOException {
         cm.setTrackDeltas(true);
         cm.save("a", "b", adv, 100000L, 100000L);
         cm.getEntries("a", false);
@@ -541,7 +547,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
                               new Entry("Name", adv.getName(), 100000L));
     }
     
-    public void testGetEntries_immuneToDeltaClear() throws IOException {
+    @Test public void testGetEntries_immuneToDeltaClear() throws IOException {
         cm.setTrackDeltas(true);
         cm.save("a", "b", adv, 100000L, 100000L);
         cm.getEntries("a", false);
@@ -557,7 +563,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
                                new Entry("Name", adv.getName(), 100000L));
     }
     
-    public void testGetEntries_returnsExpirationsBasedOnLifetimeOnly() throws IOException {
+    @Test public void testGetEntries_returnsExpirationsBasedOnLifetimeOnly() throws IOException {
         cm.save("a", "b", adv, 100000L, 50000L);
         
         List<Entry> entries = cm.getEntries("a", false);
@@ -575,7 +581,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
                 new Entry("Name", adv.getName(), 60000L));
     }
     
-    public void testSaveIsolation_differentAreaNames() throws Exception {
+    @Test public void testSaveIsolation_differentAreaNames() throws Exception {
         CacheManager alternateArea = new CacheManager(createWrappedCache("testArea2"));
         cm.save("a", "b", adv);
         
@@ -591,7 +597,7 @@ public abstract class AbstractCmTest extends FileSystemTest {
         alternateArea.stop();
     }
     
-    public void testRemoveIsolation_differentAreaNames() throws Exception {
+    @Test public void testRemoveIsolation_differentAreaNames() throws Exception {
         CacheManager alternateArea = new CacheManager(createWrappedCache("testArea2"));
         cm.save("a", "b", adv);
         alternateArea.remove("a", "b");
@@ -601,14 +607,15 @@ public abstract class AbstractCmTest extends FileSystemTest {
         
         alternateArea.stop();
     }
-    
-    public void testConstruct() throws IOException {
+
+    @Test public void testConstruct() throws IOException {
     	System.setProperty(CacheManager.CACHE_IMPL_SYSPROP, getCacheClassName());
         CacheManager cmFromConstructor = new CacheManager(testRootDir.toURI(), "testArea2");
         assertEquals(getCacheClassName(), cmFromConstructor.getImplClassName());
         cmFromConstructor.stop();
     }
     
+    @Test
     public void testConstructWithGcIntervalAndTrackDeltasParams() throws IOException {
         System.setProperty(CacheManager.CACHE_IMPL_SYSPROP, getCacheClassName());
         CacheManager cmFromConstructor = new CacheManager(testRootDir.toURI(), "testArea2", 30000, false);
