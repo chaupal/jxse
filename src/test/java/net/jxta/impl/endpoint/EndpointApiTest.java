@@ -164,7 +164,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
         
         synchronized (EndpointApiTest.class) {
             if (null == pg) {
-                pg = PeerGroupFactory.newNetPeerGroup();
+                pg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
             }
         }
     }

@@ -224,10 +224,10 @@ public class AdvCooker {
      *
      *  @return -- boilerplate compat for StdPeerGroup
      */
-    public static XMLDocument buildCompat() {
+    public static XMLDocument buildCompat(PeerGroup peerGroup) {
         
         try {
-            PeerGroup wpg = PeerGroup.globalRegistry.lookupInstance(PeerGroupID.worldPeerGroupID);
+            PeerGroup wpg = peerGroup.getGlobalRegistry().lookupInstance(PeerGroupID.worldPeerGroupID);
         
             ModuleImplAdvertisement implAdv = wpg.getAllPurposePeerGroupImplAdvertisement();
             

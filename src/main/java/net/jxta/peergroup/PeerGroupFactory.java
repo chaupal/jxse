@@ -62,6 +62,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.peergroup.Platform;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 import java.io.File;
@@ -542,37 +543,6 @@ public final class PeerGroupFactory {
      */
     @Deprecated
     public static PeerGroup newNetPeerGroup() throws PeerGroupException {
-        // get/create the World Peer Group.
-        PeerGroup wpg = getWorldPeerGroup();
-
-        try {
-            PeerGroup npg = newNetPeerGroup(wpg);
-
-            return npg;
-        } finally {
-            wpg.unref();
-        }
-    }
-
-    /**
-     * Retrieves or constructs a new World Peer Group instance suitable for
-     * use as the parent for Net Peer Group instances. This implementation
-     * makes an important trade-off worth noting; it will use an existing
-     * world peer group instance if available and ignore any changes which have
-     * been made to the static configuration methods provided by this class.
-     *
-     * @return The World Peer Group.
-     * @throws PeerGroupException For failures in recovering the World Peer Group.
-     */
-    private static PeerGroup getWorldPeerGroup() throws PeerGroupException {
-        synchronized (PeerGroup.globalRegistry) {
-            PeerGroup result = PeerGroup.globalRegistry.lookupInstance(PeerGroupID.worldPeerGroupID);
-
-            if (null != result) {
-                return result;
-            }
-
-            return newPlatform();
-        }
+    	throw new RuntimeException("method is deprecated - static creation of peer groups is no longer possible");
     }
 }

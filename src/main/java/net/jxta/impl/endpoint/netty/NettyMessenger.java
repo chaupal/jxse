@@ -40,7 +40,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	private EndpointAddress localAddress;
     
     public NettyMessenger(Channel channel, PeerGroupID homeGroupID, PeerID localPeerID, EndpointAddress localAddress, EndpointAddress logicalDestinationAddress, EndpointService endpointService) {
-        super(homeGroupID, localAddress, true);
+        super(homeGroupID, localAddress, endpointService.getGroup().getTaskManager(), true);
         this.channel = channel;
         this.localPeerId = localPeerID;
         this.localAddress = new EndpointAddress(localPeerId, null, null);
@@ -142,7 +142,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 			return;
 		}
 		
-		ExecutorService executorService = TaskManager.getTaskManager().getExecutorService();
+		ExecutorService executorService = taskManager.getExecutorService();
 		executorService.execute(new Runnable() {
 		    public void run() {
 		        endpointService.processIncomingMessage(msg, srcAddr, dstAddr);
@@ -155,8 +155,18 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	    close();
 	}
 	
-	private boolean isLoopback(EndpointAddress srcAddr) {
+	public void connectionDisposed() {
+	    // do nothing - this is only needed if we are
+	    // responding to close asynchronously, which we are not
+	    // in this case
+	}
+	
+	public void channelSaturated(boolean saturated) {
+	    // we do not do anything with channel saturation info in the blocking form
+	    // of netty messenger
+	}
 
+	private boolean isLoopback(EndpointAddress srcAddr) {
             if (localAddress.equals(srcAddr)) {
                 Logging.logCheckedFine(LOG, "Loopback message detected");
                 return true;

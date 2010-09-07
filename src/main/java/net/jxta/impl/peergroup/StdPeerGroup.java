@@ -64,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
@@ -585,7 +586,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         // initialize cm before starting services.
         try {
 
-            cm = new CacheManager(getStoreHome(), assignedID.getUniqueValue().toString(), 0L, false);
+            cm = new CacheManager(getStoreHome(), assignedID.getUniqueValue().toString(), getTaskManager(), 0L, false);
 
         } catch (Exception e) {
 

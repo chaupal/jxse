@@ -81,6 +81,7 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.endpoint.Messenger;
@@ -92,6 +93,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.LoopbackMessenger;
+import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.impl.util.threads.TaskManager;
@@ -105,8 +107,7 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.service.Service;
 
-public class EndpointRouter implements EndpointListener, EndpointRoutingTransport,
-   MessengerEventListener, Module {
+public class EndpointRouter implements EndpointListener, EndpointRoutingTransport, MessageReceiver, MessageSender, MessengerEventListener, Module {
 
     /**
      * Logger
@@ -238,11 +239,6 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             Collections.synchronizedMap(new HashMap<PeerID, ClearPendingQuery>());
 
     /**
-     * Timer by which we schedule the clearing of pending queries.
-     */
-    private final ScheduledExecutorService timer = TaskManager.getTaskManager().getScheduledExecutorService();
-
-    /**
      * PeerAdv tracking.
      * The peer adv is modified every time a new public address is
      * enabled/disabled. One of such cases is the connection/disconnection
@@ -282,7 +278,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             this.peerID = peerID;
             // We schedule for one tick at one minute and another at 5 minutes
             // after the second, we cancel ourselves.
-            setHandle(timer.scheduleAtFixedRate(this, 60, 60 * 5, TimeUnit.SECONDS));
+            setHandle(group.getTaskManager().getScheduledExecutorService().scheduleAtFixedRate(this, 60, 60 * 5, TimeUnit.SECONDS));
             nextRouteResolveAt = TimeUtils.toAbsoluteTimeMillis(20L * TimeUtils.ASECOND);
         }
 
@@ -340,7 +336,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         // next time someone looks. The inconsistency can only trigger
         // an extraneous update.
 
-        PeerAdvertisement newPadv = group.getPeerAdvertisement();
+        PeerAdvertisement newPadv = group.getPeerAdvertisement();                      
         int newModCount = newPadv.getModCount();
 
         if ((lastPeerAdv != newPadv) || (lastModCount != newModCount) || (null == localRoute)) {
@@ -621,21 +617,30 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
             Logging.logCheckedFine(LOG, "Sending ", message, " to ", destination, " via ", sendVia);
 
-            try {
-                // FIXME 20040413 jice Maybe we should use the non-blocking mode
-                // and let excess messages be dropped given the threading issue
-                // still existing in the input circuit (while routing messages
-                // through).
-
-                sendVia.sendMessageB(message, EndpointRouter.ROUTER_SERVICE_NAME, null);
-
-                // If we reached that point, we're done.
-                Logging.logCheckedFine(LOG, "Sent ", message, " to ", destination);
-                return;
-
-            } catch (IOException ioe) {
-                // Can try again, with another messenger (most likely).
-                lastIoe = ioe;
+            int maxRetries = 20;
+            long delayBeforeRetry = 100;
+            for (int retries = 0 ;retries < maxRetries; retries++)
+            {
+                if (sendVia.sendMessageN(message, EndpointRouter.ROUTER_SERVICE_NAME, null)) {
+                    return;
+                } else if (TransportUtils.isMarkedWithOverflow(message)) {
+                    if (TransportUtils.isAnSRDIMessage(message))
+                    {
+                        LOG.log(Level.WARNING, "messenger to {0} is saturated, retrying SRDI message", sendVia.getDestinationAddress());
+                        TransportUtils.clearOverflowMarker(message);
+                        try {
+                            Thread.sleep(delayBeforeRetry);
+                        }
+                        catch (InterruptedException e) {
+                            LOG.log(Level.SEVERE, e.getMessage());
+                        }
+                        continue;
+                    } else {
+                        LOG.log(Level.INFO, "messenger to {0} is saturated, dropping message", sendVia.getDestinationAddress());
+                        return;
+                    }
+                }
+                break;
             }
 
             Logging.logCheckedFine(LOG, "Trying next messenger to ", destination);
@@ -738,6 +743,11 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             return Module.START_AGAIN_STALLED;
 
         }
+        if (getMyLocalRoute() == null)
+        {
+            Logging.logCheckedWarning(LOG, "Endpoint Router start stalled until local peer info available");
+            return Module.START_AGAIN_STALLED;
+        }
 
         destinations = new Destinations(endpoint);
 
@@ -792,6 +802,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         }
 
         // publish my local route adv
+
         routeCM.publishRoute(getMyLocalRoute());
 
         // FIXME tra 20031015 is there a risk for double registration  when 
@@ -816,7 +827,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         // Starting the route controller
         theRouteController.start();
-        
+
         return status;
     }
 
@@ -2139,17 +2150,13 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         Iterator<RouteAdvertisement> advs;
 
         try {
-
-            // Extract routes from the CM
-            Collection<RouteAdvertisement> TempAL = routeCM.getRouteAdv(destPeerID);
-
             // try to use the hint that was given to us
             if (hint != null) {
-                TempAL.add(hint);
+                advs = Collections.singletonList(hint).iterator();
+            } else {
+                // Ok extract from the CM
+                advs = routeCM.getRouteAdv(destPeerID).iterator();
             }
-
-            // Looping through all available route advertisement
-            advs = TempAL.iterator();
 
             // Check if we got any advertisements
             List<EndpointAddress> addrs = new ArrayList<EndpointAddress>();
@@ -2708,5 +2715,4 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     public RouteController getRouteController() {
         return this.theRouteController;
     }
-
 }

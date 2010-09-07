@@ -128,49 +128,49 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     private final static transient Logger LOG = Logger.getLogger(JxtaBiDiPipe.class.getName());
     private final static int MAXRETRYTIMEOUT = 120 * 1000;
-    private PipeAdvertisement remotePipeAdv;
-    private PeerAdvertisement remotePeerAdv;
-    protected int timeout = 15 * 1000;
-    protected int retryTimeout = 60 * 1000;
-    protected int maxRetryTimeout = MAXRETRYTIMEOUT;
-    protected int windowSize = 50;
-    private BlockingQueue<PipeMsgEvent> queue = null;
-    protected PeerGroup group;
-    protected PipeAdvertisement pipeAdv;
-    protected PipeAdvertisement myPipeAdv;
-    protected PipeService pipeSvc;
-    protected InputPipe inputPipe;
-    protected OutputPipe connectOutpipe;
-    protected Messenger msgr;
-    protected InputStream stream;
+    private volatile PipeAdvertisement remotePipeAdv;
+    private volatile PeerAdvertisement remotePeerAdv;
+    protected volatile int timeout = 15 * 1000;
+    protected volatile int retryTimeout = 60 * 1000;
+    protected volatile int maxRetryTimeout = MAXRETRYTIMEOUT;
+    protected volatile int windowSize = 50;
+    private volatile BlockingQueue<PipeMsgEvent> queue = null;
+    protected volatile PeerGroup group;
+    protected volatile PipeAdvertisement pipeAdv;
+    protected volatile PipeAdvertisement myPipeAdv;
+    protected volatile PipeService pipeSvc;
+    protected volatile InputPipe inputPipe;
+    protected volatile OutputPipe connectOutpipe;
+    protected volatile Messenger msgr;
+    protected volatile InputStream stream;
     protected final Object closeLock = new Object();
     protected final Object acceptLock = new Object();
     protected final Object finalLock = new Object();
-    protected boolean closed = false;
-    protected boolean bound = false;
-    protected PipeMsgListener msgListener;
-    protected PipeEventListener eventListener;
-    protected PipeStateListener stateListener;
-    protected Credential credential = null;
-    protected boolean waiting;
+    protected volatile boolean closed = false;
+    protected volatile boolean bound = false;
+    protected volatile PipeMsgListener msgListener;
+    protected volatile PipeEventListener eventListener;
+    protected volatile PipeStateListener stateListener;
+    protected volatile Credential credential = null;
+    protected volatile boolean waiting;
 
     /**
      * If {@code true} then we are using the underlying end-to-end ACK reliable
      * layer to ensure that messages are received by the remote peer.
      */
-    protected boolean isReliable = false;
-    protected ReliableInputStream ris = null;
-    protected ReliableOutputStream ros = null;
-
+    protected volatile boolean isReliable = false;
+    protected volatile ReliableInputStream ris = null;
+    protected volatile ReliableOutputStream ros = null;
+    
     /**
      * If {@code true} then we are using a reliable direct messenger to the
      * remote peer. We will assume that messages which are sent successfully
      * will be received successfully.
      */
     protected volatile boolean direct = false;
-    protected OutgoingMsgrAdaptor outgoing = null;
-    protected StructuredDocument credentialDoc = null;
-    protected Properties connectionProperties = null;
+    protected volatile OutgoingMsgrAdaptor outgoing = null;
+    protected volatile StructuredDocument credentialDoc = null;
+    protected final Properties connectionProperties;
 
     /**
      * Pipe close Event
@@ -189,6 +189,22 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct) throws IOException {
+        this(group, msgr, pipe, credDoc, isReliable, direct, null);
+    }
+
+    /**
+     * Creates a bidirectional pipe
+     *
+     * @param group                group context
+     * @param msgr                 lightweight output pipe
+     * @param pipe                 PipeAdvertisement
+     * @param isReliable           Whether the connection is reliable or not
+     * @param credDoc              Credential StructuredDocument
+     * @param direct               indicates a direct messenger pipe
+     * @param connectionProperties Properties associated with this connection
+     * @throws IOException if an io error occurs
+     */
+    protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct, Properties connectionProperties) throws IOException {
         if (msgr == null) {
             throw new IOException("Null Messenger");
         }
@@ -207,22 +223,6 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             createRLib();
         }
         setBound();
-    }
-
-    /**
-     * Creates a bidirectional pipe
-     *
-     * @param group                group context
-     * @param msgr                 lightweight output pipe
-     * @param pipe                 PipeAdvertisement
-     * @param isReliable           Whether the connection is reliable or not
-     * @param credDoc              Credential StructuredDocument
-     * @param direct               indicates a direct messenger pipe
-     * @param connectionProperties Properties associated with this connection
-     * @throws IOException if an io error occurs
-     */
-    protected JxtaBiDiPipe(PeerGroup group, Messenger msgr, PipeAdvertisement pipe, StructuredDocument credDoc, boolean isReliable, boolean direct, Properties connectionProperties) throws IOException {
-        this(group, msgr, pipe, credDoc, isReliable, direct);
         this.connectionProperties = connectionProperties;
     }
 
@@ -230,6 +230,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Creates a new object with a default timeout of #timeout, and no reliability.
      */
     public JxtaBiDiPipe() {
+        this.connectionProperties = null;
     }
 
     /**
@@ -251,6 +252,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     public JxtaBiDiPipe(PeerGroup group, PipeAdvertisement pipeAd, PipeMsgListener msgListener) throws IOException {
+        connectionProperties = null;
         connect(group, null, pipeAd, timeout, msgListener);
     }
 
@@ -270,6 +272,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     public JxtaBiDiPipe(PeerGroup group, PipeAdvertisement pipeAd, int timeout, PipeMsgListener msgListener) throws IOException {
+        connectionProperties = null;
         connect(group, null, pipeAd, timeout, msgListener);
     }
 
@@ -287,6 +290,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * @throws IOException if an io error occurs
      */
     public JxtaBiDiPipe(PeerGroup group, PipeAdvertisement pipeAd, int timeout, PipeMsgListener msgListener, boolean reliable) throws IOException {
+        connectionProperties = null;
         connect(group, null, pipeAd, timeout, msgListener, reliable);
     }
 
@@ -370,65 +374,64 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             pipeSvc.createOutputPipe(pipeAd, Collections.singleton(peerid), this);
         }
         try {
-
             synchronized (acceptLock) {
-
                 // check connectOutpipe within lock to prevent a race with modification.
                 if (connectOutpipe == null) {
-
-                    Logging.logCheckedFine(LOG, "Waiting for ", timeout, " msec");
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Waiting for " + timeout + " msec");
+                    }
                     acceptLock.wait(timeout);
-
                 }
-
             }
-
         } catch (InterruptedException ie) {
-
-            Logging.logCheckedFine(LOG, "Interrupted\n", ie);
-
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Interrupted", ie);
+            }
             Thread.interrupted();
             IOException exp = new IOException("Interrupted");
             exp.initCause(ie);
             throw exp;
-
         }
-
-        if (connectOutpipe == null) throw new SocketTimeoutException("Connection timeout");
-        
+        if (connectOutpipe == null) {
+            throw new SocketTimeoutException("Connection timeout");
+        }
         // send connect message
         waiting = true;
-        Logging.logCheckedFine(LOG, "Sending a backchannel message");
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Sending a backchannel message");
+        }
         connectOutpipe.send(openMsg);
-
         // wait for the second op
         try {
-
             synchronized (finalLock) {
-
-                if (waiting) {
-
-                    Logging.logCheckedFine(LOG, "Waiting for ", timeout, " msec for back channel to be established");
+                long timeLeft = timeout;
+                // keep waiting until we have only roughly 100ms of timeout left.
+                // this is to guard against "spurious wakeup", where Object.wait()
+                // may return immediately without a notification taking place
+                while (waiting && timeLeft >= 100) {
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Waiting for " + timeout + " msec for back channel to be established");
+                    }
+                    long startTime = System.currentTimeMillis();
                     finalLock.wait(timeout);
-
+                    long endTime = System.currentTimeMillis();
+                    timeLeft -= endTime - startTime;
                     // Need to check for creation
-                    if (msgr == null) throw new SocketTimeoutException("Connection timeout");
-                    
                 }
-
+                
+                if (msgr == null) {
+                    throw new SocketTimeoutException("Connection timeout");
+                }
             }
-
         } catch (InterruptedException ie) {
-
-            Logging.logCheckedFine(LOG, "Interrupted\n", ie);
-            
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Interrupted", ie);
+            }
             Thread.interrupted();
             IOException exp = new IOException("Interrupted");
             exp.initCause(ie);
             throw exp;
-
         }
-
         setBound();
         notifyListeners(PipeStateListener.PIPE_OPENED_EVENT);
     }
@@ -442,7 +445,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 outgoing = new OutgoingMsgrAdaptor(msgr, retryTimeout);
             }
             if (ros == null) {
-                ros = new ReliableOutputStream(outgoing, new FixedFlowControl(windowSize));
+                ros = new ReliableOutputStream(outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService());
             }
             if (ris == null) {
                 ris = new ReliableInputStream(outgoing, retryTimeout, this);
@@ -477,11 +480,10 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             if (credential != null) {
                 return credential.getDocument(MimeMediaType.XMLUTF8);
             }
-
         } catch (Exception e) {
-
-            Logging.logCheckedWarning(LOG, "failed to get credential\n", e);
-            
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "failed to get credential", e);
+            }
         }
         return null;
     }
@@ -583,12 +585,11 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                     new TextDocumentMessageElement(JxtaServerPipe.remPeerTag,
                             (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
             return msg;
-
         } catch (Throwable t) {
-
-            Logging.logCheckedFine(LOG, "error getting element stream\n", t);
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "error getting element stream", t);
+            }
             return null;
-
         }
     }
 
@@ -596,10 +597,10 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Sets the bound attribute of the JxtaServerPipe object
      */
     void setBound() {
-
         bound = true;
-        Logging.logCheckedFine(LOG, "Pipe Bound :true");
-        
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Pipe Bound :true");
+        }
     }
 
     /**
@@ -707,21 +708,16 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 }
 
                 try {
-
                     if (!ros.isQueueEmpty()) {
-
-                        Logging.logCheckedFine(LOG, "Waiting for Output stream queue event");
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                            LOG.fine("Waiting for Output stream queue event");
+                        }
                         ros.waitQueueEvent(left);
-
                     }
-
                     break;
-
                 } catch (InterruptedException ie) {
-
                     // give up, then.
                     throw new IOException("Close interrupted");
-
                 }
             }
 
@@ -737,26 +733,23 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         // close the pipe
         inputPipe.close();
         msgr.close();
-
-        Logging.logCheckedFine(LOG, "Pipe close complete");
-
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Pipe close complete");
+        }
         notifyListeners(PIPE_CLOSED_EVENT);
     }
 
     private void notifyListeners(int event) {
-
         try {
-
             if (eventListener != null) {
                 eventListener.pipeEvent(event);
             } else if (stateListener != null) {
                 stateListener.stateEvent(this, event);
             }
-
         } catch (Throwable th) {
-
-            Logging.logCheckedFine(LOG, "error during pipe event callback\n" + th);
-            
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "error during pipe event callback", th);
+            }
         }
     }
 
@@ -773,62 +766,57 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * {@inheritDoc}
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
-
         Message message = event.getMessage();
-
         if (message == null) {
-
-            Logging.logCheckedFine(LOG, "Empty event");
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Empty event");
+            }
             return;
-
         }
-
-        Logging.logCheckedFine(LOG, "Pipe message arrived");
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Pipe message arrived");
+        }
 
         MessageElement element;
         if (!bound) {
-
             // look for a remote pipe answer
             element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.remPipeTag);
-
             if (element != null) {
-
                 // connect response
                 try {
-
                     XMLDocument CredDoc = null;
                     XMLDocument remotePipeDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
 
                     remotePipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(remotePipeDoc);
-
-                    Logging.logCheckedFine(LOG, "Recevied a pipe Advertisement :", remotePipeAdv.getName());
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Received a pipe Advertisement :" + remotePipeAdv.getName());
+                    }
 
                     element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.remPeerTag);
-                    
                     if (element != null) {
-
                         XMLDocument remotePeerDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
-                        remotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(remotePeerDoc);
-                        Logging.logCheckedFine(LOG, "Recevied an Peer Advertisement :", remotePeerAdv.getName());
-                        
-                    } else {
 
-                        Logging.logCheckedWarning(LOG, " BAD connect response");
+                        remotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(remotePeerDoc);
+                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                            LOG.fine("Recevied an Peer Advertisement :" + remotePeerAdv.getName());
+                        }
+                    } else {
+                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                            LOG.warning(" BAD connect response");
+                        }
                         return;
-                        
                     }
 
                     element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.credTag);
                     if (element != null) {
                         CredDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
                     }
-
                     if (pipeAdv.getType().equals(PipeService.UnicastSecureType) && (CredDoc == null || !checkCred(CredDoc))) {
-
                         // we're done here
-                        Logging.logCheckedSevere(LOG, "Missing remote credential doc");
+                        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                            LOG.severe("Missing remote credential doc");
+                        }
                         return;
-
                     }
 
                     element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.reliableTag);
@@ -853,8 +841,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                         msgr = lightweightOutputPipe(group, remotePipeAdv, remotePeerAdv);
                     }
 
-                    Logging.logCheckedFine(LOG, "Reliability set to :", isReliable);
-                    
+                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Reliability set to :" + isReliable);
+                    }
                     if (isReliable && !direct) {
                         createRLib();
                     }
@@ -862,13 +851,11 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                         waiting = false;
                         finalLock.notifyAll();
                     }
-
                 } catch (IOException e) {
-
-                    Logging.logCheckedSevere(LOG, "failed to process response message\n", e);
-                    
+                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                        LOG.log(Level.SEVERE, "failed to process response message", e);
+                    }
                 }
-                
                 return;
             }
         }
@@ -884,26 +871,22 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     private boolean hasClose(Message message) {
-
         // look for close request
         MessageElement element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.closeTag);
-
         if (element != null) {
-
             try {
-
-                Logging.logCheckedFine(LOG, "Received a pipe close request, closing pipes");
-                
-                if (ros != null) ros.hardClose();
-                
+                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Received a pipe close request, closing pipes");
+                }
+                if (ros != null) {
+                    ros.hardClose();
+                }
                 closePipe(false);
-
             } catch (IOException ie) {
-
-                Logging.logCheckedWarning(LOG, "failed during close", ie);
-                
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "failed during close", ie);
+                }
             }
-
             return true;
         }
         return false;
@@ -1024,15 +1007,15 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     }
 
     private void push(PipeMsgEvent event) {
-
         boolean queued = false;
         BlockingQueue<PipeMsgEvent> msg_queue = queue;
 
         if (null != msg_queue) {
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("push message onto queue");
+            }
 
-            Logging.logCheckedFine(LOG, "push message onto queue");
             queued = msg_queue.offer(event);
-
         }
 
         PipeMsgListener msg_event_listener = msgListener;
@@ -1086,15 +1069,13 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * {@inheritDoc}
      */
     public void outputPipeEvent(OutputPipeEvent event) {
-
         OutputPipe op = event.getOutputPipe();
 
         if (op.getAdvertisement() == null) {
-            
-            Logging.logCheckedWarning(LOG, "The output pipe has no internal pipe advertisement. Continuing anyway.");
-            
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("The output pipe has no internal pipe advertisement. Continueing anyway.");
+            }
         }
-
         if (op.getAdvertisement() == null || pipeAdv.equals(op.getAdvertisement())) {
             synchronized (acceptLock) {
                 // modify op within lock to prevent a race with the if.
@@ -1111,9 +1092,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             }
 
         } else {
-
-            Logging.logCheckedWarning(LOG, "Unexpected OutputPipe :", op);
-            
+            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                LOG.warning("Unexpected OutputPipe :" + op);
+            }
         }
     }
 
@@ -1134,13 +1115,13 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     @Deprecated
     protected static Messenger getDirectMessenger(PeerGroup group, PipeAdvertisement pipeAdv, PeerAdvertisement peer) {
-
         // Get an endpoint messenger to that address
         if (pipeAdv.getType().equals(PipeService.PropagateType)) {
             throw new IllegalArgumentException("Invalid pipe type " + pipeAdv.getType());
         }
-
-        Logging.logCheckedFine(LOG, "Creating a Direct Messenger");
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Creating a Direct Messenger");
+        }
 
         if (pipeAdv.getType().equals(PipeService.UnicastType)) {
             EndpointService endpoint = group.getEndpointService();
@@ -1180,9 +1161,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             // not a supported type
             return null;
         }
-
-        Logging.logCheckedFine(LOG, "Creating a lightweightOutputPipe()");
-
+        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Creating a lightweightOutputPipe()");
+        }
         return endpoint.getMessenger(addr);
     }
 
@@ -1201,28 +1182,25 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      * Send a close message to the remote side
      */
     private void sendClose() {
-
         if (!direct && isReliable && ros.isClosed()) {
-
-            Logging.logCheckedFine(LOG, "ReliableOutputStream is already closed. Skipping close message");
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine("ReliableOutputStream is already closed. Skipping close message");
+            }
             return;
-
         }
 
         Message msg = new Message();
         msg.addMessageElement(JxtaServerPipe.nameSpace, new StringMessageElement(JxtaServerPipe.closeTag, "close", null));
-
         try {
-
             sendMessage(msg);
-
             // ros will not take any new message, now.
-            if (!direct && ros != null) ros.close();
-
+            if (!direct && ros != null) {
+                ros.close();
+            }
         } catch (IOException ie) {
-
-            Logging.logCheckedFine(LOG, "failed during close\n", ie);
-
+            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.SEVERE, "failed during close", ie);
+            }
         }
     }
 
@@ -1355,7 +1333,9 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     protected void finalize() throws Throwable {
         try {
             if (!closed) {
-                Logging.logCheckedWarning(LOG, "JxtaBiDiPipe is being finalized without being previously closed. This is likely a users bug.");
+                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    LOG.warning("JxtaBiDiPipe is being finalized without being previously closed. This is likely a users bug.");
+                }
                 close();
             }
         } finally {

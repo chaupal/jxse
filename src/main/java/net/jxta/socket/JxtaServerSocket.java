@@ -171,6 +171,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     
     private volatile Throwable creatorTrace =
             new Throwable("Instance construction stack trace");
+    private PeerGroup netPeerGroup;
 
     /**
      * Default Constructor
@@ -288,6 +289,24 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     }
 
     /**
+     * The netPeerGroup needs to be set when resolving SocketAddresses with only the peerID supplied.
+     * @param netPeerGroup
+     */
+    public void setNetPeerGroup(PeerGroup netPeerGroup)
+    {
+        this.netPeerGroup = netPeerGroup;
+    }
+
+    private PeerGroup.GlobalRegistry getGlobalRegistry() throws IOException
+    {
+        if (netPeerGroup == null)
+        {
+            throw new IOException("Can not resolve the peerID in socket address, must setNetPeerGroup() on JXTAServerSocket");
+        }
+        return netPeerGroup.getGlobalRegistry();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -391,7 +410,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     public void bind(SocketAddress endpoint, int backlog) throws IOException {
         if (endpoint instanceof JxtaSocketAddress) {
             JxtaSocketAddress socketAddress = (JxtaSocketAddress) endpoint;
-            PeerGroup pg = PeerGroup.globalRegistry.lookupInstance(socketAddress.getPeerGroupId());
+            PeerGroup pg = getGlobalRegistry().lookupInstance(socketAddress.getPeerGroupId());
 
             if (pg == null) {
                 throw new IOException(

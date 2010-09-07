@@ -216,8 +216,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     TcpMessenger(SocketChannel socketChannel, TcpTransport transport) throws IOException {
 
         super(transport.group.getPeerGroupID(),
-                new EndpointAddress(transport.getProtocolName(),
-                        socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null), true);
+              new EndpointAddress(transport.getProtocolName(),
+                        socketChannel.socket().getInetAddress().getHostAddress() + ":" + socketChannel.socket().getPort(), null, null),
+              transport.group.getTaskManager(),
+              true);
 
         initiator = false;
         this.socketChannel = socketChannel;
@@ -299,7 +301,10 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     TcpMessenger(EndpointAddress destaddr, TcpTransport tcpTransport, boolean selfDestruct) throws IOException {
         // We need self destruction: tcp messengers are expensive to make and they refer to
         // a connection that must eventually be closed.
-        super(tcpTransport.group.getPeerGroupID(), destaddr, selfDestruct);
+        super(tcpTransport.group.getPeerGroupID(), 
+              destaddr, 
+              tcpTransport.group.getTaskManager(),
+              selfDestruct);
         this.selfDestruct = selfDestruct;
         this.origAddress = destaddr;
 
@@ -481,7 +486,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         inetAddress.getHostAddress(), ":", port);
 
             if (closingDueToFailure) {
-                Logging.logCheckedFine(LOG, "stack trace");
+                Logging.logCheckedFine(LOG, "stack trace", new Throwable("stack trace"));
             }
             
         }

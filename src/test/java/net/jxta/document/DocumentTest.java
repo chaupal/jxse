@@ -57,22 +57,29 @@
 package net.jxta.document;
 
 
-import java.io.*;
-import java.util.Enumeration;
-import java.util.Collections;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.security.ProviderException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
+import junit.framework.TestCase;
 import net.jxta.impl.document.LiteXMLDocument;
 import net.jxta.impl.document.PlainTextDocument;
 
-import static org.junit.Assert.*;
-
-import org.junit.Ignore;
-import org.junit.Test;
-
-
-public final class DocumentTest {
+/**
+ * FIXME: these tests are old and very weird - when I attempted to refactor them I found some
+ * odd partial-testing behaviour based on catching exceptions in _test. Could either do with
+ * a complete overhaul, or to be scrapped.
+ */
+public final class DocumentTest extends TestCase {
        
     final static String badlittleimpl = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!DOCTYPE jxta:MIA>\n"
             + "<jxta:MIA xmlns:jxta=\"http://jxta.org\">\n" + "  	<MSID/>\n" + " 	<Parm>\n" + " 		<Svc>\n"
@@ -122,196 +129,181 @@ public final class DocumentTest {
         }        
     }
     
-    private void _test(StructuredDocumentFactory.Instantiator instantiator, MimeMediaType type) {
+    private void _test(StructuredDocumentFactory.Instantiator instantiator, MimeMediaType type) throws Exception {
+        final String useDocType = "Test";
+        StructuredTextDocument doc = null;
+
+        doc = (StructuredTextDocument) instantiator.newInstance(type, useDocType);
+        
+        assertTrue("could not construct object for type : " + type, doc != null);
+        
+        String itsType = doc.getName();
+        
+        assertTrue("returned doctype does not equal type document was created with!", useDocType.equals(itsType));
+        
+        assertTrue("returned doc name does not equal name of document element", doc.getName().equals(itsType));
+        
+        TextElement testElement = doc.createElement("element");
+        
+        doc.appendChild(testElement);
+        
         try {
-            final String useDocType = "Test";
-            StructuredTextDocument doc = null;
+            Element firstchild = (Element) doc.getChildren().nextElement();
 
-            try {
-                doc = (StructuredTextDocument) instantiator.newInstance(type, useDocType);
-            } catch (Throwable thrown) {
-                thrown.printStackTrace(System.err);
-                fail("exception thrown during construction!" + thrown.toString());
-            }
-            
-            assertTrue("could not construct object for type : " + type, doc != null);
-            
-            String itsType = doc.getName();
-            
-            assertTrue("returned doctype does not equal type document was created with!", useDocType.equals(itsType));
-            
-            assertTrue("returned doc name does not equal name of document element", doc.getName().equals(itsType));
-            
-            TextElement testElement = doc.createElement("element");
-            
-            doc.appendChild(testElement);
-            
-            try {
-                Element firstchild = (Element) doc.getChildren().nextElement();
-
-                assertTrue("added a single element, but something else was returned", testElement.equals(firstchild));
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail("added a single element, but it was not returned");
-            }
-            
-            final String useName = "element2";
-            final String useValue = "value&<!";
-            
-            TextElement testElement2 = doc.createElement(useName, useValue);
-            
-            testElement.appendChild(testElement2);
-            
-            String itsName = testElement2.getName();
-
-            assertTrue("name of element was not correct after creation", useName.equals(itsName));
-            
-            String itsValue = testElement2.getTextValue();
-
-            assertTrue("value of element was not correct after creation. was '" + itsValue + "' should be '" + useValue + "'"
-                    ,
-                    useValue.equals(itsValue));
-            
-            testElement2 = doc.createElement("element3", useValue);
-            
-            testElement.appendChild(testElement2);
-            
-            testElement2 = doc.createElement("element4", "1");
-            
-            testElement.appendChild(testElement2);
-            
-            itsValue = testElement2.getTextValue();
-            assertTrue("value of element was not correct after creation (length 1)", "1".equals(itsValue));
-            
-            if (type.getSubtype().equalsIgnoreCase("XML")) {
-                try {
-                    TextElement testElement5 = doc.createElement("really wrong and long", "1");
-                    
-                    fail("Tag names with spaces should be disallowed");
-                } catch (Exception failed) {// that's ok
-                }
-            }
-            
-            int count = 0;
-
-            for (Enumeration<Element> eachChild = doc.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
-                ;
-            }
-            
-            assertTrue("Doc didnt have one child", 1 == count);
-            
-            count = 0;
-            for (Enumeration<Element> eachChild = doc.getChildren("element"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
-                ;
-            }
-            
-            assertTrue("Doc didnt have one child named 'element'", 1 == count);
-            
-            count = 0;
-            for (Enumeration<Element> eachChild = doc.getChildren("bogus"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
-                ;
-            }
-            
-            assertTrue(" Doc shouldnt have had a child named 'bogus'", 0 == count);
-            
-            count = 0;
-            for (Enumeration<Element> eachChild = testElement.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
-                ;
-            }
-            
-            assertTrue("element didnt have expected number of children", 3 == count);
-            
-            count = 0;
-            for (Enumeration<Element> eachChild = testElement.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
-                ;
-            }
-            
-            assertTrue("element didnt have expected number of children named '" + useName + "'", 1 == count);
-            
-            // This check also is important for checking that the behaviour of the
-            // tree is correct when there are nodes with the same name as the parent in subtrees.
-            
-            Element testElement3 = doc.createElement(useName, useValue);
-
-            testElement2.appendChild(testElement3);
-            
-            testElement3 = doc.createElement(useName);
-            testElement2.appendChild(testElement3);
-            
-            count = 0;
-            for (Enumeration eachChild = testElement2.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
-                ;
-            }
-            
-            assertTrue("element didnt have expected number of children named '" + useName + "'", 2 == count);
-            
-            StructuredDocument likeMe = null;
-            
-            try {
-                likeMe = (StructuredTextDocument) instantiator.newInstance(doc.getMimeType(), doc.getStream());
-            } catch (java.security.ProviderException thrown) {
-                ;
-            } catch (Throwable thrown) {
-                thrown.printStackTrace();
-                fail("Exception thrown during reconstruction! " + thrown.toString());
-            }
-            
-            if (testElement instanceof Attributable) {
-                _testAttributes((Attributable) testElement);
-                _testAttributes((Attributable) testElement3);
-            }
-            
-            try {
-                likeMe = instantiator.newInstance(doc.getMimeType(), doc.getStream());
-            } catch (java.security.ProviderException thrown) {
-                ;
-            } catch (Throwable thrown) {
-                thrown.printStackTrace();
-                fail("Exception thrown during reconstruction! " + thrown.toString());
-            }
-            
-            Writer somewhere = new StringWriter();
-            
-            (doc).sendToWriter(somewhere);
-            
-            String docAsString = somewhere.toString().trim();
-            
-            testElement3 = doc.createElement(useName, docAsString);
-            testElement2.appendChild(testElement3);
-            
-            String docFromElement = (String) testElement3.getValue();
-            
-            assertTrue("Could not faithfully store stream representation of doc in doc. (lengths dont match)",
-                    docAsString.length() == docFromElement.length());
-            
-            for (int eachChar = 0; eachChar < docAsString.length(); eachChar++) {
-                assertTrue("Could not faithfully store stream representation of doc in doc. (failed at index: " + eachChar + ")",
-                        docAsString.charAt(eachChar) == docFromElement.charAt(eachChar));
-            }
-            
-            Element testElement4 = doc.createElement("shortname", "shortvalue");
-            Element testElement5 = doc.createElement(
-                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
-                    "shortvalue");
-            Element testElement6 = doc.createElement(
-                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
-                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
-            Element testElement7 = doc.createElement("shortname",
-                    "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
-            
-            doc.appendChild(testElement4);
-            doc.appendChild(testElement5);
-            doc.appendChild(testElement6);
-            doc.appendChild(testElement7);
-            
-            System.out.println(testElement4.toString());
-            // System.out.println( testElement5.toString() );
-            // System.out.println( testElement6.toString() );
-            // System.out.println( testElement7.toString() );
-        } catch (Throwable everything) {
-            everything.printStackTrace();
-            fail("caught an unexpected exception - " + everything.toString());
+            assertTrue("added a single element, but something else was returned", testElement.equals(firstchild));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("added a single element, but it was not returned");
         }
+        
+        final String useName = "element2";
+        final String useValue = "value&<!";
+        
+        TextElement testElement2 = doc.createElement(useName, useValue);
+        
+        testElement.appendChild(testElement2);
+        
+        String itsName = testElement2.getName();
+
+        assertTrue("name of element was not correct after creation", useName.equals(itsName));
+        
+        String itsValue = testElement2.getTextValue();
+
+        assertTrue("value of element was not correct after creation. was '" + itsValue + "' should be '" + useValue + "'"
+                ,
+                useValue.equals(itsValue));
+        
+        testElement2 = doc.createElement("element3", useValue);
+        
+        testElement.appendChild(testElement2);
+        
+        testElement2 = doc.createElement("element4", "1");
+        
+        testElement.appendChild(testElement2);
+        
+        itsValue = testElement2.getTextValue();
+        assertTrue("value of element was not correct after creation (length 1)", "1".equals(itsValue));
+        
+        if (type.getSubtype().equalsIgnoreCase("XML")) {
+            try {
+                TextElement testElement5 = doc.createElement("really wrong and long", "1");
+                
+                fail("Tag names with spaces should be disallowed");
+            } catch (Exception failed) {// that's ok
+            }
+        }
+        
+        int count = 0;
+
+        for (Enumeration<Element> eachChild = doc.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            ;
+        }
+        
+        assertTrue("Doc didnt have one child", 1 == count);
+        
+        count = 0;
+        for (Enumeration<Element> eachChild = doc.getChildren("element"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            ;
+        }
+        
+        assertTrue("Doc didnt have one child named 'element'", 1 == count);
+        
+        count = 0;
+        for (Enumeration<Element> eachChild = doc.getChildren("bogus"); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            ;
+        }
+        
+        assertTrue(" Doc shouldnt have had a child named 'bogus'", 0 == count);
+        
+        count = 0;
+        for (Enumeration<Element> eachChild = testElement.getChildren(); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            ;
+        }
+        
+        assertTrue("element didnt have expected number of children", 3 == count);
+        
+        count = 0;
+        for (Enumeration<Element> eachChild = testElement.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            ;
+        }
+        
+        assertTrue("element didnt have expected number of children named '" + useName + "'", 1 == count);
+        
+        // This check also is important for checking that the behaviour of the
+        // tree is correct when there are nodes with the same name as the parent in subtrees.
+        
+        Element testElement3 = doc.createElement(useName, useValue);
+
+        testElement2.appendChild(testElement3);
+        
+        testElement3 = doc.createElement(useName);
+        testElement2.appendChild(testElement3);
+        
+        count = 0;
+        for (Enumeration eachChild = testElement2.getChildren(useName); eachChild.hasMoreElements(); count++, eachChild.nextElement()) {
+            ;
+        }
+        
+        assertTrue("element didnt have expected number of children named '" + useName + "'", 2 == count);
+        
+        StructuredDocument likeMe = null;
+            
+        try {
+            likeMe = (StructuredTextDocument) instantiator.newInstance(doc.getMimeType(), doc.getStream());
+        } catch (java.security.ProviderException thrown) {
+            ;
+        } catch (Throwable thrown) {
+            thrown.printStackTrace();
+            fail("Exception thrown during reconstruction! " + thrown.toString());
+        }
+        
+        if (testElement instanceof Attributable) {
+            _testAttributes((Attributable) testElement);
+            _testAttributes((Attributable) testElement3);
+        }
+        
+        try {
+            likeMe = instantiator.newInstance(doc.getMimeType(), doc.getStream());
+        } catch (java.security.ProviderException thrown) {
+            ;
+        } catch (Throwable thrown) {
+            thrown.printStackTrace();
+            fail("Exception thrown during reconstruction! " + thrown.toString());
+        }
+        
+        Writer somewhere = new StringWriter();
+        
+        (doc).sendToWriter(somewhere);
+        
+        String docAsString = somewhere.toString().trim();
+        
+        testElement3 = doc.createElement(useName, docAsString);
+        testElement2.appendChild(testElement3);
+        
+        String docFromElement = (String) testElement3.getValue();
+        
+        assertTrue("Could not faithfully store stream representation of doc in doc. (lengths dont match)",
+                docAsString.length() == docFromElement.length());
+        
+        for (int eachChar = 0; eachChar < docAsString.length(); eachChar++) {
+            assertTrue("Could not faithfully store stream representation of doc in doc. (failed at index: " + eachChar + ")",
+                    docAsString.charAt(eachChar) == docFromElement.charAt(eachChar));
+        }
+        
+        Element testElement4 = doc.createElement("shortname", "shortvalue");
+        Element testElement5 = doc.createElement(
+                "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
+                "shortvalue");
+        Element testElement6 = doc.createElement(
+                "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongname",
+                "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
+        Element testElement7 = doc.createElement("shortname",
+                "looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooongvalue");
+        
+        doc.appendChild(testElement4);
+        doc.appendChild(testElement5);
+        doc.appendChild(testElement6);
+        doc.appendChild(testElement7);
     }
     
     public void _testAttributes(Attributable element) {
@@ -461,7 +453,7 @@ public final class DocumentTest {
         }
     }
     
-    @Test public void testLiteXMLStructuredDoc() {
+    public void testLiteXMLStructuredDoc() {
         try {
             _test(LiteXMLDocument.INSTANTIATOR, MimeMediaType.XML_DEFAULTENCODING);
             _testConstructors(LiteXMLDocument.INSTANTIATOR, MimeMediaType.XML_DEFAULTENCODING);
@@ -472,46 +464,25 @@ public final class DocumentTest {
             fail("Caught an unexpected exception - " + everything.toString());
         }
     }
-    @Ignore("To be investigated")
-    @Test
-    public void testDOMXMLStructuredDoc() {
+    
+    public void testDOMXMLStructuredDoc() throws Exception {
         StructuredDocumentFactory.Instantiator domInstantiator = null;
 
-        try {
-            domInstantiator = (StructuredDocumentFactory.Instantiator) Class.forName("net.jxta.impl.document.DOMXMLDocument").getField("INSTANTIATOR").get(
-                    null);
-        } catch (ClassNotFoundException noDOM) {
-            ;
-        } catch (NoSuchFieldException noDOM) {
-            ;
-        } catch (IllegalAccessException noDOM) {
-            ;
-        }
-
-        try {
-            if (null != domInstantiator) {
-                _test(domInstantiator, MimeMediaType.XML_DEFAULTENCODING);
-                _testConstructors(domInstantiator, MimeMediaType.XML_DEFAULTENCODING);
-                _testAttributesSolo(domInstantiator, MimeMediaType.XML_DEFAULTENCODING);
-            }
-        } catch (Throwable everything) {
-            everything.printStackTrace();
-            fail("Caught an unexpected exception - " + everything.toString());
-        }
+        domInstantiator = (StructuredDocumentFactory.Instantiator) Class.forName("net.jxta.impl.document.DOMXMLDocument").getField("INSTANTIATOR").get(null);
+        assertNotNull(domInstantiator);
+        
+        _test(domInstantiator, MimeMediaType.XML_DEFAULTENCODING);
+        _testConstructors(domInstantiator, MimeMediaType.XML_DEFAULTENCODING);
+        _testAttributesSolo(domInstantiator, MimeMediaType.XML_DEFAULTENCODING);
     }
     
-    @Test public void testPlainTextDoc() {
-        try {
-            _test(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
-            _testConstructors(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
-            _testAttributesSolo(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
-        } catch (Throwable everything) {
-            everything.printStackTrace();
-            fail("Caught an unexpected exception - " + everything.toString());
-        }
+    public void testPlainTextDoc() throws Exception {
+        _test(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
+        _testConstructors(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
+        _testAttributesSolo(PlainTextDocument.INSTANTIATOR, MimeMediaType.TEXT_DEFAULTENCODING);
     }
     
-    @Test public void testExtensionMapping() {
+    public void testExtensionMapping() {
         MimeMediaType refMime = new MimeMediaType("Text/Xml");
         String refExt = "xml";
         
@@ -524,7 +495,7 @@ public final class DocumentTest {
         assertTrue("extension was not the same after reflex mapping", refExt.equals(ext));
     }
     
-    @Test public void testIssue102() {
+    public void testIssue102() {
         String WORKS = "<xml><stooges>Moe, Larry, &#x41;&#65;&#0666;& Curly</stooges></xml>";
         
         String DOES_NOT_WORK = "<xml><stooges>Moe, Larry, & Joe</stooges></xml>";
@@ -533,7 +504,7 @@ public final class DocumentTest {
         LiteXMLBug doesNotWork = new LiteXMLBug(DOES_NOT_WORK);
     }
     
-    @Test public void testIssue1282() {
+    public void testIssue1282() {
         
         try {
             // create document
@@ -593,7 +564,7 @@ public final class DocumentTest {
         }
     }
     
-    @Test public void testIssue1372() {
+    public void testIssue1372() {
         XMLDocument document = null;
         XMLDocument document2 = null;
         
@@ -649,7 +620,7 @@ public final class DocumentTest {
         }
     }
     
-    @Test public void testIssue13XX() {
+    public void testIssue13XX() {
         XMLDocument document = null;
         
         try {
@@ -667,7 +638,7 @@ public final class DocumentTest {
     }
     
     
-    @Test public void testIssue15() {
+    public void testIssue15() {
         XMLDocument document = null;
         
         try {
@@ -683,5 +654,4 @@ public final class DocumentTest {
             fail("Caught an unexpected exception - " + everything.getMessage());
         }
     }
-
 }

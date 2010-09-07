@@ -6,15 +6,17 @@ import java.sql.SQLException;
 
 import javax.sql.ConnectionPoolDataSource;
 
+import net.jxta.impl.util.threads.TaskManager;
+
 import org.h2.jdbcx.JdbcDataSource;
 
 public class H2AdvertisementCache extends JdbcAdvertisementCache {
-	public H2AdvertisementCache(URI storeRoot, String areaName) throws IOException {
-		super(storeRoot, areaName);
+	public H2AdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager) throws IOException {
+		super(storeRoot, areaName, taskManager);
 	}
 	
-	public H2AdvertisementCache(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
-		super(storeRoot, areaName, gcinterval, trackDeltas);
+	public H2AdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager, long gcinterval, boolean trackDeltas) throws IOException {
+		super(storeRoot, areaName, taskManager, gcinterval, trackDeltas);
 	}
 	
 	@Override

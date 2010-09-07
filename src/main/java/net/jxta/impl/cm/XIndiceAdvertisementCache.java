@@ -200,12 +200,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @param storeRoot store root dir
      * @throws IOException 
      */
-	public XIndiceAdvertisementCache(URI storeRoot, String areaName) throws IOException {
-		// XXX I'm not sure how to support an arbitrary executor in this context.
-		// Granted, it's only used in tests right now, but clearly we dont need
-		// yet another pool floating around.  SingleThreadExecutor seems safest...
-		// however, the current implementation uses CachedThreadPool.
-		this(storeRoot, areaName, DEFAULT_GC_MAX_INTERVAL, false);
+	public XIndiceAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager) throws IOException {
+		this(storeRoot, areaName, taskManager, DEFAULT_GC_MAX_INTERVAL, false);
 	}
 
     /**
@@ -217,8 +213,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
      * @param trackDeltas when true deltas are tracked
      * @throws IOException thrown for failures initilzing the CM store.
      */
-    public XIndiceAdvertisementCache(URI storeRoot, String areaName, long gcInterval, boolean trackDeltas) throws IOException {
-        this.executor = TaskManager.getTaskManager().getScheduledExecutorService();
+    public XIndiceAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager, long gcInterval, boolean trackDeltas) throws IOException {
+        this.executor = taskManager.getScheduledExecutorService();
         this.trackDeltas = trackDeltas;
         this.gcMaxInterval = (0 >= gcInterval) ? DEFAULT_GC_MAX_INTERVAL : gcInterval;
 

@@ -287,9 +287,9 @@
 			<version>2.5.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency> <!-- To be removed -->
+        <dependency>
 			<groupId>org.jmock</groupId>
-			<artifactId>jmock-junit4</artifactId>
+			<artifactId>jmock-legacy</artifactId>
 			<version>2.5.1</version>
 			<scope>test</scope>
 		</dependency>

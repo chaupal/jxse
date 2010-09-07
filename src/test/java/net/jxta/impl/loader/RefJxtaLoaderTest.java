@@ -60,6 +60,8 @@ import java.io.File;
 import java.net.URI;
 import net.jxta.content.ContentProviderEvent;
 import net.jxta.impl.peergroup.*;
+import net.jxta.impl.util.threads.TaskManager;
+
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;

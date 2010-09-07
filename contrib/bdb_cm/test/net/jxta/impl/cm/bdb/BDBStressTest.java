@@ -6,48 +6,51 @@ import java.io.IOException;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.cm.CacheManager;
-import net.jxta.impl.cm.bdb.BerkeleyDbAdvertisementCache;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
 
 public class BDBStressTest {
 
 	public static void main(String[] args) throws Exception {
-		
-		int numRuns = 5;
-		
-		long[] saveTime = new long[numRuns];
-		long[] removeTime = new long[numRuns];
-		long[] searchTime = new long[numRuns];
-		long[] timeResults = new long[numRuns];
-		
-		for(int i=0; i < numRuns; i++) {
-			File storeRoot = File.createTempFile("bdbstress", null);
-			storeRoot.delete();
-			storeRoot.mkdir();
-			
-			System.out.println("Cycle " + i + " start");
-			long startTime = System.currentTimeMillis();
-			CacheManager cm = new CacheManager(new BerkeleyDbAdvertisementCache(storeRoot.toURI(), "testArea"));
-			//Cm cm = new Cm(new XIndiceAdvertisementCache(storeRoot.toURI(), "testArea"));
-			
-			PeerGroupID groupId = IDFactory.newPeerGroupID();
-			
-			performSaves(saveTime, i, cm, groupId);
-			performSearches(searchTime, i, cm);
-			performRemoves(removeTime, i, cm);
-			
-			cm.stop();
-			timeResults[i] = System.currentTimeMillis() - startTime;
-			deleteDir(storeRoot);
-			
-			System.out.println("Cycle " + i + " complete");
+		TaskManager taskManager = new TaskManager();
+		try {
+    		int numRuns = 5;
+    		
+    		long[] saveTime = new long[numRuns];
+    		long[] removeTime = new long[numRuns];
+    		long[] searchTime = new long[numRuns];
+    		long[] timeResults = new long[numRuns];
+    		
+    		for(int i=0; i < numRuns; i++) {
+    			File storeRoot = File.createTempFile("bdbstress", null);
+    			storeRoot.delete();
+    			storeRoot.mkdir();
+    			
+    			System.out.println("Cycle " + i + " start");
+    			long startTime = System.currentTimeMillis();
+    			CacheManager cm = new CacheManager(new BerkeleyDbAdvertisementCache(storeRoot.toURI(), "testArea", taskManager));
+    			
+    			PeerGroupID groupId = IDFactory.newPeerGroupID();
+    			
+    			performSaves(saveTime, i, cm, groupId);
+    			performSearches(searchTime, i, cm);
+    			performRemoves(removeTime, i, cm);
+    			
+    			cm.stop();
+    			timeResults[i] = System.currentTimeMillis() - startTime;
+    			deleteDir(storeRoot);
+    			
+    			System.out.println("Cycle " + i + " complete");
+    		}
+    		
+    		System.out.println("Average save time for 10000 records: " + calculateAverage(saveTime) + "ms");
+    		System.out.println("Average search time for 1000000 searches: " + calculateAverage(searchTime) + "ms");
+    		System.out.println("Average remove time for 10000 records: " + calculateAverage(removeTime) + "ms");
+    		System.out.println("Average run length: " + calculateAverage(timeResults) + "ms");
+		} finally {
+		    taskManager.shutdown();
 		}
-		
-		System.out.println("Average save time for 10000 records: " + calculateAverage(saveTime) + "ms");
-		System.out.println("Average search time for 1000000 searches: " + calculateAverage(searchTime) + "ms");
-		System.out.println("Average remove time for 10000 records: " + calculateAverage(removeTime) + "ms");
-		System.out.println("Average run length: " + calculateAverage(timeResults) + "ms");
 	}
 
 	private static void performSearches(long[] searchTime, int i, CacheManager cm) {

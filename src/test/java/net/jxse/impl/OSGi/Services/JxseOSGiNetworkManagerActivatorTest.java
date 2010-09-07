@@ -73,11 +73,8 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+
 import static org.junit.Assert.*;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
@@ -183,6 +180,7 @@ public class JxseOSGiNetworkManagerActivatorTest {
      * Test of getConfiguredNetworkManager method, of class JxseOSGiNetworkManager.
      */
     @Test
+    @Ignore("Come back resolve when can agree coding standard")
     public void testGetConfiguredNetworkManager() {
 
         JxsePeerConfiguration JPC = new ValidJxsePeerConfiguration();

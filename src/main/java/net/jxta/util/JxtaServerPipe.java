@@ -107,25 +107,26 @@ public class JxtaServerPipe implements PipeMsgListener {
     protected static final String reliableTag = "reliable";
     protected static final String directSupportedTag = "direct";
     protected static final String connectionPropertiesTag = "connectionproperties";
+    
+    public static final int DEFAULT_TIMEOUT = 30 * 1000; // 30 seconds
+    public static final int DEFAULT_BACKLOG = 50;
+    
     private PeerGroup group;
     private InputPipe serverPipe;
     private PipeAdvertisement pipeadv;
-    private int backlog = 50;
-    private long timeout = 30 * 1000L;
     private final Object closeLock = new Object();
-    protected BlockingQueue<JxtaBiDiPipe> connectionQueue = null;
     private boolean bound = false;
     private boolean closed = false;
     protected StructuredDocument myCredentialDoc = null;
-    /**
-     * The executor service.
-     */
-    private final ExecutorService executor;
+    
+    private volatile ServerPipeAcceptListener listener;
+    private final QueuingServerPipeAcceptor defaultListener; 
 
     /**
      * Default constructor for the JxtaServerPipe
      * <p/>
-     * backlog default of 50
+     * backlog is set to {@link #DEFAULT_BACKLOG}.
+     * accept timeout is set to {@link #DEFAULT_TIMEOUT}.
      * <p> call to accept() for this ServerPipe will
      * block for only this amount of time. If the timeout expires,
      * a java.net.SocketTimeoutException is raised, though the ServerPipe is still valid.
@@ -136,9 +137,21 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @throws IOException if an I/O error occurs
      */
     public JxtaServerPipe(PeerGroup group, PipeAdvertisement pipeadv) throws IOException {
-        this(group, pipeadv, 50);
+        this(group, pipeadv, DEFAULT_BACKLOG, DEFAULT_TIMEOUT);
     }
 
+    /**
+     * Constructor for the JxtaServerPipe object
+     *
+     * @param group   JXTA PeerGroup
+     * @param pipeadv PipeAdvertisement on which pipe requests are accepted
+     * @param backlog the maximum length of the queue.
+     * @throws IOException if an I/O error occurs
+     */
+    public JxtaServerPipe(PeerGroup group, PipeAdvertisement pipeadv, int backlog) throws IOException {
+        this(group, pipeadv, backlog, DEFAULT_TIMEOUT);
+    }
+    
     /**
      * Constructor for the JxtaServerPipe
      *
@@ -151,28 +164,34 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @throws IOException if an I/O error occurs
      */
     public JxtaServerPipe(PeerGroup group, PipeAdvertisement pipeadv, int backlog, int timeout) throws IOException {
-        this(group, pipeadv, backlog);
-        this.timeout = timeout;
+        this.defaultListener = new QueuingServerPipeAcceptor(backlog, timeout);
+        this.listener = defaultListener;
+        bind(group, pipeadv);
     }
-
+    
     /**
-     * Constructor for the JxtaServerPipe object
-     *
+     * Creates a server pipe for the specified group, configured using the properties of the specified pipe
+     * advertisement. Additionally, accepting incoming pipe connections will be sent asynchronously to the
+     * provided {@link ServerPipeAcceptListener}. This form of the constructor is intended for those clients
+     * who wish to immediately handle incoming connections rather than using the blocking {@link #accept()} method
+     * synchronously. Please note that if the object is constructed this way, the accept method will no longer
+     * function, and will instead immediately return null.
+     * 
      * @param group   JXTA PeerGroup
      * @param pipeadv PipeAdvertisement on which pipe requests are accepted
-     * @param backlog the maximum length of the queue.
-     *                * @exception  IOException  if an I/O error occurs
+     * @param listener the listener to which all incoming connections will be sent immediately and asynchronously.
      * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if the listener is null
      */
-    public JxtaServerPipe(PeerGroup group, PipeAdvertisement pipeadv, int backlog) throws IOException {
-        this.group = group;
-        this.executor = TaskManager.getTaskManager().getExecutorService();
-        this.pipeadv = pipeadv;
-        this.backlog = backlog;
-        connectionQueue = new ArrayBlockingQueue<JxtaBiDiPipe>(backlog);
-        PipeService pipeSvc = group.getPipeService();
-        serverPipe = pipeSvc.createInputPipe(pipeadv, this);
-        setBound();
+    public JxtaServerPipe(PeerGroup group, PipeAdvertisement pipeadv, ServerPipeAcceptListener listener) throws IOException {
+        // we still set a valid default listener even though it is not used. This is used later as a quick
+        // way of checking whether we are using the default or not.
+        if(listener == null) {
+            throw new IllegalArgumentException("listener must not be null");
+        }
+        this.defaultListener = new QueuingServerPipeAcceptor(1, 0);
+        this.listener = listener;
+        bind(group, pipeadv);
     }
 
     /**
@@ -183,7 +202,11 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @throws IOException if an I/O error occurs
      */
     public void bind(PeerGroup group, PipeAdvertisement pipeadv) throws IOException {
-        bind(group, pipeadv, backlog);
+        this.group = group;
+        this.pipeadv = pipeadv;
+        PipeService pipeSvc = group.getPipeService();
+        serverPipe = pipeSvc.createInputPipe(pipeadv, this);
+        setBound();
     }
 
     /**
@@ -193,15 +216,12 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @param pipeadv PipeAdvertisement on which pipe requests are accepted
      * @param backlog the maximum length of the queue.
      * @throws IOException if an I/O error occurs
+     * @deprecated as of version 2.7, backlog must be specified to the constructor of the server pipe
+     * only.
      */
+    @Deprecated
     public void bind(PeerGroup group, PipeAdvertisement pipeadv, int backlog) throws IOException {
-        this.backlog = backlog;
-        connectionQueue = new ArrayBlockingQueue<JxtaBiDiPipe>(backlog);
-        this.group = group;
-        this.pipeadv = pipeadv;
-        PipeService pipeSvc = group.getPipeService();
-        serverPipe = pipeSvc.createInputPipe(pipeadv, this);
-        setBound();
+        bind(group, pipeadv);
     }
 
     /**
@@ -212,25 +232,18 @@ public class JxtaServerPipe implements PipeMsgListener {
      * @throws IOException if an I/O error occurs
      */
     public JxtaBiDiPipe accept() throws IOException {
-
-        if (isClosed()) throw new SocketException("JxtaServerPipe is closed");
+    	checkNotClosed();
+        checkBound();
         
-        if (!isBound()) throw new SocketException("JxtaServerPipe is not bound yet");
-        
-        try {
-
-            JxtaBiDiPipe bidi = connectionQueue.poll(timeout, TimeUnit.MILLISECONDS);
-
-            if (bidi == null) throw new SocketTimeoutException("Timeout reached");
-
-            return bidi;
-
-        } catch (InterruptedException ie) {
-
-            Logging.logCheckedFine(LOG, "Interrupted\n", ie);
-            throw new SocketException("interrupted");
-
+        if(usingBlockingAccept()) {
+            return defaultListener.acceptBackwardsCompatible();
+        } else {
+            throw new IllegalStateException("cannot call accept() if a custom ServerPipeAcceptListener is in use");
         }
+    }
+
+    public boolean usingBlockingAccept() {
+        return listener == defaultListener;
     }
 
     /**
@@ -264,7 +277,7 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (bound) {
                 // close all the pipe
                 serverPipe.close();
-                connectionQueue.clear();
+                listener.serverPipeClosed();
                 bound = false;
             }
             closed = true;
@@ -278,43 +291,51 @@ public class JxtaServerPipe implements PipeMsgListener {
         bound = true;
     }
 
-    /**
-     * Gets the Timeout attribute of the JxtaServerPipe
-     *
-     * @return The soTimeout value
-     * @throws IOException if an I/O error occurs
-     */
-    public synchronized int getPipeTimeout() throws IOException {
+    
+    
+    private void checkNotClosed() throws SocketException {
         if (isClosed()) {
             throw new SocketException("Server Pipe is closed");
         }
-        if (timeout > Integer.MAX_VALUE) {
-            return 0;
-        } else {
-            return (int) timeout;
+    }
+    
+    private void checkBound() throws SocketException {
+        if (!isBound()) {
+            throw new SocketException("JxtaServerPipe is not bound yet");
         }
     }
 
     /**
-     * Sets the Timeout attribute of the JxtaServerPipe a timeout of 0 blocks forever.
+     * Gets the Timeout attribute of the JxtaServerPipe.
      *
-     * @param timeout The new soTimeout value
+     * @return The timeout value in use for the {@link #accept()} method.
+     * @throws IOException if an I/O error occurs.
+     * @throws IllegalStateException if a custom {@link ServerPipeAcceptListener} is in use.
+     */
+    public synchronized int getPipeTimeout() throws IOException {
+        checkNotClosed();
+        if(usingBlockingAccept()) {
+            return defaultListener.getTimeoutBackwardsCompatible();
+        } else {
+            throw new IllegalStateException("Custom ServerPipeAcceptListener is in use, timeout does not apply");
+        }
+    }
+    
+    /**
+     * Sets the Timeout attribute of the JxtaServerPipe. A timeout of 0 blocks forever, and
+     * a timeout value less than zero is illegal.
+     *
      * @throws SocketException if an I/O error occurs
+     * @throws IllegalStateException if a custom {@link ServerPipeAcceptListener} is in use.
      */
     public synchronized void setPipeTimeout(int timeout) throws SocketException {
-        if (isClosed()) {
-            throw new SocketException("Server Pipe is closed");
-        }
-
-        if (timeout < 0) {
-            throw new IllegalArgumentException("Negative timeout values are not allowed.");
-        }
-
-        if (0 == timeout) {
-            this.timeout = Long.MAX_VALUE;
+        checkNotClosed();
+        if(usingBlockingAccept()) {
+            defaultListener.setTimeoutBackwardsCompatible(timeout);
         } else {
-            this.timeout = (long) timeout;
+            throw new IllegalStateException("Custom ServerPipeAcceptListener is in use, timeout does not apply");
         }
+        
     }
 
     /**
@@ -345,8 +366,14 @@ public class JxtaServerPipe implements PipeMsgListener {
         if (message == null) {
             return;
         }
-        ConnectionProcessor processor = new ConnectionProcessor(message);
-        executor.execute(processor);
+        
+        JxtaBiDiPipe bidi = processMessage(message);
+        // make sure we have a socket returning
+        if (bidi == null) {
+            return;
+        }
+            
+        listener.pipeAccepted(bidi);
     }
 
     /**
@@ -560,30 +587,6 @@ public class JxtaServerPipe implements PipeMsgListener {
             close();
         } finally {
             super.finalize();
-        }
-    }
-
-    /**
-     * A small class for processing individual messages.
-     */
-    private class ConnectionProcessor implements Runnable {
-
-        private final Message message;
-
-        ConnectionProcessor(Message message) {
-            this.message = message;
-        }
-
-        public void run() {
-            JxtaBiDiPipe bidi = processMessage(message);
-            // make sure we have a socket returning
-            if (bidi != null) {
-                try {
-                    connectionQueue.offer(bidi, timeout, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException e) {
-                    Thread.interrupted();
-                }
-            }
         }
     }
 }

@@ -57,7 +57,6 @@
 package net.jxta.impl.peergroup;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URL;
@@ -72,18 +71,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -143,11 +134,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * Default compatibility equater instance.
      */
     private static final CompatibilityEquater COMP_EQ =
-            new CompatibilityEquater() {
-                public boolean compatible(Element test) {
-                    return CompatibilityUtils.isCompatible(test);
-                }
-            };
+    	new CompatibilityEquater() {
+        public boolean compatible(Element test) {
+            return CompatibilityUtils.isCompatible(test);
+        }
+    };
+            
 
     /**
      * Statically scoped JxtaLoader which is used as the root of the
@@ -163,6 +155,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     private final static JxtaLoader staticLoader =
             new RefJxtaLoader(new URL[0], COMP_EQ);
+
+    private static final ThreadGroup JXSE_THREAD_GROUP = new ThreadGroup("JXSE");
 
     /**
      * The PeerGroup-specific JxtaLoader instance.
@@ -255,53 +249,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected volatile boolean initComplete = false;
 
-    /**
-     * The thread group in which threads created by this group or services of
-     * this group should live. The thread group is used primarily for debugging
-     * and classification purposes--we don't try to use any of the fancy (and
-     * mostly useless) ThreadGroup features.
-     */
-    private ThreadGroup threadGroup = null;
-
-    /**
-     * The minimum number of Threads our Executor will reserve. Once started
-     * these Threads will remain.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    private final int COREPOOLSIZE = 5;
-
-    /**
-     * The number of seconds that Threads above {@code COREPOOLSIZE} will
-     * remain idle before terminating.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    private final long KEEPALIVETIME = 15;
-
-    /**
-     * The intended upper bound on the number of threads we will allow our
-     * Executor to create. We will allow the pool to grow to twice this size if
-     * we run out of threads.
-     *
-     * todo convert these hardcoded settings into group config params.
-     */
-    private final int MAXPOOLSIZE = 100;
-
-    /**
-     * Queue for tasks waiting to be run by our {@code Executor}.
-     */
-    private BlockingQueue<Runnable> taskQueue;
-
-    /**
-     * The PeerGroup ThreadPool
-     */
-    private ExecutorService threadPool;
-
-    /**
-     * The PeerGroup ScheduledExecutor
-     */
-    private ScheduledExecutorService scheduledExecutor;
 
     /**
      * {@inheritDoc}
@@ -440,13 +387,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
 
         return result.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public ThreadGroup getHomeThreadGroup() {
-        return threadGroup;
     }
 
     /**
@@ -1183,11 +1123,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
              * damage to the legitimate instance. There should be a synchro on
              * on the get<service>() and lookupService() routines.
              */
-            if (!globalRegistry.registerInstance((PeerGroupID) assignedID, this))
+            if (!getGlobalRegistry().registerInstance((PeerGroupID) assignedID, this)) {
                 throw new PeerGroupException("Group already instantiated");
+            }
 
         } catch (Throwable any) {
-
             Logging.logCheckedSevere(LOG, "Group init failed\n", any);
 
             if (any instanceof Error) {
@@ -1199,38 +1139,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
             }
 
             throw new PeerGroupException("Group init failed", any);
-        }
-
-        ThreadGroup parentThreadGroup = (null != this.parentGroup)
-                ? parentGroup.getHomeThreadGroup()
-                : Thread.currentThread().getThreadGroup();
-
-        threadGroup = new ThreadGroup(parentThreadGroup, "Group " + peerGroupAdvertisement.getPeerGroupID());
-
-        threadPool = TaskManager.getTaskManager().getExecutorService();
-        scheduledExecutor = TaskManager.getTaskManager().getScheduledExecutorService();
-
-// This was the older form, before TaskManager...
-//        taskQueue = new ArrayBlockingQueue<Runnable>(COREPOOLSIZE * 2);
-//        threadPool = new ThreadPoolExecutor(COREPOOLSIZE, MAXPOOLSIZE,
-//                KEEPALIVETIME, TimeUnit.SECONDS,
-//                taskQueue,
-//                new PeerGroupThreadFactory("Executor", getHomeThreadGroup()),
-//                new CallerBlocksPolicy());
-//      scheduledExecutor = new ScheduledThreadPoolExecutor(1,
-//      new PeerGroupThreadFactory("Scheduled Executor", getHomeThreadGroup()));
-
-        // Try to allow core threads to idle out. (Requires a 1.6 method)
-        try {
-
-            Method allowCoreThreadTimeOut = threadPool.getClass().getMethod("allowCoreThreadTimeOut", boolean.class);
-            allowCoreThreadTimeOut.invoke(threadPool, Boolean.TRUE);
-
-        } catch (Throwable ohWell) {
-
-            // Our attempt failed.
-            Logging.logCheckedFinest(LOG, "Failed to enable 'allowCoreThreadTimeOut'\n", ohWell);
-
         }
 
     /*
@@ -1326,7 +1234,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         // remove everything (just in case);
         services.clear();
 
-        globalRegistry.unRegisterInstance(peerGroupAdvertisement.getPeerGroupID(), this);
+        getGlobalRegistry().unRegisterInstance(peerGroupAdvertisement.getPeerGroupID(), this);
 
         // Explicitly unreference our parent group in order to allow it
         // to terminate if this group object was itself the last reference
@@ -1478,7 +1386,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             throw new IllegalArgumentException("Advertisement did not contain a peer group ID");
         }
 
-        PeerGroup theNewGroup = globalRegistry.lookupInstance(gid);
+        PeerGroup theNewGroup = parentGroup.getGlobalRegistry().lookupInstance(gid);
 
         if (theNewGroup != null) {
             return theNewGroup;
@@ -1519,7 +1427,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         PeerGroup theNewGroup = null;
 
         if (null != gid) {
-            theNewGroup = globalRegistry.lookupInstance(gid);
+            theNewGroup = parentGroup.getGlobalRegistry().lookupInstance(gid);
         }
 
         if (theNewGroup != null) return theNewGroup;
@@ -1559,7 +1467,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             throw new IllegalArgumentException("Invalid peer group ID");
         }
 
-        PeerGroup result = globalRegistry.lookupInstance(gid);
+        PeerGroup result = parentGroup.getGlobalRegistry().lookupInstance(gid);
 
         if (result != null) {
             return result;
@@ -1679,6 +1587,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         return (ResolverService) resolver.getInterface();
     }
+    
+    public GlobalRegistry getGlobalRegistry()
+    {
+        return parentGroup.getGlobalRegistry();
+    }
 
     /**
      * {@inheritDoc}
@@ -1750,80 +1663,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
         return (ContentService) content.getInterface();
     }
 
-    /**
-     * Returns the executor pool
-     *
-     * @return the executor pool
-     */
-    public Executor getExecutor() {
-        return threadPool;
-    }
-
-    /**
-     * Returns the scheduled executor. The
-     *
-     * @return the scheduled executor
-     */
-    public ScheduledExecutorService getScheduledExecutor() {
-        // FIXME 20070815 bondolo We should return a proxy object to disable shutdown()
-        return scheduledExecutor;
-    }
-
-    /**
-     * Our rejected execution handler which has the effect of pausing the
-     * caller until the task can be queued.
-     */
-    private static class CallerBlocksPolicy implements RejectedExecutionHandler {
-
-        private CallerBlocksPolicy() {
+    public TaskManager getTaskManager() {
+        return parentGroup.getTaskManager();
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        public void rejectedExecution(Runnable runnable, ThreadPoolExecutor executor) {
-            BlockingQueue<Runnable> queue = executor.getQueue();
-
-            while (!executor.isShutdown()) {
-                executor.purge();
-
-                try {
-                    boolean pushed = queue.offer(runnable, 500, TimeUnit.MILLISECONDS);
-
-                    if (pushed) {
-                        break;
-                    }
-                } catch (InterruptedException woken) {
-                    throw new RejectedExecutionException("Interrupted while attempting to enqueue", woken);
-                }
-            }
-        }
-    }
-
-    /**
-     * Our thread factory that adds the threads to our thread group and names
-     * the thread to something recognizable.
-     */
-    static class PeerGroupThreadFactory implements ThreadFactory {
-
-        final AtomicInteger threadNumber = new AtomicInteger(1);
-        final String name;
-        final ThreadGroup threadgroup;
-
-        PeerGroupThreadFactory(String name, ThreadGroup threadgroup) {
-            this.name = name;
-            this.threadgroup = threadgroup;
-        }
-
-        public Thread newThread(Runnable runnable) {
-            Thread thread = new Thread(threadgroup, runnable, name + " - " + threadNumber.getAndIncrement(), 0);
-            if (thread.isDaemon()) {
-                thread.setDaemon(false);
-            }
-            if (thread.getPriority() != Thread.NORM_PRIORITY) {
-                thread.setPriority(Thread.NORM_PRIORITY);
-            }
-            return thread;
-        }
+    @Deprecated
+    public ThreadGroup getHomeThreadGroup() {
+        return JXSE_THREAD_GROUP;
     }
 }

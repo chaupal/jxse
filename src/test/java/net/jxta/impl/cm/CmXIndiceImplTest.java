@@ -53,35 +53,39 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
-
 package net.jxta.impl.cm;
 
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.id.IDFactory;
-import net.jxta.id.ID;
-import java.util.Vector;
-import java.util.Enumeration;
-import java.util.Arrays;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
-import java.util.Collections;
-import java.io.File;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.util.Vector;
+
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Element;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.id.ID;
+import net.jxta.id.IDFactory;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.Element;
-import net.jxta.document.AdvertisementFactory;
+
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import static org.junit.Assert.*;
 
@@ -101,28 +105,30 @@ public class CmXIndiceImplTest {
     private static Random random = new Random();
 
     private List<PeerAdvertisement> queue = Collections.synchronizedList(new ArrayList<PeerAdvertisement>());
-
+    
+    private TaskManager taskManager;
+    
+    @Rule
+    public TemporaryFolder testFileStore = new TemporaryFolder();
+    
     @Before
-    public void setUp() throws IOException {
-        synchronized (CmXIndiceImplTest.class) {
-            if (null == cm) {
-                cm = new XIndiceAdvertisementCache(new File(new File(".cache"), "CmTest").toURI(), "CmTest");
-            }
-        }
+    public void setUp() throws Exception {
+        taskManager = new TaskManager();
+        cm = new XIndiceAdvertisementCache(testFileStore.getRoot().toURI(), "CmTest", taskManager);
     }
-    /**
-     * {@inheritDoc}
-     */
-    public static void fail(String message) {
-        failed = true;
-        junit.framework.TestCase.fail(message);
+    
+    @After
+    public void tearDown() throws Exception {
+        cm.stop();
+        cm = null;
+        TimeUtils.resetClock();
+        taskManager.shutdown();
     }
 
     /**
      * Create expired adv, and GarbageCollect
      */
     @Test
-    @Ignore("Investigate")
     public void testGarbageCollect() {
         deletePeer();
         createPeer(true);
@@ -134,8 +140,8 @@ public class CmXIndiceImplTest {
      * Run all the Cm tests sequentially. There can only be one single Cm test because
      * otherwise tearDown (which is called after every test case) will stop the Cm.
      */
-    @Ignore("Investigate")
-    @Test public void testEverything() {
+    @Test
+    public void testEverything() {
         deletePeer();
         createPeer(false);
         createPipe(false);
@@ -143,7 +149,8 @@ public class CmXIndiceImplTest {
         multithreadPeer();
     }
 
-    @Test public void testRaw() {
+    @Test
+    public void testRaw() {
         createRaw();
         checkRaw();
     }

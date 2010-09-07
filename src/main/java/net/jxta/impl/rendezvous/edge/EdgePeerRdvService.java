@@ -272,7 +272,7 @@ public class EdgePeerRdvService extends StdRendezVousService {
 
     private void scheduleMonitor(long delayInMs) {
         stopMonitor();
-        ScheduledExecutorService scheduledExecutor = TaskManager.getTaskManager().getScheduledExecutorService();
+        ScheduledExecutorService scheduledExecutor = group.getTaskManager().getScheduledExecutorService();
         MonitorTask monitorTask = new MonitorTask();
         monitorTask.setHandle(scheduledExecutor.scheduleAtFixedRate(monitorTask, delayInMs, MONITOR_INTERVAL, TimeUnit.MILLISECONDS));
     }

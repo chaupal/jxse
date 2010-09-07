@@ -239,6 +239,13 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * The set of shared transport messengers currently ready for use.
      */
     private final Map<EndpointAddress, Reference<Messenger>> directMessengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
+    
+    /**
+     * A means of preserving CanonicalMessenger instances as long as their cached messenger
+     * is still alive. This is a replacement for the original behaviour of setting an
+     * "owner" reference on a messenger to the CanonicalMessenger.
+     */
+    private final WeakHashMap<Messenger, CanonicalMessenger> canonicalPreservingMap = new WeakHashMap<Messenger, CanonicalMessenger>();
 
     /**
      * The number of active instances of this class. We use this for deciding
@@ -419,16 +426,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 return false;
             }
 
-            // FIXME 20040413 jice : it's not too clean: we assume
-            // that all transports use BlockingMessenger as the base class for
-            // their messengers. If they don't we can't force them to hold the
-            // strong reference to the canonical messenger.
-            try {
-                ((BlockingMessenger) cachedMessenger).setOwner(this);
-            } catch (ClassCastException cce) {
-                Logging.logCheckedSevere(LOG, "Transport messengers must all extend BlockingMessenger for now. ",
-                    cachedMessenger, " may remain open beyond its use.");
-            }
+            canonicalPreservingMap.put(cachedMessenger, this);
             return true;
         }
 
@@ -549,6 +547,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         PeerGroup parentGroup = group.getParentGroup();
 
+        
         if (useParentEndpoint && parentGroup != null) {
             parentEndpoint = parentGroup.getEndpointService();
             parentEndpoint.addMessengerEventListener(this, EndpointService.LowPrecedence);
@@ -599,7 +598,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         // TODO: This listener should probably go at some stage (legacy stuff)
-        listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) this.getGroup()).getExecutor());
+        listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), group.getTaskManager().getExecutorService());
 
         // FIXME  when Load order Issue is resolved this should fail
         // until it is able to get a non-failing service Monitor (or

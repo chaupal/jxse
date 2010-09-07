@@ -71,11 +71,7 @@ public class EndToEndTest {
             ignoring(serverGroup).getPeerGroupID(); will(returnValue(PeerGroupID.defaultNetPeerGroupID));
         }});
     }
-    
-    @After
-    public void tearDown() {
-        TaskManager.getTaskManager().shutdown();
-    }
+
     
     @Test
     @Ignore("Investigate - Priority, works on own, but not in all tests")

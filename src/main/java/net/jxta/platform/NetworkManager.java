@@ -399,12 +399,12 @@ public class NetworkManager implements RendezvousListener {
             return netPeerGroup;
         }
 
-        if (config == null) configure(mode);
+        if (config == null) {
+            configure(mode);
+        }
         
         Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = ", mode, ",  HOME = ", instanceHome);
         
-// Not needed since the TM is completely static now (at least temporarily) -- Bill
-//        TaskManager.getTaskManager().startup();
 
         // create, and Start the default jxta NetPeerGroup
         NetPeerGroupFactory factory = new NetPeerGroupFactory(config.getPlatformConfig(), instanceHome);
@@ -493,8 +493,6 @@ public class NetworkManager implements RendezvousListener {
         netPeerGroup.unref();
         netPeerGroup = null;
         
-        // Shutting down task manager
-        TaskManager.getTaskManager().shutdown();
         // permit restart.
         started = false;
 

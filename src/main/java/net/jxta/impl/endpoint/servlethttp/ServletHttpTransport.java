@@ -118,11 +118,6 @@ public final class ServletHttpTransport implements Module {
     PeerGroup group;
     ID assignedID;
     ModuleImplAdvertisement implAdvertisement;
-    
-    /**
-     * The executor used by HttpClientMessenger
-     */
-    Executor executor;
 
     /**
      * The endpoint we attach to.
@@ -190,8 +185,6 @@ public final class ServletHttpTransport implements Module {
         this.group = group;
         this.assignedID = assignedID;
         implAdvertisement = (ModuleImplAdvertisement) impl;
-        
-        this.executor = ((StdPeerGroup) group).getExecutor();
 
         // Get out invariable parameters from the implAdv
         XMLElement param = (XMLElement) implAdvertisement.getParam();

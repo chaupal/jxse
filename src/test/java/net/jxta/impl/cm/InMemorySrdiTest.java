@@ -1,36 +1,37 @@
 package net.jxta.impl.cm;
 
-import net.jxta.impl.cm.Srdi.Entry;
+import java.util.List;
 
+import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 
+import static org.junit.Assert.*;
+
 import org.jmock.Expectations;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static junit.framework.Assert.*;
 
 
 public class InMemorySrdiTest extends AbstractSrdiIndexBackendTest {
 
-    /* (non-Javadoc)
-     * @see net.jxta.impl.cm.AbstractSrdiIndexBackendTest#createExpectationsForConstruction_withPeerGroup_IndexName(net.jxta.peergroup.PeerGroup, net.jxta.peergroup.PeerGroupID, java.lang.String)
-     */
     @Override
     public Expectations createExpectationsForConstruction_withPeerGroup_IndexName( final PeerGroup mockGroup, final PeerGroupID groupId,
         String groupName ) {
 
-        return new Expectations() {
-
-                {
-
+        return new Expectations() {{
                     ignoring( mockGroup ).getPeerGroupName();
                     will( returnValue( "testGroup" ) );
-                }
-            };
+                }};
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 
     @Override

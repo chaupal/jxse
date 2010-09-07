@@ -1,20 +1,44 @@
 package net.jxta.impl.cm;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
+import net.jxta.impl.util.threads.TaskManager;
 
-public abstract class AbstractCmConcurrencyTest extends TestCase {
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+public abstract class AbstractCmConcurrencyTest {
 
     private static final int NUM_CACHES = 8;
     private static final int NUM_OPERATIONS = 1000;
     
+    protected TaskManager taskManager;
+    
+    @Rule
+    public TemporaryFolder testFileStore = new TemporaryFolder();
+
+    @Before
+    public void initTaskManager() {
+        taskManager = new TaskManager();
+    }
+    
+    @After
+    public void shutdownTaskManager() {
+        taskManager.shutdown();
+    }
+    
+    @Test
     public void testConcurrentSafety_randomLoad() throws Exception {
         
         CacheManager[] caches = new CacheManager[NUM_CACHES];
         for(int i=0; i < caches.length; i++) {
-            caches[i] = new CacheManager(createWrappedCache("testArea"+i));
+            caches[i] = new CacheManager(createWrappedCache("testArea"+i, taskManager));
             
             System.out.println("Seeding cache " + i);
             seedCache(caches[i]);
@@ -49,6 +73,6 @@ public abstract class AbstractCmConcurrencyTest extends TestCase {
         }
     }
 
-    protected abstract AdvertisementCache createWrappedCache(String string) throws IOException;
+    protected abstract AdvertisementCache createWrappedCache(String string, TaskManager taskManager) throws IOException;
     
 }

@@ -1,13 +1,17 @@
 package net.jxta.document;
 
+import static org.junit.Assert.*;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.Hashtable;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
@@ -18,14 +22,13 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
-import org.junit.Ignore;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-@Ignore("Investigate should this not be a trival case if still required?")
-public class AdvertisementSerializableTest{
+/* These tests blatantly haven't worked for years - the advertisement classes do not implement
+ * Serializable, therefore cannot be used with Object(Input/Output)Stream.
+ */
+/* FIXME: decide whether these tests should be modified or just binned. */
+@Ignore
+public class AdvertisementSerializableTest {
 	private static final String TestDescription = "Testing Advertisement Serializable";
 	
 	private static final String testPipeID = "urn:jxta:uuid-EA8D0447E3EB4BB58D8A81AF06DFA88E297664E3EC6248CFAE50FA285ADA12AB04";
@@ -34,7 +37,6 @@ public class AdvertisementSerializableTest{
 	
 	private static final String testMSID = "urn:jxta:uuid-4CD1574ABA614A5FA242B613D8BAA30FD0A45F5F0E1A450DA912BB01585AB0FC06";
 	private static final String testMCID = "urn:jxta:uuid-4CD1574ABA614A5FA242B613D8BAA30F05";
-
     
     private void toSerialize(Advertisement adv,String filepath) throws Exception{
     	System.out.println(adv);
@@ -97,7 +99,8 @@ public class AdvertisementSerializableTest{
     	return service;
     }
     
-    @Test public void testPipeAdv() throws Exception{
+    @Test
+    public void testPipeAdv() throws Exception{
     	String fileName = "pipdAdv.dat";
     	PipeID pipeid = (PipeID)IDFactory.fromURI(new URI(testPipeID));
     	assertNotNull("IDFactory cannot convert PipeID", pipeid);
@@ -110,7 +113,8 @@ public class AdvertisementSerializableTest{
     	assertEquals("PipeAdvertisement Serialize is corrupted", pipeAdvc, pipeAdvl);
     }
     
-    @Test public void testPeerAdv() throws Exception{
+    @Test
+    public void testPeerAdv() throws Exception{
     	String fileName = "peerAdv.dat";
     	PeerID peerid = (PeerID)IDFactory.fromURI(new URI(testPeerID));
     	assertNotNull("IDFactory cannot convert PeerID", peerid);
@@ -130,7 +134,8 @@ public class AdvertisementSerializableTest{
     	assertEquals("PeerAdvertisement Serialize is corrupted", peerAdvc, peerAdvl);
     }
    
-    @Test public void testPeerGroupAdv() throws Exception{
+    @Test
+    public void testPeerGroupAdv() throws Exception{
     	String fileName = "peergroupAdv.dat";
 
     	PeerGroupID pgid = (PeerGroupID)IDFactory.fromURI(new URI(testPeerGroupID));

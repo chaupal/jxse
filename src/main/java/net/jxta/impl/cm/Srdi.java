@@ -93,6 +93,7 @@ public class Srdi implements SrdiAPI {
     
     private SrdiAPI backend;
     private ScheduledFuture<?> gcHandle;
+    private final ScheduledExecutorService scheduledExecutor;
     
     /**
      * Constructor for the Srdi
@@ -114,15 +115,13 @@ public class Srdi implements SrdiAPI {
      */
     
     public Srdi(PeerGroup group, String indexName, long interval) {
-
+    	this.scheduledExecutor = group.getTaskManager().getScheduledExecutorService();
         String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
     	createBackend(backendClassName, group, indexName);
 
         Logging.logCheckedInfo(LOG, "[", ((group == null) ? "none" : group.toString()), "] : Starting SRDI GC Thread for ", indexName);
         
     	startGC(interval);
-    	// FIXME?  The scheduledexecutor doesn't give the ability to name threads...
-
     }
 
     private void startGC(long interval) {
@@ -131,8 +130,7 @@ public class Srdi implements SrdiAPI {
             return;
         }
         
-        ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
-        gcHandle = executor.scheduleWithFixedDelay(new Runnable() {
+        gcHandle = scheduledExecutor.scheduleWithFixedDelay(new Runnable() {
             public void run() {
                 garbageCollect();
             }
@@ -155,8 +153,9 @@ public class Srdi implements SrdiAPI {
         }
     }
     
-    public Srdi(SrdiAPI backend, long gcInterval) {
+    public Srdi(SrdiAPI backend, long gcInterval, ScheduledExecutorService scheduledExecutor) {
     	this.backend = backend;
+    	this.scheduledExecutor = scheduledExecutor;
     	startGC(gcInterval);
     }
     

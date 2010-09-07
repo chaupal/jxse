@@ -63,11 +63,14 @@ import net.jxta.content.ContentProviderSPI;
 import net.jxta.content.ContentShare;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.test.util.JUnitRuleMockery;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
@@ -75,7 +78,6 @@ import static org.junit.Assert.*;
 /**
  * Test the workings of the EventAggregator class.
  */
-@RunWith(JMock.class)
 public class EventAggregatorTest {
     private static Logger LOG =
             Logger.getLogger(EventAggregatorTest.class.getName());
@@ -94,7 +96,8 @@ public class EventAggregatorTest {
     private ContentProviderEvent cpEventFound;
     private ContentID contentID;
 
-    private Mockery context = new Mockery();
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
 
     /**
      * Default constructor.

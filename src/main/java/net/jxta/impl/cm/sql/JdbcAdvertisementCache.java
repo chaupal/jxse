@@ -84,6 +84,7 @@ import net.jxta.impl.cm.AbstractAdvertisementCache;
 import net.jxta.impl.cm.CacheUtils;
 import net.jxta.impl.cm.DeltaTracker;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.SrdiMessage.Entry;
 
@@ -168,11 +169,11 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	protected File dbDir;
 	private DeltaTracker deltaTracker;
 	
-	public JdbcAdvertisementCache(URI storeRoot, String areaName) throws IOException {
-		this(storeRoot, areaName, 1 * TimeUtils.ANHOUR, false);
+	public JdbcAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager) throws IOException {
+		this(storeRoot, areaName, taskManager, 1 * TimeUtils.ANHOUR, false);
 	}
 
-	public JdbcAdvertisementCache(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
+	public JdbcAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager, long gcinterval, boolean trackDeltas) throws IOException {
 		File dbParentDir = new File(storeRoot);
 		dbDir = new File(dbParentDir, areaName);
 		ConnectionPoolDataSource dataSource = createDataSource();

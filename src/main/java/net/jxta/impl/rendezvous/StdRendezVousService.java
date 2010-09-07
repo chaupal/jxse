@@ -63,6 +63,7 @@ import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
@@ -448,7 +449,17 @@ public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
             Logging.logCheckedFine(LOG, "Sending ", msg, "(", propHdr.getMsgId(), ") to ", pConn);
 
-            if (pConn.sendMessage(msg.clone(), PropSName, PropPName)) {
+            boolean sent;
+            if (TransportUtils.isAnSRDIMessage(msg))
+            {
+                sent = pConn.sendMessageB(msg.clone(), PropSName, PropPName);
+            }
+            else
+            {
+                sent = pConn.sendMessage(msg.clone(), PropSName, PropPName);
+            }
+            if (sent)
+            {
                 sentToPeers++;
             }
         }
