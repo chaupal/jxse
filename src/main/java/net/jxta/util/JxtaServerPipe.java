@@ -520,8 +520,10 @@ public class JxtaServerPipe implements PipeMsgListener {
                     new TextDocumentMessageElement(credTag, (XMLDocument) myCredentialDoc, null));
         }
 
+
+        final String neverAllowDirectBreaksRelay = Boolean.toString(false);
         msg.addMessageElement(JxtaServerPipe.nameSpace,
-                new StringMessageElement(JxtaServerPipe.directSupportedTag, Boolean.toString(true), null));
+                new StringMessageElement(JxtaServerPipe.directSupportedTag, neverAllowDirectBreaksRelay, null));
 
         msg.addMessageElement(JxtaServerPipe.nameSpace,
                 new TextDocumentMessageElement(remPipeTag, (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));

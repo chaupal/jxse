@@ -67,9 +67,10 @@ import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.impl.xindice.core.data.Value;
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
+import org.junit.Ignore;
 
 
-
+@Ignore("Takes too long to run")
 public class XindiceTest extends TestCase {
 
     private static final int ITERATIONS = 4096;
