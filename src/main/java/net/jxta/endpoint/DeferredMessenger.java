@@ -8,16 +8,15 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.util.SimpleSelectable;
 import net.jxta.util.SimpleSelector;
 
-public class DefferedMessenger implements Messenger
+public class DeferredMessenger implements Messenger
 {
     private Messenger msgr;
     private boolean closed;
     private final String name;
     private List<Message> messages = new LinkedList<Message>();
 
-    public DefferedMessenger(String name)
+    public DeferredMessenger(String name)
     {
-
         this.name = name;
     }
 
@@ -37,7 +36,7 @@ public class DefferedMessenger implements Messenger
             this.msgr.close();
             return this;
         }
-        //Leaving for Retranmission to resolve any threading by retransmition
+        //Leaving for Re-transmission to resolve any threading by re-transmission
         try
         {
             for (Message msg : messages)
@@ -62,79 +61,79 @@ public class DefferedMessenger implements Messenger
     
     public IdentityReference getIdentityReference()
     {
-        throw new UnsupportedOperationException("getIdentityReference not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("getIdentityReference not implemented");
     }
 
     
     public void register(SimpleSelector simpleSelector)
     {
-        throw new UnsupportedOperationException("register not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("register not implemented"); 
     }
 
     
     public void unregister(SimpleSelector simpleSelector)
     {
-        throw new UnsupportedOperationException("unregister not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("unregister not implemented");
     }
 
     
     public void itemChanged(SimpleSelectable simpleSelectable)
     {
-        throw new UnsupportedOperationException("itemChanged not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("itemChanged not implemented");
     }
 
     
     public int getState()
     {
-        throw new UnsupportedOperationException("getState not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("getState not implemented");
     }
 
     
     public int waitState(int i, long l) throws InterruptedException
     {
-        throw new UnsupportedOperationException("waitState not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("waitState not implemented");
     }
 
     
     public void addStateListener(MessengerStateListener listener)
     {
-        throw new UnsupportedOperationException("addStateListener not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("addStateListener not implemented");
     }
 
     
     public void removeStateListener(MessengerStateListener listener)
     {
-        throw new UnsupportedOperationException("removeStateListener not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("removeStateListener not implemented");
     }
 
     
     public boolean isClosed()
     {
-        throw new UnsupportedOperationException("isClosed not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("isClosed not implemented");
     }
 
     
     public EndpointAddress getDestinationAddress()
     {
-        throw new UnsupportedOperationException("getDestinationAddress not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("getDestinationAddress not implemented");
     }
 
     
     public EndpointAddress getLogicalDestinationAddress()
     {
-        throw new UnsupportedOperationException("getLogicalDestinationAddress not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("getLogicalDestinationAddress not implemented");
     }
 
     
     public long getMTU()
     {
-        throw new UnsupportedOperationException("getMTU not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("getMTU not implemented");
     }
 
     
     public Messenger getChannelMessenger(PeerGroupID peerGroupID, String s, String s1)
     {
-        throw new UnsupportedOperationException("getChannelMessenger not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("getChannelMessenger not implemented");
     }
 
     
@@ -151,13 +150,13 @@ public class DefferedMessenger implements Messenger
     
     public void flush() throws IOException
     {
-        throw new UnsupportedOperationException("flush not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("flush not implemented");  
     }
 
     
     public void resolve()
     {
-        throw new UnsupportedOperationException("resolve not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("resolve not implemented");  
     }
 
     
@@ -182,13 +181,13 @@ public class DefferedMessenger implements Messenger
     
     public boolean sendMessageN(Message message, String s, String s1)
     {
-        throw new UnsupportedOperationException("sendMessageN not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("sendMessageN not implemented");  
     }
 
     
     public boolean sendMessage(Message message) throws IOException
     {
-        throw new UnsupportedOperationException("sendMessage not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("sendMessage not implemented");  
     }
 
     
@@ -201,6 +200,6 @@ public class DefferedMessenger implements Messenger
     
     public void sendMessage(Message message, String s, String s1, OutgoingMessageEventListener outgoingMessageEventListener)
     {
-        throw new UnsupportedOperationException("sendMessage not implemented");  //To change body of implemented methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException("sendMessage not implemented");  
     }
 }

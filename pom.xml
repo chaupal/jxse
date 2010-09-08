@@ -168,14 +168,6 @@
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <forkMode>pertest</forkMode>
 
-					<excludes>
-
-                        <!-- These tests never return -->
-                        <exclude>**/XindiceTest.java</exclude>
-                        <!-- These tests fail -->
-
-					</excludes>
-
 				</configuration>
 
 			</plugin>
@@ -237,6 +229,7 @@
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.main</artifactId>
 			<version>2.0.1</version>
+            <scope>provided</scope>
 		</dependency>
 		<!--
 			The following dependencies are not always needed in normal JXTA use,

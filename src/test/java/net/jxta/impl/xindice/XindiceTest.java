@@ -69,10 +69,7 @@ import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
 
 
-/**
- *
- * 
- */
+
 public class XindiceTest extends TestCase {
 
     private static final int ITERATIONS = 4096;
