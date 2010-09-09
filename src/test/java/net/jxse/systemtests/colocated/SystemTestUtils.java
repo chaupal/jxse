@@ -82,8 +82,9 @@ public class SystemTestUtils {
                 bobResponseReceived.countDown();
             }
         };
-        
-        JxtaBiDiPipe bobPipe = connectWithRetry(bobManager, aliceServerPipe.getPipeAdv(), bobListener);
+        //TODO We have an issue on initialisation which means need to wait for services to be running before executing test. Only effects relay tests.
+        Thread.sleep(5000);
+        JxtaBiDiPipe bobPipe = connectNonBlocking(bobManager, aliceServerPipe.getPipeAdv(), bobListener);
         
         assertTrue(pipeEstablished.await(5, TimeUnit.SECONDS));
         aliceAcceptedPipe.get().setMessageListener(aliceListener);
@@ -93,6 +94,16 @@ public class SystemTestUtils {
         
         aliceAcceptedPipe.get().sendMessage(SystemTestUtils.createMessage("hello bob"));
         assertTrue(bobResponseReceived.await(5, TimeUnit.SECONDS));
+    }
+
+    private static JxtaBiDiPipe connectNonBlocking(NetworkManager clientManager,
+												 PipeAdvertisement pipeAdv,
+												 PipeMsgListener clientListener) throws IOException
+    {
+        final JxtaBiDiPipe biDiPipe = new JxtaBiDiPipe();
+        biDiPipe.setWindowSize(20);
+        biDiPipe.connect(clientManager.getNetPeerGroup(),null, pipeAdv, 5000, clientListener, true);
+        return biDiPipe;
     }
 
 	private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager, 
