@@ -85,10 +85,7 @@
         <repository>
             <!-- Repository needed to include the jboss netty library -->
             <id>repository.httptunnel</id>
-            <url>http://bitbucket.org/iainmcgin/netty-httptunnel/src/tip/repo/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <url>http://bitbucket.org/iainmcgin/netty-httptunnel/raw/tip/repo</url>
         </repository>
     </repositories>
 
@@ -249,7 +246,6 @@
             <groupId>org.jboss.netty</groupId>
             <artifactId>httptunnel</artifactId>
             <version>0.92-SNAPSHOT</version>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
