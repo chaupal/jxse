@@ -70,10 +70,7 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 
 /**
@@ -83,6 +80,7 @@ import org.junit.rules.TemporaryFolder;
  * technically unit tests. In future, these tests may be refactored into
  * a more generic load testing suite for all SrdiIndexBackend implementations.
  */
+@Ignore("Fails intermittently")
 public class XIndiceSrdiIndexBackendOldLoadTest {
     static final String peerStr = "urn:jxta:uuid-59616261646162614A7874615032503346A235E18A1D427FAB4E8CA426964ADD03";
     static final String phantomStr = "urn:jxta:uuid-59616261646162614A7874615032503346A235E18A1D427ABA4E8CA426964ADD03";
