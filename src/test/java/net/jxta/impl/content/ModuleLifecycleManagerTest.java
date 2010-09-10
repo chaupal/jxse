@@ -59,12 +59,15 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
+import net.jxta.test.util.JUnitRuleMockery;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
@@ -72,7 +75,6 @@ import static org.junit.Assert.*;
 /**
  * Test the workings of the ModuleLifecycleManager.
  */
-@RunWith(JMock.class)
 public class ModuleLifecycleManagerTest {
     private static final Logger LOG =
             Logger.getLogger(ModuleLifecycleManagerTest.class.getName());
@@ -84,7 +86,9 @@ public class ModuleLifecycleManagerTest {
     private PeerGroup peerGroup;
     private ID id;
     private PeerGroupException pgx;
-    private Mockery context = new Mockery();
+    
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
 
     /**
      * Default constructor.

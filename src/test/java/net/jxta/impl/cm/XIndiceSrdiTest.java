@@ -1,37 +1,20 @@
 package net.jxta.impl.cm;
 
-import java.io.File;
+import static org.junit.Assert.*;
+
 import java.net.URI;
 import java.util.List;
+
 import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.test.util.FileSystemTest;
 
 import org.jmock.Expectations;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
-
-	private File storeHome;
-	
-	@Before
-	public void setUp() throws Exception {
-		storeHome = FileSystemTest.createTempDirectory("DefaultSrdiIndexBackendTest");
-		super.setUp();
-	}
-	
-	@After
-	public void tearDown() throws Exception {
-	    super.tearDown();
-		FileSystemTest.deleteDir(storeHome);
-	}
-	
+    
 	@Override
 	public String getBackendClassname() {
 		return XIndiceSrdi.class.getName();
@@ -51,7 +34,7 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 	 * should be possible to copy this test to the test class of an alternate implementation
 	 * if it too should remove expired entries.
 	 */
-    @Test
+	@Test
 	public void testAdd_removesExpiredEntries() throws Exception {
 		srdiIndex.add("a", "b", "c", PEER_ID, 10000L);
 		srdiIndex.add("a", "b", "c", PEER_ID_2, 5000L);
@@ -77,7 +60,7 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 	 * This behaviour is commented as "FIXME" in XIndiceSrdi, so it
 	 * may not be desirable for all implementations to follow these semantics.
 	 */
-    
+	@Test
 	public void testRemove_isCancelledBySubsequentAdd() throws Exception {
 		srdiIndex.add("a", "b", "c", PEER_ID, 1000L);
 		srdiIndex.remove(PEER_ID);
@@ -89,15 +72,19 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 		assertEquals(1, results.size());
 		assertContains(results, new Entry(PEER_ID, 1000L));
 	}
-	@Ignore("Needs to be revisited")
-    @Test
+	
+	@Test
+    @Ignore("Needs to be investigated")
 	public void testConstruction_withNoBackendOverride() {
 		String oldBackend = System.getProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
 		try {
 			System.clearProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
-			final PeerGroup group = mockery.mock(PeerGroup.class);
+			final PeerGroup group = mockContext.mock(PeerGroup.class);
+			mockContext.checking(new Expectations() {{
+			    ignoring(group).getTaskManager(); will(returnValue(taskManager));
+			}});
 			
-			mockery.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
+			mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 			
 			Srdi srdiIndex = new Srdi(group, "testIndex");
 			assertEquals("net.jxta.impl.cm.XIndiceSrdi", srdiIndex.getBackendClassName());
@@ -113,7 +100,7 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 	
 	@Override
 	public Expectations createExpectationsForConstruction_withPeerGroup_IndexName(final PeerGroup mockGroup, final PeerGroupID groupId, String groupName) {
-		final URI storeHomeURI = storeHome.toURI();
+		final URI storeHomeURI = testFileStore.getRoot().toURI();
 		return new Expectations() {{
 			ignoring(mockGroup).getPeerGroupName(); will(returnValue("testGroup"));
 			atLeast(1).of(mockGroup).getPeerGroupID(); will(returnValue(groupId));
@@ -121,36 +108,33 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 			ignoring(mockGroup).getHomeThreadGroup(); will(returnValue(Thread.currentThread().getThreadGroup()));
 		}};
 	}
-	@Ignore("Needs to be revisted")
-    @Test
+	
 	public void testConstruction_withSrdiIndexBackendMissingConstructor_PeerGroup_IndexName() {
 		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, SrdiIndexBackendWithoutConstructor_PeerGroup_IndexName.class.getName());
-		final PeerGroup group = mockery.mock(PeerGroup.class);
-		mockery.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
+		final PeerGroup group = mockContext.mock(PeerGroup.class);
+		mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 		
 		Srdi index = new Srdi(group, "testIndex");
 		
 		// should fall back to default
 		assertEquals(index.getBackendClassName(), Srdi.DEFAULT_SRDI_INDEX_BACKEND);
 	}
-	@Ignore("Needs to be revisited")
-    @Test
+	
 	public void testConstruction_withSrdiIndexBackendMissingStaticMethod_clearSrdi() {
 		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, SrdiIndexBackendWithoutStaticMethod_clearSrdi.class.getName());
-		final PeerGroup group = mockery.mock(PeerGroup.class);
-		mockery.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
+		final PeerGroup group = mockContext.mock(PeerGroup.class);
+		mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 		
 		Srdi index = new Srdi(group, "testIndex");
 		
 		// should fall back to default
 		assertEquals(index.getBackendClassName(), Srdi.DEFAULT_SRDI_INDEX_BACKEND);
 	}
-	@Ignore("Needs to be revisited")
-    @Test
+	
 	public void testConstruction_withBackendThatDoesNotImplementSrdiIndexBackend() {
 		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, BackendThatDoesNotImplementSrdiIndexBackend.class.getName());
-		final PeerGroup group = mockery.mock(PeerGroup.class);
-		mockery.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
+		final PeerGroup group = mockContext.mock(PeerGroup.class);
+		mockContext.checking(createExpectationsForConstruction_withPeerGroup_IndexName(group, GROUP_ID_1, "testGroup"));
 		
 		Srdi index = new Srdi(group, "testIndex");
 		
@@ -174,7 +158,7 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 	}
 	
 	/**
-	 * Has all the required constructors and static methods but does not implement SrdiAPI
+	 * Has all the required constructors and static methods but does not implement SrdiIndexBackend
 	 */
 	public static class BackendThatDoesNotImplementSrdiIndexBackend {
 		public BackendThatDoesNotImplementSrdiIndexBackend(PeerGroup group, String indexName) {}

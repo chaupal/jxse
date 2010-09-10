@@ -73,6 +73,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
@@ -388,6 +389,12 @@ public interface PeerGroup extends Service {
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000A05"));
 
     /**
+     * Well known module class identifier: http2 (netty http tunnel) protocol
+     */
+    public final static ModuleClassID http2ProtoClassID =
+    		ModuleClassID.create(URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-E549DB3BCBCF4789A392B6100B78CC5505"));
+
+    /**
      * Well known module class identifier: router protocol
      */
     public final static ModuleClassID routerProtoClassID =
@@ -498,6 +505,13 @@ public interface PeerGroup extends Service {
      */
     public final static ModuleSpecID refHttpProtoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000A0106"));
+    
+    /**
+     * Well known endpoint protocol specification identifier: the new (2.6+)
+     * http2 endpoint protocol (netty http tunnel based)
+     */
+    public final static ModuleSpecID refHttp2ProtoSpecID =
+    		ModuleSpecID.create(URI.create(ID.URIEncodingName + ":" + ID.URNNamespace + ":uuid-E549DB3BCBCF4789A392B6100B78CC55F127AD1AADF0443ABF6FBDFD7909876906"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard
@@ -553,15 +567,18 @@ public interface PeerGroup extends Service {
      * instantiation or orderly shutdown of Peer Groups should synchronize upon
      * this object.
      */
-    final static GlobalRegistry globalRegistry = new GlobalRegistry();
-
+    
+    GlobalRegistry getGlobalRegistry();
+    
     /**
      * Returns the Thread Group in which threads for this peer group will live.
      * This is currently used only for debugging purposes so that the source of
      * a thread can be determined.
      *
      * @return ThreadGroup
+     * @deprecated since 2.7.
      */
+    @Deprecated
     public ThreadGroup getHomeThreadGroup();
 
     /**
@@ -1058,4 +1075,14 @@ public interface PeerGroup extends Service {
      */
     public URI getStoreHome();
     
+    
+    /**
+     * FOR JXTA MODULE IMPLEMENTATIONS ONLY. If you are simply using existing
+     * services on a peer group (pipe service, etc) then you should not use
+     * this task manager - use your own thread pools. If you are implementing
+     * a new service that will run on a peer group, then you must use this
+     * task manager for all asynchronous and periodic tasks.
+     * @return the task manager associated with this peer group.
+     */
+    public TaskManager getTaskManager();
 }

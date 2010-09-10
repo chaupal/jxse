@@ -58,7 +58,6 @@ package net.jxta.impl.endpoint;
 import java.util.Collection;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.*;
-import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
@@ -72,6 +71,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Provides an interface object appropriate for applications using the endpoint
@@ -132,7 +132,8 @@ class EndpointServiceInterface implements EndpointService {
         synchronized (this.getClass()) {
             activeInstanceCount++;
             if (1 == activeInstanceCount) {
-                listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), ((StdPeerGroup) endpointService.getGroup()).getExecutor());
+                ExecutorService executorService = ((StdPeerGroup) endpointService.getGroup()).getTaskManager().getExecutorService();
+				listenerAdaptor = new ListenerAdaptor(Thread.currentThread().getThreadGroup(), executorService);
             }
         }
 

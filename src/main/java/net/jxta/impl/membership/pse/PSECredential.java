@@ -570,7 +570,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
                 }
             };
 
-            ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+            ScheduledExecutorService executor = source.getGroup().getTaskManager().getScheduledExecutorService();
             long delay = TimeUtils.toRelativeTimeMillis(becomesValid.getTime());
             becomesValidTaskHandle = executor.schedule(becomesValidTask, delay, TimeUnit.MILLISECONDS);
         }
@@ -590,7 +590,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
                 }
             };
 
-            ScheduledExecutorService executor = TaskManager.getTaskManager().getScheduledExecutorService();
+            ScheduledExecutorService executor = source.getGroup().getTaskManager().getScheduledExecutorService();
             long delay = TimeUtils.toRelativeTimeMillis(expires.getTime());
             expiresTaskHandle = executor.schedule(expiresTask, delay, TimeUnit.MILLISECONDS);
         }

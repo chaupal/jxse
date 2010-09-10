@@ -287,8 +287,11 @@ public class HttpMessageServlet extends HttpServlet {
                 messengerAliveFor = Math.max(currentRequest.responseTimeout, currentRequest.extraResponsesTimeout);
             }
 
-            messenger = new HttpServletMessenger(owner.servletHttpTransport.group.getPeerGroupID(), localAddress,
-                    currentRequest.requestorAddr, messengerAliveFor);
+            messenger = new HttpServletMessenger(owner.servletHttpTransport.group.getPeerGroupID(), 
+                                                 owner.servletHttpTransport.group.getTaskManager(),
+                                                 localAddress,
+                                                 currentRequest.requestorAddr, 
+                                                 messengerAliveFor);
             boolean taken = owner.messengerReadyEvent(messenger, currentRequest.destAddr);
 
             Logging.logCheckedFine(LOG, "Incoming messenger to: ", currentRequest.requestorAddr, " taken=", taken);

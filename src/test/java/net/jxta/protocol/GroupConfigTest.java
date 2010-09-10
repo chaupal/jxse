@@ -59,22 +59,29 @@ package net.jxta.protocol;
 
 import java.io.*;
 
-import net.jxta.document.*;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredDocumentUtils;
+import net.jxta.document.XMLDocument;
+import net.jxta.impl.protocol.DiscoveryConfigAdv;
+import net.jxta.impl.protocol.GroupConfig;
+import net.jxta.impl.protocol.HTTPAdv;
+import net.jxta.impl.protocol.RdvConfigAdv;
+import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.peergroup.PeerGroup;
 
-import net.jxta.impl.protocol.*;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-/**
- */
-public class GroupConfigTest{
-
-    
+public class GroupConfigTest {
+            
     private static GroupConfig createTestInstance() {
         Advertisement params = AdvertisementFactory.newAdvertisement(GroupConfig.getAdvertisementType());
         
@@ -91,8 +98,20 @@ public class GroupConfigTest{
         return cp;
     }
     
+    /*
+     * FIXME (2010/07/06 iainmcg): this test appears to have been broken for a long time. The root cause is that
+     * the equals() implementation in ConfigParams compares two maps:<br/>
+     * 1. a map of parameters, which are LiteXMLDocuments. The equals method on LiteXMLDocument does not regard
+     * any nodes as equal unless they come from the same document. As this test creates a new document by deserialising,
+     * this fails.<br/>
+     * 2. a map of advertisements, which do not implement equals at all. As such, standard object equality treats them
+     * as unequal.
+     * 
+     * I can't find any implementation in the revision history of these classes that would have worked directly, so
+     * this test must have relied on a lot of circumstantial evidence to pass. Disabling for now.
+     */
+    @Ignore
     @Test
-    @Ignore("Investigate")
     public void testSerialization() {
         try {
             GroupConfig cp = createTestInstance();
@@ -115,7 +134,8 @@ public class GroupConfigTest{
         }
     }
     
-    @Test public void testClone() {
+    @Test
+    public void testClone() {
         GroupConfig cp = createTestInstance();
         GroupConfig cp2 = cp.clone();
         

@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.endpoint.EndpointAddress;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.Messenger;
+import net.jxta.endpoint.OutgoingMessageEvent;
+import net.jxta.endpoint.StringMessageElement;
 import net.jxta.logging.Logging;
 
 /**
@@ -77,4 +83,134 @@ public class TransportUtils {
         return inRange;
     }
     
+    public static Message retargetMessage(Message message, String service, String param, EndpointAddress localAddress, EndpointAddress defaultDestAddress) {
+        MessageElement srcAddrElem = new StringMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NAME, localAddress.toString(), null);
+        message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, srcAddrElem);
+        EndpointAddress destAddressToUse;
+        destAddressToUse = getDestAddressToUse(service, param, defaultDestAddress);
+
+        MessageElement dstAddressElement = new StringMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NAME, destAddressToUse.toString(), null);
+        message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
+        
+        return message;
+    }
+    
+    /**
+     * Assemble a destination address for a message based upon the messenger
+     * default destination address and the optional provided overrides.
+     *
+     * @param service The destination service or {@code null} to use default.
+     * @param serviceParam The destination service parameter or {@code null} to 
+     * use default.
+     */
+    public static EndpointAddress getDestAddressToUse(final String service, final String serviceParam, final EndpointAddress defaultAddress) {
+        EndpointAddress result;
+        
+        if(null == service) {
+            if(null == serviceParam) {
+                // Use default service name and service params
+                result = defaultAddress;
+            } else {
+                // use default service name, override service params
+                result = new EndpointAddress(defaultAddress, defaultAddress.getServiceName(), serviceParam);
+            }
+        } else {
+            if(null == serviceParam) {
+                // override service name, use default service params (this one is pretty weird and probably not useful)
+                result = new EndpointAddress(defaultAddress, service, defaultAddress.getServiceParameter());
+            } else {
+                // override service name, override service params
+                result = new EndpointAddress(defaultAddress, service, serviceParam);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Sets a message property on the provided message indicating that it could not be sent
+     * due to messenger saturation.
+     */
+    public static void markMessageWithOverflowFailure(Message message) {
+        message.setMessageProperty(Messenger.class, OutgoingMessageEvent.OVERFLOW);
+    }
+    
+    /**
+     * Sets a message property on the provided message indicating that it could not be sent
+     * due to the provided cause.
+     */
+    public static void markMessageWithSendFailure(Message message, Throwable cause) {
+        message.setMessageProperty(Messenger.class, new OutgoingMessageEvent(message, cause));
+    }
+    
+    /**
+     * Sets a message property on the provided message indicating that it was successfully
+     * sent. This does not, however, mean that the message has yet been successfully received
+     * by the intended recipient.
+     */
+    public static void markMessageWithSendSuccess(Message message) {
+        message.setMessageProperty(Messenger.class, OutgoingMessageEvent.SUCCESS);
+    }
+
+    /**
+     * @return whether or not the provided message has failed to send for whatever
+     * reason (overflow or some other cause).
+     */
+    public static boolean isMarkedWithFailure(Message msg) {
+        Object property = msg.getMessageProperty(Messenger.class);
+        if(property != null && property instanceof OutgoingMessageEvent) {
+            OutgoingMessageEvent event = (OutgoingMessageEvent) property;
+            return event == OutgoingMessageEvent.OVERFLOW || event.getFailure() != null;
+        }
+        
+        return false;
+    }
+    
+    public static boolean isMarkedWithOverflow(Message msg) {
+        Object property = msg.getMessageProperty(Messenger.class);
+        if(property != null && property instanceof OutgoingMessageEvent) {
+            OutgoingMessageEvent event = (OutgoingMessageEvent) property;
+            return event == OutgoingMessageEvent.OVERFLOW;
+        }
+        
+        return false;
+    }
+
+    public static void clearOverflowMarker(Message msg) {
+        msg.setMessageProperty(Messenger.class, null);
+    }
+
+    /**
+     * @return the cause of the failure in sending this message. Note that if the message
+     * failed due to messenger saturation, this method will return null.
+     */
+    public static Throwable getFailureCause(Message msg) {
+        Object property = msg.getMessageProperty(Messenger.class);
+        if(property instanceof OutgoingMessageEvent) {
+            OutgoingMessageEvent event = (OutgoingMessageEvent) property;
+            return event.getFailure();
+        }
+        
+        return null;
+    }
+
+    /**
+     * @return whether or not this message has been marked, stating that it has been
+     * successfully sent.
+     */
+    public static boolean isMarkedWithSuccess(Message msg) {
+        return msg.getMessageProperty(Messenger.class) == OutgoingMessageEvent.SUCCESS;
+    }
+
+    public static void clearSendResult(Message msg) {
+        msg.setMessageProperty(Messenger.class, null);
+    }
+    
+    public static boolean isAnSRDIMessage(Message msg)
+    {
+        final MessageElement firstElement = msg.getMessageElements().next();
+        boolean sent = false;
+        boolean aBoolean = firstElement.getElementName().equals("jxta-NetGroupSrdi");
+        return aBoolean;
+    }
 }

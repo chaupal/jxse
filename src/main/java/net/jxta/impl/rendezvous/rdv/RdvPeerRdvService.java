@@ -282,7 +282,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         // when when have no answer.
         walker = walk.getWalker();
 
-        ScheduledExecutorService scheduledExecutor = TaskManager.getTaskManager().getScheduledExecutorService();
+        ScheduledExecutorService scheduledExecutor = group.getTaskManager().getScheduledExecutorService();
         gcTaskHandle = scheduledExecutor.scheduleAtFixedRate(new GCTask(), GC_INTERVAL, GC_INTERVAL, TimeUnit.MILLISECONDS);
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {

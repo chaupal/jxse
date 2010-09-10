@@ -5,11 +5,13 @@ import java.io.IOException;
 
 import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.bdb.BerkeleyDbAdvertisementCache;
+import net.jxta.impl.util.threads.TaskManager;
 
 public class MultiInstanceTest {
 
 	public static void main(String[] args) throws Exception {
-
+	    TaskManager taskManager = new TaskManager();
+	    try {
 		int numInstances = 10;
 		
 		File[] storeRoots = new File[numInstances];
@@ -22,7 +24,7 @@ public class MultiInstanceTest {
 			
 			System.out.println("Cycle " + i);
 			long startTime = System.currentTimeMillis();
-			instances[i] = new CacheManager(new BerkeleyDbAdvertisementCache(storeRoots[i].toURI(), "testArea"));
+			instances[i] = new CacheManager(new BerkeleyDbAdvertisementCache(storeRoots[i].toURI(), "testArea", taskManager));
 			
 			for(int j=0; j < 100000; j++) {
 				instances[i].save("dn", "fn" + j, new byte[1024], 1000000L, 1000000L);
@@ -36,6 +38,9 @@ public class MultiInstanceTest {
 		}
 		
 		System.out.println("Done");
+	    } finally {
+	        taskManager.shutdown();
+	    }
 	}
 	
 	public static void deleteDir(File dir) throws IOException {

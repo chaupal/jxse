@@ -11,9 +11,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import net.jxta.document.Advertisement;
@@ -25,6 +24,7 @@ import net.jxta.document.XMLDocument;
 import net.jxta.impl.cm.AdvertisementCache;
 import net.jxta.impl.cm.CacheUtils;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.SrdiMessage.Entry;
 
@@ -60,7 +60,6 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 	 */
 
 	private static final Logger LOG = Logger.getLogger(BerkeleyDbAdvertisementCache.class.getName());
-	private static final Timer cleanupTimer = new Timer("BdbAdvCacheCleaner", true);
 	private static final long CLEAN_INTERVAL = 30000L;
 	
 	private String areaName;
@@ -77,16 +76,16 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 	private TimerTask cleaner;
 	private int expiryCount = 0;
 	
-    public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName, long gcinterval, boolean trackDeltas) throws IOException {
-    	this(storeRoot, areaName);
+    public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager, long gcinterval, boolean trackDeltas) throws IOException {
+    	this(storeRoot, areaName, taskManager);
     	this.trackDeltas = trackDeltas;
     }
 
-	public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName) throws IOException {
-		this(storeRoot, areaName, true);
+	public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager) throws IOException {
+		this(storeRoot, areaName, taskManager, true);
 	}
 	
-	public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName, boolean enablePeriodicClean) throws IOException {
+	public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager, boolean enablePeriodicClean) throws IOException {
 
 		Logging.logCheckedFine(LOG, "Creating BDB cache within [" + storeRoot.toString() + "], areaName = [" + areaName + "]");
 		
@@ -125,7 +124,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 			if(enablePeriodicClean) {
 				LOG.fine("Automatic clean-up of cache enabled, starting cleaner task");
 				cleaner = new CleanerTask(this);
-				cleanupTimer.scheduleAtFixedRate(cleaner, CLEAN_INTERVAL, CLEAN_INTERVAL);
+				taskManager.getScheduledExecutorService().scheduleAtFixedRate(cleaner, CLEAN_INTERVAL, CLEAN_INTERVAL, TimeUnit.MILLISECONDS);
 			}
 		} catch(Exception e) {
 			IOException wrapper = new IOException("Error occurred while initialising Bdb for use");

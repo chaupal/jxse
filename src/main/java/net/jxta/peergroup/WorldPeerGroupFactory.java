@@ -68,6 +68,8 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,6 +108,8 @@ public final class WorldPeerGroupFactory {
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(WorldPeerGroupFactory.class.getName());
+
+    private static final Map<String, PeerGroup> worldPeerGroups = new HashMap<String, PeerGroup>();
     
     /**
      * Our strong reference to the World Peer Group.
@@ -273,10 +277,15 @@ public final class WorldPeerGroupFactory {
             LOG.severe("Opaque storeHome is not currently supported.");
             throw new PeerGroupException("Opaque storeHome is not currently supported.");
         }
-            
-        synchronized (PeerGroup.globalRegistry) {
-            if (PeerGroup.globalRegistry.registeredInstance(PeerGroupID.worldPeerGroupID)) {
-                throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a single time.");
+
+        synchronized (worldPeerGroups)
+        {
+            String storeHomeString = storeHome.toString();
+            //A global registry per Peer installation in VM.
+            final PeerGroup worldPeerGroup = worldPeerGroups.get(storeHomeString);
+            if (worldPeerGroup != null)
+            {
+                throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a time.");
             }
             
             PeerGroup result = null;
@@ -304,7 +313,7 @@ public final class WorldPeerGroupFactory {
                 }
                 
                 result.init(null, PeerGroupID.worldPeerGroupID, null);
-                
+                worldPeerGroups.put(storeHomeString, result);
                 return result;
             } catch (RuntimeException e) {
                 // should be all other checked exceptions

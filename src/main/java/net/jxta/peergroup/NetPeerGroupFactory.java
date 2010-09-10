@@ -411,10 +411,10 @@ public final class NetPeerGroupFactory {
      * Peer Group instance.
      */
     private PeerGroup newNetPeerGroup(PeerGroup parentGroup, ConfigParams config, ID id, String name, XMLElement desc) throws PeerGroupException {
-        
-        synchronized (PeerGroup.globalRegistry) {
+    	final PeerGroup.GlobalRegistry globalRegistry = parentGroup.getGlobalRegistry();
+        synchronized (globalRegistry) {
 
-            PeerGroup result = PeerGroup.globalRegistry.lookupInstance((PeerGroupID) id);
+            PeerGroup result = globalRegistry.lookupInstance((PeerGroupID) id);
             ModuleImplAdvertisement NPGAdv = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
 
             if (null != result) {

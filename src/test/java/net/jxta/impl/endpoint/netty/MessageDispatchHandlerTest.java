@@ -7,24 +7,24 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
 import net.jxta.peer.PeerID;
+import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
 public class MessageDispatchHandlerTest {
 
     private static final PeerID PEER_ID = PeerID.create(URI.create("urn:jxta:uuid-59616261646162614E5047205032503314AAA35D8BB7416D923D8CD14576AE3F03"));
     
-    private Mockery mockContext = new JUnit4Mockery();
+    @Rule
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
     
     private MessageArrivalListener listener;
     private MessageDispatchHandler handler;

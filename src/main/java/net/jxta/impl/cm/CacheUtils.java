@@ -90,9 +90,9 @@ public class CacheUtils {
 	        return map;
                 
 	    }
-
-	    if (fields == null) return map;
-	    
+	    if (fields == null) {
+	        return map;
+	    }
 	    for (String field : fields) {
 
 	        Enumeration<?> en = doc.getChildren(field);
@@ -101,8 +101,9 @@ public class CacheUtils {
 
 	            String val = (String) ((Element<?>) en.nextElement()).getValue();
 
-                    if (val != null) map.put(field, val);
-	            
+          	    if (val != null) {
+	                map.put(field, val);
+          	    }
 	        }
 	    }
 

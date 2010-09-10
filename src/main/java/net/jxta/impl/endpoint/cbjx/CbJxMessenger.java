@@ -116,7 +116,7 @@ public class CbJxMessenger extends BlockingMessenger {
     public CbJxMessenger(CbJxTransport transport, EndpointAddress dest) throws IOException {
 
         // Do not use self destruction. There's nothing we have that can't just let be GC'ed
-        super(transport.group.getPeerGroupID(), dest, false);
+        super(transport.group.getPeerGroupID(), dest, transport.group.getTaskManager(), false);
 
         this.transport = transport;
 

@@ -96,7 +96,10 @@ class RouterMessenger extends BlockingMessenger {
     public RouterMessenger(EndpointAddress dstAddress, EndpointRouter r, Object hint) throws IOException {
 
         // Make sure that we do not ask for self destruction.
-        super(r.getEndpointService().getGroup().getPeerGroupID(), dstAddress, false);
+        super(r.getEndpointService().getGroup().getPeerGroupID(), 
+              dstAddress,
+              r.getEndpointService().getGroup().getTaskManager(),
+              false);
 
         this.router = r;
 

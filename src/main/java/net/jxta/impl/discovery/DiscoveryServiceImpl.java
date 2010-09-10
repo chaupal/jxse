@@ -1653,7 +1653,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         if (!localonly) {
             // Create a new SRDI manager
             srdiManager = new SrdiManager(group, handlerName, this, null);
-            srdiManager.startPush(TaskManager.getTaskManager().getScheduledExecutorService(), runInterval);
+            srdiManager.startPush(group.getTaskManager().getScheduledExecutorService(), runInterval);
         }
 
         Logging.logCheckedInfo(LOG, "Switched to a Edge peer role.");

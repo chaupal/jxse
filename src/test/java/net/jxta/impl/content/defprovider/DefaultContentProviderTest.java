@@ -53,13 +53,14 @@
 
 package net.jxta.impl.content.defprovider;
 
-import net.jxta.impl.content.AbstractContentProviderTest;
 import org.junit.Ignore;
+
+import net.jxta.impl.content.AbstractContentProviderTest;
 
 /**
  * Test the workings of the DefaultContentProvider class.
  */
-@Ignore("Not sure what does, should not override default constructor in junit")
+@Ignore
 public class DefaultContentProviderTest extends AbstractContentProviderTest {
     
     /**

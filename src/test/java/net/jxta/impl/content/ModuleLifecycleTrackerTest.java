@@ -58,11 +58,14 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
+import net.jxta.test.util.JUnitRuleMockery;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
@@ -70,7 +73,6 @@ import static org.junit.Assert.*;
 /**
  * Test the workings of the ModuleLifecycleTracker.
  */
-@RunWith(JMock.class)
 public class ModuleLifecycleTrackerTest {
     private static final Logger LOG =
             Logger.getLogger(ModuleLifecycleTrackerTest.class.getName());
@@ -82,7 +84,9 @@ public class ModuleLifecycleTrackerTest {
     private Advertisement adv;
     private PeerGroupException pgx = new PeerGroupException(
             "Testing hardcoded exception");
-    private Mockery context = new Mockery();
+    
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
 
     /**
      * Default constructor.

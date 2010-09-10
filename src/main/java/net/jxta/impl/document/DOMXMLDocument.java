@@ -400,7 +400,7 @@ public class DOMXMLDocument extends DOMXMLElement implements XMLDocument<DOMXMLE
             if (charset != null) {
                 output.setEncoding(charset);
             } else {
-                output.setEncoding(java.nio.charset.Charset.defaultCharset().name());
+                output.setEncoding("UTF-8");
             }
 
             output.setCharacterStream(writer);

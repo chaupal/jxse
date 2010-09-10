@@ -57,15 +57,6 @@
 package net.jxta.impl.util.pipe.reliable;
 
 
-import net.jxta.endpoint.ByteArrayMessageElement;
-import net.jxta.endpoint.Message;
-import net.jxta.endpoint.MessageElement;
-import net.jxta.endpoint.StringMessageElement;
-import net.jxta.endpoint.WireFormatMessage;
-import net.jxta.endpoint.WireFormatMessageFactory;
-import net.jxta.impl.util.TimeUtils;
-import net.jxta.logging.Logging;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -74,9 +65,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.jxta.endpoint.ByteArrayMessageElement;
+import net.jxta.endpoint.Message;
+import net.jxta.endpoint.MessageElement;
+import net.jxta.endpoint.StringMessageElement;
+import net.jxta.endpoint.WireFormatMessage;
+import net.jxta.endpoint.WireFormatMessageFactory;
+import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.logging.Logging;
 
 
 /**
@@ -168,11 +171,6 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      */
     private final Outgoing outgoing;
     
-    /**
-     *  The daemon thread that performs retransmissions.
-     */
-    private Thread retrThread = null;
-    
     // for retransmission
     /**
      * Average round trip time in milliseconds.
@@ -246,6 +244,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      */
     private volatile int stabalizationAckCount = 0;
     
+    private ReliableOutputStream.Retransmitter retransmitter;
+
     /**
      * retrans queue element
      */
@@ -296,14 +296,16 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      */
     protected final List<RetrQElt> retrQ = new ArrayList<RetrQElt>();
     
+    private ScheduledExecutorService executor;
+
     /**
      * Constructor for the ReliableOutputStream object
      *
      * @param outgoing the outgoing object
      */
-    public ReliableOutputStream(Outgoing outgoing) {
+    public ReliableOutputStream(Outgoing outgoing, ScheduledExecutorService executor) {
         // By default use the old behaviour: fixed fc with a rwin of 20
-        this(outgoing, new FixedFlowControl(20));
+        this(outgoing, new FixedFlowControl(20), executor);
     }
     
     /**
@@ -312,8 +314,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      * @param outgoing the outgoing object
      * @param fc       flow-control
      */
-    public ReliableOutputStream(Outgoing outgoing, FlowControl fc) {
+    public ReliableOutputStream(Outgoing outgoing, FlowControl fc, ScheduledExecutorService executor) {
         this.outgoing = outgoing;
+        this.executor = executor;
 
         String minrto = System.getProperty( "net.jxta.reliable.minrto" );
         if( null != minrto ){
@@ -357,6 +360,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         synchronized (retrQ) {
             retrQ.notifyAll();
+            retransmitter.doRetransmitCheck();
         }
         
         Logging.logCheckedInfo(LOG, "Closed.");
@@ -534,11 +538,10 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         if (len == 0) {
             return;
         }
-        
-        if (null == retrThread) {
-            retrThread = new Thread(new Retransmitter(), "JXTA Reliable Retransmiter for " + this);
-            retrThread.setDaemon(true);
-            retrThread.start();
+        if (null == retransmitter)
+        {
+            retransmitter = new Retransmitter();
+            retransmitter.scheduleReTransmitCheck();
         }
         
         // allocate new message
@@ -1016,6 +1019,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 rwindow = fc.ackEventEnd(rmaxQSize, aveRTT, fallBackDt);
             }
             retrQ.notifyAll();
+            retransmitter.doRetransmitCheck();
         }
     }
     
@@ -1124,10 +1128,11 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     /**
      * Retransmission daemon thread
      */
-    private class Retransmitter implements Runnable {
+    private class Retransmitter {
         
         int nAtThisRTO = 0;
         volatile int nretransmitted = 0;
+        private volatile SelfCancellingTask currentTask;
         
         /**
          * Constructor for the Retransmitter object
@@ -1146,7 +1151,41 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         public int getRetransCount() {
             return nretransmitted;
         }
+        private void doRetransmitCheck()
+        {
+            reTransmitCheck(0);
+        }
+        private void scheduleReTransmitCheck()
+        {
+            reTransmitCheck(RTO);
+        }
+
+        private void reTransmitCheck(final long delay)
+        {
+           long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), outgoing.getLastAccessed());
+
+           if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                LOG.fine(outgoing + " idle for " + conn_idle);
+           }
+            // check to see if we have not idled out.
+            if (outgoing.getIdleTimeout() < conn_idle)
+            {
+                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO))
+                {
+                    LOG.info("Shutting down idle " + "connection " + outgoing);
+                }
+                hardClose();
+                return;
+            }
         
+            if(currentTask != null && delay > 0) {
+                currentTask.cancel();
+            }
+            
+            currentTask = new RetransmitTask();
+            executor.schedule(currentTask, delay, TimeUnit.MILLISECONDS);
+        }
+
         /**
          *  {@inheritDoc}
          *
@@ -1158,35 +1197,14 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
                 int idleCounter = 0;
                 
-                while (TimeUtils.toRelativeTimeMillis(closedAt) > 0) {
-
-                    long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), outgoing.getLastAccessed());
-
-                    Logging.logCheckedFine(LOG, outgoing, " idle for ", conn_idle);
-                    
-                    // check to see if we have not idled out.
-                    if (outgoing.getIdleTimeout() < conn_idle) {
-
-                        Logging.logCheckedInfo(LOG, "Shutting down idle connection ", outgoing);
-                        break;
-
-                    }
-                    
                     long sinceLastACK;
                     long oldestInQueueWait;
                     
                     synchronized (retrQ) {
-                        try {
-                            if (RTO > 0) {
-                                retrQ.wait(RTO);
-                            }
-                            Thread.currentThread().setName(
-                                    "JXTA Reliable Retransmiter for " + this + " Queue size : " + retrQ.size());
-                        } catch (InterruptedException e) {// ignored
-                        }
                         
                         if (TimeUtils.toRelativeTimeMillis(closedAt) <= 0) {
-                            break;
+                            hardClose();
+                            return;
                         }
                         
                         // see if we recently did a retransmit triggered by a SACK
@@ -1194,9 +1212,10 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
                         if (sinceLastSACKRetr < RTO) {
                             Logging.logCheckedFine(LOG, "SACK retrans ", sinceLastSACKRetr, "ms ago");
-                            continue;
+                            scheduleReTransmitCheck();
+                            return;
                         }
-
+                        
                         // See how long we've waited since RTO was set
                         sinceLastACK = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), lastACKTime);
                         
@@ -1215,7 +1234,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     if (oldestInQueueWait > outgoing.getMaxRetryAge()) {
 
                         Logging.logCheckedInfo(LOG, "Shutting down stale connection ", outgoing);
-                        break;
+                        hardClose();
+                        return;
 
                     }
                     
@@ -1266,20 +1286,21 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                         }
 
                         Logging.logCheckedFine(LOG, "IDLE : RTO=", RTO, " WAIT=", realWait);
-                        
                     }
-                }
-
+                    scheduleReTransmitCheck();
             } catch (Throwable all) {
-
                 LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-
-            } finally {
-
                 hardClose();
-                retrThread = null;
                 Logging.logCheckedInfo(LOG, "STOPPED Retransmit thread");
-                
+            }
+        }
+
+        private class RetransmitTask extends SelfCancellingTask
+        {
+            @Override
+            public void execute()
+            {
+                Retransmitter.this.run();
             }
         }
     }

@@ -1,6 +1,7 @@
 package net.jxta.impl.cm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,34 +14,35 @@ import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.test.util.FileSystemTest;
+import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.rules.TemporaryFolder;
 
-@RunWith(JMock.class)
 public abstract class AbstractSrdiIndexBackendLoadTest {
     
-    private JUnit4Mockery mockContext = new JUnit4Mockery();
+    @Rule
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
     
+    @Rule
+    public TemporaryFolder testFileStore = new TemporaryFolder();
 	private File storeRoot;
 	private String oldSrdiImplName;
 	
 	@Before
 	public void setUp() throws Exception {
-		storeRoot = FileSystemTest.createTempDirectory("SrdiIndexBackendConcurrencyTest");
+		storeRoot = testFileStore.getRoot();
+		assertNotNull(storeRoot);
 		oldSrdiImplName = System.getProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
 		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, getSrdiIndexBackendClassname());
 	}
 	
 	@After
 	public void tearDown() throws Exception {
-		FileSystemTest.deleteDir(storeRoot);
 		if(oldSrdiImplName != null) {
 			System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, oldSrdiImplName);
 		} else {
@@ -150,7 +152,11 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 		return group;
 	}
 	
-	@Test
+	/*
+	 * This is an important performance test, as real world usage of the SRDI index often contains many values for
+	 * the same key and attribute. If these queries are not fast, overall system performance is hugely degraded.
+	 */
+	@Test(timeout=30000)
 	public void testQuery_manyValuesForSameKeyAndAttribute() throws IOException {
 	    Srdi index = new Srdi(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "duplicatesTestIndex");
 	    String primaryKey = "pk";

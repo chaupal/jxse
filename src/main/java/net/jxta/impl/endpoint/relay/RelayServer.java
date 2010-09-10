@@ -931,7 +931,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
             while (selector.isOpen()) {
                 if (nextGC <= TimeUtils.timeNow()) {
                     // do the lease gc
-                    ((GenericPeerGroup) group).getExecutor().execute(new DoClientGC());
+                    group.getTaskManager().getExecutorService().execute(new DoClientGC());
                     nextGC = TimeUtils.toAbsoluteTimeMillis(MAX_QUEUE_STALL_DURATION);
                     }
                 
@@ -943,7 +943,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                             selector.unregister(aKey);
                             RelayServerClient aClient = (RelayServerClient) aKey.channel();
 
-                            ((GenericPeerGroup) group).getExecutor().execute(aClient);
+                            group.getTaskManager().getExecutorService().execute(aClient);
                     }
                 }
                 } catch (InterruptedIOException e) {

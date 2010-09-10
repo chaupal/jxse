@@ -567,9 +567,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
         
         // let the message continue to its final destination.
         try {
-
-            ((GenericPeerGroup)group).getExecutor().execute( new Runnable() {
-
+            group.getTaskManager().getExecutorService().execute( new Runnable() {
                 public void run() {
 
                     try {

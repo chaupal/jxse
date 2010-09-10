@@ -375,7 +375,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         this.group = group;
         ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
 
-        this.executor = ((StdPeerGroup) group).getExecutor();
+        this.executor = group.getTaskManager().getExecutorService();
 
         ConfigParams configAdv = group.getConfigAdvertisement();
 

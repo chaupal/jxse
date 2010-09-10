@@ -1,5 +1,6 @@
 package net.jxta.impl.endpoint.netty;
 
+import java.net.BindException;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,9 +24,10 @@ import net.jxta.peergroup.PeerGroupID;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChildChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -171,7 +173,8 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
 
     public void newConnection(Channel channel, EndpointAddress directedAt, EndpointAddress logicalEndpointAddress) {
         // EndpointAddress localAddr = addrTranslator.toEndpointAddress(channel.getLocalAddress(), serverChannel.getLocalAddress());
-	    NettyMessenger messenger = new NettyMessenger(channel, homeGroupID, localPeerID, directedAt, logicalEndpointAddress, endpointService);
+        // NettyMessenger messenger = new NettyMessenger(channel, homeGroupID, localPeerID, directedAt, logicalEndpointAddress, endpointService);
+	    AsynchronousNettyMessenger messenger = new AsynchronousNettyMessenger(channel, homeGroupID, localPeerID, directedAt, logicalEndpointAddress, endpointService);
 	    listener.messengerReady(new MessengerEvent(this, messenger, messenger.getDestinationAddress()));
 	}
 	
@@ -187,7 +190,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
         return addrTranslator.getProtocolName();
     }
 
-    @ChannelPipelineCoverage("all")
+    @Sharable
     private final class ConnectionGroupAddHandler extends SimpleChannelUpstreamHandler {
 
         @Override
@@ -202,6 +205,16 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
                 
             channels.add(e.getChildChannel());
             super.childChannelOpen(ctx, e);
+        }
+        
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+            // BindExceptions are transformed into ChannelBindExceptions by the netty
+            // ServerBootstrap, and handled in in bindServerChannel()
+            if(!(e.getCause() instanceof BindException)) {
+                LOG.log(Level.WARNING, "Unexpected exception on server channel for {0} protocol:\n{1}", 
+                        new Object[] { getProtocolName(), e.getCause() });
+            }
         }
     }
 
