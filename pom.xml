@@ -4,7 +4,7 @@
 
     <artifactId>jxse</artifactId>
     <groupId>com.kenai.jxse</groupId>
-    <version>2.Cheeseburger-SNAPSHOT</version>
+    <version>2.6.r977</version>
     <packaging>bundle</packaging>
 
     <parent>
@@ -245,7 +245,7 @@
         <dependency>
             <groupId>org.jboss.netty</groupId>
             <artifactId>httptunnel</artifactId>
-            <version>0.92-SNAPSHOT</version>
+            <version>0.92</version>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
