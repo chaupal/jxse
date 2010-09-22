@@ -152,17 +152,12 @@
 
             <!-- Configuring JUnits / Surefire -->
             <plugin>
-
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-
                 <configuration>
-
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <forkMode>pertest</forkMode>
-
                 </configuration>
-
             </plugin>
 
             <!-- We use assembly to package the source code as a project ready for Maven. -->
@@ -303,6 +298,31 @@
 
     <profiles>
 
+        <profile>
+            <id>mikeci</id>
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>mikeci</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <forkMode>pertest</forkMode>
+                            <excludes>
+                                <!-- multicast not supported -->
+                                <exclude>**/AdHoc*.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>replace-if-jre-6</id>
             <activation>
@@ -459,7 +479,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
