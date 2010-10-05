@@ -19,6 +19,7 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
     
     CountDownLatch completionLatch = new CountDownLatch(1);
     private AtomicBoolean complete = new AtomicBoolean(false);
+    private AtomicBoolean presentedForwrite = new AtomicBoolean(false);
     private AtomicReference<Throwable> failureCause = new AtomicReference<Throwable>(null);
     private Message message;
     
@@ -85,6 +86,16 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
         TransportUtils.markMessageWithSendFailure(message, cause);
         complete.set(true);
         completionLatch.countDown();
+    }
+
+    public boolean isWriteSubmitted()
+    {
+        return presentedForwrite.get();
+    }
+
+    public void writeSubmitted()
+    {
+        presentedForwrite.set(true);
     }
 
     /**

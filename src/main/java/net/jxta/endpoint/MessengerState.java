@@ -136,6 +136,7 @@ public abstract class MessengerState {
      */
     private static class State {
         private final int number;
+        private final String description;
 
         private State stResolve;
         private Action acResolve;
@@ -161,8 +162,13 @@ public abstract class MessengerState {
         private State stIdle;
         private Action acIdle;
 
-        State(int stateNum) {
+        State(int stateNum, String description) {
             number = stateNum;
+            this.description = description;
+        }
+        public String toString()
+        {
+            return description;                        
         }
 
         /**
@@ -195,23 +201,23 @@ public abstract class MessengerState {
     // All the states. (We put them together in a class essentially to simplify initialization).
     private static class TransitionMap {
 
-        private final static State Unresolved = new State(Messenger.UNRESOLVED);
-        private final static State ResPending = new State(Messenger.RESOLPENDING);
-        private final static State Resolving = new State(Messenger.RESOLVING);
-        private final static State ResolSat = new State(Messenger.RESOLSATURATED);
-        private final static State Connected = new State(Messenger.CONNECTED);
-        private final static State Disconned = new State(Messenger.DISCONNECTED);
-        private final static State Reconning = new State(Messenger.RECONNECTING);
-        private final static State ReconSat = new State(Messenger.RECONSATURATED);
-        private final static State Sending = new State(Messenger.SENDING);
-        private final static State SendingSat = new State(Messenger.SENDINGSATURATED);
-        private final static State ResClosing = new State(Messenger.RESOLCLOSING);
-        private final static State ReconClosing = new State(Messenger.RECONCLOSING);
-        private final static State Closing = new State(Messenger.CLOSING);
-        private final static State Disconning = new State(Messenger.DISCONNECTING);
-        private final static State Unresable = new State(Messenger.UNRESOLVABLE);
-        private final static State Closed = new State(Messenger.CLOSED);
-        private final static State Broken = new State(Messenger.BROKEN);
+        private final static State Unresolved = new State(Messenger.UNRESOLVED,"UNRESOLVED");
+        private final static State ResPending = new State(Messenger.RESOLPENDING,"RESOLPENDING");
+        private final static State Resolving = new State(Messenger.RESOLVING,"RESOLVING");
+        private final static State ResolSat = new State(Messenger.RESOLSATURATED,"RESOLSATURATED");
+        private final static State Connected = new State(Messenger.CONNECTED,"CONNECTED");
+        private final static State Disconned = new State(Messenger.DISCONNECTED,"DISCONNECTED");
+        private final static State Reconning = new State(Messenger.RECONNECTING,"RECONNECTING");
+        private final static State ReconSat = new State(Messenger.RECONSATURATED,"RECONSATURATED");
+        private final static State Sending = new State(Messenger.SENDING,"SENDING");
+        private final static State SendingSat = new State(Messenger.SENDINGSATURATED,"SENDINGSATURATED");
+        private final static State ResClosing = new State(Messenger.RESOLCLOSING,"RESOLCLOSING");
+        private final static State ReconClosing = new State(Messenger.RECONCLOSING,"RECONCLOSING");
+        private final static State Closing = new State(Messenger.CLOSING,"CLOSING");
+        private final static State Disconning = new State(Messenger.DISCONNECTING,"DISCONNECTING");
+        private final static State Unresable = new State(Messenger.UNRESOLVABLE,"UNRESOLVABLE");
+        private final static State Closed = new State(Messenger.CLOSED,"CLOSED");
+        private final static State Broken = new State(Messenger.BROKEN,"BROKEN");
 
         // The states need to exist before init, because they refer to each other.
         // We overwrite them in-place with the complete data.

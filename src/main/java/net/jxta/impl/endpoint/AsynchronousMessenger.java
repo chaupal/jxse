@@ -3,6 +3,7 @@ package net.jxta.impl.endpoint;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +14,7 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerState;
+import net.jxta.impl.util.TimeUtils;
 import net.jxta.peergroup.PeerGroupID;
 
 /**
@@ -141,7 +143,20 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             // block on putting the element in the queue.
             sendQueue.put(new QueuedMessage(msg, listener));
             attemptPushMessages();
-            listener.await();
+            long totalWaitTime = 0;
+            while (listener.isWriteSubmitted() && !listener.await(500, TimeUnit.MILLISECONDS))
+            {
+               totalWaitTime = totalWaitTime + 500;
+               if (totalWaitTime > 60000)
+               {
+                   throw new IOException("Waited 60 secs for message delivery, giving up, must be an issue with channel");
+               }
+               LOG.warning("Waiting for message send for "  + totalWaitTime);
+            }
+            if(!listener.isWriteSubmitted())
+            {
+                throw new IOException("Failed to write message");
+            }
             if(!listener.wasSuccessful()) {
                 IOException failedWrite = new IOException("Failed to write message");
                 failedWrite.initCause(listener.getFailureCause());

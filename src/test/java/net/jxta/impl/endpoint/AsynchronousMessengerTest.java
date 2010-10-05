@@ -411,15 +411,18 @@ public class AsynchronousMessengerTest {
             }
             
             if(connectionDead.get()) {
+                message.getWriteListener().writeSubmitted();
                 message.getWriteListener().writeFailure(new IOException("Messenger unexpectedly closed"));
                 return false;
             }
             
             if(sendException != null) {
+                message.getWriteListener().writeSubmitted();
                 message.getWriteListener().writeFailure(sendException);
                 return false;
             }
             sentMessages.add(message);
+            message.getWriteListener().writeSubmitted();
             return true;
         }
         

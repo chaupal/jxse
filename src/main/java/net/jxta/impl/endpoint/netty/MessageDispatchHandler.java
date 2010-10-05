@@ -59,7 +59,11 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
     
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        listener.connectionDisposed();
+        final MessageArrivalListener l = listener;
+        if (l != null)
+        {
+            l.connectionDisposed();
+        }
     }
     
     @Override

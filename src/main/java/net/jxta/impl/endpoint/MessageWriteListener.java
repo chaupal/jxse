@@ -13,4 +13,5 @@ public interface MessageWriteListener {
 
     public void writeSuccess();
     public void writeFailure(Throwable cause);
+    void writeSubmitted();
 }

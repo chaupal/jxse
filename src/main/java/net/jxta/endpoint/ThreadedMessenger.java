@@ -373,7 +373,8 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
         try {
             while (true) {
-                switch (nextAction()) {
+                final DeferredAction nextAction = nextAction();
+                switch (nextAction) {
                 case ACTION_NONE:
                     return;
 
@@ -396,6 +397,10 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
 
             synchronized (stateMachine) {
                 bgThread = null;
+                if (stateMachine.getState() == SENDING)
+                {
+                    stateMachine.idleEvent();
+                }
             }
 
         }
@@ -672,7 +677,7 @@ public abstract class ThreadedMessenger extends AbstractMessenger implements Run
         defaultChannel.sendMessageB(msg, service, serviceParam);
     }
 
-    private boolean addToActiveChannels(ThreadedMessengerChannel channel) {
+    private boolean addToActiveChannels(final ThreadedMessengerChannel channel) {
 
         synchronized (stateMachine) {
             if (inputClosed) {

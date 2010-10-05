@@ -12,7 +12,6 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.impl.endpoint.AsynchronousMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.QueuedMessage;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -92,15 +91,22 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
 
     private void writeMessage(final QueuedMessage message) {
         ChannelFuture future = channel.write(message.getMessage());
-        future.addListener(new ChannelFutureListener() {
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if(!future.isSuccess()) {
+        message.getWriteListener().writeSubmitted();
+        final ChannelFutureListener channelFutureListener = new ChannelFutureListener()
+        {
+            public void operationComplete(ChannelFuture future) throws Exception
+            {
+                if (!future.isSuccess())
+                {
                     message.getWriteListener().writeFailure(future.getCause());
-                } else {
+                }
+                else
+                {
                     message.getWriteListener().writeSuccess();
                 }
             }
-        });
+        };
+        future.addListener(channelFutureListener);
     }
 
     public void messageArrived(final Message msg) {
