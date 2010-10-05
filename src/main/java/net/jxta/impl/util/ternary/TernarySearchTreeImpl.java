@@ -55,50 +55,106 @@
  */
 package net.jxta.impl.util.ternary;
 
+import net.jxta.logging.Logging;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
- * Implementation of ternary search tree. A Ternary Search Tree is a data structure that behaves in a manner that is very similar to a HashMap.
- * Author Wally Flint: wally@wallyflint.com
  *
- * Lifted from the Java World article: http://www.javaworld.com/javaworld/jw-02-2001/jw-0216-ternary.html
- * "With thanks to Michael Amster of webeasy.com for introducing me to the Ternary Search Tree, and providing some starting code."
+ * Implementation of ternary search tree. A Ternary Search Tree is a data structure that behaves
+ * in a manner that is very similar to a HashMap.
  *
- * SimonT: Added interface and a fix for NPE on final node removal (left as comment to WEB article; contributor unknown).
-*/
-public class TernarySearchTreeImpl implements TernarySearchTree {
+ * Credits:
+ *
+ * Modified by Bruno Grieder: bruno.grieder@amalto.com
+ *      Improvements to the Match Prefix with Threshold recursive algorithms
+ *      Minor speed improvements
+ *
+ * Modified by Simon Temple: simon.temple@amalto.com
+ *      Added interface
+ *      BUG FIX: NPE on final node removal (left as comment to WEB article; contributor unknown).
+ *      BUG FIX: Re-coded delete of nodes with both LO and HI KID relatives
+ *      BUG FIX: Assign new parent KID to node following move due to delete
+ *      Removed ASCII comparison in favour of using java Character class
+ *      Added maxNodeTraversal warnings
+ *
+ * Modified by Yan Cheng for generic introduction and thread safe matchPrefix.
+ *
+ * Original Author Wally Flint: wally@wallyflint.com
+ *
+ * With thanks to Michael Amster of webeasy.com for introducing Wally Flint to
+ * the Ternary Search Tree, and providing some starting code.
+ *
+ */
+public class TernarySearchTreeImpl<E> implements TernarySearchTree<E> {
 
-    private TSTNode rootNode;
-    private int defaultNumReturnValues = -1;
-    private int lastNumberOfReturnValues; // convenience variable for matchPrefix and sortKeys methods
-    private DoublyLinkedList sortKeysResult; // convenience variable for matchPrefix and sortKeys methods
-    private boolean sortKeysList; // convenience variable for matchPrefix, matchPrefixString and sortKeys methods
-    private StringBuffer sortKeysBuffer; // convenience variable for matchPrefixString and sortKeys methods
-    private int sortKeysNumReturnValues; // convenience variable for matchPrefix and sortKeys methods
-    private DoublyLinkedList matchAlmostResult; // convenience variable for matchAlmost
-    private StringBuffer matchAlmostBuffer; // convenience variable for matchAlmostString
-    private boolean matchAlmostListAction; // convenience variable for matchAlmost and matchAlmostString
-    private int matchAlmostNumReturnValues; // convenience variable for matchAlmost
-    private String matchAlmostKey; // convenience variable for matchAlmost
-    private int matchAlmostDiff; // convenience variable for matchAlmost
-    private int maxMatchAlmostDiff = 4; // convenience variable for matchAlmost
-    private StringBuffer getKeyBuffer = new StringBuffer(); // convenience variable for getKey method
-    private int numNodes; // convenience variable for numNodes methods
-    private boolean checkData; // convenience variable for numNodes methods
+    private final static long MAX_NODE_TRAVERSALS = Long.getLong( TernarySearchTreeImpl.class.getName(  ) + ".maxNodeTraversals", 300 );
+    private final static Logger LOG = Logger.getLogger( TernarySearchTreeImpl.class.getName(  ) );
+    private volatile static int treesCreated = 0;
+    private volatile TSTNode<E> rootNode = null;
+
+    // Convenience variable for getKey method - not synchronised but faster than StringBuffer()
+    private StringBuilder getKeyBuffer = new StringBuilder(  );
+
+    // The Tree Name, if any
+    private volatile String treeName;
+
+    public TernarySearchTreeImpl(  ) {
+        this( null );
+    }
+
+    public TernarySearchTreeImpl( String name ) {
+
+        this.treeName = String.valueOf( ++treesCreated ) + "-" + ( ( name == null ) ? String.valueOf( hashCode(  ) ) : name );
+    }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.util.ternary.ITernarySearchTree#put(java.lang.String, java.lang.Object)
+     * @see net.jxta.impl.util.ternary.TernarySearchTree#deleteTree()
      */
-    public void put( String key, Object value ) {
+    @SuppressWarnings( "unchecked" )
+    public void deleteTree(  ) {
+
+        if ( rootNode != null ) {
+
+            // Simply detach the lot and let gc deal with it
+            rootNode.relatives = new TSTNode[ 4 ];
+            rootNode.data = null;
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see net.jxta.impl.util.ternary.TernarySearchTree#getOrCreate(java.lang.String, E)
+     */
+    public E getOrCreate( final String key, final E valueIfCreate ) {
+
+        TSTNode<E> node = getOrCreateNode( key );
+
+        if ( node.data == null ) {
+
+            node.data = valueIfCreate;
+        }
+
+        return node.data;
+    }
+
+    /* (non-Javadoc)
+     * @see net.jxta.impl.util.ternary.TernarySearchTree#put(java.lang.String, E)
+     */
+    public void put( final String key, final E value ) {
 
         getOrCreateNode( key ).data = value;
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.util.ternary.ITernarySearchTree#get(java.lang.String)
+     * @see net.jxta.impl.util.ternary.TernarySearchTree#get(java.lang.String)
      */
-    public Object get( String key ) {
+    public E get( final String key ) {
 
-        TSTNode node = getNode( key );
+        TSTNode<E> node = getNode( key );
 
         if ( node == null ) {
 
@@ -109,59 +165,58 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.util.ternary.ITernarySearchTree#remove(java.lang.String)
+     * @see net.jxta.impl.util.ternary.TernarySearchTree#remove(java.lang.String)
      */
-    public void remove( String key ) {
+    public E remove( final String key ) {
 
-        deleteNode( getNode( key ) );
+        TSTNode<E> node = getNode( key );
+        E nodeData = null;
+
+        if ( null != node ) {
+
+            nodeData = node.data;
+
+            deleteNode( node );
+        } else {
+
+            if ( Logging.SHOW_WARNING && LOG.isLoggable( Level.WARNING ) ) {
+
+                LOG.log( Level.WARNING,
+                    ( ( treeName == null ) ? "" : ( "[" + treeName + "] " ) ) + "Failed to find node to remove given key: " + key );
+            }
+        }
+
+        return nodeData;
     }
 
-    /* (non-Javadoc)
-     * @see net.jxta.impl.util.ternary.TernarySearchTree#setNumReturnValues(int)
+    /**
+     * Returns the Node indexed by key, or null if that node doesn't exist. Search begins at root node.
+     * @param key An index that points to the desired node.
+     * @return TSTNode The node object indexed by key. This object is an instance of an inner class
+     * named TernarySearchTree.TSTNode.
      */
-    public void setNumReturnValues( int num ) {
-
-        defaultNumReturnValues = ( num < 0 ) ? ( -1 ) : num;
-    }
-
-    private int checkNumberOfReturnValues( int numReturnValues ) {
-
-        return ( ( numReturnValues < 0 ) ? ( -1 ) : numReturnValues );
-    }
-
-    /** Returns the number of values returned by the last call to matchAlmostString or matchPrefixString methods.
-    *   (This is really just for the purposes of the demo applet.)
-    */
-    public int getLastNumReturnValues() {
-
-        return lastNumberOfReturnValues;
-    }
-
-    /** Returns the Node indexed by key, or null if that node doesn't exist. Search begins at root node.
-    *   @param key An index that points to the desired node.
-    *   @return TSTNode The node object indexed by key. This object is an instance of an inner class
-    *   named TernarySearchTree.TSTNode.
-    */
-    public TSTNode getNode( String key ) {
+    public TSTNode<E> getNode( final String key ) {
 
         return getNode( key, rootNode );
     }
 
-    /** Returns the Node indexed by key, or null if that node doesn't exist. Search begins at root node.
-    *   @param key An index that points to the desired node.
-    *   @param startNode The top node defining the subtree to be searched.
-    *   @return TSTNode The node object indexed by key. This object is an instance of an inner class
-    *   named TernarySearchTree.TSTNode.
-    */
-    protected TSTNode getNode( String key, TSTNode startNode ) {
+    /**
+     * Returns the Node indexed by key, or null if that node doesn't exist. Search begins at root node.
+     * @param key An index that points to the desired node.
+     * @param startNode The top node defining the subtree to be searched.
+     * @return TSTNode The node object indexed by key. This object is an instance of an inner class
+     *  named TernarySearchTree.TSTNode.
+     */
+    protected TSTNode<E> getNode( final String key, final TSTNode<E> startNode ) {
 
-        if ( ( key == null ) || ( startNode == null ) || ( key.length() == 0 ) ) {
+        if ( ( key == null ) || ( startNode == null ) || ( key.length(  ) == 0 ) ) {
 
             return null;
         }
 
-        TSTNode currentNode = startNode;
+        TSTNode<E> currentNode = startNode;
         int charIndex = 0;
+        int nodesTraversed = 0;
 
         while ( true ) {
 
@@ -170,13 +225,13 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
                 return null;
             }
 
-            int charComp = CharUtility.compareCharsAlphabetically( key.charAt( charIndex ), currentNode.splitchar );
+            int charComp = compareCharsAlphabetically( key.charAt( charIndex ), currentNode.splitchar );
 
             if ( charComp == 0 ) {
 
                 charIndex++;
 
-                if ( charIndex == key.length() ) {
+                if ( charIndex == key.length(  ) ) {
 
                     return currentNode;
                 }
@@ -188,384 +243,161 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
             } else {
 
                 // charComp must be greater than zero
-                currentNode = currentNode.relatives [ TSTNode.HIKID ];
+                currentNode = (TSTNode<E>) currentNode.relatives [ TSTNode.HIKID ];
+            }
+
+            if ( ++nodesTraversed > MAX_NODE_TRAVERSALS ) {
+
+                nodesTraversed = 0;
+
+                if ( Logging.SHOW_WARNING && LOG.isLoggable( Level.WARNING ) ) {
+
+                    LOG.log( Level.WARNING,
+                        ( ( treeName == null ) ? "" : ( "[" + treeName + "] " ) ) +
+                        "Excessive node traversal detected.  Tree is either broken or very inefficient!" );
+                }
             }
         }
     }
 
     /* (non-Javadoc)
-     * @see net.jxta.impl.util.ternary.ITernarySearchTree#matchPrefix(java.lang.String)
+     * @see net.jxta.impl.util.ternary.TernarySearchTree#matchPrefix(java.lang.String)
      */
-    public DoublyLinkedList matchPrefix( String prefix ) {
+    public List<E> matchPrefix( final String prefix ) {
 
-        return matchPrefix( prefix, defaultNumReturnValues );
+        return matchPrefix( prefix, null );
     }
 
-    /** Returns alphabetical list of all keys in the tree that begin with prefix. Only keys for nodes having non-null data
-    *   are included in the list.
-    *   @param prefix Each key returned from this method will begin with the characters in prefix.
-    *   @param numReturnValues The maximum number of values returned from this method.
-    *   @return DoublyLinkedList An implementation of a LinkedList that is java 1.1 compatible.
-    */
-    public DoublyLinkedList matchPrefix( String prefix, int numReturnValues ) {
+    /* (non-Javadoc)
+     * @see net.jxta.impl.util.ternary.TernarySearchTree#matchPrefix(java.lang.String, int)
+     */
+    public List<E> matchPrefix( final String prefix, final TernarySearchTreeMatchListener<E> listener ) {
 
-        sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        sortKeysResult = new DoublyLinkedList();
+        // The returned list
+        List<E> sortKeysResult = new ArrayList<E>(  );
 
-        TSTNode startNode = getNode( prefix );
+        // No one should query with a listener set to stop search, but who knows....
+        if ( ( listener != null ) && !listener.continueSearch(  ) ) {
 
+            return sortKeysResult;
+        }
+
+        // Find the highest node matching the prefix
+        TSTNode<E> startNode = getNode( prefix );
+
+        // No match -> the prefix does not exist in the tree
         if ( startNode == null ) {
 
             return sortKeysResult;
         }
 
+        // If we have data a this level (e.g. node exactly matching the prefix), collect it
         if ( startNode.data != null ) {
 
-            sortKeysResult.addLast( getKey( startNode ) );
-            sortKeysNumReturnValues--;
+            sortKeysResult.add( startNode.data );
+
+            if ( listener != null ) {
+
+                listener.resultFound( prefix, startNode.data );
+
+                if ( !listener.continueSearch(  ) ) {
+
+                    return sortKeysResult;
+                }
+            }
         }
 
-        sortKeysList = true;
-        sortKeysRecursion( startNode.relatives [ TSTNode.EQKID ] );
+        // Start going down the tree to collect additional results
+        sortKeysRecursion( sortKeysResult, startNode.relatives [ TSTNode.EQKID ], prefix, listener );
 
         return sortKeysResult;
     }
 
-    /** Returns alphabetical list of all keys in the tree that begin with prefix. Only keys for nodes having non-null data
-    *   are included in the list.
-    *   @param prefix Each key returned from this method will begin with the characters in prefix.
-    *   @return String A string representation of all keys matching the argument prefix. Keys are delimited with the newline
-    *   char ('\n').
-    */
-    public String matchPrefixString( String prefix ) {
+    private void sortKeysRecursion( final List<E> sortKeysResult, final TSTNode<E> currentNode, final String currentKey,
+        final TernarySearchTreeMatchListener<E> listener ) {
 
-        return matchPrefixString( prefix, defaultNumReturnValues );
-    }
-
-    /** Returns alphabetical list of all keys in the tree that begin with prefix. Only keys for nodes having non-null data
-    *   are included in the list.
-    *   @param prefix Each key returned from this method will begin with the characters in prefix.
-    *   @param numReturnValues The maximum number of values returned from this method.
-    *   @return String A string representation of all keys matching the argument prefix. Keys are delimited with the newline
-    *   char ('\n').
-    */
-    public String matchPrefixString( String prefix, int numReturnValues ) {
-
-        TSTNode startNode = getNode( prefix );
-
-        if ( startNode == null ) {
-
-            return "";
-        }
-
-        sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        lastNumberOfReturnValues = sortKeysNumReturnValues;
-        sortKeysBuffer = new StringBuffer();
-
-        if ( startNode.data != null ) {
-
-            sortKeysBuffer.append( getKey( startNode ) + "\n" );
-            sortKeysNumReturnValues--;
-        }
-
-        sortKeysList = false;
-        sortKeysRecursion( startNode.relatives [ TSTNode.EQKID ] );
-
-        int bufferLength = sortKeysBuffer.length();
-
-        if ( bufferLength > 0 ) {
-
-            sortKeysBuffer.setLength( bufferLength - 1 ); // delete the final \n
-        }
-
-        lastNumberOfReturnValues = lastNumberOfReturnValues - sortKeysNumReturnValues;
-
-        return sortKeysBuffer.toString();
-    }
-
-    /* Returns keys sorted in alphabetical order. Includes currentNode and all nodes connected to currentNode. Sorted keys will
-    *  be appended to end of result list. (result may be empty when this method is invoked, but may not be null.)
-    */
-    private void sortKeysRecursion( TSTNode currentNode ) {
-
+        // We have gone to the left tip of this branch --> move back
         if ( currentNode == null ) {
 
             return;
         }
 
-        sortKeysRecursion( currentNode.relatives [ TSTNode.LOKID ] );
-
-        if ( sortKeysNumReturnValues == 0 ) {
-
-            return;
-        }
-
+        // If we have data available at that node, collect it and keep going left
         if ( currentNode.data != null ) {
 
-            if ( sortKeysList ) {
+            sortKeysResult.add( currentNode.data );
 
-                sortKeysResult.addLast( getKey( currentNode ) );
-            } else {
+            if ( listener != null ) {
 
-                sortKeysBuffer.append( getKey( currentNode ) + "\n" );
+                listener.resultFound( currentKey + currentNode.splitchar, currentNode.data );
+
+                // Check if listener calls for end the search
+                if ( !listener.continueSearch(  ) ) {
+
+                    return;
+                }
             }
-
-            sortKeysNumReturnValues--;
         }
 
-        sortKeysRecursion( currentNode.relatives [ TSTNode.EQKID ] );
-        sortKeysRecursion( currentNode.relatives [ TSTNode.HIKID ] );
+        // Keep going left
+        sortKeysRecursion( sortKeysResult, currentNode.relatives [ TSTNode.LOKID ], currentKey, listener );
+
+        // We have done the left branch, start the middle branch
+        sortKeysRecursion( sortKeysResult, currentNode.relatives [ TSTNode.EQKID ], currentKey + currentNode.splitchar, listener );
+
+        // Finally, run the right branch
+        sortKeysRecursion( sortKeysResult, currentNode.relatives [ TSTNode.HIKID ], currentKey, listener );
     }
 
-    /** Returns keys sorted in alphabetical order. Includes startNode and all nodes connected to startNode.
-    *   Number of keys returned is limited to numReturnValues. To get a list that isn't limited in size,
-    *   set numReturnValues to -1.
-    *   @param startNode The top node defining the subtree to be searched.
-    *   @param numReturnValues The maximum number of values returned from this method.
-    *   @return DoublyLinkedList An implementation of a LinkedList that is java 1.1 compatible.
-    */
-    protected DoublyLinkedList sortKeys( TSTNode startNode, int numReturnValues ) {
-
-        sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        sortKeysResult = new DoublyLinkedList();
-        sortKeysRecursion( startNode );
-
-        return sortKeysResult;
-    }
-
-    public String sortKeysString( int numReturnValues ) {
-
-        return sortKeysString( rootNode, numReturnValues );
-    }
-
-    public String sortKeysString() {
-
-        return sortKeysString( rootNode, defaultNumReturnValues );
-    }
-
-    /** Returns keys sorted in alphabetical order, returning a result of type String. Includes startNode
-    *   and all nodes connected to startNode. Number of keys returned is limited to numReturnValues. To get
-    *   a list that isn't limited in size, set numReturnValues to -1.
-    *   @param startNode The top node defining the subtree to be searched.
-    *   @param numReturnValues The maximum number of values returned from this method.
-    *   @return String A string representation of keys in alphabetical order.
-    */
-    public String sortKeysString( TSTNode startNode, int numReturnValues ) {
-
-        if ( startNode == null ) {
-
-            return new String( "" );
-        }
-
-        sortKeysNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        lastNumberOfReturnValues = sortKeysNumReturnValues;
-        sortKeysBuffer = new StringBuffer();
-
-        if ( startNode.data != null ) {
-
-            sortKeysBuffer.append( getKey( startNode ) + "\n" );
-            sortKeysNumReturnValues--;
-        }
-
-        sortKeysList = false;
-        sortKeysRecursion( startNode );
-
-        int bufferLength = sortKeysBuffer.length();
-
-        if ( bufferLength > 0 ) {
-
-            sortKeysBuffer.setLength( bufferLength - 1 ); // delete the final \n
-        }
-
-        lastNumberOfReturnValues = lastNumberOfReturnValues - sortKeysNumReturnValues;
-
-        return sortKeysBuffer.toString();
-    }
-
-    /** Returns a list of keys that almost match argument key.
-    *   Keys returned will have exactly diff characters that do not match the target key,
-    *   where diff is equal to the last value passed in as an argument to the setMatchAlmostDiff
-    *   method. If the matchAlmost method is called before the setMatchAlmostDiff method has been
-    *   called for the first time, then diff = 0.
-    *   @param key The target key.
-    *   @return DoublyLinkedList An implementation of a LinkedList that is java 1.1 compatible.
-    */
-    public DoublyLinkedList matchAlmost( String key ) {
-
-        return matchAlmost( key, defaultNumReturnValues );
-    }
-
-    /** Returns a list of keys that almost match argument key.
-    *   Keys returned will have exactly diff characters that do not match the target key,
-    *   where diff is equal to the last value passed in as an argument to the setMatchAlmostDiff
-    *   method. If the matchAlmost method is called before the setMatchAlmostDiff method has been
-    *   called for the first time, then diff = 0.
-    *   @param key The target key.
-    *   @param numReturnValues The maximum number of values returned by this method.
-    *   @return DoublyLinkedList An implementation of a LinkedList that is java 1.1 compatible.
-    */
-    protected DoublyLinkedList matchAlmost( String key, int numReturnValues ) {
-
-        matchAlmostListAction = true;
-        matchAlmostNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        matchAlmostResult = new DoublyLinkedList();
-        matchAlmostKey = key;
-        matchAlmostRecursion( rootNode, 0, matchAlmostDiff );
-
-        return matchAlmostResult;
-    }
-
-    /** Returns a String representation of keys that almost match argument key.
-    *   Keys returned will have exactly diff characters that do not match the target key,
-    *   where diff is equal to the last value passed in as an argument to the setMatchAlmostDiff
-    *   method. If the matchAlmost method is called before the setMatchAlmostDiff method has been
-    *   called for the first time, then diff = 0.
-    *   @param key The target key.
-    *   @return String A String representation of keys that almost match the target key. Keys are
-    *   delimited by the newline char ('\n').
-    */
-    public String matchAlmostString( String key ) {
-
-        return matchAlmostString( key, defaultNumReturnValues );
-    }
-
-    /** Returns a String representation of keys that almost match argument key.
-    *   Keys returned will have exactly diff characters that do not match the target key,
-    *   where diff is equal to the last value passed in as an argument to the setMatchAlmostDiff
-    *   method. If the matchAlmost method is called before the setMatchAlmostDiff method has been
-    *   called for the first time, then diff = 0.
-    *   @param key The target key.
-    *   @param numReturnValues The maximum number of values returned by this method.
-    *   @return String A String representation of keys that almost match the target key. Keys are
-    *   delimited by the newline char ('\n').
-    */
-    protected String matchAlmostString( String key, int numReturnValues ) {
-
-        matchAlmostListAction = false;
-        matchAlmostNumReturnValues = checkNumberOfReturnValues( numReturnValues );
-        lastNumberOfReturnValues = matchAlmostNumReturnValues;
-        matchAlmostBuffer = new StringBuffer();
-        matchAlmostKey = key;
-        matchAlmostRecursion( rootNode, 0, matchAlmostDiff );
-
-        int bufferLength = matchAlmostBuffer.length();
-
-        if ( bufferLength > 0 ) {
-
-            matchAlmostBuffer.setLength( bufferLength - 1 ); // delete the final \n
-        }
-
-        lastNumberOfReturnValues = lastNumberOfReturnValues - matchAlmostNumReturnValues;
-
-        return matchAlmostBuffer.toString();
-    }
-
-    private void matchAlmostRecursion( TSTNode currentNode, int charIndex, int d ) {
-
-        if ( ( currentNode == null ) || ( d < 0 ) || ( matchAlmostNumReturnValues == 0 ) || ( charIndex >= matchAlmostKey.length() ) ) {
-
-            return;
-        }
-
-        int charComp = CharUtility.compareCharsAlphabetically( matchAlmostKey.charAt( charIndex ), currentNode.splitchar );
-
-        // low branch
-        if ( ( d > 0 ) || ( charComp < 0 ) ) {
-
-            matchAlmostRecursion( currentNode.relatives [ TSTNode.LOKID ], charIndex, d );
-        }
-
-        //equal branch
-        int nextD = ( charComp == 0 ) ? d : ( d - 1 );
-
-        if ( ( matchAlmostKey.length() == ( charIndex + 1 ) ) && ( nextD == 0 ) && ( currentNode.data != null ) ) {
-
-            // Note: the condition nextD == 0 causes keys to be included in the result only if they have exactly matchAlmostDiff number 
-            // of mismatched letters
-            // If instead the condition nextD >= 0 is used, then all keys having up to and including matchAlmostDiff mismatched letters
-            // will be included in the result (including a key that is exactly the same as the target string).
-            if ( matchAlmostListAction ) {
-
-                matchAlmostResult.addLast( getKey( currentNode ) );
-            } else {
-
-                matchAlmostBuffer.append( getKey( currentNode ) + "\n" );
-            }
-
-            matchAlmostNumReturnValues--;
-        }
-
-        matchAlmostRecursion( currentNode.relatives [ TSTNode.EQKID ], charIndex + 1, nextD );
-
-        // hi branch
-        if ( ( d > 0 ) || ( charComp > 0 ) ) {
-
-            matchAlmostRecursion( currentNode.relatives [ TSTNode.HIKID ], charIndex, d );
-        }
-    }
-
-    /** Sets the number of characters by which words can differ from target word when
-    *   calling matchAlmost or matchAlmostString methods. Arguments
-    *   less than 1 will set the char difference to 1, and arguments greater than 4
-    *   will set the char difference to 4.
-    *   @param diff The number of characters by which words can differ from target word.
-    */
-    public void setMatchAlmostDiff( int diff ) {
-
-        if ( diff < 0 ) {
-
-            matchAlmostDiff = 0;
-        } else if ( diff > maxMatchAlmostDiff ) {
-
-            matchAlmostDiff = maxMatchAlmostDiff;
-        } else {
-
-            matchAlmostDiff = diff;
-        }
-    }
-
-    /** Returns the Node indexed by key, creating that node if it doesn't exist, and creating any required.
-    *   intermediate nodes if they don't exist.
-    *   @param key A string that indexes the node that is returned.
-    *   @return TSTNode The node object indexed by key. This object is an instance of an inner class
-    *   named TernarySearchTree.TSTNode.
-    */
-    protected TSTNode getOrCreateNode( String key ) throws NullPointerException, IllegalArgumentException {
+    /**
+     * Returns the Node indexed by key, creating that node if it doesn't exist, and creating any required.
+     * intermediate nodes if they don't exist.
+     * @param key A string that indexes the node that is returned.
+     * @return TSTNode The node object indexed by key. This object is an instance of an inner class
+     * named TernarySearchTree.TSTNode.
+     */
+    protected TSTNode<E> getOrCreateNode( final String key )
+        throws NullPointerException, IllegalArgumentException {
 
         if ( key == null ) {
 
-            throw new NullPointerException( "attempt to get or create node with null key" );
+            throw new NullPointerException( ( ( treeName == null ) ? "" : ( "[" + treeName + "] " ) ) +
+                "Attempt to get or create node with null key" );
         }
 
-        if ( key.length() == 0 ) {
+        if ( key.length(  ) == 0 ) {
 
-            throw new IllegalArgumentException( "attempt to get or create node with key of zero length" );
+            throw new IllegalArgumentException( ( ( treeName == null ) ? "" : ( "[" + treeName + "] " ) ) +
+                "Attempt to get or create node with key of zero length" );
         }
 
         if ( rootNode == null ) {
 
-            rootNode = new TSTNode( key.charAt( 0 ), null );
+            rootNode = new TSTNode<E>( key.charAt( 0 ), null );
         }
 
-        TSTNode currentNode = rootNode;
+        TSTNode<E> currentNode = rootNode;
         int charIndex = 0;
+        int nodesTraversed = 0;
 
         while ( true ) {
 
-            int charComp = CharUtility.compareCharsAlphabetically( key.charAt( charIndex ), currentNode.splitchar );
+            char currentChar = key.charAt( charIndex );
+
+            int charComp = compareCharsAlphabetically( currentChar, currentNode.splitchar );
 
             if ( charComp == 0 ) {
 
                 charIndex++;
 
-                if ( charIndex == key.length() ) {
+                if ( charIndex == key.length(  ) ) {
 
                     return currentNode;
                 }
 
                 if ( currentNode.relatives [ TSTNode.EQKID ] == null ) {
 
-                    currentNode.relatives [ TSTNode.EQKID ] = new TSTNode( key.charAt( charIndex ), currentNode );
+                    currentNode.relatives [ TSTNode.EQKID ] = new TSTNode<E>( key.charAt( charIndex ), currentNode );
                 }
 
                 currentNode = currentNode.relatives [ TSTNode.EQKID ];
@@ -573,7 +405,7 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
 
                 if ( currentNode.relatives [ TSTNode.LOKID ] == null ) {
 
-                    currentNode.relatives [ TSTNode.LOKID ] = new TSTNode( key.charAt( charIndex ), currentNode );
+                    currentNode.relatives [ TSTNode.LOKID ] = new TSTNode<E>( currentChar, currentNode );
                 }
 
                 currentNode = currentNode.relatives [ TSTNode.LOKID ];
@@ -582,43 +414,340 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
                 // charComp must be greater than zero
                 if ( currentNode.relatives [ TSTNode.HIKID ] == null ) {
 
-                    currentNode.relatives [ TSTNode.HIKID ] = new TSTNode( key.charAt( charIndex ), currentNode );
+                    currentNode.relatives [ TSTNode.HIKID ] = new TSTNode<E>( currentChar, currentNode );
                 }
 
                 currentNode = currentNode.relatives [ TSTNode.HIKID ];
             }
+
+            if ( ++nodesTraversed > MAX_NODE_TRAVERSALS ) {
+
+                nodesTraversed = 0;
+
+                if ( Logging.SHOW_WARNING && LOG.isLoggable( Level.WARNING ) ) {
+
+                    LOG.log( Level.WARNING,
+                        ( ( treeName == null ) ? "" : ( "[" + treeName + "] " ) ) +
+                        "Excessive node traversal detected.  Tree is either broken or very inefficient!" );
+                }
+            }
         }
     }
 
-    /*  Deletes the node passed in as an argument to this method. If this node has non-null data, then both the node and the data will be deleted.
-    *   Also deletes any other nodes in the tree that are no longer needed after the deletion of the node first passed in as an argument to this method.
-    */
-    private void deleteNode( TSTNode nodeToDelete ) {
+    /*
+     * Deletes the node passed in as an argument to this method. If this node has non-null data, then both the node and the data will be deleted.
+     * Also deletes any other nodes in the tree that are no longer needed after the deletion of the node first passed in as an argument to this method.
+     */
+    private void deleteNode( final TSTNode<E> nodeToDelete ) {
 
         if ( nodeToDelete == null ) {
 
             return;
         }
 
-        nodeToDelete.data = null;
+        TSTNode<E> node = nodeToDelete;
 
-        while ( nodeToDelete != null ) {
+        node.data = null;
 
-            nodeToDelete = deleteNodeRecursion( nodeToDelete );
+        while ( node != null ) {
+
+            if ( Logging.SHOW_FINEST && LOG.isLoggable( Level.FINEST ) ) {
+
+                LOG.log( Level.FINEST, "Deleting tree node: " + node );
+            }
+
+            node = deleteNodeRecursion( node );
         }
     }
 
+    private TSTNode<E> deleteNodeRecursion( final TSTNode<E> currentNode ) {
+
+        // To delete a node, first set its data to null, then pass it into this method, then pass the node returned by this method into this method
+        // (make sure you don't delete the data of any of the nodes returned from this method!)
+        // and continue in this fashion until the node returned by this method is null.
+        // The TSTNode instance returned by this method will be next node to be operated on by deleteNodeRecursion.
+        // (This emulates recursive method call while avoiding the JVM overhead normally associated with a recursive method.)
+        if ( currentNode == null ) {
+
+            return null;
+        }
+
+        if ( ( currentNode.relatives [ TSTNode.EQKID ] != null ) || ( currentNode.data != null ) ) {
+
+            return null; // Can't delete this node if it has a non-null eq kid or data
+        }
+
+        TSTNode<E> currentParent = currentNode.relatives [ TSTNode.PARENT ];
+
+        // If we've made it this far, then we know the currentNode isn't null, but its data and equal kid are null, so we can delete the current node
+        // (before deleting the current node, we'll move any lower nodes higher in the tree)
+        boolean lokidNull = currentNode.relatives [ TSTNode.LOKID ] == null;
+        boolean hikidNull = currentNode.relatives [ TSTNode.HIKID ] == null;
+
+        // Now find out what kind of child current node is
+        int childType;
+
+        if ( currentParent != null ) {
+
+            if ( currentParent.relatives [ TSTNode.LOKID ] == currentNode ) {
+
+                childType = TSTNode.LOKID;
+            } else if ( currentParent.relatives [ TSTNode.EQKID ] == currentNode ) {
+
+                childType = TSTNode.EQKID;
+            } else if ( currentParent.relatives [ TSTNode.HIKID ] == currentNode ) {
+
+                childType = TSTNode.HIKID;
+            } else {
+
+                // If this executes, then current node is root node
+                return null;
+            }
+
+            if ( lokidNull && hikidNull ) {
+
+                // If we make it to here, all three kids are null and we can just delete this node
+                currentParent.relatives [ childType ] = null;
+
+                return currentParent;
+            }
+
+            // If we make it this far, we know that EQKID is null, and either HIKID or LOKID is null, or both HIKID and LOKID are NON-null
+            if ( lokidNull ) {
+
+                currentParent.relatives [ childType ] = currentNode.relatives [ TSTNode.HIKID ];
+                currentNode.relatives [ TSTNode.HIKID ].relatives [ TSTNode.PARENT ] = currentParent;
+
+                return currentParent;
+            }
+
+            if ( hikidNull ) {
+
+                currentParent.relatives [ childType ] = currentNode.relatives [ TSTNode.LOKID ];
+                currentNode.relatives [ TSTNode.LOKID ].relatives [ TSTNode.PARENT ] = currentParent;
+
+                return currentParent;
+            }
+
+            int deltaHi = currentNode.relatives [ TSTNode.HIKID ].splitchar - currentNode.splitchar;
+            int deltaLo = currentNode.splitchar - currentNode.relatives [ TSTNode.LOKID ].splitchar;
+            int movingKid;
+            TSTNode<E> targetNode;
+
+            // If deltaHi is equal to deltaLo, then choose one of them at random, and make it "further away" from the current node's splitchar
+            if ( deltaHi == deltaLo ) {
+
+                if ( Math.random(  ) < 0.5 ) {
+
+                    deltaHi++;
+                } else {
+
+                    deltaLo++;
+                }
+            }
+
+            if ( deltaHi > deltaLo ) {
+
+                movingKid = TSTNode.HIKID;
+                targetNode = currentNode.relatives [ TSTNode.LOKID ];
+            } else {
+
+                movingKid = TSTNode.LOKID;
+                targetNode = currentNode.relatives [ TSTNode.HIKID ];
+            }
+
+            while ( targetNode.relatives [ movingKid ] != null ) {
+
+                targetNode = targetNode.relatives [ movingKid ];
+            }
+
+            // Now targetNode.relatives[movingKid] is null, and we can put the moving kid into it.
+            targetNode.relatives [ movingKid ] = currentNode.relatives [ movingKid ];
+            // Assign the new parent
+            currentNode.relatives [ movingKid ].relatives [ TSTNode.PARENT ] = targetNode;
+
+            // Now we need to put the target node where the current node used to be
+            currentParent.relatives [ childType ] = targetNode;
+
+            targetNode.relatives [ TSTNode.PARENT ] = currentParent;
+
+            if ( !lokidNull ) {
+
+                if ( ( movingKid != TSTNode.LOKID ) && ( null != currentNode.relatives [ TSTNode.LOKID ] ) &&
+                        ( targetNode != currentNode.relatives [ TSTNode.LOKID ] ) ) {
+
+                    // We must re-graft the LOKID if it exists
+                    while ( targetNode.relatives [ TSTNode.LOKID ] != null ) {
+
+                        targetNode = targetNode.relatives [ TSTNode.LOKID ];
+                    }
+
+                    // Null the old child reference
+                    currentNode.relatives [ TSTNode.LOKID ].relatives [ TSTNode.HIKID ] = null;
+                    // and re-graft...
+                    targetNode.relatives [ TSTNode.LOKID ] = currentNode.relatives [ TSTNode.LOKID ];
+                    currentNode.relatives [ TSTNode.LOKID ].relatives [ TSTNode.PARENT ] = targetNode;
+                }
+
+                currentNode.relatives [ TSTNode.LOKID ] = null;
+            }
+
+            if ( !hikidNull ) {
+
+                if ( ( movingKid != TSTNode.HIKID ) && ( null != currentNode.relatives [ TSTNode.HIKID ] ) &&
+                        ( targetNode != currentNode.relatives [ TSTNode.HIKID ] ) ) {
+
+                    // We must re-graft the HIKID if it exists
+                    while ( targetNode.relatives [ TSTNode.HIKID ] != null ) {
+
+                        targetNode = targetNode.relatives [ TSTNode.HIKID ];
+                    }
+
+                    // Null the old child reference
+                    currentNode.relatives [ TSTNode.HIKID ].relatives [ TSTNode.LOKID ] = null;
+                    // and re-graft...
+                    targetNode.relatives [ TSTNode.HIKID ] = currentNode.relatives [ TSTNode.HIKID ];
+                    currentNode.relatives [ TSTNode.HIKID ].relatives [ TSTNode.PARENT ] = targetNode;
+                }
+
+                currentNode.relatives [ TSTNode.HIKID ] = null;
+            }
+
+            currentNode.relatives [ TSTNode.PARENT ] = null;
+        }
+
+        // Note that the statements above ensure currentNode is completely dereferenced, and so it will be garbage collected
+        return currentParent;
+    }
+
+    private static int compareCharsAlphabetically( final char cCompare, final Character charRef ) {
+
+        // Use java Character class comparison and not some half baked ASCII char comparison
+        Character chr1 = Character.valueOf( cCompare );
+
+        return ( chr1.compareTo( charRef ) );
+    }
+
+    // Prints entire tree structure to standard output, beginning with the root node and working down.
+    public void printTree(  ) {
+
+        System.out.println( "" );
+
+        if ( rootNode == null ) {
+
+            System.out.println( "Tree is empty!\n" );
+
+            return;
+        }
+
+        System.out.println( "Note: keys are delimited by vertical lines: |example key|\n" );
+        printNodeRecursion( rootNode );
+    }
+
+    // Prints subtree structure to standard output, beginning with startingNode and working down.
+    protected void printTree( TSTNode<E> startingNode ) {
+
+        System.out.println( "" );
+
+        if ( rootNode == null ) {
+
+            System.out.println( "Subtree is empty!" );
+
+            return;
+        }
+
+        System.out.println( "Note: keys are delimited by vertical lines: |example key|\n" );
+        printNodeRecursion( startingNode );
+    }
+
+    public void walkTree( final TernarySearchTreeMatchListener<E> listener ) {
+
+        walkNodeRecursion( rootNode, listener );
+    }
+
+    private void walkNodeRecursion( TSTNode<E> currentNode, final TernarySearchTreeMatchListener<E> listener ) {
+
+        if ( currentNode == null ) {
+
+            return;
+        }
+
+        if ( null != currentNode.data ) {
+
+            listener.resultFound( getKey( currentNode ), currentNode.data );
+        }
+
+        walkNodeRecursion( currentNode.relatives [ TSTNode.LOKID ], listener );
+        walkNodeRecursion( currentNode.relatives [ TSTNode.EQKID ], listener );
+        walkNodeRecursion( currentNode.relatives [ TSTNode.HIKID ], listener );
+    }
+
+    // Recursive method used to print out tree or subtree structure.
+    private void printNodeRecursion( TSTNode<E> currentNode ) {
+
+        if ( currentNode == null ) {
+
+            return;
+        }
+
+        System.out.println( "" );
+        System.out.println( "--------------------------------------------------------------------------------" );
+        System.out.println( "info for node\t|" + getKey( currentNode ) + "|\tnode data:\t" + currentNode.data + "\n" );
+
+        if ( currentNode.relatives [ TSTNode.PARENT ] == null ) {
+
+            System.out.println( "parent\t\tnull" );
+        } else {
+
+            System.out.println( "parent key\t|" + getKey( currentNode.relatives [ TSTNode.PARENT ] ) + "|\tparent data:\t" +
+                currentNode.relatives [ TSTNode.PARENT ].data );
+        }
+
+        if ( currentNode.relatives [ TSTNode.LOKID ] == null ) {
+
+            System.out.println( "lokid\t\tnull" );
+        } else {
+
+            System.out.println( "lokid key\t|" + getKey( currentNode.relatives [ TSTNode.LOKID ] ) + "|\tlo kid data:\t" +
+                currentNode.relatives [ TSTNode.LOKID ].data );
+        }
+
+        if ( currentNode.relatives [ TSTNode.EQKID ] == null ) {
+
+            System.out.println( "eqkid\t\tnull" );
+        } else {
+
+            System.out.println( "eqkid key\t|" + getKey( currentNode.relatives [ TSTNode.EQKID ] ) + "|\tequal kid data:\t" +
+                currentNode.relatives [ TSTNode.EQKID ].data );
+        }
+
+        if ( currentNode.relatives [ TSTNode.HIKID ] == null ) {
+
+            System.out.println( "hikid\t\tnull" );
+        } else {
+
+            System.out.println( "hikid key\t|" + getKey( currentNode.relatives [ TSTNode.HIKID ] ) + "|\thi kid data:\t" +
+                currentNode.relatives [ TSTNode.HIKID ].data );
+        }
+
+        System.out.println( "--------------------------------------------------------------------------------" );
+
+        printNodeRecursion( currentNode.relatives [ TSTNode.LOKID ] );
+        printNodeRecursion( currentNode.relatives [ TSTNode.EQKID ] );
+        printNodeRecursion( currentNode.relatives [ TSTNode.HIKID ] );
+    }
+
     /** Returns the key that indexes the node argument.
-    *   @param node The node whose index is to be calculated.
-    *   @return String The string that indexes the node argument.
-    */
-    protected String getKey( TSTNode node ) {
+     *   @param node The node whose index is to be calculated.
+     *   @return String The string that indexes the node argument.
+     */
+    protected String getKey( TSTNode<E> node ) {
 
         getKeyBuffer.setLength( 0 );
         getKeyBuffer.append( node.splitchar );
 
-        TSTNode currentNode;
-        TSTNode lastNode;
+        TSTNode<E> currentNode;
+        TSTNode<E> lastNode;
 
         currentNode = node.relatives [ TSTNode.PARENT ];
         lastNode = node;
@@ -634,304 +763,37 @@ public class TernarySearchTreeImpl implements TernarySearchTree {
             currentNode = currentNode.relatives [ TSTNode.PARENT ];
         }
 
-        getKeyBuffer.reverse();
+        getKeyBuffer.reverse(  );
 
-        return getKeyBuffer.toString();
+        return getKeyBuffer.toString(  );
     }
 
-    /** Returns the total number of nodes in the tree. Counts nodes whether or not they have data.
-    *   @return int The total number of nodes in the tree.
-    */
-    public int numNodes() {
-
-        return numNodes( rootNode );
-    }
-
-    /** Returns the total number of nodes in the subtree below and including startingNode. Counts nodes whether or not they have data.
-    *   @param startingNode The top node of the subtree. The node that defines the subtree.
-    *   @return int The total number of nodes in the subtree.
-    */
-    protected int numNodes( TSTNode startingNode ) {
-
-        numNodes = 0;
-        checkData = false;
-        recursiveNodeCalculator( startingNode );
-
-        return numNodes;
-    }
-
-    /** Returns the number of nodes in the tree that have non-null data.
-    *   @return int The number of nodes in the tree that have non-null data.
-    */
-    public int numDataNodes() {
-
-        return numDataNodes( rootNode );
-    }
-
-    /** Returns the number of nodes in the subtree below and including startingNode. Counts only nodes that have non-null data.
-    *   @param startingNode The top node of the subtree. The node that defines the subtree.
-    *   @return int The total number of nodes in the subtree.
-    */
-    protected int numDataNodes( TSTNode startingNode ) {
-
-        numNodes = 0;
-        checkData = true;
-        recursiveNodeCalculator( startingNode );
-
-        return numNodes;
-    }
-
-    private void recursiveNodeCalculator( TSTNode currentNode ) {
-
-        if ( currentNode == null ) {
-
-            return;
-        }
-
-        recursiveNodeCalculator( currentNode.relatives [ TSTNode.LOKID ] );
-        recursiveNodeCalculator( currentNode.relatives [ TSTNode.EQKID ] );
-        recursiveNodeCalculator( currentNode.relatives [ TSTNode.HIKID ] );
-
-        if ( checkData ) {
-
-            if ( currentNode.data != null ) {
-
-                numNodes++;
-            }
-        } else {
-
-            numNodes++;
-        }
-    }
-
-    public void deleteTree() {
-
-        if ( rootNode == null ) {
-
-            return;
-        }
-
-        // Simply detach the lot and let gc deal with it
-        rootNode.relatives = new TSTNode[ 4 ];
-        rootNode.data = null;
-
-        System.gc();
-    }
-
-    /** Prints entire tree structure to standard output, beginning with the root node and workind down.
-    */
-    protected void printTree() {
-
-        System.out.println( "" );
-
-        if ( rootNode == null ) {
-
-            System.out.println( "tree is empty" );
-
-            return;
-        }
-
-        System.out.println( "Here's the entire tree structure:" );
-        printNodeRecursion( rootNode );
-    }
-
-    /** Prints subtree structure to standard output, beginning with startingNode and workind down.
-    */
-    protected void printTree( TSTNode startingNode ) {
-
-        System.out.println( "" );
-
-        if ( rootNode == null ) {
-
-            System.out.println( "subtree is empty" );
-
-            return;
-        }
-
-        System.out.println( "Here's the entire subtree structure:" );
-        printNodeRecursion( startingNode );
-    }
-
-    /** Recursive method used to print out tree or subtree structure.
-    */
-    private void printNodeRecursion( TSTNode currentNode ) {
-
-        if ( currentNode == null ) {
-
-            return;
-        }
-
-        System.out.println( "" );
-        System.out.println( "( keys are delimited by vertical lines: |example key| )" );
-        System.out.println( "info for node   |" + getKey( currentNode ) + "|         node data: " + currentNode.data );
-
-        if ( currentNode.relatives [ TSTNode.PARENT ] == null ) {
-
-            System.out.println( "parent null" );
-        } else {
-
-            System.out.println( "parent key   |" + getKey( currentNode.relatives [ TSTNode.PARENT ] ) + "|       parent data: " +
-                currentNode.relatives [ TSTNode.PARENT ].data );
-        }
-
-        if ( currentNode.relatives [ TSTNode.LOKID ] == null ) {
-
-            System.out.println( "lokid null" );
-        } else {
-
-            System.out.println( "lokid key   |" + getKey( currentNode.relatives [ TSTNode.LOKID ] ) + "|       lo kid data: " +
-                currentNode.relatives [ TSTNode.LOKID ].data );
-        }
-
-        if ( currentNode.relatives [ TSTNode.EQKID ] == null ) {
-
-            System.out.println( "eqkid null" );
-        } else {
-
-            System.out.println( "eqkid key   |" + getKey( currentNode.relatives [ TSTNode.EQKID ] ) + "|       equal kid data: " +
-                currentNode.relatives [ TSTNode.EQKID ].data );
-        }
-
-        if ( currentNode.relatives [ TSTNode.HIKID ] == null ) {
-
-            System.out.println( "hikid null" );
-        } else {
-
-            System.out.println( "hikid key   |" + getKey( currentNode.relatives [ TSTNode.HIKID ] ) + "|       hi kid data: " +
-                currentNode.relatives [ TSTNode.HIKID ].data );
-        }
-
-        printNodeRecursion( currentNode.relatives [ TSTNode.LOKID ] );
-        printNodeRecursion( currentNode.relatives [ TSTNode.EQKID ] );
-        printNodeRecursion( currentNode.relatives [ TSTNode.HIKID ] );
-    }
-
-    // Fix to stop Exception while deleting the currentParent node.
-    private TSTNode deleteNodeRecursion( TSTNode currentNode ) {
-
-        if ( currentNode == null ) {
-
-            return null;
-        }
-
-        if ( ( currentNode.relatives [ TSTNode.EQKID ] != null ) || ( currentNode.data != null ) ) {
-
-            return null;
-        }
-
-        TSTNode currentParent = currentNode.relatives [ TSTNode.PARENT ];
-
-        boolean lokidNull = currentNode.relatives [ TSTNode.LOKID ] == null;
-        boolean hikidNull = currentNode.relatives [ TSTNode.HIKID ] == null;
-
-        int childType;
-
-        if ( currentParent == null ) {
-
-            rootNode = null;
-
-            return null;
-        }
-
-        if ( currentParent.relatives [ TSTNode.LOKID ] == currentNode ) {
-
-            childType = TSTNode.LOKID;
-        } else if ( currentParent.relatives [ TSTNode.EQKID ] == currentNode ) {
-
-            childType = TSTNode.EQKID;
-        } else {
-
-            childType = TSTNode.HIKID;
-        }
-
-        if ( lokidNull && hikidNull ) {
-
-            currentParent.relatives [ childType ] = null;
-
-            return currentParent;
-        }
-
-        if ( lokidNull ) {
-
-            currentParent.relatives [ childType ] = currentNode.relatives [ TSTNode.HIKID ];
-            currentNode.relatives [ TSTNode.HIKID ].relatives [ TSTNode.PARENT ] = currentParent;
-
-            return currentParent;
-        }
-
-        if ( hikidNull ) {
-
-            currentParent.relatives [ childType ] = currentNode.relatives [ TSTNode.LOKID ];
-            currentNode.relatives [ TSTNode.LOKID ].relatives [ TSTNode.PARENT ] = currentParent;
-
-            return currentParent;
-        }
-
-        int deltaHi = currentNode.relatives [ TSTNode.HIKID ].splitchar - currentNode.splitchar;
-        int deltaLo = currentNode.splitchar - currentNode.relatives [ TSTNode.LOKID ].splitchar;
-        int movingKid;
-        TSTNode targetNode;
-
-        if ( deltaHi == deltaLo ) {
-
-            if ( Math.random() < 0.5 ) {
-
-                deltaHi++;
-            } else {
-
-                deltaLo++;
-            }
-        }
-
-        if ( deltaHi > deltaLo ) {
-
-            movingKid = TSTNode.HIKID;
-            targetNode = currentNode.relatives [ TSTNode.LOKID ];
-        } else {
-
-            movingKid = TSTNode.LOKID;
-            targetNode = currentNode.relatives [ TSTNode.HIKID ];
-        }
-
-        while ( targetNode.relatives [ movingKid ] != null ) {
-
-            targetNode = targetNode.relatives [ movingKid ];
-        }
-
-        targetNode.relatives [ movingKid ] = currentNode.relatives [ movingKid ];
-
-        currentParent.relatives [ childType ] = targetNode;
-        targetNode.relatives [ TSTNode.PARENT ] = currentParent;
-
-        if ( !lokidNull ) {
-
-            currentNode.relatives [ TSTNode.LOKID ] = null;
-        }
-
-        if ( !hikidNull ) {
-
-            currentNode.relatives [ TSTNode.HIKID ] = null;
-        }
-
-        return currentParent;
-    }
-
-    /** An inner class of TernarySearchTree that represents a node in the tree.
-    */
-    protected class TSTNode {
-
-        protected static final int PARENT = 0; // index values for accessing relatives array
-        protected static final int LOKID = 1; // index values for accessing relatives array
-        protected static final int EQKID = 2; // index values for accessing relatives array
-        protected static final int HIKID = 3; // index values for accessing relatives array
-        protected char splitchar;
-        protected TSTNode[] relatives = new TSTNode[ 4 ];
-        protected Object data;
-
-        protected TSTNode( char splitchar, TSTNode parent ) {
+    /**
+     * An inner class of TernarySearchTree that represents a node in the tree.
+     */
+    private static final class TSTNode<E> {
+
+        // Index values for accessing relatives array
+        protected static final int PARENT = 0;
+        protected static final int LOKID = 1;
+        protected static final int EQKID = 2;
+        protected static final int HIKID = 3;
+
+        // Node fields...all volatile
+        protected volatile Character splitchar;
+        @SuppressWarnings( "unchecked" )
+        protected volatile TSTNode<E>[] relatives = new TSTNode[ 4 ];
+        protected volatile E data;
+
+        protected TSTNode( char splitchar, TSTNode<E> parent ) {
 
             this.splitchar = splitchar;
             relatives [ PARENT ] = parent;
+        }
+
+        public String toString(  ) {
+
+            return "Node(" + splitchar + "):: Numeric:" + Character.getNumericValue( splitchar );
         }
     }
 }

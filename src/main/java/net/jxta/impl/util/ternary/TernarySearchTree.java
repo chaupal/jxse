@@ -55,45 +55,75 @@
  */
 package net.jxta.impl.util.ternary;
 
-public interface TernarySearchTree {
+import java.util.List;
+
+
+public interface TernarySearchTree<E> {
+
+    /**
+     * Get the value E stored at the node referenced with <code>key</code>
+     * If the node does not exist, it is created and the value <code>valueIfCreate</code> is stored
+     *
+     * @param key A string that indexes the object to be stored.
+     * @param valueIfCreate The value to give to the node if is created
+     * @return The value at the node
+     */
+    public E getOrCreate( final String key, final E valueIfCreate );
 
     /**
      * Stores value in the TernarySearchTree. The value may be retrieved using key.
+     *
      * @param key A string that indexes the object to be stored.
      * @param value The object to be stored in the tree.
      */
-    public void put( String key, Object value );
+    public abstract void put( final String key, final E value );
 
     /**
      * Retrieve the object indexed by key.
+     *
      * @param key A String index.
      * @return Object The object retrieved from the TernarySearchTree.
      */
-    public Object get( String key );
+    public abstract E get( final String key );
 
     /**
      * Removes value indexed by key. Also removes all nodes that are rendered unnecessary by the removal of this data.
+     *
      * @param key A string that indexes the object to be removed from the tree.
      */
-    public void remove( String key );
+    public abstract E remove( final String key );
 
     /**
-     * Returns alphabetical list of all keys in the tree that begin with prefix. Only keys for nodes having non-null data are included in the list.
+     * Returns a list of ALL values in the tree that begin with prefix. Only keys for nodes having non-null data are included in the list.
+     *
      * @param prefix Each key returned from this method will begin with the characters in prefix.
-     * @return DoublyLinkedList An implementation of a LinkedList that is java 1.1 compatible.
+     * @return List of tree values that begin with the given prefix.
      */
-    public DoublyLinkedList matchPrefix( String prefix );
+    public abstract List<E> matchPrefix( final String prefix );
 
     /**
-     * Sets default maximum number of values returned from matchPrefix, matchPrefixString,
-     * matchAlmost, and matchAlmostString methods.
-     * @param num The number of values that will be returned when calling the methods above. Set this to -1 to get an unlimited number of return values. Note that
-     * the methods mentioned above provide overloaded versions that allow you to specify the maximum number of return values, in which case this value is temporarily overridden.
+     * Returns a list of all values in the tree that begin with prefix. Only keys for nodes having non-null data are included in the list.
+     *
+     * @param prefix Each key returned from this method will begin with the characters in prefix.
+     * @param listener A {@link TernarySearchTreeMatchListener} which will receive all data as it is found
+     * and can stop the search at any time
+     * @return List of tree values that begin with the given prefix.
      */
-    public void setNumReturnValues( int num );
+    public List<E> matchPrefix( final String prefix, final TernarySearchTreeMatchListener<E> listener );
 
     /**
-     * Allow all heap space used by this tree to be garbage collected
+     * Clears the tree and allows all heap space used by this tree to be garbage collected
      */
-    public void deleteTree();
+    public abstract void deleteTree(  );
+
+    /**
+     * Dumps the tree to stdout
+     */
+    public abstract void printTree(  );
+
+    /**
+     * Traverse the entire tree calling the listener for each data node found
+     * Used for tree inspection
+     */
+    public abstract void walkTree( final TernarySearchTreeMatchListener<E> listener );
 }

@@ -53,126 +53,199 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
-
 package net.jxta.impl.cm;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Logger;
 import net.jxta.impl.cm.Srdi.Entry;
+import net.jxta.impl.cm.srdi.inmemory.GcIndex;
+import net.jxta.impl.cm.srdi.inmemory.GcKey;
+import net.jxta.impl.cm.srdi.inmemory.PeerIdIndex;
+import net.jxta.impl.cm.srdi.inmemory.PeerIdKey;
+import net.jxta.impl.cm.srdi.inmemory.SearchIndex;
+import net.jxta.impl.cm.srdi.inmemory.SearchKey;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.backport.java.util.NavigableSet;
-import net.jxta.impl.util.backport.java.util.TreeMap;
-import net.jxta.impl.util.ternary.TernarySearchTreeImpl;
-import net.jxta.impl.util.ternary.wild.WildcardTernarySearchTree;
-import net.jxta.impl.util.ternary.wild.WildcardTernarySearchTreeImpl;
+
 import net.jxta.logging.Logging;
+
 import net.jxta.peer.PeerID;
+
 import net.jxta.peergroup.PeerGroup;
 
+import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+/**
+ * An implementation of the Srdi index that is stored in Memory
+ *
+ * Removing items from the Index is made using a Garbage Collection process.
+ *
+ * Two additional indexes are maintained along the search index to speed up searches based on {@link PeerID}s
+ * and the Garbage Collection run. Those indexes are {@link Map} based.
+ *
+ * Due to its peculiar design, the calculation of the {@link PeerID} hashcode is extremely expensive;
+ * This is why this Implementation does not use the {@link Entry} nor the {@link PeerID} objects directly
+ * See comments in {@link PeerIdKey}
+ *
+ * @author Bruno Grieder (bruno.grieder@amalto.com) & Simon Temple (simon.temple@amalto.com)
+ *
+ */
 public class InMemorySrdi implements SrdiAPI {
 
-    private final static transient Logger LOG = Logger.getLogger( InMemorySrdi.class.getName() );
-    private static final String WILDCARD = "*";
-    private static final String REGEX_WILDCARD = ".*";
+    private final static transient Logger LOG = Logger.getLogger( InMemorySrdi.class.getName(  ) );
 
     // Store of back end objects in use so we can support the static clear functionality
-    private static Hashtable<PeerGroup, List<SrdiAPI>> backends = new Hashtable<PeerGroup, List<SrdiAPI>>();
+    private static Hashtable<PeerGroup, List<SrdiAPI>> backends = new Hashtable<PeerGroup, List<SrdiAPI>>(  );
 
-    // Dummy object used in HashMaps
-    private static final Object OBJ = new Object();
+    // Three in-memory indexes used to store, search and garbage collect the SRDI
+    private GcIndex gcIndex = null;
+    private PeerIdIndex peerIdIndex = null;
+    private SearchIndex searchIndex = null;
 
-    // Value counter - used to index ItemIndex objects 
-    static long counter = 0;
-    
-    // Wild card ternary tree of values to peerID lists
-    WildcardTernarySearchTree<List<PeerIDItem>> peeridValueIndex = new WildcardTernarySearchTreeImpl<List<PeerIDItem>>();
-    
-    // The GC Index
-    TreeMap expiryIndex = new TreeMap();
-
-    // Used by removal to complete expire time for gc cleanup
-    TernarySearchTreeImpl peerRemovalIndex = new TernarySearchTreeImpl();
+    // Used as a lock to ensure all operations on the above three indexes are thread safe
+    private final Object indexLock = new Object(  );
 
     // Stopped indicator
-    private boolean stopped = false;
+    private volatile boolean stopped = false;
 
     // Usage name for this index
     private final String indexName;
 
     public InMemorySrdi( PeerGroup group, String indexName ) {
 
-        this.indexName = indexName;
+        // The index name is only used for logging
+        this.indexName = ( ( group == null ) ? "none" : ( ( group.getPeerGroupName(  ) == null ) ? "NPG" : group.getPeerGroupName(  ) ) ) +
+            ":" + indexName;
 
-        List<SrdiAPI> idxs = backends.get( group );
+        List<SrdiAPI> idxs = null;
 
-        if ( null == idxs ) {
+        synchronized ( backends ) {
 
-            idxs = new ArrayList<SrdiAPI>( 1 );
-            backends.put( group, idxs );
+            if ( null != group ) {
+
+                idxs = backends.get( group );
+            }
+
+            if ( null == idxs ) {
+
+                idxs = new ArrayList<SrdiAPI>( 1 );
+
+                if ( null != group ) {
+
+                    backends.put( group, idxs );
+                }
+            }
+
+            idxs.add( this );
+            this.gcIndex = new GcIndex( this.indexName );
+            this.peerIdIndex = new PeerIdIndex( this.indexName );
+            this.searchIndex = new SearchIndex( this.indexName );
         }
 
-        idxs.add( this );
+        if ( Logging.SHOW_INFO && LOG.isLoggable( Level.INFO ) ) {
 
-        peerRemovalIndex.setNumReturnValues( -1 );
-
-        Logging.logCheckedInfo(LOG, "[", ( ( group == null ) ? "none" : group.toString() ), "] : Initialized ", indexName);
-
+            LOG.info( "[" + ( ( group == null ) ? "none" : group.toString(  ) ) + "] : Initialized " + indexName );
+        }
     }
 
     public static void clearSrdi( PeerGroup group ) {
 
-        Logging.logCheckedInfo(LOG, "Clearing SRDIs for ", group );
+        if ( Logging.SHOW_INFO && LOG.isLoggable( Level.INFO ) ) {
 
-        List<SrdiAPI> idxs = backends.get( group );
+            LOG.info( "Clearing SRDIs for " + group );
+        }
 
-        if ( null != idxs ) {
+        SrdiAPI[] indexes = null;
 
-            for ( SrdiAPI idx : idxs ) {
+        synchronized ( backends ) {
+
+            List<SrdiAPI> idxs = backends.get( group );
+
+            if ( idxs != null ) {
+
+                indexes = idxs.toArray( new SrdiAPI[ idxs.size(  ) ] );
+            }
+        }
+
+        if ( null != indexes ) {
+
+            for ( SrdiAPI idx : indexes ) {
 
                 try {
-                    idx.clear();
-                } catch ( IOException e ) {
-                    Logging.logCheckedSevere(LOG, "Failed clearing index for group: ", group.getPeerGroupName(), e );
-                }
 
+                    idx.clear(  );
+                } catch ( IOException e ) {
+
+                    if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+
+                        LOG.log( Level.SEVERE, "Failed clearing index for group: " + group.getPeerGroupName(  ), e );
+                    }
+                }
             }
 
-            backends.remove( group );
+            synchronized ( backends ) {
+
+                if ( null == backends.remove( group ) ) {
+
+                    if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+
+                        LOG.log( Level.SEVERE, "Failed removing index instance: " + group );
+                    }
+                }
+            }
         }
     }
 
-    private void stoppedCheck() throws IllegalStateException {
+    private void stoppedCheck(  ) throws IllegalStateException {
 
         if ( stopped ) {
 
-            throw new IllegalStateException( this.getClass().getName() + " has been stopped!" );
+            throw new IllegalStateException( this.getClass(  ).getName(  ) + " has been stopped!" );
         }
     }
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiAPI#clear()
      */
-    public synchronized void clear() throws IOException {
+    public void clear(  ) throws IOException {
 
         if ( !stopped ) {
-            Logging.logCheckedWarning(LOG, "Clearing an index that has not been stopped!" );
+
+            if ( Logging.SHOW_WARNING && LOG.isLoggable( Level.WARNING ) ) {
+
+                LOG.warning( "Clearing an index that has not been stopped!" );
+            }
         }
 
-        this.expiryIndex.clear();
-        this.peerRemovalIndex.deleteTree();
-        this.peeridValueIndex.deleteTree();
+        try {
 
+            synchronized ( indexLock ) {
+
+                this.gcIndex.clear(  );
+                this.peerIdIndex.clear(  );
+                this.searchIndex.clear(  );
+            }
+        } catch ( Throwable th ) {
+
+            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+
+                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+            }
+
+            throw new IOException( th );
+        }
     }
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiAPI#garbageCollect()
      */
-    public synchronized void garbageCollect() throws IOException {
+    public void garbageCollect(  ) throws IOException {
 
         if ( this.stopped ) {
 
@@ -180,477 +253,323 @@ public class InMemorySrdi implements SrdiAPI {
             return;
         }
 
-        Logging.logCheckedInfo(LOG, "gc... " );
-        
-        Long now = Long.valueOf( TimeUtils.timeNow() );
+        try {
 
-        NavigableSet exps = this.expiryIndex.navigableKeySet();
+            Long now = Long.valueOf( TimeUtils.timeNow(  ) );
 
-        // If we have some work to do...
-        if ( !exps.isEmpty() ) {
+            //A small logging counter
+            long counter = 0;
 
-            if ( ((Long)exps.first()).compareTo( now ) < 0 ) {
+            Long[] expirations = this.gcIndex.getAllKeys(  );
 
-                Iterator it = exps.iterator();
-                Long exp;
+            // Now loop over extracted items in a non synchronized (e.g. non blocking) loop
+            for ( int i = 0; i < expirations.length; i++ ) {
 
-                while ( it.hasNext() ) {
+                Long expiration = expirations [ i ];
 
-                    exp = (Long)it.next();
+                if ( expiration.compareTo( now ) > 0 ) {
 
-                    if ( exp.compareTo( now ) > 0 ) {
+                    // This entry is not yet expired, we are done, exit the GC
+                    if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
 
-                        // We've reached the end of this gc scan
-                        break;
+                        LOG.fine( "[" + this.indexName + "] GC: cleared " + counter + " item(s) from the index" );
                     }
 
-                    Logging.logCheckedFine(LOG, "Expired: ", exp, " is less than:", now );
-                    
-                    HashMap items = (HashMap)this.expiryIndex.get( exp );
+                    printStatus(  );
 
-                    ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>();
+                    return;
+                }
 
-                    if( null != items ){
-                    	
-	                    for ( Object itemObj : items.values() ) {
+                // This entry is expired, process it...
+                synchronized ( this.indexLock ) {
 
-                                IndexItem item = (IndexItem) itemObj;
-	                        List<PeerIDItem> pids = this.peeridValueIndex.find( item.getTreeKey() );
-	
-	                        if ( !this.peeridValueIndex.delete( item.getTreeKey() ) ) {
-	
-	                            Logging.logCheckedSevere(LOG, "Failed deleting from PeerId Value Index using key: ", item.getTreeKey() );
-	                            
-	                        }
-	
-	                        if ( null != pids && pids.size() > 1 ) {
-	
-	                            // Other peer IDs sharing the same key
-	                            for ( PeerIDItem pid : pids ) {
-	
-	                                if ( pid.getPeerid().getUniqueValue().toString()
-	                                            .equals( item.getIpid().getPeerid().getUniqueValue().toString() ) ) {
-	
-	                                    pids.remove( pid );
-	
-	                                    break;
-	                                }
-	                            }
-	
-	                            this.peeridValueIndex.insert( item.getTreeKey(), pids );
-	                        }
-	
-	                        Logging.logCheckedFine(LOG, "TST size: ", this.peeridValueIndex.getSize());
-	                        
-                                removalKeys.add( item );
+                    // Remove and recover the items
+                    Set<GcKey> items = gcIndex.remove( expiration );
 
-	                    }
-	
-	                    items = null;
+                    // See if we have any item to process
+                    if ( items != null ) {
+
+                        for ( GcKey gcKey : items ) {
+
+                            // Recover the search key
+                            SearchKey searchKey = gcKey.getSearchKey(  );
+
+                            if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+
+                                LOG.fine( "[" + this.indexName + "] GC: using tree key " + searchKey );
+                            }
+
+                            // Clean-up the search index
+                            this.searchIndex.remove( searchKey, gcKey.getPeerIdKey(  ) );
+
+                            // Clean-up the peers Index
+                            this.peerIdIndex.remove( gcKey.getPeerIdKey(  ), searchKey );
+                        }
+
+                        // Increment the logging counter
+                        counter++;
+                    } else {
+
+                        // This *is* possible if the index item was removed via a call to add(), below, after we called getAllKeys() but before we
+                        // iterated down to the expiration key to process the entry.  Just log it and carry on...
+                        if ( Logging.SHOW_FINER && LOG.isLoggable( Level.FINER ) ) {
+
+                            LOG.finer( "[" + this.indexName + "] GC: Removing GC Index using: " + expiration +
+                                " returned a null set.  Assuming it's already been removed via a concurrent add()." );
+                        }
                     }
-                    
-                    // Must delete via the iterator
-                    it.remove();
-
-                    for ( IndexItem item : removalKeys ) {
-
-                        // Remove from current position in the expire index
-                        removeGcItem( item );
-                    }
-
-                    removalKeys = null;
                 }
             }
+
+            if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+
+                LOG.fine( "[" + this.indexName + "] GC: cleared ALL ( e.g." + counter + " ) item(s) from the index" );
+            }
+
+            printStatus(  );
+        } catch ( Throwable th ) {
+
+            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+
+                LOG.log( Level.SEVERE, "[" + this.indexName + "] GC: Unexpected exception encountered!", th );
+            }
+
+            throw new IOException( th );
+        }
+    }
+
+    private void printStatus(  ) {
+
+        if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+
+            StringBuffer sb = new StringBuffer(  );
+
+            sb.append( "\n" );
+            sb.append( 
+                "------------------------------------------------------------------------------------------------------------------------\n" );
+            sb.append( " In Memory SRDI Status: " );
+            sb.append( "[" );
+            sb.append( this.indexName );
+            sb.append( "]\n" );
+            sb.append( 
+                "------------------------------------------------------------------------------------------------------------------------\n" );
+
+            synchronized ( indexLock ) {
+
+                sb.append( this.gcIndex.getStats(  ) );
+                sb.append( "\n\n" );
+                sb.append( this.peerIdIndex.getStats(  ) );
+                sb.append( "\n" );
+                sb.append( this.searchIndex.getStats(  ) );
+                sb.append( "\n" );
+            }
+
+            sb.append( 
+                "------------------------------------------------------------------------------------------------------------------------\n" );
+
+            LOG.fine( sb.toString(  ) );
         }
     }
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiAPI#getRecord(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized List<Entry> getRecord( String pkey, String skey, String value )
+    public List<Entry> getRecord( String primaryKey, String attribute, String value )
         throws IOException {
 
-        stoppedCheck();
+        stoppedCheck(  );
 
-        ArrayList<Entry> entries = new ArrayList<Entry>();
+        try {
 
-        String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
+            return this.searchIndex.getValueList( new SearchKey( primaryKey, attribute, value ) );
+        } catch ( Throwable th ) {
 
-        List<PeerIDItem> ipids;
+            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
 
-        if ( null != ( ipids = this.peeridValueIndex.find( treeKey ) ) ) {
-
-            for ( PeerIDItem ipid : ipids ) {
-
-                if ( ipid.getExpiry() > TimeUtils.timeNow() ) {
-
-                    entries.add( ipid.toEntry() );
-                }
+                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
-        }
 
-        return entries;
-    }
-
-    private void processKeyList( List<String> keys, HashMap<PeerID, Object> results, int threshold ) {
-
-        processKeyList( keys, results, threshold, null );
-    }
-
-    private void processKeyList( List<String> keys, HashMap<PeerID, Object> results, int threshold, String regex ) {
-
-        int resultCount = 0;
-
-        if( null != keys ){
-        	
-	        for ( String key : keys ) {
-	
-	            if ( null != regex ) {
-	
-	                if ( !key.matches( regex ) ) {
-	
-	                    continue;
-	                }
-	            }
-	
-	            List<PeerIDItem> pids = this.peeridValueIndex.find( key );
-	
-	            if ( null != pids ) {
-	
-	                for ( PeerIDItem pid : pids ) {
-	
-	                    if ( !results.containsKey( pid.getPeerid() ) && ( pid.getExpiry() >= TimeUtils.timeNow() ) ) {
-	
-	                        results.put( pid.getPeerid(), OBJ );
-	                        resultCount++;
-	
-	                        if ( resultCount == threshold ) {
-	
-	                            return;
-	                        }
-	                    }
-	                }
-	            }
-	        }
+            throw new IOException( th );
         }
     }
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiAPI#query(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    public synchronized List<PeerID> query( String pkey, String skey, String value, int threshold )
+    public List<PeerID> query( final String primaryKey, final String attribute, final String value, final int threshold )
         throws IOException {
 
-        stoppedCheck();
+        stoppedCheck(  );
 
-        if ( null == pkey )
-            throw new IOException( "Null primary key is not supported in query." );
+        if ( null == primaryKey ) {
 
-        HashMap<PeerID, Object> results = new HashMap<PeerID, Object>();
-
-        if ( null == skey ) {
-
-            // All peer IDs who have records under the primary key that have not expired
-            String treeKey = pkey + "\u0800";
-            List<String> keys = this.peeridValueIndex.matchPrefix( treeKey, -1 );
-
-            processKeyList( keys, results, threshold );
-        } else {
-
-            if ( null == value ) {
-
-                // No value specified so assume all values are required
-                value = WILDCARD;
-            }
-
-            String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
-
-            if ( value.contains( WILDCARD ) ) {
-
-                // Support for top and tail wild cards, not supported by WildcardTernaryTree
-                if ( value.startsWith( WILDCARD ) && value.endsWith( WILDCARD ) ) {
-
-                    // Perform partial match and use string pattern matching for the rest
-                    treeKey = pkey + "\u0800" + skey + "\u0801";
-
-                    List<String> keys = this.peeridValueIndex.matchPrefix( treeKey, -1 );
-
-                    processKeyList( keys, results, threshold, value.replace( WILDCARD, REGEX_WILDCARD ) );
-                } else {
-
-                    List<String> keys = this.peeridValueIndex.search( treeKey, -1 );
-
-                    processKeyList( keys, results, threshold );
-                }
-            } else {
-
-                List<PeerIDItem> pids = this.peeridValueIndex.find( treeKey );
-                int resultCount = 0;
-
-                if ( null != pids ) {
-
-                    for ( PeerIDItem pid : pids ) {
-
-                        if ( !results.containsKey( pid.getPeerid() ) && ( pid.getExpiry() >= TimeUtils.timeNow() ) ) {
-
-                            results.put( pid.getPeerid(), OBJ );
-                            resultCount++;
-
-                            if ( resultCount == threshold ) {
-
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            throw new IOException( "[" + indexName + "] Null primary key is not supported in query." );
         }
 
-        return new ArrayList<PeerID>( results.keySet() );
+        try {
+
+            // The key we want to extract from the Ternary Tree
+            SearchKey searchKey = new SearchKey( primaryKey, attribute, value );
+
+            //////////////////////////////////////////////////
+            //
+            // No Attribute 
+            // From the JXTA docs: if [attribute] is null, 
+            // the search will return all peer IDs who have records 
+            // under the primary key that have not expired
+            // -->Match Prefix on the shortened key
+            //
+            //////////////////////////////////////////////////
+            if ( null == attribute ) {
+
+                return this.searchIndex.search( searchKey, threshold, true );
+            }
+
+            //////////////////////////////////////////////////
+            //
+            // Standard Search
+            //
+            //////////////////////////////////////////////////
+            return this.searchIndex.search( searchKey, threshold, false );
+        } catch ( Throwable th ) {
+
+            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+
+                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+            }
+
+            throw new IOException( th );
+        }
     }
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiAPI#remove(net.jxta.peer.PeerID)
      */
-    @SuppressWarnings( "unchecked" )
-    public synchronized void remove( PeerID pid ) throws IOException {
+    public void remove( PeerID pid ) throws IOException {
 
-        stoppedCheck();
+        stoppedCheck(  );
 
-        HashMap<Long, IndexItem> items = (HashMap<Long, IndexItem>) this.peerRemovalIndex.get( pid.getUniqueValue().toString() );
-        if(items == null)  // Nothing to do...
-        	return;
-        Iterator<Long> it = items.keySet().iterator();
-        IndexItem iitem = null;
-        ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>();
+        try {
 
-        while ( it.hasNext() ) {
+            // Peer Ids are unique identified by their Unique Value
+            PeerIdKey peerIdKey = new PeerIdKey( pid );
 
-            iitem = items.get( it.next() );
+            // A simple logging counter
+            long counter = 0;
 
-            removalKeys.add( iitem );
+            // Find the entry in the Peer Index
+            Map<SearchKey, Long> entries = this.peerIdIndex.get( peerIdKey );
 
-            // Expire this entry
-            iitem.getIpid().setExpiry( -1 );
+            if ( entries == null ) { // Nothing to do...
 
-            // Re-add at new position in gc index
-            addGcItem( iitem );
-        }
+                if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
 
-        for ( IndexItem item : removalKeys ) {
+                    LOG.fine( "[" + indexName + "]  Did not Remove:  Peer ID " + peerIdKey + ": is not in the index" );
+                }
 
-            // Remove from current position in the expire index
-            removeGcItem( item );
-            
+                return;
+            }
+
+            synchronized ( indexLock ) {
+
+                for ( java.util.Map.Entry<SearchKey, Long> entry : entries.entrySet(  ) ) {
+
+                    SearchKey searchKey = entry.getKey(  );
+                    Long expiration = entry.getValue(  );
+
+                    // Removal is performed by expiration of the Entry e.g; moving the GC Item to an expiration of -1
+                    // Prevent any modification while me manipulated the expiration entry of the item
+                    GcKey gcKey = new GcKey( searchKey, peerIdKey );
+
+                    // Re-add to the GC index at an expired position
+                    this.gcIndex.add( -1L, gcKey );
+
+                    // Update the search index
+                    this.searchIndex.update( searchKey, peerIdKey, -1L );
+
+                    // Remove old gc entry
+                    this.gcIndex.remove( expiration, gcKey );
+
+                    // Increment logging counter
+                    counter++;
+                }
+            }
+
+            if ( Logging.SHOW_FINEST && LOG.isLoggable( Level.FINEST ) ) {
+
+                LOG.finest( "[" + indexName + "]  Removing  Peer ID '" + peerIdKey + "' led to the expiration of '" + counter +
+                    "' item(s) in the index" );
+            }
+        } catch ( Throwable th ) {
+
+            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+
+                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+            }
+
+            throw new IOException( th );
         }
     }
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiAPI#stop()
      */
-    public synchronized void stop() {
+    public void stop(  ) {
+
         this.stopped = true;
     }
 
     /* (non-Javadoc)
      * @see net.jxta.impl.cm.SrdiAPI#add(java.lang.String, java.lang.String, java.lang.String, net.jxta.peer.PeerID, long)
      */
-    @SuppressWarnings( "unchecked" )
-    public synchronized void add( String pkey, String skey, String value, PeerID pid, long expiry ) {
+    public void add( String primaryKey, String attribute, String value, PeerID pid, long expiry )
+        throws IOException {
 
-        stoppedCheck();
+        stoppedCheck(  );
 
-        Logging.logCheckedFine(LOG, "[", indexName, "] Adding ", pkey, "/", skey, " = \'", value, "\' for ", pid );
+        try {
 
-        String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
+            long expiration = TimeUtils.toAbsoluteTimeMillis( expiry );
 
-        List<PeerIDItem> pids;
-        String pidString = pid.getUniqueValue().toString();
+            SearchKey searchKey = new SearchKey( primaryKey, attribute, value );
 
-        if ( null != ( pids = this.peeridValueIndex.find( treeKey ) ) ) {
+            PeerIdKey peerIdKey = new PeerIdKey( pid );
 
-            // Check for a PeerID entry already added
-            for ( PeerIDItem item : pids ) {
+            GcKey gcKey = new GcKey( searchKey, peerIdKey );
 
-                String peerIDString = item.getPeerid().getUniqueValue().toString();
+            if ( Logging.SHOW_FINEST && LOG.isLoggable( Level.FINEST ) ) {
 
-                if ( peerIDString.equals( pidString ) ) {
+                LOG.finest( "[" + indexName + "] Adding / Updating " + searchKey + " for " + peerIdKey + " expires in: " +
+                    ( expiration - TimeUtils.timeNow(  ) ) + "ms (at: " + expiration + ")" );
+            }
 
-                    removeGcItem( item, peerIDString );
-                    pids.remove( item );
+            synchronized ( indexLock ) {
 
-                    break;
+                // Add it (back) at the proper location
+                this.gcIndex.add( expiration, gcKey );
+
+                // Add/replace it in the peers ID Index
+                this.peerIdIndex.update( peerIdKey, searchKey, expiration );
+
+                // Finally, add/replace it in the search index with FULL key
+
+                // Create a default map in case this node does not exist
+                Long previousExpiration = searchIndex.update( searchKey, peerIdKey, expiration );
+
+                // Remove the original entry from the GC index if it existed (as long as it's not the same expiration)
+                if ( ( previousExpiration != null ) && ( previousExpiration != expiration ) ) {
+
+                    this.gcIndex.remove( previousExpiration, gcKey );
                 }
             }
-        } else {
+        } catch ( Throwable th ) {
 
-            pids = new ArrayList<PeerIDItem>( 1 );
-            this.peeridValueIndex.insert( treeKey, pids );
-        }
+            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
 
-        PeerIDItem ipid = new PeerIDItem( pid, expiry );
-
-        pids.add( ipid );
-
-        IndexItem idxItem = new IndexItem( ipid, treeKey );
-
-        // Prune out entries that are not for this PeerID
-        HashMap<Long, IndexItem> pitems = addGcItem( idxItem );
-
-        // Update or add the peerid removal index entry
-        pitems = (HashMap<Long, IndexItem>) this.peerRemovalIndex.get( pidString );
-
-        if ( null != pitems ) {
-
-            this.peerRemovalIndex.remove( pidString );
-        } else {
-
-            pitems = new HashMap<Long, IndexItem>( 1 );
-        }
-
-        pitems.put( idxItem.getId(), idxItem );
-        this.peerRemovalIndex.put( pidString, pitems );
-    }
-
-    // Less efficient Gc item removal using enumeration of gcItems
-    private boolean removeGcItem( PeerIDItem piitem, String peerIDString ) {
-
-        boolean ret = false;
-        Long oldExpiry = Long.valueOf( piitem.getExpiry() );
-
-        // Remove from current position in the expire index
-        HashMap gcItems = (HashMap) this.expiryIndex.get( oldExpiry );
-
-        if( null != gcItems ){
-        	
-            Long id = null;
-
-	        for ( Object iitemObj : gcItems.values() ) {
-	        	IndexItem iitem = (IndexItem) iitemObj;
-	            if ( iitem.getIpid().getPeerid().getUniqueValue().toString().equals( peerIDString ) ) {
-	
-	                id = iitem.getId();
-	
-	                break;
-	            }
-	        }
-	        
-	        if ( null != id ) {
-	
-	            if ( null != gcItems.remove( id ) ) {
-	
-	                ret = true;
-	            }
-	        }
-	
-	        if ( gcItems.isEmpty() ) {
-	
-	            this.expiryIndex.remove( oldExpiry );
-	        }
-        }
-        
-        return ret;
-    }
-
-    private boolean removeGcItem( IndexItem iitem ) {
-
-        boolean ret = false;
-        Long oldExpiry = Long.valueOf( iitem.getIpid().getExpiry() );
-
-        // Remove from current position in the expire index
-        HashMap gcItems = (HashMap) this.expiryIndex.get( oldExpiry );
-
-        if ( null != gcItems ) {
-
-            gcItems.remove( iitem.getId() );
-            ret = true;
-
-            if ( gcItems.isEmpty() ) {
-
-                this.expiryIndex.remove( oldExpiry );
+                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
-        }
 
-        return ret;
-    }
-
-    private HashMap<Long, IndexItem> addGcItem( IndexItem iitem ) {
-
-        Long expiryKey = Long.valueOf( iitem.getIpid().getExpiry() );
-        HashMap gcItems = (HashMap) this.expiryIndex.get( expiryKey );
-
-        if ( null == gcItems ) {
-
-            gcItems = new HashMap( 1 );
-            this.expiryIndex.put( expiryKey, gcItems );
-        }
-
-        gcItems.put( iitem.getId(), iitem );
-
-        return gcItems;
-    }
-
-    private static class PeerIDItem {
-
-        private PeerID peerid;
-        private long expiry;
-
-        PeerIDItem( PeerID peerid, long ttl ) {
-
-            this.peerid = peerid;
-            this.expiry = TimeUtils.toAbsoluteTimeMillis( ttl );
-        }
-
-        public PeerID getPeerid() {
-
-            return peerid;
-        }
-
-        public long getExpiry() {
-
-            return expiry;
-        }
-
-        public void setExpiry( long expiry ) {
-
-            this.expiry = expiry;
-        }
-
-        Entry toEntry() {
-
-            return new Entry( this.peerid, this.expiry );
+            throw new IOException( th );
         }
     }
-
-    private static class IndexItem {
-
-        private Long id;
-        private String treeKey;
-        PeerIDItem ipid;
-
-        public IndexItem( PeerIDItem ipid, String treeKey ) {
-
-            this.ipid = ipid;
-            this.id = InMemorySrdi.counter++;
-            this.treeKey = treeKey;
-        }
-
-        public String getTreeKey() {
-
-            return treeKey;
-        }
-
-        public Long getId() {
-
-            return id;
-        }
-
-        public PeerIDItem getIpid() {
-
-            return ipid;
-
-        }
-
-    }
-
 }

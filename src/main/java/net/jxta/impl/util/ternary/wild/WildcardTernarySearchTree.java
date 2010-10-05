@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
  *
  *  The Sun Project JXTA(TM) Software License
  *
@@ -61,28 +60,40 @@ import java.util.List;
 public interface WildcardTernarySearchTree<T> {
 
     /**
-     * Insert a new string key and its value to the tree. Throw an IllegalStateException
-     * if there is a conflict.
+     * Get the value E stored at the node referenced with <code>key</code>
+     * If the node does not exist, it is created and the value <code>valueIfCreate</code> is stored
+     *
+     * @param key A string that indexes the object to be stored.
+     * @param valueIfCreate The value to give to the node if is created
+     * @return The value at the node
+     */
+    public T getOrCreate( final String key, final T valueIfCreate );
+
+    /**
+     * Stores a new string key and its value in the tree.
      *
      * @param key The string key of the object
      * @param value The value that need to be stored corresponding to the given key.
+     * @throws IllegalStateException if there is a conflict.
      */
-    public void insert( String key, T value ) throws IllegalStateException;
+    public void put( final String key, final T value )
+        throws IllegalStateException;
 
     /**
-     * Delete a key and its associated value from the tree.
+     * Remove a key and its associated value from the tree.
+     *
      * @param key The key of the node that need to be deleted
      * @return true if deleted
      */
-    public boolean delete( String key );
+    public boolean remove( final String key );
 
     /**
-     * Find a value based on its corresponding key.
+     * Get a value based on its corresponding key.
      *
      * @param key The key for which to search the tree.
      * @return The value corresponding to the key. null if it can not find the key
      */
-    public T find( String key );
+    public T get( final String key );
 
     /**
      * Check if the tree contains any entry corresponding to the given key.
@@ -90,37 +101,61 @@ public interface WildcardTernarySearchTree<T> {
      * @param key The key that need to be searched in the tree.
      * @return return true if the key is present in the tree otherwise false
      */
-    public boolean contains( String key );
+    public boolean contains( final String key );
 
     /**
-     * Search for all the keys for a match against the given search term.
+     * Search for all the values for a match against the given search term.
      *
-     * @param term The search term must contain one and only one wild card character: *.
-     *        The wild card can be placed at the beginning, the end or any point within the search term.
-     *        The position of the wild card will dictate the nature of the search: prefix, suffix or intersection of both prefix and suffix
-     * @param threshhold The maximum number of keys to return
-     * @return The list of keys that match the given search term
+     * @param term The search term can contain one or more wild card character: *.
+     *  The wild cards can be placed at the beginning, the end or any point within the search term.
+     * @param listener A {@link WildcardTernarySearchTreeMatchListener} which will receive all data as it is found
+     *  and can stop the search at any time
+     * @return The list of values that match the given search term
      * @throws IllegalArgumentException if the search term does not match the expected format
      */
-    public List<String> search( String term, int threshold ) throws IllegalArgumentException;
+    public List<T> search( final String term, final WildcardTernarySearchTreeMatchListener<T> listener )
+        throws IllegalArgumentException;
 
     /**
      * Return the size of the tree
+     *
      * @return the size of the tree
      */
-    public long getSize();
-
-    /** Returns alphabetical list of all keys in the tree that begin with prefix. Only keys for nodes having non-null data
-     *   are included in the list.
-     *   @param prefix Each key returned from this method will begin with the characters in prefix.
-     *   @param threshhold The maximum number of keys to return
-     *   @return DoublyLinkedList An implementation of a LinkedList that is java 1.1 compatible.
-     */
-    public List<String> matchPrefix( String prefix, int threshold );
+    public long getSize(  );
 
     /**
-     * Allow all heap space used by this tree to be garbage collected 
+     * Returns a list of all values in the tree that begin with prefix. Only keys for nodes having non-null data are included in the list.
+     *
+     * @param prefix Each key returned from this method will begin with the characters in prefix.
+     * @param listener A {@link WildcardTernarySearchTreeMatchListener} which will receive all data as it is found
+     *  and can stop the search at any time
+     * @return The list of values that match the given prefix
      */
-    public void deleteTree();
+    public List<T> matchPrefix( final String prefix, final WildcardTernarySearchTreeMatchListener<T> listener );
+
+    /**
+     * Allow all heap space used by this tree to be garbage collected
+     */
+    public void deleteTree(  );
+
+    /**
+     * Dumps the prefix and suffix trees to stdout
+     */
+    public void printTree(  );
+
+    /**
+     * Traverse the entire prefix tree.calling the listener for each data node found
+     * Used for tree inspection
+     * @param listener A {@link WildcardTernarySearchTreeMatchListener} which will receive all data as it is found
+     *  and can stop the search at any time
+     */
+    public void walkPrefixTree( final WildcardTernarySearchTreeMatchListener<T> listener );
+
+    /**
+    * Traverse the entire suffix tree.calling the listener for each data node found
+    * Used for tree inspection
+    * @param listener A {@link WildcardTernarySearchTreeMatchListener} which will receive all data as it is found
+    *  and can stop the search at any time
+    */
+    public void walkSuffixTree( final WildcardTernarySearchTreeMatchListener<T> listener );
 }
-    
