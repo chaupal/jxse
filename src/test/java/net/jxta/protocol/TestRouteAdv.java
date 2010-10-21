@@ -59,6 +59,7 @@ package net.jxta.protocol;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import junit.framework.*;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -85,6 +86,9 @@ import net.jxta.id.TestIDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.NetworkConfigurator;
+import net.jxta.platform.NetworkManager;
+import net.jxta.platform.NetworkManager.ConfigMode;
 
 import net.jxta.impl.protocol.RouteQuery;
 import net.jxta.impl.protocol.RouteResponse;
@@ -95,7 +99,6 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import net.jxta.test.util.JUnitRuleMockery;
 import net.jxta.util.DevNullOutputStream;
-import net.jxta.impl.membership.pse.TestPSEMembershipServiceSupport;
 
 
 /**
@@ -104,17 +107,24 @@ import net.jxta.impl.membership.pse.TestPSEMembershipServiceSupport;
 
 public class TestRouteAdv extends TestCase {
 
-    @Rule
-    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
+	@Rule
+    public TemporaryFolder tempStorage = new TemporaryFolder();
 
-    protected java.io.File storeRoot;
-
-    @Rule
-    public TemporaryFolder testFileStore = new TemporaryFolder();
+    private NetworkManager aliceManager;
 
     @Before
     public void setUp() throws Exception {
-        storeRoot = testFileStore.getRoot();
+    }
+
+    private void configureForHttp(NetworkManager manager, int port) throws IOException {
+            NetworkConfigurator configurator = manager.getConfigurator();
+            configurator.setTcpEnabled(false);
+            configurator.setHttp2Enabled(false);
+
+            configurator.setHttpEnabled(true);
+            configurator.setHttpIncoming(true);
+            configurator.setHttpOutgoing(true);
+            configurator.setHttpPort(port);
     }
     
     public TestRouteAdv(java.lang.String testName) {
@@ -496,7 +506,10 @@ public class TestRouteAdv extends TestCase {
         route.setHops(hops);
 
         try {
-            PeerGroup peerGroup = TestPSEMembershipServiceSupport.createGroupWithPSEMembership(PeerGroupID.defaultNetPeerGroupID, "group1", new java.io.File(storeRoot, "keystore.ks"));
+            aliceManager = new NetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
+            configureForHttp(aliceManager, 59901);
+            aliceManager.startNetwork();
+            PeerGroup peerGroup = aliceManager.getNetPeerGroup();
 
             PeerID pid = TestIDFactory.newPeerID(IDFactory.newPeerGroupID());
             Set badHops = new HashSet();

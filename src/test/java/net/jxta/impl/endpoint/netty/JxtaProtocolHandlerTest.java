@@ -2,10 +2,6 @@ package net.jxta.impl.endpoint.netty;
 
 import static net.jxta.impl.endpoint.netty.NettyTestUtils.*;
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import net.jxta.impl.membership.pse.TestPSEMembershipServiceSupport;
 
 import java.io.IOException;
 import java.net.InetAddress;

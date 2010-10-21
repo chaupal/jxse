@@ -57,6 +57,7 @@
 package net.jxta.endpoint;
 
 
+import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -76,7 +77,9 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.JUnitRuleMockery;
 import net.jxta.util.DevNullOutputStream;
-import net.jxta.impl.membership.pse.TestPSEMembershipServiceSupport;
+import net.jxta.platform.NetworkConfigurator;
+import net.jxta.platform.NetworkManager;
+import net.jxta.platform.NetworkManager.ConfigMode;
 
 
 /**
@@ -85,17 +88,27 @@ import net.jxta.impl.membership.pse.TestPSEMembershipServiceSupport;
  */
 public class SerializationPerformanceTest extends TestCase {
 
-    @Rule
-    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
+	@Rule
+    public TemporaryFolder tempStorage = new TemporaryFolder();
     
-    protected java.io.File storeRoot;
-
-    @Rule
-    public TemporaryFolder testFileStore = new TemporaryFolder();
+    private NetworkManager aliceManager;
 
     @Before
     public void setUp() throws Exception {
-        storeRoot = testFileStore.getRoot();
+        aliceManager = new NetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
+        configureForHttp(aliceManager, 59901);
+        aliceManager.startNetwork();
+    }
+
+    private void configureForHttp(NetworkManager manager, int port) throws IOException {
+            NetworkConfigurator configurator = manager.getConfigurator();
+            configurator.setTcpEnabled(false);
+            configurator.setHttp2Enabled(false);
+
+            configurator.setHttpEnabled(true);
+            configurator.setHttpIncoming(true);
+            configurator.setHttpOutgoing(true);
+            configurator.setHttpPort(port);
     }
     
     private static final MimeMediaType appMsg = new MimeMediaType("application/x-jxta-msg");
@@ -116,16 +129,12 @@ public class SerializationPerformanceTest extends TestCase {
 
         return suite;
     }
-
-    private PeerGroup createGroup(final PeerGroupID groupId, final String name) {
-        return TestPSEMembershipServiceSupport.createGroupWithPSEMembership(groupId, name, new java.io.File(storeRoot, "keystore.ks"));
-    }
     
     public void testSerialPerformance() {
         try {
             Message msg = new Message();
 
-            PeerGroup group = createGroup(PeerGroupID.defaultNetPeerGroupID, "group1");
+            PeerGroup group = aliceManager.getNetPeerGroup();
             
             WireFormatMessage init = WireFormatMessageFactory.toWireExternal(msg, appMsg, null, group);
             
