@@ -63,6 +63,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.impl.endpoint.mcast.McastTransport;
+import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
@@ -120,7 +121,7 @@ public class Platform extends StdPeerGroup {
         // "Core" Services
         paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
         paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, PeerGroup.refMembershipSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
         paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
 
         // "Standard" Services

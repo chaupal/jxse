@@ -461,7 +461,7 @@ public final class DialogAuthenticator extends StringAuthenticator implements In
      * {@inheritDoc}
      **/
     public boolean interact() {
-        PasswordDialog p = new PasswordDialog(source.group.getPeerID(), seedCert, seedKey);
+        PasswordDialog p = new PasswordDialog(source.getPeerGroup().getPeerID(), seedCert, seedKey);
         
         p.showDialog();
         

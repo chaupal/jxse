@@ -634,7 +634,8 @@ public final class PSEConfig {
             KeyStore store = keystore_manager.loadKeyStore(keystore_password);
 
             // Remove any existing entry.
-            store.deleteEntry(alias);
+            if (store.isKeyEntry(alias))
+                store.deleteEntry(alias);
 
             store.setKeyEntry(alias, key, key_password, certchain);
 

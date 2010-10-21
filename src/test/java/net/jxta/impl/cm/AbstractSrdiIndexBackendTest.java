@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import net.jxta.id.IDFactory;
+import net.jxta.id.TestIDFactory;
 import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.impl.util.FakeSystemClock;
 import net.jxta.impl.util.JavaSystemClock;
@@ -161,7 +161,7 @@ public abstract class AbstractSrdiIndexBackendTest {
 	public void testBulkAddAndRemove() throws Exception {
 		Queue<PeerID> peers = new LinkedList<PeerID>();
 		for(int i=0; i < 100; i++) {
-			PeerID peer = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+			PeerID peer = TestIDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
 			peers.add(peer);
 			srdiIndex.add("a", "b", "c", peer, 1000L);
 		}
@@ -275,12 +275,12 @@ public abstract class AbstractSrdiIndexBackendTest {
 		PeerID[] ids = new PeerID[500];
 		PeerID[] nonExpired = new PeerID[250];
 		for(int i=0; i < 250; i++) {
-			ids[i] = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+			ids[i] = TestIDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
 			srdiIndex.add("a", "b", "c", ids[i], 1000L * i);
 		}
 		
 		for(int i=0; i < 250; i++) {
-			ids[i+250] = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+			ids[i+250] = TestIDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
 			nonExpired[i] = ids[i+250];
 			srdiIndex.add("a", "b", "c", ids[i+250], 1000L * (i+250));
 		}

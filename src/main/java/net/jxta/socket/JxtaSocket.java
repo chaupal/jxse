@@ -916,8 +916,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         // calls getInputStream() would likely cause us to drop messages.
         if (isReliable) {
             outgoing = makeOutgoing(remoteEphemeralPipeMsgr, retryTimeout);
-            ris = new ReliableInputStream(outgoing, soTimeout);
-            ros = new ReliableOutputStream(outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService());
+            ris = new ReliableInputStream(group, outgoing, soTimeout);
+            ros = new ReliableOutputStream(group, outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService());
             try {
                 ros.setSendBufferSize(outputBufferSize);
             } catch (IOException ignored) {// it's only a preference...

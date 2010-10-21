@@ -85,7 +85,7 @@ public class SystemTestUtils {
         //TODO We have an issue on initialisation which means need to wait for services to be running before executing test. Only effects relay tests.
         Thread.sleep(5000);
         JxtaBiDiPipe bobPipe = connectNonBlocking(bobManager, aliceServerPipe.getPipeAdv(), bobListener);
-        
+
         assertTrue(pipeEstablished.await(5, TimeUnit.SECONDS));
         aliceAcceptedPipe.get().setMessageListener(aliceListener);
         
@@ -97,8 +97,8 @@ public class SystemTestUtils {
     }
 
     private static JxtaBiDiPipe connectNonBlocking(NetworkManager clientManager,
-												 PipeAdvertisement pipeAdv,
-												 PipeMsgListener clientListener) throws IOException
+                                                 PipeAdvertisement pipeAdv,
+                                                 PipeMsgListener clientListener) throws IOException
     {
         final JxtaBiDiPipe biDiPipe = new JxtaBiDiPipe();
         biDiPipe.setWindowSize(20);
@@ -106,19 +106,19 @@ public class SystemTestUtils {
         return biDiPipe;
     }
 
-	private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager, 
-												 PipeAdvertisement pipeAdv, 
-												 PipeMsgListener clientListener) throws IOException {
-		int tryCount = 0;
-		while(true) {
-			try {
-				return new JxtaBiDiPipe(clientManager.getNetPeerGroup(), pipeAdv, 5000, clientListener);
-			} catch (SocketTimeoutException e) {
-				tryCount++;
-				if(tryCount >= 3) {
-					throw e;
-				}
-			}
-		}
-	}
+    private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager,
+                                                 PipeAdvertisement pipeAdv,
+                                                 PipeMsgListener clientListener) throws IOException {
+        int tryCount = 0;
+        while(true) {
+            try {
+                return new JxtaBiDiPipe(clientManager.getNetPeerGroup(), pipeAdv, 5000, clientListener);
+            } catch (SocketTimeoutException e) {
+                tryCount++;
+                if(tryCount >= 3) {
+                        throw e;
+                }
+            }
+        }
+    }
 }

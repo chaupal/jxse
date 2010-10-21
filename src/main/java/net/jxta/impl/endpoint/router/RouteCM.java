@@ -430,6 +430,11 @@ class RouteCM implements Module {
      * @param route advertisement to be published
      */
     protected void publishRoute(RouteAdvertisement route) {
+        //"Bug fix. The route could be null if the "Enable Incoming Connections" is disabled when the HTTP transport is configured."
+        if(route==null)
+        {
+            return;
+        }
         DiscoveryService discovery;
                 
         // check if CM is in used, if not nothing to do

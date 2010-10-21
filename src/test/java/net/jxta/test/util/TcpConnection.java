@@ -75,6 +75,8 @@ import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.util.LimitInputStream;
 import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
@@ -541,11 +543,18 @@ public class TcpConnection implements Runnable {
             
             boolean success = false;
             long size = 0;
+
+            PeerGroup peerGroup=null;
+            try {
+                peerGroup = PeerGroupFactory.newNetPeerGroup();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             
             try {
                 // 20020730 bondolo@jxta.org Do something with content-coding here
                 // serialize the message.
-                WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, appMsg, (MimeMediaType[]) null);
+                WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(msg, appMsg, (MimeMediaType[]) null, peerGroup);
                 
                 // Build the protocol header
                 // Allocate a buffer to contain the message and the header

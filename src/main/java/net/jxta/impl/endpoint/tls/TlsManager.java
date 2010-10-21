@@ -186,8 +186,9 @@ class TlsManager implements EndpointListener {
             if (null == conn) {
 
                 try {
-
-                    conn = new TlsConn(transport, dstAddr, true); // true means client
+                    PSECredentialBridge pseCredentialBridge = new PSECredentialBridge();
+                    transport.pseMembershipKeyBridge(pseCredentialBridge);
+                    conn = new TlsConn(transport, dstAddr, true, pseCredentialBridge.privateKey); // true means client
 
                 } catch (Exception failed) {
 
@@ -392,7 +393,9 @@ class TlsManager implements EndpointListener {
 
                     try {
 
-                        conn = new TlsConn(transport, srcAddr, false); // false means Server
+                        PSECredentialBridge pseCredentialBridge = new PSECredentialBridge();
+                        transport.pseMembershipKeyBridge(pseCredentialBridge);
+                        conn = new TlsConn(transport, srcAddr, false, pseCredentialBridge.privateKey); // false means Server
 
                     } catch (Exception failed) {
 
@@ -597,5 +600,15 @@ class TlsManager implements EndpointListener {
         }
         
         return seqN;
+    }
+
+    final public static class PSECredentialBridge {
+        private java.security.PrivateKey privateKey = null;
+        private PSECredentialBridge() {
+
+        }
+        public void setPrivateKey(java.security.PrivateKey privateKey) {
+            this.privateKey = privateKey;
+        }
     }
 }

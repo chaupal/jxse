@@ -2,6 +2,10 @@ package net.jxta.impl.endpoint.netty;
 
 import static net.jxta.impl.endpoint.netty.NettyTestUtils.*;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+import net.jxta.impl.membership.pse.TestPSEMembershipServiceSupport;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -63,7 +67,7 @@ public class JxtaProtocolHandlerTest {
             throw new RuntimeException("Bad address in test");
         }
     }
-
+    
     private FakeChannel channel;
     private JxtaProtocolHandler handler;
     private FakeTimer timeoutTimer;
@@ -328,7 +332,7 @@ public class JxtaProtocolHandlerTest {
 
     private ChannelBuffer serializeMessage(Message testMessage) {
         WireFormatMessage serializedMessage = WireFormatMessageFactory.toWire(testMessage, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
-        ByteBuffer[] messageBody = serializedMessage.getByteBuffers();
+        ByteBuffer[] messageBody = serializedMessage.getUnsignedByteBuffers();
         
         return ChannelBuffers.wrappedBuffer(messageBody);
     }

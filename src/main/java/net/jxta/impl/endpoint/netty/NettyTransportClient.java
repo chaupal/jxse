@@ -48,6 +48,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
     
     private EndpointAddress localAddress;
     
+    private PeerGroup group;
     private PeerGroupID homeGroupID;
     private PeerID localPeerID;
     private EndpointService endpointService;
@@ -74,6 +75,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         
         localAddress = returnAddress;
         
+        this.group = group;
         this.homeGroupID = group.getPeerGroupID();
         this.localPeerID = group.getPeerID();
         
@@ -138,7 +140,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         ClientConnectionRegistrationHandler clientRegistry = new ClientConnectionRegistrationHandler();
         
         ClientBootstrap bootstrap = new ClientBootstrap(clientFactory);
-        bootstrap.setPipelineFactory(new NettyTransportChannelPipelineFactory(localPeerID, timeoutTimer, clientRegistry, addrTranslator, dest, returnAddress));
+        bootstrap.setPipelineFactory(new NettyTransportChannelPipelineFactory(group, localPeerID, timeoutTimer, clientRegistry, addrTranslator, dest, returnAddress));
         
         ChannelFuture connectFuture = bootstrap.connect(addrTranslator.toSocketAddress(dest));
         

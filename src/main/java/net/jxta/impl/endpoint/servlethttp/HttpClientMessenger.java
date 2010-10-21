@@ -440,7 +440,7 @@ final class HttpClientMessenger extends BlockingMessenger {
             beginConnectTime = TimeUtils.timeNow();
         }
         
-        WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE, null);
+        WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(msg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE, null, this.servletHttpTransport.group);
         
         for (int connectAttempt = 1; connectAttempt <= CONNECT_RETRIES; connectAttempt++) {
 
@@ -800,7 +800,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                             long messageReceiveStart = TimeUtils.timeNow();
                             Message incomingMsg;
                             
-                            incomingMsg = WireFormatMessageFactory.fromWire(inputStream, messageType, null);
+                            incomingMsg = WireFormatMessageFactory.fromWireExternal(inputStream, messageType, null, HttpClientMessenger.this.servletHttpTransport.group);
                             
                             if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
                                 transportBindingMeter.messageReceived(true, incomingMsg, incomingMsg.getByteLength(),

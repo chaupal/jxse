@@ -61,7 +61,8 @@ import net.jxta.document.XMLElement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.impl.content.ContentServiceImpl;
-import net.jxta.impl.membership.none.NoneMembershipService;
+//import net.jxta.impl.membership.none.NoneMembershipService;
+import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Application;
 import net.jxta.platform.Module;
@@ -95,7 +96,7 @@ public class ShadowPeerGroup extends StdPeerGroup {
         // "Core" Services
         paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
         paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, NoneMembershipService.noneMembershipSpecID);
+        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
         paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
 
         // "Standard" Services
@@ -114,7 +115,7 @@ public class ShadowPeerGroup extends StdPeerGroup {
          */
 //        // High-level Message Transports.
         paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
-//        paramAdv.addProto(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
+        paramAdv.addProto(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
 //        paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
         paramAdv.addProto(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
 

@@ -196,7 +196,7 @@ class TlsConn {
     /**
      * Create a new connection
      */
-    TlsConn(TlsTransport tp, EndpointAddress destAddr, boolean client) throws Exception {
+    TlsConn(TlsTransport tp, EndpointAddress destAddr, boolean client, java.security.PrivateKey privateKey) throws Exception {
 
         this.transport = tp;
         this.destAddr = destAddr;
@@ -245,7 +245,7 @@ class TlsConn {
 
         javax.net.ssl.TrustManager[] tms = tmf.getTrustManagers();
 
-        javax.net.ssl.KeyManager[] kms = new javax.net.ssl.KeyManager[]{new PSECredentialKeyManager(transport.credential, trusted)};
+        javax.net.ssl.KeyManager[] kms = new javax.net.ssl.KeyManager[]{new PSECredentialKeyManager(transport.credential, trusted, privateKey)};
 
         context = SSLContext.getInstance("TLS");
         context.init(kms, tms, null);
@@ -449,7 +449,7 @@ class TlsConn {
 
         try {
 
-            WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, JTlsDefs.MTYPE, null);
+            WireFormatMessage serialed = WireFormatMessageFactory.toWireExternalWithTls(msg, JTlsDefs.MTYPE, null, transport.getPeerGroup());
             serialed.sendToStream(new IgnoreFlushFilterOutputStream(plaintext_out));
             plaintext_out.flush();
 
@@ -490,7 +490,7 @@ class TlsConn {
             try {
                 while (true) {
                     try {
-                        Message msg = WireFormatMessageFactory.fromWire(ptin, JTlsDefs.MTYPE, null);
+                        Message msg = WireFormatMessageFactory.fromWireExternalWithTls(ptin, JTlsDefs.MTYPE, null, transport.getPeerGroup());
 
                         if (null == msg) {
                             break;
@@ -537,12 +537,14 @@ class TlsConn {
      */
     private static class PSECredentialKeyManager implements javax.net.ssl.X509KeyManager {
 
+        java.security.PrivateKey privateKey;
         PSECredential cred;
         KeyStore trusted;
 
-        public PSECredentialKeyManager(PSECredential useCred, KeyStore trusted) {
+        public PSECredentialKeyManager(PSECredential useCred, KeyStore trusted, java.security.PrivateKey privateKey) {
             this.cred = useCred;
             this.trusted = trusted;
+            this.privateKey = privateKey;
         }
 
         /**
@@ -671,7 +673,7 @@ class TlsConn {
          */
         public java.security.PrivateKey getPrivateKey(String alias) {
             if (alias.equals("theone")) {
-                return cred.getPrivateKey();
+                return privateKey;
             } else {
                 return null;
             }

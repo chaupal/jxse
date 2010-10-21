@@ -62,13 +62,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import junit.framework.*;
+import org.jmock.Expectations;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupID;
+import net.jxta.test.util.JUnitRuleMockery;
 import net.jxta.util.DevNullOutputStream;
+import net.jxta.impl.membership.pse.TestPSEMembershipServiceSupport;
 
 
 /**
@@ -76,6 +84,19 @@ import net.jxta.util.DevNullOutputStream;
  * @author mike
  */
 public class SerializationPerformanceTest extends TestCase {
+
+    @Rule
+    public JUnitRuleMockery mockContext = new JUnitRuleMockery();
+    
+    protected java.io.File storeRoot;
+
+    @Rule
+    public TemporaryFolder testFileStore = new TemporaryFolder();
+
+    @Before
+    public void setUp() throws Exception {
+        storeRoot = testFileStore.getRoot();
+    }
     
     private static final MimeMediaType appMsg = new MimeMediaType("application/x-jxta-msg");
     
@@ -95,12 +116,18 @@ public class SerializationPerformanceTest extends TestCase {
 
         return suite;
     }
+
+    private PeerGroup createGroup(final PeerGroupID groupId, final String name) {
+        return TestPSEMembershipServiceSupport.createGroupWithPSEMembership(groupId, name, new java.io.File(storeRoot, "keystore.ks"));
+    }
     
     public void testSerialPerformance() {
         try {
             Message msg = new Message();
+
+            PeerGroup group = createGroup(PeerGroupID.defaultNetPeerGroupID, "group1");
             
-            WireFormatMessage init = WireFormatMessageFactory.toWire(msg, appMsg, null);
+            WireFormatMessage init = WireFormatMessageFactory.toWireExternal(msg, appMsg, null, group);
             
             final int startCount = 1;
             final int endCount = 250;
@@ -132,7 +159,7 @@ public class SerializationPerformanceTest extends TestCase {
                     for (int repeat = 1; repeat <= repeats; repeat++) {
                         OutputStream out = new ByteArrayOutputStream();
                         
-                        WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, appMsg, null);
+                        WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(msg, appMsg, null, group);
                         
                         serialed.sendToStream(out);
                     }
@@ -154,7 +181,6 @@ public class SerializationPerformanceTest extends TestCase {
                 System.err.println(count + "," + addCost + "," + serialCost);
             }
         } catch (Throwable caught) {
-            caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
         }
     }

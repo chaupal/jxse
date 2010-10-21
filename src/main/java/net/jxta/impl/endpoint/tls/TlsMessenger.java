@@ -179,7 +179,7 @@ public class TlsMessenger extends BlockingMessenger {
             throw failure;
 
         }
-        
+
         // Set the message with the appropriate src and dest address
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, srcAddressElement);
         

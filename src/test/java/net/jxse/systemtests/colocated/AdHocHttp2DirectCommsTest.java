@@ -52,4 +52,14 @@ public class AdHocHttp2DirectCommsTest {
 	public void testSimpleComms() throws Exception {
 		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
 	}
+
+        public static void main(String[] args) {
+            try {
+                AdHocHttp2DirectCommsTest t = new AdHocHttp2DirectCommsTest();
+                t.initPeers();
+                t.testSimpleComms();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
 }

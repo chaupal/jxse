@@ -67,7 +67,10 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.membership.pse.PSECredential;
+import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.net.URI;
@@ -90,11 +93,19 @@ public class RouteQuery  {
     private static final String destPIDTag = "Dst";
     private static final String srcRouteTag = "Src";
     private static final String badHopTag = "Bad";
+    private PeerGroup group = null;
 
     /**
      * Default Constructor
      */
     public RouteQuery() {}
+
+    public RouteQuery(PeerID dest, RouteAdvertisement srcRoute, Collection<PeerID> badhops, PeerGroup paramGroup) {
+        setDestPeerID(dest);
+        setSrcRoute(srcRoute);
+        setBadHops(badhops);
+        this.group=paramGroup;
+    }
 
     /**
      * All messages have a type (in xml this is !doctype)
@@ -104,7 +115,16 @@ public class RouteQuery  {
      */
     public static String getAdvertisementType() {
         return "jxta:ERQ";
-    }   
+    }
+
+    /**
+     * set the peergroup
+     *
+     * @param peerGroup PeerGroup
+     */
+    public void setPeerGroup(PeerGroup peerGroup) {
+        group = peerGroup;
+    }
     
     /**
      * set the destination PeerID we are searching a route for
@@ -187,7 +207,8 @@ public class RouteQuery  {
      *
      * @param doc the element
      */
-    public RouteQuery(XMLElement doc) {
+    public RouteQuery(XMLElement doc, PeerGroup paramGroup) {
+        this.group=paramGroup;
         String doctype = doc.getName();
         
         if (!doctype.equals(getAdvertisementType())) {
@@ -268,7 +289,10 @@ public class RouteQuery  {
         if (route != null) {
             e = adv.createElement(srcRouteTag);
             adv.appendChild(e);
-            StructuredDocument xptDoc = (StructuredDocument) route.getDocument(asMimeType);
+            PSEMembershipService tempPSE = (PSEMembershipService)this.group.getMembershipService();
+            PSECredential tempCred = (PSECredential)tempPSE.getDefaultCredential();
+            route.sign(tempCred, true, true);
+            StructuredDocument xptDoc = (StructuredDocument) route.getSignedDocument();
 
             StructuredDocumentUtils.copyElements(adv, e, xptDoc);
         }

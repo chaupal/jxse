@@ -67,7 +67,7 @@ import java.security.cert.X509Certificate;
 
 /**
  *
- * @author  aubergine
+ * PSEAuthenticatorEngine
  */
 public interface PSEAuthenticatorEngine {
     

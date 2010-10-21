@@ -529,7 +529,7 @@ public class JxtaServerPipe implements PipeMsgListener {
                 new TextDocumentMessageElement(remPipeTag, (XMLDocument) pipeAd.getDocument(MimeMediaType.XMLUTF8), null));
 
         msg.addMessageElement(nameSpace,
-                new TextDocumentMessageElement(remPeerTag, (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
+                new TextDocumentMessageElement(remPeerTag, (XMLDocument) peerAdv.getSignedDocument(), null));
         if (msgr instanceof TcpMessenger) {
             ((TcpMessenger) msgr).sendMessageDirect(msg, null, null, true);
         } else {

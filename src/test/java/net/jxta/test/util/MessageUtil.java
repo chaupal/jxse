@@ -70,6 +70,8 @@ import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
@@ -114,7 +116,14 @@ public class MessageUtil {
 
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
 
-        EndpointRouterMessage erm = new EndpointRouterMessage(message, true);
+        PeerGroup peerGroup=null;
+        try {
+            peerGroup = PeerGroupFactory.newNetPeerGroup();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        EndpointRouterMessage erm = new EndpointRouterMessage(message, true, peerGroup);
 
         erm.setSrcAddress(new EndpointAddress("jxta://" + srcPeer.getUniqueValue().toString()));
         erm.setDestAddress(
@@ -146,10 +155,17 @@ public class MessageUtil {
             CountingOutputStream cnt;
             Iterator en = msg.getMessageElements();
 
+            PeerGroup peerGroup=null;
+            try {
+                peerGroup = PeerGroupFactory.newNetPeerGroup();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             System.out.println("------------------Begin Message---------------------");
-            WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, new MimeMediaType("application/x-jxta-msg")
+            WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(msg, new MimeMediaType("application/x-jxta-msg")
                     ,
-                    (MimeMediaType[]) null);
+                    (MimeMediaType[]) null, peerGroup);
 
             System.out.println("Message Size :" + serialed.getByteLength());
             while (en.hasNext()) {

@@ -68,6 +68,7 @@ import java.util.Map;
 import java.util.Properties;
 import net.jxse.configuration.JxsePeerConfiguration.ConnectionMode;
 import net.jxta.id.IDFactory;
+import net.jxta.id.TestIDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import org.junit.After;
@@ -295,7 +296,7 @@ public class JxsePeerConfigurationTest {
 
         assertTrue(Source.getPeerID()==null);
 
-        PeerID TempPID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
+        PeerID TempPID = TestIDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
 
         Source.setPeerID(TempPID);
         assertTrue(Source.getPeerID().toString().compareTo(TempPID.toString())==0);
@@ -303,7 +304,7 @@ public class JxsePeerConfigurationTest {
         Source.setPeerID(null);
         assertTrue(Source.getPeerID()==null);
 
-        PeerID TempPID2 = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
+        PeerID TempPID2 = TestIDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
 
         Source.setPeerID(TempPID2);
         assertTrue(Source.getPeerID().toString().compareTo(TempPID2.toString())==0);
@@ -892,7 +893,7 @@ public class JxsePeerConfigurationTest {
         URI KSL = new File("aze").toURI(); Source.setKeyStoreLocation(KSL);
         URI LS = new File("eze").toURI(); Source.setPersistenceLocation(LS);
         Source.setMulticastEnabled(false);
-        PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID); Source.setPeerID(PID);
+        PeerID PID = TestIDFactory.newPeerID(PeerGroupID.worldPeerGroupID); Source.setPeerID(PID);
         Source.setPeerInstanceName("Zoubidoo");
         Source.setRelayMaxClients(3456);
         Source.setRendezvousMaxClients(6666);
