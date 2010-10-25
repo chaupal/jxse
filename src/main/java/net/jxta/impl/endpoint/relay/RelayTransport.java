@@ -181,9 +181,12 @@ public final class RelayTransport implements EndpointListener, Module {
 
             if (adv instanceof RelayConfigAdv) {
                 relayConfigAdv = (RelayConfigAdv) adv;
-            } else {
-                relayConfigAdv = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType());
             }
+
+        }
+
+        if ( relayConfigAdv == null ) {
+            relayConfigAdv = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType());
         }
 
         // XXX bondolo 20041030 I'd like to move these to startApp so that we 

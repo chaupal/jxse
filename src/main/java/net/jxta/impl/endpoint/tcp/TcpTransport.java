@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.tcp;
 
 import net.jxta.document.Advertisement;
@@ -86,7 +87,6 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetAddress;
@@ -101,13 +101,23 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EmptyStackException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements the TCP Message Transport.
@@ -600,13 +610,14 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
             StringBuilder configInfo = new StringBuilder("Configuring TCP Message Transport : " + assignedID);
 
-            if (implAdvertisement != null) {
+            // We are assuming it's not null earlier (FindBugs)
+//            if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
                 configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
                 configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
                 configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
-            }
+//            }
 
             configInfo.append("\n\tGroup Params:");
             configInfo.append("\n\t\tGroup : ").append(group);

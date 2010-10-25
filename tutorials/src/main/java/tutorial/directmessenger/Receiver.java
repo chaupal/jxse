@@ -87,7 +87,7 @@ public class Receiver {
     
     private static boolean stopped = false;
     
-    private static String shutDown = new String("shutdown");
+    private static String shutDown = "shutdown";
     /**
      * main
      *

@@ -56,7 +56,6 @@
 
 package net.jxta.impl.util;
 
-
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -75,11 +74,9 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleClassAdvertisement;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.ModuleSpecAdvertisement;
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
 
 /**
  * Module Manager.
@@ -123,7 +120,7 @@ import java.util.Hashtable;
 @Deprecated
 public class ModuleManager {
 
-    private static Hashtable<PeerGroupID, ModuleManager> managers = null;
+    private static volatile Hashtable<PeerGroupID, ModuleManager> managers = null;
     private static long LOCAL_ADV_TTL = 5 * 60 * 1000;
     // 5 minutes is more than sufficient
     private static long REMOTE_ADV_TTL = 0;
@@ -375,7 +372,9 @@ public class ModuleManager {
                 }
             }
 
-            module = group.loadModule(mcAdv.getModuleClassID(), mSpecAdv.getModuleSpecID(), PeerGroup.Here);
+            if ( mSpecAdv != null) {
+                module = group.loadModule(mcAdv.getModuleClassID(), mSpecAdv.getModuleSpecID(), PeerGroup.Here);
+            }
 
             if (module != null) {
                 registerModule(moduleName, module);
@@ -565,14 +564,16 @@ public class ModuleManager {
         Element param = mia.getParam();
         Element pel = null;
 
+        Advertisement adv = null;
+
         if (param != null) {
             Enumeration list = param.getChildren(advertismentType);
 
             if (list.hasMoreElements()) {
                 pel = (Element) list.nextElement();
+                adv = AdvertisementFactory.newAdvertisement((XMLElement) pel);
             }
         }
-        Advertisement adv = AdvertisementFactory.newAdvertisement((XMLElement) pel);
 
         return adv;
     }

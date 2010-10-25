@@ -366,7 +366,7 @@ public class AccessList {
         for (Object o : accessMap.values()) {
             Entry entry = (Entry) o;
 
-            if (entry.id == null && entry.name == null) {
+            if (entry.id == null || entry.name == null) {
                 // skip bad entries
                 continue;
             }

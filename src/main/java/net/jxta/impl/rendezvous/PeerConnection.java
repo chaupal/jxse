@@ -245,7 +245,10 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * @return The connected value
      */
     public boolean isConnected() {
-        connected &= (TimeUtils.toRelativeTimeMillis(leasedTil) >= 0);
+        
+        if ( connected ) {
+            connected = (TimeUtils.toRelativeTimeMillis(leasedTil) >= 0);
+        }
 
         return connected;
     }

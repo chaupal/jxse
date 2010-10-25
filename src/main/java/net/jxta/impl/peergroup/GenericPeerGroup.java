@@ -74,7 +74,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -1172,10 +1171,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
                 configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
-
+                configInfo.append("\n\t\tModule Spec ID : ").append(implAdvertisement.getModuleSpecID());
             }
+
             configInfo.append("\n\tGroup Params :");
-            configInfo.append("\n\t\tModule Spec ID : ").append(implAdvertisement.getModuleSpecID());
             configInfo.append("\n\t\tPeer Group ID : ").append(getPeerGroupID());
             configInfo.append("\n\t\tGroup Name : ").append(getPeerGroupName());
             configInfo.append("\n\t\tPeer ID in Group : ").append(getPeerID());

@@ -251,7 +251,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
         final RequestInfo requestInfo = oldRequestInfo;
         executor.schedule(new Runnable() {
             public void run() {
-                requestInfos.remove(new Integer(requestInfo.queryId));
+                requestInfos.remove(requestInfo.queryId);
             }
         }, timeout, TimeUnit.MILLISECONDS);
     }
@@ -296,7 +296,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
         try {
             remoteMonitorResponse = (RemoteMonitorResponse) DocumentSerializableUtilities.getDocumentSerializable(responseElement, RemoteMonitorResponse.class);
-            RequestInfo requestInfo = requestInfos.get(new Integer(queryId));
+            RequestInfo requestInfo = requestInfos.get(queryId);
 
             if (requestInfo != null) {
                 requestInfo.responseReceived = true;
@@ -310,8 +310,8 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                     scheduleLeaseRenewal(requestInfo, leaseLength);
 
                 } else if (remoteMonitorResponse.isMonitorRemoved()) {
-                    requestInfos.remove(new Integer(requestInfo.origRequestId));
-                    requestInfos.remove(new Integer(queryId));
+                    requestInfos.remove(requestInfo.origRequestId);
+                    requestInfos.remove(queryId);
 
                 } else if (remoteMonitorResponse.isCumulativeReport() || remoteMonitorResponse.isMonitorReport()) {
                     MonitorReport monitorReport = remoteMonitorResponse.getMonitorReport();
@@ -320,28 +320,28 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
                 } else if (remoteMonitorResponse.isInvalidFilter()) {
                     MonitorEvent monitorEvent = MonitorEvent.createFailureEvent(MonitorEvent.INVALID_MONITOR_FILTER, requestInfo.peerId, requestInfo.queryId);
                     requestInfo.monitorListener.monitorRequestFailed(monitorEvent);
-                    requestInfos.remove(new Integer(queryId));
+                    requestInfos.remove(queryId);
                 } else if (remoteMonitorResponse.isInvalidReportRate()) {
                     MonitorEvent monitorEvent = MonitorEvent.createFailureEvent(MonitorEvent.INVALID_REPORT_RATE, requestInfo.peerId, requestInfo.queryId);
                     requestInfo.monitorListener.monitorRequestFailed(monitorEvent);
-                    requestInfos.remove(new Integer(queryId));
+                    requestInfos.remove(queryId);
                 } else if (remoteMonitorResponse.isMeteringNotSupported()) {
                     MonitorEvent monitorEvent = MonitorEvent.createFailureEvent(MonitorEvent.REFUSED, requestInfo.peerId, requestInfo.queryId);
                     requestInfo.monitorListener.monitorRequestFailed(monitorEvent);
-                    requestInfos.remove(new Integer(queryId));
+                    requestInfos.remove(queryId);
                 } else if (remoteMonitorResponse.isRequestDenied()) {
                     MonitorEvent monitorEvent = MonitorEvent.createFailureEvent(MonitorEvent.REFUSED, requestInfo.peerId, requestInfo.queryId);
                     requestInfo.monitorListener.monitorRequestFailed(monitorEvent);
                 } else if (remoteMonitorResponse.isPeerMonitorInfo()) {
                     PeerMonitorInfoEvent peerMonitorInfoEvent = new PeerMonitorInfoEvent(requestInfo.peerId, remoteMonitorResponse.getPeerMonitorInfo());
                     requestInfo.peerMonitorInfoListener.peerMonitorInfoReceived(peerMonitorInfoEvent);
-                    requestInfos.remove(new Integer(queryId));
+                    requestInfos.remove(queryId);
                 } else if (remoteMonitorResponse.isLeaseRenewed()) {
                     long lease = remoteMonitorResponse.getLease();
                     int origRequestId = requestInfo.origRequestId;
-                    RequestInfo origRequest = requestInfos.get(new Integer(origRequestId));
+                    RequestInfo origRequest = requestInfos.get(origRequestId);
                     scheduleLeaseRenewal(origRequest, lease);
-                    requestInfos.remove(new Integer(queryId));
+                    requestInfos.remove(queryId);
                 }
             }
         } catch (DocumentSerializationException e) {
@@ -362,7 +362,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
         SelfCancellingTask task = new SelfCancellingTask() {
             public void execute() {
-                if (requestInfos.containsKey(new Integer(queryId))) {
+                if (requestInfos.containsKey(queryId)) {
                     try {
                         if (System.currentTimeMillis() > getTimeout(queryId)) {
                             MonitorEvent monitorEvent = MonitorEvent.createFailureEvent(MonitorEvent.TIMEOUT, requestInfo.peerId, queryId);
@@ -483,7 +483,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     private void handleRemoveMonitorQuery(int queryId, PeerID requestSourceID, RemoteMonitorQuery remoteMonitorQuery, PeerInfoMessenger peerInfoMessenger) {
         try {
             int leaseId = remoteMonitorQuery.getLeaseId();
-            LeaseInfo leaseInfo = leaseInfos.get(new Integer(leaseId));
+            LeaseInfo leaseInfo = leaseInfos.get(leaseId);
 
             if (leaseInfo != null) {
                 MonitorListener monitorListener = leaseInfo.monitorListener;
@@ -535,7 +535,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
     private void handleLeaseRenewalQuery(int queryId, PeerID requestSourceID, RemoteMonitorQuery remoteMonitorQuery, PeerInfoMessenger peerInfoMessenger) throws DocumentSerializationException {
         int leaseId = remoteMonitorQuery.getLeaseId();
-        LeaseInfo leaseInfo = leaseInfos.get(new Integer(leaseId));
+        LeaseInfo leaseInfo = leaseInfos.get(leaseId);
 
         if (leaseInfo != null) {
             long reqLease = remoteMonitorQuery.getLease();
@@ -570,7 +570,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
     private void renewLease(int queryId) {
         try {
-            RequestInfo requestInfo = requestInfos.get(new Integer(queryId));
+            RequestInfo requestInfo = requestInfos.get(queryId);
 
             if (requestInfo != null) {
                 int renewalQueryId = peerInfoServiceImpl.getNextQueryId();
@@ -598,7 +598,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
 
         executor.schedule(new Runnable() {
             public void run() {
-                LeaseInfo leaseInfo = leaseInfos.get(new Integer(leaseId));
+                LeaseInfo leaseInfo = leaseInfos.get(leaseId);
 
                 if (leaseInfo != null) {
                     long currentTime = System.currentTimeMillis();

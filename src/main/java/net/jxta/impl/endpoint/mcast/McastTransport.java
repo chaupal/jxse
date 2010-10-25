@@ -53,6 +53,7 @@
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
+
 package net.jxta.impl.endpoint.mcast;
 
 import net.jxta.document.Advertisement;
@@ -79,8 +80,6 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
-import net.jxta.impl.peergroup.StdPeerGroup;
-import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
@@ -91,7 +90,6 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -430,13 +428,13 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             StringBuilder configInfo = new StringBuilder("Configuring IP Multicast Message Transport : " + assignedID);
 
-            if (implAdvertisement != null) {
+//            if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
                 configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
                 configInfo.append("\n\t\tImpl Description : ").append(implAdvertisement.getDescription());
                 configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
-            }
+//            }
 
             configInfo.append("\n\tGroup Params:");
             configInfo.append("\n\t\tGroup : ").append(group);

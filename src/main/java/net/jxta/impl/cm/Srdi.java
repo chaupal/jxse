@@ -119,7 +119,7 @@ public class Srdi implements SrdiAPI {
         String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
     	createBackend(backendClassName, group, indexName);
 
-        Logging.logCheckedInfo(LOG, "[", ((group == null) ? "none" : group.toString()), "] : Starting SRDI GC Thread for ", indexName);
+        Logging.logCheckedInfo(LOG, "[", group.toString(), "] : Starting SRDI GC Thread for ", indexName);
         
     	startGC(interval);
     }

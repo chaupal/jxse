@@ -176,10 +176,11 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Message with no " + addrType + " address detected: " + msg);
             }
+            return null;
         } else {
             msg.removeMessageElement(element);
+            return new EndpointAddress(element.toString());
         }
         
-        return new EndpointAddress(element.toString());
     }
 }

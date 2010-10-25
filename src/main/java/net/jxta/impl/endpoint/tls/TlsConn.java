@@ -131,8 +131,8 @@ class TlsConn {
      * Time that something "good" last happened on the connection
      */
     long lastAccessed;
-    final String lastAccessedLock = new String("lastAccessedLock");
-    final String closeLock = new String("closeLock");
+    final String lastAccessedLock = "lastAccessedLock";
+    final String closeLock = "closeLock";
     /**
      * Number of retransmissions we have received.
      */
@@ -158,7 +158,7 @@ class TlsConn {
      * A string which we can lock on while acquiring new messengers. We don't
      * want to lock the whole connection object.
      */
-    private final String acquireMessengerLock = new String("Messenger Acquire Lock");
+    private final String acquireMessengerLock = "Messenger Acquire Lock";
     /**
      * Cached messenger for sending to {@link #destAddr}
      */

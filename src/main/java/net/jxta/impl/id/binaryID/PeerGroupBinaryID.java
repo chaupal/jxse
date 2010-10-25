@@ -211,11 +211,15 @@ public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
         net.jxta.peergroup.PeerGroupID result = null;
 
         try {
+
+            String idd = id;
+            int parentStart = -1;
+
             if (id == null) {
                 result = (net.jxta.peergroup.PeerGroupID) net.jxta.id.ID.nullID;
+            } else {
+                parentStart = id.indexOf('.');
             }
-            String idd = id;
-            int parentStart = idd.indexOf('.');
 
             if (parentStart != -1) {
                 idd = idd.substring(parentStart + 1);

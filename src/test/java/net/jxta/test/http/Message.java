@@ -217,7 +217,7 @@ public class Message {
                 value = fields[i].get(this);
 
                 if (value == null) {
-                    value = new String("null");
+                    value = "null";
                 }
 
                 map.put(object, value);

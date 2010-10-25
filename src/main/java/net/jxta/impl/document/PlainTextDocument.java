@@ -56,15 +56,21 @@
 
 package net.jxta.impl.document;
 
-
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
-
-import java.io.*;
 import java.security.ProviderException;
-
 
 /**
  * This class is an implementation of the StructuredDocument interface using
@@ -173,7 +179,7 @@ public class PlainTextDocument extends PlainTextElement implements StructuredTex
             printNice(stringOut, 0, true);
             stringOut.close();
         } catch (IOException caught) {
-            return null;
+            return caught.toString();
         }
 
         return stringOut.toString();

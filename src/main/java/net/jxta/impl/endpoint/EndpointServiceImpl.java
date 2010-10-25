@@ -261,7 +261,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * Provides emulation of the legacy send-message-with-listener and get-messenger-with-listener APIs.
      */
-    private static ListenerAdaptor listenerAdaptor;
+    private static volatile ListenerAdaptor listenerAdaptor;
 
     /**
      * The cache of channels. If a given owner of this EndpointService interface
@@ -2165,17 +2165,17 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
     }
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This is rather heavy-weight if instances are frequently created and
-     * discarded since finalization significantly delays GC.
-     */
-    @Override
-    protected void finalize() throws Throwable {
-
-        super.finalize();
-
-    }
+//    /**
+//     * {@inheritDoc}
+//     * <p/>
+//     * This is rather heavy-weight if instances are frequently created and
+//     * discarded since finalization significantly delays GC.
+//     */
+//    @Override
+//    protected void finalize() throws Throwable {
+//
+//        super.finalize();
+//
+//    }
 
 }

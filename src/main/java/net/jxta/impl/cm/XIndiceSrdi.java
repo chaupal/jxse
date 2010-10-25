@@ -818,17 +818,19 @@ public class XIndiceSrdi implements SrdiAPI {
      */
     public static void clearSrdi(PeerGroup group) {
         
-        Logging.logCheckedInfo(LOG, "Clearing SRDI for ", group.getPeerGroupName());
+        String pgdir = null;
+        String pgname = "<unknown>";
+
+        if (group == null) {
+            pgdir = "srdi-index";
+        } else {
+            pgdir = group.getPeerGroupID().getUniqueValue().toString();
+            pgname = group.getPeerGroupName();
+        }
+
+        Logging.logCheckedInfo(LOG, "Clearing SRDI for ", pgname);
         
         try {
-
-            String pgdir = null;
-            
-            if (group == null) {
-                pgdir = "srdi-index";
-            } else {
-                pgdir = group.getPeerGroupID().getUniqueValue().toString();
-            }
 
             File rootDir = null;
             

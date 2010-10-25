@@ -113,7 +113,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     /**
      * A lock we use to ensure that write operations happen in order.
      */
-    private final Object writeLock = new String("writeLock");
+    private final Object writeLock = "writeLock";
     
     /**
      * The buffer we cache writes to.

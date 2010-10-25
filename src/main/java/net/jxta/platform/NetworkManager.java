@@ -142,7 +142,7 @@ public class NetworkManager implements RendezvousListener {
         SUPER
     }
 
-    private final Object networkConnectLock = new String("rendezvous connection lock");
+    private final Object networkConnectLock = "rendezvous connection lock";
     private PeerGroup netPeerGroup = null;
     private volatile boolean started = false;
     private volatile boolean connected = false;

@@ -267,7 +267,7 @@ class JTlsInputStream extends InputStream {
                 IQElt anIQElt = eachInQueue.next();
 
                 if (anIQElt.seqnum > seqnAck) {
-                    selectedAckList.add(new Integer(anIQElt.seqnum));
+                    selectedAckList.add(anIQElt.seqnum);
                 }
             }
         }

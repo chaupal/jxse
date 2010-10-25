@@ -53,6 +53,7 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+
 package net.jxta.impl.endpoint.tcp;
 
 import net.jxta.document.MimeMediaType;
@@ -72,7 +73,6 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -89,12 +89,10 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -262,9 +260,11 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             }
             // If we failed for any reason, make sure the socket is closed.
             // We're the only one to know about it.
-            if (socketChannel != null) {
+
+            // We're assuming it is not null earlier (FindBugs)
+//            if (socketChannel != null) {
                 socketChannel.close();
-            }
+//            }
             throw io;
         }
 

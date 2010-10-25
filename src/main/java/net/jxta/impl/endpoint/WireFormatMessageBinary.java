@@ -56,7 +56,6 @@
 
 package net.jxta.impl.endpoint;
 
-
 import java.security.NoSuchAlgorithmException;
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.ByteArrayMessageElement;
@@ -68,7 +67,6 @@ import net.jxta.util.LimitInputStream;
 import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import java.util.logging.Logger;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -87,7 +85,6 @@ import java.util.Map;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.Certificate;
@@ -105,7 +102,6 @@ import net.jxta.impl.endpoint.router.EndpointRouterMessage;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.peergroup.PeerGroup;
-
 
 /**
  * A Wire Format Message which encodes the message into MIME Type
@@ -887,9 +883,10 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 try {
                     anElement = readMessageElement(buffer);
 
-                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        LOG.finer(MessageFormat.format("Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString(),buffer.toString()));
-                    }
+                    // Suspect call to anElement.toString(), it is an array (FindBugs)
+//                    if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+//                        LOG.finer(MessageFormat.format("Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString(),buffer.toString()));
+//                    }
                 } catch (IOException failed) {
                     if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
                         LOG.log(Level.SEVERE,"Failure reading element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg,failed);

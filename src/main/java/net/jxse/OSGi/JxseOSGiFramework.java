@@ -59,6 +59,8 @@
 package net.jxse.OSGi;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxse.JxseInstantiator;
 import net.jxta.configuration.JxtaConfiguration;
@@ -111,10 +113,20 @@ public class JxseOSGiFramework {
 
     // Loading OSGi configuration
     static {
+        InputStream Tmp = null;
         try {
-            Configuration.load(JxseOSGiFramework.class.getResourceAsStream("JxseOSGi.properties"));
+            Tmp = JxseOSGiFramework.class.getResourceAsStream("JxseOSGi.properties");
+            Configuration.load(Tmp);
         } catch (IOException ex) {
-            LOG.severe("Cannot load JxseOSGi.properties :\n" + ex.toString());
+            LOG.log(Level.SEVERE, "Cannot load JxseOSGi.properties :\n{0}", ex.toString());
+        } finally {
+            if ( Tmp != null ) {
+                try {
+                    Tmp.close();
+                } catch (IOException ex) {
+                    LOG.log(Level.WARNING, "Can't close JxseOSGi.properties input stream :\n{0}", ex.toString());
+                }
+            }
         }
     }
 

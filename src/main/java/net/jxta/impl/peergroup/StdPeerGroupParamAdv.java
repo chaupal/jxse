@@ -56,7 +56,6 @@
 
 package net.jxta.impl.peergroup;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
@@ -72,14 +71,11 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
-
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Not actually an advertisement, but often acts as part of one.
@@ -289,9 +285,10 @@ public class StdPeerGroupParamAdv {
 
         this.services.clear();
 
-        if (null != servicesTable) {
+        // We are assuming it is not null earlier (FindBugs)
+//        if (null != servicesTable) {
             this.services.putAll(servicesTable);
-        }
+//        }
     }
 
     /**
@@ -315,9 +312,10 @@ public class StdPeerGroupParamAdv {
 
         this.transports.clear();
 
-        if (null != protosTable) {
+        // We are assuming it is not null earlier (FindBugs)
+//        if (null != protosTable) {
             this.transports.putAll(protosTable);
-        }
+//        }
     }
 
     /**
@@ -341,9 +339,11 @@ public class StdPeerGroupParamAdv {
 
         this.apps.clear();
 
-        if (null != appsTable) {
+        // We are assuming it is not null earlier (FindBugs)
+//        if (null != appsTable) {
             this.apps.putAll(appsTable);
-        }
+//        }
+
     }
 
     private void initialize(XMLElement doc) {

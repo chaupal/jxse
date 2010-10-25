@@ -182,7 +182,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      * The table of discovery query listeners.
      */
     private final Map<Integer, DiscoveryListener> queryListeners = new HashMap<Integer, DiscoveryListener>();
-    private final String checkPeerAdvLock = new String("Check/Update PeerAdvertisement Lock");
+    private final String checkPeerAdvLock = "Check/Update PeerAdvertisement Lock";
     private PeerAdvertisement lastPeerAdv = null;
     private int lastModCount = -1;
     private boolean isRdv = false;
@@ -844,7 +844,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         DiscoveryListener dl;
         synchronized (queryListeners) {
-            dl = queryListeners.get(new Integer(response.getQueryId()));
+            dl = queryListeners.get(response.getQueryId());
         }
 
         if (dl != null) {

@@ -71,8 +71,8 @@ import java.util.Enumeration;
  *    Meter corresponding to propagated to a ServiceName/ServiceParam pair
  **/
 public class PropagationMetric implements DocumentSerializable {
-    private String serviceName;
-    private String serviceParameter;
+    private String serviceName = "";
+    private String serviceParameter = "";
 
     private String serviceIdString; // for Hashing
     int numPropagations;

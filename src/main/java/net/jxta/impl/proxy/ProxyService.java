@@ -90,7 +90,6 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.service.Service;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -102,7 +101,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 // FIXME: jice@jxta.org - 20020515
 // All public methods are synchronized.
@@ -489,6 +487,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             each = discovery.getLocalAdvertisements(discoveryType, attribute, value);
         } catch (IOException e) {
             requestor.notifyError("could not search locally");
+            return;
         }
 
         int i = 0;

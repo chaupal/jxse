@@ -1135,7 +1135,7 @@ public class RelayClient implements MessageReceiver, Runnable {
             PeerAdvertisement padv = pg.getPeerAdvertisement();
             XMLDocument myParam = (XMLDocument) padv.getServiceParam(assignedID);
             
-            RouteAdvertisement route;
+            RouteAdvertisement route = null;
             
             if (myParam == null) {
 
@@ -1148,9 +1148,10 @@ public class RelayClient implements MessageReceiver, Runnable {
                 Enumeration<XMLElement> paramChilds = myParam.getChildren(RouteAdvertisement.getAdvertisementType());
                 XMLElement param = null;
                 
-                if (paramChilds.hasMoreElements()) param = paramChilds.nextElement();
-                
-                route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
+                if (paramChilds.hasMoreElements()) {
+                    param = paramChilds.nextElement();
+                    route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(param);
+                }
 
             }
             
@@ -1237,9 +1238,9 @@ public class RelayClient implements MessageReceiver, Runnable {
                 
                 if (paramChilds.hasMoreElements()) {
                     param = paramChilds.nextElement();
+                    route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement( param);
                 }
                 
-                route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement( param);
             }
             
             if (route == null) {

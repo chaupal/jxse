@@ -105,7 +105,7 @@ public class MonitorEvent {
     private int requestId;
     private PeerID peerID;
     private PeerGroupID peerGroupID;
-    private MonitorFilter monitorFilter; // FIX-ME: Is this necessary?
+    private MonitorFilter monitorFilter = null; // FIX-ME: Is this necessary?
     private long reportRate; // FIX-ME: Is this necessary?
     private long leaseTime; // FIX-ME: Is this necessary?
     private MonitorReport monitorReport;

@@ -121,7 +121,7 @@ public class TcpConnection implements Runnable {
     /**
      *  only one outgoing message per connection.
      */
-    private transient Object writeLock = new String("Write Lock");
+    private transient Object writeLock = "Write Lock";
     private final static Logger LOG = Logger.getLogger(TcpConnection.class.getName());
     private MessageListener listener = null;
     private final static MimeMediaType appMsg = new MimeMediaType("application/x-jxta-msg");

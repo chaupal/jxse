@@ -59,16 +59,18 @@
 package net.jxse.impl.OSGi;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxse.JxseInstantiator;
+import net.jxse.OSGi.JxseOSGiFramework;
 import net.jxse.OSGi.JxseOSGiFrameworkLauncher;
 import net.jxta.configuration.JxtaConfiguration;
 import net.jxta.configuration.PropertiesUtil;
-
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.launch.Framework;
@@ -93,10 +95,20 @@ public class JxseOSGiFelixFrameworkLauncher implements JxseOSGiFrameworkLauncher
 
     // Loading OSGi configuration
     static {
+        InputStream Tmp = null;
         try {
-            Configuration.load(JxseOSGiFelixFrameworkLauncher.class.getResourceAsStream("Felix.properties"));
+            Tmp = JxseOSGiFelixFrameworkLauncher.class.getResourceAsStream("Felix.properties");
+            Configuration.load(Tmp);
         } catch (IOException ex) {
-            LOG.severe("Cannot load Felix.properties :\n" + ex.toString());
+            LOG.log(Level.SEVERE, "Cannot load Felix.properties :\n{0}", ex.toString());
+        } finally {
+            if ( Tmp != null ) {
+                try {
+                    Tmp.close();
+                } catch (IOException ex) {
+                    LOG.log(Level.WARNING, "Can't close Felix.properties input stream :\n{0}", ex.toString());
+                }
+            }
         }
     }
 
@@ -109,7 +121,7 @@ public class JxseOSGiFelixFrameworkLauncher implements JxseOSGiFrameworkLauncher
     static {
 
         // Creating configuration elements
-        Map configMap = new HashMap();
+        Map configMap = new HashMap(0);
 
         // For bundles/services to automatically activate
         List list = new ArrayList();

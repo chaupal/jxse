@@ -1693,8 +1693,8 @@ public class NetworkConfigurator {
                 mode = mode | RELAY_OFF;
             }
             // backwards compatibility
-            param.addAttribute("type", RelayConfigAdv.getAdvertisementType());
-            relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
+                param.addAttribute("type", RelayConfigAdv.getAdvertisementType());
+                relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
         } catch (Exception failure) {
             IOException ioe = new IOException("error processing the relay config advertisement");
             ioe.initCause(failure);
