@@ -57,29 +57,18 @@
 package net.jxta.endpoint;
 
 
-import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import junit.framework.*;
-import org.jmock.Expectations;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.test.util.JUnitRuleMockery;
 import net.jxta.util.DevNullOutputStream;
-import net.jxta.platform.NetworkConfigurator;
-import net.jxta.platform.NetworkManager;
-import net.jxta.platform.NetworkManager.ConfigMode;
 
 
 /**
@@ -87,29 +76,6 @@ import net.jxta.platform.NetworkManager.ConfigMode;
  * @author mike
  */
 public class SerializationPerformanceTest extends TestCase {
-
-	@Rule
-    public TemporaryFolder tempStorage = new TemporaryFolder();
-    
-    private NetworkManager aliceManager;
-
-    @Before
-    public void setUp() throws Exception {
-        aliceManager = new NetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
-        configureForHttp(aliceManager, 59901);
-        aliceManager.startNetwork();
-    }
-
-    private void configureForHttp(NetworkManager manager, int port) throws IOException {
-            NetworkConfigurator configurator = manager.getConfigurator();
-            configurator.setTcpEnabled(false);
-            configurator.setHttp2Enabled(false);
-
-            configurator.setHttpEnabled(true);
-            configurator.setHttpIncoming(true);
-            configurator.setHttpOutgoing(true);
-            configurator.setHttpPort(port);
-    }
     
     private static final MimeMediaType appMsg = new MimeMediaType("application/x-jxta-msg");
     
@@ -133,10 +99,8 @@ public class SerializationPerformanceTest extends TestCase {
     public void testSerialPerformance() {
         try {
             Message msg = new Message();
-
-            PeerGroup group = aliceManager.getNetPeerGroup();
             
-            WireFormatMessage init = WireFormatMessageFactory.toWireExternal(msg, appMsg, null, group);
+            WireFormatMessage init = WireFormatMessageFactory.toWire(msg, appMsg, null);
             
             final int startCount = 1;
             final int endCount = 250;
@@ -168,7 +132,7 @@ public class SerializationPerformanceTest extends TestCase {
                     for (int repeat = 1; repeat <= repeats; repeat++) {
                         OutputStream out = new ByteArrayOutputStream();
                         
-                        WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(msg, appMsg, null, group);
+                        WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, appMsg, null);
                         
                         serialed.sendToStream(out);
                     }
@@ -190,6 +154,7 @@ public class SerializationPerformanceTest extends TestCase {
                 System.err.println(count + "," + addCost + "," + serialCost);
             }
         } catch (Throwable caught) {
+            caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
         }
     }

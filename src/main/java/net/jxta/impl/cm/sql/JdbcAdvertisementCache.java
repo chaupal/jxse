@@ -582,7 +582,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 				deleteIndexables(conn, dn, fn);
 			}
 			
-                        StructuredDocument<?> doc = (StructuredDocument<?>)adv.getSignedDocument();
+			StructuredDocument<?> doc = (StructuredDocument<?>)adv.getDocument(MimeMediaType.XMLUTF8);
 			Map<String, String> indexFields = CacheUtils.getIndexfields(adv.getIndexFields(), doc);
 			for(String indexField : indexFields.keySet()) {
 				if(!putIndexable(conn, dn, fn, indexField, indexFields.get(indexField))) {
@@ -640,7 +640,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	}
 
 	private byte[] getBytesForAdvert(Advertisement adv) throws IOException {
-		Document doc = adv.getSignedDocument();
+		Document doc = adv.getDocument(MimeMediaType.XMLUTF8);
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream(2048);
 		doc.sendToStream(byteStream);
 		return byteStream.toByteArray();

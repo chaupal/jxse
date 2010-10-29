@@ -54,23 +54,58 @@
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
-package net.jxta.document;
+package net.jxta.impl.membership.pse;
 
 
-import java.nio.ByteBuffer;
+import net.jxta.exception.PeerGroupException;
+import net.jxta.impl.protocol.PSEConfigAdv;
 
 
 /**
- * Provides {@code ByteBuffer} based interfaces for manipulating 
- * {@code Document} contents.
  *
- * @see         java.nio.ByteBuffer
- * @see         net.jxta.document.Document
+ * @author nick
  */
-public interface DocumentByteBufferIO {
-           
+public abstract class PSEAuthenticatorEngineFactory {
+    
+    private static PSEAuthenticatorEngineFactory defaultEngine = null;
+    
+    public static void setPSESecurityEngineFactory(PSEAuthenticatorEngineFactory newEngine) {
+        synchronized (PSEAuthenticatorEngineFactory.class) {
+            defaultEngine = newEngine;
+        }
+    }
+    
     /**
-     *  Returns the {@code Document} as a sequence of ByteBuffers
-     */
-    ByteBuffer[] getByteBuffers();
+     *   Returns the default Authenticator Engine.
+     *
+     *   @return The current default Authenticator Engine.
+     **/
+    public static PSEAuthenticatorEngineFactory getDefault() {
+        synchronized (PSEAuthenticatorEngineFactory.class) {
+            if (defaultEngine == null) {
+                defaultEngine = new PSEAuthenticatorEngineDefaultFactory();
+            }
+            
+            return defaultEngine;
+        }
+    }
+    
+    /**
+     *   Creates a new Authenticator Engine instance based upon the context and configuration.
+     *
+     *   @param service  The service that this keystore manager will be working for.
+     *   @param config   The configuration parameters.
+     **/
+    public abstract PSEAuthenticatorEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException;
+    
+    /**
+     *   Default implementation which provides the default behaviour (which is to do nothing).
+     **/
+    private static class PSEAuthenticatorEngineDefaultFactory extends PSEAuthenticatorEngineFactory {
+
+        @Override
+        public PSEAuthenticatorEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException {
+            return null;
+        }
+    }
 }

@@ -1523,8 +1523,8 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         EndpointAddress nextHop = null;
         RouteAdvertisement radv;
 
-        routerMsg = new EndpointRouterMessage(msg, false, this.group);
-
+        // We do not want the existing header to be ignored of course.
+        routerMsg = new EndpointRouterMessage(msg, false);
         if (!routerMsg.msgExists()) {
             // The sender did not use this router
             Logging.logCheckedFine(LOG, "Discarding ", msg, ". No routing info.");
@@ -2395,7 +2395,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         Logging.logCheckedFine(LOG, "Create a new EndpointRouterMessage", dstAddress);
 
         // Specify that we do not want an existing msg parsed.
-        EndpointRouterMessage routerMsg = new EndpointRouterMessage(message, true, this.group);
+        EndpointRouterMessage routerMsg = new EndpointRouterMessage(message, true);
 
         if (routerMsg.isDirty()) {
 

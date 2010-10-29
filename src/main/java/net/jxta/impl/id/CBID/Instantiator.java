@@ -219,8 +219,7 @@ public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public net.jxta.peergroup.PeerGroupID newPeerGroupID(net.jxta.peergroup.PeerGroupID parent) {
-        PeerGroupID  parentGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(parent);
-        return new PeerGroupID(parentGroupID);
+        return new PeerGroupID();
     }
 
     /**

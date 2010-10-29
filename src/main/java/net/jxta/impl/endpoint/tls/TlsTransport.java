@@ -749,19 +749,4 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             }
         }
     }
-
-    final public static class PSECredentialBridge {
-        private java.security.PrivateKey privateKey = null;
-        private PSECredentialBridge() {
-
-        }
-        public void setPrivateKey(java.security.PrivateKey privateKey) {
-            this.privateKey = privateKey;
-        }
-    }
-    public void pseMembershipKeyBridge(net.jxta.impl.endpoint.tls.TlsManager.PSECredentialBridge pseCredentialKeyRetriever) {
-        PSECredentialBridge pseCredentialBridge = new PSECredentialBridge();
-        credential.tlsKeyBridge(pseCredentialBridge);
-        pseCredentialKeyRetriever.setPrivateKey(pseCredentialBridge.privateKey);
-    }
 }

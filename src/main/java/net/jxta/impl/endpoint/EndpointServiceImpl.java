@@ -69,7 +69,6 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
-import net.jxta.impl.endpoint.cbjx.CbjxFilter;
 import net.jxta.impl.endpoint.endpointMeter.EndpointMeter;
 import net.jxta.impl.endpoint.endpointMeter.EndpointMeterBuildSettings;
 import net.jxta.impl.endpoint.endpointMeter.EndpointServiceMonitor;
@@ -116,10 +115,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     private static final Logger LOG = Logger.getLogger(EndpointServiceImpl.class.getName());
 
     // // constants ////
-
-    public static final String VERIFIED_ADDRESS_SET="VERIFIED_ADDRESS_SET";
-    public static final String MESSAGE_SIGNER_SET ="MESSAGE_SIGNER_SET";
-    public static final String MESSAGE_LOOPBACK ="MESSAGE_LOOPBACK";
 
     /**
      * The Wire Message Format we will use by default.
@@ -629,8 +624,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         Logging.logCheckedInfo(LOG, "Endpoint Service started.");
-
-        this.addIncomingMessageFilterListener(new CbjxFilter(), null, null);
         
         return Module.START_OK;
     }

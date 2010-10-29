@@ -55,8 +55,6 @@
  */
 package net.jxta.impl.endpoint.router;
 
-import java.security.InvalidKeyException;
-import java.security.cert.CertificateEncodingException;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
@@ -70,25 +68,6 @@ import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.jxta.endpoint.ByteArrayMessageElement;
-import net.jxta.endpoint.WireFormatMessageFactory;
-import net.jxta.impl.membership.pse.PSECredential;
-import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.peergroup.PeerGroup;
 
 import java.util.Enumeration;
 import java.util.Vector;
@@ -140,8 +119,6 @@ public class EndpointRouterMessage {
     // Cache the element. At the minimum it simplifies removal.
     private transient MessageElement rmElem = null;
 
-    private PeerGroup group;
-
     public boolean msgExists() {
         return rmExists;
     }
@@ -150,9 +127,7 @@ public class EndpointRouterMessage {
         return rmDirty;
     }
 
-    public EndpointRouterMessage(Message message, boolean removeMsg, PeerGroup paramGroup)
-    {
-        this.group=paramGroup;
+    public EndpointRouterMessage(Message message, boolean removeMsg) {
 
         this.message = message;
 
@@ -387,11 +362,7 @@ public class EndpointRouterMessage {
 
             try {
 
-                PSEMembershipService tempPSE = (PSEMembershipService)this.group.getMembershipService();
-                PSECredential tempCred = (PSECredential)tempPSE.getDefaultCredential();
-                radv.sign(tempCred, true, false);
-                XMLDocument radvDoc = (XMLDocument) radv.getSignedDocument();
-
+                XMLDocument radvDoc = (XMLDocument) radv.getDocument(MimeMediaType.XMLUTF8);
                 StructuredDocumentUtils.copyElements(doc, doc, radvDoc);
 
             } catch (Exception e1) {
@@ -411,67 +382,6 @@ public class EndpointRouterMessage {
         rmExists = true;
         rmDirty = true;
         srcAddress = address;
-
-        if(WireFormatMessageFactory.CBJX_DISABLE)
-        {
-        }
-        else
-        {
-            try {
-                PSEMembershipService tempPSE = (PSEMembershipService) this.group.getMembershipService();
-                PSECredential tempCred = (PSECredential) tempPSE.getDefaultCredential();
-
-                //Payload
-                byte[] tempPayload = address.toURI().toString().getBytes();
-                //Cert
-                byte[] tempCert = tempCred.getCertificate().getEncoded();
-
-                byte[] tempPreSignedArray = new byte[tempPayload.length + tempCert.length];
-
-                System.arraycopy(tempPayload, 0, tempPreSignedArray, 0, tempPayload.length);
-                System.arraycopy(tempCert, 0, tempPreSignedArray, tempPayload.length, tempCert.length);
-
-                ByteArrayInputStream tempBAIS = new ByteArrayInputStream(tempPreSignedArray);
-
-                EndpointRouterMessageSignatureBridge endpointRouterMessageSignatureBridge = new EndpointRouterMessageSignatureBridge(WireFormatMessageFactory.CBJX_SIG_ALG, tempBAIS);
-                byte[] tempSigned = tempPSE.signEndpointRouterMessage(endpointRouterMessageSignatureBridge);
-
-                ByteArrayOutputStream tempBAOS = new ByteArrayOutputStream();
-                DataOutputStream tempDOS = new DataOutputStream(tempBAOS);
-                tempDOS.writeInt(tempPayload.length);
-                tempDOS.write(tempPayload);
-                tempDOS.writeInt(tempCert.length);
-                tempDOS.write(tempCert);
-                tempDOS.writeInt(tempSigned.length);
-                tempDOS.write(tempSigned);
-                tempDOS.flush();
-                ByteArrayMessageElement tempBAME = new ByteArrayMessageElement(MESSAGE_NAME+"-fingerprint", MimeMediaType.AOS, tempBAOS.toByteArray(),null);
-                this.message.replaceMessageElement(MESSAGE_NS, tempBAME);
-            } catch (InvalidKeyException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (CertificateEncodingException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SignatureException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-    }
-    public final static class EndpointRouterMessageSignatureBridge {
-        private String signatureAlgorithm = null;
-        private InputStream signStream = null;
-        private EndpointRouterMessageSignatureBridge(String signatureAlgorithm, InputStream signStream) {
-            this.signatureAlgorithm = signatureAlgorithm;
-            this.signStream = signStream;
-        }
-        public String getSignatureAlgorithm() {
-            return signatureAlgorithm;
-        }
-        public InputStream getInputStream() {
-            return signStream;
-        }
     }
 
     public EndpointAddress getSrcAddress() {

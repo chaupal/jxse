@@ -53,24 +53,46 @@
  *  
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
+package net.jxta.impl.endpoint.cbjx;
 
-package net.jxta.document;
 
+import net.jxta.id.ID;
+import net.jxta.platform.ModuleClassID;
+import net.jxta.platform.ModuleSpecID;
 
-import java.nio.ByteBuffer;
+import java.net.URI;
 
 
 /**
- * Provides {@code ByteBuffer} based interfaces for manipulating 
- * {@code Document} contents.
- *
- * @see         java.nio.ByteBuffer
- * @see         net.jxta.document.Document
+ * the value of the constants used with cbid
  */
-public interface DocumentByteBufferIO {
-           
+public final class CbJxDefs {
+
     /**
-     *  Returns the {@code Document} as a sequence of ByteBuffers
+     * the name of the algo to compute signature
      */
-    ByteBuffer[] getByteBuffers();
+    public static final String signAlgoName = "SHA1WITHRSA";
+
+    /**
+     * the name of the algo to digest of message
+     */
+    public static final String hashAlgoName = "SHA-1";
+
+    /**
+     * Well known module class identifier: msg transport
+     */
+    public static final ModuleClassID msgtptClassID = (ModuleClassID)
+            ID.create(URI.create("urn:jxta:uuid-DeadBeefDeafBabaFeedBabe0000001105"));
+
+    /**
+     * Well known service specification identifier: cbjx Msg Transport
+     */
+    public static final ModuleSpecID cbjxMsgTransportSpecID = (ModuleSpecID)
+            ID.create(URI.create("urn:jxta:uuid-DeadBeefDeafBabaFeedBabe000000110106"));
+
+    /**
+     * static utility factory
+     */
+    private CbJxDefs() {}
 }
+

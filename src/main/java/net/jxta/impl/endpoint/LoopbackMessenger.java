@@ -198,7 +198,6 @@ public class LoopbackMessenger extends BlockingMessenger {
                 public void run() {
                     
                     try {
-                        message.setMessageProperty(EndpointServiceImpl.MESSAGE_LOOPBACK, true);
 
                         endpoint.processIncomingMessage(message, srcAddress, getDestAddressToUse(service, serviceParam));
 

@@ -334,7 +334,7 @@ public class HttpMessageServlet extends HttpServlet {
 
                     // FIXME 20040927 bondolo Should get message encoding from http header.
                     try {
-                        incomingMessage = WireFormatMessageFactory.fromWireExternal(in, contentMimeType, null, this.servletHttpTransport.group);
+                        incomingMessage = WireFormatMessageFactory.fromWire(in, contentMimeType, null);
                     } catch (NoSuchElementException noValidWireFormat) {
                         IOException failure = new IOException("Unrecognized content type MIME type : " + contentType);
 
@@ -452,7 +452,7 @@ public class HttpMessageServlet extends HttpServlet {
                     }
 
                     // send the message
-                    WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(outMsg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE, null, this.servletHttpTransport.group);
+                    WireFormatMessage serialed = WireFormatMessageFactory.toWire(outMsg, EndpointServiceImpl.DEFAULT_MESSAGE_TYPE, null);
 
                     // if only one message is being returned, set the content
                     // length, otherwise try to use chunked encoding.

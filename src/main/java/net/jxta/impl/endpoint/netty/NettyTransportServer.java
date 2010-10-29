@@ -50,7 +50,6 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
     private EndpointService endpointService;
     
     private AtomicBoolean started = new AtomicBoolean(false);
-    private PeerGroup group;
     private PeerGroupID homeGroupID;
     private PeerID localPeerID;
     
@@ -69,7 +68,6 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
     
     public NettyTransportServer(ServerChannelFactory factory, AddressTranslator addrTranslator, final PeerGroup group) {
         this.channels = new DefaultChannelGroup();
-        this.group = group;
         this.homeGroupID = group.getPeerGroupID();
         this.localPeerID = group.getPeerID();
         this.addrTranslator = addrTranslator;
@@ -79,7 +77,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
     }
  
     public void init(List<? extends SocketAddress> potentialBindpoints, EndpointAddress publicAddress, boolean usePublicOnly) throws PeerGroupException {
-        serverBootstrap.setPipelineFactory(new NettyTransportChannelPipelineFactory(group, localPeerID, timeoutTimer, this, addrTranslator, started, null, publicAddress));
+        serverBootstrap.setPipelineFactory(new NettyTransportChannelPipelineFactory(localPeerID, timeoutTimer, this, addrTranslator, started, null, publicAddress));
         SocketAddress chosenAddress = bindServerChannel(potentialBindpoints);
         boundAddresses = Collections.unmodifiableList(addrTranslator.translateToExternalAddresses(chosenAddress));
         

@@ -206,7 +206,7 @@ public class StringAuthenticator implements Authenticator {
             return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(key_password, seedCert.getPublicKey().getAlgorithm(), seedKey);
         } else {
             Logging.logCheckedFine(LOG, "null seed certificate");
-            return source.getPSEConfig().validPasswd(identity, store_password, key_password);
+            return source.pseStore.validPasswd(identity, store_password, key_password);
         }
     }
     
@@ -245,12 +245,12 @@ public class StringAuthenticator implements Authenticator {
     public PeerID[] getIdentities(char[] store_password) {
         
         if (seedCert != null) {
-            PeerID[] seed = { source.getPeerGroup().getPeerID() };
+            PeerID[] seed = { source.group.getPeerID() };
 
             return seed;
         } else {
             try {
-                ID[] allkeys = source.getPSEConfig().getKeysList(store_password);
+                ID[] allkeys = source.pseStore.getKeysList(store_password);
                 
                 // XXX bondolo 20040329 it may be appropriate to login
                 // something other than a peer id.
@@ -284,14 +284,14 @@ public class StringAuthenticator implements Authenticator {
      **/
     public X509Certificate getCertificate(char[] store_password, ID aPeer) {
         if (seedCert != null) {
-            if (aPeer.equals(source.getPeerGroup().getPeerID())) {
+            if (aPeer.equals(source.group.getPeerID())) {
                 return seedCert;
             } else {
                 return null;
             }
         } else {
             try {
-                return source.getPSEConfig().getTrustedCertificate(aPeer, store_password);
+                return source.pseStore.getTrustedCertificate(aPeer, store_password);
             } catch (IOException failed) {
                 return null;
             } catch (KeyStoreException failed) {

@@ -74,7 +74,6 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.id.TestIDFactory;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.peergroup.PeerGroupID;
@@ -497,7 +496,7 @@ public class CmXIndiceImplTest {
                     AdvertisementFactory.newAdvertisement(PeerAdvertisement.getAdvertisementType());
 
             peerAdv.setPeerGroupID(pgID);
-            peerAdv.setPeerID(TestIDFactory.newPeerID(pgID));
+            peerAdv.setPeerID(IDFactory.newPeerID(pgID));
             peerAdv.setName("CmTestPeer" + number);
             return peerAdv;
         } catch (Exception e) {

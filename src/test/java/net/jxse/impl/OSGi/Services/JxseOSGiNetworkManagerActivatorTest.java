@@ -68,7 +68,7 @@ import net.jxse.configuration.JxsePeerConfiguration.ConnectionMode;
 import net.jxse.configuration.JxseTcpTransportConfiguration;
 import net.jxta.configuration.JxtaConfigurationException;
 import net.jxta.exception.PeerGroupException;
-import net.jxta.id.TestIDFactory;
+import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.NetworkConfigurator;
@@ -283,7 +283,7 @@ public class JxseOSGiNetworkManagerActivatorTest {
         URI KSL = new File("aze").toURI(); Source.setKeyStoreLocation(KSL);
         URI LS = new File("eze").toURI(); Source.setPersistenceLocation(LS);
         Source.setMulticastEnabled(false);
-        PeerID PID = TestIDFactory.newPeerID(PeerGroupID.worldPeerGroupID); Source.setPeerID(PID);
+        PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID); Source.setPeerID(PID);
         Source.setPeerInstanceName("Zoubidoo");
         Source.setRelayMaxClients(3456);
         Source.setRendezvousMaxClients(6666);

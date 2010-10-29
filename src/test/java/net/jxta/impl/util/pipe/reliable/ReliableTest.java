@@ -498,8 +498,8 @@ public class ReliableTest extends TestCase implements
 
             outgoing = new OutgoingPipeAdaptorSync(null);
             ros = ADAPTIVE
-                    ? new ReliableOutputStream(netPeerGroup, outgoing, new AdaptiveFlowControl(), scheduledExecutor)
-                    : new ReliableOutputStream(netPeerGroup, outgoing, new FixedFlowControl(40), scheduledExecutor);
+                    ? new ReliableOutputStream(outgoing, new AdaptiveFlowControl(), scheduledExecutor)
+                    : new ReliableOutputStream(outgoing, new FixedFlowControl(40), scheduledExecutor);
 
             for (int i = 0; i < ITERATIONS; i++) {
                 
@@ -689,7 +689,7 @@ public class ReliableTest extends TestCase implements
         // reliable input stream will block or return false if it is used.
 
         outgoing = new OutgoingPipeAdaptorSync(null);
-        ris = new ReliableInputStream(netPeerGroup, outgoing, 0);
+        ris = new ReliableInputStream(outgoing, 0);
 
         try {
             if (ackPipeAdv == null) {

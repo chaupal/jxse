@@ -103,15 +103,6 @@ public class PeerGroupID extends net.jxta.impl.id.UUID.PeerGroupID {
     }
 
     /**
-     *  See {@link net.jxta.id.IDFactory.Instantiator#newPeerGroupID(net.jxta.peergroup.PeerGroupID)}.
-     */
-    public PeerGroupID(PeerGroupID parent) {
-        this(UUIDFactory.newUUID());
-
-        System.arraycopy(parent.id.bytes, PeerGroupID.groupIdOffset, id.bytes, PeerGroupID.parentgroupIdOffset, IDFormat.uuidSize);
-    }
-
-    /**
      * See {@link net.jxta.id.IDFactory.Instantiator#newPeerGroupID(byte[])}.
      * @param seed the seed
      */

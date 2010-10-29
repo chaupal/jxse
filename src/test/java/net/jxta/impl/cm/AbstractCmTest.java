@@ -79,7 +79,6 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.id.IDFactory;
-import net.jxta.id.TestIDFactory;
 import net.jxta.impl.util.FakeSystemClock;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
@@ -150,7 +149,7 @@ public abstract class AbstractCmTest {
         AdvertisementFactory.newAdvertisement(PeerAdvertisement.getAdvertisementType());
 		
 		peerAdv.setPeerGroupID(pgID);
-		peerAdv.setPeerID(TestIDFactory.newPeerID(pgID));
+		peerAdv.setPeerID(IDFactory.newPeerID(pgID));
 		peerAdv.setName(peerName);
 		return peerAdv;
 	}

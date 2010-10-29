@@ -22,7 +22,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerStateListener;
 import net.jxta.endpoint.OutgoingMessageEvent;
-import net.jxta.id.TestIDFactory;
+import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.JUnitRuleMockery;
 
@@ -384,7 +384,7 @@ public class AsynchronousMessengerTest {
 
         public Exception sendException;
         public EndpointAddress localAddress = new EndpointAddress("http", "remote", null, null);
-        public EndpointAddress logicalDestAddress = new EndpointAddress("jxta", TestIDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID).getUniqueValue().toString(), null, null);
+        public EndpointAddress logicalDestAddress = new EndpointAddress("jxta", IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID).getUniqueValue().toString(), null, null);
         public AtomicBoolean refuseToSend = new AtomicBoolean(false);
         public BlockingQueue<QueuedMessage> sentMessages = new LinkedBlockingQueue<QueuedMessage>();
         public AtomicBoolean closeRequested = new AtomicBoolean(false);

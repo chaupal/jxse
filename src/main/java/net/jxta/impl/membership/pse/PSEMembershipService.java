@@ -69,7 +69,6 @@ import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
-import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
@@ -80,29 +79,16 @@ import net.jxta.service.Service;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
 import java.security.SignatureException;
+import java.security.cert.CertPath;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidator;
-import java.security.cert.CertPathValidatorException;
-import java.security.cert.PKIXParameters;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -129,7 +115,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      * the peergroup to which this service is associated.
      **/
-    private PeerGroup group = null;
+    PeerGroup group = null;
     
     /**
      *  The ID assigned to this instance.
@@ -159,7 +145,7 @@ public final class PSEMembershipService implements MembershipService {
     /**
      *  the keystore we are working with.
      **/
-    private PSEConfig pseStore = null;
+    PSEConfig pseStore = null;
     
     /**
      *  the default credential
@@ -172,22 +158,12 @@ public final class PSEMembershipService implements MembershipService {
     private PSEConfigAdv config;
     
     /**
-     * PSEPeerSecurityEngine loader
+     * PSEPeerSecurityEngine ( and PSEAuthenticatorEngine ) loader
      */
     
-    private PSEPeerSecurityEngine peerSecurityEngine = null;
-
-    /**
-     * PSEAuthenticatorEngine loader
-     */
-
+    PSEPeerSecurityEngine peerSecurityEngine = null;
+    
     private PSEAuthenticatorEngine authenticatorEngine = null;
-
-    /**
-     * PSEPeerValidationEngine loader
-     */
-
-    private PSEPeerValidationEngine peerValidationEngine = null;
     
     /**
      *  Default constructor. Normally only called by the peer group.
@@ -256,13 +232,11 @@ public final class PSEMembershipService implements MembershipService {
             config = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(PSEConfigAdv.getAdvertisementType());
         }
         
-        peerSecurityEngine = getDefaultPSESecurityEngineFactory().getInstance(this, config);
+        peerSecurityEngine = PSESecurityEngineFactory.getDefault().getInstance(this, config);
         
-        authenticatorEngine = getDefaultPSEAuthenticatorEngineFactory().getInstance(this, config);
-
-        peerValidationEngine = getDefaultPSEPeerValidationEngineFactory().getInstance(this, config);
+        authenticatorEngine = PSEAuthenticatorEngineFactory.getDefault().getInstance(this, config);
         
-        KeyStoreManager storeManager = getDefaultKeyStoreManagerFactory().getInstance(this, config);
+        KeyStoreManager storeManager = PSEKeyStoreManagerFactory.getDefault().getInstance(this, config);
         
         pseStore = new PSEConfig(storeManager, null);
         
@@ -676,13 +650,6 @@ public final class PSEMembershipService implements MembershipService {
     public PSEConfig getPSEConfig() {
         return pseStore;
     }
-
-    /**
-     *  Returns the PeerGroup associated with this PSE Membership Service.
-     **/
-    public PeerGroup getPeerGroup() {
-        return group;
-    }
     
     /**
      * Service Certificates Support
@@ -765,10 +732,8 @@ public final class PSEMembershipService implements MembershipService {
             if (null == authenticate) {
                 return null;
             }
-
-            PSECredentialBridge pseCredentialBridge = new PSECredentialBridge();
-            credential.pseKeyBridge(pseCredentialBridge);
-            PrivateKey privateKey = pseCredentialBridge.privateKey;
+            
+            PrivateKey privateKey = credential.getPrivateKey();
             
             // make a new service certificate
             ByteArrayInputStream bis = new ByteArrayInputStream(privateKey.getEncoded());
@@ -794,709 +759,4 @@ public final class PSEMembershipService implements MembershipService {
         
         return pseCredential;
     }
-    final static class PSECredentialBridge {
-        private java.security.PrivateKey privateKey = null;
-        private PSECredentialBridge() {
-
-        }
-        public void setPrivateKey(java.security.PrivateKey privateKey) {
-            this.privateKey = privateKey;
-        }
-    }
-
-    /**
-     * Signs an advertisement for publication. The signed document needs to have
-     * at least one key reference included - either the encoded key that was used
-     * when signing or the peerid (so that the verifying peer can look up the key
-     * in the PSEMembershipService keystore). If both the public key and the peerid
-     * are sent then the receiving peer can use the enclosed key with the option
-     * of occasionally verifying the key via the keystore.
-     *
-     * The returned PSEAdvertismentSignatureToken contains two XMLElement classes.
-     * Both elements are appended to the advertisement during publication:
-     * XMLSignatureInfo contains a digest of the original advertisement and key info
-     * XMLSignature contains a digest of XMLSignatureInfo and a signature of that digest
-     * Refer to the following for reasoning:
-     * http://java.sun.com/developer/technicalArticles/xml/dig_signatures/
-     *
-     * @param advertismentDocument
-     * @param includePublicKey
-     * @param includePeerID
-     * @return PSEAdvertismentSignatureToken
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     * @throws IOException
-     */
-    public PSEAdvertismentSignatureToken signAdvertisement(XMLDocument advertismentDocument, boolean includePublicKey, boolean includePeerID) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException {
-
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-
-        PSEUtils.xmlElementDigest(advertismentDocument, messageDigest);
-        byte[] advDigest = messageDigest.digest();
-
-        PublicKey publicKey = defaultCredential.getCertificate().getPublicKey();
-        XMLSignatureInfo xmlSignatureInfo = new XMLSignatureInfo(advDigest, group.getPeerID(), publicKey.getAlgorithm(), publicKey.getEncoded(), peerSecurityEngine.getSignatureAlgorithm(), includePublicKey, includePeerID);
-
-        XMLDocument xmlSignatureInfoElement = xmlSignatureInfo.getXMLSignatureInfoDocument();
-
-        messageDigest.reset();
-
-        PSEUtils.xmlElementDigest(xmlSignatureInfoElement, messageDigest);
-        byte[] xmlSignatureInfoElementDigest = messageDigest.digest();
-
-        ByteArrayInputStream xmlSignatureInfoElementDigestIS = new ByteArrayInputStream(xmlSignatureInfoElementDigest);
-        byte[] xmlSignatureInfoElementSignature = peerSecurityEngine.sign(peerSecurityEngine.getSignatureAlgorithm(), defaultCredential, xmlSignatureInfoElementDigestIS);
-        xmlSignatureInfoElementDigestIS.close();
-
-        XMLSignature xmlSignature = new XMLSignature(xmlSignatureInfoElementDigest, xmlSignatureInfoElementSignature);
-
-        PSEAdvertismentSignatureToken pseAdvertismentSignatureToken = new PSEAdvertismentSignatureToken(xmlSignatureInfo, xmlSignature);
-
-        return pseAdvertismentSignatureToken;
-    }
-
-    /**
-     * PSEAdvertismentSignatureToken returned by signAdvertisement
-     */
-    public class PSEAdvertismentSignatureToken {
-        private XMLSignatureInfo xmlSignatureInfo;
-        private XMLSignature xmlSignature;
-        private PSEAdvertismentSignatureToken(XMLSignatureInfo xmlSignatureInfo, XMLSignature xmlSignature) {
-            this.xmlSignatureInfo = xmlSignatureInfo;
-            this.xmlSignature = xmlSignature;
-        }
-        /**
-         * If the advertisement is validated with the signature then true
-         *
-         * @return boolean isValid
-         */
-        public XMLSignatureInfo getXMLSignatureInfo() {
-            return xmlSignatureInfo;
-        }
-        /**
-         * If the peerid that signed the advertisment is present in the
-         * membership keystore then true
-         *
-         * @return boolean isMember
-         */
-        public XMLSignature getXMLSignature() {
-            return xmlSignature;
-        }
-    }
-
-    private static List advertisementIgnoredElements = null;
-    static {
-        advertisementIgnoredElements = new ArrayList();
-        advertisementIgnoredElements.add("XMLSignatureInfo");
-        advertisementIgnoredElements.add("XMLSignature");
-    }
-
-    /**
-     * Validates a signed advertisement and returns a PSEAdvertismentValidationToken
-     * which specifies whether:
-     * 1. The signature is good
-     * 2. The enclosed peerid is present in the peergroups PSEMembership keystore
-     * 3. The enclosed public key is the same as the key in the keystore
-     * If there is no enclosed public key then an attempt is made to use the key in
-     * the keystore if a peerid is enclosed.
-     * If ignoreKeystore is true then a comparison of the enclosed key and the keystore
-     * key is not undertaken.
-     * If there is no key and no peerid enclosed then the signature will, obviously, fail.
-     * @param advertismentDocument
-     * @param verifyKeyWithKeystore
-     * @return PSEAdvertismentValidationToken
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     * @throws InvalidKeyException
-     * @throws KeyStoreException
-     * @throws IOException
-     * @throws SignatureException
-     */
-    public PSEAdvertismentValidationToken validateAdvertisement(XMLDocument advertismentDocument, boolean verifyKeyWithKeystore) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, KeyStoreException, IOException, SignatureException {
-
-        XMLElement xmlSignatureInfoElement = null;
-        XMLSignatureInfo xmlSignatureInfo = null;
-        XMLSignature xmlSignature = null;
-
-        Enumeration eachElem = advertismentDocument.getChildren();
-
-        while (eachElem.hasMoreElements()) {
-
-            XMLElement anElem = (XMLElement) eachElem.nextElement();
-
-            if ("XMLSignatureInfo".equals(anElem.getName())) {
-                xmlSignatureInfoElement = anElem;
-                xmlSignatureInfo = new XMLSignatureInfo(anElem);
-            } else if ("XMLSignature".equals(anElem.getName())) {
-                xmlSignature = new XMLSignature(anElem);
-            }
-        }
-
-        if (xmlSignatureInfo == null || xmlSignature == null)
-            throw new SecurityException("xmlSignatureInfo == null || xmlSignature == null - advertisement missing signature elements");
-
-        byte[] signatureInfoDigest = xmlSignatureInfo.getDigest();
-        byte[] signatureDigest = xmlSignature.getDigest();
-        byte[] signature = xmlSignature.getSignature();
-
-        if (signatureInfoDigest == null || signatureDigest == null || signature == null)
-            throw new SecurityException("signatureInfoDigest == null || signatureDigest == null || signature == null - advertisement missing signature data");
-
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-
-        PSEUtils.xmlElementDigest(advertismentDocument, advertisementIgnoredElements, messageDigest);
-        byte[] advertisementDigest = messageDigest.digest();
-
-        // Check the advertisement first - the original digest of the advertisement without XMLSignatureInfo & XMLSignature is compared to one we calculate
-        if (!PSEUtils.arrayCompare(advertisementDigest, signatureInfoDigest))
-            throw new SecurityException("Digest comparison of original advertisement digest and locally calculated digest failed");
-
-        messageDigest.reset();
-
-        // Check the digests of XMLSignatureInfo
-        PSEUtils.xmlElementDigest(xmlSignatureInfoElement, messageDigest);
-        byte[] xmlSignatureInfoDigest = messageDigest.digest();
-        if (!PSEUtils.arrayCompare(signatureDigest, xmlSignatureInfoDigest))
-            throw new SecurityException("Digest comparison of original xmlSignatureInfo digest and locally calculated xmlSignatureInfo digest failed");
-
-        // Get the publickey - try encoded first, otherwise get the certificate out of the keystore with the peerid
-        PublicKey publicKey = null;
-        boolean isKeystorePublicKey = false;
-        if (xmlSignatureInfo.getEncodedKey() != null && xmlSignatureInfo.getKeyAlgorithm() != null) {
-            byte[] encodedPublicKeyData = xmlSignatureInfo.getEncodedKey();
-            X509EncodedKeySpec encodedPublicKeySpec = new X509EncodedKeySpec(encodedPublicKeyData);
-            KeyFactory keyFactory = KeyFactory.getInstance(xmlSignatureInfo.getKeyAlgorithm());
-            publicKey = keyFactory.generatePublic(encodedPublicKeySpec);
-
-        } else if (xmlSignatureInfo.getPeerID() != null) {
-            X509Certificate certificate = pseStore.getTrustedCertificate(xmlSignatureInfo.getPeerID());
-            if (certificate != null) {
-                publicKey = certificate.getPublicKey();
-                isKeystorePublicKey = true;
-            }
-        }
-
-        boolean verified = false;
-
-        // do the verification
-        if (publicKey != null) {
-            Signature sig = Signature.getInstance(xmlSignatureInfo.getSignatureAlgorithm());
-            sig.initVerify(publicKey);
-            sig.update(signatureDigest);
-            verified = sig.verify(signature);
-        }
-
-        // check that the key in the keystore matches that of the one sent with the advertisement
-        // if isKeystorePublicKey is true then signature is correct with keystor
-        boolean isMember = false;
-        boolean isCorrectMembershipKey = false;
-        if (verifyKeyWithKeystore && xmlSignatureInfo.getPeerID()!=null) {
-            if (!isKeystorePublicKey) {
-                X509Certificate certificate = pseStore.getTrustedCertificate(xmlSignatureInfo.getPeerID());
-                if (certificate != null) {
-                    isMember = true;
-                    PublicKey storePublicKey = certificate.getPublicKey();
-                    if (storePublicKey.equals(publicKey))
-                        isCorrectMembershipKey = true;
-                }
-            } else {
-                isMember = true;
-                isCorrectMembershipKey = true;
-            }
-        }
-
-        return new PSEAdvertismentValidationToken(verified, isMember, isCorrectMembershipKey);
-    }
-
-
-    /**
-     * PSEAdvertismentValidationToken returned by validateAdvertisement
-     */
-    public class PSEAdvertismentValidationToken {
-        private boolean isValid = false;
-        private boolean isMember = false;
-        private boolean isCorrectMembershipKey = false;
-        private PSEAdvertismentValidationToken(boolean isValid, boolean isMember, boolean isCorrectMembershipKey) {
-            this.isValid = isValid;
-            this.isMember = isMember;
-            this.isCorrectMembershipKey = isCorrectMembershipKey;
-        }
-        /**
-         * If the advertisement is validated with the signature then true
-         *
-         * @return boolean isValid
-         */
-        public boolean isValid() {
-            return isValid;
-        }
-        /**
-         * If the peerid that signed the advertisment is present in the
-         * membership keystore then true
-         *
-         * @return boolean isMember
-         */
-        public boolean isMember() {
-            return isMember;
-        }
-        /**
-         * If the publickey (corresponding to the peerid) in the keystore is
-         * identical to the public key supplied with the advertisement then
-         * true
-         *
-         * @return boolean isValid
-         */
-        public boolean isCorrectMembershipKey() {
-            return isCorrectMembershipKey;
-        }
-    }
-
-    /**
-     *
-     * AccessService support
-     *
-     * @param accessServiceOffererCredential
-     * @param peerids
-     * @throws CertPathValidatorException
-     */
-    public void validateOffererCredential(PSECredential accessServiceOffererCredential, String[] aliases) throws CertPathValidatorException {
-
-        if(accessServiceOffererCredential == null)
-            throw new CertPathValidatorException("accessServiceOffererCredential is null");
-
-        if(aliases == null)
-            throw new CertPathValidatorException("aliases is null");
-
-        X509Certificate[] offererCerts = accessServiceOffererCredential.getCertificateChain();
-        if(offererCerts == null)
-            throw new CertPathValidatorException("No Certificates Found");
-
-        CertPath certPath = null;
-        try {
-
-            KeyStore keyStore = KeyStore.getInstance("jks");
-            for (int i=0; i<aliases.length; i++) {
-                keyStore.setCertificateEntry(aliases[i], pseStore.getKeyStore().getCertificate(aliases[i]));
-            }
-            PKIXParameters params = new PKIXParameters(keyStore);
-            params.setRevocationEnabled(false);
-            CertificateFactory factory = CertificateFactory.getInstance("X509");
-            certPath = factory.generateCertPath(Arrays.asList(offererCerts));
-            CertPathValidator pathValidator = CertPathValidator.getInstance("PKIX");
-            pathValidator.validate(certPath, params);
-
-        } catch(KeyStoreException storeExp) {
-            LOG.log(Level.WARNING, storeExp.getMessage(), storeExp);
-            throw new CertPathValidatorException("Trusted Certificates could not be verified.");
-        } catch(CertificateException certExp) {
-            LOG.log(Level.WARNING, certExp.getMessage(), certExp);
-            throw new CertPathValidatorException("Certificates could not be validated.");
-        } catch(NoSuchAlgorithmException noAlgExp) {
-            LOG.log(Level.WARNING, noAlgExp.getMessage(), noAlgExp);
-            throw new CertPathValidatorException("Problem with Certificate Algorithm");
-        } catch(CertPathValidatorException validateExp) {
-            LOG.log(Level.WARNING, validateExp.getMessage(), validateExp);
-            throw validateExp;
-        } catch(InvalidAlgorithmParameterException paramExp) {
-            LOG.log(Level.WARNING, paramExp.getMessage(), paramExp);
-            throw new CertPathValidatorException("Problem with Certificate Algorithm");
-        }
-    }
-
-    /**
-     *
-     * AccessService support
-     *
-     * @param accessServiceOffererCredential
-     * @param peerids
-     * @throws CertPathValidatorException
-     */
-    public void validateOffererCredential(PSECredential accessServiceOffererCredential) throws CertPathValidatorException {
-
-        if(accessServiceOffererCredential == null)
-            throw new CertPathValidatorException("accessServiceOffererCredential is null");
-
-        X509Certificate[] offererCerts = accessServiceOffererCredential.getCertificateChain();
-        if(offererCerts == null)
-            throw new CertPathValidatorException("No Certificates Found");
-
-        CertPath certPath = null;
-        try {
-
-            PKIXParameters params = new PKIXParameters(pseStore.getKeyStore());
-            params.setRevocationEnabled(false);
-            CertificateFactory factory = CertificateFactory.getInstance("X509");
-            certPath = factory.generateCertPath(Arrays.asList(offererCerts));
-            CertPathValidator pathValidator = CertPathValidator.getInstance("PKIX");
-            pathValidator.validate(certPath, params);
-
-        } catch(KeyStoreException storeExp) {
-            LOG.log(Level.WARNING, storeExp.getMessage(), storeExp);
-            throw new CertPathValidatorException("Trusted Certificates could not be verified.");
-        } catch(CertificateException certExp) {
-            LOG.log(Level.WARNING, certExp.getMessage(), certExp);
-            throw new CertPathValidatorException("Certificates could not be validated.");
-        } catch(NoSuchAlgorithmException noAlgExp) {
-            LOG.log(Level.WARNING, noAlgExp.getMessage(), noAlgExp);
-            throw new CertPathValidatorException("Problem with Certificate Algorithm");
-        } catch(CertPathValidatorException validateExp) {
-            LOG.log(Level.WARNING, validateExp.getMessage(), validateExp);
-            throw validateExp;
-        } catch(InvalidAlgorithmParameterException paramExp) {
-            LOG.log(Level.WARNING, paramExp.getMessage(), paramExp);
-            throw new CertPathValidatorException("Problem with Certificate Algorithm");
-        }
-    }
-
-    /**
-     * validatePeer Validates the certificate chain in the keystore of a peer
-     * against a CA - the user must install a PSEPeerValidationEngineFactory for
-     * this to be useful
-     * @param peerID
-     * @throws CertPathValidatorException
-     * @throws KeyStoreException
-     * @throws IOException
-     */
-    public void validatePeer(PeerID peerID) throws CertPathValidatorException, KeyStoreException, IOException {
-        X509Certificate[] certList = pseStore.getTrustedCertificateChain(peerID);
-        peerValidationEngine.validatePeer(peerID, certList);
-    }
-
-    /**
-     * PSEKeyStoreManagerFactory
-     */
-    private static PSEKeyStoreManagerFactory defaultKeyStoreManagerFactory = null;
-    /**
-     *  Set the default PSEKeyStoreManagerFactory
-     **/
-    public static void setPSEKeyStoreManagerFactory(PSEKeyStoreManagerFactory newKeyStoreManagerFactory) {
-        synchronized (PSEMembershipService.class) {
-            if (defaultKeyStoreManagerFactory == null)
-                defaultKeyStoreManagerFactory = newKeyStoreManagerFactory;
-        }
-    }
-    /**
-     *  A factory for PSE KeyStoreManagers.
-     *
-     * @see KeyStoreManager
-     */
-    public interface PSEKeyStoreManagerFactory {
-        KeyStoreManager getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException;
-    }
-    /**
-     *   Returns the default Authenticator Engine Factory.
-     *
-     *   @return The current default Authenticator Engine Factory.
-     **/
-    public static PSEKeyStoreManagerFactory getDefaultKeyStoreManagerFactory() {
-        synchronized (PSEMembershipService.class) {
-            if (defaultKeyStoreManagerFactory == null) {
-                defaultKeyStoreManagerFactory = new PSEKeyStoreManagerFactory() {
-                    public KeyStoreManager getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException {
-
-                        URI location = config.getKeyStoreLocation();
-                        KeyStoreManager store_manager;
-
-                        try {
-                            if (null == location) {
-                                store_manager = new CMKeyStoreManager(config.getKeyStoreType(), config.getKeyStoreProvider()
-                                        ,
-                                        service.getGroup(), service.getAssignedID());
-                            } else {
-                                if (!location.isAbsolute()) {
-                                    // Resolve the location of the keystore relative to our prefs location.
-                                    location = service.getPeerGroup().getStoreHome().resolve(location);
-                                }
-
-                                store_manager = new URIKeyStoreManager(config.getKeyStoreType(), config.getKeyStoreProvider(), location);
-                            }
-
-                            return store_manager;
-                        } catch (java.security.NoSuchProviderException not_available) {
-                            throw new PeerGroupException("Requested KeyStore provider not available", not_available);
-                        } catch (java.security.KeyStoreException bad) {
-                            throw new PeerGroupException("KeyStore failure initializing KeyStoreManager", bad);
-                        }
-                    }
-                };
-            }
-
-            return defaultKeyStoreManagerFactory;
-        }
-    }
-
-    /**
-     * PSEAuthenticatorEngineFactory
-     */
-    private static PSEAuthenticatorEngineFactory defaultAuthenticatorEngineFactory = null;
-    /**
-     *  Set the default PSEAuthenticatorEngineFactory
-     **/
-    public static void setPSEAuthenticatorEngineFactory(PSEAuthenticatorEngineFactory newAuthenticatorEngineFactory) {
-        synchronized (PSEMembershipService.class) {
-            if (defaultAuthenticatorEngineFactory == null)
-                defaultAuthenticatorEngineFactory = newAuthenticatorEngineFactory;
-        }
-    }
-    /**
-     *  A factory for PSE Authenticator Engines.
-     *
-     * @see PSEPeerAuthenticatorEngine
-     */
-    public interface PSEAuthenticatorEngineFactory {
-        PSEAuthenticatorEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException;
-    }
-    /**
-     *   Returns the default Authenticator Engine Factory.
-     *
-     *   @return The current default Authenticator Engine Factory.
-     **/
-    public static PSEAuthenticatorEngineFactory getDefaultPSEAuthenticatorEngineFactory() {
-        synchronized (PSEMembershipService.class) {
-            if (defaultAuthenticatorEngineFactory == null) {
-                defaultAuthenticatorEngineFactory = new PSEAuthenticatorEngineFactory() {
-                    public PSEAuthenticatorEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException {
-                        return null;
-                    }
-                };
-            }
-
-            return defaultAuthenticatorEngineFactory;
-        }
-    }
-
-    /**
-     * PSESecurityEngineFactory
-     */
-    private static PSESecurityEngineFactory defaultSecurityEngineFactory = null;
-    /**
-     *  Set the default PSESecurityEngineFactoryss
-     **/
-    public static void setPSESecurityEngineFactory(PSESecurityEngineFactory newSecurityEngineFactory) {
-        synchronized (PSEMembershipService.class) {
-            if (defaultSecurityEngineFactory == null)
-                defaultSecurityEngineFactory = newSecurityEngineFactory;
-        }
-    }
-    /**
-     *  A factory for PSE Security Engines.
-     *
-     * @see PSEPeerSecurityEngine
-     */
-    public interface PSESecurityEngineFactory {
-        PSEPeerSecurityEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException;
-    }
-    /**
-     *   Returns the default Security Engine Factory.
-     *
-     *   @return The current default Security Engine Factory.
-     **/
-    private static PSESecurityEngineFactory getDefaultPSESecurityEngineFactory() {
-        synchronized (PSEMembershipService.class) {
-            if (defaultSecurityEngineFactory == null) {
-                defaultSecurityEngineFactory = new PSESecurityEngineFactory() {
-                    public PSEPeerSecurityEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException {
-                        return new PSEPeerSecurityEngineDefault();
-                    }
-                };
-            }
-
-            return defaultSecurityEngineFactory;
-        }
-    }
-    /**
-     *   Default implementation which provides the default behaviour.
-     **/
-    private static class PSEPeerSecurityEngineDefault implements PSEPeerSecurityEngine {
-
-        /**
-         *  Log4J Logger
-         **/
-        private static final Logger LOG = Logger.getLogger(PSEPeerSecurityEngineDefault.class.getName());
-
-        /**
-         *   {@inheritDoc}
-         **/
-        public byte[] sign(String algorithm, PSECredential credential, InputStream bis)  throws InvalidKeyException, SignatureException, IOException {
-
-            if (null == algorithm) {
-                algorithm = getSignatureAlgorithm();
-            }
-
-            PSECredentialBridge pseCredentialBridge = new PSECredentialBridge();
-            credential.pseKeyBridge(pseCredentialBridge);
-            PrivateKey privateKey = pseCredentialBridge.privateKey;
-            return PSEUtils.computeSignature(algorithm, privateKey, bis);
-        }
-
-        /**
-         *   {@inheritDoc}
-         **/
-        public boolean verify(String algorithm, PSECredential credential, byte[] signature, InputStream bis) throws InvalidKeyException, SignatureException, IOException {
-            if (null == algorithm) {
-                algorithm = getSignatureAlgorithm();
-            }
-
-            return PSEUtils.verifySignature(algorithm, credential.getCertificate(), signature, bis);
-        }
-
-        /**
-         *   {@inheritDoc}
-         **/
-        public IssuerInfo generateCertificate(PSECredential credential) throws SecurityException {
-
-            PSECredentialBridge pseCredentialBridge = new PSECredentialBridge();
-            credential.pseKeyBridge(pseCredentialBridge);
-            PrivateKey privateKey = pseCredentialBridge.privateKey;
-
-            // we need a new cert.
-            IssuerInfo info = new IssuerInfo();
-
-            info.cert = credential.getCertificate();
-            info.subjectPkey = privateKey;
-            String cname = PSEUtils.getCertSubjectCName(info.cert);
-
-            if (null != cname) {
-                // remove the -CA which is common to ca root certs.
-                if (cname.endsWith("-CA"))
-                    cname = cname.substring(0, cname.length() - 3);
-            }
-
-            Logging.logCheckedFine(LOG, "Generating new service cert for \'", cname, "\'");
-
-            // generate the service cert and private key
-            IssuerInfo serviceinfo = PSEUtils.genCert(cname, info);
-
-            // IssuerInfo serviceinfo = membership.genCert( cname, info, "SHA1withRSA" );
-
-            Logging.logCheckedFine(LOG, "Generated new service cert for \'", cname, "\'");
-
-            return serviceinfo;
-        }
-
-        /**
-         *   {@inheritDoc}
-         **/
-        public String getSignatureAlgorithm() {
-            return "SHA1withRSA";
-        }
-    }
-
-    /**
-     * The signature algorithm used by the current PeerSecurityEngine
-     * @return
-     */
-    String getPeerSecurityEngineSignatureAlgorithm() {
-        if (peerSecurityEngine == null)
-            return null;
-        return peerSecurityEngine.getSignatureAlgorithm();
-    }
-
-    /**
-     *
-     * Support for PSECredential message signing
-     * @param bridge
-     * @return
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     * @throws IOException
-     */
-    byte[] signPSECredentialDocument(PSECredential.PSECredentialSignatureBridge bridge) throws InvalidKeyException, SignatureException, IOException, SecurityException {
-        if (!this.getClass().getClassLoader().equals(bridge.getClass().getClassLoader()))
-            throw new SecurityException("Illegal attempt to signPSECredentialDocument - wrong classloader");
-        if (peerSecurityEngine == null)
-            return null;
-        return peerSecurityEngine.sign(bridge.getSignatureAlgorithm(), bridge.getPSECredential(), bridge.getInputStream());
-    }
-
-    /**
-     * Support for WireFormatMessageBinary message signing
-     * @param bridge
-     * @return
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     * @throws IOException
-     */
-    public byte[] signWireFormatMessageBinary(net.jxta.impl.endpoint.WireFormatMessageBinary.WireFormatMessageBinarySignatureBridge bridge) throws InvalidKeyException, SignatureException, IOException, SecurityException {
-        if (!this.getClass().getClassLoader().equals(bridge.getClass().getClassLoader()))
-            throw new SecurityException("Illegal attempt to signWireFormatMessageBinary - wrong classloader");
-        if (peerSecurityEngine == null)
-            return null;
-        return peerSecurityEngine.sign(bridge.getSignatureAlgorithm(), defaultCredential, bridge.getInputStream());
-    }
-
-    /**
-     *
-     * Support for EndpointRouterMessage message signing
-     * @param bridge
-     * @return
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     * @throws IOException
-     */
-    public byte[] signEndpointRouterMessage(net.jxta.impl.endpoint.router.EndpointRouterMessage.EndpointRouterMessageSignatureBridge bridge) throws InvalidKeyException, SignatureException, IOException, SecurityException {
-        if (!this.getClass().getClassLoader().equals(bridge.getClass().getClassLoader()))
-            throw new SecurityException("Illegal attempt to signEndpointRouterMessage - wrong classloader");
-        if (peerSecurityEngine == null)
-            return null;
-        return peerSecurityEngine.sign(bridge.getSignatureAlgorithm(), defaultCredential, bridge.getInputStream());
-    }
-
-    /**
-     * PSEPeerValidationEngineFactory
-     */
-    private static PSEPeerValidationEngineFactory defaultPeerValidationEngineFactory = null;
-    /**
-     *  Set the default PSEPeerValidationEngineFactory
-     **/
-    public static void setPSEPeerValidationEngineFactory(PSEPeerValidationEngineFactory newPeerValidationEngineFactory) {
-        synchronized (PSEMembershipService.class) {
-            if (defaultPeerValidationEngineFactory == null)
-                defaultPeerValidationEngineFactory = newPeerValidationEngineFactory;
-        }
-    }
-    /**
-     *  A factory for PSE Peer Validation Engines.
-     *
-     * @see PSEPeerValidationEngine
-     */
-    public interface PSEPeerValidationEngineFactory {
-        PSEPeerValidationEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException;
-    }
-    /**
-     *   Returns the default Peer Validation Engine Factory.
-     *
-     *   @return The current default Peer Validation Engine Factory.
-     **/
-    public static PSEPeerValidationEngineFactory getDefaultPSEPeerValidationEngineFactory() {
-        synchronized (PSEMembershipService.class) {
-            if (defaultPeerValidationEngineFactory == null) {
-                defaultPeerValidationEngineFactory = new PSEPeerValidationEngineFactory() {
-                    public PSEPeerValidationEngine getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException {
-                        return new PSEPeerValidationEngineDefault();
-                    }
-                };
-            }
-
-            return defaultPeerValidationEngineFactory;
-        }
-    }
-
-
-    /**
-     *   Default implementation which provides the default behaviour.
-     **/
-    private static class PSEPeerValidationEngineDefault implements PSEPeerValidationEngine {
-
-        /**
-         *   {@inheritDoc}
-         **/
-        public void validatePeer(PeerID peerID, X509Certificate[] certList) throws CertPathValidatorException {
-            // could benefit by doing a signature check on the chain,
-            // but real purpose of PSEPeerValidationEngine is for users to set
-            // up their own CA and use this mechanism to permit PSEMembershipService
-            // to do a real check on the certificate chain.
-        }
-    }
-
 }

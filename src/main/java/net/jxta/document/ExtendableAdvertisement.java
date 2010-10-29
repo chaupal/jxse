@@ -123,17 +123,7 @@ public abstract class ExtendableAdvertisement extends Advertisement {
      * @return {@code true} if the element was recognized, otherwise false.
      */
     protected boolean handleElement(Element elem) {
-        if(elem instanceof XMLElement)
-        {
-            XMLElement tempSigElement = (XMLElement) elem;
-            if(tempSigElement.getName().equals("XMLSignatureInfo"))
-            {
-                this.xmlSignatureInfoElement=tempSigElement;
-            } else if(tempSigElement.getName().equals("XMLSignature"))
-            {
-                this.xmlSignatureElement=tempSigElement;
-            }
-        }
+        // we don't handle any elements.
         return false;
     }
 

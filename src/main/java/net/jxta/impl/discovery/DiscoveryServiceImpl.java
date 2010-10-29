@@ -653,7 +653,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             XMLDocument doc;
 
             try {
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
             } catch (Exception everything) {
                 IOException failure = new IOException("Failure removing Advertisement");
 
@@ -706,7 +706,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             try {
 
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
 
             } catch (Exception everything) {
 
@@ -1333,7 +1333,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             try {
 
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
 
             } catch (Exception everything) {
 
@@ -1379,7 +1379,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             try {
 
-                doc = (XMLDocument) adv.getSignedDocument();
+                doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
 
             } catch (Exception everything) {
 

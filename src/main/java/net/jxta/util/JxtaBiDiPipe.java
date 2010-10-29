@@ -561,10 +561,10 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 outgoing = new OutgoingMsgrAdaptor(msgr, retryTimeout);
             }
             if (ros == null) {
-                ros = new ReliableOutputStream(group, outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService());
+                ros = new ReliableOutputStream(outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService());
             }
             if (ris == null) {
-                ris = new ReliableInputStream(group, outgoing, retryTimeout, this);
+                ris = new ReliableInputStream(outgoing, retryTimeout, this);
             }
         }
     }
@@ -700,7 +700,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
             msg.addMessageElement(JxtaServerPipe.nameSpace,
                     new TextDocumentMessageElement(JxtaServerPipe.remPeerTag,
-                            (XMLDocument) peerAdv.getSignedDocument(), null));
+                            (XMLDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8), null));
             return msg;
         } catch (Throwable t) {
             if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {

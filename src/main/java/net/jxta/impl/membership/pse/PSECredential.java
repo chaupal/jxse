@@ -227,8 +227,8 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      */
     protected PSECredential(PSEMembershipService source, ID keyID, CertPath certChain, PrivateKey privateKey) throws IOException {
         this.source = source;
-        this.peerID = source.getPeerGroup().getPeerID();
-        this.peerGroupID = source.getPeerGroup().getPeerGroupID();
+        this.peerID = source.group.getPeerID();
+        this.peerGroupID = source.group.getPeerGroupID();
         setKeyID(keyID);
         setCertificateChain(certChain);
         setPrivateKey(privateKey);
@@ -253,9 +253,9 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         this.source = source;
         initialize(root);
 
-        if (!peerGroupID.equals(source.getPeerGroup().getPeerGroupID())) {
+        if (!peerGroupID.equals(source.group.getPeerGroupID())) {
             throw new IllegalArgumentException(
-                    "Credential is from a different group. " + peerGroupID + " != " + source.getPeerGroup().getPeerGroupID());
+                    "Credential is from a different group. " + peerGroupID + " != " + source.group.getPeerGroupID());
         }
     }
 
@@ -273,7 +273,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
             PSECredential asCred = (PSECredential) target;
 
             boolean result = peerID.equals(asCred.peerID)
-                    && source.getPeerGroup().getPeerGroupID().equals(asCred.source.getPeerGroup().getPeerGroupID());
+                    && source.group.getPeerGroupID().equals(asCred.source.group.getPeerGroupID());
 
             result &= certs.equals(asCred.certs);
 
@@ -304,7 +304,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
      */
     @Override
     public int hashCode() {
-        int result = peerID.hashCode() * source.getPeerGroup().getPeerGroupID().hashCode() * certs.hashCode();
+        int result = peerID.hashCode() * source.group.getPeerGroupID().hashCode() * certs.hashCode();
 
         if (0 == result) {
             result = 1;
@@ -508,8 +508,7 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
 
             InputStream signStream = new SequenceInputStream(Collections.enumeration(someStreams));
 
-            PSECredentialSignatureBridge pseCredentialSignatureBridge = new PSECredentialSignatureBridge(source.getPeerSecurityEngineSignatureAlgorithm(), this, signStream);
-            byte[] sig = source.signPSECredentialDocument(pseCredentialSignatureBridge);
+            byte[] sig = source.peerSecurityEngine.sign(source.peerSecurityEngine.getSignatureAlgorithm(), this, signStream);
 
             e = doc.createElement("Signature", PSEUtils.base64Encode(sig));
             doc.appendChild(e);
@@ -517,29 +516,10 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         }
 
         if (doc instanceof Attributable) {
-            ((Attributable) doc).addAttribute("algorithm", source.getPeerSecurityEngineSignatureAlgorithm());
+            ((Attributable) doc).addAttribute("algorithm", source.peerSecurityEngine.getSignatureAlgorithm());
         }
 
         return doc;
-    }
-    final static class PSECredentialSignatureBridge {
-        private String signatureAlgorithm = null;
-        private PSECredential credential = null;
-        private InputStream signStream = null;
-        private PSECredentialSignatureBridge(String signatureAlgorithm, PSECredential credential, InputStream signStream) {
-            this.signatureAlgorithm = signatureAlgorithm;
-            this.credential = credential;
-            this.signStream = signStream;
-        }
-        public String getSignatureAlgorithm() {
-            return signatureAlgorithm;
-        }
-        public PSECredential getPSECredential() {
-            return credential;
-        }
-        public InputStream getInputStream() {
-            return signStream;
-        }
     }
 
     /**
@@ -622,26 +602,24 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
     }
 
     /**
-     * Support for TlsTransport key requirement
-     * @param pseCredentialKeyRetriever
+     * Returns the private key associated with this credential. Only valid for
+     * locally generated credentials.
+     *
+     * @return the private key associated with this credential.
+     * @deprecated Use <@link #getSigner(String)> or <@link #getSignatureVerifier(String)> instead.
      */
-    public void tlsKeyBridge(net.jxta.impl.endpoint.tls.TlsTransport.PSECredentialBridge pseCredentialKeyRetriever) throws SecurityException {
-        if (!this.getClass().getClassLoader().equals(pseCredentialKeyRetriever.getClass().getClassLoader()))
-            throw new SecurityException("Illegal attempt to tlsKeyBridge - wrong classloader");
-        if (!local)
-            return;
-        pseCredentialKeyRetriever.setPrivateKey(privateKey);
-    }
-    /**
-     * Support for PSEMembershipService key requirement
-     * @param pseCredentialKeyRetriever
-     */
-    void pseKeyBridge(PSEMembershipService.PSECredentialBridge pseCredentialKeyRetriever) throws SecurityException {
-        if (!this.getClass().getClassLoader().equals(pseCredentialKeyRetriever.getClass().getClassLoader()))
-            throw new SecurityException("Illegal attempt to pseKeyBridge - wrong classloader");
-        if (!local)
-            return;
-        pseCredentialKeyRetriever.setPrivateKey(privateKey);
+    @Deprecated
+    public PrivateKey getPrivateKey() {
+
+        if (!local) {
+            throw new IllegalStateException("This credential is not a local credential and cannot be used for signing.");
+        }
+
+        if (null == privateKey) {
+            throw new IllegalStateException("This local credential is engine based and cannot provide the private key.");
+        }
+
+        return privateKey;
     }
 
     /**

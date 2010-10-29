@@ -274,8 +274,7 @@ public abstract class DiscoveryResponseMsg {
         
         for (Object response : responses) {
             if (response instanceof Advertisement) {
-                Advertisement tempAdvRes = (Advertisement)response;
-                this.responses.add(tempAdvRes.getSignedDocument().toString());
+                this.responses.add(((Advertisement) response).getDocument(MimeMediaType.XMLUTF8).toString());
             } else if (response instanceof String) {
                 this.responses.add((String) response);
             } else if (response instanceof InputStream) {

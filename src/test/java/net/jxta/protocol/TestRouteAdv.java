@@ -59,7 +59,6 @@ package net.jxta.protocol;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import junit.framework.*;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -82,23 +81,10 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.IDFactory;
-import net.jxta.id.TestIDFactory;
 import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.NetworkConfigurator;
-import net.jxta.platform.NetworkManager;
-import net.jxta.platform.NetworkManager.ConfigMode;
 
 import net.jxta.impl.protocol.RouteQuery;
 import net.jxta.impl.protocol.RouteResponse;
-
-import org.jmock.Expectations;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import net.jxta.test.util.JUnitRuleMockery;
-import net.jxta.util.DevNullOutputStream;
 
 
 /**
@@ -106,26 +92,6 @@ import net.jxta.util.DevNullOutputStream;
  */
 
 public class TestRouteAdv extends TestCase {
-
-	@Rule
-    public TemporaryFolder tempStorage = new TemporaryFolder();
-
-    private NetworkManager aliceManager;
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    private void configureForHttp(NetworkManager manager, int port) throws IOException {
-            NetworkConfigurator configurator = manager.getConfigurator();
-            configurator.setTcpEnabled(false);
-            configurator.setHttp2Enabled(false);
-
-            configurator.setHttpEnabled(true);
-            configurator.setHttpIncoming(true);
-            configurator.setHttpOutgoing(true);
-            configurator.setHttpPort(port);
-    }
     
     public TestRouteAdv(java.lang.String testName) {
         super(testName);
@@ -141,13 +107,16 @@ public class TestRouteAdv extends TestCase {
         return suite;
     }
     
+    @Override
+    protected void setUp() {}
+    
     public void testRouteAdv() {
         // create access point advertisment for destination
         System.out.println("Create an access point advertisement");
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
         addresses.add("TCP:123.123.123.123");
@@ -253,7 +222,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap1 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap1.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap1.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:222.222.222.222");
         addresses.add("TCP:244.244.244.244");
@@ -262,7 +231,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap2 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap2.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
@@ -344,7 +313,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
         addresses.add("TCP://123.123.123.123");
@@ -391,7 +360,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
         addresses.add("TCP:123.123.123.123");
@@ -407,7 +376,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap2 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap2.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
@@ -416,7 +385,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap4 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap4.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:888.888.888.888");
         addresses.add("TCP:999.999.999.999");
@@ -435,7 +404,7 @@ public class TestRouteAdv extends TestCase {
         System.out.println("Test hops");
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
-        PeerID pid = TestIDFactory.newPeerID(IDFactory.newPeerGroupID());
+        PeerID pid = IDFactory.newPeerID(IDFactory.newPeerGroupID());
 
         ap.setPeerID(pid);
         // create the route
@@ -447,7 +416,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap2 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap2.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         
         AccessPointAdvertisement ap4 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
@@ -468,7 +437,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
         addresses.add("TCP:123.123.123.123");
@@ -484,7 +453,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap2 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap2.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
@@ -493,7 +462,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap4 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap4.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:888.888.888.888");
         addresses.add("TCP:999.999.999.999");
@@ -504,22 +473,16 @@ public class TestRouteAdv extends TestCase {
         hops.add(ap2);
         hops.add(ap4);
         route.setHops(hops);
-
-        try {
-            aliceManager = new NetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
-            configureForHttp(aliceManager, 59901);
-            aliceManager.startNetwork();
-            PeerGroup peerGroup = aliceManager.getNetPeerGroup();
-
-            PeerID pid = TestIDFactory.newPeerID(IDFactory.newPeerGroupID());
-            Set badHops = new HashSet();
-            RouteQuery query = new RouteQuery();
-            query.setDestPeerID(pid);
-            query.setSrcRoute(route);
-            query.setBadHops(badHops);
-            query.setPeerGroup(peerGroup);
+        
+        PeerID pid = IDFactory.newPeerID(IDFactory.newPeerGroupID());
+        Set badHops = new HashSet();
+        RouteQuery query = new RouteQuery();
+        query.setDestPeerID(pid);
+        query.setSrcRoute(route);
+        query.setBadHops(badHops);
         
         // write to a file
+        try {
             ByteArrayOutputStream fp = new ByteArrayOutputStream();
 
             fp.write(query.toString().getBytes());
@@ -531,7 +494,7 @@ public class TestRouteAdv extends TestCase {
             XMLDocument doc = (XMLDocument)
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
             
-            query1 = new RouteQuery(doc, peerGroup);
+            query1 = new RouteQuery(doc);
             is.close();
             assertEquals(query.getDestPeerID().toString(), query1.getDestPeerID().toString());
             // verify advertisement
@@ -558,7 +521,7 @@ public class TestRouteAdv extends TestCase {
             }
             System.out.println(query1.toString());
         } catch (Exception ex) {
-            if (true) throw new RuntimeException(ex);
+            ex.printStackTrace();
             fail("Error constructing advertisement");
         }
     }
@@ -567,7 +530,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         Vector addresses = new Vector();
 
         addresses.add("TCP:123.123.123.123");
@@ -583,7 +546,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap2 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap2.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap2.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:666.666.666.666");
         addresses.add("TCP:777.777.777.777");
@@ -592,7 +555,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap4 = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap4.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap4.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:888.888.888.888");
         addresses.add("TCP:999.999.999.999");
@@ -607,7 +570,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement apDst = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        apDst.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        apDst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:234.234.234.234");
         addresses.add("TCP:256.256.278.256");
@@ -622,7 +585,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap2Dst = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap2Dst.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap2Dst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:166.166.166.166");
         addresses.add("TCP:277.277.277.277");
@@ -631,7 +594,7 @@ public class TestRouteAdv extends TestCase {
         AccessPointAdvertisement ap4Dst = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
 
-        ap4Dst.setPeerID(TestIDFactory.newPeerID(IDFactory.newPeerGroupID()));
+        ap4Dst.setPeerID(IDFactory.newPeerID(IDFactory.newPeerGroupID()));
         addresses = new Vector();
         addresses.add("TCP:188.188.818.818");
         addresses.add("TCP:929.929.929.929");

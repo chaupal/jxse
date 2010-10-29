@@ -656,8 +656,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
 
-            WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(message, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null, this.group);
-            
+            WireFormatMessage serialed = WireFormatMessageFactory.toWire(message, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
             MessagePackageHeader header = new MessagePackageHeader();
 
             header.setContentTypeHeader(serialed.getMimeType());
@@ -739,7 +738,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
             // TODO 20020730 bondolo@jxta.org Do something with content-coding here.
 
             // read the message!
-            Message msg = WireFormatMessageFactory.fromBufferExternal(bbuffer, msgMime, null, group);
+            Message msg = WireFormatMessageFactory.fromBuffer(bbuffer, msgMime, null);
 
             // Extract the source and destination
             MessageElement srcAddrElem = msg.getMessageElement(EndpointServiceImpl.MESSAGE_SOURCE_NS, EndpointServiceImpl.MESSAGE_SOURCE_NAME);

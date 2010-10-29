@@ -62,7 +62,6 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.IDFactory;
-import net.jxta.id.TestIDFactory;
 import net.jxta.impl.protocol.MulticastAdv;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -92,7 +91,7 @@ public class AdvUtil {
         try {
             peerAdvertisement = (PeerAdvertisement)
                     AdvertisementFactory.newAdvertisement(PeerAdvertisement.getAdvertisementType());
-            PeerID pid = TestIDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+            PeerID pid = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
 
             peerAdvertisement.setPeerID(pid);
             peerAdvertisement.setName(name);

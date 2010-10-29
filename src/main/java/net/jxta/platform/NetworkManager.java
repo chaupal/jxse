@@ -153,7 +153,7 @@ public class NetworkManager implements RendezvousListener {
     private ConfigMode mode;
     private URI instanceHome;
     private PeerGroupID infrastructureID = PeerGroupID.defaultNetPeerGroupID;
-    private PeerID peerID = null;
+    private PeerID peerID = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
     private NetworkConfigurator config;
     private boolean configPersistent = true;
     private boolean useDefaultSeeds;

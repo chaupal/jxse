@@ -76,7 +76,6 @@ import junit.framework.TestSuite;
 import net.jxta.codat.CodatID;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.id.TestIDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeID;
@@ -98,7 +97,7 @@ public final class IDTest extends TestCase {
             CodatID first = IDFactory.newCodatID(seedGroup);
             CodatID second = IDFactory.newCodatID(seedGroup);
             CodatID third;
-            ID interloper = TestIDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+            ID interloper = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
             String  asString;
             ID myPeerGroup;
             boolean isStatic;
@@ -151,7 +150,7 @@ public final class IDTest extends TestCase {
             PeerGroupID fourth;
             PeerGroupID fifth = IDFactory.newPeerGroupID(seed);
             PeerGroupID sixth = IDFactory.newPeerGroupID(fifth, seed);
-            ID interloper = TestIDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+            ID interloper = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
             String  asString;
             URI     asURI;
             ID myPeerGroup;
@@ -207,6 +206,7 @@ public final class IDTest extends TestCase {
             
             assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
         } catch (Exception everything) {
+            everything.printStackTrace();
             fail("caught an unexpected exception - " + everything.toString());
         }
         
@@ -214,8 +214,8 @@ public final class IDTest extends TestCase {
     
     public void testPeerID() {
         try {
-            PeerID first = TestIDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
-            PeerID second = TestIDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+            PeerID first = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
+            PeerID second = IDFactory.newPeerID(IDFactory.newPeerGroupID("uuid"));
             PeerID third;
             ID interloper = IDFactory.newPeerGroupID("uuid");
             String  asString;
@@ -250,7 +250,7 @@ public final class IDTest extends TestCase {
             
             assertTrue("result of conversion to URI and back to ID was not equal to original", first.equals(third));
         } catch (Exception everything) {
-            if (true) throw new RuntimeException(everything);
+            everything.printStackTrace();
             fail("caught an unexpected exception - " + everything.toString());
         }        
     }
