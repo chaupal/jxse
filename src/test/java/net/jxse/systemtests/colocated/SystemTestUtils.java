@@ -27,6 +27,10 @@ public class SystemTestUtils {
     private static final String TEST_NAMESPACE = "SystemTest";
     private static final String STRING_PAYLOAD_ELEMENT = "strPayload";
 
+    public static JxtaServerPipe createServerPipe(NetworkManager manager) throws IOException {
+    	return createServerPipe(manager, null);
+    }
+    
     public static JxtaServerPipe createServerPipe(NetworkManager manager, ServerPipeAcceptListener listener) throws IOException {
         PipeID pipeId = IDFactory.newPipeID(manager.getNetPeerGroup().getPeerGroupID());
         PipeAdvertisement pipeAd = createUnicastPipeAd(pipeId);

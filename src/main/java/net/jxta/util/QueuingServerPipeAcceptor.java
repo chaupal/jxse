@@ -97,15 +97,13 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
     }
     
     public void setTimeoutBackwardsCompatible(int timeout) {
-        if(timeout == 0) {
+    	if (timeout < 0) {
+            throw new IllegalArgumentException("Negative timeout values are not allowed.");
+    	} else if(timeout == 0) {
             this.defaultTimeout = Long.MAX_VALUE;
+        } else {
+        	this.defaultTimeout = timeout;
         }
-        
-        if (timeout < 0) {
-                throw new IllegalArgumentException("Negative timeout values are not allowed.");
-        }
-        
-        this.defaultTimeout = timeout;
     }
     
     /**
