@@ -1423,6 +1423,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * {@inheritDoc}
      */
     public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException {
+
+        return this.newGroup(gid, impl, name, description, true);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description, boolean publish) throws PeerGroupException {
+
         PeerGroup theNewGroup = null;
 
         if (null != gid) {
@@ -1442,18 +1452,22 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         }
 
-        try {
+        if ( publish ) {
 
-            // The group adv definitely needs to be published.
-            theNewGroup.publishGroup(name, description);
+            try {
 
-        } catch (Exception any) {
+                // The group adv definitely needs to be published.
+                theNewGroup.publishGroup(name, description);
 
-            Logging.logCheckedWarning(LOG, "Could not publish group or implementation:\n", any);
+            } catch (Exception any) {
+
+                Logging.logCheckedWarning(LOG, "Could not publish group or implementation:\n", any);
+
+            }
 
         }
 
-        return theNewGroup.getInterface();
+        return theNewGroup;
 
     }
 

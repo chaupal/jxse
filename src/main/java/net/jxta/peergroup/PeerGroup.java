@@ -812,7 +812,11 @@ public interface PeerGroup extends Service {
      * @param description A description of this group.
      * @return PeerGroup the initialized (but not started) peergroup.
      * @throws PeerGroupException Thrown if the group could not be instantiated.
+     *
+     * @deprecated Since 2.7, use {@link #newGroup(net.jxta.peergroup.PeerGroupID, net.jxta.document.Advertisement, java.lang.String, java.lang.String, boolean)
+     * instead}. Code will be removed in a future release.
      */
+    @Deprecated
     public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException;
 
     /**
@@ -849,6 +853,49 @@ public interface PeerGroup extends Service {
      * @throws PeerGroupException Thrown if the group could not be instantiated.
      */
     public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException;
+
+    /**
+     * Instantiates a peer group from its elementary pieces
+     * and eventually publishes the corresponding PeerGroupAdvertisement.
+     * The pieces are: the groups implementation adv, the group id,
+     * the name and description.
+     * <p/>
+     * The typical use of this routine is creating a whole new group based
+     * on a newly created and possibly unpublished implementation adv.
+     * <p/>
+     * This is a convenience method equivalent to either:
+     * <p/>
+     * <pre>
+     * newGrp = thisGroup.loadModule(gid, impl);
+     * newGrp.publishGroup(name, description); // if publication is requested
+     * </pre>
+     * or, but only if the implementation advertisement has been published:
+     * <p/>
+     * <pre>
+     * newPGAdv = AdvertisementFactory.newAdvertisement(
+     *                 PeerGroupAdvertisement.getAdvertisementType());
+     * newPGAdv.setPeerGroupID(gid);
+     * newPGAdv.setModuleSpecID(impl.getModuleSpecID());
+     * newPGAdv.setName(name);
+     * newPGAdv.setDescription(description);
+     * newGrp = thisGroup.newGroup(newPGAdv);
+     * </pre>
+     *
+     * @since 2.6 If the peergroup has not been instantiated yet (i.e., does
+     * not belong to {@code GlobalRegistry}), the {@code ConfigParams} of the newly
+     * instanced object are copied from this peer group.
+     *
+     * @param gid         The ID of that group. If <code>null</code> then a new group ID
+     *                    will be chosen.
+     * @param impl        The advertisement of the implementation to be used.
+     * @param name        The name of the group.
+     * @param description A description of this group.
+     * @param publish publishes new group if {@code true}
+     * @return PeerGroup the initialized (but not started) peergroup.
+     * @throws PeerGroupException Thrown if the group could not be instantiated.
+     */
+    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description,
+        boolean publish) throws PeerGroupException;
 
     /*
      * Shortcuts to the well-known services, in order to avoid calls to

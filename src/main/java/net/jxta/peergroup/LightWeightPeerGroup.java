@@ -349,7 +349,16 @@ public class LightWeightPeerGroup implements PeerGroup {
      */
     public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description) throws PeerGroupException {
         if (group != null) {
-            return group.newGroup(gid, impl, name, description);
+            return group.newGroup(gid, impl, name, description, true);
+        } else {
+            throw new PeerGroupException("Not implemented");
+        }
+    }
+
+
+    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description, boolean publish) throws PeerGroupException {
+        if (group != null) {
+            return group.newGroup(gid, impl, name, description, publish);
         } else {
             throw new PeerGroupException("Not implemented");
         }
@@ -569,4 +578,5 @@ public class LightWeightPeerGroup implements PeerGroup {
             throw new RuntimeException("No wrapped group initialised to delegate to");
         }
     }
+
 }

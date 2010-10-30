@@ -175,6 +175,10 @@ public class FakePeerGroup implements PeerGroup {
         throw new RuntimeException("not implemented");
     }
 
+    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description, boolean publish) throws PeerGroupException {
+        throw new RuntimeException("not implemented");
+    }
+
     public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException {
         throw new RuntimeException("not implemented");
     }

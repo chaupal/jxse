@@ -516,6 +516,17 @@ class PeerGroupInterface implements PeerGroup {
     /**
      * {@inheritDoc}
      */
+    public PeerGroup newGroup(PeerGroupID gid, Advertisement impl, String name, String description, boolean publish) throws PeerGroupException {
+
+        PeerGroup temp = groupImpl;
+
+        return temp.newGroup(gid, impl, name, description, publish);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public PeerGroup newGroup(PeerGroupID gid) throws PeerGroupException {
         PeerGroup temp = groupImpl;
 
@@ -755,4 +766,5 @@ class PeerGroupInterface implements PeerGroup {
         
         return temp.getTaskManager();
     }
+
 }
