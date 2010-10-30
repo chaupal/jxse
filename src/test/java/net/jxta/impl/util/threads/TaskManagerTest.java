@@ -1,5 +1,6 @@
 package net.jxta.impl.util.threads;
 
+import java.util.concurrent.ExecutorService;
 import static org.junit.Assert.*;
 
 import java.util.Properties;
@@ -155,4 +156,16 @@ public class TaskManagerTest {
         t.shutdown();
         t.shutdown();
     }
+
+    @Test
+    public void testCachedExecutorServiceInstance() {
+
+        TaskManager t = new TaskManager();
+        assertNotNull("Unexpected null TaskManager", t);
+
+        ExecutorService item = t.getCachedExecutorService();
+        assertNotNull("Unexpected null CachedExecutorService", item);
+
+    }
+
 }

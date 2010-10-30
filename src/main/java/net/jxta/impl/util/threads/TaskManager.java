@@ -39,6 +39,7 @@ public class TaskManager {
 	private SharedThreadPoolExecutor normalExecutor;
 	private SharedScheduledThreadPoolExecutor scheduledExecutor;
 	private ScheduledExecutorService monitoringExecutor;
+        private CachedThreadExecutorService cachedExecutor;
 	
 	private Map<String, ProxiedScheduledExecutorService> proxiedExecutors;
 	
@@ -93,19 +94,21 @@ public class TaskManager {
 	 * tasks.
 	 */
 	public TaskManager(Integer coreWorkerPoolSize, Integer maxWorkerPoolSize, Integer idleThreadTimeoutSecs, Integer scheduledPoolSize) {
-	    monitoringExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("JxtaTaskMonitor"));
-        int corePoolSize = getCorePoolSize(coreWorkerPoolSize);
-        normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor, 
-                                                      corePoolSize, 
-                                                      getMaxWorkerPoolSize(corePoolSize, maxWorkerPoolSize), 
-                                                      getIdleThreadTimeout(idleThreadTimeoutSecs),
-                                                      TimeUnit.SECONDS, 
-                                                      new SynchronousQueue<Runnable>(), 
-                                                      new NamedThreadFactory("JxtaWorker"));
-        scheduledExecutor = new SharedScheduledThreadPoolExecutor(monitoringExecutor, getScheduledPoolSize(scheduledPoolSize), new NamedThreadFactory("JxtaScheduledWorker"));
-        proxiedExecutors = Collections.synchronizedMap(new HashMap<String, ProxiedScheduledExecutorService>());
-        started=true;
-    }
+	    NamedThreadFactory NTF = new NamedThreadFactory("JxtaTaskMonitor");
+            monitoringExecutor = Executors.newSingleThreadScheduledExecutor(NTF);
+            int corePoolSize = getCorePoolSize(coreWorkerPoolSize);
+            normalExecutor = new SharedThreadPoolExecutor(monitoringExecutor,
+                                                          corePoolSize,
+                                                          getMaxWorkerPoolSize(corePoolSize, maxWorkerPoolSize),
+                                                          getIdleThreadTimeout(idleThreadTimeoutSecs),
+                                                          TimeUnit.SECONDS,
+                                                          new SynchronousQueue<Runnable>(),
+                                                          new NamedThreadFactory("JxtaWorker"));
+            scheduledExecutor = new SharedScheduledThreadPoolExecutor(monitoringExecutor, getScheduledPoolSize(scheduledPoolSize), new NamedThreadFactory("JxtaScheduledWorker"));
+            cachedExecutor = new CachedThreadExecutorService(NTF);
+            proxiedExecutors = Collections.synchronizedMap(new HashMap<String, ProxiedScheduledExecutorService>());
+            started=true;
+        }
 	
 	/**
 	 * Provides a potentially shared executor service.
@@ -114,6 +117,15 @@ public class TaskManager {
 	 */
 	public ExecutorService getExecutorService() {
 		return normalExecutor;
+	}
+
+	/**
+	 * Provides a cached thread executor service.
+	 * Note that since this instance could be shared, it is illegal to attempt to shut down the
+	 * provided instance (an IllegalStateException will be thrown).
+	 */
+	public ExecutorService getCachedExecutorService() {
+		return cachedExecutor;
 	}
 
 	/**
@@ -152,6 +164,7 @@ public class TaskManager {
 		normalExecutor.shutdownShared();
 		scheduledExecutor.shutdownShared();
 		monitoringExecutor.shutdownNow();
+                cachedExecutor.shutdownShared();
 		
 		synchronized (proxiedExecutors) {
 			for(String serviceName : proxiedExecutors.keySet()) {
