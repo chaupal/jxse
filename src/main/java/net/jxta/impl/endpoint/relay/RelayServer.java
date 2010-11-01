@@ -799,8 +799,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         
         Logging.logCheckedFine(LOG, "addClient(", clientPeerID, ")");
 
-        // Not needed (FindBugs)
-//        synchronized (relayedClients) {
+        synchronized (relayedClients) {
 
             // check if this client is already registered
             client = relayedClients.get(clientPeerID);
@@ -824,7 +823,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     
                 }
             }
-//        }
+        }
         
         Logging.logCheckedFine(LOG, "added = ", (client != null));
         
@@ -882,8 +881,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         Logging.logCheckedFine(LOG, "removeClient(", clientPeerId, ",", handler, ")");
         
-        // Not needed (FindBugs)
-//        synchronized (relayedClients) {
+        synchronized (relayedClients) {
             RelayServerClient currentHandler = relayedClients.get(clientPeerId);
             
             // only remove the client if the current handler matches the passed one
@@ -905,7 +903,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                     }
                 }
             }
-//        }
+        }
     }
     
     /**
@@ -1444,10 +1442,9 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
          *  {@inheritDoc}
          */
         protected void implCloseSelector() throws IOException {
-        // Not needed (FindBugs)
-//            synchronized (selectedClientKeys) {
+            synchronized (selectedClientKeys) {
                 selectedClientKeys.notifyAll();
-//            }
+            }
         }
 
         /**
@@ -1515,8 +1512,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
          *  {@inheritDoc}
          */
         public int select(long timeout) throws IOException {
-            // Not needed (FindBugs)
-//            synchronized (selectedClientKeys) {
+            synchronized (selectedClientKeys) {
                 int selectedKeys = selectNow();
 
                 if (0 == selectedKeys) {
@@ -1529,7 +1525,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 }
 
                 return selectedClientKeys.size();
-//            }
+            }
         }
 
         /**
@@ -1545,24 +1541,22 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         @SuppressWarnings("NotifyWhileNotSynced")
         public Selector wakeup() {
 
-            // Not needed (FindBugs)
-//            synchronized (selectedClientKeys) {
+            synchronized (selectedClientKeys) {
                 selectedClientKeys.notifyAll();
-//            }
+            }
 
             return this;
         }
 
         void keyChanged(RelayServerClient.ClientSelectionKey key) {
-            // Not needed (FindBugs)
-//            synchronized (selectedClientKeys) {
+            synchronized (selectedClientKeys) {
                 RelayServerClient channel = key.channel();
                 int ready = channel.readyOps() & key.interestOps();
                 if ((ready != 0) && !selectedClientKeys.keySet().contains(key)) {
                     selectedClientKeys.put(key, key);
                     selectedClientKeys.notify();
                 }
-//            }
+            }
         }
     }
 }

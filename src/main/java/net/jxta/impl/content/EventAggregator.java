@@ -158,8 +158,7 @@ public class EventAggregator implements ContentProviderListener {
         boolean wantMore = true;
         boolean needsNewEvent = false;
 
-        // Object already has its own synchronization mechanism (FindBugs)
-//        synchronized(desiredProviders) {
+        synchronized(desiredProviders) {
 
             // Make sure the provider is one we are expecting more data from
             if (!desiredProviders.contains(provider)) {
@@ -202,7 +201,7 @@ public class EventAggregator implements ContentProviderListener {
                 isLastRecord = true;
                 needsNewEvent = true;
             }
-//        }
+        }
 
         ContentProviderEvent aggEvent;
         if (needsNewEvent) {
@@ -231,12 +230,11 @@ public class EventAggregator implements ContentProviderListener {
      */
     public void dispatchFindRequest(int maxNum) {
 
-        // Object already has its own synchronization mechanism (FindBugs)
-//        synchronized(desiredProviders) {
+        synchronized(desiredProviders) {
             desired = maxNum;
             desiredProviders.clear();
             desiredProviders.addAll(providers);
-//        }
+        }
 
         for (ContentProvider provider : desiredProviders) {
             provider.findContentShares(maxNum, this);

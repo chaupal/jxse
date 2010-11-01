@@ -2,7 +2,9 @@ package net.jxta.impl.cm.sql;
 
 import net.jxta.impl.cm.AbstractCmTest;
 import net.jxta.impl.cm.AdvertisementCache;
+import org.junit.Ignore;
 
+@Ignore("Very long test: 10 min")
 public class DerbyAdvertisementCacheTest extends AbstractCmTest {
 
 	@Override
