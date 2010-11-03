@@ -69,7 +69,7 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
+// import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.credential.AuthenticationCredential;
@@ -77,13 +77,11 @@ import net.jxta.credential.Credential;
 import net.jxta.membership.MembershipService;
 
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
-import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.PSEConfigAdv;
 import org.junit.Ignore;
 
-@Ignore("JXTA Configurator required")
+@Ignore("JXTA Configurator & PeerGroupFactory Required")
 public class pseMembershipTest extends TestCase {
 
     static PeerGroup npg = null;
@@ -94,7 +92,7 @@ public class pseMembershipTest extends TestCase {
         synchronized (pseMembershipTest.class) {
             try {
                 if (null == npg) {
-                    npg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
+                    npg = null; // PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
                     // npg.startApp( new String[0]);
 
                     ModuleImplAdvertisement newGroupImpl = npg.getAllPurposePeerGroupImplAdvertisement();

@@ -59,7 +59,7 @@ package net.jxta.impl.endpoint;
 import junit.framework.*;
 
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
+// import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.document.*;
 import net.jxta.peergroup.WorldPeerGroupFactory;
@@ -80,7 +80,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Collections;
 
-@Ignore("JXTA Configurator required")
+@Ignore("JXTA Configurator & PeerGroupFactory required")
 public class XportConfTest extends TestCase {
 
     static PeerGroup pg;
@@ -307,7 +307,7 @@ public class XportConfTest extends TestCase {
                 // is created.
                 System.setProperty("net.jxta.tls.password", "password");
                 System.setProperty("net.jxta.tls.principal", "password");
-                pg = PeerGroupFactory.newNetPeerGroup(wpg);
+                pg = null; // PeerGroupFactory.newNetPeerGroup(wpg);
 
                 // Throw that one away.
 //                pg.unref();
@@ -318,7 +318,7 @@ public class XportConfTest extends TestCase {
 
                 System.setProperty("net.jxta.tls.password", "password");
                 System.setProperty("net.jxta.tls.principal", "password");
-                pg = PeerGroupFactory.newNetPeerGroup(wpg);
+                pg = null; // PeerGroupFactory.newNetPeerGroup(wpg);
             } catch (Exception e) {
                 if (pg != null) {
 //                    pg.unref();

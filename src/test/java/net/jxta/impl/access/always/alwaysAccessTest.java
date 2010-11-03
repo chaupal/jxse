@@ -70,10 +70,10 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
+// import net.jxta.peergroup.PeerGroupFactory;
 import org.junit.Ignore;
 
-@Ignore("JXTA Configurator required")
+@Ignore("JXTA Configurator & PeerGroupFactory required")
 public class alwaysAccessTest extends TestCase {
 
     static PeerGroup pg;
@@ -83,7 +83,7 @@ public class alwaysAccessTest extends TestCase {
 
         synchronized (alwaysAccessTest.class) {
             if (null == pg) {
-                pg = PeerGroupFactory.newPlatform();
+//                pg = PeerGroupFactory.newPlatform();
             }
         }
     }

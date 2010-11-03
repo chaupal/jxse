@@ -72,7 +72,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
+// import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.peer.PeerID;
 
@@ -96,7 +96,7 @@ public class PipeTest extends TestCase {
 
         synchronized (PipeTest.class) {
             if (null == pg) {
-                pg = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
+                pg = null; // PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
             }
         }
     }

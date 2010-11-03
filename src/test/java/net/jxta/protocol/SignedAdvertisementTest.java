@@ -67,8 +67,7 @@ import net.jxta.credential.AuthenticationCredential;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
-import net.jxta.protocol.SignedAdvertisement;
+// import net.jxta.peergroup.PeerGroupFactory;
 
 import net.jxta.exception.PeerGroupException;
 
@@ -87,7 +86,7 @@ public class SignedAdvertisementTest extends TestCase {
         try {
             synchronized (SignedAdvertisementTest.class) {
                 if (null == pg) {
-                    pg = PeerGroupFactory.newNetPeerGroup(new WorldPeerGroupFactory().getInterface());
+                    pg = null; // PeerGroupFactory.newNetPeerGroup(new WorldPeerGroupFactory().getInterface());
                 }
 
                 MembershipService membership = pg.getMembershipService();

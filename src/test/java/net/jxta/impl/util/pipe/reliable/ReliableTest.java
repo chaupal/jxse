@@ -87,7 +87,7 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.Message.ElementIterator;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.peergroup.PeerGroupFactory;
+// import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.OutputPipe;
@@ -103,7 +103,7 @@ import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 import org.junit.Ignore;
 
-@Ignore("JXTA Configurator required")
+@Ignore("JXTA Configurator & PeerGroupFactory required")
 public class ReliableTest extends TestCase implements
         RendezvousListener, DiscoveryListener, PipeMsgListener, OutputPipeListener {
 
@@ -277,7 +277,7 @@ public class ReliableTest extends TestCase implements
         System.setProperty("net.jxta.tls.principal", PRINCIPAL);
 
         try {
-            netPeerGroup = PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
+            netPeerGroup = null; // PeerGroupFactory.newNetPeerGroup(PeerGroupFactory.newPlatform());
             discoverySvc = netPeerGroup.getDiscoveryService();
             pipeSvc = netPeerGroup.getPipeService();
             rendezvousService = netPeerGroup.getRendezVousService();
