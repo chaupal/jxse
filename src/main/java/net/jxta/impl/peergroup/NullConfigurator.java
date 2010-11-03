@@ -80,13 +80,13 @@ import java.util.logging.Logger;
  * configuration to the PlatformConfig file.
  * <p/>
  * This configurator provides no explict validation of the PlatformConfig
- * as it is read from the file (Some is done by the PlatformConfig class) and
+ * as it is read from the file and
  * provides no mechanism for reconfiguration. The NullConfigurator provides a
  * useful base implementation for extending your own Configurator and also
  * provides the minimal implementation needed for applications which perform
  * their own configuration.
  */
-public class NullConfigurator implements PlatformConfigurator {
+public class NullConfigurator {
 
     /**
      * logger
@@ -147,7 +147,13 @@ public class NullConfigurator implements PlatformConfigurator {
     }
 
     /**
-     * @inheritDoc
+     * Retrieve the associated {@link net.jxta.impl.protocol.PlatformConfig} and
+     * potentially performing any required configuration of the parameters
+     * before returning.
+     *
+     * @return PlatformConfig
+     * @throws net.jxta.exception.ConfiguratorException If configuration error
+     * occurs.
      */
     public PlatformConfig getPlatformConfig() throws ConfiguratorException {
         advertisement = (PlatformConfig) load();
@@ -156,7 +162,9 @@ public class NullConfigurator implements PlatformConfigurator {
     }
 
     /**
-     * @inheritDoc
+     * Sets the associated {@link net.jxta.impl.protocol.PlatformConfig}.
+     *
+     * @param pc the configuration
      */
     public final void setPlatformConfig(PlatformConfig config) {
         advertisement = config;
@@ -177,13 +185,23 @@ public class NullConfigurator implements PlatformConfigurator {
     }
 
     /**
-     * @inheritDoc
+     * Sets the reconfiguration status to the specified status. If
+     * {@code true} then reconfiguration will be forced the next time the
+     * {@link net.jxta.impl.protocol.PlatformConfig} is retrieved.
+     *
+     * @param forceReconfig If {@code true} then a forced reconfiguration will
+     * occur the next time {@link #getPlatformConfig()} is called.
      */
-    public void setReconfigure(boolean reconfigure) {// This implementation doesn't do configuration so ignores this operation.
+    public void setReconfigure(boolean reconfigure) {
+        // This implementation doesn't do configuration so ignores this operation.
     }
 
     /**
-     * @inheritDoc
+     * Determine if a forced reconfiguration is set for the next call to
+     * {@link #getPlatformConfig()}.
+     *
+     * @return Returns {@code true} if a forced reconfiguration will occur the
+     * next time {@link #getPlatformConfig()} is called.
      */
     public boolean isReconfigure() {
         return false;

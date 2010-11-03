@@ -55,23 +55,12 @@
  */
 package net.jxta.impl.peergroup;
 
-import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.XMLDocument;
 import net.jxta.exception.ConfiguratorException;
-import net.jxta.exception.JxtaError;
-import net.jxta.impl.protocol.PSEConfigAdv;
-import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.logging.Logging;
-import net.jxta.peergroup.PeerGroup;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.NoSuchElementException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -168,109 +157,109 @@ public class DefaultConfigurator extends AutomaticConfigurator {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PlatformConfig getPlatformConfig() throws ConfiguratorException {
-        boolean needsConfig = isReconfigure();
-
-        if (needsConfig && Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-            LOG.config("Reconfig requested - Forced reconfigure");
-        }
-
-        try {
-            super.getPlatformConfig();
-
-            // Automatic configuration doesn't do any security config. We use
-            // this fact to decide if we must do configuration.
-            XMLDocument security = (XMLDocument) advertisement.getServiceParam(PeerGroup.membershipClassID);
-
-            if (null == security) {
-                needsConfig = true;
-
-                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                    LOG.config("Reconfig requested - No security info");
-                }
-            } else {
-                Advertisement adv = null;
-
-                try {
-                    adv = AdvertisementFactory.newAdvertisement(security);
-                } catch (NoSuchElementException notAnAdv) {// that's ok.
-                } catch (IllegalArgumentException badAdv) {// that's ok.
-                }
-
-                if (adv instanceof PSEConfigAdv) {
-                    PSEConfigAdv pseConfig = (PSEConfigAdv) adv;
-
-                    // no certificate? That means we need to make one.
-                    needsConfig |= (null == pseConfig.getCertificate());
-                } else {
-                    needsConfig = true;
-                }
-            }
-        } catch (IncompleteConfigurationException configBad) {
-            needsConfig = true;
-        }
-
-        if (needsConfig) {
-            setReconfigure(true);
-
-            try {
-                if (java.awt.EventQueue.isDispatchThread()) {
-                    LOG.severe("The JXTA AWT Configuration Dialog cannot be run from the event dispatch thread. It\'s modal nature is fundamentally incompatible with running on the event dispatch thread. Either change to a different Configurator via PeerGroupFactory.setConfiguratorClass() or start JXTA from the application main Thread before starting your GUI via invokeLater().");
-                    // cruel but fair, the alternative is a UI deadlock.
-                    System.exit(1);
-                }
-                ConfigDialog configUI = new ConfigDialog(advertisement);
-
-                configUI.untilDone();
-                setReconfigure(false);
-            } catch (Throwable t) {
-
-                if (t instanceof JxtaError) throw (JxtaError) t;
-
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "Could not initialize graphical config dialog\n", t);
-                }
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-
-                // clear any type-ahead
-                try {
-                    while (in.ready()) {
-                        in.readLine();
-                    }
-                } catch (Exception ignored) {// ignored
-                }
-
-                System.err.flush();
-                System.out.flush();
-                System.out.println("The window-based configurator does not seem to be usable.");
-                System.out.print("Do you want to stop and edit the current configuration ? [no]: ");
-                System.out.flush();
-                String answer = "no";
-
-                try {
-                    answer = in.readLine();
-                } catch (Exception ignored) {// ignored
-                }
-
-                // this will cover all the cases of the answer yes, while
-                // allowing non-gui/batch type scripts to load the platform
-                // see platform issue #45
-
-                if ("yes".equalsIgnoreCase(answer)) {
-                    save();
-                    System.out.println("Exiting; edit the file \"" + configFile.getPath()
-                            + "\", remove the file \"reconf\", and then launch JXTA again.");
-                    throw new JxtaError("Manual Configuration Requested");
-                } else {
-                    System.out.println("Attempting to continue using the current configuration.");
-                }
-            }
-        }
-        return advertisement;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public PlatformConfig getPlatformConfig() throws ConfiguratorException {
+//        boolean needsConfig = isReconfigure();
+//
+//        if (needsConfig && Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+//            LOG.config("Reconfig requested - Forced reconfigure");
+//        }
+//
+//        try {
+//            super.getPlatformConfig();
+//
+//            // Automatic configuration doesn't do any security config. We use
+//            // this fact to decide if we must do configuration.
+//            XMLDocument security = (XMLDocument) advertisement.getServiceParam(PeerGroup.membershipClassID);
+//
+//            if (null == security) {
+//                needsConfig = true;
+//
+//                if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+//                    LOG.config("Reconfig requested - No security info");
+//                }
+//            } else {
+//                Advertisement adv = null;
+//
+//                try {
+//                    adv = AdvertisementFactory.newAdvertisement(security);
+//                } catch (NoSuchElementException notAnAdv) {// that's ok.
+//                } catch (IllegalArgumentException badAdv) {// that's ok.
+//                }
+//
+//                if (adv instanceof PSEConfigAdv) {
+//                    PSEConfigAdv pseConfig = (PSEConfigAdv) adv;
+//
+//                    // no certificate? That means we need to make one.
+//                    needsConfig |= (null == pseConfig.getCertificate());
+//                } else {
+//                    needsConfig = true;
+//                }
+//            }
+//        } catch (IncompleteConfigurationException configBad) {
+//            needsConfig = true;
+//        }
+//
+//        if (needsConfig) {
+//            setReconfigure(true);
+//
+//            try {
+//                if (java.awt.EventQueue.isDispatchThread()) {
+//                    LOG.severe("The JXTA AWT Configuration Dialog cannot be run from the event dispatch thread. It\'s modal nature is fundamentally incompatible with running on the event dispatch thread. Either change to a different Configurator via PeerGroupFactory.setConfiguratorClass() or start JXTA from the application main Thread before starting your GUI via invokeLater().");
+//                    // cruel but fair, the alternative is a UI deadlock.
+//                    System.exit(1);
+//                }
+//                ConfigDialog configUI = new ConfigDialog(advertisement);
+//
+//                configUI.untilDone();
+//                setReconfigure(false);
+//            } catch (Throwable t) {
+//
+//                if (t instanceof JxtaError) throw (JxtaError) t;
+//
+//                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+//                    LOG.log(Level.WARNING, "Could not initialize graphical config dialog\n", t);
+//                }
+//
+//                BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+//
+//                // clear any type-ahead
+//                try {
+//                    while (in.ready()) {
+//                        in.readLine();
+//                    }
+//                } catch (Exception ignored) {// ignored
+//                }
+//
+//                System.err.flush();
+//                System.out.flush();
+//                System.out.println("The window-based configurator does not seem to be usable.");
+//                System.out.print("Do you want to stop and edit the current configuration ? [no]: ");
+//                System.out.flush();
+//                String answer = "no";
+//
+//                try {
+//                    answer = in.readLine();
+//                } catch (Exception ignored) {// ignored
+//                }
+//
+//                // this will cover all the cases of the answer yes, while
+//                // allowing non-gui/batch type scripts to load the platform
+//                // see platform issue #45
+//
+//                if ("yes".equalsIgnoreCase(answer)) {
+//                    save();
+//                    System.out.println("Exiting; edit the file \"" + configFile.getPath()
+//                            + "\", remove the file \"reconf\", and then launch JXTA again.");
+//                    throw new JxtaError("Manual Configuration Requested");
+//                } else {
+//                    System.out.println("Attempting to continue using the current configuration.");
+//                }
+//            }
+//        }
+//        return advertisement;
+//    }
 }

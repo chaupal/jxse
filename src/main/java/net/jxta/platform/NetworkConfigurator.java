@@ -122,7 +122,7 @@ import net.jxta.impl.protocol.MulticastAdv;
  * Also by default, this class sets the default platform configurator to
  * {@link net.jxta.impl.peergroup.NullConfigurator}. <code>NullConfigurator<code>
  * is a no operation configurator intended to prevent any other configurators from
- * being invoked, including the AWT ConfigDialog.
+ * being invoked.
  * <p/>
  * NetworkConfigurator makes use of classes from the {@code net.jxta.impl.*}
  * packages. Applications are very strongly encouraged to avoid importing these

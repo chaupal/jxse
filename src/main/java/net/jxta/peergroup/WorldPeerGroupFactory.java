@@ -71,6 +71,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.jxta.impl.peergroup.DefaultConfigurator;
+import net.jxta.impl.peergroup.NullConfigurator;
 
 /**
  * A factory for instantiating the World Peer Group. Every peer starts by
@@ -146,7 +148,7 @@ public final class WorldPeerGroupFactory {
 
         // Instantiate the default configurator. Do not do this in your own code!
         try {
-            Configurator configurator = new net.jxta.impl.peergroup.DefaultConfigurator(storeHome);
+            NullConfigurator configurator = new DefaultConfigurator(storeHome);
             // Get (and possibly generate) the platform configuration.
             ConfigParams config = configurator.getConfigParams();
 
