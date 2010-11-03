@@ -490,7 +490,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
                 List<PeerID> peerids = srdiIndex.query(PipeService.PropagateType, PipeAdvertisement.IdTag, getPipeID().toString(),
                         Integer.MAX_VALUE);
 
-                peerids.retainAll(rendezvous.getConnectedPeerIDs());
+                peerids.retainAll(rendezvous.getLocalEdgeView());
 
                 Logging.logCheckedFine(LOG, "Propagating ", message, " to ", peerids.size(), " subscriber peers.");
 

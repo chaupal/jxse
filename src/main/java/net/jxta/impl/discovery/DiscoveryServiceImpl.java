@@ -1628,7 +1628,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         }
 
         isRdv = false;
-        if (!rendezvous.getConnectedPeerIDs().isEmpty()) {
+        if (rendezvous.isConnectedToRendezVous()) {
             // if we have a rendezvous connection track deltas, otherwise wait
             // for a connect event to set this option
             cm.setTrackDeltas(true);

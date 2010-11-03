@@ -53,6 +53,7 @@
 
 package net.jxta.impl.content;
 
+import net.jxta.peer.PeerID;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
@@ -62,6 +63,7 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -155,10 +157,11 @@ public abstract class AbstractContentProviderTest {
                 LOG.info("Got RDV? " + netPeerGroup.getRendezVousService().isConnectedToRendezVous());
                 LOG.info("I'm in: " + netPeerGroup);
                 LOG.info("I am  : " + netPeerGroup.getPeerID());
-                Enumeration<ID> rdvPeers =
-                        netPeerGroup.getRendezVousService().getConnectedRendezVous();
-                while (rdvPeers.hasMoreElements()) {
-                    LOG.info("RDV   : " + rdvPeers.nextElement());
+                List<PeerID> rdvPeers =
+                        netPeerGroup.getRendezVousService().getLocalRendezVousView(); // .getConnectedRendezVous();
+                Iterator<PeerID> iter = rdvPeers.iterator();
+                while (iter.hasNext()) {
+                    LOG.info("RDV   : " + iter.next().toString());
                 }
                 Thread.sleep(1000);
                 service = netPeerGroup.getContentService();
@@ -247,10 +250,11 @@ public abstract class AbstractContentProviderTest {
         LOG.info("Got RDV? " + pg.getRendezVousService().isConnectedToRendezVous());
         LOG.info("I'm in: " + pg);
         LOG.info("I am  : " + pg.getPeerID());
-        Enumeration<ID> rdvPeers =
-                pg.getRendezVousService().getConnectedRendezVous();
-        while (rdvPeers.hasMoreElements()) {
-            LOG.info("RDV   : " + rdvPeers.nextElement());
+        List<PeerID> rdvPeers =
+                pg.getRendezVousService().getLocalRendezVousView();
+        Iterator<PeerID> iter = rdvPeers.iterator();
+        while (iter.hasNext()) {
+            LOG.info("RDV   : " + iter.next().toString());
         }
 
         service = pg.getContentService();

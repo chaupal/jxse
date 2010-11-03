@@ -555,10 +555,10 @@ public class SrdiManager implements RendezvousListener {
 
         try {
             // get the local peerview
-            List<RdvAdvertisement> rpv = group.getRendezVousService().getLocalWalkView();
+            List<PeerID> rpv = group.getRendezVousService().getLocalRendezVousView();
 
-            for (RdvAdvertisement padv : rpv) {
-                set.add(padv.getPeerID().toString());
+            for (PeerID pid : rpv) {
+                set.add(pid.toString());
             }
 
             // add myself
