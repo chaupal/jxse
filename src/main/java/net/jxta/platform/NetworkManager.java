@@ -100,8 +100,8 @@ public class NetworkManager implements RendezvousListener {
      */
     private final static transient Logger LOG = Logger.getLogger(NetworkManager.class.getName());
 
-    protected final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3");
-    protected final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3");
+//    protected final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3");
+//    protected final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3");
 
     /**
      * Define node standard node operating modes
@@ -155,7 +155,7 @@ public class NetworkManager implements RendezvousListener {
     private PeerID peerID = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
     private NetworkConfigurator config;
     private boolean configPersistent = true;
-    private boolean useDefaultSeeds;
+//    private boolean useDefaultSeeds;
 
     /**
      * Creates NetworkManger instance with default instance home set to "$CWD"/.jxta"
@@ -358,10 +358,10 @@ public class NetworkManager implements RendezvousListener {
             config.setInfrastructureID(infrastructureID);
             config.setName(instanceName);
 
-            if (useDefaultSeeds) {
-                config.addRdvSeedingURI(publicSeedingRdvURI);
-                config.addRelaySeedingURI(publicSeedingRelayURI);
-            }
+//            if (useDefaultSeeds) {
+//                config.addRdvSeedingURI(publicSeedingRdvURI);
+//                config.addRelaySeedingURI(publicSeedingRelayURI);
+//            }
 
         } else {
 
@@ -566,23 +566,23 @@ public class NetworkManager implements RendezvousListener {
         }
     }
 
-    /**
-     * if true uses the public rendezvous seeding service
-     *
-     * @param useDefaultSeeds if true uses the default development seeding service
-     */
-    public void setUseDefaultSeeds(boolean useDefaultSeeds) {
-        this.useDefaultSeeds = useDefaultSeeds;
-    }
-
-    /**
-     * Returns true if useDefaultSeeds is set to true
-     *
-     * @return true if useDefaultSeeds is set to true
-     */
-    public boolean getUseDefaultSeeds() {
-        return useDefaultSeeds;
-    }
+//    /**
+//     * if true uses the public rendezvous seeding service
+//     *
+//     * @param useDefaultSeeds if true uses the default development seeding service
+//     */
+//    public void setUseDefaultSeeds(boolean useDefaultSeeds) {
+//        this.useDefaultSeeds = useDefaultSeeds;
+//    }
+//
+//    /**
+//     * Returns true if useDefaultSeeds is set to true
+//     *
+//     * @return true if useDefaultSeeds is set to true
+//     */
+//    public boolean getUseDefaultSeeds() {
+//        return useDefaultSeeds;
+//    }
 
     /**
      * Registers a Runtime shutdown hook to cleanly shutdown the JXTA platform

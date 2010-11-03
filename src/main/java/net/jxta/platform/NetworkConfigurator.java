@@ -1172,7 +1172,6 @@ public class NetworkConfigurator {
 
     /**
      * Sets Rendezvous Seeding URI
-     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3
      *
      * @param seedURI Rendezvous service seeding URI
      */
@@ -1180,61 +1179,61 @@ public class NetworkConfigurator {
         rdvConfig.addSeedingURI(seedURI);
     }
 
-    /**
-     * Sets Rendezvous Access Control URI
-     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
-     *
-     * @param aclURI Rendezvous Access Control URI
-     *
-     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
-     * They will be deprecated and removed in a future release.
-     */
-    @Deprecated
-    public void setRdvACLURI(URI aclURI) {
-        rdvConfig.setAclUri(aclURI);
-    }
+//    /**
+//     * Sets Rendezvous Access Control URI
+//     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
+//     *
+//     * @param aclURI Rendezvous Access Control URI
+//     *
+//     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+//     * They will be deprecated and removed in a future release.
+//     */
+//    @Deprecated
+//    public void setRdvACLURI(URI aclURI) {
+//        rdvConfig.setAclUri(aclURI);
+//    }
 
-    /**
-     * Gets Rendezvous Access Control URI if set
-     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
-     *
-     * @return aclURI Rendezvous Access Control URI
-     *
-     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
-     * They will be deprecated and removed in a future release.
-     */
-    @Deprecated
-    public URI getRdvACLURI() {
-        return rdvConfig.getAclUri();
-    }
+//    /**
+//     * Gets Rendezvous Access Control URI if set
+//     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/rendezvousACL.cgi?3
+//     *
+//     * @return aclURI Rendezvous Access Control URI
+//     *
+//     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRendezvousSeedsStatus'.
+//     * They will be deprecated and removed in a future release.
+//     */
+//    @Deprecated
+//    public URI getRdvACLURI() {
+//        return rdvConfig.getAclUri();
+//    }
 
-    /**
-     * Sets Relay Access Control URI
-     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
-     *
-     * @param aclURI Relay Access Control URI
-     *
-     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
-     * They will be deprecated and removed in a future release.
-     */
-    @Deprecated
-    public void setRelayACLURI(URI aclURI) {
-        relayConfig.setAclUri(aclURI);
-    }
+//    /**
+//     * Sets Relay Access Control URI
+//     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
+//     *
+//     * @param aclURI Relay Access Control URI
+//     *
+//     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
+//     * They will be deprecated and removed in a future release.
+//     */
+//    @Deprecated
+//    public void setRelayACLURI(URI aclURI) {
+//        relayConfig.setAclUri(aclURI);
+//    }
 
-    /**
-     * Gets Relay Access Control URI if set
-     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
-     *
-     * @return aclURI Relay Access Control URI
-     *
-     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
-     * They will be deprecated and removed in a future release.
-     */
-    @Deprecated
-    public URI getRelayACLURI() {
-        return relayConfig.getAclUri();
-    }
+//    /**
+//     * Gets Relay Access Control URI if set
+//     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relayACL.cgi?3
+//     *
+//     * @return aclURI Relay Access Control URI
+//     *
+//     * @deprecated ACL seed lists are in functional conflict with 'UseOnlyRelaySeedsStatus'.
+//     * They will be deprecated and removed in a future release.
+//     */
+//    @Deprecated
+//    public URI getRelayACLURI() {
+//        return relayConfig.getAclUri();
+//    }
 
     /**
      * Sets the RelayService maximum number of simultaneous relay clients
@@ -1250,7 +1249,6 @@ public class NetworkConfigurator {
 
     /**
      * Sets the RelayService Seeding URI
-     * <p/>e.g. http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3
      * <p/>A seeding URI (when read) is expected to provide a list of
      * physical endpoint addresse(s) to relay peers
      *

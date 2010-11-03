@@ -136,21 +136,21 @@ public class NetworkConfiguratorTest extends TestCase {
             case NetworkConfigurator.EDGE_NODE:
                 config = new NetworkConfigurator(mode, edgeHome.toURI());
                 config.setName("EDGE");
-                config.addSeedRelay(URI.create("tcp://192.18.37.37:9701"));
-                config.addSeedRendezvous(URI.create("tcp://192.18.37.37:9701"));
-                config.addRdvSeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3"));
-                config.addRelaySeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3"));
+//                config.addSeedRelay(URI.create("tcp://192.18.37.37:9701"));
+//                config.addSeedRendezvous(URI.create("tcp://192.18.37.37:9701"));
+//                config.addRdvSeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3"));
+//                config.addRelaySeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3"));
                 break;
 
             case NetworkConfigurator.RELAY_NODE:
                 config = new NetworkConfigurator(mode, rlyHome.toURI());
                 config.setName("RELAY");
-                config.addRelaySeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3"));
+//                config.addRelaySeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3"));
                 break;
 
             case NetworkConfigurator.RDV_NODE:
                 config = new NetworkConfigurator(mode, rdvHome.toURI());
-                config.addRdvSeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3"));
+//                config.addRdvSeedingURI(URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3"));
                 config.setName("RDV_SERVER");
                 break;
 

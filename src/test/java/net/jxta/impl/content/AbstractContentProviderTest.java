@@ -136,7 +136,7 @@ public abstract class AbstractContentProviderTest {
             nm = new NetworkManager(
                     ConfigMode.EDGE, "TestNet", tempDir.toURI());
             nm.setInstanceHome(tempDir.toURI());
-            nm.setUseDefaultSeeds(false);
+//            nm.setUseDefaultSeeds(false);
             NetworkConfigurator nc = nm.getConfigurator();
             nc.setTcpStartPort(60000);
             nc.setTcpEndPort(65535);
@@ -237,7 +237,7 @@ public abstract class AbstractContentProviderTest {
         home = new TempDir();
         netMan = new NetworkManager(NetworkManager.ConfigMode.SUPER, "test");
         netMan.setInstanceHome(home.toURI());
-        netMan.setUseDefaultSeeds(false);
+//        netMan.setUseDefaultSeeds(false);
         NetworkConfigurator nc = netMan.getConfigurator();
         nc.setHttpEnabled(false);
         nc.setUseMulticast(false);
