@@ -220,11 +220,11 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         paramAdv.addService(PeerGroup.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
-        // Applications
-        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
-        if (null != moduleAdv) {
-            paramAdv.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
-        }
+//        // Applications
+//        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
+//        if (null != moduleAdv) {
+//            paramAdv.addApp(PeerGroup.applicationClassID, PeerGroup.refShellSpecID);
+//        }
 
         // Insert the newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);

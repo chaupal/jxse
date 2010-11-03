@@ -73,10 +73,10 @@ import net.jxta.protocol.ModuleImplAdvertisement;
  */
 public class ShadowPeerGroup extends StdPeerGroup {
 
-    /**
-     *  Our application is the JXSE Shell.
-     */
-    private Application shell = null;
+//    /**
+//     *  Our application is the JXSE Shell.
+//     */
+//    private Application shell = null;
 
     /**
      *  Create and populate the default module impl Advertisement for this class.
@@ -154,7 +154,6 @@ public class ShadowPeerGroup extends StdPeerGroup {
     /**
      * {@inheritDoc}
      * <p/>
-     * If it is available, start the shell.
      */
     @Override
     public int startApp(String[] args) {
@@ -164,16 +163,16 @@ public class ShadowPeerGroup extends StdPeerGroup {
             return result;
         }
 
-        // Main app is the shell (if it is available).
-        if (null != getLoader().findModuleImplAdvertisement(PeerGroup.refShellSpecID)) {
-            shell = (Application) loadModule(PeerGroup.applicationClassID, PeerGroup.refShellSpecID, PeerGroup.Both);
-
-            if (null == shell) {
-                return -1;
-            }
-
-            result = shell.startApp(new String[0]);
-        }
+//        // Main app is the shell (if it is available).
+//        if (null != getLoader().findModuleImplAdvertisement(PeerGroup.refShellSpecID)) {
+//            shell = (Application) loadModule(PeerGroup.applicationClassID, PeerGroup.refShellSpecID, PeerGroup.Both);
+//
+//            if (null == shell) {
+//                return -1;
+//            }
+//
+//            result = shell.startApp(new String[0]);
+//        }
 
         return result;
     }
@@ -184,10 +183,11 @@ public class ShadowPeerGroup extends StdPeerGroup {
      */
     @Override
     public void stopApp() {
-        if (null != shell) {
-            shell.stopApp();
-            shell = null;
-        }
+
+//        if (null != shell) {
+//            shell.stopApp();
+//            shell = null;
+//        }
 
         super.stopApp();
     }

@@ -65,8 +65,7 @@ import net.jxta.peergroup.PeerGroup;
  * Defines the interface for modules loaded by PeerGroups. Message transports,
  * services and applications need to implement this interface if they are
  * to be loaded and started by a PeerGroup. Service and Application extend
- * Module, PeerGroup implements Service and ShellApp implements Application, as
- * a result both implement Module.
+ * Module, PeerGroup implements Service.
  *
  * <p/>Jxta Modules are given their initialization parameters via the init()
  * method rather than a non-default constructor.

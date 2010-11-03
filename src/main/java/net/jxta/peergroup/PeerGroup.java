@@ -537,11 +537,11 @@ public interface PeerGroup extends Service {
     public final static ModuleSpecID allPurposePeerGroupSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "000000010306"));
 
-    /**
-     * Well known application: the shell
-     */
-    public final static ModuleSpecID refShellSpecID =
-            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000C0206"));
+//    /**
+//     * Well known application: the shell
+//     */
+//    public final static ModuleSpecID refShellSpecID =
+//            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000C0206"));
 
     /**
      * Well known application: the Proxy
@@ -1028,8 +1028,7 @@ public interface PeerGroup extends Service {
      * peergroup implementations.
      * <p/>
      * This definition is always the same and has a well known ModuleSpecID.
-     * It includes the basic service, no protocols and the shell for main
-     * application.
+     * It includes the basic service and no protocols.
      * <p/>
      * The user must remember to change the specID if the set of services
      * protocols or applications is altered before use.

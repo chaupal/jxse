@@ -239,8 +239,8 @@ public class Platform extends StdPeerGroup {
      * The ModuleImplAdvertisement returned differs from the one returned by
      * StdPeerGroup in that it has a different specID, name and description, as
      * well as the high-level message transports . This definition is always the
-     * same and has a well known ModuleSpecID. It includes the basic services,
-     * high-level message transports and the shell for main application.
+     * same and has a well known ModuleSpecID. It includes the basic services
+     * and high-level message transports.
      *
      * @return A ModuleImplAdvertisement suitable for the Network Peer Group.
      */
