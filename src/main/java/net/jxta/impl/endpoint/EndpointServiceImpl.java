@@ -688,23 +688,23 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         return group;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * We create a new instance each time because our interface actually
-     * has state (channel messengers and listener callback adaptor).
-     *
-     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
-     * an instance of {@code EndpointServiceInterface}. It should be removed from the code
-     * in a future release.
-     *
-     */
-    @Deprecated
-    public EndpointService getInterface() {
-
-        return this;
-
-    }
+//    /**
+//     * {@inheritDoc}
+//     * <p/>
+//     * We create a new instance each time because our interface actually
+//     * has state (channel messengers and listener callback adaptor).
+//     *
+//     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
+//     * an instance of {@code EndpointServiceInterface}. It should be removed from the code
+//     * in a future release.
+//     *
+//     */
+//    @Deprecated
+//    public EndpointService getInterface() {
+//
+//        return this;
+//
+//    }
 
     /**
      * {@inheritDoc}

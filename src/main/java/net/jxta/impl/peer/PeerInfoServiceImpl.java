@@ -238,13 +238,6 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     /**
      * {@inheritDoc}
      */
-    public Service getInterface() {
-        return new PeerInfoServiceInterface(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Advertisement getImplAdvertisement() {
         return implAdvertisement;
     }

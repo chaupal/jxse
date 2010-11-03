@@ -221,7 +221,7 @@ public class RefJxtaLoaderTest {
     public void tearDown() throws Exception {
         LOG.info("============ Begin tearDown");
         testService.unshareContent(bothContent.getContentID());
-        testGroup.unref();
+//        testGroup.unref();
         Thread.sleep(300);
         LOG.info("============ End tearDown");
     }

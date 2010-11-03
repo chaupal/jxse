@@ -168,13 +168,13 @@ public class pseMembershipTest extends TestCase {
         synchronized (pseMembershipTest.class) {
             if (null != pg) {
                 pg.stopApp();
-                pg.unref();
+//                pg.unref();
                 pg = null;
             }
 
             if (null != npg) {
                 npg.stopApp();
-                npg.unref();
+//                npg.unref();
                 npg = null;
             }
         }

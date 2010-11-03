@@ -244,7 +244,8 @@ public interface PeerGroup extends Service {
             // unregister when being torn down. Unregistration will also be
             // automatic if the grp object is GC'ed (the references are weak
             // references).
-            return pg.getInterface();
+//            return pg.getInterface();
+            return pg;
         }
 
         /**
@@ -1038,67 +1039,67 @@ public interface PeerGroup extends Service {
      */
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() throws Exception;
 
-    /**
-     * Explicitly notifies a group interface that it will no-longer be used
-     * (similar to dispose). Does nothing to a real group object, only has an
-     * effect on a group interface.
-     * 
-     * @return If {@code true} then interface was unreferenced. If {@code false}
-     * then the interface had previously been unreferenced.
-     *
-     * @deprecated Since 2.6. The interface mechanisms is being removed from core 
-     * code. Users are ultimately responsible for using service methods appropriately.
-     * The corresponding issue should be solved via OSGi (for example).
-     */
-    @Deprecated
-    public boolean unref();
+//    /**
+//     * Explicitly notifies a group interface that it will no-longer be used
+//     * (similar to dispose). Does nothing to a real group object, only has an
+//     * effect on a group interface.
+//     *
+//     * @return If {@code true} then interface was unreferenced. If {@code false}
+//     * then the interface had previously been unreferenced.
+//     *
+//     * @deprecated Since 2.6. The interface mechanisms is being removed from core
+//     * code. Users are ultimately responsible for using service methods appropriately.
+//     * The corresponding issue should be solved via OSGi (for example).
+//     */
+//    @Deprecated
+//    public boolean unref();
 
-    /**
-    *   {@inheritDoc}
-     *
-     * @deprecated Since 2.6. The interface mechanisms is being removed from core
-     * code. Users are ultimately responsible for using service methods appropriately.
-     * The corresponding issue should be solved via OSGi (for example).
-    */
-    @Deprecated
-    public PeerGroup getInterface();
+//    /**
+//    *   {@inheritDoc}
+//     *
+//     * @deprecated Since 2.6. The interface mechanisms is being removed from core
+//     * code. Users are ultimately responsible for using service methods appropriately.
+//     * The corresponding issue should be solved via OSGi (for example).
+//    */
+//    @Deprecated
+//    public PeerGroup getInterface();
 
-    /**
-     * Returns a weak interface object that represents this group.
-     * <p/>
-     * A weak interface object has no life-cycle privileges over the group that
-     * it represents and therefore its users have no accountability. A weak
-     * interface object is safe to give away but holds no promise of sustained
-     * validity.
-     * <p/>
-     * Whatever code gave away a weak interface object retains the power of
-     * terminating the group object from which it was obtained, thereby making 
-     * the weak interface object invalid.
-     * <p/>
-     * A weak interface object is immutable; its {@link #unref()} and 
-     * {@link Service#stopApp()} methods do nothing. Its validity is exactly 
-     * that of the group or interface object from which it was obtained.
-     * <p/>
-     * A weak interface object can be obtained from an interface object, or from
-     * a real group object, or from a weak interface object. In the later case, 
-     * the object returned may be the original weak interface object since such 
-     * objects are immutable.
-     * <p/>
-     * Whatever code obtains a weak interface object from a group object or
-     * regular interface object, remains entirely liable for invoking 
-     * {@link #unref()} on the initial object before discarding it. Giving away a
-     * weak interface object is not equivalent to transferring ownership of the 
-     * original.
-     *
-     * @return A weak interface object that represents this PeerGroup object.
-     * @since JXTA 2.2
-     *
-     * @deprecated Since 2.6. The interface mechanisms is being removed from core
-     * code. Users are ultimately responsible for using service methods appropriately.
-     * The corresponding issue should be solved via OSGi (for example).
-     */
-    @Deprecated
-    public PeerGroup getWeakInterface();
+//    /**
+//     * Returns a weak interface object that represents this group.
+//     * <p/>
+//     * A weak interface object has no life-cycle privileges over the group that
+//     * it represents and therefore its users have no accountability. A weak
+//     * interface object is safe to give away but holds no promise of sustained
+//     * validity.
+//     * <p/>
+//     * Whatever code gave away a weak interface object retains the power of
+//     * terminating the group object from which it was obtained, thereby making
+//     * the weak interface object invalid.
+//     * <p/>
+//     * A weak interface object is immutable; its {@link #unref()} and
+//     * {@link Service#stopApp()} methods do nothing. Its validity is exactly
+//     * that of the group or interface object from which it was obtained.
+//     * <p/>
+//     * A weak interface object can be obtained from an interface object, or from
+//     * a real group object, or from a weak interface object. In the later case,
+//     * the object returned may be the original weak interface object since such
+//     * objects are immutable.
+//     * <p/>
+//     * Whatever code obtains a weak interface object from a group object or
+//     * regular interface object, remains entirely liable for invoking
+//     * {@link #unref()} on the initial object before discarding it. Giving away a
+//     * weak interface object is not equivalent to transferring ownership of the
+//     * original.
+//     *
+//     * @return A weak interface object that represents this PeerGroup object.
+//     * @since JXTA 2.2
+//     *
+//     * @deprecated Since 2.6. The interface mechanisms is being removed from core
+//     * code. Users are ultimately responsible for using service methods appropriately.
+//     * The corresponding issue should be solved via OSGi (for example).
+//     */
+//    @Deprecated
+//    public PeerGroup getWeakInterface();
 
     /**
      * Returns the parent group of this peer group. Not all peer groups have a

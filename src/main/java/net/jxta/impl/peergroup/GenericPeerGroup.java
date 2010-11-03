@@ -263,7 +263,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (parentGroup == null) {
             return null;
         }
-        return parentGroup.getWeakInterface();
+        return parentGroup;
+//        return parentGroup.getWeakInterface();
     }
 
     /**
@@ -533,7 +534,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
             throw new ServiceNotFoundException("Not found: " + mcid.toString());
         }
 
-        return p.getInterface();
+//        return p.getInterface();
+        return p;
     }
 
     /**
@@ -671,7 +673,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 }
 
                 newMod = clazz.newInstance();
-                newMod.init(privileged ? this : getInterface(), assigned, implAdv);
+//                newMod.init(privileged ? this : getInterface(), assigned, implAdv);
+                newMod.init(this, assigned, implAdv);
 
                 Logging.logCheckedInfo(LOG, "Loaded", (privileged ? " privileged" : ""),
                     " module : ", implAdv.getDescription(), " (", implAdv.getCode(), ")");
@@ -1236,7 +1239,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         // to terminate if this group object was itself the last reference
         // to it.
         if (parentGroup != null) {
-            parentGroup.unref();
+//            parentGroup.unref();
             parentGroup = null;
         }
         // executors from TaskManager are now shutdown by the NetworkManager
@@ -1244,16 +1247,16 @@ public abstract class GenericPeerGroup implements PeerGroup {
         initComplete = false;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * May be called by a module which has a direct reference to the group
-     * object and wants to notify its abandoning it. Has no effect on the real
-     * group object.
-     */
-    public boolean unref() {
-        return true;
-    }
+//    /**
+//     * {@inheritDoc}
+//     * <p/>
+//     * May be called by a module which has a direct reference to the group
+//     * object and wants to notify its abandoning it. Has no effect on the real
+//     * group object.
+//     */
+//    public boolean unref() {
+//        return true;
+//    }
 
     /**
      * Called every time an interface object that refers to this group
@@ -1289,54 +1292,54 @@ public abstract class GenericPeerGroup implements PeerGroup {
         stopApp();
     }
 
-    /*
-     * Implement the Service API so that we can make groups services when we
-     * decide to.
-     */
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public PeerGroup getInterface() {
+//    /*
+//     * Implement the Service API so that we can make groups services when we
+//     * decide to.
+//     */
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Deprecated
+//    public PeerGroup getInterface() {
+//
+//        /*
+//         * Interfaces try to solve a problem solved by OSGi. We should rely on OSGi in the
+//         * future to solve reference issues.
+//         */
+//        return this;
+//
+////        if (stopping) {
+////            throw new IllegalStateException("Group has been shutdown. getInterface() is not available");
+////        }
+////
+////        if (initComplete) {
+////            // If init is complete the group can become sensitive to its ref
+////            // count reaching zero. Before there could be transient references
+////            // before there is a chance to give a permanent reference to the
+////            // invoker of newGroup.
+////            stopWhenUnreferenced = true;
+////        }
+////
+////        int new_count = masterRefCount.incrementAndGet();
+////
+////        PeerGroupInterface pgInterface = new RefCountPeerGroupInterface(this);
+////
+////        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+////            Throwable trace = new Throwable("Stack Trace");
+////            StackTraceElement elements[] = trace.getStackTrace();
+////
+////            LOG.info("[" + pgInterface + "] GROUP REF COUNT INCREMENTED TO: " + new_count + " by\n\t" + elements[2]);
+////        }
+////
+////        return pgInterface;
+//    }
 
-        /*
-         * Interfaces try to solve a problem solved by OSGi. We should rely on OSGi in the
-         * future to solve reference issues.
-         */
-        return this;
-
-//        if (stopping) {
-//            throw new IllegalStateException("Group has been shutdown. getInterface() is not available");
-//        }
-//
-//        if (initComplete) {
-//            // If init is complete the group can become sensitive to its ref
-//            // count reaching zero. Before there could be transient references
-//            // before there is a chance to give a permanent reference to the
-//            // invoker of newGroup.
-//            stopWhenUnreferenced = true;
-//        }
-//
-//        int new_count = masterRefCount.incrementAndGet();
-//
-//        PeerGroupInterface pgInterface = new RefCountPeerGroupInterface(this);
-//
-//        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-//            Throwable trace = new Throwable("Stack Trace");
-//            StackTraceElement elements[] = trace.getStackTrace();
-//
-//            LOG.info("[" + pgInterface + "] GROUP REF COUNT INCREMENTED TO: " + new_count + " by\n\t" + elements[2]);
-//        }
-//
-//        return pgInterface;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public PeerGroup getWeakInterface() {
-        return new PeerGroupInterface(this);
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public PeerGroup getWeakInterface() {
+//        return new PeerGroupInterface(this);
+//    }
 
     /**
      * {@inheritDoc}
@@ -1413,7 +1416,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
             throw new PeerGroupException("Could not find group implementation with " + adv.getModuleSpecID());
         }
 
-        return theNewGroup.getInterface();
+//        return theNewGroup.getInterface();
+        return theNewGroup;
     }
 
     /**
@@ -1595,7 +1599,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (resolver == null) {
             return null;
         }
-        return (ResolverService) resolver.getInterface();
+        return resolver; // .getInterface();
     }
 
     public GlobalRegistry getGlobalRegistry()
@@ -1610,7 +1614,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (discovery == null) {
             return null;
         }
-        return (DiscoveryService) discovery.getInterface();
+        return discovery; // .getInterface();
     }
 
     /**
@@ -1620,7 +1624,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (peerinfo == null) {
             return null;
         }
-        return (PeerInfoService) peerinfo.getInterface();
+        return peerinfo; // .getInterface();
     }
 
     /**
@@ -1630,7 +1634,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (membership == null) {
             return null;
         }
-        return (MembershipService) membership.getInterface();
+        return membership; // .getInterface();
     }
 
     /**
@@ -1640,7 +1644,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (pipe == null) {
             return null;
         }
-        return (PipeService) pipe.getInterface();
+        return pipe; // .getInterface();
     }
 
     /**
@@ -1650,7 +1654,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (rendezvous == null) {
             return null;
         }
-        return (RendezVousService) rendezvous.getInterface();
+        return rendezvous; // .getInterface();
     }
 
     /**
@@ -1660,7 +1664,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (access == null) {
             return null;
         }
-        return (AccessService) access.getInterface();
+        return access; // .getInterface();
     }
 
     /**
@@ -1670,7 +1674,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         if (content == null) {
             return null;
         }
-        return (ContentService) content.getInterface();
+        return content; // .getInterface();
     }
 
     public TaskManager getTaskManager() {

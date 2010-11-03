@@ -93,7 +93,7 @@ public class alwaysAccessTest extends TestCase {
 
         synchronized (alwaysAccessTest.class) {
             pg.stopApp();
-            pg.unref();
+//            pg.unref();
             pg = null;
         }
 

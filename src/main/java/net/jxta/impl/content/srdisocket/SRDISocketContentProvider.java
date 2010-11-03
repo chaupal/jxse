@@ -307,14 +307,14 @@ public class SRDISocketContentProvider
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public ContentProviderSPI getInterface() {
-        return (ContentProviderSPI) ModuleWrapperFactory.newWrapper(
-                new Class[]{ContentProviderSPI.class},
-                this);
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public ContentProviderSPI getInterface() {
+//        return (ContentProviderSPI) ModuleWrapperFactory.newWrapper(
+//                new Class[]{ContentProviderSPI.class},
+//                this);
+//    }
 
     /**
      * {@inheritDoc}

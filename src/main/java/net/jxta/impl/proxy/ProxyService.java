@@ -291,12 +291,12 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         return implAdvertisement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public ProxyService getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public ProxyService getInterface() {
+//        return this;
+//    }
 
     /**
      * {@inheritDoc}

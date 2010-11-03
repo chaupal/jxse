@@ -107,7 +107,7 @@ public class PipeTest extends TestCase {
         synchronized (PipeTest.class) {
             if (null != pg) {
                 pg.stopApp();
-                pg.unref();
+//                pg.unref();
                 pg = null;
             }
         }
@@ -120,7 +120,7 @@ public class PipeTest extends TestCase {
             synchronized (PipeTest.class) {
                 if (null != pg) {
                     pg.stopApp();
-                    pg.unref();
+//                    pg.unref();
                     pg = null;
                 }
             }

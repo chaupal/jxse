@@ -299,14 +299,14 @@ public class ContentServiceImpl implements ContentService {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public ContentService getInterface() {
-        return  (ContentService) ModuleWrapperFactory.newWrapper(
-                new Class[] { ContentService.class },
-                this);
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public ContentService getInterface() {
+//        return  (ContentService) ModuleWrapperFactory.newWrapper(
+//                new Class[] { ContentService.class },
+//                this);
+//    }
 
     //////////////////////////////////////////////////////////////////////////
     // ContentService interface methods:

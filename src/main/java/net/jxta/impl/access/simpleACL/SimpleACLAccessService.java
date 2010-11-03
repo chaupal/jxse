@@ -439,12 +439,12 @@ public class SimpleACLAccessService implements AccessService {
         return implAdvertisement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public SimpleACLAccessService getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public SimpleACLAccessService getInterface() {
+//        return this;
+//    }
 
     /**
      * {@inheritDoc}

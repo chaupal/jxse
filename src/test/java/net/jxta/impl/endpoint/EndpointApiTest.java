@@ -540,7 +540,7 @@ public class EndpointApiTest extends TestCase implements EndpointListener, Messe
 
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
-        pg.unref();
+//        pg.unref();
         pg = null;
         System.out.flush();
         System.err.flush();

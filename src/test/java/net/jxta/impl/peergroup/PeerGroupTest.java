@@ -173,10 +173,10 @@ public class PeerGroupTest {
     @After
     public void tearDown() throws Exception {
         LOG.info("============ Begin tearDown");
-        pg111.unref();
-        pg11.unref();
-        pg121.unref();
-        pg12.unref();
+//        pg111.unref();
+//        pg11.unref();
+//        pg121.unref();
+//        pg12.unref();
         Thread.sleep(300);
         LOG.info("============ End tearDown");
     }
@@ -201,7 +201,7 @@ public class PeerGroupTest {
             PeerGroup newpg = pg1.newGroup(pga);
 
             assertTrue("Group id should match", newpg.getPeerGroupID().equals(pga.getPeerGroupID()));
-            newpg.unref();
+//            newpg.unref();
             newpg = null;
         } catch (Exception caught) {
             LOG.log(Level.SEVERE, "Caught exception\n", caught);
@@ -222,14 +222,14 @@ public class PeerGroupTest {
 
             assertTrue("Group id should match", newpg.getPeerGroupID().equals(pgid));
 
-            newpg.unref();
+//            newpg.unref();
             newpg = null;
 
             newpg = pg1.newGroup(null, mia, null, null);
 
             assertTrue("Group id should match", !newpg.getPeerGroupID().equals(pg1.getPeerGroupID()));
 
-            newpg.unref();
+//            newpg.unref();
             newpg = null;
 
         } catch (Exception caught) {
@@ -245,7 +245,7 @@ public class PeerGroupTest {
 
             assertTrue("Group id should match", newpg.getPeerGroupID().equals(PeerGroupID.defaultNetPeerGroupID));
 
-            newpg.unref();
+//            newpg.unref();
             newpg = null;
         } catch (Exception caught) {
             caught.printStackTrace(); 

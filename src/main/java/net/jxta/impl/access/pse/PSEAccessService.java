@@ -381,12 +381,12 @@ public class PSEAccessService implements AccessService {
         return implAdvertisement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Service getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public Service getInterface() {
+//        return this;
+//    }
 
     /**
      * {@inheritDoc}
@@ -457,14 +457,16 @@ public class PSEAccessService implements AccessService {
             throw new IllegalArgumentException("offerer is not a valid credential");
         }
 
-        return new PSEOperation((PSEAccessService) getInterface(), (PSECredential) offerer);
+//        return new PSEOperation((PSEAccessService) getInterface(), (PSECredential) offerer);
+        return new PSEOperation(this, (PSECredential) offerer);
     }
 
     /**
      * {@inheritDoc}
      */
     public PrivilegedOperation newPrivilegedOperation(Element source) {
-        return new PSEOperation((PSEAccessService) getInterface(), source);
+//        return new PSEOperation((PSEAccessService) this, source);
+        return new PSEOperation(this, source);
     }
 
     /**

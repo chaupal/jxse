@@ -192,18 +192,18 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
      */
     private TimerTask sendTask = null;
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * This implementation doesn't currently use interface objects so it just
-     * returns itself. We would use an interface object if we needed to maintain
-     * state for each caller of the Gossip Service or wished to attach a
-     * security context to the callers of this service. ie. different callers
-     * might have different sercurity privleges.
-     */
-    public Service getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     * <p/>
+//     * This implementation doesn't currently use interface objects so it just
+//     * returns itself. We would use an interface object if we needed to maintain
+//     * state for each caller of the Gossip Service or wished to attach a
+//     * security context to the callers of this service. ie. different callers
+//     * might have different sercurity privleges.
+//     */
+//    public Service getInterface() {
+//        return this;
+//    }
 
     /**
      * Return our assigned ID.

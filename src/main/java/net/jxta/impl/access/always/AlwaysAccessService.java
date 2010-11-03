@@ -338,12 +338,12 @@ public class AlwaysAccessService implements AccessService {
         return implAdvertisement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public AlwaysAccessService getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public AlwaysAccessService getInterface() {
+//        return this;
+//    }
 
     /**
      * Get the PeerGroup this service is running in.

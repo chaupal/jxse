@@ -204,25 +204,26 @@ public final class WorldPeerGroupFactory {
      * Group. This reference should be explicitly unreferenced when it is no
      * longer needed.
      *
-     * @return A strong (reference counted) interface object for the World Peer 
+     * @return A strong (reference counted) interface object for the World Peer
      * Group.
      * @see PeerGroup#unref()
      */
     public PeerGroup getInterface() {
-        return world.getInterface();
+        return world;
+//        return world.getInterface();
     }
 
-    /**
-     * Returns a weak (non-reference counted) interface object for the World
-     * Peer Group.
-     *
-     * @return A weak (non-reference counted) interface object for the World
-     * Peer Group.
-     * @see PeerGroup#getWeakInterface()
-     */
-    public PeerGroup getWeakInterface() {
-        return world.getWeakInterface();
-    }
+//    /**
+//     * Returns a weak (non-reference counted) interface object for the World
+//     * Peer Group.
+//     *
+//     * @return A weak (non-reference counted) interface object for the World
+//     * Peer Group.
+//     * @see PeerGroup#getWeakInterface()
+//     */
+//    public PeerGroup getWeakInterface() {
+//        return world.getWeakInterface();
+//    }
 
     /**
      * Determine the class to use for the World PeeerGroup. 
@@ -319,7 +320,7 @@ public final class WorldPeerGroupFactory {
 
                 // cleanup broken instance
                 if (null != result) {
-                    result.unref();
+//                    result.unref();
                 }
 
                 // just rethrow.
@@ -330,7 +331,7 @@ public final class WorldPeerGroupFactory {
 
                 // cleanup broken instance
                 if (null != result) {
-                    result.unref();
+//                    result.unref();
                 }
 
                 // Simplify exception scheme for caller: any sort of problem wrapped

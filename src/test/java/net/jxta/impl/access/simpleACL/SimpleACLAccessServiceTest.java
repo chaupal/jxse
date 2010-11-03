@@ -191,13 +191,13 @@ public class SimpleACLAccessServiceTest extends TestCase {
         synchronized (SimpleACLAccessServiceTest.class) {
             if (null != pg) {
                 pg.stopApp();
-                pg.unref();
+//                pg.unref();
                 pg = null;
             }
 
             if (null != npg) {
                 npg.stopApp();
-                npg.unref();
+//                npg.unref();
                 npg = null;
             }
         }

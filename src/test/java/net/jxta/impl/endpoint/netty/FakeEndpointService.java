@@ -176,9 +176,9 @@ public class FakeEndpointService implements EndpointService {
         throw new RuntimeException("not implemented");
     }
 
-    public Service getInterface() {
-        throw new RuntimeException("not implemented");
-    }
+//    public Service getInterface() {
+//        throw new RuntimeException("not implemented");
+//    }
 
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException {
         throw new RuntimeException("not implemented");

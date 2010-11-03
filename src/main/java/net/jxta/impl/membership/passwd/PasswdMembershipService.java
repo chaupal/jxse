@@ -464,7 +464,8 @@ public class PasswdMembershipService implements MembershipService {
          * {@inheritDoc}
          */
         public MembershipService getSourceService() {
-            return (MembershipService) source.getInterface();
+//            return (MembershipService) source.getInterface();
+            return source;
         }
 
         /**
@@ -552,7 +553,8 @@ public class PasswdMembershipService implements MembershipService {
         principals = new ArrayList();
         authCredentials = new ArrayList();
 
-        support = new PropertyChangeSupport(getInterface());
+//        support = new PropertyChangeSupport(getInterface());
+        support = new PropertyChangeSupport(this);
     }
 
     /**
@@ -655,12 +657,12 @@ public class PasswdMembershipService implements MembershipService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Service getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public Service getInterface() {
+//        return this;
+//    }
 
     /**
      * {@inheritDoc}

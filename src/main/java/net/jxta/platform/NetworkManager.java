@@ -488,7 +488,7 @@ public class NetworkManager implements RendezvousListener {
 
         rendezvous.removeListener(this);
         netPeerGroup.stopApp();
-        netPeerGroup.unref();
+//        netPeerGroup.unref();
         netPeerGroup = null;
 
         // permit restart.

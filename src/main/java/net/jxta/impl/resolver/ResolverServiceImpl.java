@@ -405,15 +405,15 @@ public class ResolverServiceImpl implements ResolverService {
         group = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized ResolverService getInterface() {
-        if (resolverInterface == null) {
-            resolverInterface = new ResolverServiceInterface(this);
-        }
-        return resolverInterface;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public synchronized ResolverService getInterface() {
+//        if (resolverInterface == null) {
+//            resolverInterface = new ResolverServiceInterface(this);
+//        }
+//        return resolverInterface;
+//    }
 
     /**
      * {@inheritDoc}

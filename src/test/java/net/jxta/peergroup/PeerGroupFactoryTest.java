@@ -116,7 +116,7 @@ public class PeerGroupFactoryTest extends TestCase {
 
             Thread.sleep(TimeUtils.ASECOND * 10);
 
-            wpg.unref();
+//            wpg.unref();
             wpg = null;
 
             waitForPeerGroupShutdown(wpg, PeerGroupID.worldPeerGroupID, 60 * TimeUtils.ASECOND);
@@ -144,7 +144,7 @@ public class PeerGroupFactoryTest extends TestCase {
 
             Thread.sleep(TimeUtils.ASECOND * 10);
 
-            npg.unref();
+//            npg.unref();
             npg = null;
 
             waitForPeerGroupShutdown(npg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
@@ -167,12 +167,12 @@ public class PeerGroupFactoryTest extends TestCase {
 
             assertTrue("Group ID was not as expected.", npg.getPeerGroupID().equals(PeerGroupID.defaultNetPeerGroupID));
 
-            wpg.unref();
+//            wpg.unref();
             wpg = null;
 
             Thread.sleep(TimeUtils.ASECOND * 10);
 
-            npg.unref();
+//            npg.unref();
             npg = null;
 
             waitForPeerGroupShutdown(wpg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
@@ -197,7 +197,7 @@ public class PeerGroupFactoryTest extends TestCase {
 
             Thread.sleep(TimeUtils.ASECOND * 10);
 
-            npg.unref();
+//            npg.unref();
             npg = null;
 
             waitForPeerGroupShutdown(npg, pgid, 60 * TimeUtils.ASECOND);
@@ -229,7 +229,7 @@ public class PeerGroupFactoryTest extends TestCase {
 
             assertTrue("Store home location was not as expected", npg.getStoreHome().equals(tmpHome.toURI()));
 
-            npg.unref();
+//            npg.unref();
             npg = null;
 
             waitForPeerGroupShutdown(npg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);
@@ -273,7 +273,7 @@ public class PeerGroupFactoryTest extends TestCase {
             assertTrue("Group ID was not as expected.", npg.getPeerGroupID().equals(pgid));
             assertTrue("Group Name was not as expected.", "config.properties group".equals(npg.getPeerGroupName()));
 
-            npg.unref();
+//            npg.unref();
             npg = null;
 
             waitForPeerGroupShutdown(npg, PeerGroupID.defaultNetPeerGroupID, 60 * TimeUtils.ASECOND);

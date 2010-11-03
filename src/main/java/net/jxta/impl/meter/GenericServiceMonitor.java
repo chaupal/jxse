@@ -82,7 +82,7 @@ public abstract class GenericServiceMonitor implements ServiceMonitorImpl, Modul
     // public void init(MonitorManager monitorManager, ModuleClassID moduleClassID) {
 
     public void init(PeerGroup group, ID assignedID, Advertisement advertisement) {
-        group.unref(); // We do not use the group. These are not quite real modules.
+//        group.unref(); // We do not use the group. These are not quite real modules.
         this.implAdvertisement = (ModuleImplAdvertisement) advertisement;
         this.moduleClassID = (ModuleClassID) assignedID;
     }

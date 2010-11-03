@@ -159,12 +159,12 @@ public class LightWeightPeerGroup implements PeerGroup {
     public void stopApp() {
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public PeerGroup getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public PeerGroup getInterface() {
+//        return this;
+//    }
 
     /**
      * {@inheritDoc}
@@ -551,12 +551,12 @@ public class LightWeightPeerGroup implements PeerGroup {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean unref() {
-        return true;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public boolean unref() {
+//        return true;
+//    }
 
     /**
      * {@inheritDoc}

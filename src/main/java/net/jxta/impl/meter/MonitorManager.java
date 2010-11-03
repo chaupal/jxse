@@ -111,10 +111,10 @@ public class MonitorManager implements Service {
         return implAdvertisement;
     }
 
-    public Service getInterface() {
-        // This is good enough. No need to get fancy.
-        return this;
-    }
+//    public Service getInterface() {
+//        // This is good enough. No need to get fancy.
+//        return this;
+//    }
 
     // public MonitorManager(PeerGroup peerGroup) {
 
@@ -176,7 +176,7 @@ public class MonitorManager implements Service {
         PeerGroup tmp = peerGroup;
 
         peerGroup = pg;
-        tmp.unref();
+//        tmp.unref();
         tmp = null;
     }
 

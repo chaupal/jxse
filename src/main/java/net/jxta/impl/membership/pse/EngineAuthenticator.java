@@ -184,7 +184,8 @@ public class EngineAuthenticator implements Authenticator {
      * {@inheritDoc}
      **/
     public MembershipService getSourceService() {
-        return (MembershipService) source.getInterface();
+//        return (MembershipService) source.getInterface();
+        return (MembershipService) source;
     }
 
     /**

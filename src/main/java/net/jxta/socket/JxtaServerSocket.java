@@ -416,8 +416,9 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                         "Can't connect socket in PeerGroup with id " + socketAddress.getPeerGroupId()
                         + ". No running instance of the group is registered.");
             }
-            bind(pg.getWeakInterface(), socketAddress.getPipeAdv(), backlog);
-            pg.unref();
+//            bind(pg.getWeakInterface(), socketAddress.getPipeAdv(), backlog);
+            bind(pg, socketAddress.getPipeAdv(), backlog);
+//            pg.unref();
         } else {
             throw new IllegalArgumentException("Unsupported subclass of SocketAddress; " + "use JxtaSocketAddress instead.");
         }

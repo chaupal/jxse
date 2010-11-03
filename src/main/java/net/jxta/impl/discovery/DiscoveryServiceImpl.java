@@ -261,18 +261,18 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
      */
     private final CredentialListener membershipCredListener = new CredentialListener();
 
-    /**
-     * {@inheritDoc}
-     *
-     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
-     * an instance of {@code DiscoveryServiceInterface}. It should be removed from the code
-     * in a future release.
-     */
-    public synchronized Service getInterface() {
-
-        return this;
-
-    }
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
+//     * an instance of {@code DiscoveryServiceInterface}. It should be removed from the code
+//     * in a future release.
+//     */
+//    public synchronized Service getInterface() {
+//
+//        return this;
+//
+//    }
 
     /**
      * {@inheritDoc}

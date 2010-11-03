@@ -554,8 +554,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             throw new IOException("Can't connect socket in PeerGroup with id " + socketAddress.getPeerGroupId()
                     + ". No running instance of the group is registered.");
         }
-        connect(pg.getWeakInterface(), socketAddress.getPeerId(), socketAddress.getPipeAdv(), timeout);
-        pg.unref();
+//        connect(pg.getWeakInterface(), socketAddress.getPeerId(), socketAddress.getPipeAdv(), timeout);
+        connect(pg, socketAddress.getPeerId(), socketAddress.getPipeAdv(), timeout);
+//        pg.unref();
     }
 
     /**

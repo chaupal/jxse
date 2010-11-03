@@ -153,7 +153,7 @@ public final class NetPeerGroupFactory {
 
             net = newNetPeerGroup(worldGroup, null, tunables.id, tunables.name, tunables.desc);
         } finally {
-            worldGroup.unref();
+//            worldGroup.unref();
         }
     }
 
@@ -216,7 +216,7 @@ public final class NetPeerGroupFactory {
             net = newNetPeerGroup(worldGroup, config, tunables.id, tunables.name, tunables.desc);
 
         } finally {
-            worldGroup.unref();
+//            worldGroup.unref();
         }
     }
 
@@ -307,7 +307,7 @@ public final class NetPeerGroupFactory {
         try {
             net = newNetPeerGroup(worldGroup, config, id, name, desc);
         } finally {
-            worldGroup.unref();
+//            worldGroup.unref();
         }
     }
 
@@ -385,15 +385,15 @@ public final class NetPeerGroupFactory {
         return net;
     }
 
-    /**
-     * Returns a weak (non-reference counted) interface object for the Net Peer Group.
-     *
-     * @return A weak (non-reference counted) interface object for the Net Peer Group.
-     * @see PeerGroup#getWeakInterface()
-     */
-    public PeerGroup getWeakInterface() {
-        return net.getWeakInterface();
-    }
+//    /**
+//     * Returns a weak (non-reference counted) interface object for the Net Peer Group.
+//     *
+//     * @return A weak (non-reference counted) interface object for the Net Peer Group.
+//     * @see PeerGroup#getWeakInterface()
+//     */
+//    public PeerGroup getWeakInterface() {
+//        return net.getWeakInterface();
+//    }
 
     /**
      * Construct the new Net Peer Group instance.
@@ -418,7 +418,7 @@ public final class NetPeerGroupFactory {
             ModuleImplAdvertisement NPGAdv = ShadowPeerGroup.getDefaultModuleImplAdvertisement();
 
             if (null != result) {
-                result.unref();
+//                result.unref();
                 throw new PeerGroupException("Only a single instance of a Peer Group may be instantiated at a single time.");
             }
 

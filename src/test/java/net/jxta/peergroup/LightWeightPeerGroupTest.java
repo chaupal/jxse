@@ -101,11 +101,11 @@ public class LightWeightPeerGroupTest extends TestCase {
 
             if (inits == 0) {
                 pg.stopApp();
-                pg.unref();
+//                pg.unref();
                 pg = null;
 
                 npg.stopApp();
-                npg.unref();
+//                npg.unref();
                 npg = null;
             }
         }

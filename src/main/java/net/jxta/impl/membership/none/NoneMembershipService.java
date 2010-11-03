@@ -222,7 +222,7 @@ public class NoneMembershipService implements MembershipService {
          * {@inheritDoc}
          **/
         public Service getSourceService() {
-            return source.getInterface();
+            return source; // .getInterface();
         }
 
         /**
@@ -490,7 +490,7 @@ public class NoneMembershipService implements MembershipService {
     public NoneMembershipService() throws PeerGroupException {
         principals = new ArrayList();
         principalsAuth = new ArrayList();
-        support = new PropertyChangeSupport(getInterface());
+        support = new PropertyChangeSupport(this); // getInterface());
     }
 
     /**
@@ -561,12 +561,12 @@ public class NoneMembershipService implements MembershipService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     **/
-    public Service getInterface() {
-        return this; // we have no method access control
-    }
+//    /**
+//     * {@inheritDoc}
+//     **/
+//    public Service getInterface() {
+//        return this; // we have no method access control
+//    }
 
     /**
      * {@inheritDoc}

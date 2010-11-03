@@ -167,7 +167,7 @@ public final class PSEMembershipService implements MembershipService {
      *  Default constructor. Normally only called by the peer group.
      **/
     public PSEMembershipService() throws PeerGroupException {
-        support = new PropertyChangeSupport(getInterface());
+        support = new PropertyChangeSupport(this); // getInterface());
     }
 
     /**
@@ -265,12 +265,12 @@ public final class PSEMembershipService implements MembershipService {
         resign();
     }
 
-    /**
-     * {@inheritDoc}
-     **/
-    public Service getInterface() {
-        return this;
-    }
+//    /**
+//     * {@inheritDoc}
+//     **/
+//    public Service getInterface() {
+//        return this;
+//    }
 
     /**
      * {@inheritDoc}

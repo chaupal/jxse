@@ -83,18 +83,18 @@ import net.jxta.platform.Module;
  **/
 public interface Service extends Module {
 
-    /**
-     * Service objects are not manipulated directly to protect usage
-     * of the service. A Service interface is returned to access the service
-     * methods.
-     *
-     * @return Service public interface of the service
-     *
-     * @deprecated Since 2.6. Users are responsible for using services and their
-     * methods appropriately. Ultimately, this issue may/will be solved via OSGi.
-     */
-    @Deprecated
-    public Service getInterface();
+//    /**
+//     * Service objects are not manipulated directly to protect usage
+//     * of the service. A Service interface is returned to access the service
+//     * methods.
+//     *
+//     * @return Service public interface of the service
+//     *
+//     * @deprecated Since 2.6. Users are responsible for using services and their
+//     * methods appropriately. Ultimately, this issue may/will be solved via OSGi.
+//     */
+//    @Deprecated
+//    public Service getInterface();
 
     /**
      * Returns the advertisement for this service.

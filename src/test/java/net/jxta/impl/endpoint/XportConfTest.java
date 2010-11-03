@@ -310,7 +310,7 @@ public class XportConfTest extends TestCase {
                 pg = PeerGroupFactory.newNetPeerGroup(wpg);
 
                 // Throw that one away.
-                pg.unref();
+//                pg.unref();
 
                 // Fix the config and start for good.
                 backupConfig();
@@ -321,7 +321,7 @@ public class XportConfTest extends TestCase {
                 pg = PeerGroupFactory.newNetPeerGroup(wpg);
             } catch (Exception e) {
                 if (pg != null) {
-                    pg.unref();
+//                    pg.unref();
                 }
                 restoreConfig();
                 throw e;
@@ -335,7 +335,7 @@ public class XportConfTest extends TestCase {
             if (--count > 0) {
                 return;
             }
-            pg.unref();
+//            pg.unref();
             pg = null;
             restoreConfig();
             System.out.flush();

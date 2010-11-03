@@ -182,20 +182,20 @@ public final class RendezVousServiceImpl implements RendezVousService {
     public RendezVousServiceImpl() {
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
-     * an instance of {@code RendezVousServiceInterface}. It should be removed from the code
-     * in a future release.
-     *
-     */
-    @Deprecated
-    public RendezVousService getInterface() {
-
-        return this;
-
-    }
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @since 2.6 This method has been deprecated and now returns {@code this} rather than
+//     * an instance of {@code RendezVousServiceInterface}. It should be removed from the code
+//     * in a future release.
+//     *
+//     */
+//    @Deprecated
+//    public RendezVousService getInterface() {
+//
+//        return this;
+//
+//    }
 
     /**
      * {@inheritDoc}
@@ -860,7 +860,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
     public final void generateEvent(int type, ID regarding) {
 
         Iterator eachListener = Arrays.asList(eventListeners.toArray()).iterator();
-        RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
+//        RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
+        RendezvousEvent event = new RendezvousEvent(this, type, regarding);
 
         Logging.logCheckedFine(LOG, "Calling listeners for ", event);
 

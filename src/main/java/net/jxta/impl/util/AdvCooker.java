@@ -229,7 +229,7 @@ public class AdvCooker {
 
             ModuleImplAdvertisement implAdv = wpg.getAllPurposePeerGroupImplAdvertisement();
 
-            wpg.unref();
+//            wpg.unref();
 
             XMLDocument compat = (XMLDocument) implAdv.getCompat();
 

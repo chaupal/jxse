@@ -215,18 +215,18 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		// the same is automatically generated.
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * We create only a single interface object and return it over and over
-	 * again.
-	 */
-	public synchronized PipeService getInterface() {
-		if (null == myInterface) {
-			myInterface = new PipeServiceInterface(this);
-		}
-		return myInterface;
-	}
+//	/**
+//	 * {@inheritDoc}
+//	 * <p/>
+//	 * We create only a single interface object and return it over and over
+//	 * again.
+//	 */
+//	public synchronized PipeService getInterface() {
+//		if (null == myInterface) {
+//			myInterface = new PipeServiceInterface(this);
+//		}
+//		return myInterface;
+//	}
 
 	/**
 	 * {@inheritDoc}
@@ -537,10 +537,12 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 			}
 
 			if (null != op) {
+//				OutputPipeEvent newevent = new OutputPipeEvent(this
+//						.getInterface(), op, pipeId.toString(),
+//						PipeResolver.ANYQUERY);
 				OutputPipeEvent newevent = new OutputPipeEvent(this
-						.getInterface(), op, pipeId.toString(),
+						, op, pipeId.toString(),
 						PipeResolver.ANYQUERY);
-
 				try {
 
 				    listener.outputPipeEvent(newevent);
@@ -762,7 +764,10 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
                 }
 
                 // Generate an event when the output pipe was succesfully opened.
-                OutputPipeEvent newevent = new OutputPipeEvent(this.getInterface(),
+//                OutputPipeEvent newevent = new OutputPipeEvent(this.getInterface(),
+//                                op, pipeID.toString(), queryID);
+
+                OutputPipeEvent newevent = new OutputPipeEvent(this,
                                 op, pipeID.toString(), queryID);
 
                 try {

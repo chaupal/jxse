@@ -1299,10 +1299,10 @@ public class SwingUI extends javax.swing.JFrame {
     private void swingUIClosed(java.awt.event.WindowEvent evt) { // GEN-FIRST:event_swingUIClosed
         // Shutdown the pse peer group.
         group.stopApp();
-        group.unref();
+//        group.unref();
 
         // Un-reference the parent peer group.
-        parentgroup.unref();
+//        parentgroup.unref();
     }// GEN-LAST:event_swingUIClosed
 
     private void invitationPasswordFieldKeyReleased(java.awt.event.KeyEvent evt) { // GEN-FIRST:event_invitationPasswordFieldKeyReleased
