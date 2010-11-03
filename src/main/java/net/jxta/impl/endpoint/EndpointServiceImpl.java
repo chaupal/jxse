@@ -1042,15 +1042,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
     /**
      * {@inheritDoc}
      */
-    public void demux(Message msg) {
-
-        processIncomingMessage(msg);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void processIncomingMessage(Message msg) {
 
         // Get the message destination
@@ -2051,26 +2042,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             return null;
         }
         return messenger;
-    }
-
-    /**
-     * Returns a Direct Messenger that may be used to send messages via  this endpoint
-     * to the specified destination.
-     *
-     * @param address the destination address.
-     * @param hint the messenger hint, if any, otherwise null.
-     * @param exclusive if true avoids caching the messenger
-     * @return The messenger or {@code null} is returned if the destination address is not reachable.
-     * @throws IllegalArgumentException if hint is not of RouteAdvertisement, or PeerAdvertisement type.
-     */
-    public Messenger getDirectMessenger(EndpointAddress address, Object hint, boolean exclusive) {
-
-        /* XXX: direct messengers are a hack, removing them here forces the JXTA code to go through
-         * the normal route selection process which also has it's own issues. The broader topic
-         * of prioritising transports needs more attention, in particular making it more configurable
-         * to suit the user's needs rather than just the general case.
-         */
-        return null;
     }
 
     /**

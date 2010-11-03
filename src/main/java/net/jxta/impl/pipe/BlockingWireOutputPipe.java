@@ -216,10 +216,10 @@ public class BlockingWireOutputPipe implements OutputPipe {
             return true;
         }
 
-        // Try making a direct messenger first.
-        if (route != null) {
-            destMessenger = endpoint.getDirectMessenger(destination, route, true);
-        }
+//        // Try making a direct messenger first.
+//        if (route != null) {
+//            destMessenger = endpoint.getDirectMessenger(destination, route, true);
+//        }
 
         // Try making a regular messenger if that didn't work.
         if ((destMessenger == null) || ((destMessenger.getState() & Messenger.TERMINAL) != 0)) {
