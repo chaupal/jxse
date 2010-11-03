@@ -202,15 +202,11 @@ public final class WorldPeerGroupFactory {
     }
 
     /**
-     * Returns a strong (reference counted) interface object for the World Peer
-     * Group. This reference should be explicitly unreferenced when it is no
-     * longer needed.
+     * Returns a World Peer.
      *
-     * @return A strong (reference counted) interface object for the World Peer
-     * Group.
-     * @see PeerGroup#unref()
+     * @return An World Peer Group.
      */
-    public PeerGroup getInterface() {
+    public PeerGroup getWorldPeerGroup() {
         return world;
 //        return world.getInterface();
     }

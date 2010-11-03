@@ -407,7 +407,7 @@ public class NetworkManager implements RendezvousListener {
         // create, and Start the default jxta NetPeerGroup
         NetPeerGroupFactory factory = new NetPeerGroupFactory(config.getPlatformConfig(), instanceHome);
 
-        netPeerGroup = factory.getInterface();
+        netPeerGroup = factory.getNetPeerGroup();
 
         // Saving if config is persistent
         if (configPersistent) {

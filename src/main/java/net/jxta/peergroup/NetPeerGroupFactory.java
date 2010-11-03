@@ -120,7 +120,7 @@ public final class NetPeerGroupFactory {
      */
     public NetPeerGroupFactory() throws PeerGroupException {
         WorldPeerGroupFactory world = new WorldPeerGroupFactory();
-        PeerGroup worldGroup = world.getInterface();
+        PeerGroup worldGroup = world.getWorldPeerGroup();
         NetGroupTunables tunables;
 
         try {
@@ -201,7 +201,7 @@ public final class NetPeerGroupFactory {
     public NetPeerGroupFactory(ConfigParams config, URI storeHome) throws PeerGroupException {
 
         WorldPeerGroupFactory world = new WorldPeerGroupFactory(config, storeHome);
-        PeerGroup worldGroup = world.getInterface();
+        PeerGroup worldGroup = world.getWorldPeerGroup();
 
         try {
             PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) config.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
@@ -271,76 +271,76 @@ public final class NetPeerGroupFactory {
 
     }
 
-    /**
-     * Constructs a Net Peer Group and the World Peer Group using the
-     * configuration specified by the provided ConfigParams and using the
-     * specified storeHome location for persistence.
-     *
-     * @deprecated With the addition of support for {@code PeerGroupConfigAdv}
-     * this constructor is being deprecated as the precedence of settings is
-     * ambiguous.
-     *
-     * @param config    The configuration to use for the newly created World Peer
-     * Group and Net Peer Groups.
-     * @param storeHome The optional location that the World Peer Group, the
-     * Net Peer Group and its' services should use for storing persistent and
-     * transient information. May be {@code null} if the World Peer Group is
-     * not provided a persistent store (though this not currently supported).
-     * @param id        The PeerGroupID which will be used for the new Net Peer Group
-     * instance.
-     * @param name      The name which will be used for the new Net Peer Group
-     * instance.
-     * @param desc      The description which will be used for the new Net Peer Group
-     * instance. You can construct an {@code XMLDocument} from a {@code String}
-     * via :
-     * <p/><pre>
-     *     XMLDocument asDoc = StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, "desc", asString );
-     * </pre>
-     * @throws PeerGroupException Thrown for problems constructing the Net Peer
-     * Group.
-     */
-    @Deprecated
-    public NetPeerGroupFactory(ConfigParams config, URI storeHome, ID id, String name, XMLElement desc) throws PeerGroupException {
-        WorldPeerGroupFactory world = new WorldPeerGroupFactory(config, storeHome);
-        PeerGroup worldGroup = world.getInterface();
-
-        try {
-            net = newNetPeerGroup(worldGroup, config, id, name, desc);
-        } finally {
-//            worldGroup.unref();
-        }
-    }
-
-    /**
-     * Constructs a Net Peer Group instance using the specified parent peer
-     * group (normally the World Peer Group). This is the preferred constructor
-     * for constructing a private Net Peer Group.
-     *
-     * @deprecated With the addition of support for {@code PeerGroupConfigAdv}
-     * this constructor is being deprecated as the precedence of settings is
-     * ambiguous.
-     *
-     * @param parentGroup The Peer Group which will be the parent of the
-     * newly created net peer group. This should normally be the World Peer
-     * Group.
-     * @param id The PeerGroupID which will be used for the new Net Peer Group
-     * instance.
-     * @param name The name which will be used for the new Net Peer Group
-     * instance.
-     * @param desc The description which will be used for the new Net Peer Group
-     * instance. You can construct an {@code XMLDocument} from a {@code String}
-     * via :
-     * <p/><pre>
-     *     XMLDocument asDoc = StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, "desc", asString );
-     * </pre>
-     * @throws PeerGroupException Thrown for problems constructing the Net Peer
-     * Group.
-     */
-    @Deprecated
-    public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc) throws PeerGroupException {
-        net = newNetPeerGroup(parentGroup, null, id, name, desc);
-    }
-
+//    /**
+//     * Constructs a Net Peer Group and the World Peer Group using the
+//     * configuration specified by the provided ConfigParams and using the
+//     * specified storeHome location for persistence.
+//     *
+//     * @deprecated With the addition of support for {@code PeerGroupConfigAdv}
+//     * this constructor is being deprecated as the precedence of settings is
+//     * ambiguous.
+//     *
+//     * @param config    The configuration to use for the newly created World Peer
+//     * Group and Net Peer Groups.
+//     * @param storeHome The optional location that the World Peer Group, the
+//     * Net Peer Group and its' services should use for storing persistent and
+//     * transient information. May be {@code null} if the World Peer Group is
+//     * not provided a persistent store (though this not currently supported).
+//     * @param id        The PeerGroupID which will be used for the new Net Peer Group
+//     * instance.
+//     * @param name      The name which will be used for the new Net Peer Group
+//     * instance.
+//     * @param desc      The description which will be used for the new Net Peer Group
+//     * instance. You can construct an {@code XMLDocument} from a {@code String}
+//     * via :
+//     * <p/><pre>
+//     *     XMLDocument asDoc = StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, "desc", asString );
+//     * </pre>
+//     * @throws PeerGroupException Thrown for problems constructing the Net Peer
+//     * Group.
+//     */
+//    @Deprecated
+//    public NetPeerGroupFactory(ConfigParams config, URI storeHome, ID id, String name, XMLElement desc) throws PeerGroupException {
+//        WorldPeerGroupFactory world = new WorldPeerGroupFactory(config, storeHome);
+//        PeerGroup worldGroup = world.getInterface();
+//
+//        try {
+//            net = newNetPeerGroup(worldGroup, config, id, name, desc);
+//        } finally {
+////            worldGroup.unref();
+//        }
+//    }
+//
+//    /**
+//     * Constructs a Net Peer Group instance using the specified parent peer
+//     * group (normally the World Peer Group). This is the preferred constructor
+//     * for constructing a private Net Peer Group.
+//     *
+//     * @deprecated With the addition of support for {@code PeerGroupConfigAdv}
+//     * this constructor is being deprecated as the precedence of settings is
+//     * ambiguous.
+//     *
+//     * @param parentGroup The Peer Group which will be the parent of the
+//     * newly created net peer group. This should normally be the World Peer
+//     * Group.
+//     * @param id The PeerGroupID which will be used for the new Net Peer Group
+//     * instance.
+//     * @param name The name which will be used for the new Net Peer Group
+//     * instance.
+//     * @param desc The description which will be used for the new Net Peer Group
+//     * instance. You can construct an {@code XMLDocument} from a {@code String}
+//     * via :
+//     * <p/><pre>
+//     *     XMLDocument asDoc = StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, "desc", asString );
+//     * </pre>
+//     * @throws PeerGroupException Thrown for problems constructing the Net Peer
+//     * Group.
+//     */
+//    @Deprecated
+//    public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc) throws PeerGroupException {
+//        net = newNetPeerGroup(parentGroup, null, id, name, desc);
+//    }
+//
 //    /**
 //     * Constructs a Net Peer Group instance using the specified parent peer
 //     * group (normally the World Peer Group). This is the preferred constructor
@@ -374,14 +374,11 @@ public final class NetPeerGroupFactory {
 //    }
 
     /**
-     * Returns a strong (reference counted) interface object for the Net Peer
-     * Group instance. This reference should be explicitly unreferenced when it
-     * is no longer needed.
+     * Returns a Net Peer Group.
      *
-     * @return A strong (reference counted) interface object for the Net Peer Group.
-     * @see PeerGroup#unref()
+     * @return A Net Peer Group.
      */
-    public PeerGroup getInterface() {
+    public PeerGroup getNetPeerGroup() {
         return net;
     }
 

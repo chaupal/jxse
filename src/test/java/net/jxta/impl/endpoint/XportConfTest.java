@@ -302,7 +302,7 @@ public class XportConfTest extends TestCase {
                 if (count++ > 0) {
                     return;
                 }
-                final PeerGroup wpg = new WorldPeerGroupFactory().getInterface();
+                final PeerGroup wpg = new WorldPeerGroupFactory().getWorldPeerGroup();
                 // Create one for nothing. Just to make sure the config
                 // is created.
                 System.setProperty("net.jxta.tls.password", "password");

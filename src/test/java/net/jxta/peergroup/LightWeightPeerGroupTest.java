@@ -85,7 +85,7 @@ public class LightWeightPeerGroupTest extends TestCase {
             inits++;
             if (npg == null) {
                 NetPeerGroupFactory npgf = new NetPeerGroupFactory();
-                npg = npgf.getInterface();
+                npg = npgf.getNetPeerGroup();
 
                 // Create a LightWeightPeerGroup
                 pg = new LightWeightPeerGroup(createPeerGroupAdv());
