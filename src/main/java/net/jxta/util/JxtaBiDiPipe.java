@@ -947,16 +947,16 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                         directSupported = Boolean.valueOf(element.toString());
                     }
 
-                    if (directSupported) {
-                        msgr = getDirectMessenger(group, remotePipeAdv, remotePeerAdv);
-                        if (msgr != null) {
-                            this.direct = true;
-                        } else {
-                            msgr = lightweightOutputPipe(group, remotePipeAdv, remotePeerAdv);
-                        }
-                    } else {
+//                    if (directSupported) {
+//                        msgr = getDirectMessenger(group, remotePipeAdv, remotePeerAdv);
+//                        if (msgr != null) {
+//                            this.direct = true;
+//                        } else {
+//                            msgr = lightweightOutputPipe(group, remotePipeAdv, remotePeerAdv);
+//                        }
+//                    } else {
                         msgr = lightweightOutputPipe(group, remotePipeAdv, remotePeerAdv);
-                    }
+//                    }
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Reliability set to :" + isReliable);
@@ -1215,41 +1215,41 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         }
     }
 
-    /**
-     * A lightweight direct messenger output pipe constructor, note the return type
-     * Since all the info needed is available, there's no need for to
-     * use the pipe service to resolve the pipe we have all we need
-     * to construct a messenger.
-     *
-     * @param group   group context
-     * @param pipeAdv Remote Pipe Advertisement
-     * @param peer    Remote Peer advertisement
-     * @return Messenger
-     *
-     * @since 2.6 Direct messengers cause connectivity issues. One should not rely on
-     * corresponding code anymore.
-     *
-     */
-    @Deprecated
-    protected static Messenger getDirectMessenger(PeerGroup group, PipeAdvertisement pipeAdv, PeerAdvertisement peer) {
-        // Get an endpoint messenger to that address
-        if (pipeAdv.getType().equals(PipeService.PropagateType)) {
-            throw new IllegalArgumentException("Invalid pipe type " + pipeAdv.getType());
-        }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Creating a Direct Messenger");
-        }
-
-        if (pipeAdv.getType().equals(PipeService.UnicastType)) {
-            EndpointService endpoint = group.getEndpointService();
-            EndpointAddress pipeEndpoint = new EndpointAddress("jxta",
-                    (peer.getPeerID().getUniqueValue()).toString(),
-                    "PipeService",
-                    pipeAdv.getPipeID().toString());
-            return endpoint.getDirectMessenger(pipeEndpoint, peer, true);
-        }
-        return null;
-    }
+//    /**
+//     * A lightweight direct messenger output pipe constructor, note the return type
+//     * Since all the info needed is available, there's no need for to
+//     * use the pipe service to resolve the pipe we have all we need
+//     * to construct a messenger.
+//     *
+//     * @param group   group context
+//     * @param pipeAdv Remote Pipe Advertisement
+//     * @param peer    Remote Peer advertisement
+//     * @return Messenger
+//     *
+//     * @since 2.6 Direct messengers cause connectivity issues. One should not rely on
+//     * corresponding code anymore.
+//     *
+//     */
+//    @Deprecated
+//    protected static Messenger getDirectMessenger(PeerGroup group, PipeAdvertisement pipeAdv, PeerAdvertisement peer) {
+//        // Get an endpoint messenger to that address
+//        if (pipeAdv.getType().equals(PipeService.PropagateType)) {
+//            throw new IllegalArgumentException("Invalid pipe type " + pipeAdv.getType());
+//        }
+//        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+//            LOG.fine("Creating a Direct Messenger");
+//        }
+//
+//        if (pipeAdv.getType().equals(PipeService.UnicastType)) {
+//            EndpointService endpoint = group.getEndpointService();
+//            EndpointAddress pipeEndpoint = new EndpointAddress("jxta",
+//                    (peer.getPeerID().getUniqueValue()).toString(),
+//                    "PipeService",
+//                    pipeAdv.getPipeID().toString());
+//            return endpoint.getDirectMessenger(pipeEndpoint, peer, true);
+//        }
+//        return null;
+//    }
 
     /**
      * A lightweight output pipe constructor, note the return type

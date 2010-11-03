@@ -83,7 +83,7 @@ import net.jxta.protocol.ResolverSrdiMsg;
  * @see net.jxta.protocol.ResolverQueryMsg
  * @see net.jxta.protocol.ResolverResponseMsg
  */
-public interface ResolverService extends Service, GenericResolver {
+public interface ResolverService extends Service {
 
     /**
      *  Returned by query handlers to indicate that the query should be

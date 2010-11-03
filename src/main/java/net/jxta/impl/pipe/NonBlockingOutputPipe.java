@@ -666,7 +666,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         // if there is no service thread, start one.
         if ((null == serviceThread) && !closed) {
 
-            serviceThread = new Thread(peerGroup.getHomeThreadGroup(), this,
+            serviceThread = new Thread(this,
                     "Worker Thread for NonBlockingOutputPipe : " + getPipeID());
             serviceThread.setDaemon(true);
             serviceThread.start();

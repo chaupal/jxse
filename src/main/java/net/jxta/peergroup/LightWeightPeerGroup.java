@@ -178,17 +178,17 @@ public class LightWeightPeerGroup implements PeerGroup {
         return group.getGlobalRegistry(); 
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public ThreadGroup getHomeThreadGroup() {
-        if (group != null) {
-            return group.getHomeThreadGroup();
-        } else {
-            return null;
-        }
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Deprecated
+//    public ThreadGroup getHomeThreadGroup() {
+//        if (group != null) {
+//            return group.getHomeThreadGroup();
+//        } else {
+//            return null;
+//        }
+//    }
 
     /**
      * {@inheritDoc}

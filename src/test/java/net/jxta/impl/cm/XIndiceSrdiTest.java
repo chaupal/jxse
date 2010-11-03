@@ -105,7 +105,7 @@ public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
 			ignoring(mockGroup).getPeerGroupName(); will(returnValue("testGroup"));
 			atLeast(1).of(mockGroup).getPeerGroupID(); will(returnValue(groupId));
 			atLeast(1).of(mockGroup).getStoreHome(); will(returnValue(storeHomeURI));
-			ignoring(mockGroup).getHomeThreadGroup(); will(returnValue(Thread.currentThread().getThreadGroup()));
+//			ignoring(mockGroup).getHomeThreadGroup(); will(returnValue(Thread.currentThread().getThreadGroup()));
 		}};
 	}
 	

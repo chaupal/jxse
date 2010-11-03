@@ -317,7 +317,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
         localTlsPeerAddr = new EndpointAddress(JTlsDefs.tlsPName, localPeerId.getUniqueValue().toString(), null, null);
 
-        myThreadGroup = new ThreadGroup(group.getHomeThreadGroup(), "TLSTransport " + localTlsPeerAddr);
+        myThreadGroup = new ThreadGroup("TLSTransport " + localTlsPeerAddr);
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 

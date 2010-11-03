@@ -208,7 +208,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
 
         // start the client thread
-        thread = new Thread(group.getHomeThreadGroup(), this, "Relay Client Worker Thread for " + publicAddress);
+        thread = new Thread(this, "Relay Client Worker Thread for " + publicAddress);
         thread.setDaemon(true);
         thread.start();
 

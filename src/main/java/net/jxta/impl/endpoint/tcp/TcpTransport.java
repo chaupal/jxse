@@ -675,7 +675,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
             Logging.logCheckedWarning(LOG, "Could not create a messenger selector\n", e);
         }
 
-        messengerSelectorThread = new Thread(group.getHomeThreadGroup(), new MessengerSelectorThread(), "TCP Transport MessengerSelectorThread for " + this);
+        messengerSelectorThread = new Thread(new MessengerSelectorThread(), "TCP Transport MessengerSelectorThread for " + this);
         messengerSelectorThread.setDaemon(true);
         messengerSelectorThread.start();
 

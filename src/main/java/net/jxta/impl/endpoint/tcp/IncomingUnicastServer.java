@@ -164,7 +164,7 @@ public class IncomingUnicastServer implements Runnable {
         }
 
         // Start daemon thread
-        acceptThread = new Thread(transport.group.getHomeThreadGroup(), this, "ServerSocketChannel acceptor for " + getLocalSocketAddress());
+        acceptThread = new Thread(this, "ServerSocketChannel acceptor for " + getLocalSocketAddress());
         acceptThread.setDaemon(true);
         acceptThread.start();
 

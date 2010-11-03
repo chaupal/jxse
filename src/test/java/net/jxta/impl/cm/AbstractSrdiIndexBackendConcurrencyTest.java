@@ -108,7 +108,7 @@ public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 			ignoring(group).getStoreHome(); will(returnValue(storeRoot.toURI()));
 			ignoring(group).getPeerGroupName(); will(returnValue(name));
 			ignoring(group).getPeerGroupID(); will(returnValue(groupId));
-			ignoring(group).getHomeThreadGroup(); will(returnValue(Thread.currentThread().getThreadGroup()));
+//			ignoring(group).getHomeThreadGroup(); will(returnValue(Thread.currentThread().getThreadGroup()));
 		}});
 		
 		return group;

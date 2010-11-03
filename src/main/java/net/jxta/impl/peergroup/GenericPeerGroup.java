@@ -1681,8 +1681,8 @@ public abstract class GenericPeerGroup implements PeerGroup {
         return parentGroup.getTaskManager();
         }
 
-    @Deprecated
-    public ThreadGroup getHomeThreadGroup() {
-        return JXSE_THREAD_GROUP;
-    }
+//    @Deprecated
+//    public ThreadGroup getHomeThreadGroup() {
+//        return JXSE_THREAD_GROUP;
+//    }
 }

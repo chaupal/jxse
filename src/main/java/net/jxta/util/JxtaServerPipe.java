@@ -437,16 +437,16 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             Messenger msgr;
             boolean direct = false;
-            if (directSupported) {
-                msgr = JxtaBiDiPipe.getDirectMessenger(group, outputPipeAdv, peerAdv);
-                if (msgr == null) {
-                    msgr = JxtaBiDiPipe.lightweightOutputPipe(group, outputPipeAdv, peerAdv);
-                } else {
-                    direct = true;
-                }
-            } else {
+//            if (directSupported) {
+//                msgr = JxtaBiDiPipe.getDirectMessenger(group, outputPipeAdv, peerAdv);
+//                if (msgr == null) {
+//                    msgr = JxtaBiDiPipe.lightweightOutputPipe(group, outputPipeAdv, peerAdv);
+//                } else {
+//                    direct = true;
+//                }
+//            } else {
                 msgr = JxtaBiDiPipe.lightweightOutputPipe(group, outputPipeAdv, peerAdv);
-            }
+//            }
 
             if (msgr != null) {
 

@@ -571,16 +571,16 @@ public interface PeerGroup extends Service {
 
     GlobalRegistry getGlobalRegistry();
 
-    /**
-     * Returns the Thread Group in which threads for this peer group will live.
-     * This is currently used only for debugging purposes so that the source of
-     * a thread can be determined.
-     *
-     * @return ThreadGroup
-     * @deprecated since 2.7.
-     */
-    @Deprecated
-    public ThreadGroup getHomeThreadGroup();
+//    /**
+//     * Returns the Thread Group in which threads for this peer group will live.
+//     * This is currently used only for debugging purposes so that the source of
+//     * a thread can be determined.
+//     *
+//     * @return ThreadGroup
+//     * @deprecated since 2.7.
+//     */
+//    @Deprecated
+//    public ThreadGroup getHomeThreadGroup();
 
     /**
      * Returns the class loader for this group.

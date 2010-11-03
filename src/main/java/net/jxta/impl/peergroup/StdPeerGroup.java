@@ -69,7 +69,6 @@ import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
-import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
@@ -101,41 +100,41 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     private final static transient Logger LOG = Logger.getLogger(StdPeerGroup.class.getName());
 
-    /**
-     * This field is for backwards compatibility with broken code and will
-     * be removed in the near future.  The correct way to obtain a compatibility
-     * statement is to obtain it from a peer group's implementation
-     * advertisement.
-     * 
-     * @deprecated will be removed in 2.8
-     */
-    @Deprecated
-    public static final XMLDocument STD_COMPAT =
-            CompatibilityUtils.createDefaultCompatStatement();
+//    /**
+//     * This field is for backwards compatibility with broken code and will
+//     * be removed in the near future.  The correct way to obtain a compatibility
+//     * statement is to obtain it from a peer group's implementation
+//     * advertisement.
+//     *
+//     * @deprecated will be removed in 2.8
+//     */
+//    @Deprecated
+//    public static final XMLDocument STD_COMPAT =
+//            CompatibilityUtils.createDefaultCompatStatement();
 
-    /**
-     * This field is for backwards compatibility with broken code and will
-     * be removed in the near future.  The correct way to obtain this
-     * information is to obtain it from a peer group's implementation
-     * advertisement.
-     * 
-     * @deprecated will be removed in 2.8
-     */
-    @Deprecated
-    public static final String MODULE_IMPL_STD_URI =
-            CompatibilityUtils.getDefaultPackageURI();
+//    /**
+//     * This field is for backwards compatibility with broken code and will
+//     * be removed in the near future.  The correct way to obtain this
+//     * information is to obtain it from a peer group's implementation
+//     * advertisement.
+//     *
+//     * @deprecated will be removed in 2.8
+//     */
+//    @Deprecated
+//    public static final String MODULE_IMPL_STD_URI =
+//            CompatibilityUtils.getDefaultPackageURI();
 
-    /**
-     * This field is for backwards compatibility with broken code and will
-     * be removed in the near future.  The correct way to obtain this
-     * information is to obtain it from a peer group's implementation
-     * advertisement.
-     * 
-     * @deprecated will be removed in 2.8
-     */
-    @Deprecated
-    public static final String MODULE_IMPL_STD_PROVIDER =
-            CompatibilityUtils.getDefaultProvider();
+//    /**
+//     * This field is for backwards compatibility with broken code and will
+//     * be removed in the near future.  The correct way to obtain this
+//     * information is to obtain it from a peer group's implementation
+//     * advertisement.
+//     * 
+//     * @deprecated will be removed in 2.8
+//     */
+//    @Deprecated
+//    public static final String MODULE_IMPL_STD_PROVIDER =
+//            CompatibilityUtils.getDefaultProvider();
 
     /**
      * Static initializer.

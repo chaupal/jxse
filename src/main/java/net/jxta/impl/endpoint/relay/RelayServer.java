@@ -255,7 +255,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
         endpointService = group.getEndpointService();
         discoveryService = group.getDiscoveryService();
 
-        selectorThread = new Thread(group.getHomeThreadGroup(), this, "Selector Thread for Relay Server : " + publicAddress);
+        selectorThread = new Thread(this, "Selector Thread for Relay Server : " + publicAddress);
         selectorThread.setDaemon(true);
         selectorThread.start();
 
@@ -1326,7 +1326,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         protected void startCache() {
             doRun = true;
-            cacheThread = new Thread(server.group.getHomeThreadGroup(), this, "RelayCache Worker Thread for " + server.publicAddress);
+            cacheThread = new Thread(this, "RelayCache Worker Thread for " + server.publicAddress);
             cacheThread.setDaemon(true);
             cacheThread.start();
         }
