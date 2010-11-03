@@ -11,5 +11,5 @@ public interface MessengerStateListener {
      * from the messenger.
      */
     boolean messengerStateChanged(int newState);
-    
+
 }

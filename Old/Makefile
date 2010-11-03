@@ -7,7 +7,6 @@
 # if you refrence additional libraries they need to be set in the
 # CLASSPATH
 
-
 ifneq ($(JXTA_HOME),)
  JHOME      = $(JXTA_HOME)
 else
@@ -33,7 +32,6 @@ DISTDIR	      = $(TOP)/dist
 JAVABUILDFILES= $(shell find build -name '*.java' -print)
 JAVAAPIFILES  = $(shell find api -name '*.java' -print)
 JAVAREFFILES  = $(shell find impl -name '*.java' -print)
-
 
 JXTASHELLJAR  = $(TOP)/../jxse-shell/dist/jxtashell.jar
 MKMETERSETFILE=$(TOP)/build/src/net/jxta/build/ConditionalBuild.java
@@ -82,7 +80,7 @@ MONITORCFGFILE=impl/src/net/jxta/impl/monitor.properties
 
 USERFILE=api/src/net/jxta/user.properties
 
-METAINFPROPERTYFILES=impl/src/META-INF/services/net.jxta.*           
+METAINFPROPERTYFILES=impl/src/META-INF/services/net.jxta.*
 
 JXTACLASSPATHx := "$(JXTACLASSPATH)"
 CLASSDIRx := "$(CLASSDIR)"
@@ -100,7 +98,7 @@ PHONIES = all clean clobber help compile meterSet compileSrc jar run runawt runc
 
 all: clobber compile
 
-compile: jar 
+compile: jar
 
 meterSet:
 	@if [ '!' -d $(METERSETDIRx) ]; then mkdir $(METERSETDIRx); fi;
@@ -123,7 +121,6 @@ compileSrc: cleanclassdir meterSet
 run:
 	nohup $(JAVA) -server -Xms64m -Xmx192m -DJXTA_HOME=$(JHOME) -Dnet.jxta.tls.password="password" -classpath $(JXTACLASSPATH) contrib.rendezvous.Rendezvous &
 
-
 runs:
 	nohup $(JAVA) -server -Xms64m -Xmx192m -DJXTA_HOME=$(JHOME) -Dnet.jxta.tls.password="password" -classpath $(JXTACLASSPATH):$(JXTASHELLJAR) contrib.rendezvous.Rendezvous &
 
@@ -131,10 +128,10 @@ runawt:
 	nohup $(JAVA) -server -Xms64m -Xmx192m -DJXTA_HOME=$(JHOME) -classpath $(JXTACLASSPATH) contrib.rendezvous.WRendezvous &
 
 runc:
-	$(JAVA) -DDEBUG -server -Xms64m -Xmx192m -DJXTA_HOME=$(JHOME) -Dnet.jxta.tls.password="password" -classpath $(JXTACLASSPATH) contrib.rendezvous.Rendezvous 
+	$(JAVA) -DDEBUG -server -Xms64m -Xmx192m -DJXTA_HOME=$(JHOME) -Dnet.jxta.tls.password="password" -classpath $(JXTACLASSPATH) contrib.rendezvous.Rendezvous
 
 runcs:
-	$(JAVA) -server -Xms64m -Xmx192m -Dnet.jxta.tls.password="password" -DJXTA_HOME=$(JHOME) -classpath $(JXTACLASSPATH):$(JXTASHELLJAR) contrib.rendezvous.Rendezvous 
+	$(JAVA) -server -Xms64m -Xmx192m -Dnet.jxta.tls.password="password" -DJXTA_HOME=$(JHOME) -classpath $(JXTACLASSPATH):$(JXTASHELLJAR) contrib.rendezvous.Rendezvous
 
 srdichk:
 	$(JAVA) -Xms64m -Xmx192m -classpath $(JXTACLASSPATH):$(JXTASHELLJAR) CheckSrdi $(JHOME)

@@ -6,7 +6,7 @@ public interface ServerPipeAcceptListener {
      * Intended as a signal to clean up the listener, if necessary.
      */
     public void serverPipeClosed();
-    
+
     /**
      * A new incoming pipe has been established, and should be processed by the listener.
      * <em>NOTE</em>: Processing of the pipe should be fast and non-blocking. If you

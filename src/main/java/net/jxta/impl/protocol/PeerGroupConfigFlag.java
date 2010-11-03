@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -62,7 +62,7 @@ import java.util.EnumSet;
  * Flags used in the configuration of the standard peer group.
  */
 public enum PeerGroupConfigFlag {
-    
+
     /**
      * Configures the peer group class loader such that the parent
      * class loader is the non-JXTA ClassLoader instance with which the
@@ -70,17 +70,17 @@ public enum PeerGroupConfigFlag {
      * Module definitions present in the parent groups' JxtaLoaders.
      */
     SHUNT_PARENT_CLASSLOADER("shuntParentClassLoader", false);
-    
+
     /**
      * Stored tag name.
      */
     private final String tagName;
-    
+
     /**
      * Default value for the flag if no value is specified in the data source.
      */
     private final boolean defaultEnabled;
-    
+
     /**
      * Initializer.
      * 
@@ -93,7 +93,7 @@ public enum PeerGroupConfigFlag {
         tagName = docTagName;
         defaultEnabled = defEnabled;
     }
-    
+
     /**
      * Gets the tag name which is used to store this flag in a
      * {@code PeerGroupConfigAdv} document.
@@ -103,7 +103,7 @@ public enum PeerGroupConfigFlag {
     public String getTagName() {
         return tagName;
     }
-    
+
     /**
      * Gets the flags default state in a situation where no information is
      * specifically provided as to which state it should be in.
@@ -114,7 +114,7 @@ public enum PeerGroupConfigFlag {
     public boolean isDefaultEnabled() {
         return defaultEnabled;
     }
-    
+
     /**
      * Returns a set of all the flags which are enabled by default.
      * 

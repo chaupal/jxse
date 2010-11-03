@@ -10,11 +10,11 @@ public class MessengerStateListenerSet {
      * List of all registered state change listeners.
      */
     private final Set<MessengerStateListener> stateChangeListeners;
-    
+
     public MessengerStateListenerSet() {
         stateChangeListeners = new HashSet<MessengerStateListener>();
     }
-    
+
     public synchronized void notifyNewState(int newState) {
         Iterator<MessengerStateListener> listenerIter = stateChangeListeners.iterator();
         while(listenerIter.hasNext()) {
@@ -24,11 +24,11 @@ public class MessengerStateListenerSet {
             }
         }
     }
-    
+
     public synchronized void addStateListener(MessengerStateListener listener) {
         stateChangeListeners.add(listener);
     }
-    
+
     public synchronized void removeStateListener(MessengerStateListener listener) {
         stateChangeListeners.remove(listener);
     }

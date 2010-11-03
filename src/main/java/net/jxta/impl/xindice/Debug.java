@@ -63,7 +63,6 @@ import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * Debug is a debugging class for the Xindice Server.  Because the class
  * and the Debugging field are final, the Java compiler should always
@@ -71,15 +70,15 @@ import java.util.logging.Logger;
  */
 
 public final class Debug {
-   
+
     /**
      *   Log4J Logger. Since this is the logger for the whole of xindice, we
      *   compose the name a little differently than normal.
      **/
     private final static Logger LOG = Logger.getLogger(Debug.class.getName());
-    
+
     public static final boolean Debugging = true;
-   
+
     public static void SetPrintStream(PrintStream out) {
         ;
     }
@@ -105,17 +104,17 @@ public final class Debug {
             LOG.fine("");
         }
     }
-   
+
     public static void printStackTrace(Throwable t) {
         if (Debugging) {
             LOG.log(Level.WARNING, t.getMessage(), t);
         }
     }
-   
+
     public static void setPrintStream(PrintStream outStream) {
         ;
     }
-   
+
     public static void setPrefix(String debugPrefix) {
         ;
     }

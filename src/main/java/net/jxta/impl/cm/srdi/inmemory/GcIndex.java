@@ -68,7 +68,6 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 // The GC Index: this index organises the Entries by expiration time and is used for Garbage Collection 
 public class GcIndex {
 

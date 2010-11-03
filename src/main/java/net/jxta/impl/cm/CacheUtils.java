@@ -88,7 +88,7 @@ public class CacheUtils {
 	        }
 
 	        return map;
-                
+
 	    }
 	    if (fields == null) {
 	        return map;

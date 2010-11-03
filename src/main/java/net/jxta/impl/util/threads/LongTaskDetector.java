@@ -19,11 +19,11 @@ import net.jxta.logging.Logging;
 class LongTaskDetector implements Runnable {
 
     private RunMetricsWrapper<?> taskToMonitor;
-    
+
     public LongTaskDetector(RunMetricsWrapper<?> taskToMonitor) {
         this.taskToMonitor = taskToMonitor;
     }
-    
+
     public void run() {
 
         if(Logging.SHOW_WARNING && TaskManager.LOG.isLoggable(Level.WARNING)) {
@@ -35,7 +35,7 @@ class LongTaskDetector implements Runnable {
                 stackTrace.append(elem.toString());
                 stackTrace.append('\n');
             }
-            
+
             TaskManager.LOG.log(Level.WARNING, "task of type [{0}] still running after {1}ms in thread {2}, current stack:\n{3}", 
                     new Object[] { 
                         taskToMonitor.getWrappedType(), 

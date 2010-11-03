@@ -88,23 +88,23 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
      * Logger
      */
     private static final Logger LOG = Logger.getLogger(GossipServiceConfigAdv.class.getName());
-    
+
     /**
      *  The advertisement index fields. (currently none).
      */
     private static final String[] INDEX_FIELDS = {};
-    
+
     /**
      * The DOCTYPE
      */
     private static final String advType = "jxta:GossipServiceConfigAdv";
-    
+
     /**
      *  The name of the attribute which controls whether the gossip service
      *  should show message from the local peer.
      */
     private static final String SHOW_OWN_ATTR = "showOwn";
-    
+
     /**
      *  The name of the tag which we use to store the gossip text.
      */
@@ -140,13 +140,13 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
             return new GossipServiceConfigAdv((XMLElement) root);
         }
     }
-    
+
     /**
      * If {@code true} then the gossip service should show it's own gossips. If 
      * {@code null} then the gossip service will use it's default. 
      */
     private Boolean showOwn = null;
-    
+
     /**
      * The text we will "gossip". If {@code null} then the gossip service will 
      * use it's default.
@@ -216,7 +216,7 @@ public final class GossipServiceConfigAdv extends ExtendableAdvertisement implem
             } else {
 
                 Logging.logCheckedWarning(LOG, "Unhandled Attribute: " + aConfigAttr.getName());
-                
+
             }
         }
 

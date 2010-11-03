@@ -5,7 +5,6 @@ package net.jxta.util;
  * http://creativecommons.org/licenses/publicdomain
  */
 
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.ReferenceQueue;
@@ -216,7 +215,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
             this.hash = hash;
         }
     }
-    
+
     /**
      * ConcurrentWeakHashMap list entry. Note that this is never exported
      * out as a user-visible Map.Entry.
@@ -333,7 +332,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
          * This should be (re)initialized whenever table is assigned,
          */
         transient volatile ReferenceQueue<K> refQueue;
-        
+
         Segment(int initialCapacity, float lf) {
             loadFactor = lf;
             setTable(HashEntry.<K,V>newArray(initialCapacity));
@@ -464,7 +463,6 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
             }
         }
 
-
         V put(K key, int hash, V value, boolean onlyIfAbsent) {
             lock();
             try {
@@ -473,9 +471,9 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
                 if (c++ > threshold) {// ensure capacity
                     int reduced = rehash();
                     if (reduced > 0)  // adjust from possible weak cleanups
-                        count = (c -= reduced) - 1; // write-volatile      
+                        count = (c -= reduced) - 1; // write-volatile 
                 }
-                         
+
                 HashEntry<K,V>[] tab = table;
                 int index = hash & (tab.length - 1);
                 HashEntry<K,V> first = tab[index];
@@ -605,7 +603,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
                                 c--;
                                 continue;
                             }
-                                
+
                             newFirst = new HashEntry<K,V>(pKey, p.hash,
                                                           newFirst, p.value, refQueue);
                         }
@@ -618,7 +616,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
                 unlock();
             }
         }
-        
+
         @SuppressWarnings("unchecked")
         void removeStale() {
             WeakKeyReference<K> ref;
@@ -644,8 +642,6 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
             }
         }
     }
-
-
 
     /* ---------------- Public operations -------------- */
 
@@ -1183,7 +1179,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
                     return true;
                 advance();
             }
-            
+
             return false;
         }
 
@@ -1191,12 +1187,12 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
             do {
                 if (nextEntry == null)
                     throw new NoSuchElementException();
-                
+
                 lastReturned = nextEntry;
                 currentKey = lastReturned.keyRef.get();
                 advance();
             } while (currentKey == null); // Skip GC'd keys
-            
+
             return lastReturned;
         }
 
@@ -1279,7 +1275,6 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
             return o1 == null ? o2 == null : o1.equals(o2);
         }
     }
-
 
     /**
      * Custom Entry class used by EntryIterator.next(), that relays setValue
@@ -1411,7 +1406,7 @@ public class ConcurrentWeakHashMap<K, V> extends AbstractMap<K, V>
                         K key = e.keyRef.get();
                         if (key == null) // Skip GC'd keys
                             continue;
-                        
+
                         s.writeObject(key);
                         s.writeObject(e.value);
                     }

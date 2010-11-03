@@ -16,11 +16,11 @@ public class FakeChannel extends AbstractChannel {
     public SocketAddress remoteAddress;
     public boolean bound;
     public boolean connected;
-    
+
     public FakeChannel(Channel parent, ChannelFactory factory, ChannelPipeline pipeline, ChannelSink sink) {
         super(parent, factory, pipeline, sink);
     }
-    
+
     public ChannelConfig getConfig() {
         return new DefaultChannelConfig();
     }
@@ -40,5 +40,5 @@ public class FakeChannel extends AbstractChannel {
     public boolean isConnected() {
         return connected;
     }
-    
+
 }

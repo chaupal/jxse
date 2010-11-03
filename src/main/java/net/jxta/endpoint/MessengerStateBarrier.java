@@ -8,24 +8,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MessengerStateBarrier implements MessengerStateListener {
 
     public static final int NO_MATCH = 0;
-    
+
     private final CountDownLatch latch;
     private final int awaitedState;
     private AtomicInteger matchingState;
     private AtomicBoolean expired;
-    
+
     public MessengerStateBarrier(int awaitedState) {
         this.latch = new CountDownLatch(1);
         this.awaitedState = awaitedState;
         this.matchingState = new AtomicInteger(0);
         this.expired = new AtomicBoolean(false);
     }
-    
+
     public boolean messengerStateChanged(int newState) {
         if(expired.get()) {
             return false;
         }
-        
+
         if((newState & awaitedState) != 0) {
             // ensures that the value is only changed once 
             matchingState.compareAndSet(0, newState);
@@ -33,7 +33,7 @@ public class MessengerStateBarrier implements MessengerStateListener {
             latch.countDown();
             return false;
         }
-        
+
         return true;
     }
 

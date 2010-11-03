@@ -93,9 +93,9 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
     private final JFrame ThisFrame;
 
     private PeerGroup ThePeerGroup = null;
-    
+
     private Future TheMonitorFuture = null;
-    
+
     private DefaultTableModel LocalRDVs_TM = null;
     private String[] LocalRDV_Col = { "Local RDV View IDs" };
 
@@ -131,7 +131,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
                 ThisFrame.setVisible(true);
             }
         });
-        
+
         // Initialization
         ThePeerGroup = inGroup;
 
@@ -517,7 +517,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
     // End of variables declaration//GEN-END:variables
 
     public void resettingFrameValues() {
-        
+
         // Resetting frame value
         this.setTitle("Connectivity Monitor");
 
@@ -635,7 +635,7 @@ public class ConnectivityMonitor extends JFrame implements Runnable {
                 this.RelayIDTextField.setText("");
 
             } else {
-                
+
                 this.IsConnectedToRelayCheckBox.setSelected(true);
                 PeerID[] TmpPID = x.toArray(new PeerID[x.size()]);
 

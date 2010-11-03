@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 package net.jxta.impl.endpoint.servlethttp;
@@ -114,17 +114,17 @@ class HttpMessageReceiver implements MessageReceiver {
      *  The min threads that the HTTP server will use for handling requests.
      */
     private static int MIN_LISTENER_THREADS = 10;
-    
+
     /**
      *  The max threads that the HTTP server will use for handling requests.
      */
     private static int MAX_LISTENER_THREADS = 200;
-    
+
     /**
      *  How long a thread can remain idle until the worker thread is let go.
      */
     private static long MAX_THREAD_IDLE_DURATION = 30 * TimeUtils.ASECOND;
-    
+
     /**
      *  The Jetty HTTP Server instance.
      */
@@ -141,7 +141,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddresses = publicAddresses;
-       
+
         // read settings from the properties file
         Properties prop = getJxtaProperties(
                 new File(new File(servletHttpTransport.getEndpointService().getGroup().getStoreHome()), "jxta.properties"));
@@ -154,16 +154,16 @@ class HttpMessageReceiver implements MessageReceiver {
             configInfo.append("\n\tMin threads=").append(MIN_LISTENER_THREADS);
             configInfo.append("\n\tMax threads=").append(MAX_LISTENER_THREADS);
             configInfo.append("\n\tMax thread idle time=").append(MAX_THREAD_IDLE_DURATION).append("ms");
-            
+
             LOG.config(configInfo.toString());
 
         }
-        
+
         // Configure Jetty Logging
         if (!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER))) {
             Log.instance().disableLog();
         }
-        
+
         // Setup the logger to match the rest of JXTA unless explicitly configured.
         // "LOG_CLASSES" is a Jetty thing.
         if (System.getProperty("LOG_CLASSES") == null) {
@@ -171,7 +171,7 @@ class HttpMessageReceiver implements MessageReceiver {
             Logger jettyLogger = Logger.getLogger(org.mortbay.http.HttpServer.class.getName());
 
             logSink.setLogger(jettyLogger);
-            
+
             try {
 
                 logSink.start();
@@ -180,7 +180,7 @@ class HttpMessageReceiver implements MessageReceiver {
             } catch (Exception ex) {
 
                 Logging.logCheckedSevere(LOG, "Could not configure LoggerLogSink");
-                
+
             }
         }
 
@@ -189,7 +189,7 @@ class HttpMessageReceiver implements MessageReceiver {
         org.mortbay.util.Code.setDebug(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER));
         org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)));
         org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)));
-        
+
         // Initialize the Jetty HttpServer
         server = new HttpServer();
 
@@ -236,7 +236,7 @@ class HttpMessageReceiver implements MessageReceiver {
     }
 
     synchronized void start() throws PeerGroupException {
-        
+
         try {
 
             server.start();
@@ -255,16 +255,16 @@ class HttpMessageReceiver implements MessageReceiver {
         if (messengerEventListener == null) {
             throw new PeerGroupException("Transport registration refused");
         }
-        
+
         Logging.logCheckedInfo(LOG, "HTTP Servlet Transport started.");
-        
+
     }
-    
+
     synchronized void stop() {
 
         servletHttpTransport.getEndpointService().removeMessageTransport(this);
         messengerEventListener = null;
-        
+
         try {
 
             server.stop();
@@ -272,11 +272,11 @@ class HttpMessageReceiver implements MessageReceiver {
         } catch (InterruptedException e) {
 
             Logging.logCheckedSevere(LOG, "Interrupted during stop()\n", e);
-            
+
         }
-        
+
         Logging.logCheckedInfo(LOG, "HTTP Servlet Transport stopped.");
-        
+
     }
 
     /**
@@ -313,7 +313,7 @@ class HttpMessageReceiver implements MessageReceiver {
     public EndpointService getEndpointService() {
         return servletHttpTransport.getEndpointService();
     }
-    
+
     ServletHttpTransport getServletHttpTransport() {
         return servletHttpTransport;
     }
@@ -328,14 +328,14 @@ class HttpMessageReceiver implements MessageReceiver {
     private static Properties getJxtaProperties(File fromFile) {
         Properties prop = new Properties();
         InputStream in = null;
-        
+
         try {
             in = new FileInputStream(fromFile);
             Logging.logCheckedFine(LOG, "Read properties from ", fromFile.getPath());
         } catch (FileNotFoundException e) {
             return null;
         }
-        
+
         try {
 
             prop.load(in);
@@ -343,7 +343,7 @@ class HttpMessageReceiver implements MessageReceiver {
         } catch (IOException e) {
 
             Logging.logCheckedSevere(LOG, "Error reading ", fromFile.getPath(), "\n", e);
-            
+
         } finally {
 
             try {
@@ -355,14 +355,14 @@ class HttpMessageReceiver implements MessageReceiver {
         }
         return prop;
     }
-    
+
     /**
      * Reads the properties from the jxta.properties file
      *
      * @param prop properties to init from
      */
     private void initFromProperties(Properties prop) {
-        
+
         if (prop == null) {
 
             Logging.logCheckedConfig(LOG, "jxta.properties not found: using default values");
@@ -370,11 +370,11 @@ class HttpMessageReceiver implements MessageReceiver {
         } else {
 
             Logging.logCheckedConfig(LOG, "Using jxta.properties to configure HTTP server");
-            
+
             String minThreadsStr = prop.getProperty("HttpServer.MinThreads");
             String maxThreadsStr = prop.getProperty("HttpServer.MaxThreads");
             String maxThreadIdleTimeStr = prop.getProperty("HttpServer.MaxThreadIdleTime");
-            
+
             try {
 
                 if (minThreadsStr != null) MIN_LISTENER_THREADS = Integer.parseInt(minThreadsStr);
@@ -382,29 +382,29 @@ class HttpMessageReceiver implements MessageReceiver {
             } catch (NumberFormatException e) {
 
                 Logging.logCheckedWarning(LOG, "Invalid HttpServer.MinThreads value; using default");
-                
+
             }
-            
+
             try {
                 if (maxThreadsStr != null) 
                     MAX_LISTENER_THREADS = Integer.parseInt(maxThreadsStr);
-                
+
             } catch (NumberFormatException e) {
 
                 Logging.logCheckedWarning(LOG, "Invalid HttpServer.MaxThreads value; using default");
-                
+
             }
-            
+
             try {
 
                 if (maxThreadIdleTimeStr != null) 
                     MAX_THREAD_IDLE_DURATION = Integer.parseInt(maxThreadIdleTimeStr);
-                
+
             } catch (NumberFormatException e) {
 
                 Logging.logCheckedWarning(LOG, "Invalid HttpServer.MaxThreadIdleTime value; using default");
-                
+
             }
         }
-    }    
+    } 
 }

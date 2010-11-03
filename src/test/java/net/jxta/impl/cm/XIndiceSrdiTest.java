@@ -14,7 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class XIndiceSrdiTest extends AbstractSrdiIndexBackendTest {
-    
+
 	@Override
 	public String getBackendClassname() {
 		return XIndiceSrdi.class.getName();

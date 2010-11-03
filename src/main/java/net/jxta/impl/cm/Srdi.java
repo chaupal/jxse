@@ -67,7 +67,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.impl.xindice.core.data.Key;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
@@ -82,7 +81,7 @@ import net.jxta.peergroup.PeerGroup;
  * implementation specified by {@link #DEFAULT_SRDI_INDEX_BACKEND} is used.
  */
 public class Srdi implements SrdiAPI {
-    
+
 	public static final String SRDI_INDEX_BACKEND_SYSPROP = "net.jxta.impl.cm.Srdi.backend.impl";
 	public static final String DEFAULT_SRDI_INDEX_BACKEND = "net.jxta.impl.cm.InMemorySrdi";
 	
@@ -90,11 +89,11 @@ public class Srdi implements SrdiAPI {
 	public static final long NO_AUTO_GC = -1;
 	
     private final static transient Logger LOG = Logger.getLogger(Srdi.class.getName());
-    
+
     private SrdiAPI backend;
     private ScheduledFuture<?> gcHandle;
     private final ScheduledExecutorService scheduledExecutor;
-    
+
     /**
      * Constructor for the Srdi
      *
@@ -104,7 +103,7 @@ public class Srdi implements SrdiAPI {
     public Srdi(PeerGroup group, String indexName) {
     	this(group, indexName, DEFAULT_GC_INTERVAL);
     }
-    
+
     /**
      * Construct a Srdi and starts a GC thread which runs every "interval"
      * milliseconds
@@ -113,14 +112,14 @@ public class Srdi implements SrdiAPI {
      * @param group     group context
      * @param indexName Srdi name
      */
-    
+
     public Srdi(PeerGroup group, String indexName, long interval) {
     	this.scheduledExecutor = group.getTaskManager().getScheduledExecutorService();
         String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
     	createBackend(backendClassName, group, indexName);
 
         Logging.logCheckedInfo(LOG, "[", group.toString(), "] : Starting SRDI GC Thread for ", indexName);
-        
+
     	startGC(interval);
     }
 
@@ -129,7 +128,7 @@ public class Srdi implements SrdiAPI {
             // automatic gc disabled
             return;
         }
-        
+
         gcHandle = scheduledExecutor.scheduleWithFixedDelay(new Runnable() {
             public void run() {
                 garbageCollect();
@@ -138,7 +137,7 @@ public class Srdi implements SrdiAPI {
     }
 
     private void createBackend(String backendClassName, PeerGroup group, String indexName) {
-        
+
         try {
 
             Class<? extends SrdiAPI> backendClass = getBackendClass();
@@ -152,21 +151,21 @@ public class Srdi implements SrdiAPI {
 
         }
     }
-    
+
     public Srdi(SrdiAPI backend, long gcInterval, ScheduledExecutorService scheduledExecutor) {
     	this.backend = backend;
     	this.scheduledExecutor = scheduledExecutor;
     	startGC(gcInterval);
     }
-    
+
     protected String getBackendClassName() {
     	return backend.getClass().getName();
     }
-    
+
     protected SrdiAPI getBackend() {
     	return backend;
     }
-    
+
     /**
      * add an index entry
      *
@@ -187,7 +186,7 @@ public class Srdi implements SrdiAPI {
     	}
 
     }
-    
+
     /**
      * retrieves a record
      *
@@ -208,9 +207,9 @@ public class Srdi implements SrdiAPI {
     	    return new LinkedList<Entry>();
 
     	}
-        
+
     }
-    
+
     /**
      * remove entries pointing to peer id from cache
      *
@@ -229,7 +228,7 @@ public class Srdi implements SrdiAPI {
     	}
 
     }
-    
+
     /**
      * Query Srdi
      *
@@ -242,7 +241,7 @@ public class Srdi implements SrdiAPI {
     public synchronized List<PeerID> query(String primaryKey, String attribute, String value, int threshold) {
 
         try {
-            
+
             return backend.query(primaryKey, attribute, value, threshold);
 
     	} catch(IOException e) {
@@ -253,7 +252,7 @@ public class Srdi implements SrdiAPI {
     	}
 
     }
-    
+
     /**
      * Garbage Collect expired entries
      */
@@ -270,7 +269,7 @@ public class Srdi implements SrdiAPI {
      	}
 
     }
-    
+
     public void clear() {
 
         try {
@@ -283,7 +282,7 @@ public class Srdi implements SrdiAPI {
      		
      	}
     }
-    
+
     /**
      * stop the current running thread
      */
@@ -291,10 +290,10 @@ public class Srdi implements SrdiAPI {
         if(gcHandle != null) {
             gcHandle.cancel(false);
         }
-        
+
     	backend.stop();
     }
-    
+
     /**
      * Flushes the Srdi directory for a specified group
      * this method should only be called before initialization of a given group
@@ -303,11 +302,11 @@ public class Srdi implements SrdiAPI {
      * @param group group context
      */
     public static void clearSrdi(PeerGroup group) {
-        
+
         Logging.logCheckedInfo(LOG, "Clearing SRDI for " + group.getPeerGroupName());
-        
+
         Class<? extends SrdiAPI> backendClass = getBackendClass();
-        
+
         try {
 
 	    backendClass.getMethod("clearSrdi", PeerGroup.class).invoke(null, group);
@@ -319,7 +318,7 @@ public class Srdi implements SrdiAPI {
 	}
 
     }
-    
+
     /**
      * Loads and checks the backend class specified by {@link #SRDI_INDEX_BACKEND_SYSPROP} conforms to
      * the specification of Srdi, and provides the appropriate constructors and static methods.
@@ -385,7 +384,7 @@ public class Srdi implements SrdiAPI {
 
             return backendClassChecked;
     }
-    
+
     private static Class<? extends SrdiAPI> getDefaultBackendClass() {
     	
         try {
@@ -400,15 +399,15 @@ public class Srdi implements SrdiAPI {
         }
 
     }
-    
+
     /**
      * An entry in the index tables.
      */
     public final static class Entry {
-        
+
         public final PeerID peerid;
         public final long expiration;
-        
+
         /**
          * Peer Pointer reference
          *
@@ -419,7 +418,7 @@ public class Srdi implements SrdiAPI {
             this.peerid = peerid;
             this.expiration = expiration;
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -427,7 +426,7 @@ public class Srdi implements SrdiAPI {
         public boolean equals(Object obj) {
             return obj instanceof Entry && (peerid.equals(((Entry) obj).peerid));
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -435,7 +434,7 @@ public class Srdi implements SrdiAPI {
         public int hashCode() {
             return peerid.hashCode();
         }
-        
+
         /**
          *  Return the absolute time in milliseconds at which this entry will
          *  expire.
@@ -446,7 +445,7 @@ public class Srdi implements SrdiAPI {
         public long getExpiration() {
             return expiration;
         }
-        
+
         /**
          *  Return {@code true} if this entry is expired.
          *
@@ -456,16 +455,15 @@ public class Srdi implements SrdiAPI {
             return TimeUtils.timeNow() > expiration;
         }
     }
-    
-    
+
     /**
      * an SrdiIndexRecord wrapper
      */
     public final static class SrdiIndexRecord {
-        
+
         public final Key key;
         public final List<Entry> list;
-        
+
         /**
          * Srdi record
          *
@@ -476,7 +474,7 @@ public class Srdi implements SrdiAPI {
             this.key = key;
             this.list = list;
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -484,7 +482,7 @@ public class Srdi implements SrdiAPI {
         public boolean equals(Object obj) {
             return obj instanceof SrdiIndexRecord && (key.equals(((SrdiIndexRecord) obj).key));
         }
-        
+
         /**
          * {@inheritDoc}
          */

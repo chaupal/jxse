@@ -1,32 +1,32 @@
 /*
  * Copyright(c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.protocol;
-
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
@@ -76,9 +75,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  This class defines the DiscoveryService message "Response". <p/>
@@ -91,49 +88,49 @@ import java.util.logging.Logger;
  *@see    net.jxta.protocol.DiscoveryQueryMsg
  */
 public abstract class DiscoveryResponseMsg {
-    
+
     /**
      *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(DiscoveryResponseMsg.class.getName());
-    
+
     /**
      *  attribute used by the query
      */
     protected String attr = null;
-    
+
     /**
      *  Responding peer's advertisement
      */
     protected PeerAdvertisement peerAdvertisement = null;
-    
+
     /**
      * The advertisement responses serialized into strings.
      */
     protected final List<String> responses = new ArrayList<String>(0);
-    
+
     /**
      *  The advertisement responses deserialized.
      */
     protected final List<Advertisement> advertisements = new ArrayList<Advertisement>(0);
-    
+
     /**
      *  Expirations
      */
     protected final List<Long> expirations = new ArrayList<Long>(0);
-    
+
     /**
      *  Advertisement type used by the query
      *
      *  <p/>FIXME 20040514 bondolo@jxta.org not a great default...
      */
     protected int type = DiscoveryService.PEER;
-    
+
     /**
      *  Value used by the query
      */
     protected String value = null;
-    
+
     /**
      *  All messages have a type(in xml this is !doctype) which identifies the
      *  message
@@ -143,7 +140,7 @@ public abstract class DiscoveryResponseMsg {
     public static String getAdvertisementType() {
         return "jxta:DiscoveryResponse";
     }
-    
+
     /**
      *  Get the response type
      *
@@ -153,7 +150,7 @@ public abstract class DiscoveryResponseMsg {
     public int getDiscoveryType() {
         return type;
     }
-    
+
     /**
      *  set the Response type whether it's peer, or group discovery
      *
@@ -162,7 +159,7 @@ public abstract class DiscoveryResponseMsg {
     public void setDiscoveryType(int type) {
         this.type = type;
     }
-    
+
     /**
      *  Write advertisement into a document. asMimeType is a mime media-type
      *  specification and provides the form of the document which is being
@@ -173,9 +170,9 @@ public abstract class DiscoveryResponseMsg {
      * @param  asMimeType  mime-type requested
      * @return             Document document that represents the advertisement
      */
-    
+
     public abstract Document getDocument(MimeMediaType asMimeType);
-    
+
     /**
      *  returns the responding peer's advertisement
      *
@@ -184,7 +181,7 @@ public abstract class DiscoveryResponseMsg {
     public PeerAdvertisement getPeerAdvertisement() {
         return peerAdvertisement;
     }
-    
+
     /**
      *  Sets the responding peer's advertisement
      *
@@ -193,7 +190,7 @@ public abstract class DiscoveryResponseMsg {
     public void setPeerAdvertisement(PeerAdvertisement newAdv) {
         peerAdvertisement = newAdv;
     }
-    
+
     /**
      * returns the attributes used by the query
      *
@@ -202,7 +199,7 @@ public abstract class DiscoveryResponseMsg {
     public String getQueryAttr() {
         return attr;
     }
-    
+
     /**
      *  returns the value used by the query
      *
@@ -211,7 +208,7 @@ public abstract class DiscoveryResponseMsg {
     public String getQueryValue() {
         return value;
     }
-    
+
     /**
      *  Get the response count
      *
@@ -224,7 +221,7 @@ public abstract class DiscoveryResponseMsg {
             return responses.size();
         }
     }
-    
+
     /**
      *  Gets the expirations attribute of the DiscoveryResponseMsg object
      *
@@ -235,10 +232,10 @@ public abstract class DiscoveryResponseMsg {
             // this takes care of the case where the only response is the peerAdv
             expirations.add(DiscoveryService.DEFAULT_EXPIRATION);
         }
-        
+
         return Collections.enumeration(expirations);
     }
-    
+
     /**
      * set the expirations for this query
      *
@@ -248,7 +245,7 @@ public abstract class DiscoveryResponseMsg {
         this.expirations.clear();
         this.expirations.addAll(expirations);
     }
-    
+
     /**
      * returns the response(s)
      *
@@ -259,10 +256,10 @@ public abstract class DiscoveryResponseMsg {
             // this takes care of the case where the only response is the peerAdv
             responses.add(peerAdvertisement.toString());
         }
-        
+
         return Collections.enumeration(responses);
     }
-    
+
     /**
      *  Set the responses to the query. The responses may be either
      *  {@code Advertisement}, {@code String} or {@code InputStream}.
@@ -271,7 +268,7 @@ public abstract class DiscoveryResponseMsg {
      */
     public void setResponses(List responses) {
         this.responses.clear();
-        
+
         for (Object response : responses) {
             if (response instanceof Advertisement) {
                 this.responses.add(((Advertisement) response).getDocument(MimeMediaType.XMLUTF8).toString());
@@ -279,7 +276,7 @@ public abstract class DiscoveryResponseMsg {
                 this.responses.add((String) response);
             } else if (response instanceof InputStream) {
                 String result = streamToString((InputStream) response);
-                
+
                 if (null != result) {
                     this.responses.add(result);
                 }
@@ -297,13 +294,13 @@ public abstract class DiscoveryResponseMsg {
      */
     private String streamToString(InputStream is) {
         Reader reader = null;
-        
+
         try {
             reader = new InputStreamReader(is, "UTF-8");
         } catch (UnsupportedEncodingException impossible) {
             throw new Error("UTF-8 encoding not supported?!?");
         }
-        
+
         StringBuilder stw = new StringBuilder();
         char[] buf = new char[512];
 
@@ -330,7 +327,7 @@ public abstract class DiscoveryResponseMsg {
 
         return stw.toString();
     }
-    
+
     /**
      *  Set the attribute used by the query
      *
@@ -339,7 +336,7 @@ public abstract class DiscoveryResponseMsg {
     public void setQueryAttr(String attr) {
         this.attr = attr;
     }
-    
+
     /**
      *  Set the value used by the query
      *
@@ -348,7 +345,7 @@ public abstract class DiscoveryResponseMsg {
     public void setQueryValue(String value) {
         this.value = value;
     }
-    
+
     /**
      * Get the responses to the query as advertisements.
      *
@@ -359,7 +356,7 @@ public abstract class DiscoveryResponseMsg {
             // this takes care of the case where the only response is the peerAdv
             return Collections.enumeration(Collections.singletonList((Advertisement) peerAdvertisement));
         }
-        
+
         if (advertisements.isEmpty() && !responses.isEmpty()) {
             // Convert the responses.
             for (String aResponse : responses) {
@@ -368,17 +365,17 @@ public abstract class DiscoveryResponseMsg {
                             ,
                             new StringReader(aResponse));
                     Advertisement anAdv = AdvertisementFactory.newAdvertisement(anXMLDoc);
-                    
+
                     advertisements.add(anAdv);
 
                 } catch (IOException badAdvertisement) {
 
                     Logging.logCheckedWarning(LOG, "Invalid response in message : ", badAdvertisement);
-                    
+
                 }
             }
         }
-        
+
         return Collections.enumeration(advertisements);
     }
 }

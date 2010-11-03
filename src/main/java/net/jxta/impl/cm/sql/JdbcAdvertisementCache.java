@@ -70,7 +70,6 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.ConnectionPoolDataSource;
 import net.jxta.document.Advertisement;
@@ -162,7 +161,7 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
                 return false;
 		
             }
-            
+
 	}
 	
 	private MiniConnectionPoolManager connPool;
@@ -824,11 +823,11 @@ public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache 
 	public void setTrackDeltas(boolean trackDeltas) {
 
 	    deltaTracker.setTrackingDeltas(trackDeltas);
-            
+
 	}
 
 	public void stop() throws IOException {
-            
+
             try {
 
                 connPool.dispose();

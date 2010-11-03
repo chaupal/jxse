@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2006-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -265,7 +265,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      *  send data though it may remain capable of receiving data.
      */
     private boolean outputShutdown = false;
-    
+
     /**
      *  If {@code true} then the input stream has been shutdown. All attempts 
      *  to read from the socket will fail. This socket can no longer be used to 
@@ -277,7 +277,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      *  Used for sending all messages by the reliable output and input streams.
      */
     protected Outgoing outgoing = null;
-    
+
     /**
      *  The reliable input stream we use for receiving data if 
      *  {@link #isReliable} is {@code true}.
@@ -353,9 +353,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         Message connectResponse = createConnectMessage(group, localEphemeralPipeAdv, localCredential, isReliable, initiator);
 
         remoteEphemeralPipeMsgr.sendMessage(connectResponse);
-        
+
         Logging.logCheckedInfo(LOG, "New socket : ", this);
-        
+
     }
 
     /**
@@ -489,7 +489,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     @Override
     protected void finalize() throws Throwable {
-        
+
         if (!closed) Logging.logCheckedWarning(LOG, "JxtaSocket is being finalized without being previously closed. This is likely a users bug.");
         close();
         super.finalize();
@@ -647,7 +647,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 } catch (InterruptedException ie) {
 
                     Logging.logCheckedFine(LOG, "Interrupted\n", ie);
-                    
+
                     Thread.interrupted();
                     SocketException exp = new SocketException("Connect Interrupted");
                     exp.initCause(ie);
@@ -686,7 +686,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                     } catch (InterruptedException ie) {
 
                         Logging.logCheckedFine(LOG, "Interrupted\n" + ie);
-                        
+
                         Thread.interrupted();
                         SocketException exp = new SocketException("Connect Interrupted");
                         exp.initCause(ie);
@@ -706,7 +706,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (!isConnected()) throw new SocketTimeoutException("Connection timeout (connect)");
 
         Logging.logCheckedInfo(LOG, "New socket connection : ", this);
-        
+
         // The socket is bound now.
         setBound(true);
 
@@ -719,7 +719,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @return The <code>Credential</code> value
      */
     protected static Credential getDefaultCredential(PeerGroup group) {
-        
+
         try {
 
             MembershipService membership = group.getMembershipService();
@@ -728,7 +728,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         } catch (Exception e) {
 
             Logging.logCheckedWarning(LOG, "failed to get credential\n", e);
-            
+
         }
         return null;
     }
@@ -739,7 +739,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * @return Credential StructuredDocument
      */
     public Credential getCredentialDoc() {
-        
+
         try {
 
             return remoteCredential;
@@ -888,7 +888,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     protected Outgoing makeOutgoing(Messenger msgr, long timeout) {
         return new OutgoingMsgrAdaptor(msgr, (int) timeout);
     }
-            
+
     /**
      * Opens the ephemeral output pipe for the remote peer. Also opens the
      * input and output streams. (delaying adds complexity).
@@ -990,7 +990,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 if (closeEndsAt < to) closeEndsAt = Long.MAX_VALUE;
 
                 Logging.logCheckedInfo(LOG, "Closing ", this, " timeout=", to, "ms.");
-                
+
                 if (closed) return;
 
                 closed = true;
@@ -1084,7 +1084,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 // do not ack until the queue is empty
                 sendCloseACK();
             }
-            
+
             if (isConnected()) {
                 setConnected(false);
                 if (isReliable) {
@@ -1157,7 +1157,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (element != null) {
 
             Logging.logCheckedFine(LOG, "Handling a close message ", this, " : ", element);
-            
+
             if (JxtaServerSocket.closeReqValue.equals(element.toString())) {
 
                 try {
@@ -1166,15 +1166,15 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                     closeFromRemote();
 
                 } catch (IOException ie) {
-                    
+
                     Logging.logCheckedSevere(LOG, "failed during closeFromRemote", ie);
-                    
+
                 }
 
             } else if (JxtaServerSocket.closeAckValue.equals(element.toString())) {
 
                 Logging.logCheckedFine(LOG, "Received a close acknowledgement");
-                
+
                 synchronized (closeLock) {
                     closeAckReceived = true;
                     setConnected(false);
@@ -1219,7 +1219,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             Credential incomingCredential = null;
 
             if (element != null) {
-                
+
                 try {
 
                     StructuredDocument incomingCredentialDoc = StructuredDocumentFactory.newStructuredDocument(element);
@@ -1228,7 +1228,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 } catch (Exception failed) {
 
                     Logging.logCheckedWarning(LOG, "Unable to generate credential for ", this, "\n", failed);
-                    
+
                 }
             }
 
@@ -1269,7 +1269,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         try {
 
                             connect();
-                            
+
                         } catch (IOException failed) {
 
                             Logging.logCheckedWarning(LOG, "Connection failed : ", this, failed);
@@ -1339,7 +1339,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         OutputPipe op = event.getOutputPipe();
 
         if (op.getAdvertisement() == null) {
-            
+
             Logging.logCheckedWarning(LOG, "The output pipe has no internal pipe advertisement. discarding event");
             return;
 
@@ -1358,11 +1358,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             }
             // Ooops one too many, we were too fast re-trying.
             if (op != null) op.close();
-            
+
         } else {
 
             Logging.logCheckedWarning(LOG, "Unexpected OutputPipe :", op);
-            
+
         }
     }
 
@@ -1394,7 +1394,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         }
 
         Logging.logCheckedFine(LOG, "New pipe lightweight messenger for ", addr);
-        
+
         return endpoint.getMessenger(addr, routeHint);
     }
 
@@ -1411,11 +1411,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 new StringMessageElement(JxtaServerSocket.closeTag, JxtaServerSocket.closeReqValue, null));
 
         Logging.logCheckedFine(LOG, "Sending a close request ", this, " : ", msg);
-        
+
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
-            
+
             Logging.logCheckedSevere(LOG, "Failed to send a close request ", this, " : ", msg);
-            
+
         }
     }
 
@@ -1430,11 +1430,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 new StringMessageElement(JxtaServerSocket.closeTag, JxtaServerSocket.closeAckValue, null));
 
         Logging.logCheckedFine(LOG, "Sending a close ACK ", this, " : ", msg);
-        
+
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
-            
+
             Logging.logCheckedSevere(LOG, "Failed to send a close ACK ", this, " : ", msg);
-            
+
         }
     }
 

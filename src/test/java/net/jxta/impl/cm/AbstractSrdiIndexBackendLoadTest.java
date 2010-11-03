@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public abstract class AbstractSrdiIndexBackendLoadTest {
-    
+
     @Rule
     public JUnitRuleMockery mockContext = new JUnitRuleMockery();
-    
+
     @Rule
     public TemporaryFolder testFileStore = new TemporaryFolder();
 	private File storeRoot;
@@ -161,7 +161,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	    Srdi index = new Srdi(createGroup(PeerGroupID.defaultNetPeerGroupID, "group"), "duplicatesTestIndex");
 	    String primaryKey = "pk";
 	    String attribute = "attr";
-	    
+	
 
 	    int numAlreadyAdded = 0;
 	    // add entries with the same primary key and attribute, but with different values and peer IDs
@@ -169,13 +169,13 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
 	        int numEntries = (int) Math.pow(10, stage+2);
 	        System.out.println("Testing with " + numEntries);
 	        StatsTracker queryTimeTracker = new StatsTracker();
-	        
+	
     	    System.out.println("Adding test entries");
             for(int i=numAlreadyAdded; i < numEntries; i++) {
     	        index.add(primaryKey, attribute, "value" + i, IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID), Long.MAX_VALUE);
     	    }
     	    System.out.println("Finished adding test entries");
-    	    
+    	 
     	    System.out.println("Performing queries");
     	    Random r = new Random();
     	    // perform random queries to determine the average query time
@@ -186,7 +186,7 @@ public abstract class AbstractSrdiIndexBackendLoadTest {
     	        long endTime = System.nanoTime();
     	        queryTimeTracker.addResult(endTime - startTime);
     	    }
-    	    
+    	 
     	    System.out.printf("Query times - mean: %.1f ns, min: %.1f, max: %.1f, stdev: %.3f\n" , queryTimeTracker.getMean(), queryTimeTracker.getMin(), queryTimeTracker.getMax(), queryTimeTracker.getStdDev());
 	    }
 	}

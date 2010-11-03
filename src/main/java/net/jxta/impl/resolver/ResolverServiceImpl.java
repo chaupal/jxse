@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -65,7 +65,6 @@ import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.endpoint.router.EndpointRouter;
 import net.jxta.impl.endpoint.router.RouteControl;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.ResolverQuery;
@@ -377,7 +376,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (Exception all) {
 
                 Logging.logCheckedWarning(LOG, "could not get default credential\n", all);
-                
+
             }
         }
         return Module.START_OK;
@@ -489,7 +488,7 @@ public class ResolverServiceImpl implements ResolverService {
     public void sendQuery(String destPeer, ResolverQueryMsg query) {
 
         Logging.logCheckedFine(LOG, "sending query to resolver handler: ", query.getHandlerName());
-        
+
         // NOTE: Add route information about the issuing peer, so the
         // resolver query responding peer can respond to the issuer without
         // requiring any route discovery. In most case the responding peer
@@ -512,11 +511,11 @@ public class ResolverServiceImpl implements ResolverService {
                 }
 
                 Logging.logCheckedFine(LOG, "Sending query with route info to ", destPeer);
-                
+
             } else {
 
                 Logging.logCheckedFine(LOG, "No route control--could not set local route on query");
-                
+
             }
         }
 
@@ -557,7 +556,7 @@ public class ResolverServiceImpl implements ResolverService {
                 }
 
                 Logging.logCheckedWarning(LOG, "Failure during propagate\n", e);
-                
+
             }
 
         } else {
@@ -606,7 +605,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (Exception e) {
 
                 Logging.logCheckedWarning(LOG, "Error in sending response\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                     queryHandlerMeter.responseSendError();
                 }
@@ -661,7 +660,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (IOException e) {
 
                 Logging.logCheckedWarning(LOG, "Failure sending srdi message\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorPropagatingMessage();
                 }
@@ -685,7 +684,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (Exception e) {
 
                 Logging.logCheckedWarning(LOG, "Error in sending srdi message\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (srdiHandlerMeter != null)) {
                     srdiHandlerMeter.errorSendingMessage();
                 }
@@ -784,7 +783,7 @@ public class ResolverServiceImpl implements ResolverService {
         if (theHandler == null) {
 
             Logging.logCheckedFine(LOG, "Discarding query #", query.getQueryId(), ", no handler for :", queryHandlerName);
-            
+
             // If this peer is a rendezvous peer, it needs to repropagate the query to other rendezvous peer that
             // may have a handler.
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
@@ -819,7 +818,7 @@ public class ResolverServiceImpl implements ResolverService {
         } catch (Throwable any) {
 
             Logging.logCheckedWarning(LOG, "Uncaught Throwable from handler for : ", queryHandlerName, any);
-            
+
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.errorWhileProcessingQuery(query);
             }
@@ -854,11 +853,11 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         QueryHandler theHandler = getHandler(handlerName);
-        
+
         if (theHandler == null) {
 
             Logging.logCheckedWarning(LOG, "No handler for :", handlerName);
-            
+
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                 resolverMeter.unknownHandlerForResponse(srcAddr, resp);
             }
@@ -937,7 +936,7 @@ public class ResolverServiceImpl implements ResolverService {
         } catch (IOException e) {
 
             Logging.logCheckedWarning(LOG, "failure during propagateResponse\n", e);
-            
+
             if (ResolverMeterBuildSettings.RESOLVER_METERING && (queryHandlerMeter != null)) {
                 queryHandlerMeter.responsePropagateError();
             }
@@ -1055,14 +1054,14 @@ public class ResolverServiceImpl implements ResolverService {
             if ((null == getRouteControl()) || (routeControl.addRoute(route) == RouteControl.FAILED)) {
 
                 Logging.logCheckedWarning(LOG, "Failed to add route for ", route.getDestPeerID());
-                
+
             } else {
 
                 Logging.logCheckedFiner(LOG, "Added route for ", route.getDestPeerID());
 
             }
         }
-        
+
         Logging.logCheckedFiner(LOG, "Creating a messenger immediate for :", destAddress);
 
         messenger = endpoint.getMessengerImmediate(destAddress, route);
@@ -1104,7 +1103,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         // XXX 20040924 bondolo Convert this to ListenerAdaptor
         messenger.sendMessage(msg, null, null, new FailureListener(dest));
-        
+
         return true;
 
     }
@@ -1129,7 +1128,7 @@ public class ResolverServiceImpl implements ResolverService {
             Logging.logCheckedFine(LOG, "Demuxing a query message from ", srcAddr);
 
             MessageElement element = message.getMessageElement("jxta", outQueName);
-            
+
             if (element == null) {
 
                 Logging.logCheckedWarning(LOG, "Message does not contain a query. Discarding message");
@@ -1152,7 +1151,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (IOException e) {
 
                 Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
                 }
@@ -1162,7 +1161,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (IllegalArgumentException e) {
 
                 Logging.logCheckedWarning(LOG, "Ill formatted resolver query, ignoring.\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidQueryDiscarded(srcAddr);
                 }
@@ -1218,7 +1217,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (IOException e) {
 
                 Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
                 }
@@ -1228,7 +1227,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (IllegalArgumentException e) {
 
                 Logging.logCheckedWarning(LOG, "Ill formatted resolver response, ignoring.\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidResponseDiscarded(srcAddr);
                 }
@@ -1259,7 +1258,7 @@ public class ResolverServiceImpl implements ResolverService {
             if (element == null) {
 
                 Logging.logCheckedWarning(LOG, "Message does not contain a SRDI element. Discarding message");
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidSrdiMessageDiscarded(srcAddr);
                 }
@@ -1282,7 +1281,7 @@ public class ResolverServiceImpl implements ResolverService {
             } catch (IOException e) {
 
                 Logging.logCheckedWarning(LOG, "Ill formatted SRDI message, ignoring.\n", e);
-                
+
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.invalidSrdiMessageDiscarded(srcAddr);
                 }
@@ -1313,9 +1312,9 @@ public class ResolverServiceImpl implements ResolverService {
 
             // Ignore the failure if it's a case of queue overflow.
             if (event.getFailure() == null) return;
-            
+
             Logging.logCheckedWarning(LOG, "Clearing SRDI tables for failed peer : ", dest);
-            
+
             for (Object o : Arrays.asList(srdiHandlers.values().toArray())) {
 
                 SrdiHandler theHandler = (SrdiHandler) o;

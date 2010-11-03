@@ -62,7 +62,7 @@ public interface TernarySearchTreeMatchListener<T> {
      * @param key The (full) key for this node
      * @param data The data at this node
      */
-    public void resultFound( String key, T data ); 
+    public void resultFound( String key, T data );
 
     /**
      * Called by the search algorithm of the tree

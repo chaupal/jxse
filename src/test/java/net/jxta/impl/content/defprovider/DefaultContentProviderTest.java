@@ -62,12 +62,12 @@ import net.jxta.impl.content.AbstractContentProviderTest;
  */
 @Ignore
 public class DefaultContentProviderTest extends AbstractContentProviderTest {
-    
+
     /**
      * Default constructor.
      */
     public DefaultContentProviderTest() {
         super(new DefaultContentProvider());
     }
-    
+
 }

@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -70,7 +70,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,7 +95,6 @@ import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -304,7 +302,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             } catch (Throwable all) {
 
                 Logging.logCheckedSevere(LOG, "Uncaught Throwable in timer task ", Thread.currentThread().getName(), " for ", peerID, all);
-                
+
             }
         }
 
@@ -336,7 +334,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         // next time someone looks. The inconsistency can only trigger
         // an extraneous update.
 
-        PeerAdvertisement newPadv = group.getPeerAdvertisement();                      
+        PeerAdvertisement newPadv = group.getPeerAdvertisement(); 
         int newModCount = newPadv.getModCount();
 
         if ((lastPeerAdv != newPadv) || (lastModCount != newModCount) || (null == localRoute)) {
@@ -389,7 +387,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         } catch (Exception ex) {
 
             Logging.logCheckedWarning(LOG, "Failure extracting route\n", ex);
-            
+
         }
 
         return localRoute;
@@ -443,13 +441,13 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                     } else {
 
                         Logging.logCheckedWarning(LOG, "null messenger for dest :", logDest);
-                        
+
                     }
 
                 } else {
 
                     Logging.logCheckedWarning(LOG, "null messenger event for dest :", logDest);
-                    
+
                 }
             }
 
@@ -732,7 +730,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
             Logging.logCheckedWarning(LOG, "Endpoint Router start stalled until membership service available");
             return Module.START_AGAIN_STALLED;
-            
+
         }
 
         needed = group.getRendezVousService();
@@ -820,7 +818,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
             Logging.logCheckedSevere(LOG, "Transport registration refused");
             return -1;
-            
+
         }
 
         Logging.logCheckedInfo(LOG, group, " : Router Message Transport started.");
@@ -854,7 +852,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         destinations.close();
 
         Logging.logCheckedInfo(LOG, group, " : Router Message Transport stopped.");
-        
+
     }
 
     /**
@@ -1781,7 +1779,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
                     // need to look for a long route.
                     Logging.logCheckedFine(LOG, "Forward route element broken - trying alternate route");
-                    
+
                     // While we're at it, we might as well get rid of our own
                     // route to the destination if it goes through the same hop
                     // by any chance.
@@ -1838,7 +1836,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                         }
 
                         Logging.logCheckedFine(LOG, "Found new remote route via : ", addr);
-                        
+
                         // NB: setForwardHops does not clone.
                         routerMsg.setForwardHops(newHops);
                     }
@@ -1872,7 +1870,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             sendOnLocalRoute(nextHop, msg);
 
             Logging.logCheckedFine(LOG, "Successfully forwarded to ", nextHop);
-            
+
         } catch (Exception e) {
             cantRoute("Failed to deliver or forward message for " + destPeer, e, origSrcAddr, destPeer, origHops);
         }
@@ -1885,7 +1883,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         } else {
             Logging.logCheckedWarning(LOG, logMsg, "\n", exception);
         }
-        
+
         routeResolver.generateNACKRoute(addr2pid(origSrcAddr), addr2pid(destPeer), origHops);
 
     }
@@ -2042,7 +2040,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             try {
 
                 Logging.logCheckedFine(LOG, "Trying : ", addr);
-                
+
                 // We use an async getMessenger as we do not
                 // want to wait too long to obtain our messenger
                 // We will still wait ASYNCMESSENGER_WAIT to see
@@ -2057,7 +2055,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 if (!stat) {
 
                     Logging.logCheckedFine(LOG, "Failed to create async messenger to : ", addr);
-                    
+
                     // we failed to get a messenger, we need to update the try and
                     // failed as it currently holds an infinite timeout to permit
                     // another thread to retry that destination. We only retry
@@ -2083,11 +2081,11 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 if (messenger == null) {
 
                     Logging.logCheckedFine(LOG, "did not get our async messenger. continue");
-                    
+
                 } else {
 
                     Logging.logCheckedFine(LOG, "we got our async messenger, proceed");
-                    
+
                     // Success we got a messenger synchronously. Remove
                     // the negative cache entry.
                     synchronized (this) {
@@ -2101,7 +2099,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 // That address is somehow broken.
                 // Cache that result for a while.
                 Logging.logCheckedFine(LOG, "failed checking route\n", e);
-                
+
             }
         }
         return null;
@@ -2200,7 +2198,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         } catch (RuntimeException e) {
 
             Logging.logCheckedWarning(LOG, "Failure looking for an address\n", e);
-            
+
         }
 
         // We're done trying. Since we did not find anything at all (or failed,
@@ -2302,10 +2300,10 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
                     // For the hint to be useful, we must actively try the first
                     // hop.
-                    
+
                     // FIXME: If we can't reach it, then we should try to reach the second
                     // hop. It is a longer route, but worth trying.
-                    
+
                     // It is possible that we do not know the first hop yet and that's
                     // not a reason to ignore the hint (would ruin the purpose
                     // in most cases).
@@ -2498,11 +2496,11 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         } catch (URISyntaxException ex) {
 
             Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address : ", addr, "\n", ex);
-            
+
         } catch (ClassCastException cce) {
 
             Logging.logCheckedWarning(LOG, "Error converting a source address into a virtual address: ", addr, "\n", cce);
-            
+
         }
 
         return null;
@@ -2584,7 +2582,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         } catch (Exception e) {
 
             Logging.logCheckedWarning(LOG, "Failed to publish route advertisement\n", e);
-            
+
         }
     }
 

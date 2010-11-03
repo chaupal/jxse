@@ -13,11 +13,9 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 public class MessageDispatchHandlerTest {
 

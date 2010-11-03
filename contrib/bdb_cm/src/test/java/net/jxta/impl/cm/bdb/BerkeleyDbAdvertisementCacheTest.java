@@ -19,21 +19,21 @@ import static org.junit.Assert.*;
 public class BerkeleyDbAdvertisementCacheTest extends AbstractCmTest {
 
     private TaskManager taskManager;
-    
+
     @Before
     @Override
     public void setUp() throws Exception {
         taskManager = new TaskManager();
         super.setUp();
     }
-    
+
     @After
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
         taskManager.shutdown();
     }
-    
+
 	@Override
 	public AdvertisementCache createWrappedCache(String areaName) throws Exception {
 		return new BerkeleyDbAdvertisementCache(testRootDir.toURI(), areaName, taskManager, false);

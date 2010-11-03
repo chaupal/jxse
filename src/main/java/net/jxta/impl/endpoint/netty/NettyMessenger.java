@@ -12,7 +12,6 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;

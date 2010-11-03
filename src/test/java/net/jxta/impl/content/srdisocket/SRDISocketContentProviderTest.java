@@ -62,12 +62,12 @@ import net.jxta.impl.content.AbstractContentProviderTest;
  */
 @Ignore
 public class SRDISocketContentProviderTest extends AbstractContentProviderTest {
-    
+
     /**
      * Default constructor.
      */
     public SRDISocketContentProviderTest() {
         super(new SRDISocketContentProvider());
     }
-    
+
 }

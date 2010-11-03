@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,31 +37,29 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.*;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.util.Enumeration;
-
 
 /**
  * Used by the Endpoint Routing protocol in response to Route Query Messages.
@@ -97,7 +95,7 @@ public class RouteResponse{
 
     private static final String destRouteTag = "Dst";
     private static final String srcRouteTag = "Src";
-    
+
     private RouteAdvertisement dstRoute = null;
     private RouteAdvertisement srcRoute = null;
 
@@ -146,13 +144,13 @@ public class RouteResponse{
                 }
             }
         }
-        
+
         // Validate.
-        
+
         if (null == getSrcRoute()) {
             throw new IllegalArgumentException("Missing source route.");
         }
-        
+
         if (null == getDestRoute()) {
             throw new IllegalArgumentException("Missing destination route.");
         }
@@ -160,7 +158,7 @@ public class RouteResponse{
         if (null == getSrcRoute().getDestPeerID()) {
             throw new IllegalArgumentException("Bad source route.");
         }
-        
+
         if (null == getDestRoute().getDestPeerID()) {
             throw new IllegalArgumentException("Bad destination route.");
         }
@@ -181,7 +179,7 @@ public class RouteResponse{
      *
      * @param dst destination route
      */
- 
+
     public void setDestRoute(RouteAdvertisement dst) {
         dstRoute = dst;
     }
@@ -202,7 +200,7 @@ public class RouteResponse{
      *
      * @param route RouteAdvertisement of the source
      */
- 
+
     public void setSrcRoute(RouteAdvertisement route) {
         srcRoute = route;
     }
@@ -216,16 +214,16 @@ public class RouteResponse{
 
     public RouteAdvertisement getSrcRoute() {
         return  srcRoute;
-    }   
-    
+    }
+
     /**
      * return a Document representation of this object
      */
-    public Document getDocument(MimeMediaType asMimeType) {        
+    public Document getDocument(MimeMediaType asMimeType) {
         if (null == getSrcRoute()) {
             throw new IllegalStateException("Missing source route.");
         }
-        
+
         if (null == getDestRoute()) {
             throw new IllegalStateException("Missing destination route.");
         }
@@ -233,7 +231,7 @@ public class RouteResponse{
         if (null == getSrcRoute().getDestPeerID()) {
             throw new IllegalStateException("Bad source route.");
         }
-        
+
         if (null == getDestRoute().getDestPeerID()) {
             throw new IllegalStateException("Bad destination route.");
         }

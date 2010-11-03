@@ -81,21 +81,21 @@ public class DBException extends XindiceException {
     public DBException(int faultCode, String message, Throwable cause) {
         this(FaultCodes.toFaultCodes(faultCode), message, cause);
     }
-    
+
     public DBException(FaultCodes fault, String message) {
         this(fault, message, null);
     }
-    
+
     public DBException(FaultCodes fault, Throwable cause) {
         this(fault, null, cause);
     }
-    
+
     public DBException(FaultCodes fault, String message, Throwable cause) {
         super(message, cause);
-        
+
         this.fault = fault;
     }
-    
+
     /**
      * 
      * {@inheritDoc}
@@ -107,7 +107,7 @@ public class DBException extends XindiceException {
         if(null != message) {
             StringBuilder composedMessage = new StringBuilder(faultMessage.length() + 3 + message.length());
             composedMessage.append(faultMessage).append(" : ").append(message);
-        
+
             return composedMessage.toString();
         } else {
             return faultMessage;

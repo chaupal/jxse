@@ -62,8 +62,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
-import java.security.InvalidParameterException;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 import org.junit.After;
@@ -285,8 +283,8 @@ public class JxtaConfigurationTest {
 
         assertTrue(Source!=null);
 
-        Source.setProperty("ééé", "ô");
-        Source.setDefaultPropertyValue("DDD", "ùùù");
+        Source.setProperty("ï¿½ï¿½ï¿½", "ï¿½");
+        Source.setDefaultPropertyValue("DDD", "ï¿½ï¿½ï¿½");
 
         ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
 
@@ -311,15 +309,15 @@ public class JxtaConfigurationTest {
         // Checking content
         assertTrue(Restore.size()==1);
 
-        assertTrue(Restore.containsKey("ééé"));
-        assertTrue(Restore.containsValue("ô"));
+        assertTrue(Restore.containsKey("ï¿½ï¿½ï¿½"));
+        assertTrue(Restore.containsValue("ï¿½"));
 
         Properties TempP = Restore.getDefaultsCopy();
 
         assertTrue(TempP.size()==1);
 
         assertTrue(TempP.containsKey("DDD"));
-        assertTrue(TempP.containsValue("ùùù"));
+        assertTrue(TempP.containsValue("ï¿½ï¿½ï¿½"));
 
     }
 

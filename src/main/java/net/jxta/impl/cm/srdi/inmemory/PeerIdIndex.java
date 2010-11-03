@@ -64,7 +64,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 // The Peer IDs index: this index organises the keys per Peer ID URI
 public class PeerIdIndex {
 

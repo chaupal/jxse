@@ -1,32 +1,32 @@
 /*
  *  Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.id;
-
 
 import net.jxta.codat.CodatID;
 import net.jxta.content.ContentID;
@@ -80,7 +79,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  *  A factory class for creating new ID instances and for constructing ID
  *  instances from external representations such as strings or URIs.
@@ -103,42 +101,42 @@ import java.util.logging.Logger;
  *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
  */
 public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator> {
-    
+
     /**
      *  Logger
      */
     private static final transient Logger LOG = Logger.getLogger(IDFactory.class.getName());
-    
+
     /**
      *  A map of the ID Formats to instantiators.
      *
      */
     private final Map<String, Instantiator> idFormats = new HashMap<String, Instantiator>();
-    
+
     /**
      *  Identifies the ID format to use when creating new ID instances.
      */
     private final String idNewInstances;
-    
+
     /**
      *  This class is a singleton. This is the instance that backs the
      *  static methods.
      */
     private final static IDFactory factory = new IDFactory();
-    
+
     /**
      *  Interface for instantiators of IDs. Each ID Format registered with the
      *  ID Factory implements a class with this interface.
      */
     public interface Instantiator {
-        
+
         /**
          *  Returns the ID Format value associated with this ID Format
          *
          *  @return String containing the ID format value for this format.
          */
         public String getSupportedIDFormat();
-        
+
         /**
          *  Construct a new ID instance from a JXTA ID contained in a URI.
          *
@@ -148,7 +146,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  recognized JXTA URI.
          */
         public ID fromURI(URI source) throws URISyntaxException;
-        
+
         /**
          *  Construct a new ID instance from the scheme specific portion of a jxta
          *  URN.
@@ -171,7 +169,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created CodatID.
          */
         public CodatID newCodatID(PeerGroupID groupID);
-        
+
         /**
          *  Creates a new CodatID instance. A new CodatID is created for the
          *  provided Peer Group. This type of CodatID can be used as a
@@ -194,7 +192,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created CodatID.
          */
         public CodatID newCodatID(PeerGroupID groupID, byte[] seed);
-        
+
         /**
          *  Creates a new CodatID instance. A new random CodatID is created for
          *  the provided Peer Group and contains a hash value for the Codat data.
@@ -213,7 +211,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @throws IOException I/O Error reading document
          */
         public CodatID newCodatID(PeerGroupID groupID, InputStream in) throws IOException;
-        
+
         /**
          *  Creates a new CodatID instance. A new CodatID is created for the
          *  provided Peer Group and contains a hash value for the Codat data.
@@ -243,7 +241,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @throws IOException I/O Error reading document
          */
         public CodatID newCodatID(PeerGroupID groupID, byte[] seed, InputStream in) throws IOException;
-        
+
         /**
          * Creates a new ContentID Instance, generated randomly for the
          * provided PeerGroup.
@@ -257,7 +255,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          */
         public ContentID newContentID(
                 PeerGroupID groupID, boolean contentIsStatic );
-        
+
         /**
          * Creates a new ContentID Instance, generated using the provided
          * seed data to help uniquely identify the Content.
@@ -284,7 +282,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         public ContentID newContentID(
                 PeerGroupID groupID, boolean contentIsStatic,
                 byte[] indexSeed);
-        
+
         /**
          * Creates a new ContentID Instance, generated using the provided
          * seed data to help uniquely identify the Content.
@@ -312,7 +310,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
                 PeerGroupID groupID, boolean contentIsStatic,
                 InputStream indexSeed)
                 throws IOException;
-        
+
         /**
          * Creates a new ContentID Instance, generated using the provided
          * seed data to help uniquely identify the Content.
@@ -342,7 +340,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         public ContentID newContentID(
                 PeerGroupID groupID, boolean contentIsStatic,
                 byte[] indexSeed, byte[] variant);
-        
+
         /**
          * Creates a new ContentID Instance, generated using the provided
          * seed data to help uniquely identify the Content.
@@ -373,7 +371,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
                 PeerGroupID groupID, boolean contentIsStatic,
                 InputStream indexSeed, byte[] variant)
                 throws IOException;
-        
+
         /**
          * Creates a new ContentID Instance, generated using the provided
          * seed data to help uniquely identify the Content.
@@ -405,7 +403,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
                 PeerGroupID groupID, boolean contentIsStatic,
                 byte[] indexSeed, InputStream variant)
                 throws IOException;
-        
+
         /**
          * Creates a new ContentID Instance, generated using the provided
          * seed data to help uniquely identify the Content.
@@ -437,7 +435,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
                 PeerGroupID groupID, boolean contentIsStatic,
                 InputStream indexSeed, InputStream variant)
                 throws IOException;
-        
+
         /**
          *  Creates a new PeerID instance. A new random peer id will be generated.
          *  The PeerID will be a member of the provided group.
@@ -448,7 +446,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created PeerID.
          */
         public PeerID newPeerID(PeerGroupID groupID);
-        
+
         /**
          *  Creates a new PeerID instance. A new PeerID will be generated.
          *  The PeerID will be a member of the provided group.
@@ -462,7 +460,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created PeerID.
          */
         public PeerID newPeerID(PeerGroupID groupID, byte[] seed);
-        
+
         /**
          *  Creates a new PeerGroupID instance. A new random peer group id will be
          *  generated. The PeerGroupID will be created using the default ID Format.
@@ -472,7 +470,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created PeerGroupID.
          */
         public PeerGroupID newPeerGroupID();
-        
+
         /**
          *  Creates a new PeerGroupID instance. A new PeerGroupID will be
          *  generated using the provided seed information. The PeerGroupID will
@@ -495,7 +493,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created PeerGroupID.
          */
         public PeerGroupID newPeerGroupID(byte[] seed);
-        
+
         /**
          *  Creates a new PeerGroupID instance with the specified parent group.
          *  A new random peer group id will be generated.
@@ -506,7 +504,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created PeerGroupID.
          */
         public PeerGroupID newPeerGroupID(PeerGroupID parent);
-        
+
         /**
          *  Creates a new PeerGroupID instance with the specified parent group.
          *  A new PeerGroupID will be generated using the provided seed
@@ -530,7 +528,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created PeerGroupID.
          */
         public PeerGroupID newPeerGroupID(PeerGroupID parent, byte[] seed);
-        
+
         /**
          *  Creates a new PipeID instance. A new random PipeID will be generated.
          *
@@ -539,7 +537,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created PipeID.
          */
         public PipeID newPipeID(PeerGroupID groupID);
-        
+
         /**
          *  Creates a new PipeID instance. A new pipe id will be generated with
          *  the provided seed information. The Pipe ID will be a member of the
@@ -561,7 +559,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return the newly created PipeID.
          */
         public PipeID newPipeID(PeerGroupID groupID, byte[] seed);
-        
+
         /**
          *  Creates a new ModuleClassID instance. A new random ModuleClassID
          *  will be generated with a zero value role identifier. This form of
@@ -574,7 +572,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created ModuleClassID.
          */
         public ModuleClassID newModuleClassID();
-        
+
         /**
          *  Creates a new ModuleClassID instance. A new random ModuleClassID
          *  will be generated with a a random value role identifier and a base
@@ -589,7 +587,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          *  @return The newly created ModuleClassID.
          */
         public ModuleClassID newModuleClassID(ModuleClassID baseClass);
-        
+
         /**
          *  Creates a new  ModuleSpecID instance. A new random ModuleSpecID will
          *  be generated.
@@ -602,7 +600,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
          */
         public ModuleSpecID newModuleSpecID(ModuleClassID baseClass);
     }
-    
+
     /**
      *  Standard Constructor. This class is a singleton so the only constructor
      *  is private.
@@ -617,17 +615,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     private IDFactory() {
         // required format
         registerAssoc("net.jxta.id.jxta.IDFormat");
-        
+
         // required by this implementation.
         registerAssoc("net.jxta.impl.id.unknown.IDFormat");
-        
+
         // Register a list of classes for association with an ID format
         registerProviders(ID.class.getName());
-        
+
         try {
             // Get our resource bundle
             ResourceBundle jxtaRsrcs = ResourceBundle.getBundle("net.jxta.impl.config");
-            
+
             // set the default ID Format.
             idNewInstances = jxtaRsrcs.getString("IDNewInstances").trim();
         } catch (MissingResourceException notFound) {
@@ -638,7 +636,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             throw failure;
         }
     }
-    
+
     /**
      *  Used by ClassFactory methods to get the mapping of ID types to constructors.
      *
@@ -648,7 +646,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     protected Map<String, Instantiator> getAssocTable() {
         return idFormats;
     }
-    
+
     /**
      *  Used by ClassFactory methods to ensure that all keys used with the mapping are
      *  of the correct type.
@@ -659,7 +657,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     protected Class<String> getClassForKey() {
         return String.class;
     }
-    
+
     /**
      *  Used by ClassFactory methods to ensure that all of the instance classes
      *  which register with this factory have the correct base class
@@ -670,7 +668,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     protected Class<Instantiator> getClassOfInstantiators() {
         return Instantiator.class;
     }
-    
+
     /**
      *  Register a class with the factory from its class name. We override the
      *  standard implementation to get the id format from the class and
@@ -682,13 +680,13 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     @Override
     public boolean registerAssoc(String className) {
         boolean registeredSomething = false;
-        
+
         try {
             Class<?> idClass;
 
             try {
                 idClass = Class.forName(className);
-                
+
                 if (null == idClass) {
                     throw new ClassNotFoundException("forName() result was null");
                 }
@@ -699,12 +697,12 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
                 LOG.severe("Could not find class named : " + className);
                 return false;
             }
-            
+
             Field instantiatorField;
 
             try {
                 instantiatorField = idClass.getField("INSTANTIATOR");
-                
+
                 if (null == instantiatorField) {
                     throw new NoSuchFieldException("getField() result was null for field 'INSTANTIATOR'");
                     // caught locally
@@ -713,28 +711,28 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
                 LOG.severe("Could not find INSTANTIATOR field in class named : " + className);
                 return false;
             }
-            
+
             if (!Instantiator.class.isAssignableFrom(instantiatorField.getType())) {
                 throw new ClassCastException("INSTANTIATOR is not of type " + Instantiator.class.getName());
             }
-            
+
             Instantiator instantiator = (Instantiator) instantiatorField.get(null);
-            
+
             if (null == instantiator) {
                 LOG.severe("INSTANTIATOR field is null for class  : " + className);
                 return false;
             }
-            
+
             String idFormat = instantiator.getSupportedIDFormat();
-            
+
             registeredSomething = registerAssoc(idFormat, instantiator);
         } catch (Exception failed) {
             LOG.log(Level.SEVERE, "Failed to register class : " + className, failed);
         }
-        
+
         return registeredSomething;
     }
-    
+
     /**
      *  Returns a String containing the name of the default ID Format.
      *
@@ -743,7 +741,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     public static String getDefaultIDFormat() {
         return factory.idNewInstances;
     }
-    
+
     /**
      *  Construct a new ID instance from a JXTA ID contained in a URI.
      *
@@ -754,41 +752,41 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static ID fromURI(URI source) throws URISyntaxException {
         ID result = null;
-        
+
         // check the protocol
         if (!ID.URIEncodingName.equalsIgnoreCase(source.getScheme())) {
             throw new URISyntaxException(source.toString(), "URI scheme was not as expected.");
         }
-        
+
         String decoded = source.getSchemeSpecificPart();
-        
+
         int colonAt = decoded.indexOf(':');
-        
+
         // There's a colon right?
         if (-1 == colonAt) {
             throw new URISyntaxException(source.toString(), "URN namespace was missing.");
         }
-        
+
         // check the namespace
         if (!net.jxta.id.ID.URNNamespace.equalsIgnoreCase(decoded.substring(0, colonAt))) {
             throw new URISyntaxException(source.toString(),
                     "URN namespace was not as expected. (" +
                     net.jxta.id.ID.URNNamespace + "!=" + decoded.substring(0, colonAt) + ")");
         }
-        
+
         // skip the namespace portion and the colon
         decoded = decoded.substring(colonAt + 1);
-        
+
         int dashAt = decoded.indexOf('-');
-        
+
         // there's a dash, right?
         if (-1 == dashAt) {
             throw new URISyntaxException(source.toString(), "URN jxta namespace IDFormat was missing.");
         }
-        
+
         // get the encoding used for this id
         String format = decoded.substring(0, dashAt);
-        
+
         Instantiator instantiator;
 
         try {
@@ -796,12 +794,12 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
         } catch (NoSuchElementException itsUnknown) {
             instantiator = factory.getInstantiator("unknown");
         }
-        
+
         result = instantiator.fromURNNamespaceSpecificPart(decoded);
-        
+
         return result.intern();
     }
-    
+
     /**
      *  Creates a new CodatID Instance. A new random CodatID is created for
      *  the provided Peer Group. This type of CodatID can be used as a
@@ -814,17 +812,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static CodatID newCodatID(PeerGroupID groupID) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newCodatID(groupID).intern();
     }
-    
+
     /**
      *  Creates a new CodatID instance. A new CodatID is created for the
      *  provided Peer Group. This type of CodatID can be used as a
@@ -848,17 +846,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static CodatID newCodatID(PeerGroupID groupID, byte[] seed) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newCodatID(groupID, seed).intern();
     }
-    
+
     /**
      *  Creates a new CodatID instance. A new random CodatID is created for
      *  the provided Peer Group and contains a hash value for the Codat data.
@@ -878,17 +876,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static CodatID newCodatID(PeerGroupID groupID, InputStream in) throws  IOException {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newCodatID(groupID, in).intern();
     }
-    
+
     /**
      *  Creates a new CodatID instance. A new CodatID is created for the
      *  provided Peer Group and contains a hash value for the Codat data.
@@ -919,17 +917,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static CodatID newCodatID(PeerGroupID groupID, byte[] seed, InputStream in) throws  IOException {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newCodatID(groupID, seed, in).intern();
     }
-    
+
     /**
      * Creates a new ContentID Instance, generated randomly for the
      * provided PeerGroup.
@@ -944,18 +942,18 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     public static ContentID newContentID(
             PeerGroupID groupID, boolean contentIsStatic ) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator( useFormat );
-        
+
         return instantiator.newContentID(
                 groupID, contentIsStatic );
     }
-    
+
     /**
      * Creates a new ContentID Instance, generated using the provided
      * seed data to help uniquely identify the Content.
@@ -983,18 +981,18 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             PeerGroupID groupID, boolean contentIsStatic,
             byte[] indexSeed) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator( useFormat );
-        
+
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed );
     }
-    
+
     /**
      * Creates a new ContentID Instance, generated using the provided
      * seed data to help uniquely identify the Content.
@@ -1023,18 +1021,18 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             InputStream indexSeed)
             throws IOException{
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator( useFormat );
-        
+
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed );
     }
-    
+
     /**
      * Creates a new ContentID Instance, generated using the provided
      * seed data to help uniquely identify the Content.
@@ -1065,18 +1063,18 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             PeerGroupID groupID, boolean contentIsStatic,
             byte[] indexSeed, byte[] variant){
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator( useFormat );
-        
+
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
     }
-    
+
     /**
      * Creates a new ContentID Instance, generated using the provided
      * seed data to help uniquely identify the Content.
@@ -1108,18 +1106,18 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             InputStream indexSeed, byte[] variant)
             throws IOException{
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator( useFormat );
-        
+
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
     }
-    
+
     /**
      * Creates a new ContentID Instance, generated using the provided
      * seed data to help uniquely identify the Content.
@@ -1152,18 +1150,18 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             byte[] indexSeed, InputStream variant)
             throws IOException {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator( useFormat );
-        
+
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
     }
-    
+
     /**
      * Creates a new ContentID Instance, generated using the provided
      * seed data to help uniquely identify the Content.
@@ -1196,18 +1194,18 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
             InputStream indexSeed, InputStream variant)
             throws IOException {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if( IDFormat.INSTANTIATOR.getSupportedIDFormat().equals( useFormat ) ) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator( useFormat );
-        
+
         return instantiator.newContentID(
                 groupID, contentIsStatic, indexSeed, variant );
     }
-    
+
     /**
      *  Creates a new PeerID instance. A new random peer id will be generated.
      *  The PeerID will be a member of the provided group.
@@ -1219,17 +1217,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PeerID newPeerID(PeerGroupID groupID) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newPeerID(groupID).intern();
     }
-    
+
     /**
      *  Creates a new PeerID instance. A new PeerID will be generated.
      *  The PeerID will be a member of the provided group.
@@ -1244,17 +1242,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PeerID newPeerID(PeerGroupID groupID, byte[] seed) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newPeerID(groupID, seed).intern();
     }
-    
+
     /**
      *  Creates a new PeerGroupID instance. A new random peer group id will be
      *  generated. The PeerGroupID will be created using the default ID Format.
@@ -1266,7 +1264,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     public static PeerGroupID newPeerGroupID() {
         return newPeerGroupID(factory.idNewInstances).intern();
     }
-    
+
     /**
      *  Creates a new PeerGroupID instance using the specified ID Format.
      *  A new random peer group id will be generated.
@@ -1278,10 +1276,10 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PeerGroupID newPeerGroupID(String idformat) {
         Instantiator instantiator = factory.getInstantiator(idformat);
-        
+
         return instantiator.newPeerGroupID().intern();
     }
-    
+
     /**
      *  Creates a new PeerGroupID instance. A new PeerGroupID will be
      *  generated using the provided seed information. The PeerGroupID will
@@ -1306,7 +1304,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     public static PeerGroupID newPeerGroupID(byte[] seed) {
         return newPeerGroupID(factory.idNewInstances, seed).intern();
     }
-    
+
     /**
      *  Creates a new PeerGroupID instance. A new PeerGroupID will be
      *  generated using the provided seed information. The PeerGroupID will
@@ -1331,10 +1329,10 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PeerGroupID newPeerGroupID(String idformat, byte[] seed) {
         Instantiator instantiator = factory.getInstantiator(idformat);
-        
+
         return instantiator.newPeerGroupID(seed).intern();
     }
-    
+
     /**
      *  Creates a new PeerGroupID instance with the specified parent group.
      *  A new random peer group id will be generated.
@@ -1346,17 +1344,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PeerGroupID newPeerGroupID(PeerGroupID parent) {
         String useFormat = parent.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newPeerGroupID(parent).intern();
     }
-    
+
     /**
      *  Creates a new PeerGroupID instance with the specified parent group.
      *  A new PeerGroupID will be generated using the provided seed
@@ -1381,17 +1379,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PeerGroupID newPeerGroupID(PeerGroupID parent, byte[] seed) {
         String useFormat = parent.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newPeerGroupID(parent, seed).intern();
     }
-    
+
     /**
      *  Creates a new PipeID instance. A new random PipeID will be generated.
      *
@@ -1400,17 +1398,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PipeID newPipeID(PeerGroupID groupID) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newPipeID(groupID).intern();
     }
-    
+
     /**
      *  Creates a new PipeID instance. A new pipe id will be generated with the
      *  provided seed information. The Pipe ID will be a member of the provided
@@ -1432,17 +1430,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static PipeID newPipeID(PeerGroupID groupID, byte[] seed) {
         String useFormat = groupID.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newPipeID(groupID, seed).intern();
     }
-    
+
     /**
      *  Creates a new ModuleClassID instance. A new random ModuleClassID will
      *  be generated with a zero value role identifier. This form of
@@ -1457,7 +1455,7 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
     public static ModuleClassID newModuleClassID() {
         return newModuleClassID(factory.idNewInstances).intern();
     }
-    
+
     /**
      *  Creates a new ModuleClassID instance using the specified ID Format.
      *  A new random ModuleClassID will be generated with a zero value role
@@ -1472,10 +1470,10 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static ModuleClassID newModuleClassID(String idformat) {
         Instantiator instantiator = factory.getInstantiator(idformat);
-        
+
         return instantiator.newModuleClassID().intern();
     }
-    
+
     /**
      *  Creates a new ModuleClassID instance. A new random ModuleClassID will
      *  be generated with a a random value role identifier and a base class of
@@ -1491,17 +1489,17 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static ModuleClassID newModuleClassID(ModuleClassID baseClass) {
         String useFormat = baseClass.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newModuleClassID(baseClass).intern();
     }
-    
+
     /**
      *  Creates a new  ModuleSpecID instance. A new random ModuleSpecID will
      *  be generated.
@@ -1514,14 +1512,14 @@ public final class IDFactory extends ClassFactory<String, IDFactory.Instantiator
      */
     public static ModuleSpecID newModuleSpecID(ModuleClassID baseClass) {
         String useFormat = baseClass.getIDFormat();
-        
+
         // is the group netpg or worldpg?
         if (IDFormat.INSTANTIATOR.getSupportedIDFormat().equals(useFormat)) {
             useFormat = factory.idNewInstances;
         }
-        
+
         Instantiator instantiator = factory.getInstantiator(useFormat);
-        
+
         return instantiator.newModuleSpecID(baseClass).intern();
     }
 }

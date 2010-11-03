@@ -56,7 +56,6 @@
 
 package net.jxta.socket;
 
-
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.PipeAdvertisement;
@@ -74,7 +73,6 @@ import net.jxta.impl.util.pipe.reliable.Outgoing;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.PeerAdvertisement;
 
-
 /**
  * This tutorial illustrates the use JxtaSocket. It attempts to bind a
  * JxtaSocket to an instance of JxtaServerSocket bound socket.adv.
@@ -88,39 +86,39 @@ public class SocketClient extends TestCase {
      *  The maximum ratio of messages we will test losing.
      */
     private final static double MAX_MESSAGE_LOSS = 0.5;
-    
+
     /**
      *  The increment of message loss we will test.
      */
     private final static double MESSAGE_LOSS_INCREMENT = 0.05;
-    
+
     /**
      *  The maximum ratio of messages we will allow to delay.
      */
     private final static double MAX_MESSAGE_DELAY = 0.75;
-    
+
     /**
      *  The increment of message delay we will test.
      */
     private final static double MESSAGE_DELAY_INCREMENT = 0.05;
-    
+
     /**
      *  The number of runs we will attempt.
      */
     private final static int RUNS = 20;
-    
+
     // number of iterations to send the payload
     private final static long ITERATIONS = 100;
-    
+
     // payload size
     private final static int PAYLOADSIZE = 64 * 1024;
-    
+
     private static transient NetworkManager manager = null;
-    
+
     private static transient PeerGroup netPeerGroup = null;
-    
+
     private transient PipeAdvertisement pipeAdv;
-    
+
     public SocketClient() {
         synchronized (SocketClient.class) {
             try {
@@ -128,7 +126,7 @@ public class SocketClient extends TestCase {
                     manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
                             new File(new File(".cache"), "SocketClient").toURI());
                     manager.startNetwork();
-                    
+
                     netPeerGroup = manager.getNetPeerGroup();
                 }
             } catch (Exception e) {
@@ -136,10 +134,10 @@ public class SocketClient extends TestCase {
                 System.exit(-1);
             }
         }
-        
+
         pipeAdv = SocketServer.getSocketAdvertisement();
     }
-    
+
     /**
      * Interact with the server.
      * @param run
@@ -149,22 +147,22 @@ public class SocketClient extends TestCase {
      */
     public void singleTest(int run, long iterations, double loss, double delayRatio) {
         try {
-            
+
             long start = System.currentTimeMillis();
-            
+
             JxtaSocket socket = null;
-            
+
             synchronized (FaultyJxtaSocket.class) {
                 int attempt = 0;
-                
+
                 FaultyJxtaSocket.loss = loss;
                 FaultyJxtaSocket.delay = delayRatio;
-                
+
                 while ((null == socket) && (attempt < 3)) {
                     attempt++;
                     try {
                         System.out.println("Connecting : LOSS = " + loss + " DELAYS = " + delayRatio + " RUN = " + run + " ATTEMPT = " + attempt);
-                        
+
                         socket = new FaultyJxtaSocket(netPeerGroup,
                                 null, // no specific peerid
                                 pipeAdv,
@@ -175,31 +173,31 @@ public class SocketClient extends TestCase {
                     }
                 }
             }
-            
+
             if (null == socket) {
                 fail("Could not open socket.");
             }
-            
+
             // get the socket output stream
             OutputStream out = socket.getOutputStream();
             DataOutput dos = new DataOutputStream(out);
-            
+
             // get the socket input stream
             InputStream in = socket.getInputStream();
             DataInput dis = new DataInputStream(in);
             long total = iterations * (long) PAYLOADSIZE * 2;
-            
+
             System.out.println("Sending/Receiving " + total + " bytes.");
-            
+
             dos.writeLong(iterations);
             dos.writeInt(PAYLOADSIZE);
-            
+
             long current = 0;
-            
+
             while (current < iterations) {
                 byte[] out_buf = new byte[PAYLOADSIZE];
                 byte[] in_buf = new byte[PAYLOADSIZE];
-                
+
                 Arrays.fill(out_buf, (byte) current);
                 out.write(out_buf);
                 out.flush();
@@ -209,13 +207,13 @@ public class SocketClient extends TestCase {
             }
             out.close();
             in.close();
-            
+
             long finish = System.currentTimeMillis();
             long elapsed = finish - start;
-            
+
             System.out.println(MessageFormat.format("EOT. Processed {0} bytes in {1} ms. Throughput = {2} KB/sec.",
                     total, elapsed, (total / elapsed) * 1000 / 1024));
-            
+
             socket.close();
             System.out.println("Completed: Connecting : LOSS = " + loss + " DELAYS = " + delayRatio + " RUN = " + run);
         } catch (IOException io) {
@@ -223,11 +221,11 @@ public class SocketClient extends TestCase {
             fail("Failed : " + io);
         }
     }
-    
+
     /**
      */
     public void testFailingSocket() {
-        
+
         try {
             for (double loss = 0.0; loss < MAX_MESSAGE_LOSS; loss += MESSAGE_LOSS_INCREMENT) {
                 for (double delays = 0.0; delays < MAX_MESSAGE_DELAY; delays += MESSAGE_DELAY_INCREMENT) {
@@ -241,11 +239,11 @@ public class SocketClient extends TestCase {
             fail("Failed : " + e);
         }
     }
-    
+
     /**
      */
     public void testMessageLoss() {
-        
+
         try {
             for (double loss = 0.0; loss < MAX_MESSAGE_LOSS; loss += MESSAGE_LOSS_INCREMENT) {
                 for (int i = 1; i <= RUNS; i++) {
@@ -257,11 +255,11 @@ public class SocketClient extends TestCase {
             fail("Failed : " + e);
         }
     }
-    
+
     /**
      */
     public void testMessageDelay() {
-        
+
         try {
             for (double delays = 0.0; delays < MAX_MESSAGE_DELAY; delays += MESSAGE_DELAY_INCREMENT) {
                 for (int i = 1; i <= RUNS; i++) {
@@ -273,11 +271,11 @@ public class SocketClient extends TestCase {
             fail("Failed : " + e);
         }
     }
-     
+
     /**
      */
     public void testDefault() {
-        
+
         try {
             for (int i = 1; i <= RUNS; i++) {
                 singleTest(i, ITERATIONS, 0.0, 0.0);
@@ -287,25 +285,25 @@ public class SocketClient extends TestCase {
             fail("Failed : " + e);
         }
     }
-   
+
     /**
      *  Just like a JxtaSocket, but with built in faultiness! (not meant to be
      *  used in real applications).
      */
     static class FaultyJxtaSocket extends net.jxta.socket.JxtaSocket {
-        
+
         static volatile double loss = 0.0;
-        
+
         static volatile double delay = 0.0;
-        
+
         public FaultyJxtaSocket(PeerGroup group, PeerID peerid, PipeAdvertisement pipeAdv, int timeout, boolean reliable) throws IOException {
             super(group, peerid, pipeAdv, timeout, reliable);
         }
-        
+
         protected FaultyJxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement itsEphemeralPipeAdv, PeerAdvertisement itsPeerAdv, Credential myCredential, Credential itsCredential, boolean isReliable) throws IOException {
             super(group, pipeAdv, itsEphemeralPipeAdv, itsPeerAdv, myCredential, itsCredential, isReliable);
         }
-        
+
         /**
          *  {@inheritDoc}
          */
@@ -314,10 +312,10 @@ public class SocketClient extends TestCase {
             return new OutgoingFaultyMsgrAdaptor(msgr, (int) timeout, loss, delay);
         }
     }
-    
+
     @Override
     protected void finalize() {
-        
+
         synchronized (SocketClient.class) {
             if (null != manager) {
                 manager.stopNetwork();
@@ -325,10 +323,10 @@ public class SocketClient extends TestCase {
             }
         }
     }
-    
+
     public static void main(java.lang.String[] args) {
         Thread.currentThread().setName(SocketClient.class.getName() + ".main()");
-        
+
         try {
             junit.textui.TestRunner.run(suite());
         } finally {
@@ -338,15 +336,15 @@ public class SocketClient extends TestCase {
                     manager = null;
                 }
             }
-            
+
             System.err.flush();
             System.out.flush();
         }
     }
-    
+
     public static Test suite() {
         TestSuite suite = new TestSuite(SocketClient.class);
-        
+
         return suite;
     }
 }

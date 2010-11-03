@@ -73,7 +73,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This implementation relies on the use of a Ternary Tree (@see {@link TernarySearchTree})
  * to store the PeerIDs for every key/attribute/value combination (hereafter called a {@link SearchKey}).

@@ -60,7 +60,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URI;
-import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -84,7 +83,6 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.loader.RefJxtaLoaderTest;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
@@ -111,7 +109,7 @@ import org.junit.Test;
 public abstract class AbstractContentProviderTest {
     private static Logger LOG =
             Logger.getLogger(AbstractContentProviderTest.class.getName());
-    
+
     static TempDir home;
     static NetworkManager netMan;
     static PeerGroup pg;
@@ -130,7 +128,7 @@ public abstract class AbstractContentProviderTest {
         NetworkManager nm;
         ContentService service;
         String targetProvClass;
-        
+
         public ContentSharer(final File tempDir, final String className)
                 throws Exception {
             LOG.info("Constructing ContentSharer for class: " + className);
@@ -147,7 +145,7 @@ public abstract class AbstractContentProviderTest {
             nc.setRendezvousSeeds(Collections.singleton("tcp://127.0.0.1:9701"));
             LOG.info("Created NM: " + nm + " (" + nm.getClass().getClassLoader() + ")");
         }
-        
+
         public void init() {
             try {
                 LOG.info("Initializing: " + this);
@@ -182,7 +180,7 @@ public abstract class AbstractContentProviderTest {
                         "Could not init: " + exc.getMessage(), exc));
             }
         }
-        
+
         public byte[] share(URI id, byte[] data, String mimeType, boolean pub) {
             try {
                 MimeMediaType mType = MimeMediaType.valueOf(mimeType);
@@ -218,7 +216,7 @@ public abstract class AbstractContentProviderTest {
             service = null;
         }
     }
-    
+
     /**
      * Default constructor.
      * 
@@ -227,7 +225,7 @@ public abstract class AbstractContentProviderTest {
     public AbstractContentProviderTest(ContentProviderSPI spi) {
         provider = spi;
     }
-    
+
     /**
      * Starts a local JXTA instance in preparation for testing.
      * 
@@ -257,10 +255,10 @@ public abstract class AbstractContentProviderTest {
 
         service = pg.getContentService();
         assertNotNull("ContentService not present in peer group", service);
-        
+
         LOG.info("============ End setupClass");
     }
-    
+
     /**
      * Tears down the local JXTA instance.
      * 
@@ -276,7 +274,7 @@ public abstract class AbstractContentProviderTest {
         System.out.flush();
         Thread.sleep(500);
     }
-    
+
     /**
      * Mark the beginning of a test.
      */
@@ -335,7 +333,7 @@ public abstract class AbstractContentProviderTest {
             throw(thr);
         } finally {
             spi.destroy();
-        }        
+        }
     }
 
     /**
@@ -377,12 +375,12 @@ public abstract class AbstractContentProviderTest {
             throw(thr);
         } finally {
             spi.destroy();
-        }        
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Private methods:
-    
+
     /**
      * Creates another JXTA instance within this JVM which will serve Content
      * when requested to do so.  This additional instance is loaded within
@@ -413,7 +411,7 @@ public abstract class AbstractContentProviderTest {
             throw(new RuntimeException("Caught exception", exc));
         }
     }
-    
+
     /**
      * Requests a content sharer to share a content built from the specified
      * components, then has it communicate the ContentShareAdvertisement of
@@ -439,13 +437,13 @@ public abstract class AbstractContentProviderTest {
                 AdvertisementFactory.newAdvertisement(elem);
         return shareAdv;
     }
-    
+
     private Content contentOf(
             ContentID cID, byte[] data, MimeMediaType mimeType) {
         BinaryDocument bDoc = new BinaryDocument(data, mimeType);
         return new Content(cID, null, bDoc);
     }
-    
+
     /**
      * Compares two Content documents for equality.
      */
@@ -459,21 +457,21 @@ public abstract class AbstractContentProviderTest {
         } else if (expected == actual) {
             return;
         }
-        
+
         assertEquals(expected.getContentID(), actual.getContentID());
         assertEquals(expected.getMetaID(), actual.getMetaID());
-        
+
         // Compare the documents
         Document eDoc = expected.getDocument();
         Document aDoc = actual.getDocument();
         assertEquals(eDoc.getFileExtension(), aDoc.getFileExtension());
-        
+
         // The MIME type parameters are not transferred
         assertEquals(eDoc.getMimeType().getMimeMediaType(),
                 aDoc.getMimeType().toString());
-            
+
         // Compare the data
-        
+
         ByteArrayOutputStream eOut = new ByteArrayOutputStream();
         eDoc.sendToStream(eOut);
 
@@ -484,5 +482,5 @@ public abstract class AbstractContentProviderTest {
         byte[] aBytes = aOut.toByteArray();
         assertEquals(new String(eBytes), new String(aBytes));
     }
-    
+
 }

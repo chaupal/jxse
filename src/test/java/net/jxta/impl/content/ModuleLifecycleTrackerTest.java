@@ -61,13 +61,10 @@ import net.jxta.platform.Module;
 import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 /**
@@ -84,7 +81,7 @@ public class ModuleLifecycleTrackerTest {
     private Advertisement adv;
     private PeerGroupException pgx = new PeerGroupException(
             "Testing hardcoded exception");
-    
+
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
@@ -244,10 +241,10 @@ public class ModuleLifecycleTrackerTest {
         assertEquals(ModuleLifecycleState.INITIALIZED, tracker.getState());
         tracker.startApp();
         assertEquals(ModuleLifecycleState.STARTED, tracker.getState());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDisabledStart() throws Exception {
         context.checking(new Expectations() {{
@@ -265,7 +262,7 @@ public class ModuleLifecycleTrackerTest {
         assertEquals(ModuleLifecycleState.UNINITIALIZED, tracker.getState());
         tracker.startApp();
         assertEquals(ModuleLifecycleState.DISABLED, tracker.getState());
-        
+
         // For good measure, make sure it stays DISABLED on stop attempt
         tracker.stopApp();
         assertEquals(ModuleLifecycleState.DISABLED, tracker.getState());

@@ -1,32 +1,32 @@
 /*
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
 
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -151,7 +151,7 @@ public abstract class AbstractContentTransfer
      * Our parent peer group.
      */
     private final PeerGroup peerGroup;
-    
+
     /**
      * ContentProvider which created and manages this transfer.
      */
@@ -172,7 +172,7 @@ public abstract class AbstractContentTransfer
      * Runnable to use when creating new location tasks.
      */
     private final Runnable locationRunnable = new Runnable() {
-        
+
         public void run() {
 
             try {
@@ -404,7 +404,7 @@ public abstract class AbstractContentTransfer
             ContentTransferListener listener) {
         listeners.remove(listener);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -430,7 +430,7 @@ public abstract class AbstractContentTransfer
                             locationState, ", interval=",
                             sourceLocationInterval, ", locationTask=",
                             locationTask, ")");
-                
+
                 if (locationTask == null || locationTask.isDone()) {
                     locationTask = executor.scheduleWithFixedDelay(
                             locationRunnable, 0, sourceLocationInterval,
@@ -575,7 +575,7 @@ public abstract class AbstractContentTransfer
     protected ContentID getTransferContentID() {
         return masterID;
     }
-    
+
     /**
      * Sets the resulting Content object.  This method should be called as
      * during a transferAttempt implementation execution run, prior to that
@@ -586,9 +586,9 @@ public abstract class AbstractContentTransfer
     protected void setContent(Content finalContent) {
 
         if (finalContent == null) {
-            
+
             Logging.logCheckedFine(LOG, "Attempt to set null Content");
-            
+
             // Ignore
             return;
 
@@ -598,7 +598,7 @@ public abstract class AbstractContentTransfer
 
             Logging.logCheckedFine(LOG, "Attempt to set Content with wrong ID: ",
                     finalContent.getContentID());
-            
+
             // Ignore
             return;
 
@@ -766,7 +766,7 @@ public abstract class AbstractContentTransfer
             }
 
             if (lastTransferState != transferState) doFire = true;
-            
+
             if (goalState != transferState) {
                 switch(goalState) {
                 case RETRIEVING:
@@ -780,7 +780,7 @@ public abstract class AbstractContentTransfer
 
                         // Start retrieving
                         Logging.logCheckedFine(LOG, "Setting up transfer execution");
-                        
+
                         transferState = goalState;
                         if (transferTask == null || transferTask.isDone()){
                             transferTask = executor.schedule(
@@ -842,11 +842,11 @@ public abstract class AbstractContentTransfer
      * Source location execution.
      */
     private void locationExecution() {
-        
+
         String desiredID = masterID.toString();
 
         Logging.logCheckedFine(LOG, "Locating more data sources for ID: ", desiredID);
-        
+
         DiscoveryService discoveryService = peerGroup.getDiscoveryService();
 
         if (allowLocalDiscovery) {
@@ -861,7 +861,7 @@ public abstract class AbstractContentTransfer
             } catch (IOException iox) {
 
                 Logging.logCheckedWarning(LOG, "Could not query local advertisements\n", iox);
-                
+
             }
         }
         if (allowRemoteDiscovery) {
@@ -918,7 +918,7 @@ public abstract class AbstractContentTransfer
             }
 
             Logging.logCheckedFine(LOG, "Found advertisement: ", adv);
-            
+
             if (isAdvertisementOfUse(adv)) {
 
                 allSources.add(adv);
@@ -929,11 +929,11 @@ public abstract class AbstractContentTransfer
 
                 Logging.logCheckedFiner(LOG, "Sources known now at: ",
                             allSources.size(), "   State: ", locationState);
-                
+
             } else {
 
                 Logging.logCheckedFiner(LOG, "Advertisement determined to not be usable");
-                
+
                 uselessSources.add(adv);
                 doFire = false;
                 doStop = false;
@@ -1019,7 +1019,7 @@ public abstract class AbstractContentTransfer
     private void transferExecution() throws InterruptedException {
 
         Logging.logCheckedFine(LOG, "Transfer execution starting");
-        
+
         ContentTransferState attemptResult = ContentTransferState.PENDING;
         List<ContentShareAdvertisement> newList =
                 new ArrayList<ContentShareAdvertisement>();
@@ -1054,9 +1054,9 @@ public abstract class AbstractContentTransfer
                 }
 
                 if (allList.size() + newList.size() == 0) {
-                    
+
                     Logging.logCheckedFine(LOG, "No sources found.  Waiting.");
-                    
+
                     stalls++;
                     synchronized(lockObject) {
                         transferState = ContentTransferState.STALLED;
@@ -1078,12 +1078,12 @@ public abstract class AbstractContentTransfer
                     try {
 
                         Logging.logCheckedFine(LOG, "Transfer attempt commencing");
-                        
+
                         attemptResult = transferAttempt(
                                 destFile, allList, newList);
 
                         Logging.logCheckedFine(LOG, "Transfer attempt result: ", attemptResult);
-                        
+
                         switch(attemptResult) {
                         case CANCELLED:
                             cancel();
@@ -1120,9 +1120,9 @@ public abstract class AbstractContentTransfer
                             break;
                         }
                     } catch (TransferException transx) {
-                        
+
                         Logging.logCheckedFine(LOG, "Transfer attempt failed\n", transx);
-                        
+
                         // Irrecoverable failure.  Bubble this up to user.
                         synchronized(lockObject) {
                             transferState = ContentTransferState.FAILED;
@@ -1169,7 +1169,7 @@ public abstract class AbstractContentTransfer
 
             Logging.logCheckedFine(LOG, "Caught runtime exception\n\n", rtx);
             throw(rtx);
-            
+
         } finally {
 
             Logging.logCheckedFine(LOG, "Transfer execution exiting");

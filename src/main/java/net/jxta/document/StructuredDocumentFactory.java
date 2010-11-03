@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.document;
-
 
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextMessageElement;
@@ -67,9 +66,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A factory for constructing instances of {@link StructuredDocument}.
@@ -83,17 +80,17 @@ import java.util.logging.Logger;
  * @see         net.jxta.document.MimeMediaType
  */
 public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType, StructuredDocumentFactory.Instantiator> {
-    
+
     /**
      * Log4J Logger
      */
     private static final Logger LOG = Logger.getLogger(StructuredDocumentFactory.class.getName());
-    
+
     /**
      * Interface for instantiators of StructuredDocuments
      */
     public interface Instantiator {
-        
+
         /**
          *  For mapping between extensions and MIME types.
          */
@@ -103,12 +100,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
              * The extension
              */
             private final String extension;
-            
+
             /**
              * MIME type it maps to
              */
             private final MimeMediaType mimetype;
-            
+
             /**
              *  default constructor
              *
@@ -119,7 +116,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
                 this.extension = extension;
                 this.mimetype = (null != mimetype) ? mimetype.intern() : null;
             }
-            
+
             /**
              * {@inheritDoc}
              */
@@ -128,42 +125,42 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
                 if (this == target) {
                     return true;
                 }
-                
+
                 if (target instanceof ExtensionMapping) {
                     ExtensionMapping likeMe = (ExtensionMapping) target;
 
                     if (!extension.equals(likeMe.extension)) {
                         return false;
                     }
-                    
+
                     if ((null == mimetype) && (null == likeMe.mimetype)) {
                         return true;
                     }
-                    
+
                     if ((null == mimetype) || (null == likeMe.mimetype)) {
                         return false;
                     }
-                    
+
                     return mimetype.equals(likeMe.mimetype);
                 } else {
                     return false;
                 }
             }
-            
+
             /**
              * {@inheritDoc}
              */
             @Override
             public int hashCode() {
                 int hash = extension.hashCode();
-                
+
                 if (null != mimetype) {
                     hash ^= mimetype.hashCode();
                 }
-                
+
                 return hash;
             }
-            
+
             /**
              * {@inheritDoc}
              */
@@ -171,7 +168,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
             public String toString() {
                 return extension + " -> " + ((null != mimetype) ? mimetype.toString() : "<null>");
             }
-            
+
             /**
              * Returns the extension which is part of this mapping.
              *
@@ -180,7 +177,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
             public String getExtension() {
                 return extension;
             }
-            
+
             /**
              * Returns the MIME Media Type which is part of this mapping.
              *
@@ -190,7 +187,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
                 return mimetype;
             }
         }
-        
+
         /**
          * Returns the MIME Media types supported by this this Document per
          * {@link <a href="http://www.ietf.org/rfc/rfc2046.txt">IETF RFC 2046 <i>MIME : Media Types</i></a>}.
@@ -202,7 +199,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
          *  for this Document.
          */
         MimeMediaType[] getSupportedMimeTypes();
-        
+
         /**
          * Returns the mapping of file extension and mime-types for this type
          * of document. The default extension is mapped to the 'null' mime-type
@@ -211,7 +208,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
          * @return An array of objects containing file extensions
          */
         ExtensionMapping[] getSupportedFileExtensions();
-        
+
         /**
          * Create a new structured document of the type specified by doctype.
          *
@@ -223,7 +220,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
          *  @return StructuredDocument instance.
          */
         StructuredDocument newInstance(MimeMediaType mimeType, String doctype);
-        
+
         /**
          * Create a new structured document of the type specified by doctype.
          *
@@ -236,7 +233,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
          *  @return {@link StructuredDocument} instance.
          */
         StructuredDocument newInstance(MimeMediaType mimeType, String doctype, String value);
-        
+
         /**
          *  Create a structured document from a stream containing an appropriately serialized
          *  instance of the same document.
@@ -252,13 +249,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
          */
         StructuredDocument newInstance(MimeMediaType mimeType, InputStream source) throws IOException;
     }
-    
 
     /**
      *  Interface for instantiators of StructuredTextDocuments
      */
     public interface TextInstantiator extends Instantiator {
-        
+
         /**
          *  Create a structured document from a Reader containing an appropriately serialized
          *  instance of the same document.
@@ -273,44 +269,44 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
          */
         StructuredDocument newInstance(MimeMediaType mimeType, Reader source) throws IOException;
     }
-    
+
     /**
      *  This class is a singleton. This is the instance that backs the
      *  static methods.
      */
     private static final StructuredDocumentFactory factory = new StructuredDocumentFactory();
-    
+
     /**
      *  This is the map of mime-types and instantiators used by
      *  <CODE>newStructuredDocument</CODE>.
      */
     private final Map<MimeMediaType, Instantiator> encodings = new HashMap<MimeMediaType, Instantiator>();
-    
+
     /**
      *  This is the map of extensions to mime-types used by
      *  {@link #getMimeTypeForFileExtension(String) }
      */
     private final Map<String, MimeMediaType>  extToMime = new HashMap<String, MimeMediaType>();
-    
+
     /**
      *  This is the map of mime-types to extensions used by
      *  {@link #getFileExtensionForMimeType(MimeMediaType mimetype) }
      */
     private final Map<MimeMediaType, String>  mimeToExt = new HashMap<MimeMediaType, String>();
-    
+
     /**
      *  If true then the pre-defined set of StructuredDocument sub-classes has
      *  been registered from the property containing them.
      */
     private boolean loadedProperty = false;
-    
+
     /**
      *  Private constructor. This class is not meant to be instantiated except
      *  by itself.
      *
      */
     private StructuredDocumentFactory() {}
-    
+
     /**
      *  Registers the pre-defined set of StructuredDocument sub-classes so that
      *  this factory can construct them.
@@ -324,10 +320,10 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         }
 
         factory.loadedProperty = registerProviders(StructuredDocument.class.getName());
-        
+
         return factory.loadedProperty;
     }
-    
+
     /**
      *  {@inheritDoc}
      */
@@ -335,7 +331,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
     protected Map<MimeMediaType, Instantiator> getAssocTable() {
         return encodings;
     }
-    
+
     /**
      *  {@inheritDoc}
      */
@@ -343,7 +339,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
     protected Class<MimeMediaType> getClassForKey() {
         return MimeMediaType.class;
     }
-    
+
     /**
      *  {@inheritDoc}
      */
@@ -352,7 +348,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         // our key is the doctype names.
         return Instantiator.class;
     }
-    
+
     /**
      *  {@inheritDoc}
      *
@@ -365,14 +361,14 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
     @Override
     protected boolean registerAssoc(String className) {
         boolean registeredSomething = false;
-        
+
         LOG.finer("Registering : " + className);
-        
+
         try {
             Class docClass = Class.forName(className);
-            
+
             Instantiator instantiator = (Instantiator) docClass.getField("INSTANTIATOR").get(null);
-            
+
             MimeMediaType[] mimeTypes = instantiator.getSupportedMimeTypes();
 
             for (MimeMediaType mimeType : mimeTypes) {
@@ -383,12 +379,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         } catch (Exception all) {
 
             Logging.logCheckedWarning(LOG, "Failed to register \'", className, "\'\n", all);
-            
+
         }
-        
+
         return registeredSomething;
     }
-    
+
     /**
      *  Returns the preferred extension for a given mime-type. If there is no
      *  mapping or no preferred extension for this MIME type then <tt>null</tt> is
@@ -400,10 +396,10 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static String getFileExtensionForMimeType(MimeMediaType mimetype) {
         factory.loadProviders();
-        
+
         return factory.mimeToExt.get(mimetype.getBaseMimeMediaType());
     }
-    
+
     /**
      *  Returns the preferred mime-type for a given file extension. If there is
      *  no mapping then <tt>null</tt> is returned.
@@ -413,12 +409,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static MimeMediaType getMimeTypeForFileExtension(String extension) {
         factory.loadProviders();
-        
+
         MimeMediaType result = factory.extToMime.get(extension);
-        
+
         return result;
     }
-    
+
     /**
      * Register an instantiator object a mime-type of documents to be
      * constructed.
@@ -433,7 +429,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static boolean registerInstantiator(MimeMediaType mimetype, Instantiator instantiator) {
         boolean registered = factory.registerAssoc(mimetype.getBaseMimeMediaType(), instantiator);
-        
+
         if (registered) {
             Instantiator.ExtensionMapping[] extensions = instantiator.getSupportedFileExtensions();
 
@@ -448,10 +444,10 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
                 }
             }
         }
-        
+
         return registered;
     }
-    
+
     /**
      * Constructs an instance of {@link StructuredDocument} matching
      * the mime-type specified by the <CODE>mimetype</CODE> parameter. The
@@ -468,12 +464,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype) {
         factory.loadProviders();
-        
+
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
-        
+
         return instantiator.newInstance(mimetype, doctype);
     }
-    
+
     /**
      * Constructs an instance of {@link StructuredDocument} matching
      * the mime-type specified by the <CODE>mimetype</CODE> parameter. The
@@ -492,12 +488,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, String doctype, String value) {
         factory.loadProviders();
-        
+
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
-        
+
         return instantiator.newInstance(mimetype, doctype, value);
     }
-    
+
     /**
      * Constructs an instance of {@link StructuredDocument} matching
      * the mime-type specified by the <CODE>mimetype</CODE> parameter. The
@@ -515,12 +511,12 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, InputStream stream) throws IOException {
         factory.loadProviders();
-        
+
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
-        
+
         return instantiator.newInstance(mimetype, stream);
     }
-    
+
     /**
      * Constructs an instance of {@link StructuredDocument} matching
      * the mime-type specified by the <CODE>mimetype</CODE> parameter. The
@@ -539,9 +535,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static StructuredDocument newStructuredDocument(MimeMediaType mimetype, Reader reader) throws IOException {
         factory.loadProviders();
-        
+
         Instantiator instantiator = factory.getInstantiator(mimetype.getBaseMimeMediaType());
-        
+
         if (!(instantiator instanceof TextInstantiator)) {
 
             // XXX 20020502 bondolo@jxta.org we could probably do something
@@ -549,14 +545,14 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
             // if ReaderInputStream existed, it would be easy to do.
             Logging.logCheckedWarning(LOG, "Document Class \'", instantiator.getClass().getName(),
                     "\' associated with \'", mimetype, "\' is not a text oriented document");
-            
+
             throw new UnsupportedOperationException( "Document Class '" + instantiator.getClass().getName() 
                     + "' associated with '" + mimetype + "' is not a text oriented document");
         }
-        
+
         return ((TextInstantiator) instantiator).newInstance(mimetype, reader);
     }
-    
+
     /**
      * Constructs an instance of {@link StructuredDocument} based upon the
      * content of the provided message element.
@@ -569,9 +565,9 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
      */
     public static StructuredDocument newStructuredDocument(MessageElement element) throws IOException {
         factory.loadProviders();
-        
+
         Instantiator instantiator = factory.getInstantiator(element.getMimeType().getBaseMimeMediaType());
-        
+
         if ((instantiator instanceof TextInstantiator) && (element instanceof TextMessageElement)) {
             return ((TextInstantiator) instantiator).newInstance(element.getMimeType(), ((TextMessageElement) element).getReader());
         } else {

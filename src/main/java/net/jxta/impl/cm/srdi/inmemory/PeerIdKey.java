@@ -57,7 +57,6 @@ package net.jxta.impl.cm.srdi.inmemory;
 
 import net.jxta.id.ID;
 
-
 import net.jxta.logging.Logging;
 
 import net.jxta.peer.PeerID;
@@ -67,7 +66,6 @@ import java.net.URISyntaxException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * An immutable key used in the PeerIdIndex

@@ -72,7 +72,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.concurrent.ScheduledExecutorService;

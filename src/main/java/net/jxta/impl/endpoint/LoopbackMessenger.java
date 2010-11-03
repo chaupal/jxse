@@ -56,20 +56,16 @@
 
 package net.jxta.impl.endpoint;
 
-
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
-import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class implements local delivery of messages (for example when the
@@ -98,37 +94,37 @@ import java.util.logging.Logger;
  * loopback messenger anyway. So it is pretty much the same.
  */
 public class LoopbackMessenger extends BlockingMessenger {
-    
+
     /**
      *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(LoopbackMessenger.class.getName());
-    
+
     /**
      * The peergroup we are working for, ie. that we will loop back to.
      */
     private final PeerGroup group;
-    
+
     /**
      * The endpoint we are working for, ie. that we will loop back to.
      */
     private final EndpointService endpoint;
-    
+
     /**
      * The source address of messages sent on this messenger.
      */
     private final EndpointAddress srcAddress;
-    
+
     /**
      * The location destination of this messenger.
      */
     private final EndpointAddress logicalDestination;
-    
+
     /**
      *  Used to ensure that only a single message is demuxed at a time.
      */
     private final Lock orderingLock = new ReentrantLock(true);
-    
+
     /**
      * Create a new loopback messenger.
      *
@@ -140,13 +136,13 @@ public class LoopbackMessenger extends BlockingMessenger {
      */
     public LoopbackMessenger(PeerGroup group, EndpointService ep, EndpointAddress src, EndpointAddress dest, EndpointAddress logicalDest) {
         super(group.getPeerGroupID(), dest, group.getTaskManager(), false);
-        
+
         this.group = group;
         endpoint = ep;
         srcAddress = src;
         logicalDestination = logicalDest;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -154,7 +150,7 @@ public class LoopbackMessenger extends BlockingMessenger {
     public EndpointAddress getLogicalDestinationImpl() {
         return logicalDestination;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -162,7 +158,7 @@ public class LoopbackMessenger extends BlockingMessenger {
     public long getMTU() {
         return Long.MAX_VALUE;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -170,19 +166,19 @@ public class LoopbackMessenger extends BlockingMessenger {
     public boolean isIdleImpl() {
         return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void closeImpl() {}
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void sendMessageBImpl(final Message message, final String service, final String serviceParam) throws IOException {
-        
+
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
@@ -190,13 +186,13 @@ public class LoopbackMessenger extends BlockingMessenger {
             throw failure;
 
         }
-        
+
         orderingLock.lock();
         try {
             // Process the message with the appropriate src and dest address
             group.getTaskManager().getExecutorService().execute( new Runnable() {
                 public void run() {
-                    
+
                     try {
 
                         endpoint.processIncomingMessage(message, srcAddress, getDestAddressToUse(service, serviceParam));
@@ -204,7 +200,7 @@ public class LoopbackMessenger extends BlockingMessenger {
                     } catch(Throwable uncaught) {
 
                         Logging.logCheckedWarning(LOG, "Uncaught Throwable in Loopback Messenger\n", uncaught);
-                        
+
                     }
                 }
             });

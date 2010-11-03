@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -66,7 +66,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import net.jxta.logging.Logging;
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
@@ -84,19 +83,19 @@ import net.jxta.impl.endpoint.IPUtils;
  *  Low-level TcpMessenger
  */
 public class TcpConnection implements Runnable {
-    
+
     private transient volatile boolean closed = false;
     private volatile boolean closingDueToFailure = false;
-    
+
     private EndpointAddress dstAddress = null;
     private EndpointAddress fullDstAddress = null;
     private transient InetAddress inetAddress = null;
     private boolean initiator;
     private transient WatchedInputStream inputStream = null;
     private transient WelcomeMessage itsWelcome = null;
-    
+
     private transient long lastUsed = System.currentTimeMillis();
-    
+
     private transient WelcomeMessage myWelcome = null;
     private transient WatchedOutputStream outputStream = null;
     private transient int port = 0;
@@ -105,17 +104,17 @@ public class TcpConnection implements Runnable {
     static final int LingerDelay = 2 * 60 * 1000;
     static final int LongTimeout = 30 * 60 * 1000;
     static final int ShortTimeout = 10 * 1000;
-    
+
     private transient Thread recvThread = null;
     private transient Socket sharedSocket = null;
     private int connectionTimeOut = 10 * 1000;
-    
+
     // Connections that are watched often - io in progress
     List ShortCycle = Collections.synchronizedList(new ArrayList());
-    
+
     // Connections that are watched rarely - idle or waiting for input
     List LongCycle = Collections.synchronizedList(new ArrayList());
-    
+
     /**
      *  only one outgoing message per connection.
      */
@@ -123,7 +122,7 @@ public class TcpConnection implements Runnable {
     private final static Logger LOG = Logger.getLogger(TcpConnection.class.getName());
     private MessageListener listener = null;
     private final static MimeMediaType appMsg = new MimeMediaType("application/x-jxta-msg");
-    
+
     /**
      *  Creates a new TcpConnection for the specified destination address.
      *
@@ -133,28 +132,28 @@ public class TcpConnection implements Runnable {
      *@throws  IOException     for failures in creating the connection.
      */
     public TcpConnection(EndpointAddress destaddr, InetAddress from, PeerID id, MessageListener listener) throws IOException {
-        
+
         initiator = true;
 
         this.listener = listener;
         this.fullDstAddress = destaddr;
         this.dstAddress = new EndpointAddress(destaddr, null, null);
-        
+
         Logging.logCheckedInfo(LOG, "New TCP Connection to : " + dstAddress);
-        
+
         String tmp = destaddr.getProtocolAddress();
         int portIndex = tmp.lastIndexOf(":");
 
         if (portIndex == -1) {
             throw new IllegalArgumentException("Invalid EndpointAddress (port # missing) ");
         }
-        
+
         try {
             port = Integer.valueOf(tmp.substring(portIndex + 1)).intValue();
         } catch (NumberFormatException caught) {
             throw new IllegalArgumentException("Invalid EndpointAddress (port # invalid) ");
         }
-        
+
         // Check for bad port number.
         if ((port <= 0) || (port > 65535)) {
             throw new IllegalArgumentException("Invalid port number in EndpointAddress: " + port);
@@ -172,7 +171,7 @@ public class TcpConnection implements Runnable {
             throw e;
         }
     }
-    
+
     /**
      *  Creates a new connection from an incoming socket
      *
@@ -182,28 +181,28 @@ public class TcpConnection implements Runnable {
      *@throws  IOException     for failures in creating the connection.
      */
     public TcpConnection(Socket incSocket, PeerID id, MessageListener listener) throws IOException {
-        
+
         try {
 
             Logging.logCheckedInfo(LOG, "Connection from " + incSocket.getInetAddress().getHostAddress() + ":" + incSocket.getPort());
-            
+
             initiator = false;
             this.listener = listener;
             inetAddress = incSocket.getInetAddress();
             port = incSocket.getPort();
-            
+
             // Temporarily, our address for inclusion in the welcome message
             // response.
             dstAddress = new EndpointAddress("tcp", inetAddress.getHostAddress() + ":" + port, null, null);
             fullDstAddress = dstAddress;
-            
+
             sharedSocket = incSocket;
             startSocket(id);
-            
+
             // The correct value for dstAddr: that of the other party.
             dstAddress = itsWelcome.getPublicAddress();
             fullDstAddress = dstAddress;
-            
+
             // Reset the thread name now that we have a meaningfull
             // destination address and remote welcome msg.
             setThreadName();
@@ -211,7 +210,7 @@ public class TcpConnection implements Runnable {
             throw e;
         }
     }
-    
+
     /**
      *  Set the last used time for this connection in absolute milliseconds.
      *
@@ -222,15 +221,15 @@ public class TcpConnection implements Runnable {
     }
 
     public WelcomeMessage getWM() {
-        
+
         return myWelcome;
     }
-    
+
     /**
      *  Sets the threadName attribute of the TcpConnection object
      */
     private synchronized void setThreadName() {
-        
+
         if (recvThread != null) {
 
             try {
@@ -245,7 +244,7 @@ public class TcpConnection implements Runnable {
 
         }
     }
-    
+
     /**
      *  Gets the connectionAddress attribute of the TcpConnection object
      *
@@ -257,7 +256,7 @@ public class TcpConnection implements Runnable {
         // for the welcome message.
         return itsWelcome.getDestinationAddress();
     }
-    
+
     /**
      *  Gets the destinationAddress attribute of the TcpConnection object
      *
@@ -266,7 +265,7 @@ public class TcpConnection implements Runnable {
     public EndpointAddress getDestinationAddress() {
         return dstAddress;
     }
-    
+
     /**
      *  Gets the destinationPeerID attribute of the TcpConnection object
      *
@@ -275,7 +274,7 @@ public class TcpConnection implements Runnable {
     public ID getDestinationPeerID() {
         return itsWelcome.getPeerID();
     }
-    
+
     /**
      *  Return the absolute time in milliseconds at which this Connection was
      *  last used.
@@ -285,7 +284,7 @@ public class TcpConnection implements Runnable {
     public long getLastUsed() {
         return lastUsed;
     }
-    
+
     /**
      *  return the current connection status.
      *
@@ -294,7 +293,7 @@ public class TcpConnection implements Runnable {
     public boolean isConnected() {
         return ((recvThread != null) && (!closed));
     }
-    
+
     /**
      *  Soft close of the connection. Messages can no longer be sent, but any in
      *  the queue will be flushed.
@@ -307,7 +306,7 @@ public class TcpConnection implements Runnable {
         if (closingDueToFailure) {
             Logging.logCheckedInfo(LOG, "Failure stack trace\n", new Throwable("stack trace"));
         }
-        
+
         if (!closed) {
             setLastUsed(0);
             // we idle now. Way idle.
@@ -318,12 +317,12 @@ public class TcpConnection implements Runnable {
             }
         }
     }
-    
+
     /**
      *  Description of the Method
      */
     private void closeIOs() {
-        
+
         if (inputStream != null) {
 
             try {
@@ -334,7 +333,7 @@ public class TcpConnection implements Runnable {
             }
 
         }
-        
+
         if (outputStream != null) {
 
             try {
@@ -356,7 +355,7 @@ public class TcpConnection implements Runnable {
 
         }
     }
-    
+
     /**
      *  {@inheritDoc}
      *
@@ -368,21 +367,21 @@ public class TcpConnection implements Runnable {
         if (this == target) {
             return true;
         }
-        
+
         if (null == target) {
             return false;
         }
-        
+
         if (target instanceof TcpConnection) {
             TcpConnection likeMe = (TcpConnection) target;
-            
+
             return getDestinationAddress().equals(likeMe.getDestinationAddress())
                     && getDestinationPeerID().equals(likeMe.getDestinationPeerID());
         }
-        
+
         return false;
     }
-    
+
     /**
      *  {@inheritDoc}
      */
@@ -390,7 +389,7 @@ public class TcpConnection implements Runnable {
     protected void finalize() {
         close();
     }
-    
+
     /**
      *  {@inheritDoc}
      *
@@ -400,7 +399,7 @@ public class TcpConnection implements Runnable {
     public int hashCode() {
         return getDestinationPeerID().hashCode() + getDestinationAddress().hashCode();
     }
-    
+
     /**
      *  This is called with "true" when the invoker is about to read some input
      *  and is not willing to wait for it to come. This is called with "false"
@@ -416,7 +415,7 @@ public class TcpConnection implements Runnable {
             inputStream.setWatchList(LongCycle);
         }
     }
-    
+
     /**
      *  {@inheritDoc}
      *
@@ -424,33 +423,33 @@ public class TcpConnection implements Runnable {
      * messages from the queue and send it.
      */
     public void run() {
-        
+
         try {
 
             Logging.logCheckedInfo(LOG, "tcp receive - starts for " + inetAddress.getHostAddress() + ":" + port);
-            
+
             try {
 
                 while (isConnected()) {
 
                     if (closed) break;
-                    
+
                     Logging.logCheckedFine(LOG, "tcp receive - message starts for " + inetAddress.getHostAddress() + ":" + port);
-                    
+
                     // We can stay blocked here for a long time, it's ok.
                     MessagePackageHeader header = new MessagePackageHeader(inputStream);
                     MimeMediaType msgMime = header.getContentTypeHeader();
                     long msglength = header.getContentLengthHeader();
-                    
+
                     // FIXME 20020730 bondolo@jxta.org Do something with content-coding here.
-                    
+
                     Logging.logCheckedFine(LOG, "Message body (" + msglength + ") starts for " + inetAddress.getHostAddress() + ":" + port);
-                    
+
                     // read the message!
                     // We have received the header, so, the rest had better
                     // come. Turn the short timeout on.
                     inputActive(true);
-                    
+
                     Message msg = null;
 
                     try {
@@ -467,10 +466,10 @@ public class TcpConnection implements Runnable {
                         // We can relax again.
                         inputActive(false);
                     }
-                    
+
                     Logging.logCheckedFine(LOG, "Handing incoming message from "
                         + inetAddress.getHostAddress() + ":" + port + " to EndpointService");
-                    
+
                     try {
 
                         // Demux the message for the upper layers
@@ -489,29 +488,29 @@ public class TcpConnection implements Runnable {
             } catch (InterruptedIOException woken) {
                 // We have to treat this as fatal since we don't know where
                 // in the framing the input stream was at.
-                
+
                 closingDueToFailure = true;
-                
+
                 Logging.logCheckedWarning(LOG, "Error : read() timeout after " + woken.bytesTransferred + " on connection "
                             + inetAddress.getHostAddress() + ":" + port);
-                
+
             } catch (EOFException finished) {
 
                 // The other side has closed the connection
                 Logging.logCheckedInfo(LOG, "Connection was closed by " + inetAddress.getHostAddress() + ":" + port);
-                
+
             } catch (Throwable e) {
 
                 closingDueToFailure = true;
                 Logging.logCheckedWarning(LOG, "Error on connection " + inetAddress.getHostAddress() + ":" + port, e);
-                
+
             } finally {
                 synchronized (this) {
                     if (!closed) {
                         // We need to close the connection down.
                         close();
                     }
-                    
+
                     recvThread = null;
                 }
             }
@@ -522,7 +521,7 @@ public class TcpConnection implements Runnable {
 
         }
     }
-    
+
     /**
      *  Send message to the remote peer.
      *
@@ -530,7 +529,7 @@ public class TcpConnection implements Runnable {
      *@exception  IOException  Description of the Exception
      */
     public void sendMessage(Message msg) throws IOException {
-        
+
         // socket is a stream, only one writer at a time...
         synchronized (writeLock) {
 
@@ -538,15 +537,15 @@ public class TcpConnection implements Runnable {
                 Logging.logCheckedInfo(LOG, "Connection was closed to : " + dstAddress);
                 throw new IOException("Connection was closed to : " + dstAddress);
             }
-            
+
             boolean success = false;
             long size = 0;
-            
+
             try {
                 // 20020730 bondolo@jxta.org Do something with content-coding here
                 // serialize the message.
                 WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, appMsg, (MimeMediaType[]) null);
-                
+
                 // Build the protocol header
                 // Allocate a buffer to contain the message and the header
                 MessagePackageHeader header = new MessagePackageHeader();
@@ -554,17 +553,17 @@ public class TcpConnection implements Runnable {
                 header.setContentTypeHeader(serialed.getMimeType());
                 size = serialed.getByteLength();
                 header.setContentLengthHeader(size);
-                
+
                 Logging.logCheckedFine(LOG, "sendMessage (" + serialed.getByteLength() + ") to " + dstAddress + " via "
                     + inetAddress.getHostAddress() + ":" + port);
-                
+
                 // Write the header and the message.
                 header.sendToStream(outputStream);
                 outputStream.flush();
-                
+
                 serialed.sendToStream(outputStream);
                 outputStream.flush();
-                
+
                 // all done!
                 success = true;
                 setLastUsed(System.currentTimeMillis());
@@ -579,58 +578,58 @@ public class TcpConnection implements Runnable {
             }
         }
     }
-    
+
     /**
      *  Description of the Method
      */
     protected void start() {
         recvThread.start();
     }
-    
+
     /**
      *  Description of the Method
      *
      *@exception  IOException  Description of the Exception
      */
     private void startSocket(PeerID id) throws IOException {
-        
+
         sharedSocket.setKeepAlive(true);
         int useBufferSize = Math.max(SendBufferSize, sharedSocket.getSendBufferSize());
 
         sharedSocket.setSendBufferSize(useBufferSize);
         useBufferSize = Math.max(RecvBufferSize, sharedSocket.getReceiveBufferSize());
         sharedSocket.setReceiveBufferSize(useBufferSize);
-        
+
         sharedSocket.setSoLinger(true, LingerDelay);
         // socket.setTcpNoDelay(true);
-        
+
         outputStream = new WatchedOutputStream(sharedSocket.getOutputStream());
         outputStream.setWatchList(ShortCycle);
         inputStream = new WatchedInputStream(sharedSocket.getInputStream());
         outputStream.setWatchList(LongCycle);
-        
+
         if ((inputStream == null) || (outputStream == null)) {
             Logging.logCheckedSevere(LOG, "   failed getting streams.");
             throw new IOException("Could not get streams");
         }
-        
+
         myWelcome = new WelcomeMessage(fullDstAddress, fullDstAddress, id, false);
         myWelcome.sendToStream(outputStream);
         outputStream.flush();
         // The response should arrive shortly or we bail out.
         inputActive(true);
         itsWelcome = new WelcomeMessage(inputStream);
-        
+
         // Ok, we can wait for messages now.
         inputActive(false);
 
         Logging.logCheckedFine(LOG, "Hello from " + itsWelcome.getPublicAddress() + " [" + itsWelcome.getPeerID() + "]");
-        
+
         recvThread = new Thread(this);
         setThreadName();
         recvThread.setDaemon(true);
     }
-    
+
     /**
      *  {@inheritDoc} <p/>
      *

@@ -30,7 +30,7 @@ public class SystemTestUtils {
     public static JxtaServerPipe createServerPipe(NetworkManager manager) throws IOException {
     	return createServerPipe(manager, null);
     }
-    
+
     public static JxtaServerPipe createServerPipe(NetworkManager manager, ServerPipeAcceptListener listener) throws IOException {
         PipeID pipeId = IDFactory.newPipeID(manager.getNetPeerGroup().getPeerGroupID());
         PipeAdvertisement pipeAd = createUnicastPipeAd(pipeId);
@@ -40,47 +40,47 @@ public class SystemTestUtils {
             return new JxtaServerPipe(manager.getNetPeerGroup(), pipeAd, listener);
         }
     }
-    
+
     public static PipeAdvertisement createUnicastPipeAd(PipeID pipeID) {
         PipeAdvertisement advertisement = (PipeAdvertisement)
         AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
-        
+
         advertisement.setPipeID(pipeID);
         advertisement.setType(PipeService.UnicastType);
-        
+
         return advertisement;
     }
-    
+
     public static Message createMessage(String payload) {
         Message msg = new Message();
         msg.addMessageElement(TEST_NAMESPACE, new StringMessageElement(STRING_PAYLOAD_ELEMENT, payload, null));
         return msg;
     }
-    
+
     public static void testPeerCommunication(NetworkManager aliceManager, NetworkManager bobManager) throws IOException, InterruptedException {
     	final CountDownLatch pipeEstablished = new CountDownLatch(1);
         final CountDownLatch aliceRequestReceived = new CountDownLatch(1);
         final CountDownLatch bobResponseReceived = new CountDownLatch(1);
-        
+
         final AtomicReference<JxtaBiDiPipe> aliceAcceptedPipe = new AtomicReference<JxtaBiDiPipe>();
-        
+
         ServerPipeAcceptListener listener = new ServerPipeAcceptListener() {
             public void pipeAccepted(JxtaBiDiPipe pipe) {
                 aliceAcceptedPipe.set(pipe);
                 pipeEstablished.countDown();
             }
-            
+
             public void serverPipeClosed() {}
         };
-        
+
         JxtaServerPipe aliceServerPipe = createServerPipe(aliceManager, listener);
-        
+
         PipeMsgListener aliceListener = new PipeMsgListener() {
             public void pipeMsgEvent(PipeMsgEvent event) {
                 aliceRequestReceived.countDown();
             }
         };
-        
+
         PipeMsgListener bobListener = new PipeMsgListener() {
             public void pipeMsgEvent(PipeMsgEvent event) {
                 bobResponseReceived.countDown();
@@ -89,13 +89,13 @@ public class SystemTestUtils {
         //TODO We have an issue on initialisation which means need to wait for services to be running before executing test. Only effects relay tests.
         Thread.sleep(5000);
         JxtaBiDiPipe bobPipe = connectNonBlocking(bobManager, aliceServerPipe.getPipeAdv(), bobListener);
-        
+
         assertTrue(pipeEstablished.await(5, TimeUnit.SECONDS));
         aliceAcceptedPipe.get().setMessageListener(aliceListener);
-        
+
         bobPipe.sendMessage(SystemTestUtils.createMessage("hello alice"));
         assertTrue(aliceRequestReceived.await(5, TimeUnit.SECONDS));
-        
+
         aliceAcceptedPipe.get().sendMessage(SystemTestUtils.createMessage("hello bob"));
         assertTrue(bobResponseReceived.await(5, TimeUnit.SECONDS));
     }

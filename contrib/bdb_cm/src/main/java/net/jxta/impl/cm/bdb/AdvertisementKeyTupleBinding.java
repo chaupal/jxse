@@ -18,7 +18,7 @@ public class AdvertisementKeyTupleBinding extends TupleBinding<AdvertisementKey>
     public void objectToEntry(AdvertisementKey object, TupleOutput output) {
         output.writeString(object.getAreaName());
         output.writeString(object.getDirectoryName());
-        
+
         if(object.getFileName() != null) {
             output.writeString(object.getFileName());
         }

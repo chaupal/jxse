@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2005-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 package net.jxta.impl.proxy;
@@ -223,7 +223,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
             configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
-            
+
             LOG.config(configInfo.toString());
 
         }
@@ -268,7 +268,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         endpoint.addIncomingMessageListener(this, serviceName, serviceParameter);
 
         Logging.logCheckedInfo(LOG, "JXME Proxy Service started.");
-        
+
         return Module.START_OK;
     }
 
@@ -281,7 +281,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         endpoint.removeIncomingMessageListener(serviceName, serviceParameter);
 
         Logging.logCheckedInfo(LOG, "JXME Proxy Service stopped.");
-        
+
     }
 
     /**
@@ -324,7 +324,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (IOException e) {
 
             Logging.logCheckedWarning(LOG, "could not create requestor\n", e);
-            
+
         }
 
         String request = popString(REQUEST_TAG, message);
@@ -413,7 +413,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                 } catch (Exception e) {
 
                     Logging.logCheckedWarning(LOG, "Could not publish peer advertisement\n", e);
-                    
+
                 }
                 requestor.send(adv, RESPONSE_SUCCESS);
             } else {
@@ -443,7 +443,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                 } catch (Exception e) {
 
                     Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement\n", e);
-                    
+
                 }
 
                 requestor.send(adv, RESPONSE_SUCCESS);
@@ -458,7 +458,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
     private void handleSearchRequest(Requestor requestor, String type, String attribute, String value, String threshold) {
 
         Logging.logCheckedFine(LOG, "handleSearchRequest type=", type, " attribute=", attribute, " value=", value, " threshold=", threshold);
-        
+
         int discoveryType;
         int thr = DEFAULT_THRESHOLD;
 
@@ -469,7 +469,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (NumberFormatException nex) {
 
             Logging.logCheckedWarning(LOG, "handleSearchRequest failed to parse threshold ", threshold, ", using default ", DEFAULT_THRESHOLD);
-            
+
         }
         requestor.setThreshold(thr);
 
@@ -533,7 +533,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         String pipeId = pipeAdv.getPipeID().toString();
 
         Logging.logCheckedFine(LOG, "listen to pipe name=", pipeAdv.getName(), " id=", pipeAdv.getPipeID(), " type=", pipeAdv.getType());
-        
+
         // check to see if the input pipe already exist
         PipeListenerList list = pipeListeners.get(pipeId);
 
@@ -563,7 +563,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         Logging.logCheckedFine(LOG, "add requestor=", requestor, " id=", pipeId, " list=", list);
         Logging.logCheckedFine(LOG, "publish PipeAdvertisement");
-        
+
         // advertise the pipe locally
         try {
 
@@ -572,7 +572,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (IOException e) {
 
             Logging.logCheckedWarning(LOG, "Could not publish pipe advertisement\n", e);
-            
+
         }
 
         Logging.logCheckedFine(LOG, "done with listen request");
@@ -587,7 +587,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         PipeListenerList list = pipeListeners.get(id);
         Logging.logCheckedFine(LOG, "handleCloseRequest list = ", list);
-        
+
         if (list != null) {
             list.remove(requestor);
             if (list.size() == 0) {
@@ -601,7 +601,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     // Send the given message to the given pipe.
     private void sendToPipe(Requestor req, Message mess, OutputPipe out) {
-        
+
         try {
 
             out.send(mess);
@@ -633,7 +633,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
     }
-
 
     class PendingPipe {
         private ClientMessage pending;
@@ -685,7 +684,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             list.send(message, pipeId);
             Logging.logCheckedFine(LOG, "end sending to each requestor");
-            
+
             // notify requestor of success
             requestor.notifySuccess();
             return;
@@ -745,11 +744,11 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             } catch (URISyntaxException e) {
 
                 Logging.logCheckedWarning(LOG, "Could not parse peerId from url\n", e);
-                
+
             } catch (ClassCastException e) {
 
                 Logging.logCheckedWarning(LOG, "id was not a peerid\n", e);
-                
+
             }
         }
 
@@ -770,7 +769,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (Exception e) {
 
             Logging.logCheckedWarning(LOG, "newPeerAdvertisement Exception\n", e);
-            
+
         }
 
         return adv;
@@ -791,11 +790,11 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             } catch (URISyntaxException e) {
 
                 Logging.logCheckedWarning(LOG, "Invalid peergroupId\n", e);
-                
+
             } catch (ClassCastException e) {
 
                 Logging.logCheckedWarning(LOG, "id was not a peergroup id\n", e);
-                
+
             }
         }
 
@@ -820,7 +819,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (Exception e) {
 
             Logging.logCheckedWarning(LOG, "newPeerGroupAdvertisement Exception\n", e);
-            
+
         }
 
         return adv;
@@ -851,7 +850,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (Exception e) {
 
             Logging.logCheckedWarning(LOG, "newPipeAdvertisement Exception\n", e);
-            
+
         }
 
         return adv;
@@ -928,7 +927,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         int i = 0;
 
         while (each.hasMoreElements() && i < requestor.getThreshold()) {
-            
+
             try {
 
                 requestor.send(each.nextElement(), RESPONSE_RESULT);
@@ -937,7 +936,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
                 // this should not happen unless a bad result is returned
                 Logging.logCheckedWarning(LOG, "Bad result returned by DiscoveryService\n", e);
-                
+
             }
         }
     }
@@ -960,7 +959,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             Logging.logCheckedFine(LOG, "pipeMsgEvent: start sending to each requestor");
             list.send(message.clone(), id);
             Logging.logCheckedFine(LOG, "pipeMsgEvent: end sending to each requestor");
-            
+
         } else {
 
             // there are no listeners, close the input pipe
@@ -1020,20 +1019,20 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         void add(Requestor requestor) {
 
             Logging.logCheckedInfo(LOG, "add ", requestor, " from ", this);
-            
+
             if (!list.contains(requestor)) {
                 Logging.logCheckedFine(LOG, "requestor add");
                 list.add(requestor);
             } else {
                 Logging.logCheckedFine(LOG, "requestor exits already");
             }
-            
+
         }
 
         void remove(Requestor requestor) {
 
             Logging.logCheckedInfo(LOG, "remove ", requestor, " from ", this);
-            
+
             Logging.logCheckedFine(LOG, "removed = ", list.remove(requestor));
 
             if (list.size() == 0) {

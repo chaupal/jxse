@@ -2,33 +2,33 @@
 
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -39,25 +39,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.impl.util;
-
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
@@ -84,7 +83,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
 /**
  * Advertisements and ID's "cooked" according to recipes lifted
  * from J-C and Frog. Static methods meant for convenience in developing
@@ -99,7 +97,7 @@ import java.util.Map;
  **/
 @Deprecated
 public class AdvCooker {
-    
+
     /**
      * Reconstructs a ModuleClassID from its String representation
      * as printed by the foregoing recipes.
@@ -111,7 +109,7 @@ public class AdvCooker {
     private static ModuleClassID buildModuleClassID(String uri) throws URISyntaxException {
         return (ModuleClassID) IDFactory.fromURI(new URI(uri));
     }
-    
+
     /** Reconstructs a ModuleSpecID from its String representation
      * as printed by the foregoing recipes.
      *
@@ -122,7 +120,7 @@ public class AdvCooker {
     private static ModuleSpecID buildModuleSpecID(String uri) throws URISyntaxException {
         return (ModuleSpecID) IDFactory.fromURI(new URI(uri));
     }
-    
+
     /**
      * The module class advertisement is to simply advertise the
      * existence of a module.
@@ -141,7 +139,7 @@ public class AdvCooker {
         mcadv.setModuleClassID(mcid);
         return mcadv;
     }
-    
+
     /**
      * The ModuleSpecAdvertisement has two purposes, to publish
      * the uri of its formal specs for developers and to publish the
@@ -158,7 +156,7 @@ public class AdvCooker {
     public static ModuleSpecAdvertisement buildModuleSpecAdvertisement(ModuleSpecID msid, String moduleSpecName, String moduleSpecDescription) {
         return buildModuleSpecAdvertisement(msid, moduleSpecName, moduleSpecDescription, null, null, null, null, null, null, null);
     }
-    
+
     /**
      * Use this form for production provided remote access is not required.
      *
@@ -175,7 +173,7 @@ public class AdvCooker {
                 ,
                 null, null);
     }
-    
+
     /**
      * Use this form for a fully populated advert.
      *
@@ -215,7 +213,7 @@ public class AdvCooker {
         }
         return msadv;
     }
-    
+
     /**
      * Compat's (compatibility statements) serve to narrow the search
      *  for a ModuleImplAdvertisement. Basically you want something
@@ -225,23 +223,23 @@ public class AdvCooker {
      *  @return -- boilerplate compat for StdPeerGroup
      */
     public static XMLDocument buildCompat(PeerGroup peerGroup) {
-        
+
         try {
             PeerGroup wpg = peerGroup.getGlobalRegistry().lookupInstance(PeerGroupID.worldPeerGroupID);
-        
+
             ModuleImplAdvertisement implAdv = wpg.getAllPurposePeerGroupImplAdvertisement();
-            
+
             wpg.unref();
-            
+
             XMLDocument compat = (XMLDocument) implAdv.getCompat();
-            
+
             return compat;
         } catch (Exception e) {
             // but if it doesn't work default to what was current on Feb 22 2006.
             return buildCompat("JDK1.4.1", "V2.0 Ref Impl");
         }
     }
-    
+
     /**
      * Use this form for customized compatibility statements.
      * Alternatively a group's compat is accessible via
@@ -254,16 +252,16 @@ public class AdvCooker {
     public static XMLDocument buildCompat(String efmt, String bind) {
         XMLDocument doc = (XMLDocument)
                 StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Comp");
-        
+
         Element e = doc.createElement("Efmt", efmt);
 
         doc.appendChild(e);
         e = doc.createElement("Bind", bind);
         doc.appendChild(e);
-        
+
         return doc;
     }
-    
+
     /**
      * A ModuleImplAdvertisement represents one of any number of
      * published implementations of a given specification. Use this form
@@ -288,7 +286,7 @@ public class AdvCooker {
         miadv.setUri("http://download.jxta.org");
         return miadv;
     }
-    
+
     /** Use this form to fully populate a ModuleImplAdvertisement.
      * A ModuleImplAdvertisement has an optional field, "param" which is
      * neglected here. If needed it should be set with advert's setParam method.
@@ -310,7 +308,7 @@ public class AdvCooker {
         miadv.setUri(uri);
         return miadv;
     }
-    
+
     /**
      * Modifies a copy of the parent's implementation
      * advertisement to reflect the addition or replacement of
@@ -351,7 +349,7 @@ public class AdvCooker {
         implAdv.setParam(paramElement);
         return implAdv;
     }
-    
+
     public static ModuleImplAdvertisement buildPeerGroupImplAdvertisement(PeerGroup parent, ModuleSpecID newGroupModuleSpecID, String newDescription, Map newServices, Map newApps) throws Exception {
         Map newProtos = null;
 
@@ -360,7 +358,7 @@ public class AdvCooker {
         typeCheckValues(newServices);
         typeCheckKeys(newApps);
         typeCheckValues(newApps);
-        
+
         // get a copy of parent's general purpose advert as a template
         ModuleImplAdvertisement implAdv = parent.getAllPurposePeerGroupImplAdvertisement();
 
@@ -369,7 +367,7 @@ public class AdvCooker {
         // extract embedded ad for standard modules
         TextElement paramElement = (TextElement) implAdv.getParam();
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(paramElement);
-        
+
         // alter services
         Map services = paramAdv.getServices();
 
@@ -377,22 +375,22 @@ public class AdvCooker {
         // mergeTables will override old services with new if base classes are the same
         services = mergeTables(services, newServices);
         paramAdv.setServices(services);
-        
+
         // alter apps
         Map apps = paramAdv.getApps();
 
         typeCheckKeys(apps);
         apps = mergeTables(apps, newApps);
         paramAdv.setApps(apps);
-        
+
         paramElement = (TextElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
         implAdv.setParam(paramElement);
-        
+
         return implAdv;
     }
-    
+
     public static ModuleImplAdvertisement buildPeerGroupImplAdvertisement(PeerGroup parent, ModuleSpecID newGroupModuleSpecID, String newDescription, Map newServices, Map newApps, Map newProtos) throws Exception {
-        
+
         // illegal types will cause an IllegalArgumentException
         typeCheckKeys(newServices);
         typeCheckValues(newServices);
@@ -400,7 +398,7 @@ public class AdvCooker {
         typeCheckValues(newApps);
         typeCheckKeys(newProtos);
         typeCheckValues(newProtos);
-        
+
         // get a copy of parent's general purpose advert as a template
         ModuleImplAdvertisement implAdv = parent.getAllPurposePeerGroupImplAdvertisement();
 
@@ -409,7 +407,7 @@ public class AdvCooker {
         // extract embedded ad for standard modules
         TextElement paramElement = (TextElement) implAdv.getParam();
         StdPeerGroupParamAdv paramAdv = new StdPeerGroupParamAdv(paramElement);
-        
+
         // alter services
         Map services = paramAdv.getServices();
 
@@ -417,27 +415,27 @@ public class AdvCooker {
         // mergeTables will override old services with new if base classes are the same
         services = mergeTables(services, newServices);
         paramAdv.setServices(services);
-        
+
         // alter apps
         Map apps = paramAdv.getApps();
 
         typeCheckKeys(apps);
         apps = mergeTables(apps, newApps);
         paramAdv.setApps(newApps);
-        
+
         // alter protos
         Map protos = paramAdv.getProtos();
 
         typeCheckKeys(protos);
         apps = mergeTables(protos, newProtos);
         paramAdv.setProtos(newProtos);
-        
+
         paramElement = (TextElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
         implAdv.setParam(paramElement);
 
         return implAdv;
     }
-    
+
     /**
      * Module table vaules must be ModuleImplAdvertisements here.
      * Though StdPeerGroup allows for values of type ModuleSpecID,
@@ -463,7 +461,7 @@ public class AdvCooker {
             }
         }
     }
-    
+
     /**
      * Module table keys must be ModuleClassID's.
      *
@@ -483,7 +481,7 @@ public class AdvCooker {
             }
         }
     }
-    
+
     /**
      * Merge two hashtables of servcices, overwriting old with new if
      * they have the same base class id.

@@ -333,7 +333,7 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
         SHARED_TIMER.schedule(sendTask, gossip_interval, gossip_interval);
 
         Logging.logCheckedInfo(LOG, "[" + group + "] Gossip Serivce (" + getAssignedID() + ") started");
-        
+
         return Module.START_OK;
 
     }
@@ -396,7 +396,7 @@ public class GossipService implements net.jxta.service.Service, net.jxta.endpoin
             if (null == currentEndpoint) {
                 return;
             }
-            
+
             // Create a new message.
             Message gossipMessage = new Message();
 

@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -78,18 +78,18 @@ import java.util.WeakHashMap;
  *  @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target='_blank'>JXTA Protocols Specification : IDs</a>
  */
 public abstract class ID implements java.io.Serializable {
- 
+
     /**
      * Magic value for this format of serialization version.
      */
     protected static final long serialVersionUID = 1L;
-   
+
     /**
      * Collection of interned IDs. All IDs visible within in the VM are
      * contained within this table.
      */
     private static final Map<ID, WeakReference<ID>> interned = new WeakHashMap<ID, WeakReference<ID>>(1000);
-    
+
     /**
      * This defines the URI scheme that we will be using to present JXTA IDs.
      * JXTA IDs are encoded for presentation into URIs (see
@@ -99,14 +99,14 @@ public abstract class ID implements java.io.Serializable {
      * ).
      */
     public static final String URIEncodingName = "urn";
-    
+
     /**
      *  This defines the URN Namespace that we will be using to present JXTA IDs.
      *  The namespace allows URN resolvers to determine which sub-resolver to use
      *  to resolve URN references. All JXTA IDs are presented in this namespace.
      */
     public static final String URNNamespace = "jxta";
-    
+
     /**
      *	The null ID. The NullID is often used as a placeholder in fields which
      *  are uninitialized.
@@ -114,7 +114,7 @@ public abstract class ID implements java.io.Serializable {
      *  <p/>This is a singleton within the scope of a VM.
      */
     public static final ID nullID = (new NullID()).intern();
-    
+
     /**
      *
      * Creates an ID by parsing the given URI.
@@ -122,7 +122,7 @@ public abstract class ID implements java.io.Serializable {
      * <p>This convenience factory method works as if by invoking the
      * {@link IDFactory#fromURI(URI)} method; any {@link URISyntaxException}
      * thrown is caught and wrapped in a new {@link IllegalArgumentException}
-     * object, which is then thrown.  
+     * object, which is then thrown.
      *
      * <p> This method is provided for use in situations where it is known that
      * the given string is a legal ID, for example for ID constants declared
@@ -149,14 +149,14 @@ public abstract class ID implements java.io.Serializable {
             throw failure;
         }
     }
-    
+
     /**
      *  Constructor for IDs. IDs are constructed using the {@link IDFactory} or
      *  {@link #create(URI)}.
      *
      */
     protected ID() {}
-    
+
     /**
      *  Returns a string representation of the ID. This representation should be
      *  used primarily for debugging purposes. For most other situations IDs
@@ -172,7 +172,7 @@ public abstract class ID implements java.io.Serializable {
     public String toString() {
         return toURI().toString();
     }
-    
+
     /**
      *  Return the interned form of the ID.
      */
@@ -188,7 +188,7 @@ public abstract class ID implements java.io.Serializable {
      *  used by this ID instance.
      */
     public abstract String getIDFormat();
-    
+
     /**
      *  Returns an object containing the unique value of the ID. This object
      *  must provide implementations of toString(), equals() and hashCode() that
@@ -199,7 +199,7 @@ public abstract class ID implements java.io.Serializable {
      *  @return	Object which can provide canonical representations of the ID.
      */
     public abstract Object getUniqueValue();
-    
+
     /**
      * Returns a canonical representation for the ID object.
      *
@@ -221,22 +221,22 @@ public abstract class ID implements java.io.Serializable {
     protected ID intern() {
         synchronized (ID.class) {
             Reference<ID> common = interned.get(this);
-            
+
             ID result = null;
-            
+
             if (null != common) {
                 result = common.get();
             }
-            
+
             if (null == result) {
                 interned.put(this, new WeakReference<ID>(this));
                 result = this;
             }
-            
+
             return result;
         }
     }
-    
+
     /**
      *  Returns a URI representation of the ID. {@link java.net.URI URIs} are
      *  the preferred way of externalizing and presenting JXTA IDs. The

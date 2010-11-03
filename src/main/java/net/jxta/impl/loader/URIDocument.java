@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -65,28 +65,27 @@ import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 
-
 /**
  * This class presents a Document interface for document content at the end
  * of a URI.
  */
 public class URIDocument implements Document {
-    
+
     /**
      * Buffer size to use during data sink operation.
      */
     private final static int BUFFER_SIZE = 4096;
-    
+
     /**
      * URI which backs this document.
      */
     private final URI uri;
-    
+
     /**
      *  MIME media type of this document.
      */
     private final MimeMediaType type;
-    
+
     /**
      * Create a new File Document.
      * 
@@ -96,7 +95,7 @@ public class URIDocument implements Document {
         this(docURI, StructuredDocumentFactory.getMimeTypeForFileExtension(
                 getFileExtension(docURI)));
     }
-    
+
     /**
      * Create a new File Document.
      * 
@@ -111,7 +110,7 @@ public class URIDocument implements Document {
             type = docType.intern();
         }
     }
-    
+
     /**
      *  {@inheritDoc}
      *
@@ -121,14 +120,14 @@ public class URIDocument implements Document {
     public String getFileExtension() {
         return getFileExtension(uri);
     }
-    
+
     /**
      *  {@inheritDoc}
      */
     public MimeMediaType getMimeType() {
         return type;
     }
-    
+
     /**
      *  {@inheritDoc}
      * 
@@ -139,7 +138,7 @@ public class URIDocument implements Document {
         URL url = uri.toURL();
         return url.openStream();
     }
-    
+
     /**
      *  {@inheritDoc}
      * 
@@ -150,18 +149,18 @@ public class URIDocument implements Document {
         InputStream source = getStream();
         int c;
         byte[] buf = new byte[BUFFER_SIZE];
-        
+
         do {
             c = source.read(buf);
-            
+
             if (-1 == c) {
                 break;
             }
-            
+
             sink.write(buf, 0, c);
         } while (true);
     }
-    
+
     /**
      * Private version of {@code getFileExtension} which allows the URI tttttto
      * passed in.
@@ -179,5 +178,5 @@ public class URIDocument implements Document {
             return fileName.substring(idx + 1);
         }
     }
-    
+
 }

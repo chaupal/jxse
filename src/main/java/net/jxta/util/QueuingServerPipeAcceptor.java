@@ -20,7 +20,7 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
     private BlockingQueue<JxtaBiDiPipe> pendingAcceptance;
     private long defaultTimeout;
     private static final Logger LOG = Logger.getLogger(QueuingServerPipeAcceptor.class.getName());
-    
+
     /**
      * @param backlog the maximum number of connections to queue for acceptance.
      * @param defaultTimeout the default timeout of the {@link #accept()} method, in
@@ -32,7 +32,7 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
         pendingAcceptance = new ArrayBlockingQueue<JxtaBiDiPipe>(backlog);
         setTimeout(defaultTimeout);
     }
-    
+
     public void pipeAccepted(JxtaBiDiPipe pipe) {
         if(!pendingAcceptance.offer(pipe) && Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
             LOG.log(Level.WARNING, "pending queue full, discarding incoming pipe {0} from {1}", 
@@ -58,7 +58,7 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
     public JxtaBiDiPipe accept() throws InterruptedException {
         return accept(defaultTimeout, TimeUnit.MILLISECONDS);
     }
-    
+
     /**
      * Variant of accept which throws a SocketException if no pipe is received within the timeout.
      * This exists to be compatible with the original interface of {@link JxtaServerPipe#accept()}.
@@ -69,7 +69,7 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
             if(pipe == null) {
                 throw new SocketException("No pipe received within timeout");
             }
-            
+
             return pipe;
         } catch (InterruptedException e) {
             SocketException s = new SocketException("Interrupted while waiting for new incoming pipe");
@@ -77,11 +77,11 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
             throw s;
         }
     }
-    
+
     public void serverPipeClosed() {
         pendingAcceptance.clear();
     }
-    
+
     /**
      * Sets the default timeout value (in milliseconds) that is used for the
      * {@link #accept()} method.
@@ -92,10 +92,10 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
         if(timeout == 0) {
             this.defaultTimeout = Long.MAX_VALUE;
         }
-        
+
         this.defaultTimeout = timeout;
     }
-    
+
     public void setTimeoutBackwardsCompatible(int timeout) {
     	if (timeout < 0) {
             throw new IllegalArgumentException("Negative timeout values are not allowed.");
@@ -105,7 +105,7 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
         	this.defaultTimeout = timeout;
         }
     }
-    
+
     /**
      * Returns the default timeout value (in milliseconds) that is used for the
      * {@link #accept()} method.
@@ -113,7 +113,7 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
     public long getTimeout() {
         return defaultTimeout;
     }
-    
+
     /**
      * Variant of getTimeout which matches the original behaviour of {@link JxtaServerPipe#getPipeTimeout()}.
      * If the timeout value is greater than {@link Integer#MAX_VALUE} then 0 is returned, indicating an
@@ -123,7 +123,7 @@ public class QueuingServerPipeAcceptor implements ServerPipeAcceptListener {
        if(defaultTimeout > Integer.MAX_VALUE) {
            return 0;
        }
-       
+
        return (int)defaultTimeout;
     }
 }

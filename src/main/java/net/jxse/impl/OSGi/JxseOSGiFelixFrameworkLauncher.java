@@ -67,7 +67,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxse.JxseInstantiator;
-import net.jxse.OSGi.JxseOSGiFramework;
 import net.jxse.OSGi.JxseOSGiFrameworkLauncher;
 import net.jxta.configuration.JxtaConfiguration;
 import net.jxta.configuration.PropertiesUtil;

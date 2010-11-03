@@ -66,7 +66,7 @@ public final class BTreeNotFoundException extends BTreeException {
     public BTreeNotFoundException() {
         super(FaultCodes.IDX_VALUE_NOT_FOUND);
     }
-   
+
     public BTreeNotFoundException(String message) {
         super(FaultCodes.IDX_VALUE_NOT_FOUND, message);
     }

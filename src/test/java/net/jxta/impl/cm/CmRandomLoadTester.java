@@ -68,7 +68,7 @@ public class CmRandomLoadTester implements Runnable {
 		    expectedFilesInDirectory.put(dn, new HashSet<String>());
 		    HashMap<String, Integer> peerMap = new HashMap<String, Integer>();
             expectedPeersInDirectory.put(dn, peerMap);
-            
+
             for(String peerName : PEER_NAMES) {
                 peerMap.put(peerName, 0);
             }
@@ -83,7 +83,7 @@ public class CmRandomLoadTester implements Runnable {
 				    String dn = randomDirectory();
 				    String fn = randomFile();
 				    String peerName = randomPeerName();
-				    
+				 
 				    add(dn, fn, peerName);
 				} else {
 				    // remove
@@ -95,7 +95,7 @@ public class CmRandomLoadTester implements Runnable {
 				        dn = randomSelection(directories);
 				        fn = randomFileInDirectory(dn);
 				    }
-				    
+				 
 				    if(fn != null) {
 				        remove(dn, fn);
 				    }
@@ -111,7 +111,7 @@ public class CmRandomLoadTester implements Runnable {
 				        complete(false);
 				        return;
 				    }
-				    
+				 
                     for(String fileName : expectedFilesInDirectory.get(directoryName)) {
                         if(advCache.getInputStream(directoryName, fileName) == null) {
                             System.err.println("Missing file within directory");
@@ -172,19 +172,19 @@ public class CmRandomLoadTester implements Runnable {
     private String randomFile() {
         return Double.toString(Math.random());
     }
-    
+
     private String randomFileInDirectory(String dn) {
         if(expectedFilesInDirectory.get(dn).size() > 0) {
             return expectedFilesInDirectory.get(dn).iterator().next();
         }
-        
+
         return null;
     }
 
     private String randomDirectory() {
         return DIRECTORIES[(int)Math.floor(Math.random() * DIRECTORIES.length)];
     }
-    
+
     private <T> T randomSelection(List<T> options) {
         int selection = (int)Math.floor(Math.random() * options.size());
         return options.remove(selection);
@@ -202,7 +202,7 @@ public class CmRandomLoadTester implements Runnable {
 	protected PeerAdvertisement createPeerAdvert(PeerGroupID pgID, String peerName) {
         PeerAdvertisement peerAdv = (PeerAdvertisement)
         AdvertisementFactory.newAdvertisement(PeerAdvertisement.getAdvertisementType());
-        
+
         peerAdv.setPeerGroupID(pgID);
         peerAdv.setPeerID(IDFactory.newPeerID(pgID));
         peerAdv.setName(peerName);

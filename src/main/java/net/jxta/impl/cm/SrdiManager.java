@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -133,9 +133,8 @@ public class SrdiManager implements RendezvousListener {
     private ResolverService resolver;
     private final JxtaHash jxtaHash = new JxtaHash();
     private Credential credential = null;
-    
-    private SrdiManagerPeriodicPushTask srdiPushTask;
 
+    private SrdiManagerPeriodicPushTask srdiPushTask;
 
     /**
      * Random number generator used for random result selection
@@ -267,7 +266,7 @@ public class SrdiManager implements RendezvousListener {
         } catch (Exception e) {
 
             Logging.logCheckedWarning(LOG, "Failed to send srdi message\n", e);
-            
+
         }
     }
 
@@ -285,7 +284,7 @@ public class SrdiManager implements RendezvousListener {
         if (query.getHopCount() > 2) {
 
             Logging.logCheckedFine(LOG, "hopCount exceeded. Not forwarding query ", query.getHopCount());
-            
+
             // query has been forwarded too many times
             return;
 
@@ -293,7 +292,7 @@ public class SrdiManager implements RendezvousListener {
 
         Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
             group.getPeerGroupName(), handlername, peer));
-        
+
         resolver.sendQuery(peer.toString(), query);
     }
 
@@ -312,7 +311,7 @@ public class SrdiManager implements RendezvousListener {
         if (query.getHopCount() > 2) {
 
             Logging.logCheckedFine(LOG, MessageFormat.format("hopCount exceeded not forwarding query {0}", query.getHopCount()));
-            
+
             // query has been forwarded too many times
             return;
 
@@ -322,7 +321,7 @@ public class SrdiManager implements RendezvousListener {
 
             Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
                 group.getPeerGroupName(), handlername, destPeer));
-            
+
             resolver.sendQuery(destPeer.toString(), query);
 
         }
@@ -407,7 +406,7 @@ public class SrdiManager implements RendezvousListener {
 
             pid = rpv.get(pos);
             Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Found a direct peer {2}", group.getPeerGroupName(), handlername, pid));
-            
+
             return pid;
 
         } else {
@@ -438,13 +437,13 @@ public class SrdiManager implements RendezvousListener {
 
             Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName(),
                 handlername, primaryKey, peerid));
-            
+
             resolver.sendSrdi(peerid.toString(), resSrdi);
 
         } catch (Exception e) {
 
             Logging.logCheckedWarning(LOG, "Failed forwarding SRDI Message\n", e);
-            
+
         }
     }
 
@@ -496,7 +495,7 @@ public class SrdiManager implements RendezvousListener {
                     } catch(IOException e) {
 
                         Logging.logCheckedWarning(LOG, "IOException occurred when attempting to remove peer from SRDI index\n", e);
-                        
+
                     }
 
                 }
@@ -510,7 +509,7 @@ public class SrdiManager implements RendezvousListener {
 
         }
     }
-    
+
     /**
      * Starts the periodic push of deltas at the specified rate, using the provided
      * {@link java.util.concurrent.ScheduledExecutorService} to control the periodic
@@ -521,10 +520,10 @@ public class SrdiManager implements RendezvousListener {
         if(srdiPushTask == null) {
             srdiPushTask = new SrdiManagerPeriodicPushTask(this.handlername, srdiService, executor, pushInterval);
         }
-        
+
         startPush();
     }
-    
+
     private void startPush() {
         if(srdiPushTask != null 
                 && !group.isRendezvous() 
@@ -533,7 +532,7 @@ public class SrdiManager implements RendezvousListener {
             srdiPushTask.start();
         }
     }
-    
+
     private void stopPush() {
         if(srdiPushTask != null) {
             srdiPushTask.stop();
@@ -580,7 +579,7 @@ public class SrdiManager implements RendezvousListener {
         } catch (Exception ex) {
 
             Logging.logCheckedWarning(LOG, "Failure generating the global view\n", ex);
-            
+
         }
 
         return global;

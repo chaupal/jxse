@@ -16,7 +16,7 @@ public class RelayedTcpCommsTest {
 
 	@Rule
     public TemporaryFolder tempStorage = new TemporaryFolder();
-    
+
     private NetworkManager aliceManager;
     private NetworkManager bobManager;
     private NetworkManager relayManager;
@@ -28,12 +28,12 @@ public class RelayedTcpCommsTest {
     	
         aliceManager = configurePeer("alice", relayURI);
         bobManager = configurePeer("bob", relayURI);
-        
+
         relayManager.startNetwork();
         aliceManager.startNetwork();
         bobManager.startNetwork();
     }
-    
+
     private NetworkManager configureRelay(String relayName, String interfaceAddr, int tcpPort) throws Exception {
 		NetworkManager manager = new NetworkManager(ConfigMode.RENDEZVOUS_RELAY, relayName, tempStorage.newFolder(relayName).toURI());
 		NetworkConfigurator configurator = manager.getConfigurator();

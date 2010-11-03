@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -160,9 +160,9 @@ public final class XIndiceIndexer {
                         indices.put(name, indexer);
 
                     } catch (DBException ignore) {
-                        
+
                         Logging.logCheckedSevere(LOG, "Failed to create Index ", name, "\n", ignore);
-                        
+
                     }
                 }
             }
@@ -181,11 +181,11 @@ public final class XIndiceIndexer {
         } catch (DBException dbe) {
 
             Logging.logCheckedSevere(LOG, "Failed during listDB Creation\n", dbe);
-            
+
         } catch (IOException ie) {
 
             Logging.logCheckedSevere(LOG, "Failed during listDB Creation\n", ie);
-            
+
         }
     }
 
@@ -200,15 +200,15 @@ public final class XIndiceIndexer {
     public synchronized boolean close() throws DBException {
 
         Logging.logCheckedInfo(LOG, "Closing Indexer");
-                
+
         Iterator<Map.Entry<String, NameIndexer>> eachIndex = indices.entrySet().iterator();
 
         while (eachIndex.hasNext()) {
 
             Map.Entry<String, NameIndexer> anEntry = eachIndex.next();
-            
+
             Logging.logCheckedFiner(LOG, "Closing Index :", anEntry.getKey());
-            
+
             try {
 
                 anEntry.getValue().close();
@@ -216,17 +216,17 @@ public final class XIndiceIndexer {
             } catch (Exception failed) {
 
                 Logging.logCheckedWarning(LOG, "Failure closing index :", anEntry.getKey(), "\n", failed);
-                
+
             }
-            
+
             eachIndex.remove();
         }
-        
+
         // clear just in case.
         indices.clear();
-        
+
         Logging.logCheckedFiner(LOG, "Closing listDB");
-        
+
         listDB.close();
         return true;
     }
@@ -308,7 +308,7 @@ public final class XIndiceIndexer {
                 Iterator<NameIndexer> i = indices.values().iterator();
 
                 Logging.logCheckedFine(LOG, "Searching all indexes");
-                
+
                 while (i.hasNext()) {
                     NameIndexer index = i.next();
                     index.query(query, new SearchCallback(listDB, callback));
@@ -488,11 +488,11 @@ public final class XIndiceIndexer {
             } catch (DBException ignore) {
 
                 Logging.logCheckedWarning(LOG, "An exception occured", ignore);
-                
+
             }
 
             return true;
-            
+
         }
     }
 
@@ -514,7 +514,7 @@ public final class XIndiceIndexer {
         } catch (IOException ie) {
 
             Logging.logCheckedWarning(LOG, "Exception during array to byte array conversion", ie);
-            
+
         }
         return null;
     }
@@ -541,7 +541,7 @@ public final class XIndiceIndexer {
         } catch (IOException ie) {
 
             Logging.logCheckedWarning(LOG, "Exception while reading Entry", ie);
-            
+
         }
 
         return result;
@@ -561,7 +561,7 @@ public final class XIndiceIndexer {
             }
 
             if (offsets != null && !offsets.contains(lpos)) {
-                
+
                 Logging.logCheckedFiner(LOG, "Adding a reference to record at :", lpos);
                 Logging.logCheckedFiner(LOG, "Writing :", offsets.size(), " references");
                 offsets.add(lpos);
@@ -590,7 +590,7 @@ public final class XIndiceIndexer {
         public boolean indexInfo(Value val, long pos) {
 
             Logging.logCheckedFiner(LOG, "Found ", val.toString(), " at ", pos);
-            
+
             Record record = null;
             Set<Long> offsets = null;
             boolean result = true;
@@ -602,14 +602,14 @@ public final class XIndiceIndexer {
                     offsets = readRecord(record);
 
                     Logging.logCheckedFiner(LOG, "Found ", offsets.size(), " entries");
-                    
+
                 }
 
                 for (Long lpos : offsets) {
 
                     result &= callback.indexInfo(val, lpos);
                     Logging.logCheckedFiner(LOG, "Callback result : ", result);
-                    
+
                 }
 
             } catch (DBException ex) {

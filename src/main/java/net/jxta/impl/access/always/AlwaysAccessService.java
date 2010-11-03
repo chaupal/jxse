@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2003-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.impl.access.always;
-
 
 import net.jxta.access.AccessService;
 import net.jxta.credential.Credential;
@@ -75,7 +74,6 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * A minimal {@link net.jxta.access.AccessService} implementation.
  *
@@ -88,48 +86,48 @@ import java.util.logging.Logger;
  * @see net.jxta.access.AccessService
  */
 public class AlwaysAccessService implements AccessService {
-    
+
     /**
      *  Logger.
      */
     private final static Logger LOG = Logger.getLogger(AlwaysAccessService.class.getName());
-    
+
     /**
      *  Operation for the Always Access Service.
      */
     private static class AlwaysOperation implements PrivilegedOperation {
-        
+
         AlwaysAccessService source;
-        
+
         String op;
-        
+
         Credential offerer;
-        
+
         protected AlwaysOperation(AlwaysAccessService source, String op, Credential offerer) {
             this.source = source;
             this.op = op;
             this.offerer = offerer;
         }
-        
+
         protected AlwaysOperation(AlwaysAccessService source, Element root) {
             this.source = source;
             initialize(root);
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public ID getPeerGroupID() {
             return source.getPeerGroup().getPeerGroupID();
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public ID getPeerID() {
             return null;
         }
-        
+
         /**
          * {@inheritDoc}
          *
@@ -138,7 +136,7 @@ public class AlwaysAccessService implements AccessService {
         public boolean isExpired() {
             return false;
         }
-        
+
         /**
          * {@inheritDoc}
          *
@@ -147,52 +145,52 @@ public class AlwaysAccessService implements AccessService {
         public boolean isValid() {
             return true;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public Object getSubject() {
             return op;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public Service getSourceService() {
             return source;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public StructuredDocument getDocument(MimeMediaType as) throws Exception {
             StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(as, "jxta:Cred");
-            
+
             if (doc instanceof Attributable) {
                 ((Attributable) doc).addAttribute("xmlns:jxta", "http://jxta.org");
                 ((Attributable) doc).addAttribute("xml:space", "preserve");
                 ((Attributable) doc).addAttribute("type", "jxta:AlwaysOp");
             }
-            
+
             Element e = doc.createElement("PeerGroupID", getPeerGroupID().toString());
 
             doc.appendChild(e);
-            
+
             e = doc.createElement("Operation", op);
             doc.appendChild(e);
-            
+
             StructuredDocumentUtils.copyElements(doc, doc, offerer.getDocument(as), "Offerer");
-            
+
             return doc;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public Credential getOfferer() {
             return offerer;
         }
-        
+
         /**
          *  Process an individual element from the document.
          *
@@ -216,12 +214,12 @@ public class AlwaysAccessService implements AccessService {
                 }
                 return true;
             }
-            
+
             if (elem.getName().equals("Operation")) {
                 op = elem.getTextValue();
                 return true;
             }
-            
+
             if (elem.getName().equals("Offerer")) {
                 try {
                     offerer = source.getPeerGroup().getMembershipService().makeCredential(elem);
@@ -230,22 +228,22 @@ public class AlwaysAccessService implements AccessService {
                 }
                 return true;
             }
-            
+
             // element was not handled
             return false;
         }
-        
+
         /**
          *  Initialize from a portion of a structured document.
          */
         protected void initialize(Element root) {
-            
+
             if (!TextElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports TextElement");
             }
-            
+
             TextElement doc = (TextElement) root;
-            
+
             String typedoctype = "";
 
             if (root instanceof Attributable) {
@@ -255,16 +253,16 @@ public class AlwaysAccessService implements AccessService {
                     typedoctype = itsType.getValue();
                 }
             }
-            
+
             String doctype = doc.getName();
-            
+
             if (!doctype.equals("jxta:AlwaysOp") && !doctype.equals("jxta:Cred") || !"jxta:AlwaysOp".equals(typedoctype)) {
                 throw new IllegalArgumentException(
                         "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
             }
-            
+
             Enumeration elements = doc.getChildren();
-            
+
             while (elements.hasMoreElements()) {
 
                 TextElement elem = (TextElement) elements.nextElement();
@@ -272,30 +270,30 @@ public class AlwaysAccessService implements AccessService {
                 if (!handleElement(elem)) {
 
                     Logging.logCheckedWarning(LOG, "Unhandleded element \'", elem.getName(), "\' in ", doc.getName());
-                    
+
                 }
             }
-            
+
             // sanity check time!
-            
+
             if (null == op) 
                 throw new IllegalArgumentException("operation was never initialized.");
-            
+
             if (null == offerer) 
                 throw new IllegalArgumentException("offerer was never initialized.");
-            
+
         }
     }
-    
+
     PeerGroup group;
-    
+
     ModuleImplAdvertisement implAdvertisement;
-    
+
     /**
      *  Default Constructor
      */
     public AlwaysAccessService() {}
-    
+
     /**
      * {@inheritDoc}
      */
@@ -303,7 +301,7 @@ public class AlwaysAccessService implements AccessService {
 
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
         this.group = group;
-        
+
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
             StringBuilder configInfo = new StringBuilder("Configuring Always Access Service : " + assignedID);
 
@@ -320,33 +318,33 @@ public class AlwaysAccessService implements AccessService {
         }
 
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public int startApp(String[] args) {
         return 0;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void stopApp() {}
-    
+
     /**
      * {@inheritDoc}
      */
     public ModuleImplAdvertisement getImplAdvertisement() {
         return implAdvertisement;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public AlwaysAccessService getInterface() {
         return this;
     }
-    
+
     /**
      * Get the PeerGroup this service is running in.
      * 
@@ -355,7 +353,7 @@ public class AlwaysAccessService implements AccessService {
     PeerGroup getPeerGroup() {
         return group;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -365,26 +363,26 @@ public class AlwaysAccessService implements AccessService {
                     ? AccessResult.PERMITTED
                     : ("DENY".equals(op.getSubject()) ? AccessResult.DISALLOWED : AccessResult.PERMITTED);
         }
-        
+
         if (!cred.isValid()) {
             return AccessResult.DISALLOWED;
         }
-        
+
         if ("DENY".equals(cred.getSubject())) {
             return AccessResult.DISALLOWED;
         }
-        
+
         if (null == op) {
             return AccessResult.PERMITTED;
         }
-                
+
         if (!op.isValid()) {
             return AccessResult.DISALLOWED;
         }
-        
+
         return "DENY".equals(op.getSubject()) ? AccessResult.DISALLOWED : AccessResult.PERMITTED;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -392,14 +390,14 @@ public class AlwaysAccessService implements AccessService {
         if (!(subject instanceof String)) {
             throw new IllegalArgumentException(getClass().getName() + " only supports String subjects.");
         }
-        
+
         if (!offerer.isValid()) {
             throw new IllegalArgumentException("offerer is not a valid credential");
         }
-        
+
         return new AlwaysOperation(this, (String) subject, offerer);
     }
-    
+
     /**
      * {@inheritDoc}
      */

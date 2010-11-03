@@ -56,7 +56,6 @@
 
 package net.jxta.protocol;
 
-
 import java.io.*;
 
 import java.io.StringReader;
@@ -81,23 +80,23 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class GroupConfigTest {
-            
+
     private static GroupConfig createTestInstance() {
         Advertisement params = AdvertisementFactory.newAdvertisement(GroupConfig.getAdvertisementType());
-        
+
         assertTrue("AdvertisementFactory did not create GroupConfig instance", params instanceof GroupConfig);
-        
+
         GroupConfig cp = (GroupConfig) params;
-        
+
         // Add some sections.
         cp.putServiceParam(PeerGroup.httpProtoClassID, wrapParm(AdvertisementFactory.newAdvertisement(HTTPAdv.getAdvertisementType()), false));
         cp.setSvcConfigAdvertisement(PeerGroup.relayProtoClassID, AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType()), true);
         cp.setSvcConfigAdvertisement(PeerGroup.rendezvousClassID, AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType()), false);
         cp.putServiceParam(PeerGroup.discoveryClassID, wrapParm(AdvertisementFactory.newAdvertisement(DiscoveryConfigAdv.getAdvertisementType()), true));
-        
+
         return cp;
     }
-    
+
     /*
      * FIXME (2010/07/06 iainmcg): this test appears to have been broken for a long time. The root cause is that
      * the equals() implementation in ConfigParams compares two maps:<br/>
@@ -115,34 +114,33 @@ public class GroupConfigTest {
     public void testSerialization() {
         try {
             GroupConfig cp = createTestInstance();
-            
+
             XMLDocument toDoc = (XMLDocument) cp.getDocument(MimeMediaType.XMLUTF8);
             StringWriter writer = new StringWriter();
             toDoc.sendToWriter(writer);
-            
+
             XMLDocument fromDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(writer.toString()));
-            
+
             Advertisement rawAdv = AdvertisementFactory.newAdvertisement(fromDoc);
-            
+
             assertTrue("AdvertisementFactory did not create GroupConfig instance", rawAdv instanceof GroupConfig);
-            
+
             GroupConfig cp2 = (GroupConfig) rawAdv;
-            
+
             assertEquals("Original instance and deserialized instance were not identical.", cp, cp2);
         } catch(Exception failed) {
             fail(failed.getMessage());
         }
     }
-    
+
     @Test
     public void testClone() {
         GroupConfig cp = createTestInstance();
         GroupConfig cp2 = cp.clone();
-        
-        
+
         assertEquals("Original instance and clone instance were not identical.", cp, cp2);
     }
-    
+
     private static XMLDocument wrapParm(Advertisement srcAdv, boolean enabled) {
         try {
             XMLDocument advDoc = (XMLDocument) srcAdv.getDocument(MimeMediaType.XMLUTF8);

@@ -56,7 +56,6 @@
 
 package net.jxta.impl.protocol;
 
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -69,41 +68,39 @@ import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * Configuration container for any Peer Group.
  */
 public class GroupConfig extends ConfigParams implements Cloneable {
-    
+
     /**
      *  Logger
      */
     private static final Logger LOG = Logger.getLogger(GroupConfig.class.getName());
-    
+
     private static final String advType = "jxta:GroupConfig";
-    
+
     /**
      * Instantiator for GroupConfig
      */
     public final static class Instantiator implements AdvertisementFactory.Instantiator {
-        
+
         /**
          * {@inheritDoc}
          */
         public String getAdvertisementType() {
             return advType;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public Advertisement newInstance() {
             return new GroupConfig();
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -111,16 +108,16 @@ public class GroupConfig extends ConfigParams implements Cloneable {
             if (!XMLElement.class.isInstance(root)) {
                 throw new IllegalArgumentException(getClass().getName() + " only supports XLMElement");
             }
-            
+
             return new GroupConfig((XMLElement) root);
         }
     }
-    
+
     /**
      * Use the Instantiator through the factory
      */
     GroupConfig() {}
-    
+
     /**
      * Use the Instantiator through the factory
      *
@@ -128,33 +125,33 @@ public class GroupConfig extends ConfigParams implements Cloneable {
      */
     GroupConfig(XMLElement doc) {
         String doctype = doc.getName();
-        
+
         String typedoctype = "";
         Attribute itsType = doc.getAttribute("type");
-        
+
         if (null != itsType) {
             typedoctype = itsType.getValue();
         }
-        
+
         if (!doctype.equals(getAdvertisementType()) && !getAdvertisementType().equals(typedoctype)) {
             throw new IllegalArgumentException(
                     "Could not construct : " + getClass().getName() + "from doc containing a " + doc.getName());
         }
-        
+
         Enumeration<XMLElement> elements = doc.getChildren();
-        
+
         while (elements.hasMoreElements()) {
 
             Element elem = (Element) elements.nextElement();
-            
+
             if (!handleElement(elem)) {
                 Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
             }
 
         }
-        
+
     }
-    
+
     /**
      * Make a safe clone of this GroupConfig.
      *
@@ -164,10 +161,10 @@ public class GroupConfig extends ConfigParams implements Cloneable {
     @Override
     public GroupConfig clone() {
         GroupConfig result = (GroupConfig) super.clone();
-        
+
         return result;
     }
-    
+
     /**
      * returns the advertisement type
      *
@@ -176,7 +173,7 @@ public class GroupConfig extends ConfigParams implements Cloneable {
     public static String getAdvertisementType() {
         return advType;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -184,19 +181,19 @@ public class GroupConfig extends ConfigParams implements Cloneable {
     public String getAdvType() {
         return getAdvertisementType();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public StructuredDocument getDocument(MimeMediaType encodeAs) {
         StructuredDocument adv = (StructuredDocument) super.getDocument(encodeAs);
-        
+
         addDocumentElements(adv);
-        
+
         return adv;
     }
-    
+
     /**
      * {@inheritDoc}
      */

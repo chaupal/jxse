@@ -55,8 +55,6 @@
  */
 package net.jxta.impl.cm.srdi.inmemory;
 
-
-
 /**
  * An immutable key used in the GcIndex
  *

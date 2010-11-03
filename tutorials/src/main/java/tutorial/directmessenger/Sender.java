@@ -55,7 +55,6 @@
  */
 package tutorial.directmessenger;
 
-
 import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.platform.NetworkManager;
@@ -120,26 +119,26 @@ public class Sender {
      *  The number of responses after which we will stop.
      */
     static final int TOTAL_RESPONSES = 10;
-    
+
     /**
      *  Our listener for "chatAnnounce" messages.
      */
     private static class ChatAnnounceReceiver implements EndpointListener {
-        
+
         /**
          *  The endpoint with which this listener is registered.
          */
         private final EndpointService endpoint;
-        
+
         /**
          * The number of responses we have sent.
          */
         private final AtomicInteger responses = new AtomicInteger(0);
-        
+
         public ChatAnnounceReceiver(EndpointService endpoint) {
             this.endpoint = endpoint;
         }
-        
+
         /**
          * {@inheritDoc}
          * <p/>
@@ -149,36 +148,36 @@ public class Sender {
          */
         public void processIncomingMessage(Message msg, EndpointAddress source, EndpointAddress destination) {
             MessageElement announce = msg.getMessageElement("ChatAnnounce");
-            
+
             if(null == announce) {
                 // It doesn't seem to be the right kind of message.
                 return;
             }
-            
+
             RouteAdvertisement route;
-            
+
             try {
                 XMLDocument routeDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(announce);
-                
+
                 route = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(routeDoc);
             } catch(Exception bad) {
                 System.err.println("### - Bad Route");
                 bad.printStackTrace(System.err);
                 return;
             }
-            
+
             System.out.println("Announcement from " + route.getDestPeerID() );
-            
+
             // We have received an announcement from some peer. We will attempt
             // to create a direct messenger to respond to the announcement.
             // Currently we look for only TCP messengers.
             for(EndpointAddress anEA : route.getDestEndpointAddresses()) {
                 MessageSender tcp = (MessageSender) endpoint.getMessageTransport("tcp");
-                
+
                 // Search for "tcp" endpoint addresses.
                 if("tcp".equals(anEA.getProtocolName())) {
                     EndpointAddress destAddress;
-                    
+
                     if(endpoint.getGroup().equals(tcp.getEndpointService().getGroup())) {
                         // The TCP message transport is in our peer group. We can address the message directly.
                         destAddress = new EndpointAddress(anEA, "chatService", route.getDestPeerID().getUniqueValue().toString() );
@@ -192,33 +191,33 @@ public class Sender {
                         // "EndpointService:"<PeerGroupID-unique value>" with the parameter being a concatination of the
                         // service name and parameter separated by a "/".
                         destAddress = new EndpointAddress(anEA, "EndpointService:jxta-NetGroup", "chatService" + "/" + route.getDestPeerID().getUniqueValue().toString() );
-                    }                    
-                    
+                    }
+
                     // We have an address be believe is worth trying. We will
                     // attempt to create a messenger to the address.
                     Messenger directMessenger = null;
                     try {
                         directMessenger = tcp.getMessenger(destAddress, null);
-                        
+
                         if(null == directMessenger) {
                             // The current address was unreachable. Try another.
                             System.err.println("### - getMessenger() failed for " + anEA );
                             continue;
                         }
-                        
+
                         // We have a direct messenger. Try to send a response.
                         System.out.println("Sending response to " + anEA );
-                        
+
                         String chatMessage = "Hello from " + endpoint.getGroup().getPeerID() + " via " + anEA + " @ " + new Date();
-                        
+
                         Message chat = new Message();
-                        
+
                         chat.addMessageElement(new StringMessageElement("Chat", chatMessage, null));
-                        
+
                         directMessenger.sendMessageB(chat, null, null);
-                        
+
                         // The message has been sent.
-                        
+
                         // Decide if we have sent enough responses.
                         int totalSent = responses.incrementAndGet();
                         if(totalSent >= TOTAL_RESPONSES) {
@@ -228,7 +227,7 @@ public class Sender {
                                 shutDown.notifyAll();
                             }
                         }
-                        
+
                         break;
                     } catch(IOException failed) {
                         failed.printStackTrace(System.err);
@@ -241,11 +240,11 @@ public class Sender {
             }
         }
     }
-    
+
     private static boolean stopped = false;
-    
+
     private static String shutDown = "shutdown";
-    
+
     /**
      * main
      *
@@ -256,18 +255,18 @@ public class Sender {
             // Configure and start JXTA.
             NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "DirectMessengerSender",
                     new File(new File(".cache"), "DirectMessengerSender").toURI());
-            
+
             manager.startNetwork();
-            
+
             PeerGroup npg = manager.getNetPeerGroup();
-            
+
             // Register an endpoint listener for "chatAnnounce" messages.
             EndpointService endpoint = npg.getEndpointService();
-            
+
             EndpointListener chatAnnouncelistener = new ChatAnnounceReceiver(endpoint);
-            
+
             endpoint.addIncomingMessageListener(chatAnnouncelistener, "chatAnnounce", null );
-            
+
             // Continue until shutdown
             synchronized(shutDown) {
                 try {
@@ -278,10 +277,10 @@ public class Sender {
                     Thread.interrupted();
                 }
             }
-            
+
             // De-register "chatAnnounce" listener.
             endpoint.removeIncomingMessageListener( "chatAnnounce", null );
-            
+
             // Stop JXTA.
             manager.stopNetwork();
         } catch (Exception e) {

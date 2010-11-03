@@ -1,32 +1,32 @@
 /*
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
 
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -99,7 +99,7 @@ public class ContentServiceImpl implements ContentService {
      */
     private static final Logger LOG = Logger.getLogger(
             ContentServiceImpl.class.getName());
-    
+
     /**
      * List of all currently registered providers, used only for providing
      * programmatic access to the API user (hence the use of the
@@ -107,33 +107,33 @@ public class ContentServiceImpl implements ContentService {
      */
     private final List<ContentProvider> providers = 
             new CopyOnWriteArrayList<ContentProvider>();
-    
+
     /**
      * List of providers which are started and ready for use.
      */
     private final List<ContentProviderSPI> active = 
             new CopyOnWriteArrayList<ContentProviderSPI>();
-    
+
     /**
      * List of our listeners.
      */
     private final List<ContentProviderListener> listeners =
             new CopyOnWriteArrayList<ContentProviderListener>();
-    
+
     /**
      * Lifecycle manager responsible for getting provider instances
      * into the correct operational state.
      */
     private final ModuleLifecycleManager<ContentProviderSPI> manager =
             new ModuleLifecycleManager<ContentProviderSPI>();
-    
+
     /**
      * List of providers which are registered and waiting for the
      * service to be initialized before being added to the lifecycle
      * manager.  After initialization, this list is nulled.
      */
     private List<ContentProviderSPI> waitingForInit = locateProviders();
-    
+
     /**
      * Implementation adv given to us via init().
      */
@@ -143,17 +143,17 @@ public class ContentServiceImpl implements ContentService {
      * Peer group given to us via init().
      */
     private PeerGroup group;
-    
+
     /**
      * Object to lock against when accessing member vars.
      */
     private final Object lock = new Object();
-    
+
     /**
      * Flag indicatin that this instancce has been initialized.
      */
     private boolean initialized = false;
-    
+
     /**
      * Flag indicating that this instance has been started.
      */
@@ -173,7 +173,7 @@ public class ContentServiceImpl implements ContentService {
             public void unhandledPeerGroupException(ModuleLifecycleTracker subject, PeerGroupException mlcx) {
 
                 Logging.logCheckedWarning(LOG, "Uncaught exception", mlcx);
-                
+
             }
 
             /**
@@ -192,7 +192,7 @@ public class ContentServiceImpl implements ContentService {
                     active.remove(provider);
                 }
             }
-            
+
         });
     }
 
@@ -215,7 +215,6 @@ public class ContentServiceImpl implements ContentService {
             toAdd = waitingForInit;
             waitingForInit = null;
         }
-
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
@@ -242,11 +241,11 @@ public class ContentServiceImpl implements ContentService {
             for (ContentProviderSPI provider : toAdd) {
                 configInfo.append("\n\t\tProvider: ").append(provider);
             }
-            
+
             LOG.config( configInfo.toString() );
 
         }
-        
+
         // Provider initialization
         for (ContentProviderSPI provider : toAdd) {
             addContentProvider(provider);
@@ -265,9 +264,9 @@ public class ContentServiceImpl implements ContentService {
             }
             started = true;
         }
-        
+
         Logging.logCheckedFine(LOG, "Content Service started.");
-        
+
         return START_OK;
     }
 
@@ -285,7 +284,7 @@ public class ContentServiceImpl implements ContentService {
         manager.stop();
 
         Logging.logCheckedFine(LOG, "Content Service stopped.");
-        
+
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -431,7 +430,7 @@ public class ContentServiceImpl implements ContentService {
     public ContentTransfer retrieveContent(ContentID contentID) {
 
         checkStart();
-        
+
         try {
             return new TransferAggregator(this, active, contentID);
         } catch (TransferException transx) {
@@ -445,7 +444,7 @@ public class ContentServiceImpl implements ContentService {
      * {@inheritDoc}
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
-        
+
         checkStart();
 
         try {
@@ -461,7 +460,7 @@ public class ContentServiceImpl implements ContentService {
      */
     public List<ContentShare> shareContent(Content content) {
         checkStart();
-        
+
         List<ContentShare> result = null;
         List<ContentShare> subShares;
         for (ContentProvider provider : active) {
@@ -483,9 +482,9 @@ public class ContentServiceImpl implements ContentService {
 
                 Logging.logCheckedFinest(LOG, "Ignoring provider which doesn't support ",
                             "share operation: ", provider);
-                
+
             }
-            
+
         }
 
         if (result != null) {
@@ -500,7 +499,7 @@ public class ContentServiceImpl implements ContentService {
      */
     public boolean unshareContent(ContentID contentID) {
         checkStart();
-        
+
         boolean unshared = false;
         for (ContentProvider provider : active) {
             unshared |= provider.unshareContent(contentID);
@@ -518,7 +517,7 @@ public class ContentServiceImpl implements ContentService {
     public void findContentShares(
             int maxNum, ContentProviderListener listener) {
         checkStart();
-        
+
         List<ContentProviderListener> findListeners =
                 new ArrayList<ContentProviderListener>();
         findListeners.add(listener);
@@ -528,10 +527,9 @@ public class ContentServiceImpl implements ContentService {
         aggregator.dispatchFindRequest(maxNum);
     }
 
-
     //////////////////////////////////////////////////////////////////////////
     // Private methods:
-    
+
     /**
      * Check to see if the ContentService has been started.  If so, make
      * sure that the provider implementations are started.  If not, throw
@@ -570,7 +568,7 @@ public class ContentServiceImpl implements ContentService {
             } catch (Throwable thr) {
 
                 Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
-                
+
             }
         }
     }
@@ -596,7 +594,7 @@ public class ContentServiceImpl implements ContentService {
             } catch (Throwable thr) {
 
                 Logging.logCheckedWarning(LOG, "Uncaught throwable from listener\n", thr);
-                
+
             }
         }
     }
@@ -608,7 +606,7 @@ public class ContentServiceImpl implements ContentService {
      * @return list of content provider implementations
      */
     private List<ContentProviderSPI> locateProviders() {
-        
+
         ContentProviderSPI provider;
 
         List<ContentProviderSPI> result = new CopyOnWriteArrayList<ContentProviderSPI>();
@@ -616,28 +614,28 @@ public class ContentServiceImpl implements ContentService {
         ClassLoader loader = getClass().getClassLoader();
 
         Logging.logCheckedFine(LOG, "Locating providers");
-        
+
         Enumeration resources;
         try {
             resources = loader.getResources(
                     "META-INF/services/" + ContentProviderSPI.class.getName());
-        
+
         } catch (IOException iox) {
 
             Logging.logCheckedWarning(LOG, "Unable to enumerate ContentProviders\n", iox);
-            
+
             // Early-out.
             return result;
 
         }
-        
+
         // Create a Set of all unique class names
         Set<String> provClassNames = new HashSet<String>();
         while (resources.hasMoreElements()) {
 
             URL resURL = (URL) resources.nextElement();
             Logging.logCheckedFine(LOG, "   Provider services resource: " + resURL);
-            
+
             try {
 
                 InputStreamReader inReader = new InputStreamReader(resURL.openStream());
@@ -666,7 +664,7 @@ public class ContentServiceImpl implements ContentService {
 
             }
         }
-         
+
         // Now attempt to instantiate all the providers we've found
         for (String str : provClassNames) {
 
@@ -693,7 +691,7 @@ public class ContentServiceImpl implements ContentService {
                 // Continue to next provider class name
 
             }
-        }            
+        }
 
         return result;
     }

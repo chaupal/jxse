@@ -1,6 +1,5 @@
 package net.jxta.test.util;
 
-
 import org.jmock.Mockery;
 import org.jmock.lib.AssertionErrorTranslator;
 import org.junit.Test;

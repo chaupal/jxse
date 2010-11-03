@@ -21,12 +21,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-
 public abstract class AbstractSrdiIndexBackendConcurrencyTest {
 	
     @Rule
     public JUnitRuleMockery mockContext = new JUnitRuleMockery();
-    
+
 	private static final int NUM_INDICES = 8;
 	private static final int NUM_GROUPS = 8;
 	private static final int OPS_PER_INDEX = 500;

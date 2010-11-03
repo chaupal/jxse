@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.impl.endpoint.tls;
-
 
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
@@ -74,7 +73,6 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  Acts as the output for TLS. Accepts ciphertext from TLS and packages it into
@@ -205,7 +203,7 @@ class JTlsOutputStream extends OutputStream {
      * Set to zero to defeat this behaviour.
      */
     private volatile int stabalizationAckCount = 0;
-    
+
     /**
      * retrans queue element
      **/
@@ -390,13 +388,13 @@ class JTlsOutputStream extends OutputStream {
                     long inQueue = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), retrQ.get(0).enqueuedAt);
 
                     Logging.logCheckedFine(LOG, "write : Retry queue idle for ", inQueue);
-                    
+
                     if (inQueue > tp.RETRMAXAGE) {
 
                         if (inQueue > (2 * tp.RETRMAXAGE)) {
-                            
+
                             Logging.logCheckedInfo(LOG, "Closing stale connection ", conn);
-                            
+
                             // SPT - set flag for connection close in finally block
                             closeStale = true;
                             throw new IOException("Stale connection closure in progress");
@@ -448,7 +446,7 @@ class JTlsOutputStream extends OutputStream {
             mrrIQFreeSpace--;
 
             Logging.logCheckedFine(LOG, "TLS CT SENT : seqn#", sequenceNumber, " length=", len);
-            
+
         } finally {
 
             if (closeStale) {
@@ -475,13 +473,13 @@ class JTlsOutputStream extends OutputStream {
         if( nACKS.incrementAndGet() > 2 ){
         	
 	        long tmp = (6 * aveRTT) + ((6 * remRTT) / 9) + (3 * dt);
-	        
+	
 	        aveRTT = tmp / 9;
 	        remRTT = tmp - aveRTT * 9;
         }
-        
+
         long newRTO = aveRTT * 2;
-        
+
         // Unless stabalizationAckCount is zero, after a period of stream stabilisation, do not reduce the RTO value further. 
         // This avoids the situation where a few small message sends reduce the RTO so much that when a large
         // message is sent it immediately requires repetitive retransmission until the value of RTO climbs again.
@@ -493,9 +491,9 @@ class JTlsOutputStream extends OutputStream {
             RTO = Math.max(newRTO, minRTO);
             RTO = Math.min(RTO, maxRTO);
         }
-        
+
         Logging.logCheckedFine(LOG, "TLS!! RTT = ", dt, "ms aveRTT = ", aveRTT, "ms RTO = ", RTO, "ms maxRTO = ", maxRTO, "ms");
-        
+
     }
 
     private int calcAVEIQ(int iq) {
@@ -802,7 +800,7 @@ class JTlsOutputStream extends OutputStream {
             retransmitterThread.start();
 
             Logging.logCheckedInfo(LOG, "STARTED TLS Retransmit thread, RTO = ", RTO);
-            
+
         }
 
         public int getRetransCount() {
@@ -826,7 +824,7 @@ class JTlsOutputStream extends OutputStream {
                     if (tp.CONNECTION_IDLE_TIMEOUT < conn_idle) {
 
                         Logging.logCheckedInfo(LOG, "RETRANS : Shutting down idle connection: ", conn);
-                        
+
                         try {
 
                             setClosing();
@@ -838,7 +836,7 @@ class JTlsOutputStream extends OutputStream {
                             return;
 
                         } catch (IOException ignored) {
-                            
+
                         }
 
                         continue;
@@ -882,7 +880,7 @@ class JTlsOutputStream extends OutputStream {
                     if (oldestInQueueWait > (tp.RETRMAXAGE * 2)) {
 
                         Logging.logCheckedInfo(LOG, "RETRANS : Shutting down stale connection: ", conn);
-                        
+
                         try {
 
                             setClosing();
@@ -892,7 +890,7 @@ class JTlsOutputStream extends OutputStream {
                             return;
 
                         } catch (IOException ignored) {
-                            
+
                         }
                         continue;
                     }

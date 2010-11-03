@@ -67,7 +67,7 @@ public class FilerException extends DBException {
     public FilerException(int faultCode) {
         super(faultCode);
     }
-   
+
     public FilerException(int faultCode, String message) {
         super(faultCode, message);
     }
@@ -75,19 +75,19 @@ public class FilerException extends DBException {
     public FilerException(int faultCode, String message, Throwable cause) {
         super(faultCode, message, cause);
     }
-    
+
     public FilerException(FaultCodes fault) {
         super(fault, null, null);
     }
-    
+
     public FilerException(FaultCodes fault, String message) {
         super(fault, message, null);
     }
-    
+
     public FilerException(FaultCodes fault, Throwable cause) {
         super(fault, null, cause);
     }
-    
+
     public FilerException(FaultCodes fault, String message, Throwable cause) {
         super(fault, message, cause);
     }

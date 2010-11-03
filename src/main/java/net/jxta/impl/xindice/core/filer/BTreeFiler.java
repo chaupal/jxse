@@ -1,6 +1,5 @@
 package net.jxta.impl.xindice.core.filer;
 
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -88,7 +87,7 @@ public final class BTreeFiler extends BTree implements Filer {
     private BTreeFilerHeader fileHeader;
 
     private static final int DBE_CANNOT_READ = (int) (572l);
-    
+
     public BTreeFiler() {
         super();
         fileHeader = (BTreeFilerHeader) getFileHeader();
@@ -192,7 +191,7 @@ public final class BTreeFiler extends BTree implements Filer {
             if (ph.getStatus() == UNUSED) {
                 ph.setCreated(t);
             }
-         
+
             ph.setModified(t);
             ph.setLifetime(lifetime);
             ph.setExpiration(expiration);
@@ -371,7 +370,6 @@ public final class BTreeFiler extends BTree implements Filer {
             return totalBytes;
         }
     }
-
 
     /**
      * BTreeFilerPageHeader

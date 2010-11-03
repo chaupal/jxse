@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2002-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -60,7 +60,6 @@ import java.io.File;
 import java.net.URI;
 import net.jxta.content.ContentProviderEvent;
 import net.jxta.impl.peergroup.*;
-import net.jxta.impl.util.threads.TaskManager;
 
 import java.net.URL;
 import java.util.List;
@@ -93,10 +92,10 @@ import org.junit.*;
 import static org.junit.Assert.*;
 
 public class RefJxtaLoaderTest {
-    
+
     static final Logger LOG =
             Logger.getLogger(RefJxtaLoaderTest.class.getName());
-    
+
     /**
      * Default compatibility equater instance.
      */
@@ -107,7 +106,6 @@ public class RefJxtaLoaderTest {
                 }
             };
 
-    
     static TempDir home;
     static NetworkManager netMan;
     static PeerGroup pg;
@@ -115,15 +113,15 @@ public class RefJxtaLoaderTest {
     static Content parentContent;
     static Content bothContent;
     static URL testJar;
-    
+
     ContentService testService;
     RefJxtaLoader loader;
     PeerGroup testGroup;
-    
+
     public static junit.framework.Test suite() { 
         return new JUnit4TestAdapter(RefJxtaLoaderTest.class); 
     }
-    
+
     @BeforeClass
     public static void setupClass() throws Exception {
         LOG.info("============ Begin setupClass");
@@ -132,15 +130,15 @@ public class RefJxtaLoaderTest {
         netMan.setInstanceHome(home.toURI());
         pg = netMan.startNetwork();
         netMan.waitForRendezvousConnection(1000);
-        
+
         testJar = RefJxtaLoaderTest.class.getResource("/TestJar.jar");
         assertNotNull("TestJar could not be located", testJar);
 
         service = pg.getContentService();
         assertNotNull("ContentService not present in peer group");
-        
+
         Document jarDoc = new URIDocument(testJar.toURI());
-        
+
         ContentID contentID = IDFactory.newContentID(pg.getPeerGroupID(), true);
         bothContent = new Content(contentID, null, jarDoc);
         List<ContentShare> shares = service.shareContent(bothContent);
@@ -154,10 +152,10 @@ public class RefJxtaLoaderTest {
         assertTrue(shares.size() > 0);
 
         LOG.finest("NPG PGA: " + pg.getPeerGroupAdvertisement());
-        
+
         LOG.info("============ End setupClass");
     }
-    
+
     @AfterClass
     public static void tearDownClass() throws InterruptedException {
         LOG.info("============ Begin tearDownClass");
@@ -169,12 +167,12 @@ public class RefJxtaLoaderTest {
         System.out.flush();
         Thread.sleep(500);
     }
-    
+
     @Before
     public void setup() throws Exception {
         LOG.info("============ Begin setup");
         PeerGroupAdvertisement pga;
-        
+
         /*
          * Setup a test-specific peer group.
          */
@@ -201,24 +199,24 @@ public class RefJxtaLoaderTest {
                         LOG.fine(event.toString());
                         return true;
                     }
-                    
+
                 });
             }
         }
-        
+
         assertNotNull(testService);
         List<ContentShare> shares = testService.shareContent(bothContent);
         assertNotNull(shares);
         assertTrue(shares.size() > 0);
-        
+
         /*
          * Create a test loader referencing our test-specific group.
          */
         loader = new RefJxtaLoader(new URL[0], null, COMP_EQ, testGroup);
-        
+
         LOG.info("============ End setup");
     }
-    
+
     @After
     public void tearDown() throws Exception {
         LOG.info("============ Begin tearDown");
@@ -227,7 +225,7 @@ public class RefJxtaLoaderTest {
         Thread.sleep(300);
         LOG.info("============ End tearDown");
     }
-    
+
     /**
      * Verify that we cannot load the POJO class as a Module when the package
      * URI references a jar URL.
@@ -246,7 +244,7 @@ public class RefJxtaLoaderTest {
             mia.setCompat(
                     pg.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Non-Module in a Jar");
-        
+
             Class clazz = loader.defineClass(mia);
             fail("Was able to load a POJO as a Module");
         } catch (ClassFormatError err) {
@@ -256,7 +254,7 @@ public class RefJxtaLoaderTest {
             fail("Caught exception");
         }
     }
-    
+
     /**
      * Verify that we can load Modules when the package URI references a
      * Jar URL.
@@ -275,7 +273,7 @@ public class RefJxtaLoaderTest {
             mia.setCompat(
                     pg.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
-        
+
             Class clazz = loader.defineClass(mia);
             assertTrue(Module.class.isAssignableFrom(clazz));
         } catch (Error err) {
@@ -293,7 +291,7 @@ public class RefJxtaLoaderTest {
     @Test
     public void packageLoadIsSticky() {
         LOG.info("packageLoadIsSticky");
-        
+
         // First, make sure we cant load TestPOJO
         try {
             Class clazz = loader.loadClass("TestPOJO");
@@ -301,7 +299,7 @@ public class RefJxtaLoaderTest {
         } catch (Exception ex) {
             // Good.
         }
-        
+
         // Now load in the Module requiring the additional package
         Class moduleClazz = null;
         try {
@@ -322,7 +320,7 @@ public class RefJxtaLoaderTest {
             LOG.log(Level.SEVERE, "Caught exception", exc);
             fail("Caught exception");
         }
-        
+
         // Now we should be able to load TestPOJO
         try {
             Class pojo = loader.loadClass("TestPOJO");
@@ -384,7 +382,7 @@ public class RefJxtaLoaderTest {
             fail("Caught exception");
         }
     }
-    
+
     /**
      * Test the loading of a module which references a package URI that is
      * in the form of a ContentID and cannot be retreived.
@@ -404,7 +402,7 @@ public class RefJxtaLoaderTest {
         mia.setUri(contentID.toString());
         mia.setCompat(pg.getAllPurposePeerGroupImplAdvertisement().getCompat());
         mia.setDescription("Module which can't be found");
-        
+
         try {
             loader.defineClass(mia);
             fail("Was able to load module which did not exist");
@@ -412,7 +410,7 @@ public class RefJxtaLoaderTest {
             // Good.  Fall through.
         }
     }
-    
+
     /**
      * Test that classes loaded in sibling groups when the class definition
      * is not provided by the parent group will resolve to difference class
@@ -422,14 +420,14 @@ public class RefJxtaLoaderTest {
     @Test
     public void siblingGroupsDifferentClasses() throws Exception {
         LOG.info("siblingGroupsDifferentClasses");
-        
+
         // Create the sibling peer groups
         DiscoveryService disco = pg.getDiscoveryService();
         PeerGroupAdvertisement sib1adv = createGroupAdv(disco, "sibling1");
         PeerGroup sibling1 = pg.newGroup(sib1adv);
         PeerGroupAdvertisement sib2adv = createGroupAdv(disco, "sibling2");
         PeerGroup sibling2 = pg.newGroup(sib2adv);
-        
+
         // Load the Module into sibling1
         Class<?> clazz1 = null;
         try {
@@ -451,7 +449,7 @@ public class RefJxtaLoaderTest {
             LOG.log(Level.SEVERE, "Caught exception", exc);
             fail("Caught exception");
         }
-        
+
         // Load the Module into sibling2
         Class<?> clazz2 = null;
         try {
@@ -473,12 +471,12 @@ public class RefJxtaLoaderTest {
             LOG.log(Level.SEVERE, "Caught exception", exc);
             fail("Caught exception");
         }
-        
+
         // Ensure they are not the same class
         assertFalse(clazz1.isAssignableFrom(clazz2));
         assertFalse(clazz2.isAssignableFrom(clazz1));
     }
-    
+
     /**
      * Test that classes loaded in a parent group will be used in child
      * groups such that the Classes.
@@ -486,12 +484,12 @@ public class RefJxtaLoaderTest {
     @Test
     public void parentGroupSameClasses() throws Exception {
         LOG.info("parentGroupSameClasses");
-        
+
         // Create the hierarchy
         DiscoveryService disco = pg.getDiscoveryService();
         PeerGroupAdvertisement childAdv = createGroupAdv(disco, "child");
         PeerGroup child = pg.newGroup(childAdv);
-        
+
         // Load the Module into parent
         Class<?> clazz1 = null;
         try {
@@ -513,7 +511,7 @@ public class RefJxtaLoaderTest {
             LOG.log(Level.SEVERE, "Caught exception", exc);
             fail("Caught exception");
         }
-        
+
         // Load the Module into child
         Class<?> clazz2 = null;
         try {
@@ -535,15 +533,15 @@ public class RefJxtaLoaderTest {
             LOG.log(Level.SEVERE, "Caught exception", exc);
             fail("Caught exception");
         }
-        
+
         // Ensure they are the same class
         assertTrue(clazz1.isAssignableFrom(clazz2));
         assertTrue(clazz2.isAssignableFrom(clazz1));
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Private methods:
-    
+
     /**
      * Creates a peer group advertisement set for testing.
      * 
@@ -558,13 +556,13 @@ public class RefJxtaLoaderTest {
         ModuleClassID mcid = IDFactory.newModuleClassID();
         ModuleImplAdvertisement mia =
                 pg.getAllPurposePeerGroupImplAdvertisement();
-        
+
         ModuleSpecID msid = IDFactory.newModuleSpecID(mcid);
         mia.setDescription(name + " impl");
         mia.setModuleSpecID(msid);
         disco.publish(mia);
         LOG.finest(name + " MIA:\n" + mia);
-        
+
         PeerGroupID pgid = IDFactory.newPeerGroupID();
         PeerGroupAdvertisement pga = (PeerGroupAdvertisement)
                 AdvertisementFactory.newAdvertisement(
@@ -576,5 +574,5 @@ public class RefJxtaLoaderTest {
         LOG.finest(name + " PGA:\n" + pga);
         return pga;
     }
-    
+
 }

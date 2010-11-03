@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2002-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,31 +37,28 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.impl.util;
 
-
 import net.jxta.logging.Logging;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * This class does not in itself allocate anything; it just does accounting.
@@ -148,12 +145,12 @@ import java.util.logging.Logger;
  */
 
 public class ResourceDispatcher {
-    
+
     /**
      *  Logger
      */
     private final static transient Logger LOG = Logger.getLogger(ResourceDispatcher.class.getName());
-    
+
     private long extraItems;
     private long reservedItems;
     private final long maxReservedPerAccount;
@@ -161,18 +158,18 @@ public class ResourceDispatcher {
     private final long maxExtraPerAccount;
     private final long minExtraPoolSize;
     private int nbEligibles;
-    
+
     private final String myName;
-    
+
     class ClientAccount extends Dlink implements ResourceAccount {
-        
+
         /**
          * Tells whether this account has any use for extra resources
          * or not. This feature is required to support roundRobin mode
          * properly when resources are scarce.
          */
         private boolean needs;
-        
+
         /**
          * The number of items reserved for this account that may still be
          * allocated. This decrements when we grant an item allocation. When
@@ -182,7 +179,7 @@ public class ResourceDispatcher {
          * incremented either way.
          */
         private long nbReserved;
-        
+
         /**
          * The number out of nbReserved that is due back in reservedItems
          * when this account disappears.
@@ -196,20 +193,20 @@ public class ResourceDispatcher {
          * allocator of the resource if it relies on our accounting.
          */
         private long fromReservedItems;
-        
+
         /**
          * Same idea but they have been reserved by reducing the number
          * of extra items available.
          */
         private final long fromExtraItems;
-        
+
         /**
          * The limit for extra items allocation.
          * When nbReserved is at or below that, extra items cannot be
          * granted.
          */
         private final long extraLimit;
-        
+
         /**
          * The external object for which this account manages items.
          * This is an opaque cookie to us. Whatever code invokes
@@ -217,7 +214,7 @@ public class ResourceDispatcher {
          * it needs to be told which of its own object got an item assigned.
          */
         private Object userObject;
-        
+
         /**
          * Creates a client account with this resource manager.
          * Not for external use.
@@ -227,7 +224,7 @@ public class ResourceDispatcher {
          * @param userObject
          */
         ClientAccount(long fromReservedItems, long fromExtraItems, long extraLimit, Object userObject) {
-            
+
             this.nbReserved = fromReservedItems + fromExtraItems;
             this.fromReservedItems = fromReservedItems;
             this.fromExtraItems = fromExtraItems;
@@ -235,7 +232,7 @@ public class ResourceDispatcher {
             this.userObject = userObject;
             this.needs = false;
         }
-        
+
         /**
          * {@inheritDoc}
          *
@@ -250,17 +247,17 @@ public class ResourceDispatcher {
         public void close() {
             notEligible();
             userObject = null;
-            
+
             if ((nbReserved == 0) && (fromReservedItems == 0) && (fromExtraItems == 0)) {
                 return;
             }
-            
+
             if (nbReserved < (fromReservedItems + fromExtraItems)) {
 
                 // !!! someone just gave up on its resource controller
                 // without returning the resources !
                 Logging.logCheckedWarning(LOG, "An account was abandoned with resources still allocated.");
-                
+
                 // Release whatever we can.
                 if (nbReserved >= fromReservedItems) {
                     releaseExtra(nbReserved - fromReservedItems);
@@ -268,15 +265,15 @@ public class ResourceDispatcher {
                 } else if (nbReserved > 0) {
                     releaseReserved(nbReserved);
                 }
-                
+
             } else {
                 releaseReserved(fromReservedItems);
                 releaseExtra(fromExtraItems);
             }
-            
+
             nbReserved = 0;
         }
-        
+
         /**
          *  {@inheritDoc}
          *
@@ -285,21 +282,21 @@ public class ResourceDispatcher {
         @Override
         protected void finalize() throws Throwable {
             close();
-            
+
             super.finalize();
         }
-        
+
         /**
          *  {@inheritDoc}
          */
         public boolean isIdle() {
             return (nbReserved == fromExtraItems + fromReservedItems);
         }
-        
+
         public boolean isEligible() {
             return isLinked();
         }
-        
+
         /**
          * Put that account in the queue of accounts eligible to
          * receive a resource when one becomes available.
@@ -309,7 +306,7 @@ public class ResourceDispatcher {
                 newEligible(this);
             }
         }
-        
+
         /**
          * Remove that account from the queue of accounts eligible to
          * receive a resource when one becomes available.
@@ -319,11 +316,11 @@ public class ResourceDispatcher {
                 unEligible(this);
             }
         }
-        
+
         // An extra item is being granted to this account (by being reassigned
         // from another account upon release).
         private void granted() {
-            
+
             // In theory, there cannot be an account that should NOT be granted
             // an item in the eligibles list. For now, check whether the theory
             // survives observations.
@@ -334,23 +331,23 @@ public class ResourceDispatcher {
             if (nbReserved <= extraLimit) {
                 Logging.logCheckedWarning(LOG, "An account that should not get an item was found in the eligibles list");
             }
-            
+
             --nbReserved;
-            
+
             // We've been assigned an item. No-longer eligible.
             notEligible();
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public boolean obtainQuantity(long quantity) {
-            
+
             if ((nbReserved - quantity) < extraLimit) {
                 // That's asking too much. Denied.
                 return false;
             }
-            
+
             if (quantity > nbReserved) {
                 // We need to get some or all of it from the extra items.
                 long toAsk = nbReserved > 0 ? quantity - nbReserved : quantity;
@@ -362,31 +359,31 @@ public class ResourceDispatcher {
                     return false;
                 }
             }
-            
+
             // Now record it.
             nbReserved -= quantity;
-            
+
             if (nbReserved > fromReservedItems + fromExtraItems)
                 Logging.logCheckedSevere(LOG, "Incorrect values after obtaining ", quantity, " : [", this, "]");
-            
+
             return true;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public boolean obtainItem() {
-            
+
             // Set it for consistency. It will get cleared when
             // the item is used to satisfy the need.
             needs = true;
-            
+
             if (nbReserved > 0) {
                 notEligible();
                 --nbReserved;
                 return true; // Its pre-reserved.
             }
-            
+
             // This account may deliberately limit the number of extra
             // items it uses. this translates into a lower limit for
             // nbReserved when <= 0.
@@ -394,32 +391,32 @@ public class ResourceDispatcher {
                 notEligible();
                 return false;
             }
-            
+
             if (holdExtra(1) == 1) { // Need authorization.
                 notEligible();
                 --nbReserved;
                 return true;
             }
-            
+
             // We are out of luck but eligible.
             beEligible();
             return false;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public void releaseQuantity(long quantity) {
 
             if (nbReserved < 0) releaseExtra(quantity < -nbReserved ? quantity : -nbReserved);
-            
+
             nbReserved += quantity;
 
             if (nbReserved > fromReservedItems + fromExtraItems)
                 Logging.logCheckedSevere(LOG, "Incorrect values after releasing ", quantity, " : [", this, "]");
 
         }
-        
+
         /**
          *  {@inheritDoc}
          */
@@ -431,23 +428,23 @@ public class ResourceDispatcher {
                     if (needs) {
                         return this;
                     }
-                    
+
                     ++nbReserved;
                     releaseExtra(1);
                     return null;
                 }
-                
+
                 // RoundRobin is ON, we compete with others for this item.
                 ++nbReserved;
-                
+
                 // Update our eligibility which depends on extraLimit and
                 // whether we have a use for the item or not.
                 if ((nbReserved > extraLimit) && needs) {
                     beEligible();
                 }
-                
+
                 ClientAccount next = mostEligible();
-                
+
                 if (next == null) {
                     releaseExtra(1); // noone wants it. return to main pool
                 } else {
@@ -455,20 +452,20 @@ public class ResourceDispatcher {
                 }
                 return next;
             }
-            
+
             // Since we are (back) in our reserved range, we can't be eligible
             // for extra.
             notEligible();
-            
+
             // In reserved range; we keep using the item if we need it.
             if (needs) {
                 return this;
             }
-            
+
             ++nbReserved;
             return null;
         }
-        
+
         /**
          *  {@inheritDoc}
          */
@@ -480,28 +477,28 @@ public class ResourceDispatcher {
                 notEligible();
             }
         }
-        
+
         /**
          *  {@inheritDoc}
          */
         public Object getUserObject() {
             return userObject;
         }
-        
+
         /**
          *  {@inheritDoc}
          */
         public void setUserObject(Object object) {
             userObject = object;
         }
-        
+
         /**
          *  {@inheritDoc}
          */
         public long getNbReserved() {
             return nbReserved;
         }
-        
+
         /**
          *  {@inheritDoc}
          *
@@ -512,14 +509,14 @@ public class ResourceDispatcher {
             return super.toString() + " : needs=" + needs + " nbReserved=" + nbReserved + " fromReservedItems="
                     + fromReservedItems + " fromExtraItems=" + fromExtraItems + " extraLimit=" + extraLimit;
         }
-        
+
     }
-    
+
     /**
      * The list of eligible accounts.
      */
     private Dlist eligibles;
-    
+
     /**
      * Construct a Fair Resource Allocator with the given parameters:
      * @param minAccounts The minimum number of client accounts that we want to
@@ -561,11 +558,11 @@ public class ResourceDispatcher {
         if (minExtraPoolSize < 0) {
             minExtraPoolSize = 0;
         }
-        
+
         if ((maxExtraPerAccount < 0) || (maxExtraPerAccount > extraItems)) {
             maxExtraPerAccount = extraItems;
         }
-        
+
         this.extraItems = extraItems;
         this.minExtraPoolSize = minExtraPoolSize;
         this.maxReservedPerAccount = maxReservedPerAccount;
@@ -576,10 +573,10 @@ public class ResourceDispatcher {
         if (roundRobin) {
             eligibles = new Dlist();
         }
-        
+
         this.myName = dispatcherName;
     }
-    
+
     private long holdReserved(long req) {
         if (req > reservedItems) {
             req = reservedItems;
@@ -587,11 +584,11 @@ public class ResourceDispatcher {
         reservedItems -= req;
         return req;
     }
-    
+
     private void releaseReserved(long nb) {
         reservedItems += nb;
     }
-    
+
     private long holdExtra(long req) {
         if (req > extraItems) {
             req = extraItems;
@@ -599,7 +596,7 @@ public class ResourceDispatcher {
         extraItems -= req;
         return req;
     }
-    
+
     // Get items from the extra pool but only if there is at least
     // minExtraPoolSize item
     // left after that. The goal is to make sure we keep at least one
@@ -619,33 +616,33 @@ public class ResourceDispatcher {
         extraItems -= req;
         return req;
     }
-    
+
     private void releaseExtra(long nb) {
         extraItems += nb;
     }
-    
+
     private void newEligible(ClientAccount account) {
         ++nbEligibles;
         eligibles.putLast(account);
     }
-    
+
     private ClientAccount mostEligible() {
         if (nbEligibles == 0) {
             return null;
         }
         return (ClientAccount) eligibles.getFirst();
     }
-    
+
     private void unEligible(ClientAccount account) {
         --nbEligibles;
         account.unlink();
     }
-    
+
     // Not synch; it's just a snapshot for trace purposes.
     public int getNbEligibles() {
         return nbEligibles;
     }
-    
+
     /**
      * Creates and returns a new client account.
      *
@@ -665,25 +662,25 @@ public class ResourceDispatcher {
      * @return ResourceAccount An account with this allocator.
      */
     public ResourceAccount newAccount(long nbReq, long maxExtra, Object userObject) {
-        
+
         long extra = 0; // reserved from extra pool
         long reserved = 0; // reserved from reserved pool
-        
+
         if (nbReq > maxReservedPerAccount) {
             nbReq = maxReservedPerAccount;
         }
-        
+
         // Anything beyond the minimum comes from extra items if there's
         // enough.
         if (nbReq > minReservedPerAccount) {
             extra = holdExtraKeepSome(nbReq - minReservedPerAccount);
             nbReq = minReservedPerAccount;
         }
-        
+
         // Then the minimum comes from reserved items, if we can.
         reserved = holdReserved(nbReq);
         nbReq -= reserved;
-        
+
         // If there's some letf to be had, it means that we're getting
         // short on reserved items, we'll try to compensate by getting
         // more items from extra, but the app should start getting rid
@@ -691,7 +688,7 @@ public class ResourceDispatcher {
         if (nbReq > 0) {
 
             Logging.logCheckedInfo(LOG, "Accepting extra account on a best effort basis.");
-            
+
             extra += holdExtraKeepSome(nbReq);
 
             if (extra + reserved < minReservedPerAccount) {
@@ -703,11 +700,11 @@ public class ResourceDispatcher {
             }
 
         }
-        
+
         if ((maxExtra > maxExtraPerAccount) || (maxExtra < 0)) {
             maxExtra = maxExtraPerAccount;
         }
-        
+
         return new ClientAccount(reserved, extra, maxExtra, userObject);
     }
 }

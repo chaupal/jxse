@@ -1,6 +1,5 @@
 package net.jxta.impl.xindice.core.filer;
 
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -75,9 +74,7 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * BTree represents a Variable Magnitude Simple-Prefix B+Tree File.
@@ -183,7 +180,7 @@ public class BTree extends Paged {
             } catch (Exception e) {
 
                 Logging.logCheckedWarning(LOG, "Failed to create BTree, return false\n", e);
-                
+
             }
         }
         return false;
@@ -536,7 +533,6 @@ public class BTree extends Paged {
             this.page = page;
         }
     }
-
 
     /**
      * BTreeNode
@@ -1133,7 +1129,6 @@ public class BTree extends Paged {
             return rootPage;
         }
     }
-
 
     /**
      * BTreePageHeader

@@ -205,7 +205,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
         Cursor c = null;
         try {
             c = attrSearchDb.openCursor(null, CursorConfig.READ_UNCOMMITTED);
-            
+
             AttributeSearchKey searchKey = new AttributeSearchKey(areaName, dn);
             DatabaseEntry searchPrefix = searchKey.toDatabaseEntry();
             DatabaseEntry key = searchKey.toDatabaseEntry();
@@ -215,11 +215,11 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
                 if(!BerkeleyDbUtil.isPrefixOf(searchPrefix, key)) {
                     break;
                 }
-                
+
                 AttributeSearchKey matchingKey = AttributeSearchKey.fromDatabaseEntry(key);
                 AdvertisementDbRecord record = AdvertisementDbRecord.fromDataEntry(data);
                 entries.add(new Entry(matchingKey.getAttributeName(), matchingKey.getValue(), TimeUtils.toRelativeTimeMillis(record.lifetime)));
-                
+
                 result = c.getNext(key, data, null);
             }
         } catch (DatabaseException e) {
@@ -227,11 +227,11 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
         } finally {
             closeCursor(c);
         }
-        
+
         if(clearDeltas) {
             clearDeltas(dn);
         }
-        
+
         return entries;
     }
 
@@ -249,10 +249,10 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
         if(r == null) {
         	return null;
         }
-        
+
     	return new ByteArrayInputStream(r.getData());
     }
-    
+
     private AdvertisementDbRecord getRecord(String dn, String fn) throws IOException {
     	DatabaseEntry result = new DatabaseEntry();
     	try {
@@ -273,7 +273,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
     	if(record == null) {
     		return -1;
     	}
-        
+
     	// TODO: remove dead record if TTL < 0
     	
     	return TimeUtils.toRelativeTimeMillis(record.lifetime);
@@ -318,8 +318,6 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 		    closeCursor(cursor);
 		}
     }
-
-
 
 	public void remove(String dn, String fn) throws IOException {
         try {
@@ -441,8 +439,6 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
         return results;
     }
 
-    
-
 	public void setTrackDeltas(boolean trackDeltas) {
 		this.trackDeltas = trackDeltas;
     }
@@ -487,7 +483,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 		    closeCursor(expiryCursor);
 		}
     }
-    
+
     /**
      * Return the number of entries that have expired and been flushed from the DB since the last call to this method
      * @return
@@ -497,7 +493,7 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
     	expiryCount = 0;
     	return expired;
     }
-    
+
     private void closeCursor(Cursor c) {
         if(c != null) {
             try {

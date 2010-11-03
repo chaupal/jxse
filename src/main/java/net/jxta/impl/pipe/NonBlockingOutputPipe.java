@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 package net.jxta.impl.pipe;
@@ -74,7 +74,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -176,33 +175,33 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
         /**
          * Find a new eligible destination peer which is listening on the pipe.
          */
-        STARTMIGRATE, 
-        
+        STARTMIGRATE,
+
         /**
          * Issue resolution queries and wait for responses
          */ 
-        PENDINGMIGRATE, 
-         
+        PENDINGMIGRATE,
+
          /**
          * Determine if the destination peer is still listening on the pipe.
          */ 
-        STARTVERIFY, 
-        
+        STARTVERIFY,
+
         /**
          * Issue verify queries and wait for responses
          */ 
-        PENDINGVERIFY, 
-        
+        PENDINGVERIFY,
+
         /**
          * Acquire a messenger to the destination peer.
          */ 
-        ACQUIREMESSENGER, 
-        
+        ACQUIREMESSENGER,
+
         /**
          * Send messages via the messenger to the destination peer.
          */ 
-        SENDMESSAGES, 
-        
+        SENDMESSAGES,
+
         /**
          * Exit.
          */ 
@@ -250,7 +249,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
      */
     @Override
     protected void finalize() throws Throwable {
-        
+
         if (!closed) Logging.logCheckedWarning(LOG, "Pipe is being finalized without being previously closed. This is likely a bug.");
         close();
         super.finalize();
@@ -456,16 +455,16 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                             TimeUtils.toRelativeTimeMillis(absoluteTimeoutAt, TimeUtils.timeNow()),
                             "ms. Next query in " + TimeUtils.toRelativeTimeMillis(nextQueryAt, TimeUtils.timeNow()),
                             "ms.");
-                        
+
                         // check to see if we are completely done.
                         if (TimeUtils.toRelativeTimeMillis(absoluteTimeoutAt, TimeUtils.timeNow()) <= 0) {
 
                             pipeResolver.removeListener(getPipeID(), queryID);
 
                             if (WorkerState.PENDINGVERIFY == workerstate) {
-                                
+
                                 Logging.logCheckedInfo(LOG, "Pipe \'", getPipeID(), "\' has migrated from ", destPeer);
-                                
+
                                 workerstate = WorkerState.STARTMIGRATE;
 
                                 // move on to the next state.
@@ -490,14 +489,14 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
 
                                 Logging.logCheckedFine(LOG, "Sending out verify query (",
                                     queryID, ") for \'", getPipeID(), "\' to : ", destPeer);
-                                
+
                                 pipeResolver.sendPipeQuery(pAdv, Collections.singleton(destPeer), queryID);
 
                             } else {
 
                                 Logging.logCheckedFine(LOG, "Sending out resolve query (", queryID, ") for ",
                                     getPipeID());
-                                
+
                                 pipeResolver.sendPipeQuery(pAdv, resolvablePeers, queryID);
 
                             }
@@ -530,7 +529,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                             destAddress = mkAddress(destPeer, getPipeID());
                             // todo 20031011 bondolo@jxta.org This should not be done under sync
                             destMessenger = endpoint.getMessenger(destAddress);
-                            
+
                             if (destMessenger == null) {
 
                                 // We could not get a messenger to the peer, forget it and try again.
@@ -653,10 +652,10 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             }
 
         } finally {
-            
+
             Logging.logCheckedInfo(LOG, "Thread exit : ", Thread.currentThread().getName(),
                 "\n\tworker state : ", workerstate);
-            
+
         }
     }
 
@@ -738,7 +737,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             } else {
 
                 Logging.logCheckedInfo(LOG, "Pipe \'", getPipeID(), "\' is verified for ", destPeer);
-                
+
             }
 
             workerstate = WorkerState.ACQUIREMESSENGER;
@@ -748,13 +747,13 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             if (workerstate == WorkerState.PENDINGMIGRATE) {
                 Logging.logCheckedInfo(LOG, "Pipe \'", getPipeID(), "\' has migrated to ", destPeer);
             }
-            
+
             notify();
             return true;
         }
 
         Logging.logCheckedFine(LOG, "Ignoring resolve from ", event.getPeerID());
-        
+
         // didn't refer to us or we don't care.
         return false;
     }

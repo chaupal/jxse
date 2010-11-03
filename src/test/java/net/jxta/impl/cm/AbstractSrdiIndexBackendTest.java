@@ -69,7 +69,7 @@ public abstract class AbstractSrdiIndexBackendTest {
 	@Before
 	public void setUp() throws Exception {
 	    taskManager = new TaskManager();
-	    
+	 
 	    oldBackendValue = System.getProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP);
 		System.setProperty(Srdi.SRDI_INDEX_BACKEND_SYSPROP, getBackendClassname());
 		
@@ -337,9 +337,9 @@ public abstract class AbstractSrdiIndexBackendTest {
 	    Srdi srdiIndexWithAutoGC = new Srdi(createBackend(group1, "gcIndex"), 500L, taskManager.getScheduledExecutorService());
 	    srdiIndexWithAutoGC.add("a", "b", "c", PEER_ID, 500L);
 	    assertEquals(1, srdiIndexWithAutoGC.query("a", "b", "c", NO_THRESHOLD).size());
-	    
+	 
 	    Thread.sleep(1000L);
-	    
+	 
 	    assertEquals(0, srdiIndexWithAutoGC.query("a", "b", "c", NO_THRESHOLD).size());
 	}
 	

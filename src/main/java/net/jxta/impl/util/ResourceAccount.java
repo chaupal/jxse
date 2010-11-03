@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2002-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,38 +37,37 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.impl.util;
-
 
 /**
  *  A descriptor for a resource consumser. The resource consumer's resource
  *  allocation and dynamic usage is tracked.
  */
 public interface ResourceAccount {
-    
+
     /**
      * Tear down this account.
      * Releases all reserved resources.
      */
     public void close();
-    
+
     /**
      * Try and grant a new item to this account. If it cannot be done,
      * the account may be eligible for the next available extra item.
@@ -78,7 +77,7 @@ public interface ResourceAccount {
      * @return boolean true if an item was granted, false otherwise.
      */
     public boolean obtainItem();
-    
+
     /**
      * Try and grant a certain quantity.
      *
@@ -104,7 +103,7 @@ public interface ResourceAccount {
      * @return boolean whether the requested quantity is authorized.
      */
     public boolean obtainQuantity(long quantity);
-    
+
     /**
      * This will release an item and return the most eligible account to
      * re-use this item for. The account that is returned has been granted
@@ -146,7 +145,7 @@ public interface ResourceAccount {
      * has been re-assigned. null if the released item was not re-assigned.
      */
     public ResourceAccount releaseItem();
-    
+
     /**
      * This will release a number of items at once rather than
      * once. To be used in conjunctino with obtainItems(). See that
@@ -155,7 +154,7 @@ public interface ResourceAccount {
      * @param quantity the number of items to be released.
      */
     public void releaseQuantity(long quantity);
-    
+
     /**
      * Call this with true as soon as this account needs a new item.
      * Call this with false as soon as this account has all that it needs.
@@ -164,18 +163,18 @@ public interface ResourceAccount {
      * @param needs Whether the account needs a new item or not.
      */
     public void inNeed(boolean needs);
-    
+
     /**
      * @return Object The userObject that was supplied when creating the
      * account.
      */
     public Object getUserObject();
-    
+
     /**
      * Set the userObject associated with that account.
      */
     public void setUserObject(Object obj);
-    
+
     /**
      * Returns the number of reserved items that can still be obtained by
      * this account.
@@ -187,7 +186,7 @@ public interface ResourceAccount {
      * @return long The number of reserved items.
      */
     public long getNbReserved();
-    
+
     /**
      * Tells if this account is idle (that is, none of the resources
      * that it controls are currently in use). This means it can be closed

@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -108,15 +108,15 @@ import java.util.logging.Logger;
  */
 
 public class PeerInfoServiceImpl implements PeerInfoService {
-    
+
     private final static Logger LOG = Logger.getLogger(PeerInfoServiceImpl.class.getName());
-    
+
     /**
      *  Time in milli seconds since midnight, January 1, 1970 UTC and when this
      *  peer was started.
      */
     private long startTime = 0;
-    
+
     private ResolverService resolver = null;
     private PeerGroup group = null;
     private EndpointService endpoint = null;
@@ -131,25 +131,25 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     private PipQueryHandler pipQueryHandler = new PipQueryHandler();
     private RemoteMonitorPeerInfoHandler remoteMonitorPeerInfoHandler;
     private PeerInfoMessenger resolverServicePeerInfoMessenger = new ResolverServicePeerInfoMessenger();
-    
+
     private int nextQueryId = 1000;
     private static final Random rand = new Random();
-    
+
     // This static package public hashtable of registered PeerInfoServiceImpls
     // allows us to do Peergroup Monitoring via an IP Bridge to the PIP
     // See the documentation on the JXTA Monitor
     static Hashtable peerInfoServices = new Hashtable();
-    
+
     /**
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
-        
+
         implAdvertisement = (ModuleImplAdvertisement) impl;
         localPeerId = group.getPeerID();
         resolverHandlerName = assignedID.toString();
-        
+
         // Fix-Me: When MonitorManager is a true Service, this should be moved to startApp()
         try {
             if (MeterBuildSettings.METERING) {
@@ -159,10 +159,10 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         } catch (JxtaException e) {
             throw new PeerGroupException("Unable to load MonitorManager", e);
         }
-        
+
         // record start time at end of successful init
         startTime = System.currentTimeMillis();
-        
+
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
             StringBuilder configInfo = new StringBuilder("Configuring PeerInfo Service : " + assignedID);
@@ -180,21 +180,21 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             LOG.config(configInfo.toString());
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public int startApp(String[] arg) {
-        
+
         resolver = group.getResolverService();
-        
+
         if (null == resolver) {
 
             Logging.logCheckedWarning(LOG, "Stalled until there is a resolver service");
             return START_AGAIN_STALLED;
 
         }
-        
+
         /* Fix-Me: When MonitorService is a true service, this should be moved here from init()
          try {
          if (MeterBuildSettings.METERING)
@@ -204,55 +204,55 @@ public class PeerInfoServiceImpl implements PeerInfoService {
          return -1;		// Fix-Me: This is related to the initialization sequence work on the dev list on load order
          }
          */
-        
+
         // remoteMonitorPeerInfoHandler = new RemoteMonitorPeerInfoHandler(group, this);
         // peerInfoHandlers.put(RemoteMonitorPeerInfoHandler.MONITOR_HANDLER_NAME, remoteMonitorPeerInfoHandler);
-        
+
         resolver = group.getResolverService();
         resolver.registerHandler(resolverHandlerName, pipQueryHandler);
-        
+
         peerInfoServices.put(group, this);
-        
+
         return Module.START_OK;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void stopApp() {
-        
+
         peerInfoServices.remove(group);
         resolver.unregisterHandler(resolverHandlerName);
         resolver = null;
-        
+
         // peerInfoHandlers.remove(RemoteMonitorPeerInfoHandler.MONITOR_HANDLER_NAME);
         // remoteMonitorPeerInfoHandler.stop();
-        
+
         if (MeterBuildSettings.METERING) {
             MonitorManager.unregisterMonitorManager(group);
         }
-        
+
         group = null;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public Service getInterface() {
         return new PeerInfoServiceInterface(this);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public Advertisement getImplAdvertisement() {
         return implAdvertisement;
     }
-    
+
     PeerInfoHandler getPeerInfoHandler(String name) {
         return (PeerInfoHandler) peerInfoHandlers.get(name);
     }
-    
+
     int getNextQueryId() {
         int id = 0;
 
@@ -261,7 +261,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         }
         return id;
     }
-    
+
     /**
      *  Returns the group to which this service is attached.
      *
@@ -270,42 +270,42 @@ public class PeerInfoServiceImpl implements PeerInfoService {
     public PeerGroup getGroup() {
         return group;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isLocalMonitoringAvailable() {
         return MeterBuildSettings.METERING;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isLocalMonitoringAvailable(ModuleClassID moduleClassID) {
         return MeterBuildSettings.METERING && monitorManager.isLocalMonitoringAvailable(moduleClassID);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public long[] getSupportedReportRates() {
         return MonitorManager.getReportRates();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean isSupportedReportRate(long reportRate) {
         return monitorManager.isSupportedReportRate(reportRate);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public long getBestReportRate(long desiredReportRate) {
         return monitorManager.getBestReportRate(desiredReportRate);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -316,14 +316,14 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             return PeerMonitorInfo.NO_PEER_MONITOR_INFO;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void getPeerMonitorInfo(final PeerID peerID, PeerMonitorInfoListener peerMonitorInfoListener, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.getPeerMonitorInfo(peerID, peerMonitorInfoListener, timeout, resolverServicePeerInfoMessenger);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -332,9 +332,9 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             throw new MonitorException(MonitorException.METERING_NOT_SUPPORTED, "Local Monitoring not Available");
         }
         return monitorManager.getCumulativeMonitorReport(monitorFilter);
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -343,7 +343,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 ,
                 resolverServicePeerInfoMessenger);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -351,10 +351,10 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         if (!MeterBuildSettings.METERING) {
             throw new MonitorException(MonitorException.METERING_NOT_SUPPORTED, "Local Monitoring not Available");
         }
-        
+
         return monitorManager.addMonitorListener(monitorFilter, reportRate, includeCumulative, monitorListener);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -363,17 +363,17 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 ,
                 monitorListener, lease, timeout, resolverServicePeerInfoMessenger);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean removeMonitorListener(MonitorListener monitorListener) throws MonitorException {
-        
+
         int numRemoved = monitorManager.removeMonitorListener(monitorListener);
 
         return numRemoved > 0;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -382,16 +382,16 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 ,
                 resolverServicePeerInfoMessenger);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void removeRemoteMonitorListener(MonitorListener monitorListener, long timeout) throws MonitorException {
         remoteMonitorPeerInfoHandler.removeRemoteMonitorListener(monitorListener, timeout, resolverServicePeerInfoMessenger);
     }
-    
+
     class PipQueryHandler implements QueryHandler {
-        
+
         /**
          * {@inheritDoc}
          */
@@ -405,7 +405,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 Logging.logCheckedFine(LOG, "PeerInfoService.processQuery got a bad query, not valid src\n", e);
                 return ResolverService.OK;
             }
-            
+
             XMLDocument doc = null;
 
             try {
@@ -419,15 +419,15 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 return ResolverService.OK;
 
             }
-            
+
             PeerInfoQueryMessage pipquery = new PeerInfoQueryMsg(doc);
-            
+
             Element requestElement = pipquery.getRequest();
             String queryType = (String) requestElement.getKey();
-            
+
             if (queryType != null) {
                 PeerInfoHandler peerInfoHandler = getPeerInfoHandler(queryType);
-                
+
                 if (peerInfoHandler != null) {
                     peerInfoHandler.processRequest(queryId, requestSourceID, pipquery,
                         requestElement, resolverServicePeerInfoMessenger);
@@ -438,23 +438,23 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             } else {
                 Logging.logCheckedFine(LOG, "No request PeerInfoQueryMessage Request Element found");
             }
-            
+
             return ResolverService.OK;
         }
-        
+
         /**
          * {@inheritDoc}
          */
         public void processResponse(ResolverResponseMsg response) {
-            
+
             int queryId = response.getQueryId();
-            
+
             PeerInfoResponseMessage resp = null;
 
             try {
                 StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(
                         MimeMediaType.XMLUTF8, new StringReader(response.getResponse()));
-                
+
                 resp = new PeerInfoResponseMsg(doc);
 
             } catch (Exception e) {
@@ -463,13 +463,13 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 return;
 
             }
-            
+
             Element responseElement = resp.getResponse();
             String responseType = (String) responseElement.getKey();
-            
+
             if (responseType != null) {
                 PeerInfoHandler peerInfoHandler = getPeerInfoHandler(responseType);
-                
+
                 if (peerInfoHandler != null) {
                     peerInfoHandler.processResponse(queryId, resp, responseElement, resolverServicePeerInfoMessenger);
                 } else {
@@ -481,10 +481,9 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             }
         }
     }
-    
 
     private class ResolverServicePeerInfoMessenger implements PeerInfoMessenger {
-        
+
         /**
          * {@inheritDoc}
          */
@@ -494,23 +493,23 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
                 peerInfoResponseMessage.setSourcePid(destinationPeerID);
                 peerInfoResponseMessage.setTargetPid(localPeerId);
-                
+
                 long now = System.currentTimeMillis();
 
                 peerInfoResponseMessage.setUptime(now - startTime);
                 peerInfoResponseMessage.setTimestamp(now);
-                
+
                 Element responseElement = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, peerInfoHandler);
 
                 response.serializeTo(responseElement);
-                
+
                 peerInfoResponseMessage.setResponse(responseElement);
-                
+
                 XMLDocument doc = (XMLDocument) peerInfoResponseMessage.getDocument(MimeMediaType.XMLUTF8);
                 String peerInfoResponse = doc.toString();
-                
+
                 ResolverResponse resolverResponse = new ResolverResponse();
-                
+
                 resolverResponse.setHandlerName(resolverHandlerName);
                 resolverResponse.setCredential(credentialDoc);
                 resolverResponse.setQueryId(queryId);
@@ -521,10 +520,10 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             } catch (JxtaException e) {
 
                 Logging.logCheckedWarning(LOG, "Failure building document\n", e);
-                
+
             }
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -534,29 +533,29 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
                 peerInfoQueryMsg.setSourcePid(localPeerId);
                 peerInfoQueryMsg.setTargetPid(destinationPeerID);
-                
+
                 Element requestElement = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, peerInfoHandler);
 
                 request.serializeTo(requestElement);
-                
+
                 peerInfoQueryMsg.setRequest(requestElement);
-                
+
                 XMLDocument doc = (XMLDocument) peerInfoQueryMsg.getDocument(MimeMediaType.XMLUTF8);
                 String peerInfoRequest = doc.toString();
-                
+
                 ResolverQuery resolverQuery = new ResolverQuery();
                 resolverQuery.setHandlerName(resolverHandlerName);
                 resolverQuery.setCredential(credentialDoc);
                 resolverQuery.setSrcPeer(localPeerId);
                 resolverQuery.setQuery(peerInfoRequest);
                 resolverQuery.setQueryId(queryID);
-                
+
                 resolver.sendQuery(destinationPeerID.toString(), resolverQuery);
 
             } catch (JxtaException e) {
 
                 Logging.logCheckedWarning(LOG, "Failure to build resolver query\n", e);
-                
+
             }
         }
     }

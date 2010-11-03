@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -126,7 +126,7 @@ public final class NetPeerGroupFactory {
         try {
             ConfigParams cp = worldGroup.getConfigAdvertisement();
             PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
-            
+
             if (null == netGroupConfig) {
                 tunables = new NetGroupTunables(ResourceBundle.getBundle("net.jxta.impl.config"), new NetGroupTunables());
                 // load overides from "${JXTA_HOME}config.properties".
@@ -140,7 +140,7 @@ public final class NetPeerGroupFactory {
 
                         tunables = new NetGroupTunables(rsrcs, tunables);
                         Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
-                        
+
                     } catch (MissingResourceException ignored) {
                         // ingnored
                     } catch (IOException ignored) {
@@ -150,7 +150,7 @@ public final class NetPeerGroupFactory {
             } else {
                 tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
             }
-            
+
             net = newNetPeerGroup(worldGroup, null, tunables.id, tunables.name, tunables.desc);
         } finally {
             worldGroup.unref();
@@ -182,7 +182,7 @@ public final class NetPeerGroupFactory {
         net = newNetPeerGroup(parentGroup, null, tunables.id, tunables.name, tunables.desc);
 
     }
-    
+
     /**
      * Constructs a Net Peer Group and the World Peer Group using the
      * configuration specified by the provided ConfigParams and using the
@@ -212,7 +212,7 @@ public final class NetPeerGroupFactory {
             } else {
                 tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
             }
-            
+
             net = newNetPeerGroup(worldGroup, config, tunables.id, tunables.name, tunables.desc);
 
         } finally {
@@ -266,7 +266,7 @@ public final class NetPeerGroupFactory {
         } else {
             tunables = new NetGroupTunables(netGroupConfig.getPeerGroupID(), netGroupConfig.getName(), netGroupConfig.getDesc());
         }
-        
+
         net = newNetPeerGroup(parentGroup, config, tunables.id, tunables.name, tunables.desc);
 
     }
@@ -372,7 +372,7 @@ public final class NetPeerGroupFactory {
 //    public NetPeerGroupFactory(PeerGroup parentGroup, ID id, String name, XMLElement desc, ModuleImplAdvertisement moduleImplAdv) throws PeerGroupException {
 //        net = newNetPeerGroup(parentGroup, null, id, name, desc, moduleImplAdv);
 //    }
-    
+
     /**
      * Returns a strong (reference counted) interface object for the Net Peer
      * Group instance. This reference should be explicitly unreferenced when it
@@ -432,9 +432,9 @@ public final class NetPeerGroupFactory {
 
                 // Build the group
                 GenericPeerGroup.setGroupConfigAdvertisement(id,config);
-                
+
                 result = (PeerGroup) parentGroup.loadModule(id, NPGAdv);
-                
+
                 // Set the name and description
                 // FIXME 20060217 bondolo How sad, we can't use our XML description.
                 if (null != desc) {
@@ -445,16 +445,16 @@ public final class NetPeerGroupFactory {
 
                 return result;
             } catch (PeerGroupException failed) {
-                
+
                 Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", failed);
-                
+
                 // rethrow
                 throw failed;
 
             } catch (RuntimeException e) {
 
                 Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
-                
+
                 // rethrow
                 throw e;
 
@@ -462,7 +462,7 @@ public final class NetPeerGroupFactory {
 
                 // should be all other checked exceptions
                 Logging.logCheckedSevere(LOG, "newNetPeerGroup failed\n", e);
-                
+
                 // Simplify exception scheme for caller: every sort of problem 
                 // wrapped in a PeerGroupException.
                 throw new PeerGroupException("newNetPeerGroup failed", e);
@@ -541,7 +541,7 @@ public final class NetPeerGroupFactory {
 
                     Logging.logCheckedSevere(LOG, "NetPeerGroup tunables not defined or could not be loaded.\n", failed);
                     throw new IllegalStateException("NetPeerGroup tunables not defined or could not be loaded.");
-                
+
                 }
 
             }

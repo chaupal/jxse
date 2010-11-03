@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.membership;
-
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
@@ -66,7 +65,6 @@ import net.jxta.service.Service;
 
 import java.beans.PropertyChangeListener;
 import java.util.Enumeration;
-
 
 /**
  *  Allows a peer to establish an identity within a peer group. Identities are 
@@ -110,17 +108,17 @@ import java.util.Enumeration;
  *
  */
 public interface MembershipService extends Service {
-    
+
     /**
      *  Property name for the default credential bound property.
      */
     public final static String DEFAULT_CREDENTIAL_PROPERTY = "defaultCredential";
-    
+
     /**
      *  Property name for credential addition bound property.
      */
     public final static String ADD_CREDENTIAL_PROPERTY = "addCredential";
-    
+
     /**
      * Request the necessary credentials to join the group with which this
      * service is associated.
@@ -136,7 +134,7 @@ public interface MembershipService extends Service {
      *       in the application is not supported by this service.
      */
     public Authenticator apply(AuthenticationCredential application) throws PeerGroupException, ProtocolNotSupportedException;
-    
+
     /**
      * Join the group by virtue of the completed authentication provided.
      *
@@ -145,7 +143,7 @@ public interface MembershipService extends Service {
      * @throws PeerGroupException Thrown in the event of errors.
      */
     public Credential join(Authenticator authenticated) throws PeerGroupException;
-    
+
     /**
      * Resign all credentials which were previously gained through prior
      * {@link #join(Authenticator) join()} operations.
@@ -153,7 +151,7 @@ public interface MembershipService extends Service {
      * @throws PeerGroupException Thrown in the event of errors. 
      */
     public void resign() throws PeerGroupException;
-    
+
     /**
      *  Returns the default credential for this peer.
      *
@@ -162,7 +160,7 @@ public interface MembershipService extends Service {
      *  @throws PeerGroupException Thrown in the event of errors.
      */
     public Credential getDefaultCredential() throws PeerGroupException;
-    
+
     /**
      * Returns the current credentials for this peer.
      *
@@ -171,7 +169,7 @@ public interface MembershipService extends Service {
      * @throws PeerGroupException Thrown in the event of errors.
      */
     public Enumeration<Credential> getCurrentCredentials() throws PeerGroupException;
-    
+
     /**
      * Given a fragment of a StructuredDocument, reconstruct a Credential object
      * from that fragment.
@@ -183,17 +181,17 @@ public interface MembershipService extends Service {
      * @throws Exception Thrown in the event of errors.
      */
     public Credential makeCredential(Element element) throws PeerGroupException, Exception;
-    
+
     /**
      *  Add a listener
      *
      *  @param listener the listener
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
-    
+
     /**
      *  Add a listener. Available properties from all Membership Services are : 
-     *      
+     * 
      *      <p/><ul>
      *          <li>{@code defaultCredential}</li>
      *          <li>{@code addCredential}</li>
@@ -205,14 +203,14 @@ public interface MembershipService extends Service {
      *  @param listener The listener
      */
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener);
-    
+
     /**
      *  Remove a listener
      *
      *  @param listener the listener
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
-    
+
     /**
      *  Remove a listener
      *

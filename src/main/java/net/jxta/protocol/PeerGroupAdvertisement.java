@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.protocol;
-
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -71,7 +70,6 @@ import net.jxta.id.ID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleSpecID;
 
-
 /**
  *  Describes a peer group and references additional information required for
  *  instantiating it. The PeerGroup method newGroup performs the task of
@@ -85,23 +83,23 @@ import net.jxta.platform.ModuleSpecID;
  */
 
 public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement implements Cloneable {
-    
+
     private PeerGroupID gid = null;
     private ModuleSpecID specId = null;
-    
+
     /**
      *  Informal, non-canonical name of this peer group
      */
     private String name = null;
-    
+
     /**
      * Descriptive meta-data about this peer group.
      */
     private Element description = null;
-    
+
     // A table of structured documents to be interpreted by each service.
     private final Map<ID, StructuredDocument> serviceParams = new HashMap<ID, StructuredDocument>();
-    
+
     /**
      *  Returns the identifying type of this Advertisement.
      *
@@ -110,7 +108,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
     public static String getAdvertisementType() {
         return "jxta:PGA";
     }
-    
+
     /**
      *  {@inheritDoc}
      */
@@ -118,12 +116,12 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
     public final String getBaseAdvType() {
         return getAdvertisementType();
     }
-    
+
     /**
      *  Construct a new Peer Group Advertisement.
      **/
     public PeerGroupAdvertisement() {}
-    
+
     /**
      *  {@inheritDoc}
      *
@@ -132,15 +130,15 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      */
     @Override
     public PeerGroupAdvertisement clone() {
-    
+
         PeerGroupAdvertisement clone;
 
         try {
             clone = (PeerGroupAdvertisement) super.clone();
         } catch (CloneNotSupportedException impossible) {
             throw new Error("Object.clone() threw CloneNotSupportedException", impossible);
-        }  
-            
+        }
+
         clone.setPeerGroupID(getPeerGroupID());
         clone.setModuleSpecID(getModuleSpecID());
         clone.setName(getName());
@@ -149,24 +147,24 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
 
         return clone;
     }
-    
+
     /**
      *  Returns the name of the group or <tt>null</tt> if no name has been
      *  assigned.
      *
      *@return    String name of the group.
      */
-    
+
     public String getName() {
         return name;
     }
-    
+
     /**
      *  sets the name of the group.
      *
      *@param  name  name of the group.
      */
-    
+
     public void setName(String name) {
         this.name = name;
     }
@@ -176,53 +174,53 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      *
      *@return    ID the spec id
      */
-    
+
     public ModuleSpecID getModuleSpecID() {
         return specId;
     }
-    
+
     /**
      *  Sets the id of the group spec that this peer group uses.
      *
      *@param  sid  The id of the spec
      */
-    
+
     public void setModuleSpecID(ModuleSpecID sid) {
         this.specId = sid;
     }
-    
+
     /**
      *  Returns the id of the group.
      *
      *@return    ID the group id
      */
-    
+
     public PeerGroupID getPeerGroupID() {
         return gid;
     }
-    
+
     /**
      *  Sets the id of the group.
      *
      *@param  gid  The id of this group.
      */
-    
+
     public void setPeerGroupID(PeerGroupID gid) {
         this.gid = gid;
     }
-    
+
     /**
      *  Returns a unique ID for indexing purposes. We use the id of the group as
      *  a plain ID.
      *
      *@return    ID a unique id for that advertisement.
      */
-    
+
     @Override
     public ID getID() {
         return gid;
     }
-    
+
     /**
      * returns the description
      *
@@ -235,23 +233,23 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
             return null;
         }
     }
-    
+
     /**
      * sets the description
      *
      * @param description the description
      */
     public void setDescription(String description) {
-        
+
         if (null != description) {
             StructuredDocument newdoc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Desc", description);
-            
+
             setDesc(newdoc);
         } else {
             this.description = null;
         }
     }
-    
+
     /**
      * returns the description
      *
@@ -260,13 +258,13 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
     public StructuredDocument getDesc() {
         if (null != description) {
             StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(description);
-            
+
             return newDoc;
         } else {
             return null;
         }
     }
-    
+
     /**
      * sets the description
      *
@@ -276,14 +274,14 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      *
      */
     public void setDesc(Element desc) {
-        
+
         if (null != desc) {
             this.description = StructuredDocumentUtils.copyAsDocument(desc);
         } else {
             this.description = null;
         }
     }
-    
+
     /**
      *  sets the sets of parameters for all services. This method first makes a
      *  deep copy, in order to protect the active information from uncontrolled
@@ -295,7 +293,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
      */
     public void setServiceParams(Hashtable<ID, ? extends Element> params) {
         serviceParams.clear();
-        
+
         if (params == null) {
             return;
         }
@@ -308,7 +306,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
         }
 
     }
-    
+
     /**
      *  Returns the sets of parameters for all services. 
      *
@@ -331,7 +329,7 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
 
         return copy;
     }
-    
+
     /**
      *  Puts a service parameter in the service parameters table under the given
      *  key. The key is of a subclass of ID; usually a ModuleClassID. This
@@ -347,12 +345,12 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
             serviceParams.remove(key);
             return;
         }
-        
+
         StructuredDocument newDoc = StructuredDocumentUtils.copyAsDocument(param);
 
-        serviceParams.put(key, newDoc);        
+        serviceParams.put(key, newDoc);
     }
-    
+
     /**
      *  Returns the parameter element that matches the given key from the
      *  service parameters table. The key is of a subclass of ID; usually a
@@ -368,10 +366,10 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
         if (param == null) {
             return null;
         }
-        
+
         return  StructuredDocumentUtils.copyAsDocument(param);
     }
-    
+
     /**
      *  Removes and returns the parameter element that matches the given key
      *  from the service parameters table. The key is of a subclass of ID;
@@ -387,11 +385,11 @@ public abstract class PeerGroupAdvertisement extends ExtendableAdvertisement imp
         if (param == null) {
             return null;
         }
-                      
+
         // It sound silly to clone it, but remember that we could be sharing
         // this element with a clone of ours, so we have the duty to still
         // protect it.
-        
+
         return StructuredDocumentUtils.copyAsDocument(param);
     }
 }

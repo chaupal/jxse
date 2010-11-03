@@ -67,7 +67,6 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.StringAuthenticator;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
@@ -107,7 +106,7 @@ public class NetworkManager implements RendezvousListener {
     /**
      * Define node standard node operating modes
      */
-    public enum ConfigMode { 
+    public enum ConfigMode {
 
         /**
          * A AD-HOC node
@@ -402,9 +401,8 @@ public class NetworkManager implements RendezvousListener {
         if (config == null) {
             configure(mode);
         }
-        
+
         Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = ", mode, ",  HOME = ", instanceHome);
-        
 
         // create, and Start the default jxta NetPeerGroup
         NetPeerGroupFactory factory = new NetPeerGroupFactory(config.getPlatformConfig(), instanceHome);
@@ -492,7 +490,7 @@ public class NetworkManager implements RendezvousListener {
         netPeerGroup.stopApp();
         netPeerGroup.unref();
         netPeerGroup = null;
-        
+
         // permit restart.
         started = false;
 

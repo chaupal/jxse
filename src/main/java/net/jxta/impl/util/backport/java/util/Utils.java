@@ -102,7 +102,7 @@ public final class Utils {
             len = newcap;
         }
     }
-    
+
     /**
      * Taken from Arrays in backport-jsr166 3.1.
      */

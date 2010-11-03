@@ -155,7 +155,7 @@ public final class MemFiler implements Filer {
         checkOpened();
         return hashTable.get(key);
     }
-   
+
     public Record readRecord(long pos) throws DBException {
         if (pos < 0) {
             return null;
@@ -165,7 +165,7 @@ public final class MemFiler implements Filer {
 
         return hashTable.get(key);
     }
-   
+
     public long writeRecord(Key key, Value value) throws DBException {
         if (key == null || key.getLength() == 0) {
             throw new FilerException(FaultCodes.DBE_CANNOT_CREATE, "Invalid key: '" + key + "'");
@@ -182,7 +182,7 @@ public final class MemFiler implements Filer {
         position++;
         return result;
     }
-   
+
     public boolean deleteRecord(Key key) throws DBException {
         if (key == null || key.getLength() == 0) {
             return false;

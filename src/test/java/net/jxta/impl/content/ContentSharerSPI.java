@@ -66,7 +66,7 @@ public interface ContentSharerSPI {
      * Initialize the instance.
      */
     public void init();
-    
+
     /**
      * Instruct the instance to share a Content built from the specified
      * components.
@@ -81,10 +81,10 @@ public interface ContentSharerSPI {
      *  this instance created and shared.
      */
     public byte[] share(URI id, byte[] data, String mimeType, boolean pub);
-    
+
     /**
      * Shutdown the instance.
      */
     public void destroy();
-    
+
 }

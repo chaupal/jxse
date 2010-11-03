@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2002-2004 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -93,54 +93,54 @@ import java.util.logging.Logger;
  *  seeds from seeding resources.
  */
 public class URISeedingManager extends RdvAdvSeedingManager {
-    
+
     /**
      *  Logger
      */
     private static final transient Logger LOG = Logger.getLogger(URISeedingManager.class.getName());
-    
+
     /**
      *  The minimum amount of time we will wait between attempts to resolve the
      *  seeding URI sources.
      */
     private static final long MINIMUM_SEEDING_REFRESH_INTERVAL = 5 * TimeUtils.AMINUTE;
-    
+
     /**
      *  The standard interval at which we will attempt to refresh from the
      *  seeding URI sources. Also the maximum we will wait between failed
      *  attempts.
      */
     private static final long STANDARD_SEEDING_REFRESH_INTERVAL = 30 * TimeUtils.AMINUTE;
-    
+
     /**
      * Whether we are restricted to using seed rdvs only.
      */
     private boolean useSeedsOnly = false;
-    
+
     /**
      * These URIs specify location of seed peer lists. The URIs will be resolved
      * via URLConnection and are assumed to refer to plain text lists of
      * absolute URIs or an XML document containing a list of Route Advertisements.
      */
     private final Set<URI> seedingURIs = new HashSet<URI>();
-    
+
     /**
      *  The absolute time in milliseconds after which we will attempt to refresh
      *  the active seeds list using the seeding URIs.
      */
     private long nextSeedingURIrefreshTime = 0;
-    
+
     /**
      *  The number of sequential failures we have encountered while loading
      */
     private int failedSeedingLoads = 0;
-    
+
     /**
      * These are seed peers which were specified as part of the configuration
      * data or programmatically. These seeds are never deleted.
      */
     private final Set<RouteAdvertisement> permanentSeeds = new HashSet<RouteAdvertisement>();
-    
+
     /**
      *  The ranked list of active seed peers. The seed addresses are ranked as
      *  follows :
@@ -157,8 +157,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      *  the each returned lists or found an active seed.
      */
     private final List<RouteAdvertisement> activeSeeds = new ArrayList<RouteAdvertisement>();
-    
-    
+
     /**
      * Get an instance of URISeedingManager.
      *
@@ -169,17 +168,17 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      */
     public URISeedingManager(URI aclLocation, boolean inUseSeedsOnly, PeerGroup group, String serviceName) {
         super(aclLocation, group, serviceName);
-        
+
         this.useSeedsOnly = inUseSeedsOnly;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void stop() { 
         super.stop();
     }
-    
+
     /**
      * Adds the specified URI to the list of permanent seeds. Even if
      * {@code useSeedsOnly} is in effect, this seed may now be used, as if it
@@ -192,13 +191,13 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                 AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
         AccessPointAdvertisement apa = (AccessPointAdvertisement) 
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
-        
+
         ra.addDestEndpointAddress(new EndpointAddress(seed));
-        
+
         permanentSeeds.add(ra);
         activeSeeds.add(ra);
     }
-    
+
     /**
      * Adds the specified URI to the list of permanent seeds. Even if
      * {@code useSeedsOnly} is in effect, this seed may now be used, as if it
@@ -210,7 +209,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         permanentSeeds.add(seed.clone());
         activeSeeds.add(seed.clone());
     }
-    
+
     /**
      * Adds the specified URI to the list of seeding URIs.
      *
@@ -218,32 +217,32 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      */
     public synchronized void addSeedingURI(URI seeding) {
         seedingURIs.add(seeding);
-        
+
         // Reset the refresh timer so that our new seeding URI will get used.
         nextSeedingURIrefreshTime = TimeUtils.timeNow();
     }
-    
+
     /**
      *  {@inheritDoc}
      */
     public synchronized URI[] getActiveSeedURIs() {
         List<URI> result = new ArrayList<URI>();
-        
+
         refreshActiveSeeds();
-        
+
         int eaIndex = 0;
         boolean addedEA;
-        
+
         do {
             addedEA = false;
-            
+
             for (RouteAdvertisement aRA : activeSeeds) {
                 List<String> eas = aRA.getDest().getVectorEndpointAddresses();
-                
+
                 if (eaIndex < eas.size()) {
 
                     String anEndpointAddress = eas.get(eaIndex);
-                    
+
                     try {
 
                         result.add(new URI(anEndpointAddress));
@@ -252,16 +251,16 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                     } catch (URISyntaxException failed) {
 
                         Logging.logCheckedWarning(LOG, "bad address in route : ", anEndpointAddress, failed);
-                        
+
                     }
                 }
             }
-            
+
             // Next loop we use the next most preferred address.
             eaIndex++;
 
         } while (addedEA);
-        
+
         // Add more primordial seeds.
         if(!useSeedsOnly) {
             for(URI eachURI : Arrays.asList(super.getActiveSeedURIs())) {
@@ -270,19 +269,19 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                 }
             }
         }
-        
+
         return result.toArray(new URI[result.size()]);
     }
-    
+
     /**
      *  {@inheritDoc}
      */
     public synchronized RouteAdvertisement[] getActiveSeedRoutes() {
-        
+
         refreshActiveSeeds();
-        
+
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(activeSeeds);
-                
+
         // Add more primordial seeds.
         if(!useSeedsOnly) {
             for(RouteAdvertisement eachRoute : Arrays.asList(super.getActiveSeedRoutes())) {
@@ -291,72 +290,72 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                 }
             }
         }
-        
+
         return result.toArray(new RouteAdvertisement[result.size()]);
     }
-    
+
     /**
      *  {@inheritDoc}
      */
     @Override
     public synchronized boolean isAcceptablePeer(PeerAdvertisement peeradv) {
         RouteAdvertisement route = EndpointUtils.extractRouteAdv(peeradv);
-        
+
         boolean acceptable = true;
-        
+
         if (useSeedsOnly) {
             acceptable = isSeedPeer(route);
         }
-        
+
         if (!acceptable) {
             return false;
         }
-        
+
         if (null != route) {
             return isAcceptablePeer(route);
         } else {
             return acl.getGrantAll();
         }
     }
-    
+
     /**
      *  {@inheritDoc}
      */
     @Override
     public synchronized boolean isAcceptablePeer(RouteAdvertisement radv) {
         boolean acceptable = true;
-        
+
         if (useSeedsOnly) {
             acceptable = isSeedPeer(radv);
         }
-        
+
         return acceptable && super.isAcceptablePeer(radv);
     }
-    
+
     private void refreshActiveSeeds() {
 
         if (TimeUtils.timeNow() < nextSeedingURIrefreshTime) {
             return;
         }
-        
+
         Logging.logCheckedFine(LOG, "Regenerating active seeds list.");
-        
+
         activeSeeds.clear();
-        
+
         if (!seedingURIs.isEmpty()) {
             List<URI> allSeedingURIs = new ArrayList<URI>(seedingURIs);
             boolean allLoadsFailed = true;
-            
+
             Collections.shuffle(allSeedingURIs);
-            
+
             for (URI aSeedingURI : allSeedingURIs) {
 
                 try {
 
                     Logging.logCheckedFine(LOG, "Loading seeding list from : ", aSeedingURI);
-                    
+
                     RouteAdvertisement ras[] = loadSeeds(aSeedingURI);
-                    
+
                     for (RouteAdvertisement aRA : Arrays.asList(ras)) {
                         if (!activeSeeds.contains(aRA)) {
                             // Only add non-duplicates.
@@ -368,11 +367,11 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                 } catch (IOException failed) {
 
                     Logging.logCheckedWarning(LOG, "Failed loading seeding list from : ", aSeedingURI);
-                    
+
                 }
 
             }
-            
+
             if (allLoadsFailed) {
                 // Allow for an early reload if we couldn't contact any of the
                 // seeding URIS.
@@ -386,14 +385,14 @@ public class URISeedingManager extends RdvAdvSeedingManager {
                 nextSeedingURIrefreshTime = TimeUtils.toAbsoluteTimeMillis(STANDARD_SEEDING_REFRESH_INTERVAL);
             }
         }
-        
+
         // Add the (shuffled) permanent seeds at the last.
         List<RouteAdvertisement> asList = new ArrayList<RouteAdvertisement>(permanentSeeds);
 
         Collections.shuffle(asList);
         activeSeeds.addAll(asList);
     }
-    
+
     /**
      * Evaluates if the given route corresponds to one of our seeds. This is
      * to support the useSeedsOnly flag. The test is not completely foolproof
@@ -407,24 +406,24 @@ public class URISeedingManager extends RdvAdvSeedingManager {
      */
     private boolean isSeedPeer(RouteAdvertisement route) {
         List<?> addrList = route.getDestEndpointAddresses();
-        
+
         ListIterator eachAddr = addrList.listIterator();
-        
+
         // convert each EndpointAddress to a URI to compare with seedHosts
         while (eachAddr.hasNext()) {
             EndpointAddress anAddr = (EndpointAddress) eachAddr.next();
-            
+
             eachAddr.set(anAddr.toURI());
         }
-        
+
         addrList.retainAll(Arrays.asList(getActiveSeedURIs()));
-        
+
         // What's left is the intersection of activeSeeds and the set of
         // endpoint addresses in the given APA. If it is non-empty, then we
         // accept the route as that of a seed host.
         return (!addrList.isEmpty());
     }
-    
+
     /**
      *  Load a list of seed peer RouteAdvertisements from the specified URI.
      *  <p/>
@@ -449,22 +448,22 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         boolean isXML;
         URL seedingURL = seedingURI.toURL();
         URLConnection connection = seedingURL.openConnection();
-        
+
         connection.setDoInput(true);
         InputStream is = connection.getInputStream();
-        
+
         // Determine if the input file is an XML document or a plain text list.
         // If it is not XML then we assume it is text.
         String content_type = connection.getContentType();
         MimeMediaType type;
-        
+
         if (null == content_type) {
             // If we couldn't get a content-type from the connection then let's
             // try to get it from the URI path.
             String name = seedingURI.getPath();
             int extIdx = name.lastIndexOf('.');
             int sepIdx = name.lastIndexOf('/');
-            
+
             if ((-1 != extIdx) && (extIdx > sepIdx)) {
                 String ext = name.substring(extIdx + 1);
 
@@ -476,36 +475,36 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         } else {
             type = new MimeMediaType(content_type);
         }
-        
+
         isXML = MimeMediaType.XML_DEFAULTENCODING.equalsIngoringParams(type)
                 || MimeMediaType.APPLICATION_XML_DEFAULTENCODING.equalsIngoringParams(type);
-        
+
         BufferedReader seeds = new BufferedReader(new InputStreamReader(is));
-        
+
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>();
-        
+
         if (isXML) {
             // Read in XML format seeds. (a list of Route Advertisements)
             XMLDocument xmldoc = (XMLDocument) 
                     StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XML_DEFAULTENCODING, seeds);
-            
+
             Enumeration<XMLElement> eachRA = xmldoc.getChildren(RouteAdvertisement.getAdvertisementType());
-            
+
             while (eachRA.hasMoreElements()) {
                 XMLElement anRAElement = eachRA.nextElement();
                 RouteAdvertisement ra = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(anRAElement);
-                
+
                 result.add(ra);
             }
-            
+
             boolean randomize = true;
-            
+
             Attribute ordered = xmldoc.getAttribute("ordered");
 
             if (null != ordered) {
                 randomize = !Boolean.valueOf(ordered.getValue());
             }
-            
+
             if (randomize) {
                 Collections.shuffle(result);
             }
@@ -513,41 +512,41 @@ public class URISeedingManager extends RdvAdvSeedingManager {
             // Read in plain text format seeds. A list of Endpoint Addresses
             while (true) {
                 String aSeed = seeds.readLine();
-                
+
                 if (null == aSeed) {
                     break;
                 }
-                
+
                 aSeed = aSeed.trim();
-                
+
                 if (0 == aSeed.length()) {
                     continue;
                 }
-                
+
                 try {
                     URI validation = URI.create(aSeed);
                     EndpointAddress ea = new EndpointAddress(validation.toString());
-                    
+
                     RouteAdvertisement ra = (RouteAdvertisement) AdvertisementFactory.newAdvertisement(
                             RouteAdvertisement.getAdvertisementType());
-                    
+
                     ra.addDestEndpointAddress(ea);
-                    
+
                     // Add the world's most pathetic RouteAdvertisement to the result.
                     result.add(ra);
 
                 } catch (IllegalArgumentException badURI) {
 
                     Logging.logCheckedWarning(LOG, "bad URI in seeding list : ", aSeed, badURI);
-                    
+
                 }
             }
         }
-        
+
         is.close();
-        
+
         Logging.logCheckedFine(LOG, MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
-        
+
         return result.toArray(new RouteAdvertisement[result.size()]);
 
     }

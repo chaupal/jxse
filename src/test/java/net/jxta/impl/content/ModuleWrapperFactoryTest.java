@@ -60,13 +60,10 @@ import net.jxta.service.Service;
 import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 /**
@@ -78,7 +75,7 @@ public class ModuleWrapperFactoryTest {
     private Module module;
     private Service service;
     private ContentService contentService;
-    
+
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
@@ -93,7 +90,7 @@ public class ModuleWrapperFactoryTest {
         LOG.info("===========================================================");
         module = context.mock(Module.class);
         service = context.mock(Service.class);
-        contentService = context.mock(ContentService.class);        
+        contentService = context.mock(ContentService.class);
     }
 
     @After
@@ -106,7 +103,7 @@ public class ModuleWrapperFactoryTest {
         context.checking(new Expectations() {{
             // Expect nothing
         }});
-        
+
         Module proxy = ModuleWrapperFactory.newWrapper(module);
         proxy.init(null, null, null);
         int result = proxy.startApp(null);
@@ -122,13 +119,13 @@ public class ModuleWrapperFactoryTest {
             one(service).getImplAdvertisement();
             one(service).getInterface();
         }});
-        
+
         Service proxy = ModuleWrapperFactory.newWrapper(service);
         proxy.init(null, null, null);
         int result = proxy.startApp(null);
         assertEquals("startApp return value", Module.START_OK, result);
         proxy.stopApp();
-        
+
         proxy.getImplAdvertisement();
         proxy.getInterface();
 
@@ -142,7 +139,7 @@ public class ModuleWrapperFactoryTest {
             one(contentService).getInterface();
             one(contentService).shareContent(with(aNull(Content.class)));
         }});
-        
+
         ContentService proxy = 
                 (ContentService) ModuleWrapperFactory.newWrapper(
                 new Class[] { ContentService.class },
@@ -151,7 +148,7 @@ public class ModuleWrapperFactoryTest {
         int result = proxy.startApp(null);
         assertEquals("startApp return value", Module.START_OK, result);
         proxy.stopApp();
-        
+
         proxy.getImplAdvertisement();
         proxy.getInterface();
         proxy.shareContent(null);

@@ -12,26 +12,26 @@ import org.jboss.netty.util.TimerTask;
 public class FakeTimer implements Timer {
 
     private List<FakeTimeout> timeouts = new LinkedList<FakeTimeout>();
-    
+
     public Timeout newTimeout(TimerTask task, long delay, TimeUnit unit) {
         FakeTimeout t = new FakeTimeout(task, delay, unit);
         timeouts.add(t);
         return t;
     }
-    
+
     public void expireAll() throws Exception {
         List<FakeTimeout> currentTimeouts = new LinkedList<FakeTimeout>(timeouts);
         for(FakeTimeout t : currentTimeouts) {
             t.expire();
         }
-        
+
         timeouts.remove(currentTimeouts);
     }
 
     public Set<Timeout> stop() {
         return null;
     }
-    
+
     private class FakeTimeout implements Timeout {
 
         private TimerTask task;
@@ -39,7 +39,7 @@ public class FakeTimer implements Timer {
         private TimeUnit unit;
         private boolean cancelled;
         private boolean expired;
-        
+
         public FakeTimeout(TimerTask task, long delay, TimeUnit unit) {
             this.task = task;
             this.delay = delay;
@@ -47,7 +47,7 @@ public class FakeTimer implements Timer {
             this.cancelled = false;
             this.expired = false;
         }
-        
+
         public void cancel() {
             timeouts.remove(this);
             cancelled = true;
@@ -68,12 +68,12 @@ public class FakeTimer implements Timer {
         public boolean isExpired() {
             return expired;
         }
-        
+
         public void expire() throws Exception {
             this.expired = true;
             task.run(this);
         }
-        
+
     }
 
     public int numRegisteredTimeouts() {

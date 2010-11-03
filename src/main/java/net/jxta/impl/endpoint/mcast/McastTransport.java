@@ -347,7 +347,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         // Determine the local interface to use. If the user specifies one, use
         // that. Otherwise, use the all the available interfaces.
         if (interfaceAddressStr != null) {
-            
+
             try {
 
                 usingInterface = InetAddress.getByName(interfaceAddressStr);
@@ -470,7 +470,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
      * {@inheritDoc}
      */
     public synchronized int startApp(String[] arg) {
-        
+
         if (disabled) {
 
             Logging.logCheckedInfo(LOG, "IP Multicast Message Transport disabled.");
@@ -505,7 +505,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
         // We're fully ready to function.
         MessengerEventListener messengerEventListener = endpoint.addMessageTransport(this);
-        
+
         if (messengerEventListener == null) {
 
             Logging.logCheckedSevere(LOG, "Transport registration refused");
@@ -531,7 +531,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         Logging.logCheckedInfo(LOG, "IP Multicast Message Transport started.");
-        
+
         return Module.START_OK;
 
     }
@@ -606,7 +606,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                     if (isClosed) return;
 
                     Logging.logCheckedFine(LOG, "multicast message received from :", packet.getAddress().getHostAddress());
-                    
+
                     // This operation is blocking and may take a long time to
                     // return. As a result we may lose datagram packets because
                     // we are not calling
@@ -630,9 +630,9 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         } catch (Throwable all) {
 
             if (isClosed) return;
-            
+
             Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
-            
+
         } finally {
 
             multicastThread = null;
@@ -676,11 +676,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             if ((buffer.size() > multicastPacketSize) ) 
                 Logging.logCheckedWarning(LOG, "Multicast datagram exceeds multicast size.");
-            
+
             DatagramPacket packet = new DatagramPacket(buffer.toByteArray(), numBytesInPacket, multicastInetAddress, multicastPort);
 
             if (isClosed || multicastSocket == null) return false;
-            
+
             multicastSocket.send(packet);
             Logging.logCheckedFine(LOG, "Sent Multicast message to :", pName, "/", pParams);
 
@@ -757,7 +757,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
 
             MessageElement dstAddrElem = msg.getMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, EndpointServiceImpl.MESSAGE_DESTINATION_NAME);
             if (null == dstAddrElem) throw new IOException("No Destination Address in " + msg);
-            
+
             msg.removeMessageElement(dstAddrElem);
 
             EndpointAddress dstAddr = new EndpointAddress(dstAddrElem.toString());

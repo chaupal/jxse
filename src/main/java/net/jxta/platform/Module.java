@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -89,13 +89,13 @@ import net.jxta.peergroup.PeerGroup;
  * @see net.jxta.service.Service
  **/
 public interface Module {
-    
+
     /**
      * <code>startApp()</code> completed successfully. This module claims to now
      * be fully functional and no further invocation of startApp is required.
      **/
     public static final int START_OK = 0;
-    
+
     /**
      * This is to be used mostly by co-dependent services when started as
      * a set (such as {@link PeerGroup} services) so that their
@@ -115,7 +115,7 @@ public interface Module {
      * starting of a set of modules eventually succeeds or fails.
      **/
     public static final int START_AGAIN_PROGRESS = 1;
-    
+
     /**
      * This is to be used mostly by co-dependent services when started as
      * a set (such as {@link PeerGroup} services) so that their startApp
@@ -135,7 +135,7 @@ public interface Module {
      * starting of a set of modules eventually succeeds or fails.
      **/
     public static final int START_AGAIN_STALLED = 2;
-        
+
     /**
      * This return result is used to indicate that the module refuses to start
      * because it has been configured to be disabled or otherwise cannot run
@@ -144,7 +144,7 @@ public interface Module {
      * by the loader at it's discretion.
      */
     public static final int START_DISABLED = Integer.MIN_VALUE + 100;
-    
+
     /**
      * Initialize the module, passing it its peer group and advertisement.
      *
@@ -177,7 +177,7 @@ public interface Module {
      *  @exception PeerGroupException This module failed to initialize.
      **/
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) throws PeerGroupException;
-    
+
     /**
      * Complete any remaining initialization of the module. The module should
      * be fully functional after <code>startApp()</code> is completed. That is
@@ -197,7 +197,7 @@ public interface Module {
      * recommended for future compatibility), which indicates failure.
      **/
     public int startApp(String[] args);
-    
+
     /**
      *  Stop a module. This may be called any time after <code>init()</code>
      *  completes and should not assume that <code>startApp()</code> has been
@@ -207,5 +207,5 @@ public interface Module {
      *  we might be able to deny it access to anything after some timeout.
      **/
     public void stopApp();
-    
+
 }

@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2002-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -59,7 +59,6 @@ package net.jxta.impl.peergroup;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.JUnit4TestAdapter;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
@@ -82,10 +81,9 @@ import org.junit.*;
 
 import static org.junit.Assert.*;
 
-
 @Ignore("Passes when run independantly")
 public class PeerGroupTest {
-    
+
     static final Logger LOG = Logger.getLogger(PeerGroupTest.class.getName());
 
     static TempDir home;
@@ -98,7 +96,6 @@ public class PeerGroupTest {
     ModuleImplAdvertisement pojoMIA;
     ModuleImplAdvertisement moduleMIA;
 
-    
     @BeforeClass
     public static void setupClass() throws Exception {
         LOG.info("============ Begin setupClass");
@@ -107,12 +104,12 @@ public class PeerGroupTest {
         netMan.setInstanceHome(home.toURI());
         pg1 = netMan.startNetwork();
         netMan.waitForRendezvousConnection(1000);
-        
+
         LOG.finest("NPG PGA: " + pg1.getPeerGroupAdvertisement());
-        
+
         LOG.info("============ End setupClass");
     }
-    
+
     @AfterClass
     public static void tearDownClass() throws InterruptedException {
         LOG.info("============ Begin tearDownClass");
@@ -120,38 +117,38 @@ public class PeerGroupTest {
         netMan.stopNetwork();
         LOG.info("============ End tearDownClass");
     }
-    
+
     @Before
     public void setup() throws Exception {
         LOG.info("============ Begin setup");
         PeerGroupAdvertisement pga;
-        
+
         /*
          * We now create a tree of peer groups for testign various
          * scenarios.
          */
-        
+
         pga = createGroupAdv(pg1.getDiscoveryService(), "pg11");
         pg11 = pg1.newGroup(pga);
-        
+
         pga = createGroupAdv(pg11.getDiscoveryService(), "pg111");
         pg111 = pg11.newGroup(pga);
-        
+
         pga = createGroupAdv(pg1.getDiscoveryService(), "pg12");
         pg12 = pg1.newGroup(pga);
-        
+
         pga = createGroupAdv(pg12.getDiscoveryService(), "pg121",
                 PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER);
         pg121 = pg12.newGroup(pga);
-        
+
         /*
          * Setup some stuff to load. 
          */
-        
+
         URL testJar = getClass().getResource("/TestJar.jar");
         assertNotNull("TestJar could not be located", testJar);
         ModuleClassID baseClass = IDFactory.newModuleClassID();
-        
+
         pojoMIA = (ModuleImplAdvertisement)
                 AdvertisementFactory.newAdvertisement(
                 ModuleImplAdvertisement.getAdvertisementType());
@@ -160,7 +157,7 @@ public class PeerGroupTest {
         pojoMIA.setUri(testJar.toString());
         pojoMIA.setCompat(pg1.getAllPurposePeerGroupImplAdvertisement().getCompat());
         pojoMIA.setDescription("Test non-Module in a jar");
-        
+
         moduleMIA = (ModuleImplAdvertisement)
                 AdvertisementFactory.newAdvertisement(
                 ModuleImplAdvertisement.getAdvertisementType());
@@ -169,10 +166,10 @@ public class PeerGroupTest {
         moduleMIA.setUri(testJar.toString());
         moduleMIA.setCompat(pg1.getAllPurposePeerGroupImplAdvertisement().getCompat());
         moduleMIA.setDescription("Test Module in a jar");
-        
+
         LOG.info("============ End setup");
     }
-    
+
     @After
     public void tearDown() throws Exception {
         LOG.info("============ Begin tearDown");
@@ -183,7 +180,7 @@ public class PeerGroupTest {
         Thread.sleep(300);
         LOG.info("============ End tearDown");
     }
-    
+
     @Test
     public void newGroupFromAdv() {
         try {
@@ -191,18 +188,18 @@ public class PeerGroupTest {
             ModuleSpecID msid = IDFactory.newModuleSpecID(baseClass);
             ModuleImplAdvertisement mia = pg1.getAllPurposePeerGroupImplAdvertisement();
             mia.setModuleSpecID(msid);
-            
+
             LOG.info("New MIA:\n" + mia);
             pg1.getDiscoveryService().publish(mia);
-            
+
             PeerGroupAdvertisement pga = (PeerGroupAdvertisement)
                     AdvertisementFactory.newAdvertisement(PeerGroupAdvertisement.getAdvertisementType());
             pga.setPeerGroupID(IDFactory.newPeerGroupID());
             pga.setModuleSpecID(mia.getModuleSpecID());
             LOG.info("New PGA:\n" + pga);
-            
+
             PeerGroup newpg = pg1.newGroup(pga);
-            
+
             assertTrue("Group id should match", newpg.getPeerGroupID().equals(pga.getPeerGroupID()));
             newpg.unref();
             newpg = null;
@@ -211,43 +208,43 @@ public class PeerGroupTest {
             fail("exception thrown : " + caught.getMessage());
         }
     }
-    
+
     @Test
     public void newGroupFromParams() {
         try {
             ModuleImplAdvertisement mia = pg1.getAllPurposePeerGroupImplAdvertisement();
-            
+
             pg1.getDiscoveryService().publish(mia);
-            
+
             PeerGroupID pgid = IDFactory.newPeerGroupID();
-            
+
             PeerGroup newpg = pg1.newGroup(pgid, mia, "test", "testdesc");
-            
+
             assertTrue("Group id should match", newpg.getPeerGroupID().equals(pgid));
 
             newpg.unref();
             newpg = null;
-            
+
             newpg = pg1.newGroup(null, mia, null, null);
-            
+
             assertTrue("Group id should match", !newpg.getPeerGroupID().equals(pg1.getPeerGroupID()));
 
             newpg.unref();
             newpg = null;
-            
+
         } catch (Exception caught) {
             caught.printStackTrace();
             fail("exception thrown : " + caught.getMessage());
         }
     }
-    
+
     @Test
     public void newFromID() {
         try {
             PeerGroup newpg = pg1.newGroup(PeerGroupID.defaultNetPeerGroupID);
-            
+
             assertTrue("Group id should match", newpg.getPeerGroupID().equals(PeerGroupID.defaultNetPeerGroupID));
-            
+
             newpg.unref();
             newpg = null;
         } catch (Exception caught) {
@@ -255,7 +252,7 @@ public class PeerGroupTest {
             fail("exception thrown : " + caught.getMessage());
         }
     }
-    
+
     /**
      * Verify that the static loader by default cannot load the class in
      * our test jar.
@@ -270,7 +267,7 @@ public class PeerGroupTest {
             // Good.  Fall through.
         }
     }
-    
+
     /**
      * Make sure the PeerGroups dont use, but inherit the static loader.
      * This will make it easier to remove the static loader altogether at
@@ -283,12 +280,12 @@ public class PeerGroupTest {
         do {
             PeerGroup parentGroup = group.getParentGroup();
             JxtaLoader groupLoader = group.getLoader();
-            
+
             // Make sure the groupLoader is not the staticLoader
             if (groupLoader == staticLoader) {
                 fail("groupLoader should never be the staticLoader");
             }
-            
+
             if (parentGroup == null) {
                 // Make sure our class loader's parent loader is staticLoader
                 ClassLoader rootLoader = groupLoader.getParent();
@@ -299,7 +296,7 @@ public class PeerGroupTest {
             group = parentGroup;
         } while (group != null);
     }
-    
+
     /**
      * Make sure each group has it's own, unique loader instance
      */
@@ -315,7 +312,7 @@ public class PeerGroupTest {
             group = group.getParentGroup();
         } while (group != null);
     }
-    
+
     /**
      * Test class loading inheritance.
      */
@@ -323,7 +320,7 @@ public class PeerGroupTest {
     public void classLoadingInheritance() {
         assertFlagState(pg11, PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER, false);
         assertFlagState(pg111, PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER, false);
-        
+
         // Define it
         pg11.getLoader().defineClass(moduleMIA);
         Class<? extends Module> mod11 = null;
@@ -332,7 +329,7 @@ public class PeerGroupTest {
         } catch (ClassNotFoundException cnfx) {
             fail("Could not load moduleMIA into pg11");
         }
-        
+
         // Check that child inherits the same definition
         Class<? extends Module> mod111 = null;
         try {
@@ -341,7 +338,7 @@ public class PeerGroupTest {
             fail("Could not load moduleMIA from child group pg111");
         }
         assertSame(mod11, mod111);
-        
+
         // Check that the parent is unable to load it
         Class<? extends Module> mod1 = null;
         try {
@@ -350,7 +347,7 @@ public class PeerGroupTest {
         } catch (ClassNotFoundException cnfx) {
             // Good
         }
-        
+
         // Check that the peer is unable to load it
         Class<? extends Module> mod12 = null;
         try {
@@ -360,7 +357,7 @@ public class PeerGroupTest {
             // Good
         }
     }
-    
+
     /**
      * Test parent classloading disable flag.
      */
@@ -368,11 +365,11 @@ public class PeerGroupTest {
     public void testParentClassLoadDisabled() {
         assertFlagState(pg12, PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER, false);
         assertFlagState(pg121, PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER, true);
-        
+
         // Define it
         LOG.info("Defining Module in pg12");
         pg12.getLoader().defineClass(moduleMIA);
-        
+
         LOG.info("Checking for Module in pg12");
         Class<? extends Module> mod12 = null;
         try {
@@ -380,7 +377,7 @@ public class PeerGroupTest {
         } catch (ClassNotFoundException cnfx) {
             fail("Could not load moduleMIA into pg12");
         }
-        
+
         // Check that child does not load it from it's parent
         LOG.info("Checking for Module in pg121");
         Class<? extends Module> mod121 = null;
@@ -391,10 +388,10 @@ public class PeerGroupTest {
             // Good
         }
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Private methods:
-    
+
     /**
      * Creates a peer group advertisement set for testing.
      * 
@@ -409,13 +406,13 @@ public class PeerGroupTest {
         ModuleClassID mcid = IDFactory.newModuleClassID();
         ModuleImplAdvertisement mia =
                 pg1.getAllPurposePeerGroupImplAdvertisement();
-        
+
         ModuleSpecID msid = IDFactory.newModuleSpecID(mcid);
         mia.setDescription(name + " impl");
         mia.setModuleSpecID(msid);
         disco.publish(mia);
         LOG.finest(name + " MIA:\n" + mia);
-        
+
         PeerGroupID pgid = IDFactory.newPeerGroupID();
         PeerGroupConfigAdv pgca = (PeerGroupConfigAdv)
                 AdvertisementFactory.newAdvertisement(
@@ -424,7 +421,7 @@ public class PeerGroupTest {
         for (PeerGroupConfigFlag flag : flags) {
             pgca.setFlag(flag);
         }
-        
+
         PeerGroupAdvertisement pga = (PeerGroupAdvertisement)
                 AdvertisementFactory.newAdvertisement(
                 PeerGroupAdvertisement.getAdvertisementType());
@@ -437,7 +434,7 @@ public class PeerGroupTest {
         LOG.finest(name + " PGA:\n" + pga);
         return pga;
     }
-    
+
     /**
      * Asserts that the peer group provided is configured as expected with
      * respect to a specific flag's value.
@@ -459,5 +456,5 @@ public class PeerGroupTest {
             assertFalse(pgca.isFlagSet(flag));
         }
     }
-        
+
 }

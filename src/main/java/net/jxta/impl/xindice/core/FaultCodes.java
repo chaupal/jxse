@@ -164,7 +164,7 @@ public enum FaultCodes {
      */
     public static FaultCodes toFaultCodes(int code) {
         FaultCodes result;
-        
+
         switch (code) {
             case 100:
                 result = OBJ_OBJECT_NOT_FOUND;
@@ -342,7 +342,7 @@ public enum FaultCodes {
             case 2070:
                 result = JAVA_RUNTIME_ERROR;
                 break;
-                
+
             default:
                 result = FaultCodes.GEN_UNKNOWN;
                 break;

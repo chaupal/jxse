@@ -67,7 +67,7 @@ public final class BTreeCorruptException extends BTreeException {
     public BTreeCorruptException() {
         super(FaultCodes.IDX_CORRUPTED);
     }
-   
+
     public BTreeCorruptException(String message) {
         super(FaultCodes.IDX_CORRUPTED, message);
     }

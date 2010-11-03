@@ -106,7 +106,6 @@ public class ShadowPeerGroup extends StdPeerGroup {
 //        paramAdv.addService(PeerGroup.proxyClassID, PeerGroup.refProxySpecID);
         paramAdv.addService(PeerGroup.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
-
         /**
          * NPG used to be a StdPeerGroup in 2.5, however, it should be a ShadowPeerGroup.
          * StdPeerGroup does defines the below protos transports. There is no reason why

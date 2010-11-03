@@ -16,17 +16,17 @@ public class AdHocTcpDirectCommsTest {
 
     @Rule
     public TemporaryFolder tempStorage = new TemporaryFolder();
-    
+
     private NetworkManager aliceManager;
     private NetworkManager bobManager;
-    
+
     @Before
     public void initPeers() throws Exception {
         aliceManager = new NetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
         configureForTcp(aliceManager, 59080);
         bobManager = new NetworkManager(ConfigMode.ADHOC, "bob", tempStorage.newFolder("bob").toURI());
         configureForTcp(bobManager, 58081);
-        
+
         aliceManager.startNetwork();
         bobManager.startNetwork();
     }
@@ -43,13 +43,13 @@ public class AdHocTcpDirectCommsTest {
 		configurator.setTcpStartPort(port);
 		configurator.setTcpEndPort(port+100);
 	}
-    
+
     @After
     public void killPeers() throws Exception {
         aliceManager.stopNetwork();
         bobManager.stopNetwork();
     }
-    
+
     @Test(timeout=10000)
     public void testColocatedPeerBidiPipeComms() throws Exception {
         SystemTestUtils.testPeerCommunication(aliceManager, bobManager);

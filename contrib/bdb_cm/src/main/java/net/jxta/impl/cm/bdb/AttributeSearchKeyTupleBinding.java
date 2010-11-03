@@ -12,7 +12,7 @@ public class AttributeSearchKeyTupleBinding extends TupleBinding<AttributeSearch
         String directoryName = input.readString();
         String attributeName = input.readString();
         String value = input.readString();
-        
+
         return new AttributeSearchKey(areaName, directoryName, attributeName, value);
     }
 

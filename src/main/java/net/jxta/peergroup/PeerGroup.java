@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -505,7 +505,7 @@ public interface PeerGroup extends Service {
      */
     public final static ModuleSpecID refHttpProtoSpecID =
             ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000A0106"));
-    
+
     /**
      * Well known endpoint protocol specification identifier: the new (2.6+)
      * http2 endpoint protocol (netty http tunnel based)
@@ -567,9 +567,9 @@ public interface PeerGroup extends Service {
      * instantiation or orderly shutdown of Peer Groups should synchronize upon
      * this object.
      */
-    
+
     GlobalRegistry getGlobalRegistry();
-    
+
     /**
      * Returns the Thread Group in which threads for this peer group will live.
      * This is currently used only for debugging purposes so that the source of
@@ -688,7 +688,7 @@ public interface PeerGroup extends Service {
      * Compatibility is checked and load is attempted. If compatible and loaded
      * successfully, the resulting Module is initialized and returned.
      * In most cases {@link #loadModule(net.jxta.id.ID, net.jxta.platform.ModuleSpecID, int)} 
-     * should be preferred, since unlike this method, it will try all  
+     * should be preferred, since unlike this method, it will try all
      * compatible implementation advertisements until one works. The home group 
      * of the new module (its' parent group if the new Module is a group) will 
      * be this group.
@@ -1121,8 +1121,7 @@ public interface PeerGroup extends Service {
      * @since JXTA 2.3.7
      */
     public URI getStoreHome();
-    
-    
+
     /**
      * FOR JXTA MODULE IMPLEMENTATIONS ONLY. If you are simply using existing
      * services on a peer group (pipe service, etc) then you should not use

@@ -138,7 +138,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
             return CompatibilityUtils.isCompatible(test);
         }
     };
-            
 
     /**
      * Statically scoped JxtaLoader which is used as the root of the
@@ -247,7 +246,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * makes sense to perform ref-counting.
      */
     protected volatile boolean initComplete = false;
-
 
     /**
      * {@inheritDoc}
@@ -750,7 +748,6 @@ public abstract class GenericPeerGroup implements PeerGroup {
     	List<Advertisement> allModuleImplAdvs = new ArrayList<Advertisement>();
 
     	ModuleImplAdvertisement loadedImplAdv = loader.findModuleImplAdvertisement(specID);
-
 
     	// We already have a module defined for this spec id.
     	// We test the spec id before deciding to use it
@@ -1600,7 +1597,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
         }
         return (ResolverService) resolver.getInterface();
     }
-    
+
     public GlobalRegistry getGlobalRegistry()
     {
         return parentGroup.getGlobalRegistry();

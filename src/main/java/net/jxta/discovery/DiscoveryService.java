@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.discovery;
-
 
 import net.jxta.document.Advertisement;
 import net.jxta.id.ID;
@@ -63,7 +62,6 @@ import net.jxta.service.Service;
 
 import java.io.IOException;
 import java.util.Enumeration;
-
 
 /**
  * Provides an asynchronous mechanism for discovering Advertisement (Peers,
@@ -96,7 +94,7 @@ import java.util.Enumeration;
  * peers immediately, but may be updated as part of a periodic process. The
  * Discovery Service currently updates remote indexes every 30 seconds.
  *
- * <p/>It is important to note that what is shared with the rendezvous peer is  
+ * <p/>It is important to note that what is shared with the rendezvous peer is
  * the index and expiration of the advertisement, not the advertisement. The
  * indexes are republished whenever the peer establishes a new connection with 
  * a different rendezvous peer.
@@ -144,22 +142,22 @@ import java.util.Enumeration;
  *@see        net.jxta.protocol.ResolverResponseMsg
  */
 public interface DiscoveryService extends Service {
-    
+
     /**
      * Discovery type Peer
      */
     public final static int PEER = 0;
-    
+
     /**
      * Discovery type Group
      */
     public final static int GROUP = 1;
-    
+
     /**
      *  Discovery type Advertisement
      */
     public final static int ADV = 2;
-    
+
     /**
      * Default lifetime time for advertisements. This is the maximum
      * amount of time which the advertisement will remain valid. If the
@@ -167,27 +165,27 @@ public interface DiscoveryService extends Service {
      * need to republish the advertisement.
      */
     public final static long DEFAULT_LIFETIME = 1000L * 60L * 60L * 24L * 365L;
-    
+
     /**
      *  Default expiration time for advertisements. This is the amount of
      *  time which advertisements will live in caches. After this time, the
      *  advertisement should be refreshed from the source.
      */
     public final static long DEFAULT_EXPIRATION = 1000L * 60L * 60L * 2L;
-    
+
     /**
      *  Infinite lifetime for advertisements. The advertisement is valid
      *  forever. (well maybe it will expire when the sun burns out, but not
      *  before then).
      */
     public final static long INFINITE_LIFETIME = Long.MAX_VALUE;
-    
+
     /**
      *  Specifies that the advertisement will have no expiration and will be
      *  kept indefinitely.
      */
     public final static long NO_EXPIRATION = Long.MAX_VALUE;
-    
+
     /**
      *  Discover advertisements from remote peers. This does not normally 
      *  provide an exhaustive search. Instead it provides a "best efforts" 
@@ -250,7 +248,7 @@ public interface DiscoveryService extends Service {
      * @return query ID for this discovery query.
      */
     public int getRemoteAdvertisements(String peerid, int type, String attribute, String value, int threshold);
-    
+
     /**
      *  Discover advertisements from remote peers. This does not normally 
      *  provide an exhaustive search. Instead it provides a "best efforts" 
@@ -397,7 +395,7 @@ public interface DiscoveryService extends Service {
      * Advertisement will be published with an expiration time of
      * <tt>DEFAULT_EXPIRATION</tt>.
      *
-     *@param peerid The ID of a peer, specifying <tt>null</tt> results in  
+     *@param peerid The ID of a peer, specifying <tt>null</tt> results in
      *      propagation within the group.
      *@param adv The Advertisement to publish.
      */
@@ -414,7 +412,7 @@ public interface DiscoveryService extends Service {
      *      Advertisement will be cached by other peers.
      */
     public void remotePublish(String peerid, Advertisement adv, long expiration);
-    
+
     /**
      * Removes the specified Advertisement from the cache of locally stored
      * Advertisements.
@@ -444,7 +442,7 @@ public interface DiscoveryService extends Service {
      *  @param id Document ID, Peer ID, or PeerGroup ID
      *  @param type Discovery type PEER, GROUP, ADV
      *  @return The number of milliseconds that other peers will be told to
-     *      retain this Advertisement in their local caches. -1 is returned if  
+     *      retain this Advertisement in their local caches. -1 is returned if
      *      the Advertisement is not known or already expired.
      */
     public long getAdvExpirationTime(ID id, int type);
@@ -469,7 +467,7 @@ public interface DiscoveryService extends Service {
      *
      *  @param adv Advertisement
      *  @return The number of milliseconds that other peers will be told to
-     *      retain this Advertisement in their local caches. -1 is returned if  
+     *      retain this Advertisement in their local caches. -1 is returned if
      *      the Advertisement is not known or already expired.
      */
     public long getAdvExpirationTime(Advertisement adv);

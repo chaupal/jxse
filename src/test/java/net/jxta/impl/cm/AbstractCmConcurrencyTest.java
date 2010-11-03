@@ -17,9 +17,9 @@ public abstract class AbstractCmConcurrencyTest {
 
     private static final int NUM_CACHES = 8;
     private static final int NUM_OPERATIONS = 1000;
-    
+
     protected TaskManager taskManager;
-    
+
     @Rule
     public TemporaryFolder testFileStore = new TemporaryFolder();
 
@@ -27,43 +27,43 @@ public abstract class AbstractCmConcurrencyTest {
     public void initTaskManager() {
         taskManager = new TaskManager();
     }
-    
+
     @After
     public void shutdownTaskManager() {
         taskManager.shutdown();
     }
-    
+
     @Test
     public void testConcurrentSafety_randomLoad() throws Exception {
-        
+
         CacheManager[] caches = new CacheManager[NUM_CACHES];
         for(int i=0; i < caches.length; i++) {
             caches[i] = new CacheManager(createWrappedCache("testArea"+i, taskManager));
-            
+
             System.out.println("Seeding cache " + i);
             seedCache(caches[i]);
         }
-        
+
         CountDownLatch completionLatch = new CountDownLatch(NUM_CACHES);
-        
+
         System.out.println("Starting random testers");
         CmRandomLoadTester[] testers = new CmRandomLoadTester[NUM_CACHES];
         for(int i=0; i < testers.length; i++) {
             testers[i] = new CmRandomLoadTester(caches[i], NUM_OPERATIONS, completionLatch);
             new Thread(testers[i]).start();
         }
-        
+
         System.out.println("Awaiting completion");
         completionLatch.await();
-        
+
         for(int i=0; i < testers.length; i++) {
             assertTrue("Tester " + i + " failed", testers[i].isSuccessful());
         }
-        
+
         for(int i=0; i < caches.length; i++) {
             caches[i].stop();
         }
-        
+
         System.out.println("Complete");
     }
 
@@ -74,5 +74,5 @@ public abstract class AbstractCmConcurrencyTest {
     }
 
     protected abstract AdvertisementCache createWrappedCache(String string, TaskManager taskManager) throws IOException;
-    
+
 }

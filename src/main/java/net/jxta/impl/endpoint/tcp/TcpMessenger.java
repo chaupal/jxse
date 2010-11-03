@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -229,7 +229,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         try {
 
             Logging.logCheckedInfo(LOG, "Connection from ", socketChannel.socket().getInetAddress().getHostAddress(), ":", socketChannel.socket().getPort());
-            
+
             // Set the socket options.
             Socket socket = socketChannel.socket();
 
@@ -278,7 +278,6 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             throw new IOException("Failed to establish connection to " + dstAddress);
         }
     }
-
 
     /**
      * Create a new TcpMessenger for the specified address.
@@ -343,7 +342,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         inetAddress = InetAddress.getByName(hostString);
 
         Logging.logCheckedInfo(LOG, "Creating new TCP Connection to : ", dstAddress, " / ", inetAddress.getHostAddress(), ":", port);
-        
+
         // See if we're attempting to use the loopback address.
         // And if so, is the peer configured for the loopback network only?
         // (otherwise the connection is not permitted). Btw, the otherway around
@@ -437,7 +436,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      */
     @Override
     protected void finalize() throws Throwable {
-        
+
         try {
 
             Logging.logCheckedWarning(LOG, "Messenger being finalized. closing messenger");
@@ -479,7 +478,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             } catch (IOException e) {
 
                 Logging.logCheckedWarning(LOG, "Failed to close messenger ", this, "\n", e);
-                
+
             }
 
             Logging.logCheckedInfo(LOG, (closingDueToFailure ? "Failure" : "Normal"), " close (open ",
@@ -489,7 +488,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             if (closingDueToFailure) {
                 Logging.logCheckedFine(LOG, "stack trace", new Throwable("stack trace"));
             }
-            
+
         }
 
         if (TransportMeterBuildSettings.TRANSPORT_METERING && (transportBindingMeter != null)) {
@@ -552,7 +551,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     }
 
     public void sendMessageDirect(Message message, String service, String serviceParam, boolean direct) throws IOException {
-        
+
         if (isClosed()) {
 
             IOException failure = new IOException("Messenger was closed, it cannot be used to send messages.");
@@ -600,7 +599,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         tcpTransport.incrementBytesSent(written);
 
         Logging.logCheckedFine(LOG, "welcome message sent");
-        
+
         while (state.get() == readState.WELCOME) {
             if (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), this.createdAt) > (TcpTransport.connectionTimeOut)) {
                 throw new SocketTimeoutException("Failed to receive remote welcome message before timeout.");
@@ -665,7 +664,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             Logging.logCheckedFine(LOG, MessageFormat.format("Sent {0} bytes {1} successfully via {2}:{3}", written, msg,
                 inetAddress.getHostAddress(), port));
-            
+
             tcpTransport.incrementBytesSent(written);
             tcpTransport.incrementMessagesSent();
             setLastUsed(TimeUtils.timeNow());
@@ -680,7 +679,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             }
 
             Logging.logCheckedWarning(LOG, "Message send failed for ", inetAddress.getHostAddress(), ":", port, failed);
-            
+
             closingDueToFailure = true;
             close();
             IOException failure = new IOException("Failed sending " + msg + " to : " + inetAddress.getHostAddress() + ":" + port);
@@ -725,9 +724,9 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                     bytesWritten += wroteBytes;
 
                     if (wroteBytes < 0) throw new EOFException();
-                    
+
                     Logging.logCheckedFiner(LOG, MessageFormat.format("Wrote {0} bytes", wroteBytes));
-                    
+
                 } while (wroteBytes != 0);
 
                 // Are we done?
@@ -847,7 +846,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         }
 
         Logging.logCheckedFine(LOG, MessageFormat.format("{0} Processing message package header, buffer stats:{1}", Thread.currentThread(), buffer.toString()));
-        
+
         try {
 
             if (!header.readHeader(buffer)) {
@@ -858,7 +857,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         } catch (IOException e) {
 
             Logging.logCheckedWarning(LOG, "Error while parsing the message header\n", e);
-            
+
             if (!socketChannel.isConnected()) {
 
                 // defunct connection close the messenger
@@ -871,7 +870,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         Logging.logCheckedFine(LOG, MessageFormat.format("{0} setting current state to body, Buffer stats :{1}, remaining elements {2}:",
             Thread.currentThread(), buffer.toString(), buffer.remaining()));
-        
+
         return true;
     }
 
@@ -904,7 +903,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         } catch (Throwable all) {
 
             Logging.logCheckedSevere(LOG, "Uncaught Throwable\n", all);
-            
+
         }
     }
 
@@ -914,7 +913,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
     private boolean read() {
 
         if (closed.get() || socketChannel == null) return false;
-        
+
         if (!socketChannel.isConnected()) {
 
             Logging.logCheckedWarning(LOG, "SocketChannel is not connected. closing connection");
@@ -924,7 +923,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         }
 
         try {
-            
+
             Logging.logCheckedFine(LOG, MessageFormat.format("{0} State before read(): {1}, buffer stats : {2}, remaining :{3}",
                 Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
 
@@ -954,7 +953,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
             Logging.logCheckedFine(LOG, MessageFormat.format("{0} SocketChannel.read() == {1} bytes. Buffer stats:{2}, remaining {3}",
                 Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
-            
+
             return true;
 
         } catch (ClosedChannelException e) {
@@ -968,7 +967,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             // Framing is maintained within this object, therefore a read maybe interrupted then resumed
             Logging.logCheckedWarning(LOG, MessageFormat.format("tcp receive - interrupted : read() {0} {1}:{2}",
                 woken.bytesTransferred, inetAddress.getHostAddress(), port));
-            
+
         } catch (IOException ioe) {
 
             Logging.logCheckedWarning(LOG, "IOException occured while reading data\n", ioe);
@@ -995,7 +994,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
      */
     @SuppressWarnings("fallthrough")
     public List<Message> processBuffer() {
-        
+
         List<Message> msgs = new ArrayList<Message>();
         boolean done = false;
 
@@ -1050,9 +1049,9 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                     // process the message body
                     Logging.logCheckedFine(LOG, MessageFormat.format(" {0} Proccessing Message Body. expecting {1}, {2} elements remaining {3}",
                         Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining()));
-                    
+
                     if (buffer.remaining() >= (int) header.getContentLengthHeader()) {
-                        
+
                         Message msg;
 
                         try {
@@ -1077,7 +1076,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         setLastUsed(TimeUtils.timeNow());
                         state.set(readState.HEADER);
                         header = null;
-                        
+
                         msgs.add(msg);
 
                     } else {
@@ -1088,12 +1087,12 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                     }
             }
         } // while loop
-        
+
         // prepare the buffer for more data
         buffer.compact();
         return msgs;
     }
-    
+
     /**
      * A small class for processing individual messages. 
      */ 

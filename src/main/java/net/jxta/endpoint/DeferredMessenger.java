@@ -58,85 +58,71 @@ public class DeferredMessenger implements Messenger
         return this;
     }
 
-    
     public IdentityReference getIdentityReference()
     {
         throw new UnsupportedOperationException("getIdentityReference not implemented");
     }
 
-    
     public void register(SimpleSelector simpleSelector)
     {
         throw new UnsupportedOperationException("register not implemented"); 
     }
 
-    
     public void unregister(SimpleSelector simpleSelector)
     {
         throw new UnsupportedOperationException("unregister not implemented");
     }
 
-    
     public void itemChanged(SimpleSelectable simpleSelectable)
     {
         throw new UnsupportedOperationException("itemChanged not implemented");
     }
 
-    
     public int getState()
     {
         throw new UnsupportedOperationException("getState not implemented");
     }
 
-    
     public int waitState(int i, long l) throws InterruptedException
     {
         throw new UnsupportedOperationException("waitState not implemented");
     }
 
-    
     public void addStateListener(MessengerStateListener listener)
     {
         throw new UnsupportedOperationException("addStateListener not implemented");
     }
 
-    
     public void removeStateListener(MessengerStateListener listener)
     {
         throw new UnsupportedOperationException("removeStateListener not implemented");
     }
 
-    
     public boolean isClosed()
     {
         throw new UnsupportedOperationException("isClosed not implemented");
     }
 
-    
     public EndpointAddress getDestinationAddress()
     {
         throw new UnsupportedOperationException("getDestinationAddress not implemented");
     }
 
-    
     public EndpointAddress getLogicalDestinationAddress()
     {
         throw new UnsupportedOperationException("getLogicalDestinationAddress not implemented");
     }
 
-    
     public long getMTU()
     {
         throw new UnsupportedOperationException("getMTU not implemented");
     }
 
-    
     public Messenger getChannelMessenger(PeerGroupID peerGroupID, String s, String s1)
     {
         throw new UnsupportedOperationException("getChannelMessenger not implemented");
     }
 
-    
     public void close()
     {
         closed = true;
@@ -147,19 +133,16 @@ public class DeferredMessenger implements Messenger
         messages.clear();
     }
 
-    
     public void flush() throws IOException
     {
-        throw new UnsupportedOperationException("flush not implemented");  
+        throw new UnsupportedOperationException("flush not implemented");
     }
 
-    
     public void resolve()
     {
-        throw new UnsupportedOperationException("resolve not implemented");  
+        throw new UnsupportedOperationException("resolve not implemented");
     }
 
-    
     public void sendMessageB(Message message, String s, String s1) throws IOException
     {
         if (this.msgr == null)
@@ -178,28 +161,24 @@ public class DeferredMessenger implements Messenger
 
     }
 
-    
     public boolean sendMessageN(Message message, String s, String s1)
     {
-        throw new UnsupportedOperationException("sendMessageN not implemented");  
+        throw new UnsupportedOperationException("sendMessageN not implemented");
     }
 
-    
     public boolean sendMessage(Message message) throws IOException
     {
-        throw new UnsupportedOperationException("sendMessage not implemented");  
+        throw new UnsupportedOperationException("sendMessage not implemented");
     }
 
-    
     public boolean sendMessage(Message message, String s, String s1) throws IOException
     {
         sendMessageB(message,s,s1);
         return true;
     }
 
-    
     public void sendMessage(Message message, String s, String s1, OutgoingMessageEventListener outgoingMessageEventListener)
     {
-        throw new UnsupportedOperationException("sendMessage not implemented");  
+        throw new UnsupportedOperationException("sendMessage not implemented");
     }
 }

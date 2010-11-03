@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.impl.endpoint;
-
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.ByteArrayMessageElement;
@@ -86,7 +85,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A Wire Format Message which encodes the message into MIME Type
@@ -211,7 +209,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 Logging.logCheckedFine(LOG,
                     "Add element (name=\'", ((MessageElement) anElement[1]).getElementName(), "\') #", eachElement,
                     " of #", elementCnt, " elements from ", dis.toString());
-                
+
             } while (((0 == elementCnt) || (eachElement < elementCnt)));
 
             if ((elementCnt != 0) && (eachElement != elementCnt)) {
@@ -254,7 +252,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                     Logging.logCheckedSevere(LOG, "Failure reading element ", eachElement, " of ",
                             elementCnt, " from ", buffer, " for ", msg, failed);
                     throw failed;
-                    
+
                 }
 
                 if (null == anElement) {
@@ -275,7 +273,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                 Logging.logCheckedFiner(LOG, "Add element (name=\'", ((MessageElement) anElement[1]).getElementName(), "\') #", eachElement,
                             " of #", elementCnt, " elements from ", buffer);
-                
+
             } while (((0 == elementCnt) || (eachElement < elementCnt)));
 
             if ((elementCnt != 0) && (eachElement != elementCnt)) {
@@ -359,7 +357,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int id = 2;
 
             for (int i = 0; i < namespaceCnt; ++i) {
-                
+
                 try {
 
                     String namespace = readString(dis);
@@ -545,7 +543,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                     dis.readFully(value);
 
                 } catch (EOFException failed) {
-                    
+
                     Logging.logCheckedWarning(LOG, "had tried to read ", dataLen, " from ", mayFail, " which is now ", is);
                     throw failed;
 
@@ -598,7 +596,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 IOException failure = new IOException("Not a message element (incorrect signature '" + elsig[0] + elsig[1] + elsig[2] + elsig[3] + "') ");
                 Logging.logCheckedSevere(LOG, failure);
                 throw failure;
-                
+
             }
 
             // Namespace id
@@ -630,7 +628,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             Logging.logCheckedFiner(LOG, "element : nsid = ", nsid, " name = \'", name,
                     "\' type = \'", type, "\' flags = ", Integer.toBinaryString(flags),
                     " datalen = ", dataLen);
-            
+
             Object[] res = new Object[2];
 
             res[0] = nsid & 0x000000FF;
@@ -713,7 +711,6 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         }
     }
 
-
     /**
      * Internal representation for a binary format wire message. Implemented
      * as an inner class to allow content encodings to be easily mapped on
@@ -771,19 +768,19 @@ public class WireFormatMessageBinary implements WireFormatMessage {
          */
         public ByteBuffer[] getByteBuffers() {
             List<ByteBuffer> partBuffers = new ArrayList<ByteBuffer>();
-            
+
             partBuffers.add(ByteBuffer.wrap(header));
-            
+
             for (binaryElementProxy anElement : elements) {
                 partBuffers.addAll(Arrays.asList(anElement.getByteBuffers()));
             }
-            
+
             Logging.logCheckedFiner(LOG, MessageFormat.format("Returning {0} buffers for {1}", partBuffers.size(), message));
 
             return partBuffers.toArray(new ByteBuffer[partBuffers.size()]);
 
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -805,7 +802,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                         System.identityHashCode(theStream), message));
 
             return theStream;
-            
+
         }
 
         /**
@@ -910,7 +907,6 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         }
     }
 
-
     /**
      * Proxy for a message element. Handles the serialization of the element
      * meta information.
@@ -997,16 +993,16 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             List<ByteBuffer> partBuffers = new ArrayList<ByteBuffer>();
 
             partBuffers.add(ByteBuffer.wrap(header));
-            
+
             partBuffers.add(ByteBuffer.wrap(element.getBytes(false)));
 
             if (null != sig) {
                 partBuffers.addAll(Arrays.asList(sig.getByteBuffers()));
             }
 
-            return partBuffers.toArray(new ByteBuffer[partBuffers.size()]);           
+            return partBuffers.toArray(new ByteBuffer[partBuffers.size()]);
         }
-        
+
         public InputStream getStream() throws IOException {
             List<InputStream> streamParts = new ArrayList<InputStream>();
 

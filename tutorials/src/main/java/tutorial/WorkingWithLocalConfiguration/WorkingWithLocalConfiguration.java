@@ -35,9 +35,9 @@ public class WorkingWithLocalConfiguration {
         // Persisting it to make sure the Peer ID is not re-created each
         // time the Network Manager is instantiated
         TheNetworkManager.setConfigPersistent(true);
-        
+
         System.out.println("PeerID: " + TheNetworkManager.getPeerID().toString());
-        
+
         // Since we won't be setting our own relay or rendezvous seed peers we
         // will use the default (public network) relay and rendezvous seeding.
         TheNetworkManager.setUseDefaultSeeds(true);

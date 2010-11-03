@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -68,26 +68,26 @@ import java.util.Set;
  * a simple, temporary location for other applications to leverage.
  */
 public class TempDir extends File {
-    
+
     /**
      * Serializer version ID.
      */
     private static final long serialVersionUID = 0L;
-    
+
     /**
      * List of all files to delete on shutdown.
      */
     private static final Set<File> toDelete = new HashSet<File>();
-    
+
     /**
      * Shutdown hook to run on JVM shutdown.  A call to <code>shutdown</code>
      * prior to JVM exit will deregister this hook.
      */
     private static final Thread shutdownHook = createShutdownHook();
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Constructors:
-    
+
     /**
      * Passthrough constructor to expose standard {@code File} operations.
      * If a file/directory already exists at the path specified, it will be
@@ -100,7 +100,7 @@ public class TempDir extends File {
         super(parent, child);
         checkDirectory();
     }
-    
+
     /**
      * Passthrough constructor to expose standard {@code File} operations.
      * If a file/directory already exists at the path specified, it will be
@@ -112,7 +112,7 @@ public class TempDir extends File {
         super(pathname);
         checkDirectory();
     }
-    
+
     /**
      * Passthrough constructor to expose standard {@code File} operations.
      * If a file/directory already exists at the path specified, it will be
@@ -125,7 +125,7 @@ public class TempDir extends File {
         super(parent, child);
         checkDirectory();
     }
-    
+
     /**
      * Passthrough constructor to expose standard {@code File} operations.
      * If a file/directory already exists at the path specified, it will be
@@ -139,7 +139,7 @@ public class TempDir extends File {
         super(uri);
         checkDirectory();
     }
-    
+
     /**
      * Constructor which creates a temporary directory using the {@code File}
      * provided.  If a file/directory already exists at the path specified,
@@ -152,7 +152,7 @@ public class TempDir extends File {
         super(dir.toURI());
         checkDirectory();
     }
-    
+
     /**
      * Constructor which creates a temporary directory of an arbitrary name,
      * leveraging {@code File.createTempFile()} to create a unique directory.
@@ -164,10 +164,10 @@ public class TempDir extends File {
                 TempDir.class.getName() + "-", ".tmp").toURI());
         checkDirectory();
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Public methods:
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -180,7 +180,7 @@ public class TempDir extends File {
     public boolean delete() {
         return clear() && super.delete();
     }
-    
+
     /**
      * Clears the directory of all files and subdirectories.
      * 
@@ -197,10 +197,10 @@ public class TempDir extends File {
         }
         return result;
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Protected methods:
-    
+
     /**
      * Finalizer which simply calls <code>delete()</code> in an attempt to
      * cleanup when abandoned.
@@ -220,10 +220,10 @@ public class TempDir extends File {
             }
         }
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Private methods:
-          
+
     /**
      * Creates and registers a shutdown thread to hopefully ensure that
      * all data files are removed from the local system.
@@ -247,7 +247,7 @@ public class TempDir extends File {
                 TempDir.class.getSimpleName() + " shutdown hook");
         return hook;
     }
-    
+
     /**
      * Recursively deletes the specified file/directory.
      * 
@@ -303,7 +303,7 @@ public class TempDir extends File {
                     + this.getPath()));
         }
          */
-        
+
         // Add it to the shutdown hook's cleanup list
         synchronized(toDelete) {
             toDelete.add(this);

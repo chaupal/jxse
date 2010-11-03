@@ -92,28 +92,28 @@ import java.util.logging.Logger;
  * </ol>
  */
 public class JxtaServerPipeExample {
-    
+
     /**
      *  Logger.
      */
     private final static transient Logger LOG = Logger.getLogger(JxtaServerPipeExample.class.getName());
-    
+
     /**
      *  Connection count.
      */
     private final static AtomicInteger connection_count = new AtomicInteger(0);
-    
+
     /**
      * Number of messages to send
      */
     final static int ITERATIONS = 1000;
-    
+
     final static String MESSAGE_NAMESPACE_NAME = "bidi_tutorial";
     final static String MESSAGE_ELEMENT_NAME = "sequence";
     final static String RESPONSE_ELEMENT_NAME = "response";
-    
+
     private final static PipeID BIDI_TUTORIAL_PIPEID = PipeID.create(URI.create("urn:jxta:uuid-59616261646162614E504720503250338944BCED387C4A2BBD8E9411B78C284104"));
-    
+
     /**
      * Gets the pipeAdvertisement attribute of the JxtaServerPipeExample class
      *
@@ -122,23 +122,23 @@ public class JxtaServerPipeExample {
     public static PipeAdvertisement getPipeAdvertisement() {
         PipeAdvertisement advertisement = (PipeAdvertisement)
         AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());
-        
+
         advertisement.setPipeID(BIDI_TUTORIAL_PIPEID);
         advertisement.setType(PipeService.UnicastType);
         advertisement.setName("JxtaBiDiPipe tutorial");
-        
+
         return advertisement;
     }
-    
+
     /**
      * Connection wrapper. Once started, it sends ITERATIONS messages and
      * receives a response from the initiator for each message.
      */
     private static class ConnectionHandler implements Runnable, PipeMsgListener {
         private final JxtaBiDiPipe pipe;
-        
+
         private final AtomicInteger received_count = new AtomicInteger(0);
-        
+
         /**
          * Constructor for the ConnectionHandler object
          *
@@ -148,7 +148,7 @@ public class JxtaServerPipeExample {
             this.pipe = pipe;
             pipe.setMessageListener(this);
         }
-        
+
         /**
          * {@inheritDoc}
          */
@@ -157,31 +157,31 @@ public class JxtaServerPipeExample {
                 received_count.incrementAndGet();
                 received_count.notify();
             }
-            
+
             try {
                 // grab the message from the event
                 Message msg = event.getMessage();
 
                 Logging.logCheckedFiner(LOG, "[" + Thread.currentThread().getName() + "] Received a response");
-                
+
                 // get the message element named SenderMessage
                 MessageElement msgElement = msg.getMessageElement(MESSAGE_NAMESPACE_NAME, RESPONSE_ELEMENT_NAME);
-                
+
                 if(null == msgElement) {
 
                     Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Missing message element");
                     return;
 
                 }
-                
+
                 // Get message
                 if (msgElement.toString() == null) {
 
                     Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Null message receved");
                     return;
 
-                } 
-                
+                }
+
                 // System.out.println("Got Message :" + msgElement.toString());
             } catch (Exception e) {
 
@@ -189,7 +189,7 @@ public class JxtaServerPipeExample {
 
             }
         }
-        
+
         /**
          * Send a series of messages over a pipe
          *
@@ -198,18 +198,18 @@ public class JxtaServerPipeExample {
          */
         private void sendTestMessages(JxtaBiDiPipe pipe) throws IOException {
             long start = System.currentTimeMillis();
-            
+
             // Send ITERATIONS messages to the initiator.
             for (int send_count = 0; send_count < ITERATIONS; send_count++) {
                 Message msg = new Message();
                 String data = "Seq #" + send_count;
-                
+
                 msg.addMessageElement(MESSAGE_NAMESPACE_NAME, new StringMessageElement(MESSAGE_ELEMENT_NAME, data, null));
-                
+
                 System.out.println("[" + Thread.currentThread().getName() + "] Sending message :" + send_count);
                 pipe.sendMessage(msg);
             }
-            
+
             // Wait for the last responses to arrive.
             synchronized(received_count) {
                 while(received_count.get() < ITERATIONS) {
@@ -223,16 +223,16 @@ public class JxtaServerPipeExample {
                     }
                 }
             }
-            
+
             // Compute the message throughput. 
             int transactions = received_count.get();
             long finish = System.currentTimeMillis();
             long delta = finish - start;
             double tps = (0 != delta) ? transactions * 1000.0 / delta : transactions * 1000.0;
-            
+
             System.out.println("[" + Thread.currentThread().getName() + "] Completed " + transactions + " in " + delta + "ms. (" + tps + "/TPS).");
         }
-        
+
         /**
          * Main processing method for the ConnectionHandler object
          */
@@ -246,7 +246,7 @@ public class JxtaServerPipeExample {
             }
         }
     }
-    
+
     /**
      * main
      *
@@ -257,15 +257,15 @@ public class JxtaServerPipeExample {
             final File home = new File(new File(".cache"), "server");
             NetworkManager manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "JxtaServerPipeExample", home.toURI());
             manager.startNetwork();
-            
+
             PeerGroup netPeerGroup = manager.getNetPeerGroup();
-            
+
             PipeAdvertisement serverPipeAdv = JxtaServerPipeExample.getPipeAdvertisement();
             JxtaServerPipe serverPipe = new JxtaServerPipe(netPeerGroup, serverPipeAdv);
-            
+
             // block forever until a connection is accepted
             serverPipe.setPipeTimeout(0);
-            
+
             System.out.println("Waiting for JxtaBidiPipe connections on JxtaServerPipe : " + serverPipeAdv.getPipeID());
             while (true) {
                 JxtaBiDiPipe bipipe = serverPipe.accept();

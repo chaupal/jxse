@@ -26,36 +26,36 @@ public class NettyHttpTunnelTransport extends NettyTransport {
         NioClientSocketChannelFactory nioFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
         return new HttpTunnelClientChannelFactory(nioFactory);
     }
-    
+
     @Override
     protected ServerSocketChannelFactory createServerSocketChannelFactory() {
         NioServerSocketChannelFactory nioFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
         return new HttpTunnelServerChannelFactory(nioFactory);
     }
-    
+
     @Override
     protected String getDefaultProtocolName() {
         return "http2";
     }
-    
+
     @Override
     protected int getDefaultPort() {
         return 8080;
     }
-    
+
     @Override
     protected int getDefaultPortRangeLowerBound() {
     	return 8081;
     }
-    
+
     @Override
     protected int getDefaultPortRangeUpperBound() {
     	return 8099;
     }
-    
+
     @Override
     protected String getTransportDescriptiveName() {
         return "HTTP Tunnel";
     }
-    
+
 }

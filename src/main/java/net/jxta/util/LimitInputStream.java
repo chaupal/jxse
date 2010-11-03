@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.util;
-
 
 import net.jxta.logging.Logging;
 
@@ -63,9 +62,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *  Implements a bounds on the number of bytes which may be read from an
@@ -73,22 +70,22 @@ import java.util.logging.Logger;
  *  underlying stream.
  **/
 public class LimitInputStream extends FilterInputStream {
-    
+
     /*
      *  Log4J Catagory
      */
     private static final Logger LOG = Logger.getLogger(LimitInputStream.class.getName());
-    
+
     private transient long limit;
-    
+
     private transient long read;
-    
+
     private transient long mark;
-    
+
     private transient boolean fatalUnderflow;
-    
+
     private transient boolean alreadycounting;
-    
+
     /**
      * Creates a new instance of LimitInputStream
      *
@@ -98,7 +95,7 @@ public class LimitInputStream extends FilterInputStream {
     public LimitInputStream(InputStream in, long limit) {
         this(in, limit, false);
     }
-    
+
     /**
      * Creates a new instance of LimitInputStream
      *
@@ -115,7 +112,7 @@ public class LimitInputStream extends FilterInputStream {
         this.fatalUnderflow = underflowThrows;
         this.alreadycounting = false;
     }
-    
+
     /**
      * {@inheritDoc}
      *
@@ -135,7 +132,7 @@ public class LimitInputStream extends FilterInputStream {
             }
         }
     }
-    
+
     /**
      * Closes this input stream and releases any system resources
      * associated with the stream.
@@ -149,7 +146,7 @@ public class LimitInputStream extends FilterInputStream {
     public void close() throws IOException {
         in = null;
     }
-    
+
     /**
      * Returns the number of bytes that can be read from this input
      * stream without blocking.
@@ -168,10 +165,10 @@ public class LimitInputStream extends FilterInputStream {
         if (null == in) {
             throw new IOException("Stream has been closed.");
         }
-        
+
         return (int) Math.min(super.available(), (limit - read));
     }
-    
+
     /**
      * Marks the current position in this input stream. A subsequent
      * call to the <code>reset</code> method repositions this stream at
@@ -193,11 +190,11 @@ public class LimitInputStream extends FilterInputStream {
         if (null == in) {
             return;
         } // don't throw exception to be consistent with other impls.
-        
+
         super.mark(readlimit);
         mark = read;
     }
-    
+
     /**
      * Repositions this stream to the position at the time the
      * <code>mark</code> method was last called on this input stream.
@@ -223,16 +220,16 @@ public class LimitInputStream extends FilterInputStream {
         if (null == in) {
             throw new IOException("Stream has been closed.");
         }
-        
+
         if (-1 == mark) {
             throw new IOException("reset() without mark(), or I dont know where mark is");
         }
-        
+
         super.reset();
-        
+
         read = mark;
     }
-    
+
     /**
      * Skips over and discards <code>n</code> bytes of data from the
      * input stream. The <code>skip</code> method may, for a variety of
@@ -252,23 +249,23 @@ public class LimitInputStream extends FilterInputStream {
         if (null == in) {
             throw new IOException("Stream has been closed.");
         }
-        
+
         long skipLen = Math.min(n, (limit - read));
-        
+
         boolean wascounting = alreadycounting;
 
         alreadycounting = true;
         long result = super.skip(skipLen);
 
         alreadycounting = wascounting;
-        
+
         if ((-1 != result) && !alreadycounting) {
             read += result;
         }
-        
+
         return result;
     }
-    
+
     /**
      * Reads the next byte of data from this input stream. The value
      * byte is returned as an <code>int</code> in the range
@@ -291,18 +288,18 @@ public class LimitInputStream extends FilterInputStream {
         if (null == in) {
             throw new IOException("Stream has been closed.");
         }
-        
+
         if (read >= limit) {
             return -1;
         }
-        
+
         boolean wascounting = alreadycounting;
 
         alreadycounting = true;
         int result = super.read();
 
         alreadycounting = wascounting;
-        
+
         if (!alreadycounting) {
             if (-1 != result) {
 
@@ -321,10 +318,10 @@ public class LimitInputStream extends FilterInputStream {
                 }
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * Reads up to <code>len</code> bytes of data from this input stream
      * into an array of bytes. This method blocks until some input is
@@ -347,20 +344,20 @@ public class LimitInputStream extends FilterInputStream {
         if (null == in) {
             throw new IOException("Stream has been closed.");
         }
-        
+
         if (read >= limit) {
             return -1;
         }
-        
+
         int readLen = (int) Math.min(len, limit - read);
-        
+
         boolean wascounting = alreadycounting;
 
         alreadycounting = true;
         int result = super.read(b, off, readLen);
 
         alreadycounting = wascounting;
-        
+
         if (!alreadycounting) {
             if (-1 != result) {
                 read += result;
@@ -376,7 +373,7 @@ public class LimitInputStream extends FilterInputStream {
                 }
             }
         }
-        
+
         return result;
     }
 }

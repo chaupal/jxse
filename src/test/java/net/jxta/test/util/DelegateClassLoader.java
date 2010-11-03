@@ -48,13 +48,13 @@ public class DelegateClassLoader extends SecureClassLoader {
      */
     private static final Logger LOG =
             Logger.getLogger(DelegateClassLoader.class.getName());
-    
+
     /**
      * Initial size of the buffer used to convert a class
      * data stream into a <code>Class</code> instance.
      */
     private static final int BUFFER_SIZE = 4096;
-    
+
     /**
      * Incremental size change when the buffer used to
      * convert the data stream into a <code>Class</code>
@@ -62,20 +62,20 @@ public class DelegateClassLoader extends SecureClassLoader {
      * data.
      */
     private static final int BUFFER_INCR = 4096;
-    
+
     /**
      * Local reference to the system class loader.
      */
     private static final ClassLoader SYS_LOADER =
             ClassLoader.getSystemClassLoader();
-    
+
     /**
      * Regular expression to select those classes which MUST be loaded using
      * the system ClassLoader.
      */
     private static final Pattern PATTERN_SYS_CLASSES =
             Pattern.compile("^javax?\\..*");
-    
+
     /**
      * List of patterns which will cause a Class to be forcibly redefined by
      * this ClassLoader should the name of the Class match a pattern in this
@@ -83,7 +83,7 @@ public class DelegateClassLoader extends SecureClassLoader {
      */
     private final Set<Pattern> redefinePatterns =
             new CopyOnWriteArraySet<Pattern>();
-    
+
     /**
      * List of patterns which will prevent a Class from ever being forcibly
      * redefined, even if it matches one of the Patterns in the
@@ -91,19 +91,19 @@ public class DelegateClassLoader extends SecureClassLoader {
      */
     private final Set<Pattern> neverRedefinePatterns =
             new CopyOnWriteArraySet<Pattern>();
-    
+
     /**
      * Stores the order which should be used when
      * looking for a loader.
      */
     private final List<ClassLoader> searchOrder =
             new CopyOnWriteArrayList<ClassLoader>();
-    
+
     /**
      * CodeSource to associate with all loaded classes.
      */
     private final CodeSource codeSource;
-    
+
     /**
      * Creates a class loader instance using the current
      * <code>ClassLoader</code> as the parent loader.
@@ -111,7 +111,7 @@ public class DelegateClassLoader extends SecureClassLoader {
     public DelegateClassLoader() {
         this(null, null);
     }
-    
+
     /**
      * Creates a class loader instance using the specified
      * loader as the parent loader.
@@ -121,7 +121,7 @@ public class DelegateClassLoader extends SecureClassLoader {
     public DelegateClassLoader(final ClassLoader parent) {
         this(null, parent);
     }
-    
+
     /**
      * Creates a class loader instance using the specified loader
      * as the parent loader and the specified code source instance for
@@ -135,7 +135,7 @@ public class DelegateClassLoader extends SecureClassLoader {
     public DelegateClassLoader(
             final CodeSource theCodeSource, final ClassLoader parent) {
         super(parent);
-        
+
         // Always search the system loader first
         searchOrder.add(SYS_LOADER);
         if (parent != null) {
@@ -144,10 +144,10 @@ public class DelegateClassLoader extends SecureClassLoader {
                 searchOrder.add(parent);
             }
         }
-        
+
         // We can never redefine classes which are protected by Java spec
         neverRedefinePatterns.add(PATTERN_SYS_CLASSES);
-        
+
         if (theCodeSource == null) {
             try {
                 URL url = new URL("file:/" + getClass().getName() + "/"
@@ -160,7 +160,7 @@ public class DelegateClassLoader extends SecureClassLoader {
             codeSource = theCodeSource;
         }
     }
-    
+
     /**
      * Adds a regular expression which will be used to test a class name
      * during a class loading attempt to see if the class name should be
@@ -174,7 +174,7 @@ public class DelegateClassLoader extends SecureClassLoader {
     public void addClassRedefinePattern(Pattern pattern) {
         redefinePatterns.add(pattern);
     }
-    
+
     /**
      * Adds a regular expression which will be used to test a class name
      * during a class loading attempt to see if the class name should 
@@ -189,7 +189,7 @@ public class DelegateClassLoader extends SecureClassLoader {
     public void addClassNeverRedefinePattern(Pattern pattern) {
         neverRedefinePatterns.add(pattern);
     }
-    
+
     /**
      * Adds a ClassLoader to the class/resource search path
      * of this class loader.  ClassLoaders are search in order of
@@ -205,10 +205,10 @@ public class DelegateClassLoader extends SecureClassLoader {
             searchOrder.add(loader);
         }
     }
-    
+
     //////////////////////////////////////////////////////////////////////
     //  ClassLoader overrides:
-    
+
     /**
      * {@inheritDoc}
      */
@@ -219,23 +219,23 @@ public class DelegateClassLoader extends SecureClassLoader {
         URL res = null;
         long findStart=0;
         long findTime;
-        
+
         if (LOG.isLoggable(Level.FINE)) {
             findStart = System.currentTimeMillis();
             LOG.fine("findClass(" + name + ")");
         }
-        
+
         // Determine the resource name for this class name
         String resName = name.replace('.', '/').concat(".class");
         boolean redefine = shouldRedefine(name);
-        
+
         // See if we've already loaded this class
         result = this.findLoadedClass(name);
         if (result != null) {
             LOG.finer("Class was previously loaded");
             return result;
         }
-        
+
         // Always use the system loader first.
         try {
             /*
@@ -262,7 +262,7 @@ public class DelegateClassLoader extends SecureClassLoader {
             }
             // Okay.  Try our loader now.
         }
-        
+
         // Get the first definition of this resource name
         if (result == null) {
             LOG.finer("Searching for child resource definition");
@@ -272,23 +272,23 @@ public class DelegateClassLoader extends SecureClassLoader {
                 result = defineClass(name, res);
             }
         }
-        
+
         if (LOG.isLoggable(Level.FINEST)) {
             findTime = System.currentTimeMillis() - findStart;
             LOG.finest("findClass(" + name + ") result: " + result);
             LOG.finest("findClass(" + name + ") time: " + findTime);
         }
-        
+
         if (result != null) {
             if (resolve) {
                 resolveClass(result);
             }
             return result;
         }
-        
+
         throw(new ClassNotFoundException("Class not found: " + name));
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -299,8 +299,7 @@ public class DelegateClassLoader extends SecureClassLoader {
         }
         return findResource(name);
     }
-    
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -313,17 +312,17 @@ public class DelegateClassLoader extends SecureClassLoader {
         }
         return findResources(name, false);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     private Enumeration<URL> findResources(
             final String name, final boolean firstOnly)
-            throws IOException {        
+            throws IOException {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("findResources(" + name + ", " + firstOnly + ")");
         }
-        
+
         // Remove any leading slashes.
         String normalizedName = name;
         while (normalizedName.charAt(0) == '/') {
@@ -333,14 +332,14 @@ public class DelegateClassLoader extends SecureClassLoader {
                 normalizedName = "";
             }
         }
-        
+
         // Search through the search path for resource definitions
         ArrayList<URL> found = new ArrayList<URL>();
         for (ClassLoader loader : searchOrder) {
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.finest("    Searching loader: " + loader);
             }
-            
+
             Enumeration<URL> anEnum = loader.getResources(normalizedName);
             while (anEnum.hasMoreElements()) {
                 URL url = anEnum.nextElement();
@@ -353,21 +352,21 @@ public class DelegateClassLoader extends SecureClassLoader {
                 }
             }
         }
-        
+
         return Collections.enumeration(found);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public URL findResource(final String name) {
         Enumeration anEnum;
-        
+
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("findResource(" + name + ")");
         }
-        
+
         try {
             anEnum = findResources(name, true);
             return (URL) anEnum.nextElement();
@@ -375,10 +374,10 @@ public class DelegateClassLoader extends SecureClassLoader {
             return null;
         }
     }
-    
+
     //////////////////////////////////////////////////////////////////////
     // Private methods:
-    
+
     /**
      * Determines if the class name provided should be forcibly redefined
      * by this ClassLoader.
@@ -406,7 +405,7 @@ public class DelegateClassLoader extends SecureClassLoader {
         }
         return redefine;
     }
-    
+
     /**
      * Loads a URL resource into a byte array so that it can be
      * directly used in a defineClass() call.
@@ -423,18 +422,18 @@ public class DelegateClassLoader extends SecureClassLoader {
         int len;
         long start=0;
         long time;
-        
+
         // XXX: Rework this method with ByteArrayOutputStream usage
-        
+
         if (LOG.isLoggable(Level.FINE)) {
             start = System.currentTimeMillis();
             LOG.finer("loadResource(" + res + ")");
         }
-        
+
         // Initialize our buffer
         data = new byte[BUFFER_SIZE];
         used = 0;
-        
+
         // Read in the resource data
         input = res.openStream();
         while (true) {
@@ -452,7 +451,7 @@ public class DelegateClassLoader extends SecureClassLoader {
                 data = tmp;
             }
         }
-        
+
         // Trim up the buffer
         tmp = new byte[used];
         System.arraycopy(data, 0, tmp, 0, used);
@@ -462,7 +461,7 @@ public class DelegateClassLoader extends SecureClassLoader {
         }
         return tmp;
     }
-    
+
     /**
      * Defines a class using the data found at the other end of the specified
      * URL.
@@ -474,7 +473,7 @@ public class DelegateClassLoader extends SecureClassLoader {
     private Class defineClass(final String name, final URL classDataURL) {
         byte[] data;
         Class result = null;
-        
+
         // Load the class data
         try {
             data = loadResource(classDataURL);
@@ -484,7 +483,7 @@ public class DelegateClassLoader extends SecureClassLoader {
                 LOG.log(Level.FINE, "Couldn't load resource data\n", x);
             }
         }
-        
+
         return result;
     }
 }

@@ -1,6 +1,5 @@
 package net.jxta.impl.xindice.core.data;
 
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -74,7 +73,7 @@ public interface RecordSet {
      * @throws net.jxta.impl.xindice.core.filer.BTreeException if a DB exception occurs
      */
     boolean hasMoreRecords() throws DBException;
-   
+
     /**
      * getNextRecord returns the next Record in the set.
      *
@@ -82,7 +81,7 @@ public interface RecordSet {
      * @throws net.jxta.impl.xindice.core.filer.BTreeException if a DB exception occurs
      */
     Record getNextRecord() throws DBException;
-   
+
     /**
      * getNextKey returns the next Record's Key, and skips the
      * RecordSet ahead to the next Record.

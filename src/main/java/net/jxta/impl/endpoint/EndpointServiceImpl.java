@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 package net.jxta.impl.endpoint;
@@ -97,7 +97,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.endpoint.router.RouteController;
-import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 
 /**
@@ -239,7 +238,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * The set of shared transport messengers currently ready for use.
      */
     private final Map<EndpointAddress, Reference<Messenger>> directMessengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
-    
+
     /**
      * A means of preserving CanonicalMessenger instances as long as their cached messenger
      * is still alive. This is a replacement for the original behaviour of setting an
@@ -276,7 +275,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * infinite number of messages too.
      */
     private final Map<EndpointAddress, Reference<Messenger>> channelCache = new WeakHashMap<EndpointAddress, Reference<Messenger>>();
-
 
     /**
      * The filter listeners.
@@ -332,7 +330,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             return System.identityHashCode(this);
         }
     }
-
 
     /**
      * A non blocking messenger that obtains a backing (possibly blocking)
@@ -454,7 +451,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         protected void sendMessageBImpl(Message msg, String service, String param) throws IOException {
 
             if (cachedMessenger == null) {
-                
+
                 Logging.logCheckedSevere(LOG, "Internal messenger error: send requested while not connected.");
                 throw new IOException("Internal messenger error.");
 
@@ -530,7 +527,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 } catch (NumberFormatException e) {
 
                     Logging.logCheckedWarning(LOG, "could not parse MessengerQueueSize string\n", e);
-                    
+
                 }
             }
 
@@ -547,7 +544,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         PeerGroup parentGroup = group.getParentGroup();
 
-        
         if (useParentEndpoint && parentGroup != null) {
             parentEndpoint = parentGroup.getEndpointService();
             parentEndpoint.addMessengerEventListener(this, EndpointService.LowPrecedence);
@@ -624,7 +620,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         Logging.logCheckedInfo(LOG, "Endpoint Service started.");
-        
+
         return Module.START_OK;
     }
 
@@ -669,7 +665,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // The above is not really needed and until we have a very orderly
         // shutdown, it causes NPEs that are hard to prevent.
 
-
         /*
          * The following code was imported from EndpointServiceInterface, but it
          * causing the constructor to fail. It does not seem to serve any purpose.
@@ -683,7 +678,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         Logging.logCheckedInfo(LOG, "Endpoint Service stopped.");
-        
+
     }
 
     /**
@@ -752,7 +747,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     Logging.logCheckedFine(LOG, "   message ", myMsg, " discarded upon filter decision");
 
                     if (EndpointMeterBuildSettings.ENDPOINT_METERING) metrics.numFilteredOut++;
-                    
+
                     break;
 
                 }
@@ -760,14 +755,14 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 propagater.propagate(filtered.clone(), serviceName, serviceParam, initialTTL);
 
                 if (EndpointMeterBuildSettings.ENDPOINT_METERING) metrics.numPropagatedTo++;
-                
+
             } catch (Exception e) {
 
                 Logging.logCheckedWarning(LOG, "Failed propagating message ", filtered, " on message transport ", aTransport, "\n", e);
 
                 if (EndpointMeterBuildSettings.ENDPOINT_METERING) 
                     metrics.numErrorsPropagated++;
-                
+
             }
         }
     }
@@ -931,20 +926,20 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (null == srcAddress) {
 
             Logging.logCheckedWarning(LOG, "null src address, discarding message ", msg);
-            
+
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.invalidIncomingMessage();
-            
+
             return;
         }
 
         if (null == dstAddress) {
 
             Logging.logCheckedWarning(LOG, "null destination address, discarding message ", msg);
-            
+
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.invalidIncomingMessage();
-            
+
             return;
         }
 
@@ -963,7 +958,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if ((null == decodedServiceName) || (0 == decodedServiceName.length())) {
 
             Logging.logCheckedWarning(LOG, "dest serviceName must not be null, discarding message ", msg);
-            
+
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.invalidIncomingMessage();
             }
@@ -981,7 +976,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         if (msg == null) {
 
             Logging.logCheckedFine(LOG, "Message discarded during filter processing");
-            
+
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.incomingMessageFilteredOut();
             }
@@ -1087,7 +1082,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) 
                 endpointMeter.noSourceAddressForDemuxMessage();
-            
+
             return;
 
         }
@@ -1267,11 +1262,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             DiscoveryService discovery = group.getDiscoveryService();
 
             if (discovery != null) discovery.publish(padv, DiscoveryService.INFINITE_LIFETIME, DiscoveryService.DEFAULT_EXPIRATION);
-            
+
         } catch (Exception ex) {
 
             Logging.logCheckedSevere(LOG, "Exception adding message transport \n", ex);
-            
+
         }
     }
 
@@ -1458,7 +1453,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             if (null != listener) 
                 Logging.logCheckedWarning(LOG, "Found handler only via compatibility listener : ", serviceName, serviceParam);
-            
+
         }
 
         return listener;
@@ -1518,7 +1513,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             if (!(transpt instanceof MessageSender)) {
                 continue;
             }
-            
+
             return (MessageSender) transpt;
         }
         return null;
@@ -1541,7 +1536,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // flexibility regarding QOS params, possibly. Be liberal for now.
 
         if (addr == null) throw new IllegalArgumentException("null endpoint address not allowed.");
-        
+
         if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
 
             Throwable trace = new Throwable("Stack Trace");
@@ -1808,7 +1803,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             // remove returned. It is unlikely to be a problem for messenger
             // events, but if it is, then we'll have to add reader-writer synch.
             Collection<MessengerEventListener> allML = new ArrayList<MessengerEventListener>(passiveMessengerListeners[prec]);
-            
+
             for (MessengerEventListener listener : allML) {
 
                 try {
@@ -1825,7 +1820,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                 } catch (Throwable all) {
 
                     Logging.logCheckedWarning(LOG, "Uncaught Throwable in listener ", listener, "\n", all);
-                    
+
                 }
             }
         }

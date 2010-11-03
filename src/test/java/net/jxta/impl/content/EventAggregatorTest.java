@@ -66,13 +66,10 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 /**
@@ -119,7 +116,7 @@ public class EventAggregatorTest {
         share = context.mock(ContentShare.class);
         shares.clear();
         shares.add(share);
-        
+
         context.checking(new Expectations() {{
             ignoring(share);
         }});

@@ -3,7 +3,6 @@ package net.jxta.impl.cm.bdb;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.TimerTask;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.logging.Logging;

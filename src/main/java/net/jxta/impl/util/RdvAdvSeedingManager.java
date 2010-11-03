@@ -70,45 +70,44 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Adds the ability to discover RdvAdvs via Discovery.
  */
 public class RdvAdvSeedingManager extends ACLSeedingManager {
-    
+
     /**
      *  Logger
      */
     private static final transient Logger LOG = Logger.getLogger(URISeedingManager.class.getName());
-    
+
     /**
      *  The minimum frequence at which we will update our seed lists.
      */
     final static long MIN_REFRESH_INTERVAL = 30 * TimeUtils.ASECOND;
-    
+
     /**
      *  Group who's services we will utilize.
      */
     final PeerGroup group;
-    
+
     /**
      *  The identifier which we use to distinguish our RdvAdvertisements.
      */
     final String serviceName;
-    
+
     /**
      *  The absolute time in milliseconds at which we may sen our next remote
      *  discovery.
      */
     long nextRemoteDiscovery = 0;
-    
+
     /**
      *  The Route Advertisements we have discovered.
      */
     final List<RouteAdvertisement> discoveredRoutes = new ArrayList<RouteAdvertisement>();
-    
+
     /**
      * Creates a new instance of RdvAdvSeedingManager
      *
@@ -117,21 +116,21 @@ public class RdvAdvSeedingManager extends ACLSeedingManager {
      */
     public RdvAdvSeedingManager(URI aclLocation, PeerGroup group, String serviceName) {
         super(aclLocation);
-        
+
         this.group = group;
         this.serviceName = serviceName;
     }
-    
+
     /**
      *  Update seeds
      */
     private void refreshActiveSeeds() {
         DiscoveryService discovery = group.getDiscoveryService();
-        
+
         if((null != discovery) && (TimeUtils.timeNow() > nextRemoteDiscovery)) {
             // Send a remote search hoping for future responses.
             discovery.getRemoteAdvertisements(null, DiscoveryService.ADV, RdvAdvertisement.ServiceNameTag, serviceName, 3);
-            
+
             Enumeration<Advertisement> advs;
 
             try {
@@ -144,25 +143,25 @@ public class RdvAdvSeedingManager extends ACLSeedingManager {
                 return;
 
             }
-            
+
             synchronized(this) {
                 discoveredRoutes.clear();
-                
+
                 while(advs.hasMoreElements()) {
                     Advertisement anAdv = advs.nextElement();
                     if(!(anAdv instanceof RdvAdvertisement)) {
                         continue;
                     }
-                    
+
                     RdvAdvertisement rdvAdv = (RdvAdvertisement) anAdv;
                     RouteAdvertisement routeAdv = rdvAdv.getRouteAdv();
                     routeAdv.setDestPeerID(rdvAdv.getPeerID());
-                    
+
                     discoveredRoutes.add(routeAdv);
                 }
-                
+
                 Collections.shuffle(discoveredRoutes);
-                
+
                 if(discoveredRoutes.isEmpty()) {
                     // Be extra aggressive if we haven't found anything yet.
                     nextRemoteDiscovery = TimeUtils.toAbsoluteTimeMillis(MIN_REFRESH_INTERVAL / 2);
@@ -172,28 +171,28 @@ public class RdvAdvSeedingManager extends ACLSeedingManager {
             }
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void stop() { 
         // do nothing.
     }
-    
+
     /**
      *  {@inheritDoc}
      */
     public synchronized URI[] getActiveSeedURIs() {
-        refreshActiveSeeds();        
+        refreshActiveSeeds();
 
         List<URI> results = new ArrayList<URI>();
-        
+
         int eaIndex = 0;
         boolean addedEA;
-        
+
         do {
             addedEA = false;
-            
+
             for (RouteAdvertisement aRA : discoveredRoutes) {
                 List<EndpointAddress> raEAs = aRA.getDestEndpointAddresses();
                 if (eaIndex < raEAs.size()) {
@@ -204,28 +203,28 @@ public class RdvAdvSeedingManager extends ACLSeedingManager {
                     addedEA = true;
                 }
             }
-            
+
             // Next loop we use the next most preferred address.
             eaIndex++;
         } while (addedEA);
-        
+
         return results.toArray(new URI[results.size()]);
     }
-    
+
     /**
      *  {@inheritDoc}
      */
     public synchronized RouteAdvertisement[] getActiveSeedRoutes() {
-        refreshActiveSeeds();        
+        refreshActiveSeeds();
 
         List<RouteAdvertisement> results = new ArrayList<RouteAdvertisement>();
-        
+
         for( RouteAdvertisement eachRoute : discoveredRoutes ) {
             if(!results.contains(eachRoute)) {
                 results.add(eachRoute);
             }
         }
-        
+
         return results.toArray(new RouteAdvertisement[results.size()]);
     }
 }

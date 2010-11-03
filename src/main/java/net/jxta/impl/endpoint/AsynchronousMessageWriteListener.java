@@ -16,17 +16,17 @@ import net.jxta.endpoint.Message;
  * @author Iain McGinniss (iain.mcginniss@onedrum.com)
  */
 public class AsynchronousMessageWriteListener implements MessageWriteListener {
-    
+
     CountDownLatch completionLatch = new CountDownLatch(1);
     private AtomicBoolean complete = new AtomicBoolean(false);
     private AtomicBoolean presentedForwrite = new AtomicBoolean(false);
     private AtomicReference<Throwable> failureCause = new AtomicReference<Throwable>(null);
     private Message message;
-    
+
     public AsynchronousMessageWriteListener(Message message) {
         this.message = message;
     }
-    
+
     /**
      * Awaits the success or failure of this associated message being sent.
      * Once this method returns, {@link #wasSuccessful()} can be called.
@@ -35,7 +35,7 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
     public void await() throws InterruptedException {
         completionLatch.await();
     }
-    
+
     /**
      * Awaits the success or failure of this associated message being sent.
      * If the method returns true, {@link #wasSuccessful()} can be called.
@@ -44,15 +44,15 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
      * @return whether or not the wait operation timed out.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
-    
+
     public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
         return completionLatch.await(timeout, unit);
     }
-    
+
     public boolean isDone() {
         return complete.get();
     }
-    
+
     /**
      * @return whether the message was sent successfully.
      * @throws IllegalStateException if the message has not yet been marked as successful or
@@ -64,7 +64,7 @@ public class AsynchronousMessageWriteListener implements MessageWriteListener {
         }
         return failureCause.get() == null;
     }
-    
+
     /**
      * @return the cause of failure. If the message was sent successfully, this method will
      * return null.

@@ -19,10 +19,8 @@
 
 package net.jxta.impl.xindice.util;
 
-
 import java.io.PrintStream;
 import java.io.PrintWriter;
-
 
 /**
  * A XindiceRuntimeException is the base class for all Xindice related RuntimeExceptions.

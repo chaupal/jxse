@@ -1,6 +1,5 @@
 package net.jxta.impl.cm.sql;
 
-import java.io.File;
 import java.io.IOException;
 
 import net.jxta.impl.cm.AbstractCmConcurrencyTest;

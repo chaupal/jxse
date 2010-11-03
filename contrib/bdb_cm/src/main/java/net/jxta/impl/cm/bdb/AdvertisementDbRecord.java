@@ -3,7 +3,6 @@
  */
 package net.jxta.impl.cm.bdb;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 

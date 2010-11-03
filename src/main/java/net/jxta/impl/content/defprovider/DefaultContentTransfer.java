@@ -1,32 +1,32 @@
 /*
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Copyright (c) 2001-2007 Sun Microsystems, Inc. All rights reserved.
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
 
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -228,7 +228,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
     private final List<Node> outstanding = new CopyOnWriteArrayList<Node>();
     private final BlockingQueue<PipeMsgEvent> msgQueue =
             new ArrayBlockingQueue<PipeMsgEvent>(MAX_QUEUE_SIZE);
-    
+
     // Managed over the course of the transfer
     private List<DefaultContentShareAdvertisementImpl> sourcesRemaining =
             new ArrayList<DefaultContentShareAdvertisementImpl>();
@@ -356,7 +356,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             List<ContentShareAdvertisement> sources,
             List<ContentShareAdvertisement> newSources)
             throws TransferException {
-        
+
         // Add new sources to our tracked list
         for (ContentShareAdvertisement candidate : newSources) {
             if (candidate instanceof DefaultContentShareAdvertisementImpl) {
@@ -379,7 +379,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             sourcesTried.clear();
              */
         }
-        
+
         // Find a share adv we can use:
         DefaultContentShareAdvertisementImpl adv = null;
         sourcePipe = null;
@@ -389,7 +389,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             }
             adv = sourcesRemaining.remove(0);
             sourcesTried.add(adv);
-            
+
             try {
 
                 PipeService pipeService = peerGroup.getPipeService();
@@ -400,17 +400,17 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
                 Logging.logCheckedWarning(LOG, "Could not resolve source pipe for Source: ",
                     adv.getPipeAdvertisement(), iox);
-                
+
                 adv = null;
 
             }
-            
+
         } while (adv == null);
-        
+
         if (adv == null) throw(new TransferException("Could not find usable source"));
 
         Logging.logCheckedFine(LOG, "Source selected: ", adv);
-        
+
         try {
             transferInit(dest);
             processMessages();
@@ -478,7 +478,6 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         }
     }
 
-
     //////////////////////////////////////////////////////////////////////////
     // Private methods:
 
@@ -510,7 +509,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                     periodicTask = executor.scheduleWithFixedDelay(
 
                         new Runnable() {
-                        
+
                             public void run() {
                                 try {
                                     criticalEntry();
@@ -654,7 +653,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         long lastWritten = 0;
 
         Logging.logCheckedFine(LOG, "Worker thread starting");
-        
+
         while (running) {
             workQueue.clear();
             synchronized(this) {
@@ -669,7 +668,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             try {
                 doPeriodic = false;
                 for (PipeMsgEvent pme : workQueue) {
-                    
+
                     msg = pme.getMessage();
 
                     try {
@@ -697,7 +696,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         }
 
         Logging.logCheckedFine(LOG, "Worker thread closing up shop");
-        
+
     }
 
     /**
@@ -757,7 +756,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             } catch (ClassCastException ccx) {
 
                 Logging.logCheckedWarning(LOG, "Second message element not byte array\n", ccx);
-                
+
             }
         }
 
@@ -813,7 +812,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                     if (prepareRequest(node)) {
 
                         Logging.logCheckedFiner(LOG, "  Node repurposed for request: ", node);
-                        
+
                         progress = true;
                         inUse++;
                         sendRequest(node, i);
@@ -828,7 +827,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                     if (checkWrite(node)) {
 
                         Logging.logCheckedFiner(LOG, "  Data written.");
-                        
+
                         if (prepareRequest(node)) {
 
                             Logging.logCheckedFiner(LOG, "  Node repurposed for request: ", node);
@@ -892,7 +891,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
                 // We're done.
                 Logging.logCheckedFine(LOG, "Transfer complete");
-                
+
                 synchronized(this) {
                     running = false;
                     notifyAll();
@@ -998,7 +997,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         } catch (IOException iox) {
 
             Logging.logCheckedWarning(LOG, "IOException during message send\n", iox);
-            
+
         }
 
         Logging.logCheckedFiner(LOG, "Did not send message");
@@ -1029,7 +1028,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             Logging.logCheckedWarning(LOG, "Invalid ContentID.  Discarding.");
             Logging.logCheckedFinest(LOG, "Expected ContentID: ", getTransferContentID());
             return;
-            
+
         }
 
         if (resp.getLength() != ((data == null) ? 0 : data.length)) {
@@ -1066,7 +1065,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             Logging.logCheckedWarning(LOG, "Invalid offset. Discarding.");
             Logging.logCheckedFinest(LOG, "Expected offset: ", node.offset);
             return;
-            
+
         }
 
         // We have what appears to be a good packet.
@@ -1113,7 +1112,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             // Signal an evaluation all Nodes
             doPeriodic = true;
-            
+
         }
 
         if (eofOffset >= 0) {
@@ -1163,7 +1162,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
      * thread has become the critical section owner.
      */
     private void criticalEntry() throws InterruptedException {
-        
+
         Thread me = Thread.currentThread();
 
         synchronized(this) {
@@ -1178,7 +1177,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         }
 
         Logging.logCheckedFinest(LOG, "Access to critical section granted");
-        
+
     }
 
     /**
@@ -1190,7 +1189,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
     private void criticalExit() {
 
         Logging.logCheckedFinest(LOG, "Releasing access to critical section");
-        
+
         Thread me = Thread.currentThread();
 
         synchronized(this) {
@@ -1199,7 +1198,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                 notifyAll();
             }
         }
-        
+
     }
 
 }

@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,25 +37,24 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
 package net.jxta.peergroup;
-
 
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
@@ -72,7 +71,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * A factory for instantiating the World Peer Group. Every peer starts by
@@ -103,19 +101,19 @@ import java.util.logging.Logger;
  * @see net.jxta.peergroup.NetPeerGroupFactory
  */
 public final class WorldPeerGroupFactory {
-    
+
     /**
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(WorldPeerGroupFactory.class.getName());
 
     private static final Map<String, PeerGroup> worldPeerGroups = new HashMap<String, PeerGroup>();
-    
+
     /**
      * Our strong reference to the World Peer Group.
      */
     private final PeerGroup world;
-    
+
     /**
      * Provided for backwards compatibility, this constructor instantiates the
      * World Peer Group using the PlatformConfig file found in the directory
@@ -131,40 +129,40 @@ public final class WorldPeerGroupFactory {
     public WorldPeerGroupFactory() throws PeerGroupException {
         // Establish the default store location via long established hackery.
         String jxta_home = System.getProperty("JXTA_HOME", ".jxta/");
-        
+
         // ensure that it ends in a seperator.
         if (!jxta_home.endsWith(File.separator)) {
             jxta_home += File.separator;
         }
-        
+
         File jxta_home_dir = new File(jxta_home);
-        
+
         // Ensure the homedir exists.
         if (!jxta_home_dir.exists()) {
             jxta_home_dir.mkdirs();
         }
-        
+
         URI storeHome = jxta_home_dir.toURI();
-        
+
         // Instantiate the default configurator. Do not do this in your own code!
         try {
             Configurator configurator = new net.jxta.impl.peergroup.DefaultConfigurator(storeHome);
             // Get (and possibly generate) the platform configuration.
             ConfigParams config = configurator.getConfigParams();
-            
+
             world = newWorldPeerGroup(getDefaultWorldPeerGroupClass(), config, storeHome);
-            
+
             // persist any changes which were made to the platform config by
             // service initialization.
             configurator.setConfigParams(config);
             configurator.save();
         } catch (ConfiguratorException configFailure) {
             LOG.severe("Failure while managing World Peer Group configuration");
-            
+
             throw new PeerGroupException("Failure while managing World Peer Group configuration", configFailure);
         }
     }
-    
+
     /**
      * Constructs the World Peer Group using the specified configuration and
      * using the specified storeHome location for persistence.
@@ -178,10 +176,10 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      */
     public WorldPeerGroupFactory(ConfigParams config, URI storeHome) throws PeerGroupException {
-        
+
         world = newWorldPeerGroup(getDefaultWorldPeerGroupClass(), config, storeHome);
     }
-    
+
     /**
      * Constructs the World Peer Group using the specified configuration and
      * using the specified storeHome location for persistence.
@@ -197,10 +195,10 @@ public final class WorldPeerGroupFactory {
      * Peer Group.
      */
     public WorldPeerGroupFactory(Class worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
-        
+
         world = newWorldPeerGroup(worldPeerGroupClass, config, storeHome);
     }
-    
+
     /**
      * Returns a strong (reference counted) interface object for the World Peer
      * Group. This reference should be explicitly unreferenced when it is no
@@ -213,7 +211,7 @@ public final class WorldPeerGroupFactory {
     public PeerGroup getInterface() {
         return world.getInterface();
     }
-    
+
     /**
      * Returns a weak (non-reference counted) interface object for the World
      * Peer Group.
@@ -225,7 +223,7 @@ public final class WorldPeerGroupFactory {
     public PeerGroup getWeakInterface() {
         return world.getWeakInterface();
     }
-    
+
     /**
      * Determine the class to use for the World PeeerGroup. 
      *
@@ -235,16 +233,16 @@ public final class WorldPeerGroupFactory {
      * be used for the World Peer Group.
      */
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
-            
+
         try {
             JxtaLoader loader = net.jxta.impl.peergroup.GenericPeerGroup.getJxtaLoader();
-            
+
             ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
-            
+
             if(null == worldGroupImplAdv) {
                 throw new PeerGroupException("Could not locate World PeerGroup Module Implementation.");
             }
-            
+
             return Class.forName(worldGroupImplAdv.getCode());
         } catch (RuntimeException failed) {
             throw new PeerGroupException("Could not load World PeerGroup class.", failed);
@@ -252,7 +250,7 @@ public final class WorldPeerGroupFactory {
             throw new PeerGroupException("Could not load World PeerGroup class.", failed);
         }
     }
-    
+
     /**
      * Constructs the World Peer Group instance.
      *
@@ -287,21 +285,21 @@ public final class WorldPeerGroupFactory {
             {
                 throw new PeerGroupException( "Only a single instance of the World Peer Group may be instantiated at a time.");
             }
-            
+
             PeerGroup result = null;
-            
+
             try {
 
                 Logging.logCheckedInfo(LOG, "Making a new World Peer Group instance using : ", worldPeerGroupClass.getName());
-                
+
                 Constructor<PeerGroup> twoParams = (Constructor<PeerGroup>) worldPeerGroupClass.getConstructor(ConfigParams.class,URI.class);
-                
+
                 try {
                     result = twoParams.newInstance(config, storeHome);
                 } catch (InvocationTargetException failure) {
                     // unwrap the real exception.
                     Throwable cause = failure.getCause();
-                    
+
                     if (cause instanceof Exception) {
                         throw (Exception) cause;
                     } else if (cause instanceof Error) {
@@ -311,30 +309,30 @@ public final class WorldPeerGroupFactory {
                         throw failure;
                     }
                 }
-                
+
                 result.init(null, PeerGroupID.worldPeerGroupID, null);
                 worldPeerGroups.put(storeHomeString, result);
                 return result;
             } catch (RuntimeException e) {
                 // should be all other checked exceptions
                 LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.\n", e);
-                
+
                 // cleanup broken instance
                 if (null != result) {
                     result.unref();
                 }
-                
+
                 // just rethrow.
                 throw e;
             } catch (Exception e) {
                 // should be all other checked exceptions
                 LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.\n", e);
-                
+
                 // cleanup broken instance
                 if (null != result) {
                     result.unref();
                 }
-                
+
                 // Simplify exception scheme for caller: any sort of problem wrapped
                 // in a PeerGroupException.
                 throw new PeerGroupException("World Peer Group could not be instantiated.", e);

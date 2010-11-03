@@ -246,7 +246,7 @@ public class NetworkConfigurator {
      * HTTP2 (netty http tunnel) client
      */
     public final static int HTTP2_CLIENT = 1 << 14;
-    
+
     /**
      * HTTP2 (netty http tunnel) server
      */
@@ -409,12 +409,12 @@ public class NetworkConfigurator {
      * HTTP2 Config Advertisement
      */
     protected transient TCPAdv http2Config;
-    
+
     /**
      * Default HTTP2 transport state
      */
     protected transient boolean http2Enabled = true;
-    
+
     /**
      * Infrastructure Peer Group Configuration
      */
@@ -590,7 +590,6 @@ public class NetworkConfigurator {
         return storeHome;
     }
 
-
     /**
      * Sets the location which will serve as the parent for all stored items
      * used by JXTA.
@@ -696,7 +695,7 @@ public class NetworkConfigurator {
     public boolean isHttp2Enabled() {
     	return http2Enabled;
     }
-    
+
     public void setHttp2Enabled(boolean enabled) {
     	http2Enabled = enabled;
     	
@@ -705,63 +704,63 @@ public class NetworkConfigurator {
     		http2Config.setServerEnabled(false);
     	}
     }
-    
+
     public boolean getHttp2IncomingStatus() {
     	return http2Config.getServerEnabled();
     }
-    
+
     public void setHttp2Incoming(boolean enabled) {
     	http2Config.setServerEnabled(enabled);
     }
-    
+
     public boolean getHttp2OutgoingStatus() {
     	return http2Config.getClientEnabled();
     }
-    
+
     public void setHttp2Outgoing(boolean enabled) {
     	http2Config.setClientEnabled(enabled);
     }
-    
+
     public int getHttp2Port() {
     	return http2Config.getPort();
     }
-    
+
     public void setHttp2Port(int port) {
     	http2Config.setPort(port);
     }
-    
+
     public int getHttp2StartPort() {
     	return http2Config.getStartPort();
     }
-    
+
     public void setHttp2StartPort(int startPort) {
     	http2Config.setStartPort(startPort);
     }
-    
+
     public int getHttp2EndPort() {
     	return http2Config.getEndPort();
     }
-    
+
     public void setHttp2EndPort(int endPort) {
     	http2Config.setEndPort(endPort);
     }
-    
+
     public String getHttp2InterfaceAddress() {
     	return http2Config.getInterfaceAddress();
     }
-    
+
     public void setHttp2InterfaceAddress(String address) {
     	http2Config.setInterfaceAddress(address);
     }
-    
+
     public String getHttp2PublicAddress() {
     	return http2Config.getServer();
     }
-    
+
     public boolean isHttp2PublicAddressExclusive() {
     	return http2Config.getPublicAddressOnly();
     }
-    
+
     public void setHttp2PublicAddress(String address, boolean exclusive) {
     	http2Config.setServer(address);
         http2Config.setPublicAddressOnly(exclusive);
@@ -923,7 +922,7 @@ public class NetworkConfigurator {
         // HTTP2
         http2Config.setClientEnabled((mode & HTTP2_CLIENT) == HTTP2_CLIENT);
         http2Config.setServerEnabled((mode & HTTP2_SERVER) == HTTP2_SERVER);
-        
+
         // Multicast
         multicastConfig.setMulticastState((mode & IP_MULTICAST) == IP_MULTICAST);
 
@@ -1588,7 +1587,7 @@ public class NetworkConfigurator {
     public ConfigParams load(URI uri) throws IOException, CertificateException {
 
         if (uri == null) throw new IllegalArgumentException("URI can not be null");
-        
+
         Logging.logCheckedFine(LOG, "Loading configuration : ", uri);
 
         PlatformConfig platformConfig = read(uri);
@@ -1735,10 +1734,10 @@ public class NetworkConfigurator {
         } else {
             throw new IllegalStateException("Missing TCP Advertisement");
         }
-        
+
         return (TCPAdv) AdvertisementFactory.newAdvertisement(param);
 	}
-    
+
     private MulticastAdv loadMulticastAdv(PlatformConfig platformConfig, ModuleClassID moduleClassID) {
         XMLElement<?> param2 = (XMLElement<?>) platformConfig.getServiceParam(moduleClassID);
         Enumeration<?> tcpChilds2 = param2.getChildren(TransportAdvertisement.getAdvertisementType());
@@ -1749,7 +1748,7 @@ public class NetworkConfigurator {
         } else {
             throw new IllegalStateException("Missing Multicast Advertisment");
         }
-        
+
         return (MulticastAdv) AdvertisementFactory.newAdvertisement(param2);
     }
 
@@ -1766,7 +1765,7 @@ public class NetworkConfigurator {
         httpEnabled = (httpConfig.isClientEnabled() || httpConfig.isServerEnabled());
         tcpEnabled = (tcpConfig.isClientEnabled() || tcpConfig.isServerEnabled());
         http2Enabled = (http2Config.isClientEnabled() || http2Config.isServerEnabled());
-        
+
         ConfigParams advertisement = getPlatformConfig();
         OutputStream out = null;
 
@@ -1982,10 +1981,10 @@ public class NetworkConfigurator {
         http2Config.setServer(null);
         http2Config.setClientEnabled((mode & HTTP2_CLIENT) == TCP_CLIENT);
         http2Config.setServerEnabled((mode & HTTP2_SERVER) == TCP_SERVER);
-        
+
         return http2Config;
     }
-    
+
     protected PeerGroupConfigAdv createInfraConfigAdv() {
         infraPeerGroupConfig = (PeerGroupConfigAdv) AdvertisementFactory.newAdvertisement(
                 PeerGroupConfigAdv.getAdvertisementType());

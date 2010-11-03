@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-
 public class StatsTracker {
 
 	private static final boolean WRITE_RESULTS_TO_FILE = false;

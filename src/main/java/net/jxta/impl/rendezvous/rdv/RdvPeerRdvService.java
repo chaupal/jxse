@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -82,7 +82,6 @@ import net.jxta.impl.rendezvous.rendezvousMeter.ClientConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -101,7 +100,6 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -218,7 +216,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
             // don't worry about it for now. It'll still work.
             Logging.logCheckedWarning(LOG, "Failed adding service params\n", ohwell);
-            
+
         }
 
         PeerGroup advGroup = group.getParentGroup();
@@ -233,7 +231,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
                 rdvService.getAssignedID().toString() + group.getPeerGroupID().getUniqueValue().toString());
 
         Logging.logCheckedInfo(LOG, "RendezVous Service is initialized for ", group.getPeerGroupID(), " as a Rendezvous peer.");
-        
+
     }
 
     /**
@@ -320,7 +318,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
         clients.clear();
 
         gcTaskHandle.cancel(false);
-        
+
         super.stopApp();
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
@@ -357,7 +355,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
     public void disconnectFromRendezVous(ID peerId) {
 
         Logging.logCheckedWarning(LOG, "Invalid call to disconnectFromRendezVous() on RDV peer");
-        
+
     }
 
     /**
@@ -643,7 +641,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
                 Logging.logCheckedWarning(LOG, "Max clients exceeded, declining lease request from: ",
                     padv.getName(), " [", padv.getPeerID(), "]");
-                
+
             }
 
         }
@@ -791,7 +789,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
                     } catch (Exception e) {
 
                         Logging.logCheckedWarning(LOG, "GCTask failed for ", pConn, "\n", e);
-                        
+
                     }
                 }
 
@@ -802,11 +800,10 @@ public class RdvPeerRdvService extends StdRendezVousService {
             } catch (Throwable all) {
 
                 Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
-                
+
             }
         }
     }
-
 
     /**
      * @inheritDoc

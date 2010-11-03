@@ -1,6 +1,5 @@
 package net.jxta.impl.xindice.core.indexer;
 
-
 /*
  * The Apache Software License, Version 1.1
  *
@@ -63,7 +62,6 @@ import net.jxta.impl.xindice.core.data.Value;
 
 import java.util.Arrays;
 
-
 /**
  * IndexQuery represents the most primitive form of index querying.
  * Instances of this object should be created by QueryResolvers and
@@ -73,7 +71,7 @@ import java.util.Arrays;
 public class IndexQuery {
     // No Operator
     public static final int ANY = 0; // Any And All Matches
-   
+
     // Singleton Operators
     public static final int EQ = 1; // Equal To
     public static final int NEQ = -1; // Not Equal To
@@ -81,36 +79,36 @@ public class IndexQuery {
     public static final int LEQ = -2; // Less Than Or Equal To
     public static final int LT = 3; // Less Than
     public static final int GEQ = -3; // Greater Than Or Equal To
-   
+
     // Range Operators
     public static final int BW = 4; // Between (Inclusive)
     public static final int NBW = -4; // Not Between (Inclusive)
     public static final int BWX = 5; // Between (Exclusive)
     public static final int NBWX = -5; // Not Between (Exclusive)
-   
+
     // Set Operators
     public static final int IN = 6; // In The Set
     public static final int NIN = -6; // Not In The Set
-   
+
     // Other operators
     public static final int SW = 7; // Starts-with
     public static final int NSW = -7; // Not Starts-with
-   
+
     public static final int EW = 8; // Ends-with
     public static final int NEW = -8; // Not Ends-with
 
     protected int op;
     protected Value[] vals;
-   
+
     public IndexQuery() {
         op = ANY;
     }
-   
+
     public IndexQuery(int op, Value[] vals) {
         this.op = op;
         this.vals = vals;
     }
-   
+
     public IndexQuery(Value[] vals) {
         this(IN, vals);
     }
@@ -129,36 +127,36 @@ public class IndexQuery {
             vals = new Value[] { val1 };
         }
     }
-      
+
     public IndexQuery(Value val1) {
         this(EQ, val1);
     }
-   
+
     public IndexQuery(int op, Value val1, Value val2) {
         this.op = op;
         vals = new Value[] { val1, val2 };
     }
-   
+
     public IndexQuery(Value val1, Value val2) {
         this(IN, val1, val2);
     }
-   
+
     public IndexQuery(int op, String val1) {
         this(op, new Value(val1));
     }
-   
+
     public IndexQuery(String val1) {
         this(new Value(val1));
     }
-   
+
     public IndexQuery(int op, String val1, String val2) {
         this(op, new Value(val1), new Value(val2));
     }
-   
+
     public IndexQuery(String val1, String val2) {
         this(new Value(val1), new Value(val2));
     }
-   
+
     /**
      * getOperator returns the operator associated with this query.
      *
@@ -167,7 +165,7 @@ public class IndexQuery {
     public int getOperator() {
         return op;
     }
-   
+
     /**
      * getValue returns one of the Values associated with this query.
      *
@@ -186,7 +184,7 @@ public class IndexQuery {
     public Value[] getValues() {
         return vals;
     }
-   
+
     /**
      * getLength returns the length of the Value set associated with
      * this query.
@@ -196,7 +194,7 @@ public class IndexQuery {
     public final int getLength() {
         return vals.length;
     }
-   
+
     /**
      * testValue tests the specified value for validity against this
      * IndexQuery.  The helper classes in org.apache.xindice.core.indexer.helpers
@@ -210,7 +208,7 @@ public class IndexQuery {
         // No Comparison (Any)
         case ANY:
             return true;
-            
+
         // Singleton Comparisons
         case EQ:
             return value.equals(vals[0]);
@@ -229,7 +227,7 @@ public class IndexQuery {
 
         case GEQ:
             return value.compareTo(vals[0]) >= 0;
-            
+
         // Range Comparisons
         case BW:
             return value.compareTo(vals[0]) >= 0 && value.compareTo(vals[1]) <= 0;
@@ -242,21 +240,21 @@ public class IndexQuery {
 
         case NBWX:
             return value.compareTo(vals[0]) < 0 || value.compareTo(vals[1]) > 0;
-            
+
         // Set Comparisons
         case IN:
         case NIN:
             return Arrays.binarySearch(vals, value) >= 0 ? op == IN : op == NIN;
-            
+
         // Other comparisons
         case SW:
         case NSW:
             return value.startsWith(vals[0]) ? op == SW : op == NSW;
-         
+
         case EW:
         case NEW:
             return value.endsWith(vals[0]) ? op == EW : op == NEW;
-         
+
         }
         return false;
     }

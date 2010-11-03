@@ -1,32 +1,32 @@
 /*
  * Copyright (c) 2001-2007 Sun Microsystems, Inc.  All rights reserved.
- *  
+ *
  *  The Sun Project JXTA(TM) Software License
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without 
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
- *  
+ *
  *  2. Redistributions in binary form must reproduce the above copyright notice, 
  *     this list of conditions and the following disclaimer in the documentation 
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  3. The end-user documentation included with the redistribution, if any, must 
  *     include the following acknowledgment: "This product includes software 
  *     developed by Sun Microsystems, Inc. for JXTA(TM) technology." 
  *     Alternately, this acknowledgment may appear in the software itself, if 
  *     and wherever such third-party acknowledgments normally appear.
- *  
+ *
  *  4. The names "Sun", "Sun Microsystems, Inc.", "JXTA" and "Project JXTA" must 
  *     not be used to endorse or promote products derived from this software 
  *     without prior written permission. For written permission, please contact 
  *     Project JXTA at http://www.jxta.org.
- *  
+ *
  *  5. Products derived from this software may not be called "JXTA", nor may 
  *     "JXTA" appear in their name, without prior written permission of Sun.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
  *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
  *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SUN 
@@ -37,20 +37,20 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
  *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  *  JXTA is a registered trademark of Sun Microsystems, Inc. in the United 
  *  States and other countries.
- *  
+ *
  *  Please see the license information page at :
  *  <http://www.jxta.org/project/www/license.html> for instructions on use of 
  *  the license in source files.
- *  
+ *
  *  ====================================================================
- *  
+ *
  *  This software consists of voluntary contributions made by many individuals 
  *  on behalf of Project JXTA. For more information on Project JXTA, please see 
  *  http://www.jxta.org.
- *  
+ *
  *  This license is based on the BSD license adopted by the Apache Foundation. 
  */
 
@@ -89,26 +89,26 @@ import java.util.logging.Logger;
  * for the router
  */
 class RouteCM implements Module {
-    
+
     /**
      * Logger
      */
     private final static transient Logger LOG = Logger.getLogger(RouteCM.class.getName());
-    
+
     /**
      * Default expiration time for Route advertisements. This is the amount
      * of time which advertisements will live in caches. After this time, the
      * advertisement should be refreshed from the source.
      */
     public final static long DEFAULT_EXPIRATION = 20L * TimeUtils.AMINUTE;
-    
+
     /**
      * If {@code true} then the CM is used to persistently store route
      * advertisements. If {@code false} then only the in-memory route table is
      * used.
      */
     public final static boolean USE_CM_DEFAULT = true;
-    
+
     /**
      * If {@code true} then the CM is used to persistently store route
      * advertisements. If {@code false} then only the in-memory route table is
@@ -117,56 +117,56 @@ class RouteCM implements Module {
      * We start out {@code false} until the module is started.
      */
     private boolean useCM = false;
-    
+
     /**
      * If {@code true} then the CM is used to persistently store route
      * advertisements. If {@code false} then only the in-memory route table is
      * used.
      */
     private boolean useCMConfig = USE_CM_DEFAULT;
-    
+
     /**
      * PeerGroup Service Handle
      */
     private PeerGroup group = null;
     private LRUCache<ID, RouteAdvertisement> lruCache = new LRUCache<ID, RouteAdvertisement>(100);
-    
+
     /**
      * EndpointRouter pointer
      */
-        
+
     /**
      * {@inheritDoc}
      */
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
-        
+
         ModuleImplAdvertisement implAdvertisement = (ModuleImplAdvertisement) impl;
-        
+
         // extract Router service configuration properties
-        
+
         ConfigParams confAdv = group.getConfigAdvertisement();
         XMLElement paramBlock = null;
-        
+
         if (confAdv != null) {
             paramBlock = (XMLElement) confAdv.getServiceParam(assignedID);
         }
-        
+
         if (paramBlock != null) {
             // get our tunable router parameter
             Enumeration param;
-            
+
             param = paramBlock.getChildren("useCM");
             if (param.hasMoreElements()) {
                 useCMConfig = Boolean.getBoolean(((XMLElement) param.nextElement()).getTextValue());
             }
         }
-        
+
         this.group = group;
-        
+
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : " + assignedID);
-            
+
             if (implAdvertisement != null) {
                 configInfo.append("\n\tImplementation :");
                 configInfo.append("\n\t\tModule Spec ID: ").append(implAdvertisement.getModuleSpecID());
@@ -174,19 +174,19 @@ class RouteCM implements Module {
                 configInfo.append("\n\t\tImpl URI : ").append(implAdvertisement.getUri());
                 configInfo.append("\n\t\tImpl Code : ").append(implAdvertisement.getCode());
             }
-            
+
             configInfo.append("\n\tGroup Params :");
             configInfo.append("\n\t\tGroup : ").append(group.getPeerGroupName());
             configInfo.append("\n\t\tGroup ID : ").append(group.getPeerGroupID());
             configInfo.append("\n\t\tPeer ID : ").append(group.getPeerID());
-            
+
             configInfo.append("\n\tConfiguration :");
             configInfo.append("\n\t\tUse Route CM : ").append(useCMConfig);
-            
+
             LOG.config(configInfo.toString());
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -195,14 +195,14 @@ class RouteCM implements Module {
         useCM = useCMConfig;
         return Module.START_OK;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void stopApp() {
         useCM = false;
     }
-    
+
     /**
      * return routeCM usage
      *
@@ -211,7 +211,7 @@ class RouteCM implements Module {
     boolean useRouteCM() {
         return useCM;
     }
-    
+
     /**
      * toggles whether to use the RouteCM
      * @param enable if <code>true</code> it enables use of persistent store
@@ -219,7 +219,7 @@ class RouteCM implements Module {
     void enableRouteCM(boolean enable) {
         useCM = enable;
     }
-    
+
     /**
      * Get route advertisements from the local discovery cache.
      * We collect straight RouteAdvertisements as well as what can be
@@ -233,7 +233,7 @@ class RouteCM implements Module {
      */
     protected Collection<RouteAdvertisement> getRouteAdv(ID peerID) {
         DiscoveryService discovery;
-        
+
         // check if we use the CM, if not then nothing
         // to retrieve
         if (!useCM) {
@@ -244,7 +244,7 @@ class RouteCM implements Module {
                 return Collections.<RouteAdvertisement>emptyList();
             }
         }
-        
+
         String peerIDStr = peerID.toString();
         List<RouteAdvertisement> result = new ArrayList<RouteAdvertisement>(2);
         if (lruCache.contains(peerID)) {
@@ -253,7 +253,7 @@ class RouteCM implements Module {
         }
         // check first if we have a route advertisement
         Enumeration<Advertisement> advs = null;
-        
+
         try {
 
             advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, peerIDStr);
@@ -261,23 +261,23 @@ class RouteCM implements Module {
         } catch (IOException failed) {
 
             Logging.logCheckedWarning(LOG, "Failed discovering routes for ", peerIDStr, failed);
-            
+
         }
-        
+
         while ((null != advs) && advs.hasMoreElements()) {
             Advertisement adv = advs.nextElement();
-            
+
             if (!(adv instanceof RouteAdvertisement)) {
                 continue;
             }
-            
+
             RouteAdvertisement route = (RouteAdvertisement) adv;
-            
+
             if (!result.contains(route)) {
                 result.add(route);
             }
         }
-        
+
         // get the local peer advertisements for the peer.
         advs = null;
 
@@ -288,20 +288,20 @@ class RouteCM implements Module {
         } catch (IOException failed) {
 
             Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for ", peerIDStr, "\n", failed);
-            
+
         }
-        
+
         while ((null != advs) && advs.hasMoreElements()) {
             Advertisement adv = advs.nextElement();
-            
+
             if (!(adv instanceof PeerAdvertisement)) {
                 continue;
             }
-            
+
             PeerAdvertisement padv = (PeerAdvertisement) adv;
-            
+
             RouteAdvertisement route = EndpointUtils.extractRouteAdv(padv);
-            
+
             // Publish the route if it was previously unknown.
             if (!result.contains(route)) {
                 // We found a new route just publish it locally
@@ -326,7 +326,7 @@ class RouteCM implements Module {
         return result;
 
     }
-    
+
     /**
      * Create a new persistent route to the cache only if we can find set of
      * endpoint addresses
@@ -335,18 +335,18 @@ class RouteCM implements Module {
      */
     protected void createRoute(RouteAdvertisement route) {
         DiscoveryService discovery;
-                
+
         // check if CM is used
         if (!useCM) {
             return;
         } else {
             discovery = group.getDiscoveryService();
-            
+
             if (null == discovery) {
                 return;
             }
         }
-        
+
         Logging.logCheckedFine(LOG, "try to publish route ");
 
         // we need to retrieve the current adv to get all the known
@@ -354,20 +354,20 @@ class RouteCM implements Module {
         try {
             RouteAdvertisement newRoute = (RouteAdvertisement)
                     AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
-            
+
             PeerID pId = route.getDestPeerID();
-            
+
             String realPeerID = pId.toString();
-            
+
             // check first if we have a route advertisement
             Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
-            
+
             if (!advs.hasMoreElements()) {
                 // No route, sorry
                 Logging.logCheckedFine(LOG, "could not find a route advertisement ", realPeerID);
                 return;
             }
-            
+
             // make sure we are returning the longest route we know either
             // from the peer or route advertisement
             Advertisement adv = advs.nextElement();
@@ -377,17 +377,17 @@ class RouteCM implements Module {
 
                 newRoute.setDest(dest.getDest());
             }
-            
+
             // let's get the endpoint addresses for each hops
             Vector<AccessPointAdvertisement> newHops = new Vector<AccessPointAdvertisement>();
-            
+
             Enumeration<AccessPointAdvertisement> e = route.getHops();
-            
+
             while (e.hasMoreElements()) {
                 AccessPointAdvertisement ap = e.nextElement();
-                
+
                 realPeerID = ap.getPeerID().toString();
-                
+
                 // check first if we have a route advertisement
                 advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
                 if (!advs.hasMoreElements()) {
@@ -401,16 +401,16 @@ class RouteCM implements Module {
                     newHops.add(((RouteAdvertisement) adv).getDest());
                 }
             }
-            
+
             // last check to see that we have a route
             if (newHops.isEmpty()) {
                 return;
             }
-            
+
             newRoute.setHops(newHops);
-            
+
             Logging.logCheckedFine(LOG, "publishing new route \n", newRoute.display());
-            
+
             lruCache.put(route.getDestPeerID(), route);
 
             // XXX 20060106 bondolo These publication values won't be obeyed if
@@ -420,10 +420,10 @@ class RouteCM implements Module {
         } catch (Exception ex) {
 
             Logging.logCheckedWarning(LOG, "error publishing route", route.display(), "\n", ex);
-            
+
         }
     }
-    
+
     /**
      * Publish a route advertisement to the CM
      *
@@ -431,7 +431,7 @@ class RouteCM implements Module {
      */
     protected void publishRoute(RouteAdvertisement route) {
         DiscoveryService discovery;
-                
+
         // check if CM is in used, if not nothing to do
         if (!useCM) {
             return;
@@ -441,12 +441,12 @@ class RouteCM implements Module {
                 return;
             }
         }
-        
+
         Logging.logCheckedFine(LOG, "Publishing route for ", route.getDestPeerID());
-        
+
         // publish route adv
         if (!lruCache.contains(route.getDestPeerID())) {
-            
+
             try {
 
                 // XXX 20060106 bondolo These publication values won't be obeyed if
@@ -456,7 +456,7 @@ class RouteCM implements Module {
             } catch (Exception ex) {
 
                 Logging.logCheckedSevere(LOG, "error publishing route adv \n", route, "\n", ex);
-                
+
             }
         }
         lruCache.put(route.getDestPeerID(), route);
@@ -469,7 +469,7 @@ class RouteCM implements Module {
      */
     protected void flushRoute(ID peerID) {
         DiscoveryService discovery;
-                
+
         // check if CM is in used, if not nothing to do
         if (!useCM) {
             return;
@@ -479,14 +479,14 @@ class RouteCM implements Module {
                 return;
             }
         }
-        
+
         // leqt's remove any advertisements (route, peer) related to this peer
         // this should force a route query to try to find a new route
         // check first if we have a route advertisement
         String peerIDStr = peerID.toString();
-        
+
         Enumeration<Advertisement> advs = null;
-        
+
         // Flush the local route advertisements for the peer.
         try {
 
@@ -495,16 +495,16 @@ class RouteCM implements Module {
         } catch (IOException failed) {
 
             Logging.logCheckedWarning(LOG, "Failure recovering route advertisements.\n", failed);
-            
+
         }
-        
+
         while ((null != advs) && advs.hasMoreElements()) {
             Advertisement adv = advs.nextElement();
-            
+
             if (!(adv instanceof RouteAdvertisement)) {
                 continue;
             }
-            
+
             // ok so let's delete the advertisement
             try {
 
@@ -515,7 +515,7 @@ class RouteCM implements Module {
 
             }
         }
-        
+
         // Flush the local peer advertisements for the peer.
         advs = null;
 
@@ -526,16 +526,16 @@ class RouteCM implements Module {
         } catch (IOException failed) {
 
             Logging.logCheckedWarning(LOG, "Failed discovering peer advertisements for ", peerIDStr, "\n", failed);
-            
+
         }
-        
+
         while ((null != advs) && advs.hasMoreElements()) {
             Advertisement adv = advs.nextElement();
-            
+
             if (!(adv instanceof PeerAdvertisement)) {
                 continue;
             }
-            
+
             // ok so let's delete the advertisement
             try {
                 discovery.flushAdvertisement(adv);
@@ -546,7 +546,7 @@ class RouteCM implements Module {
         // remove it from the cache as well
         lruCache.remove(peerID);
     }
-    
+
     /**
      * publish or update new route from the advertisement cache
      *
@@ -555,7 +555,7 @@ class RouteCM implements Module {
      */
     protected boolean updateRoute(RouteAdvertisement route) {
         DiscoveryService discovery;
-        
+
         // check if CM is in used
         if (!useCM) {
             return false;
@@ -565,13 +565,13 @@ class RouteCM implements Module {
                 return true;
             }
         }
-        
+
         try {
             String realPeerID = route.getDestPeerID().toString();
-            
+
             // check first if we have a route advertisement
             Enumeration<Advertisement> advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG,  realPeerID);
-            
+
             if (advs.hasMoreElements()) {
                 Advertisement adv = advs.nextElement();
 

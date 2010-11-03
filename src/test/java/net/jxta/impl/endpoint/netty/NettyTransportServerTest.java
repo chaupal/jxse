@@ -17,9 +17,7 @@ import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jmock.integration.junit4.JMock;
 import org.junit.*;
-import org.junit.runner.RunWith;
 
 @Ignore("Must fix - problem with port bind")
 public class NettyTransportServerTest {

@@ -1220,7 +1220,6 @@ public class TreeMap extends AbstractMap
             return inclusive ? inRange(key) : inRangeExclusive(key);
         }
 
-
         private boolean absTooHigh(Object key) {
             if (toEnd) return false;
             int c = compare(key, toKey, comparator);

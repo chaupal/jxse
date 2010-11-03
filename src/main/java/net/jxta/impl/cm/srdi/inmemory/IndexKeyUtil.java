@@ -88,7 +88,6 @@ package net.jxta.impl.cm.srdi.inmemory;
 
 import java.lang.reflect.Array;
 
-
 public final class IndexKeyUtil {
 
     // HASH CODE //
@@ -104,7 +103,7 @@ public final class IndexKeyUtil {
     // PRIVATE //
     private IndexKeyUtil(  ) {
 
-        //prevent object construction  
+        //prevent object construction
     }
 
     /** Hash code for <tt>boolean</tt> primitives. */

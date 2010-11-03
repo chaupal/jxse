@@ -1,6 +1,5 @@
 package net.jxta.impl.endpoint;
 
-
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -28,25 +27,23 @@ import net.jxta.test.util.JUnitRuleMockery;
 
 import org.jmock.Expectations;
 import org.jmock.Sequence;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 public class AsynchronousMessengerTest {
 
     private static final int QUEUE_SIZE = 10;
-    
+
     private TestableAsynchronousMessenger messenger;
     private MessengerStateListener mockListener;
     private Message msg;
     private ExecutorService concurrentExecutor;
-    
+
     @Rule
     public JUnitRuleMockery mockContext = new JUnitRuleMockery();
-    
+
     @Before
     public void setUp() throws Exception {
         messenger = new TestableAsynchronousMessenger(PeerGroupID.defaultNetPeerGroupID, new EndpointAddress("http", "1.2.3.4", null, null), QUEUE_SIZE);
@@ -54,34 +51,34 @@ public class AsynchronousMessengerTest {
         msg = new Message();
         concurrentExecutor = Executors.newSingleThreadExecutor();
     }
-    
+
     @After
     public void tearDown() throws Exception {
         concurrentExecutor.shutdownNow();
     }
-    
+
     @Test
     public void testInitiallyConnected() {
         assertTrue(messenger.getState() == Messenger.CONNECTED);
     }
-    
+
     @Test
     public void testSendMessageN_returnsTrueOnEnqueue() {
         assertTrue(messenger.sendMessageN(new Message(), "TestService", null));
     }
-    
+
     @Test
     public void testSendMessageN_enqueuedMessagesArePushed() {
         messenger.sendMessageN(msg, "TestService", null);
         assertEquals(1, messenger.sentMessages.size());
         assertSame(msg, messenger.sentMessages.poll().getMessage());
     }
-    
+
     @Test
     public void testSendMessageN_returnsFalseWhenSaturated() {
         saturateMessenger();
         messenger.refuseToSend.set(true);
-        
+
         assertFalse(messenger.sendMessageN(msg, null, null));
         assertEquals(OutgoingMessageEvent.OVERFLOW, msg.getMessageProperty(Messenger.class));
     }
@@ -91,14 +88,14 @@ public class AsynchronousMessengerTest {
         while(messenger.sendMessageN(new Message(), null, null));
         messenger.refuseToSend.set(false);
     }
-    
+
     @Test
     public void testPullNextWrite() {
         enqueueMessages(3);
         messenger.pullMessages();
         assertEquals(3, messenger.sentMessages.size());
     }
-    
+
     @Test
     public void testSendMessageN_failure() {
         messenger.sendException = new Exception("Bad stuff happened!");
@@ -106,25 +103,25 @@ public class AsynchronousMessengerTest {
         assertTrue(TransportUtils.isMarkedWithFailure(msg));
         assertSame(messenger.sendException, TransportUtils.getFailureCause(msg));
     }
-    
+
     @Test
     public void testMessagesMarkedOnSuccess() {
         messenger.sendMessageN(msg, null, null);
         messenger.sentMessages.poll().getWriteListener().writeSuccess();
         assertTrue(TransportUtils.isMarkedWithSuccess(msg));
     }
-    
+
     @Test
     public void testSendMessageB_blocksUntilSent() throws Exception {
         Future<Void> sendTask = concurrentExecutor.submit(new BlockingSender(messenger, msg));
-        
+
         QueuedMessage sentMessage = messenger.sentMessages.poll(100L, TimeUnit.MILLISECONDS);
         assertNotNull(sentMessage);
         assertSame(msg, sentMessage.getMessage());
         sentMessage.getWriteListener().writeSuccess();
         assertNull(sendTask.get(100L, TimeUnit.MILLISECONDS));
     }
-    
+
     @Test
     public void testSendMessageB_blocksForSendQueueSpace() throws Exception {
         saturateMessenger();
@@ -140,7 +137,7 @@ public class AsynchronousMessengerTest {
             sendTask.cancel(true);
         }
     }
-    
+
     @Test
     public void testSendMessageB_canSendMultiple() throws Exception {
         enqueueMessages(3);
@@ -149,7 +146,7 @@ public class AsynchronousMessengerTest {
         markAsSent(4, 100L);
         assertNull(sendTask.get(100L, TimeUnit.MILLISECONDS));
     }
-    
+
     @Test(timeout=100L)
     public void testSendMessageB_failure() throws Exception {
         messenger.sendException = new Exception("bad stuff happened");
@@ -164,7 +161,7 @@ public class AsynchronousMessengerTest {
             assertSame(messenger.sendException, e.getCause());
         }
     }
-    
+
     @Test
     public void testSendMessageB_interrupted() throws Exception {
         final AtomicReference<IOException> result = new AtomicReference<IOException>();
@@ -180,7 +177,7 @@ public class AsynchronousMessengerTest {
                 latch.countDown();
             };
         });
-        
+
         sendThread.start();
         Thread.sleep(10L);
         sendThread.interrupt();
@@ -189,7 +186,7 @@ public class AsynchronousMessengerTest {
         assertTrue(resultValue != null);
         assertTrue(resultValue.getCause() instanceof InterruptedException);
     }
-    
+
     @Test
     public void testSendStateTransitions() {
         messenger.addStateListener(mockListener);
@@ -198,10 +195,10 @@ public class AsynchronousMessengerTest {
             one(mockListener).messengerStateChanged(Messenger.SENDING); will(returnValue(true)); inSequence(seq);
             one(mockListener).messengerStateChanged(Messenger.SENDINGSATURATED); will(returnValue(true)); inSequence(seq);
         }});
-        
+
         saturateMessenger();
         mockContext.assertIsSatisfied();
-        
+
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.SENDING); will(returnValue(true)); inSequence(seq);
             one(mockListener).messengerStateChanged(Messenger.CONNECTED); will(returnValue(true)); inSequence(seq);
@@ -209,7 +206,7 @@ public class AsynchronousMessengerTest {
         messenger.pullMessages();
         mockContext.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCloseWhenIdle() {
         assertTrue(messenger.getState() == Messenger.CONNECTED);
@@ -217,30 +214,30 @@ public class AsynchronousMessengerTest {
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.CLOSED);
         }});
-        
+
         messenger.close();
         mockContext.assertIsSatisfied();
         assertTrue(messenger.closeRequested.get());
     }
-    
+
     @Test
     public void testConnectionFailureWhenClosing() {
         enqueueMessages(1);
-        
+
         messenger.addStateListener(mockListener);
         final Sequence seq = mockContext.sequence("close-events");
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.CLOSING); will(returnValue(true)); inSequence(seq);
         }});
-        
+
         messenger.close();
         assertFalse(messenger.closeRequested.get());
         mockContext.assertIsSatisfied();
-        
+
         // now emulate the connection failing before we have sent all pending messages
         // this should result initially in a state change indicating an attempt to reconnect
         // then an immediate failure (as AsynchMessenger does not yet support reconnecting)
-        
+
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.RECONCLOSING); will(returnValue(true)); inSequence(seq);
             one(mockListener).messengerStateChanged(Messenger.BROKEN); will(returnValue(true)); inSequence(seq);
@@ -248,32 +245,32 @@ public class AsynchronousMessengerTest {
         messenger.connectionFailed();
         mockContext.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCloseWithPendingMessages() {
         enqueueMessages(2);
-        
+
         messenger.addStateListener(mockListener);
         final Sequence seq = mockContext.sequence("close-events");
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.CLOSING); will(returnValue(true)); inSequence(seq);
         }});
-        
+
         messenger.close();
         assertFalse(messenger.closeRequested.get());
         mockContext.assertIsSatisfied();
-        
+
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.CLOSED); will(returnValue(true)); inSequence(seq);
         }});
         messenger.pullMessages();
         mockContext.assertIsSatisfied();
-        
+
         assertTrue(messenger.closeRequested.get());
         messenger.emulateConnectionGracefulClose();
         assertEquals(2, messenger.sentMessages.size());
     }
-    
+
     @Test
     public void testSendMessageN_whenClosing() {
         enqueueMessages(1);
@@ -282,7 +279,7 @@ public class AsynchronousMessengerTest {
         assertTrue(TransportUtils.isMarkedWithFailure(msg));
         assertEquals("Messenger is closed. It cannot be used to send messages", TransportUtils.getFailureCause(msg).getMessage());
     }
-    
+
     @Test
     public void testSendMessageB_whenClosing() {
         enqueueMessages(1);
@@ -294,7 +291,7 @@ public class AsynchronousMessengerTest {
             assertEquals(AsynchronousMessenger.CLOSED_MESSAGE, e.getMessage());
         }
     }
-    
+
     @Test
     public void testConnectionFailure_whenIdle() {
         messenger.addStateListener(mockListener);
@@ -304,16 +301,16 @@ public class AsynchronousMessengerTest {
         }});
         messenger.emulateConnectionDeath();
         mockContext.assertIsSatisfied();
-        
+
         mockContext.checking(new Expectations() {{
             one(mockListener).messengerStateChanged(Messenger.RECONNECTING); will(returnValue(true)); inSequence(seq);
             one(mockListener).messengerStateChanged(Messenger.BROKEN); will(returnValue(true)); inSequence(seq);
         }});
-        
+
         assertFalse(messenger.sendMessageN(msg, null, null));
         mockContext.assertIsSatisfied();
     }
-    
+
     @Test
     public void testConnectionFailure_whenSending() {
         LinkedList<Message> messages = enqueueMessages(5);
@@ -325,14 +322,13 @@ public class AsynchronousMessengerTest {
         }});
         messenger.emulateConnectionDeath();
         mockContext.assertIsSatisfied();
-        
+
         for(Message msg : messages) {
             assertTrue(TransportUtils.isMarkedWithFailure(msg));
             assertEquals("Messenger unexpectedly closed", TransportUtils.getFailureCause(msg).getMessage());
         }
     }
-    
-    
+
     private void markAsSent(int numMessages, long timeoutInMillis) throws InterruptedException {
         int numMarked = 0;
         long startTime = System.currentTimeMillis();
@@ -343,7 +339,7 @@ public class AsynchronousMessengerTest {
                 numMarked++;
             }
         }
-        
+
         assertEquals(numMessages, numMarked);
     }
 
@@ -358,13 +354,13 @@ public class AsynchronousMessengerTest {
         messenger.refuseToSend.set(false);
         return enqueuedMessages;
     }
-    
+
     private long elapsedTime(long startTime) {
         return System.currentTimeMillis() - startTime;
     }
 
     private class BlockingSender implements Callable<Void> {
-        
+
         private Messenger messengerToUse;
         private Message message;
 
@@ -372,12 +368,12 @@ public class AsynchronousMessengerTest {
             this.messengerToUse = messenger;
             this.message = message;
         }
-        
+
         public Void call() throws Exception {
             messengerToUse.sendMessageB(message, null, null);
             return null;
         }
-        
+
     }
 
     private class TestableAsynchronousMessenger extends AsynchronousMessenger {
@@ -393,7 +389,7 @@ public class AsynchronousMessengerTest {
         public TestableAsynchronousMessenger(PeerGroupID homeGroupID, EndpointAddress dest, int messageQueueSize) {
             super(homeGroupID, dest, messageQueueSize);
         }
-        
+
         @Override
         public EndpointAddress getLocalAddress() {
             return localAddress;
@@ -409,13 +405,13 @@ public class AsynchronousMessengerTest {
             if(refuseToSend.get()) {
                 return false;
             }
-            
+
             if(connectionDead.get()) {
                 message.getWriteListener().writeSubmitted();
                 message.getWriteListener().writeFailure(new IOException("Messenger unexpectedly closed"));
                 return false;
             }
-            
+
             if(sendException != null) {
                 message.getWriteListener().writeSubmitted();
                 message.getWriteListener().writeFailure(sendException);
@@ -425,21 +421,21 @@ public class AsynchronousMessengerTest {
             message.getWriteListener().writeSubmitted();
             return true;
         }
-        
+
         @Override
         public void requestClose() {
             closeRequested.set(true);
         }
-        
+
         public void emulateConnectionDeath() {
             connectionDead.set(true);
             connectionFailed();
         }
-        
+
         public void emulateConnectionGracefulClose() {
             connectionDead.set(true);
             connectionCloseComplete();
         }
     }
-    
+
 }

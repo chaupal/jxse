@@ -160,7 +160,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
 
                 Logging.logCheckedWarning(LOG, "[" + Thread.currentThread().getName() + "] Failed sending a response message\n", failure);
                 return;
-                
+
             }
         }
     }
@@ -174,7 +174,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
      * @param event message event
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
-        
+
         Message msg = event.getMessage();
 
         if (msg == null) {
@@ -238,7 +238,7 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
         } catch (IOException failure) {
 
             Logging.logCheckedSevere(LOG, "[" + Thread.currentThread().getName() + "] Failure opening pipe\n", failure);
-            
+
         } finally {
 
             synchronized (connections) {

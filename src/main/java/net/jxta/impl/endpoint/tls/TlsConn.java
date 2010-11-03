@@ -89,7 +89,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * This class implements the TLS connection between two peers.
  *
@@ -205,7 +204,7 @@ class TlsConn {
         this.lastAccessed = TimeUtils.timeNow();
 
         Logging.logCheckedInfo(LOG, (client ? "Initiating" : "Accepting"), " new connection for : ", destAddr.getProtocolAddress());
-        
+
         boolean choseTMF = false;
         javax.net.ssl.TrustManagerFactory tmf = null;
         String overrideTMF = System.getProperty("net.jxta.impl.endpoint.tls.TMFAlgorithm");
@@ -311,7 +310,7 @@ class TlsConn {
         long startTime = TimeUtils.timeNow();
 
         Logging.logCheckedInfo(LOG, (client ? "Client:" : "Server:"), " Handshake START");
-        
+
         setHandshakeState(HandshakeState.HANDSHAKESTARTED);
 
         // this starts a handshake
@@ -353,7 +352,7 @@ class TlsConn {
             closing = true;
 
             Logging.logCheckedInfo(LOG, "Shutting down ", this);
-            
+
             setHandshakeState(HandshakeState.CONNECTIONCLOSING);
 
             try {
@@ -480,7 +479,7 @@ class TlsConn {
             workerThread.start();
 
             Logging.logCheckedInfo(LOG, "Started ReadPlaintextMessage thread for ", TlsConn.this.destAddr);
-            
+
         }
 
         /**
@@ -513,9 +512,9 @@ class TlsConn {
                 }
 
             } catch (Throwable all) {
-                
+
                 Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
-                
+
             } finally {
 
                 workerThread = null;
@@ -523,7 +522,7 @@ class TlsConn {
             }
 
             Logging.logCheckedInfo(LOG, "Finishing ReadPlaintextMessage thread");
-            
+
         }
     }
 
@@ -691,7 +690,7 @@ class TlsConn {
                     Collection<Principal> allIssuers = Arrays.asList(issuers);
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        
+
                         Logging.logCheckedFine(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
                         Logging.logCheckedFine(LOG, "Issuers : ", allIssuers);
 

@@ -26,11 +26,11 @@ public class AdHocHttp2DirectCommsTest {
         configureForHttp2(aliceManager, 58080);
         bobManager = new NetworkManager(ConfigMode.ADHOC, "bob", tempStorage.newFolder("bob").toURI());
         configureForHttp2(bobManager, 58081);
-        
+
         aliceManager.startNetwork();
         bobManager.startNetwork();
     }
-    
+
     private void configureForHttp2(NetworkManager manager, int port) throws IOException {
 		NetworkConfigurator configurator = manager.getConfigurator();
 		configurator.setTcpEnabled(false);
