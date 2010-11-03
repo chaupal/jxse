@@ -263,45 +263,45 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
         connected = isConnected;
     }
 
-    /**
-     * Return a messenger suitable for communicating to this peer.
-     *
-     * @return a messenger for sending to this peer or <code>null</code> if
-     *         none is available.
-     * @deprecated Preferred style is to pass the connection object around and
-     *             use the sendMessage method rather than getting the messenger.
-     */
-    @Deprecated
-    protected Messenger getCachedMessenger() {
-
-        // We don't do the check on existing messenger under synchronization
-        // hence the temporary variable.
-        Messenger result = cachedMessenger;
-
-        if ((null == result) || result.isClosed()) {
-            // We need a new messenger.
-            PeerAdvertisement padv = null;
-
-            DiscoveryService discovery = group.getDiscoveryService();
-
-            // Try to see if we have a peer advertisement for this peer.
-            // This is very likely.
-            if (null != discovery) {
-                try {
-                    Enumeration each = discovery.getLocalAdvertisements(DiscoveryService.PEER, "PID", peerid.toString());
-
-                    if (each.hasMoreElements()) {
-                        padv = (PeerAdvertisement) each.nextElement();
-                    }
-                } catch (Exception ignored) {
-                    //ignored
-                }
-            }
-            result = getCachedMessenger(padv);
-        }
-
-        return result;
-    }
+//    /**
+//     * Return a messenger suitable for communicating to this peer.
+//     *
+//     * @return a messenger for sending to this peer or <code>null</code> if
+//     *         none is available.
+//     * @deprecated Preferred style is to pass the connection object around and
+//     *             use the sendMessage method rather than getting the messenger.
+//     */
+//    @Deprecated
+//    protected Messenger getCachedMessenger() {
+//
+//        // We don't do the check on existing messenger under synchronization
+//        // hence the temporary variable.
+//        Messenger result = cachedMessenger;
+//
+//        if ((null == result) || result.isClosed()) {
+//            // We need a new messenger.
+//            PeerAdvertisement padv = null;
+//
+//            DiscoveryService discovery = group.getDiscoveryService();
+//
+//            // Try to see if we have a peer advertisement for this peer.
+//            // This is very likely.
+//            if (null != discovery) {
+//                try {
+//                    Enumeration each = discovery.getLocalAdvertisements(DiscoveryService.PEER, "PID", peerid.toString());
+//
+//                    if (each.hasMoreElements()) {
+//                        padv = (PeerAdvertisement) each.nextElement();
+//                    }
+//                } catch (Exception ignored) {
+//                    //ignored
+//                }
+//            }
+//            result = getCachedMessenger(padv);
+//        }
+//
+//        return result;
+//    }
 
     /**
      * Return a messenger suitable for communicating to this peer.
@@ -366,7 +366,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      *         that the destination peer will receive the message.
      */
     public boolean sendMessage(Message msg, String service, String param) {
-        Messenger messenger = getCachedMessenger();
+        Messenger messenger = cachedMessenger;
 
         if (null != messenger) {
             messenger.sendMessage(msg, service, param, this);
@@ -386,7 +386,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      */
     public boolean sendMessageB(Message msg, String service, String param)
     {
-        Messenger messenger = getCachedMessenger();
+        Messenger messenger = cachedMessenger;
 
         if (null != messenger) {
             try
