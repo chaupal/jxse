@@ -2222,8 +2222,9 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     /**
      * {@inheritDoc}
      */
-    public Messenger getMessenger(EndpointAddress addr, Object hint) {
-        RouteAdvertisement routeHint = null;
+    public Messenger getMessenger(EndpointAddress addr) {
+//    public Messenger getMessenger(EndpointAddress addr, Object hint) {
+//        RouteAdvertisement routeHint = null;
         EndpointAddress plainAddr = new EndpointAddress(addr, null, null);
 
         // If the dest is the local peer, just loop it back without going
@@ -2233,125 +2234,125 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             return new LoopbackMessenger(group, endpoint, localPeerAddr, addr, addr);
         }
 
-        try {
-
-            // try and add that hint to our cache of routes (that may be our only route).
-            if (hint != null && hint instanceof RouteAdvertisement) {
-
-                routeHint = ((RouteAdvertisement) hint).clone();
-
-                /*
-                 * REMINDER: a route to a destination peers can contains hops, that is,
-                 * a set of ordered step peers through which the message can be used to
-                 * reach destination.
-                 */
-                AccessPointAdvertisement firstHop = routeHint.getFirstHop();
-                PeerID firstHopPid;
-                EndpointAddress firstHopAddr = null;
-
-                // If the firstHop is equal to the destination, clean that up,
-                // that's a direct route. If the first hop is the local peer
-                // leave it there but treat it as a local route. That's what
-                // it is from the local peer point of view.
-                if (firstHop != null) {
-
-                    firstHopPid = firstHop.getPeerID();
-                    firstHopAddr = pid2addr(firstHopPid);
-
-                    if (firstHopAddr.equals(addr)) {
-
-                        // The first hop is the destination itself.
-                        // We don't need to go via the destination to reach the destination.
-                        // It does not make sense.
-                        routeHint.removeHop(firstHopPid);
-                        firstHop = null;
-
-                    } else if (firstHopPid.equals(localPeerId)) {
-
-                        // The hop is this peer.
-                        // We don't need to go via this peer to reach the destination.
-                        // It does not make sense, we are already there.
-                        firstHop = null;
-
-                    }
-
-                }
-
-                if (firstHop == null) {
-
-                    // We only need to publish this route if we don't know about
-                    // another one yet (no matter if it is direct or if we have
-                    // a long route via hops).
-
-                    EndpointAddress da = pid2addr(routeHint.getDestPeerID());
-
-                    // If we don't already have a direct route or a long route to the target peer...
-                    if (!isLocalRoute(da) && !routedRoutes.containsKey(routeHint.getDestPeerID())) {
-
-                        // We publish this one
-                        routeCM.publishRoute(routeHint);
-
-                    }
-
-                    // FIXME: What if we only have a long route and the hint is a shorter one?
-                    // We should replace the existing one with the hint.
-
-                } else {
-
-                    // For the hint to be useful, we must actively try the first
-                    // hop.
-
-                    // FIXME: If we can't reach it, then we should try to reach the second
-                    // hop. It is a longer route, but worth trying.
-
-                    // It is possible that we do not know the first hop yet and that's
-                    // not a reason to ignore the hint (would ruin the purpose
-                    // in most cases).
-                    RouteAdvertisement routeFirstHop = null;
-
-                    // Manufacture a temporary RouteAdv to the first hop.
-                    // We only need to publish this route if we don't know about
-                    // a direct or long route to it yet.
-                    if (!isLocalRoute(firstHopAddr) && !routedRoutes.containsKey(firstHop.getPeerID())) {
-
-                        routeFirstHop = (RouteAdvertisement)
-                                AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
-                        routeFirstHop.setDest(firstHop.clone());
-
-                        // Here we used to pass a second argument with value
-                        // true which forced updateRouteAdv to ignore a
-                        // pre-existing identical adv and remove negative cache
-                        // information anyway. The reason for doing that was
-                        // that sometimes the new route adv does already exist
-                        // but has not yet been tried. We cannot do that; it
-                        // exposes us too much to retrying incessantly the same
-                        // address. A hint cannot be trusted to such an extent.
-                        // The correct remedy is to be able to tell accurately
-                        // if there really is an untried address in that radv,
-                        // which requires a sizeable refactoring. in the
-                        // meantime just let the negative cache play its role.
-                        updateRouteAdv(routeFirstHop);
-                    }
-
-                    // if we constructed the route hint then passes it in the
-                    // past we were just relying on the CM now that the CM can
-                    // be disabled, we have to pass the argument.
-
-                    // Checking whether we can get a Messenger directly connected
-                    // to the first hop. We pass the hint (FIXME: but this is really
-                    // bad coding and should be fixed)
-                    if (ensureLocalRoute(firstHopAddr, routeFirstHop) != null) {
-                        setRoute(routeHint.clone(), false);
-                    }
-                }
-            }
-
-        } catch (Throwable ioe) {
-            // Enforce a stronger semantic to hint. If the application passes
-            // a hint that is rotten then this is an application problem
-            // we should not try to fix what was given to us.
-            return null;
-        }
+//        try {
+//
+//            // try and add that hint to our cache of routes (that may be our only route).
+//            if (hint != null && hint instanceof RouteAdvertisement) {
+//
+//                routeHint = ((RouteAdvertisement) hint).clone();
+//
+//                /*
+//                 * REMINDER: a route to a destination peers can contains hops, that is,
+//                 * a set of ordered step peers through which the message can be used to
+//                 * reach destination.
+//                 */
+//                AccessPointAdvertisement firstHop = routeHint.getFirstHop();
+//                PeerID firstHopPid;
+//                EndpointAddress firstHopAddr = null;
+//
+//                // If the firstHop is equal to the destination, clean that up,
+//                // that's a direct route. If the first hop is the local peer
+//                // leave it there but treat it as a local route. That's what
+//                // it is from the local peer point of view.
+//                if (firstHop != null) {
+//
+//                    firstHopPid = firstHop.getPeerID();
+//                    firstHopAddr = pid2addr(firstHopPid);
+//
+//                    if (firstHopAddr.equals(addr)) {
+//
+//                        // The first hop is the destination itself.
+//                        // We don't need to go via the destination to reach the destination.
+//                        // It does not make sense.
+//                        routeHint.removeHop(firstHopPid);
+//                        firstHop = null;
+//
+//                    } else if (firstHopPid.equals(localPeerId)) {
+//
+//                        // The hop is this peer.
+//                        // We don't need to go via this peer to reach the destination.
+//                        // It does not make sense, we are already there.
+//                        firstHop = null;
+//
+//                    }
+//
+//                }
+//
+//                if (firstHop == null) {
+//
+//                    // We only need to publish this route if we don't know about
+//                    // another one yet (no matter if it is direct or if we have
+//                    // a long route via hops).
+//
+//                    EndpointAddress da = pid2addr(routeHint.getDestPeerID());
+//
+//                    // If we don't already have a direct route or a long route to the target peer...
+//                    if (!isLocalRoute(da) && !routedRoutes.containsKey(routeHint.getDestPeerID())) {
+//
+//                        // We publish this one
+//                        routeCM.publishRoute(routeHint);
+//
+//                    }
+//
+//                    // FIXME: What if we only have a long route and the hint is a shorter one?
+//                    // We should replace the existing one with the hint.
+//
+//                } else {
+//
+//                    // For the hint to be useful, we must actively try the first
+//                    // hop.
+//
+//                    // FIXME: If we can't reach it, then we should try to reach the second
+//                    // hop. It is a longer route, but worth trying.
+//
+//                    // It is possible that we do not know the first hop yet and that's
+//                    // not a reason to ignore the hint (would ruin the purpose
+//                    // in most cases).
+//                    RouteAdvertisement routeFirstHop = null;
+//
+//                    // Manufacture a temporary RouteAdv to the first hop.
+//                    // We only need to publish this route if we don't know about
+//                    // a direct or long route to it yet.
+//                    if (!isLocalRoute(firstHopAddr) && !routedRoutes.containsKey(firstHop.getPeerID())) {
+//
+//                        routeFirstHop = (RouteAdvertisement)
+//                                AdvertisementFactory.newAdvertisement(RouteAdvertisement.getAdvertisementType());
+//                        routeFirstHop.setDest(firstHop.clone());
+//
+//                        // Here we used to pass a second argument with value
+//                        // true which forced updateRouteAdv to ignore a
+//                        // pre-existing identical adv and remove negative cache
+//                        // information anyway. The reason for doing that was
+//                        // that sometimes the new route adv does already exist
+//                        // but has not yet been tried. We cannot do that; it
+//                        // exposes us too much to retrying incessantly the same
+//                        // address. A hint cannot be trusted to such an extent.
+//                        // The correct remedy is to be able to tell accurately
+//                        // if there really is an untried address in that radv,
+//                        // which requires a sizeable refactoring. in the
+//                        // meantime just let the negative cache play its role.
+//                        updateRouteAdv(routeFirstHop);
+//                    }
+//
+//                    // if we constructed the route hint then passes it in the
+//                    // past we were just relying on the CM now that the CM can
+//                    // be disabled, we have to pass the argument.
+//
+//                    // Checking whether we can get a Messenger directly connected
+//                    // to the first hop. We pass the hint (FIXME: but this is really
+//                    // bad coding and should be fixed)
+//                    if (ensureLocalRoute(firstHopAddr, routeFirstHop) != null) {
+//                        setRoute(routeHint.clone(), false);
+//                    }
+//                }
+//            }
+//
+//        } catch (Throwable ioe) {
+//            // Enforce a stronger semantic to hint. If the application passes
+//            // a hint that is rotten then this is an application problem
+//            // we should not try to fix what was given to us.
+//            return null;
+//        }
 
         try {
             // Build a persistent RouterMessenger around it that will add our
@@ -2365,7 +2366,8 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             // achieve that? The user has no way to be sure its hint is correct...
             // This check has to be performed by core code.
 
-            return new RouterMessenger(addr, this, routeHint);
+            return new RouterMessenger(addr, this, null);
+//            return new RouterMessenger(addr, this, routeHint);
 
         } catch (IOException caught) {
             Logging.logCheckedFine(LOG, "Can\'t generate messenger for addr ", addr, "\n", caught);
@@ -2713,4 +2715,18 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     public RouteController getRouteController() {
         return this.theRouteController;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void suggestRoute(RouteAdvertisement route) {
+
+        // Checking null routes
+        if ( route == null ) return;
+
+        // Else, proceed the route
+        setRoute(route, false);
+
+    }
+
 }

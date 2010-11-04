@@ -960,7 +960,8 @@ public class RelayClient implements MessageReceiver, Runnable {
                                     ,
                                     client.serviceName + "/" + reqStr);
 
-                            messenger = ((MessageSender) transport).getMessenger(addrToUse, null);
+                            messenger = ((MessageSender) transport).getMessenger(addrToUse);
+//                            messenger = ((MessageSender) transport).getMessenger(addrToUse, null);
                             if (messenger != null && messenger.isClosed()) {
                                 messenger = null;
                             }

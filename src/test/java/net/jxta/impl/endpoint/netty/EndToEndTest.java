@@ -90,7 +90,8 @@ public class EndToEndTest {
         NettyTransportClient client = new NettyTransportClient(clientFactory, addrTranslator, clientGroup, clientReturnAddress);
         client.start(clientEndpoint);
         
-        Messenger messenger = client.getMessenger(server.getPublicAddresses().next(), null);
+        Messenger messenger = client.getMessenger(server.getPublicAddresses().next());
+//        Messenger messenger = client.getMessenger(server.getPublicAddresses().next(), null);
         
         messenger.sendMessage(createTestMessage("a", "b"));
         messenger.sendMessage(createTestMessage("c", "d"));

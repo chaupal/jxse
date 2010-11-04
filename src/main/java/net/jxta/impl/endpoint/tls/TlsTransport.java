@@ -510,7 +510,8 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      *  XXX bondolo 20040522 The hint could be used in request for the
      * underlying messenger.
      */
-    public Messenger getMessenger(EndpointAddress addr, Object hintIgnored) {
+    public Messenger getMessenger(EndpointAddress addr) {
+//    public Messenger getMessenger(EndpointAddress addr, Object hintIgnored) {
 
         Logging.logCheckedFine(LOG, "getMessenger for ", addr);
 

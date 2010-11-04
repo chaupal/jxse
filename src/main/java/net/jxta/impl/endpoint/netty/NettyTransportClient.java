@@ -124,7 +124,14 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
 
     }
 
-    public Messenger getMessenger(EndpointAddress dest, Object hint) {
+    /**
+     * {@inheritDoc }
+     * @param dest
+     * @param hint
+     * @return
+     */
+    public Messenger getMessenger(EndpointAddress dest) {
+//    public Messenger getMessenger(EndpointAddress dest, Object hint) {
         
         if(!started.get()) {
 

@@ -58,6 +58,7 @@ package net.jxta.endpoint.router;
 
 import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessageSender;
+import net.jxta.protocol.RouteAdvertisement;
 
 /**
  * Objects implementing this interface fulfill the endpoint routing protocol
@@ -69,6 +70,13 @@ public interface EndpointRoutingTransport extends MessageSender, MessageReceiver
      * Provides the route controller attached to this endpoint routing object.
      */
     public RouteController getRouteController();
+
+    /**
+     * Mean to suggest a route to the endpoint router system.
+     *
+     * @param route new route to learn
+     */
+    public void suggestRoute(RouteAdvertisement route);
 
 }
 

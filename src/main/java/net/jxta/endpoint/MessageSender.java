@@ -120,13 +120,13 @@ public interface MessageSender extends MessageTransport {
     /**
      *  Return a {@link Messenger} for sending messages to the specified
      *  destination {@link EndpointAddress}.
-     *
-     @param dest The destination address for which a messenger is requested.
-     *  @param hint An optional hint for the transport to use when creating the 
-     *  messenger. The format of the hint is specific to each Message Transport
-     *  and may be {@code null} if no hint is provided.
+     *  @param dest The destination address for which a messenger is requested.
+//     *  @param hint An optional hint for the transport to use when creating the
+//     *  messenger. The format of the hint is specific to each Message Transport
+//     *  and may be {@code null} if no hint is provided.
      *  @return a Messenger or {@code null} if the destination is not reachable.
      */
-    public Messenger getMessenger(EndpointAddress dest, Object hint);
+    public Messenger getMessenger(EndpointAddress dest);
+//    public Messenger getMessenger(EndpointAddress dest, Object hint);
 
 }

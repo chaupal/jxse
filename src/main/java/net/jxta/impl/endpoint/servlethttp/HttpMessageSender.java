@@ -167,7 +167,8 @@ class HttpMessageSender implements MessageSender {
     /**
      * {@inheritDoc}
      */
-    public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
+    public Messenger getMessenger(EndpointAddress destAddr) {
+//    public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
 
         Logging.logCheckedFine(LOG, "getMessenger for : ", destAddr);
 

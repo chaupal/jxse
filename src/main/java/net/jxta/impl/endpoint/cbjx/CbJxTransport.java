@@ -306,11 +306,13 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
     /**
      * {@inheritDoc}
      */
-    public Messenger getMessenger(EndpointAddress dest, Object hintIgnored) {
+    public Messenger getMessenger(EndpointAddress dest) {
+//    public Messenger getMessenger(EndpointAddress dest, Object hintIgnored) {
 
         try {
 
-            return new CbJxMessenger(this, dest, hintIgnored);
+            return new CbJxMessenger(this, dest);
+            // return new CbJxMessenger(this, dest, hintIgnored);
 
         } catch (IOException failed) {
 

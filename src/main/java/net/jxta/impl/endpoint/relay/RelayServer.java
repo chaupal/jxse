@@ -359,7 +359,8 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
     /**
      * {@inheritDoc}
      */
-    public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
+    public Messenger getMessenger(EndpointAddress destAddr) {
+//    public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
         Messenger messenger = null;
 
         if (!destAddr.getProtocolName().equalsIgnoreCase(getProtocolName())) {

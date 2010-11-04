@@ -817,8 +817,13 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         return true;
     }
 
-    public Messenger getMessenger(EndpointAddress dst, Object hintIgnored) {
-        return getMessenger(dst, hintIgnored, true);
+    /**
+     * {@inheritDoc }
+     */
+    public Messenger getMessenger(EndpointAddress dst) {
+//    public Messenger getMessenger(EndpointAddress dst, Object hintIgnored) {
+        return getMessenger(dst, null, true);
+//        return getMessenger(dst, hintIgnored, true);
     }
 
     /**

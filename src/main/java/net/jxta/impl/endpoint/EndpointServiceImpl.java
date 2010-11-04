@@ -234,10 +234,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * The set of shared transport messengers currently ready for use.
      */
     private final Map<EndpointAddress, Reference<Messenger>> messengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
-    /**
-     * The set of shared transport messengers currently ready for use.
-     */
-    private final Map<EndpointAddress, Reference<Messenger>> directMessengerMap = new WeakHashMap<EndpointAddress, Reference<Messenger>>(32);
 
     /**
      * A means of preserving CanonicalMessenger instances as long as their cached messenger
@@ -413,11 +409,12 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
             }
 
-            // Consume the hint, if any.
-            Object theHint = hint;
+//            // Consume the hint, if any.
+//            Object theHint = hint;
 
             hint = null;
-            cachedMessenger = getLocalTransportMessenger(getDestinationAddress(), theHint);
+            cachedMessenger = getLocalTransportMessenger(getDestinationAddress());
+//            cachedMessenger = getLocalTransportMessenger(getDestinationAddress(), theHint);
 
             if (cachedMessenger == null) {
                 return false;
@@ -644,7 +641,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         // Clear up any messengers.
         messengerMap.clear();
-        directMessengerMap.clear();
 
         // Clear up the listeners
         incomingMessageListeners.clear();
@@ -1617,14 +1613,16 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
      * @return A Messenger for the specified destination address or {@code null}
      *         if no Messenger could be created.
      */
-    private Messenger getLocalTransportMessenger(EndpointAddress addr, Object hint) {
+    private Messenger getLocalTransportMessenger(EndpointAddress addr) {
+//    private Messenger getLocalTransportMessenger(EndpointAddress addr, Object hint) {
 
         MessageSender sender = getLocalSenderForAddress(addr);
         Messenger messenger = null;
 
         if (sender != null) {
             Logging.logCheckedFine(LOG, "Trying address \'", addr, "\' with : ", sender);
-            messenger = sender.getMessenger(addr, hint);
+            messenger = sender.getMessenger(addr);
+            // messenger = sender.getMessenger(addr, hint);
         }
 
         if (messenger == null) {
