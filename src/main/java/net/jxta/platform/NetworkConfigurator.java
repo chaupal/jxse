@@ -272,21 +272,21 @@ public class NetworkConfigurator {
      */
     public final static int RELAY_NODE = RELAY_SERVER | TCP_CLIENT | TCP_SERVER | HTTP_SERVER | HTTP2_SERVER;
 
-    /**
-     * Default Proxy configuration
-     *
-     * @since 2.6 Will be removed in a future release
-     */
-    @Deprecated
-    public final static int PROXY_NODE = PROXY_SERVER | RELAY_NODE;
+//    /**
+//     * Default Proxy configuration
+//     *
+//     * @since 2.6 Will be removed in a future release
+//     */
+//    @Deprecated
+//    public final static int PROXY_NODE = PROXY_SERVER | RELAY_NODE;
 
-    /**
-     * Default Rendezvous/Relay/Proxy configuration
-     *
-     * @since 2.6 Will be removed in a future release
-     */
-    @Deprecated
-    public final static int RDV_RELAY_PROXY_NODE = RDV_NODE | PROXY_NODE;
+//    /**
+//     * Default Rendezvous/Relay/Proxy configuration
+//     *
+//     * @since 2.6 Will be removed in a future release
+//     */
+//    @Deprecated
+//    public final static int RDV_RELAY_PROXY_NODE = RDV_NODE | PROXY_NODE;
 
     // end configuration modes
 
@@ -470,31 +470,31 @@ public class NetworkConfigurator {
         return new NetworkConfigurator(RDV_NODE | RELAY_SERVER, storeHome);
     }
 
-    /**
-     * Creates NetworkConfigurator instance with default Proxy configuration
-     *
-     * @param storeHome the URI to persistent store
-     * @return NetworkConfigurator instance with defaultProxy configuration
-     *
-     * @since 2.6 Will be removed in a future release
-     */
-    @Deprecated
-    public static NetworkConfigurator newProxyConfiguration(URI storeHome) {
-        return new NetworkConfigurator(PROXY_NODE, storeHome);
-    }
+//    /**
+//     * Creates NetworkConfigurator instance with default Proxy configuration
+//     *
+//     * @param storeHome the URI to persistent store
+//     * @return NetworkConfigurator instance with defaultProxy configuration
+//     *
+//     * @since 2.6 Will be removed in a future release
+//     */
+//    @Deprecated
+//    public static NetworkConfigurator newProxyConfiguration(URI storeHome) {
+//        return new NetworkConfigurator(PROXY_NODE, storeHome);
+//    }
 
-    /**
-     * Creates NetworkConfigurator instance with default Rendezvous, Relay, Proxy configuration
-     *
-     * @param storeHome the URI to persistent store
-     * @return NetworkConfigurator instance with default Rendezvous, Relay, Proxy configuration
-     *
-     * @since 2.6 It will be removed in a future release
-     */
-    @Deprecated
-    public static NetworkConfigurator newRdvRelayProxyConfiguration(URI storeHome) {
-        return new NetworkConfigurator(RDV_RELAY_PROXY_NODE, storeHome);
-    }
+//    /**
+//     * Creates NetworkConfigurator instance with default Rendezvous, Relay, Proxy configuration
+//     *
+//     * @param storeHome the URI to persistent store
+//     * @return NetworkConfigurator instance with default Rendezvous, Relay, Proxy configuration
+//     *
+//     * @since 2.6 It will be removed in a future release
+//     */
+//    @Deprecated
+//    public static NetworkConfigurator newRdvRelayProxyConfiguration(URI storeHome) {
+//        return new NetworkConfigurator(RDV_RELAY_PROXY_NODE, storeHome);
+//    }
 
     /**
      * Creates the default NetworkConfigurator. The configuration is stored  with a default configuration mode of EDGE_NODE
@@ -522,7 +522,7 @@ public class NetworkConfigurator {
         httpConfig = createHttpAdv();
         rdvConfig = createRdvConfigAdv();
         relayConfig = createRelayConfigAdv();
-        proxyConfig = createProxyAdv();
+        // proxyConfig = createProxyAdv();
         tcpConfig = createTcpAdv();
         multicastConfig = createMulticastAdv();
         http2Config = createHttp2Adv();
@@ -1628,17 +1628,17 @@ public class NetworkConfigurator {
         http2Enabled = platformConfig.isSvcEnabled(PeerGroup.http2ProtoClassID);
         http2Config = loadTcpAdv(platformConfig, PeerGroup.http2ProtoClassID);
 
-        // ProxyService
-        try {
-            param = (XMLElement) platformConfig.getServiceParam(PeerGroup.proxyClassID);
-            if (param != null && !platformConfig.isSvcEnabled(PeerGroup.proxyClassID)) {
-                mode = mode | PROXY_SERVER;
-            }
-        } catch (Exception failure) {
-            IOException ioe = new IOException("error processing the pse config advertisement");
-            ioe.initCause(failure);
-            throw ioe;
-        }
+//        // ProxyService
+//        try {
+//            param = (XMLElement) platformConfig.getServiceParam(PeerGroup.proxyClassID);
+//            if (param != null && !platformConfig.isSvcEnabled(PeerGroup.proxyClassID)) {
+//                mode = mode | PROXY_SERVER;
+//            }
+//        } catch (Exception failure) {
+//            IOException ioe = new IOException("error processing the pse config advertisement");
+//            ioe.initCause(failure);
+//            throw ioe;
+//        }
 
         // Rendezvous
         try {
@@ -2067,9 +2067,9 @@ public class NetworkConfigurator {
             advertisement.putServiceParam(PeerGroup.membershipClassID, pseDoc);
         }
 
-        if (proxyConfig != null && ((mode & PROXY_SERVER) == PROXY_SERVER)) {
-            advertisement.putServiceParam(PeerGroup.proxyClassID, proxyConfig);
-        }
+//        if (proxyConfig != null && ((mode & PROXY_SERVER) == PROXY_SERVER)) {
+//            advertisement.putServiceParam(PeerGroup.proxyClassID, proxyConfig);
+//        }
 
         if ((null != infraPeerGroupConfig) && (null != infraPeerGroupConfig.getPeerGroupID())
                 && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())

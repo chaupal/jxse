@@ -337,12 +337,12 @@ public class NetworkManager implements RendezvousListener {
                 config = NetworkConfigurator.newRdvRelayConfiguration(instanceHome);
                 break;
 
-            case PROXY:
-                config = NetworkConfigurator.newProxyConfiguration(instanceHome);
-                break;
+//            case PROXY:
+//                config = NetworkConfigurator.newProxyConfiguration(instanceHome);
+//                break;
 
             case SUPER:
-                config = NetworkConfigurator.newRdvRelayProxyConfiguration(instanceHome);
+                config = NetworkConfigurator.newRdvRelayConfiguration(instanceHome);
                 break;
 
             default:

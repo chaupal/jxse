@@ -426,18 +426,18 @@ public class AutomaticConfigurator extends NullConfigurator {
 
         advertisement.putServiceParam(PeerGroup.rendezvousClassID, rdvDoc);
 
-        // if no proxy param section, disable it.
-        XMLDocument proxy = (XMLDocument) advertisement.getServiceParam(PeerGroup.proxyClassID);
-
-        if (null == proxy) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                LOG.config("Proxy config advertisement missing, making a new one.");
-            }
-
-            proxy = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
-            proxy.appendChild(proxy.createElement("isOff"));
-            advertisement.putServiceParam(PeerGroup.proxyClassID, proxy);
-        }
+//        // if no proxy param section, disable it.
+//        XMLDocument proxy = (XMLDocument) advertisement.getServiceParam(PeerGroup.proxyClassID);
+//
+//        if (null == proxy) {
+//            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+//                LOG.config("Proxy config advertisement missing, making a new one.");
+//            }
+//
+//            proxy = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
+//            proxy.appendChild(proxy.createElement("isOff"));
+//            advertisement.putServiceParam(PeerGroup.proxyClassID, proxy);
+//        }
 
         // Check the PSE Configuration
         PSEConfigAdv pseConfig = null;

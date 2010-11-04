@@ -118,9 +118,9 @@ public class NetworkConfiguratorTest extends TestCase {
         createConfiguration(NetworkConfigurator.ADHOC_NODE);
         createConfiguration(NetworkConfigurator.EDGE_NODE);
         createConfiguration(NetworkConfigurator.RDV_NODE);
-        createConfiguration(NetworkConfigurator.PROXY_NODE);
+//        createConfiguration(NetworkConfigurator.PROXY_NODE);
         createConfiguration(NetworkConfigurator.RELAY_NODE);
-        createConfiguration(NetworkConfigurator.RDV_RELAY_PROXY_NODE);
+//        createConfiguration(NetworkConfigurator.RDV_RELAY_PROXY_NODE);
     }
 
     private void createConfiguration(int mode) {
@@ -154,15 +154,15 @@ public class NetworkConfiguratorTest extends TestCase {
                 config.setName("RDV_SERVER");
                 break;
 
-            case NetworkConfigurator.PROXY_NODE:
-                config = new NetworkConfigurator(mode, proxHome.toURI());
-                config.setName("PROXY_SERVER");
-                break;
-
-            case NetworkConfigurator.RDV_RELAY_PROXY_NODE:
-                config = new NetworkConfigurator(mode, rdvRelayProxyHome.toURI());
-                config.setName("rdvrlyprox");
-                break;
+//            case NetworkConfigurator.PROXY_NODE:
+//                config = new NetworkConfigurator(mode, proxHome.toURI());
+//                config.setName("PROXY_SERVER");
+//                break;
+//
+//            case NetworkConfigurator.RDV_RELAY_PROXY_NODE:
+//                config = new NetworkConfigurator(mode, rdvRelayProxyHome.toURI());
+//                config.setName("rdvrlyprox");
+//                break;
 
             default:
                 fail("Invalid configuration mode :" + Integer.toString(mode, 2));

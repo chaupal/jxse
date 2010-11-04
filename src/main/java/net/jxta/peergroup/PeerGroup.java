@@ -413,12 +413,12 @@ public interface PeerGroup extends Service {
     public final static ModuleClassID tlsProtoClassID =
             ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000D05"));
 
-    /**
-     * Well known module class identifier: ProxyService
-     */
-    @Deprecated
-    public final static ModuleClassID proxyClassID =
-            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000E05"));
+//    /**
+//     * Well known module class identifier: ProxyService
+//     */
+//    @Deprecated
+//    public final static ModuleClassID proxyClassID =
+//            ModuleClassID.create(URI.create(WK_ID_PREFIX + "0000000E05"));
 
     /**
      * Well known module class identifier: RelayProtocol
@@ -543,11 +543,11 @@ public interface PeerGroup extends Service {
 //    public final static ModuleSpecID refShellSpecID =
 //            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000C0206"));
 
-    /**
-     * Well known application: the Proxy
-     */
-    public final static ModuleSpecID refProxySpecID =
-            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000E0106"));
+//    /**
+//     * Well known application: the Proxy
+//     */
+//    public final static ModuleSpecID refProxySpecID =
+//            ModuleSpecID.create(URI.create(WK_ID_PREFIX + "0000000E0106"));
 
     /**
      * Well known endpoint protocol specification identifier: the standard

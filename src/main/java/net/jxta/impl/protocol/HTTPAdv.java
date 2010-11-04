@@ -490,27 +490,27 @@ public class HTTPAdv extends TransportAdvertisement {
         listenPort = newPort;
     }
 
-    /**
-     * @return the proxy string
-     * @deprecated This has been deprecated. Set your proxy directly with the JVM
-     */
-    @Deprecated
-    public String getProxy() {
-        return proxy;
-    }
+//    /**
+//     * @return the proxy string
+//     * @deprecated This has been deprecated. Set your proxy directly with the JVM
+//     */
+//    @Deprecated
+//    public String getProxy() {
+//        return proxy;
+//    }
 
     public String getServer() {
         return server;
     }
 
-    /**
-     * @return true if proxy enabled
-     * @deprecated This has been deprecated. Set your proxy directly with the JVM
-     */
-    @Deprecated
-    public boolean isProxyEnabled() {
-        return proxyEnabled;
-    }
+//    /**
+//     * @return true if proxy enabled
+//     * @deprecated This has been deprecated. Set your proxy directly with the JVM
+//     */
+//    @Deprecated
+//    public boolean isProxyEnabled() {
+//        return proxyEnabled;
+//    }
 
     public boolean isServerEnabled() {
         return serverEnabled;
@@ -523,30 +523,30 @@ public class HTTPAdv extends TransportAdvertisement {
     // If one of proxy, server, or router is cleared, the corresponding
     // enabled flag should be false (the opposite is not true).
 
-    /**
-     * @param name the proxy string
-     * @deprecated This has been deprecated. Set your proxy directly with the JVM
-     */
-    @Deprecated
-    public void setProxy(String name) {
-        proxy = name;
-        if (name == null) {
-            proxyEnabled = false;
-        }
-    }
+//    /**
+//     * @param name the proxy string
+//     * @deprecated This has been deprecated. Set your proxy directly with the JVM
+//     */
+//    @Deprecated
+//    public void setProxy(String name) {
+//        proxy = name;
+//        if (name == null) {
+//            proxyEnabled = false;
+//        }
+//    }
 
     public void setServer(String name) {
         server = name;
     }
 
-    /**
-     * @param enabled true if proxy is enabled
-     * @deprecated This has been deprecated. Set your proxy directly with the JVM
-     */
-    @Deprecated
-    public void setProxyEnabled(boolean enabled) {
-        proxyEnabled = enabled;
-    }
+//    /**
+//     * @param enabled true if proxy is enabled
+//     * @deprecated This has been deprecated. Set your proxy directly with the JVM
+//     */
+//    @Deprecated
+//    public void setProxyEnabled(boolean enabled) {
+//        proxyEnabled = enabled;
+//    }
 
     public void setServerEnabled(boolean enabled) {
         serverEnabled = enabled;
