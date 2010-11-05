@@ -129,13 +129,16 @@ public final class CacheManager {
     	String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
     	
         if(cacheImpl == null) {
+        	Logging.logCheckedConfig(LOG, "No CacheManager backend implementation specified through system property - using default implementation");
     	    this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
     	} else {
+    		Logging.logCheckedConfig(LOG, "Attempting to use CacheManager backend implementatation class: " + cacheImpl);
             try {
                 Class<?> cacheClass = Class.forName(cacheImpl);
                 Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
                 Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class, TaskManager.class);
                 this.wrappedImpl = constructor.newInstance(storeRoot, areaName, taskManager);
+                Logging.logCheckedConfig(LOG, "Successfully loaded CacheManager backend implementation class: " + cacheImpl);
 
             } catch (Exception e) {
 

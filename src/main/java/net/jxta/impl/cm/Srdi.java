@@ -115,7 +115,11 @@ public class Srdi implements SrdiAPI {
 
     public Srdi(PeerGroup group, String indexName, long interval) {
     	this.scheduledExecutor = group.getTaskManager().getScheduledExecutorService();
-        String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
+    	
+    	if(System.getProperty(SRDI_INDEX_BACKEND_SYSPROP) == null) {
+    		Logging.logCheckedConfig(LOG, "No Srdi implementation specified through system property - using default implementation");
+    	}
+    	String backendClassName = System.getProperty(SRDI_INDEX_BACKEND_SYSPROP, DEFAULT_SRDI_INDEX_BACKEND);
     	createBackend(backendClassName, group, indexName);
 
         Logging.logCheckedInfo(LOG, "[", group.toString(), "] : Starting SRDI GC Thread for ", indexName);
@@ -139,16 +143,14 @@ public class Srdi implements SrdiAPI {
     private void createBackend(String backendClassName, PeerGroup group, String indexName) {
 
         try {
-
+        	Logging.logCheckedConfig(LOG, "Attempting to use Srdi backend class: ", backendClassName);
             Class<? extends SrdiAPI> backendClass = getBackendClass();
             Constructor<? extends SrdiAPI> constructor = backendClass.getConstructor(PeerGroup.class, String.class);
             backend = (SrdiAPI) constructor.newInstance(group, indexName);
-
+            Logging.logCheckedConfig(LOG, "Srdi backend [", backendClassName, "] loaded successfully");
         } catch (Exception e) {
-
             Logging.logCheckedSevere(LOG, "Unable to construct SRDI Index backend [", backendClassName, "] specified by system property, constructing default\n", e);
             backend = new XIndiceSrdi(group, indexName);
-
         }
     }
 
