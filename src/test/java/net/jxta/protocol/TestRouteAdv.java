@@ -56,58 +56,50 @@
 
 package net.jxta.protocol;
 
+import static org.junit.Assert.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import junit.framework.*;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Reader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Vector;
 import java.util.Set;
+import java.util.Vector;
+
 import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.IDFactory;
-import net.jxta.peer.PeerID;
-
 import net.jxta.impl.protocol.RouteQuery;
 import net.jxta.impl.protocol.RouteResponse;
+import net.jxta.peer.PeerID;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  *  This is a simple test for Route and AccessPoint advertisement
  */
 
-public class TestRouteAdv extends TestCase {
+public class TestRouteAdv {
 
-    public TestRouteAdv(java.lang.String testName) {
-        super(testName);
-    }
-
-    public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(TestRouteAdv.class);
-
-        return suite;
-    }
-
-    @Override
-    protected void setUp() {}
-
+	@Rule
+	public TemporaryFolder tempStorage = new TemporaryFolder();
+	
+	@Test
     public void testRouteAdv() {
         // create access point advertisment for destination
         System.out.println("Create an access point advertisement");
@@ -255,13 +247,14 @@ public class TestRouteAdv extends TestCase {
 
             doc.sendToWriter(out);
             System.out.println(out.toString());
-            FileOutputStream fp = new FileOutputStream("route1.adv");
+            File routeFile = tempStorage.newFile("route1.adv");
+            FileOutputStream fp = new FileOutputStream(routeFile);
 
             fp.write(out.toString().getBytes());
             fp.close();
             out.close();
 
-            FileInputStream is = new FileInputStream("route1.adv");
+            FileInputStream is = new FileInputStream(routeFile);
             XMLDocument advDocument = (XMLDocument) StructuredDocumentFactory.newStructuredDocument( MimeMediaType.XMLUTF8, is);
             RouteAdvertisement routeAdv = (RouteAdvertisement)
                     AdvertisementFactory.newAdvertisement(advDocument);
@@ -305,6 +298,7 @@ public class TestRouteAdv extends TestCase {
 
     }
 
+	@Test
     public void testAddDestRoute() {
         // create access point advertisment for destination
         System.out.println("Test add and remove of endpoint addresses");
@@ -352,6 +346,7 @@ public class TestRouteAdv extends TestCase {
         }
     }
 
+	@Test
     public void testDestDisplay() {
         // create access point advertisment for destination
         System.out.println("Test debug route display");
@@ -398,6 +393,7 @@ public class TestRouteAdv extends TestCase {
         System.out.println(route.display());
     }
 
+	@Test
     public void testHops() {
         System.out.println("Test hops");
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
@@ -430,6 +426,7 @@ public class TestRouteAdv extends TestCase {
 
     }
 
+	@Test
     public void testRouteQuery() {
 
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
@@ -524,6 +521,7 @@ public class TestRouteAdv extends TestCase {
         }
     }
 
+	@Test
     public void testRouteResponse() {
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
@@ -611,12 +609,13 @@ public class TestRouteAdv extends TestCase {
 
         // write to a file
         try {
-            FileOutputStream fp = new FileOutputStream("routeresponse.msg");
+        	File routeResponseFile = tempStorage.newFile("routeresponse.msg");
+            FileOutputStream fp = new FileOutputStream(routeResponseFile);
 
             fp.write(response.toString().getBytes("UTF-8"));
             fp.close();
 
-            FileInputStream is = new FileInputStream("routeresponse.msg");
+            FileInputStream is = new FileInputStream(routeResponseFile);
             RouteResponse response1 = null;
 
             XMLDocument asDoc = (XMLDocument)

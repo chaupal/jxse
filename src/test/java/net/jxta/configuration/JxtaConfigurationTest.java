@@ -56,6 +56,10 @@
 
 package net.jxta.configuration;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -64,36 +68,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+
+import org.junit.Rule;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Test of the JxtaConfiguration class.
  */
 public class JxtaConfigurationTest {
 
-    public JxtaConfigurationTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
+	@Rule
+	public TemporaryFolder tempStorage = new TemporaryFolder();
 
     @Test
     public void testConstructor_0Param() {
@@ -234,10 +220,10 @@ public class JxtaConfigurationTest {
         Source.setProperty("XXX", "YYY");
         Source.setDefaultPropertyValue("DDD", "FFF");
 
-        File TempFile = new File("testStoreLoadFromXML");
+        File TempFile = tempStorage.newFile("testStoreLoadFromXML");
         TempFile.delete();
 
-        FileOutputStream FOS = new FileOutputStream("testStoreLoadFromXML");
+        FileOutputStream FOS = new FileOutputStream(TempFile);
 
         try {
             Source.storeToXML(FOS, "Test");
@@ -246,7 +232,7 @@ public class JxtaConfigurationTest {
             fail(ex.toString());
         }
 
-        FileInputStream FIS = new FileInputStream("testStoreLoadFromXML");
+        FileInputStream FIS = new FileInputStream(TempFile);
 
         JxtaConfiguration Restore = new JxtaConfiguration();
 
