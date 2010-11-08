@@ -15,8 +15,6 @@ public class SoakTester {
 	public static void soakTestSinglePipe(NetworkManager alice, NetworkManager bob, int numMessages, int messageSize) throws Exception {
 		final LinkedBlockingQueue<Message> aliceReceived = new LinkedBlockingQueue<Message>();
 		PipeMsgListener aliceListener = new PipeMsgListener() {
-			
-			@Override
 			public void pipeMsgEvent(PipeMsgEvent event) {
 				if(event.getMessage() != null) {
 					aliceReceived.offer(event.getMessage());

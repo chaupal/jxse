@@ -22,8 +22,6 @@ public class LoadTester {
 		final ConcurrentSkipListSet<Integer> messagesToReceive = new ConcurrentSkipListSet<Integer>();
 		
 		PipeMsgListener aliceListener = new PipeMsgListener() {
-			
-			@Override
 			public void pipeMsgEvent(PipeMsgEvent event) {
 				if(event.getMessage() != null) {
 					int received = numReceived.incrementAndGet();

@@ -40,7 +40,6 @@ public class CachedThreadExecutorService implements ExecutorService {
 
     }
 
-    @Override
     public void shutdown() {
         throw new IllegalStateException("shutdown cannot be called on a shared thread pool executor");
     }
@@ -51,7 +50,6 @@ public class CachedThreadExecutorService implements ExecutorService {
         }
     }
 	
-    @Override
     public List<Runnable> shutdownNow() {
         throw new IllegalStateException("shutdown cannot be called on a shared thread pool executor");
     }
@@ -62,22 +60,18 @@ public class CachedThreadExecutorService implements ExecutorService {
         }
     }
 
-    @Override
     public void execute(Runnable command) {
         cachedExecutorService.execute(command);
     }
 
-    @Override
     public <T> Future<T> submit(Callable<T> task) {
         return cachedExecutorService.submit(task);
     }
 
-    @Override
     public Future<?> submit(Runnable task) {
         return cachedExecutorService.submit(task);
     }
 
-    @Override
     public <T extends Object> java.util.concurrent.Future<T> submit(Runnable task, T result) {
         return cachedExecutorService.submit(task, result);
     }
