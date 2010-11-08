@@ -116,14 +116,14 @@ public class SystemTestUtils {
         Thread.sleep(5000);
         JxtaBiDiPipe bobPipe = connectNonBlocking(bobManager, aliceServerPipe.getPipeAdv(), bobListener);
 
-        assertTrue(pipeEstablished.await(5, TimeUnit.SECONDS));
+        assertTrue("Failed to establish pipe", pipeEstablished.await(10, TimeUnit.SECONDS));
         aliceAcceptedPipe.get().setMessageListener(aliceListener);
 
         bobPipe.sendMessage(SystemTestUtils.createMessage("hello alice"));
-        assertTrue(aliceRequestReceived.await(5, TimeUnit.SECONDS));
+        assertTrue("Failed to send message from bob to alice", aliceRequestReceived.await(5, TimeUnit.SECONDS));
 
         aliceAcceptedPipe.get().sendMessage(SystemTestUtils.createMessage("hello bob"));
-        assertTrue(bobResponseReceived.await(5, TimeUnit.SECONDS));
+        assertTrue("Failed to send messages from alice to bob", bobResponseReceived.await(5, TimeUnit.SECONDS));
     }
 
     private static JxtaBiDiPipe connectNonBlocking(NetworkManager clientManager,
