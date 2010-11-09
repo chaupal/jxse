@@ -211,7 +211,7 @@ public class EngineAuthenticator implements Authenticator {
             return authenticatorEngine.isEnginePresent();
         } else {
 
-            return source.pseStore.validPasswd(identity, store_password, key_password);
+            return source.getPSEConfig().validPasswd(identity, store_password, key_password);
         }
     }
 
@@ -254,12 +254,12 @@ public class EngineAuthenticator implements Authenticator {
     public PeerID[] getIdentities(char[] store_password) {
 
         if (seedCert != null) {
-            PeerID[] seed = { source.group.getPeerID() };
+            PeerID[] seed = { source.getPeerGroup().getPeerID() };
 
             return seed;
         } else {
             try {
-                ID[] allkeys = source.pseStore.getKeysList(store_password);
+                ID[] allkeys = source.getPSEConfig().getKeysList(store_password);
 
                 // XXX bondolo 20040329 it may be appropriate to login
                 // something other than a peer id.
@@ -286,14 +286,14 @@ public class EngineAuthenticator implements Authenticator {
 
     public X509Certificate getCertificate(char[] store_password, ID aPeer) {
         if (seedCert != null) {
-            if (aPeer.equals(source.group.getPeerID())) {
+            if (aPeer.equals(source.getPeerGroup().getPeerID())) {
                 return seedCert;
             } else {
                 return null;
             }
         } else {
             try {
-                return source.pseStore.getTrustedCertificate(aPeer, store_password);
+                return source.getPSEConfig().getTrustedCertificate(aPeer, store_password);
             } catch (IOException failed) {
                 return null;
             } catch (KeyStoreException failed) {

@@ -71,4 +71,9 @@ public interface DocumentByteBufferIO {
      *  Returns the {@code Document} as a sequence of ByteBuffers
      */
     ByteBuffer[] getByteBuffers();
+
+    /**
+     *  Returns the {@code Document} as a sequence of ByteBuffers
+     */
+    ByteBuffer[] getUnsignedByteBuffers();
 }

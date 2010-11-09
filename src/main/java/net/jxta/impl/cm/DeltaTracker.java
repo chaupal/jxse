@@ -98,7 +98,7 @@ public class DeltaTracker {
 		}
 		
 		if(doc == null) {
-			doc = (StructuredDocument<?>)adv.getDocument(MimeMediaType.XMLUTF8);
+			doc = (StructuredDocument<?>)adv.getSignedDocument();
 		}
 		
 		Map<String, String> indexFields = CacheUtils.getIndexfields(adv.getIndexFields(), doc);

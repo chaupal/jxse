@@ -68,6 +68,7 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
+import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
@@ -312,6 +313,11 @@ public class NetworkConfigurator {
     protected transient String name = "unknown";
 
     /**
+     * AuthenticationType used by PSEMembership to specify the type of authentication.
+     */
+    protected transient String authenticationType = null;
+
+    /**
      * Password value used to generate root Certificate and to protect the
      * Certificate's PrivateKey.
      */
@@ -320,7 +326,7 @@ public class NetworkConfigurator {
     /**
      * Default PeerID
      */
-    protected transient PeerID peerid = IDFactory.newPeerID(PeerGroupID.defaultNetPeerGroupID);
+    protected transient PeerID peerid = null;
 
     /**
      * Principal value used to generate root certificate
@@ -1124,6 +1130,24 @@ public class NetworkConfigurator {
      */
     public URI getKeyStoreLocation() {
         return keyStoreLocation;
+    }
+
+    /**
+     * Gets the authenticationType
+     *
+     * @return authenticationType the authenticationType value
+     */
+    public String getAuthenticationType() {
+        return this.authenticationType;
+    }
+
+    /**
+     * Sets the authenticationType
+     *
+     * @param authenticationType the new authenticationType value
+     */
+    public void setAuthenticationType(String authenticationType) {
+        this.authenticationType = authenticationType;
     }
 
     /**
@@ -2010,9 +2034,6 @@ public class NetworkConfigurator {
 
         advertisement.setName(name);
         advertisement.setDescription(description);
-        if (peerid != null) {
-            advertisement.setPeerID(peerid);
-        }
 
         if (tcpConfig != null) {
             boolean enabled = tcpEnabled && (tcpConfig.isServerEnabled() || tcpConfig.isClientEnabled());
@@ -2048,11 +2069,19 @@ public class NetworkConfigurator {
             XMLDocument rdvDoc = (XMLDocument) rdvConfig.getDocument(MimeMediaType.XMLUTF8);
             advertisement.putServiceParam(PeerGroup.rendezvousClassID, rdvDoc);
         }
+        
+        if (principal == null) {
+            principal = System.getProperty("impl.membership.pse.authentication.principal", "JxtaCN");
+        }
+        if (password == null) {
+            password = System.getProperty("impl.membership.pse.authentication.password", "the!one!password");
+        }
 
         if (cert != null) {
             pseConf = createPSEAdv(cert);
         } else {
             pseConf = createPSEAdv(principal, password);
+            cert = pseConf.getCertificateChain();
         }
 
         if (pseConf != null) {
@@ -2066,6 +2095,16 @@ public class NetworkConfigurator {
             XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
             advertisement.putServiceParam(PeerGroup.membershipClassID, pseDoc);
         }
+        
+        if (authenticationType == null) {
+            authenticationType = System.getProperty("impl.membership.pse.authentication.type", "StringAuthentication");
+        }
+        StdPeerGroup.setPSEMembershipServiceKeystoreInfoFactory(new StdPeerGroup.DefaultPSEMembershipServiceKeystoreInfoFactory(authenticationType, password));
+        
+        if (peerid == null) {
+            peerid = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID, cert[0].getPublicKey().getEncoded());
+        }
+        advertisement.setPeerID(peerid);
 
 //        if (proxyConfig != null && ((mode & PROXY_SERVER) == PROXY_SERVER)) {
 //            advertisement.putServiceParam(PeerGroup.proxyClassID, proxyConfig);

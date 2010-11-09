@@ -65,6 +65,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.credential.AuthenticationCredential;
+import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.Element;
@@ -72,14 +74,20 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.impl.access.pse.PSEAccessService;
 import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.content.ContentServiceImpl;
+import net.jxta.impl.membership.pse.DialogAuthenticator;
+import net.jxta.impl.membership.pse.EngineAuthenticator;
 import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.impl.membership.pse.PSEPeerValidationEngine;
+import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.logging.Logging;
+import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
@@ -622,7 +630,194 @@ public class StdPeerGroup extends GenericPeerGroup {
                 }
             }
         }
+        //The membership service is mandatory from now on (Jan. 20, 2008). It will be loaded first
+        //and logged in. That will make sure the subsequent publishing will be signed.
+        //The objective of this section is to establish the peer's default credential for this group.
+        Object tempMsSpec = initServices.remove(PeerGroup.membershipClassID);
+        if(tempMsSpec==null)
+        {
+            throw new PeerGroupException("Membership service is mandatory. It is not found for this group : " + this.getPeerGroupName());
+        }
+        else
+        {
+            Map<ModuleClassID, Object> tempMsMap = new HashMap<ModuleClassID, Object>();
+            tempMsMap.put(PeerGroup.membershipClassID, tempMsSpec);
+            loadAllModules(tempMsMap,true);
+            int tempRes = startModules((Map)tempMsMap);
+            if(Module.START_OK ==tempRes)
+            {
+                MembershipService tempMs = this.getMembershipService();
+                Credential tempCred = null;
 
+                PSEMembershipServiceKeystoreInfo pseMembershipServiceKeystoreInfo = getDefaultPSEMembershipServiceKeystoreInfoFactory().getInstance(this);
+
+                String membershipAuthenticationType = pseMembershipServiceKeystoreInfo.getAuthenticationType();
+                String membershipPassword = pseMembershipServiceKeystoreInfo.getPassword();
+
+                tempCred = tempMs.getDefaultCredential();
+                if (null == tempCred)
+                {
+
+                    if ("StringAuthentication".equals(membershipAuthenticationType)) {
+
+                        AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "StringAuthentication", null);
+
+                        StringAuthenticator tempAuth = null;
+                        try
+                        {
+                            tempAuth = (StringAuthenticator) tempMs.apply(tempAuthCred);
+                        }
+                        catch(ProtocolNotSupportedException ex)
+                        {
+                            //Nothing can be done.
+                            ex.printStackTrace();
+                        }
+                        if (null == tempAuth)
+                        {
+                            throw new PeerGroupException("Failed to get a StringAuthenticator for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                        }
+                        else
+                        {
+
+                            tempAuth.setAuth1_KeyStorePassword(membershipPassword);
+                            tempAuth.setAuth2Identity(this.getPeerID());
+                            tempAuth.setAuth3_IdentityPassword(membershipPassword);
+
+                            if (tempAuth.isReadyForJoin())
+                            {
+                                tempMs.join(tempAuth);
+                                if (tempMs.getDefaultCredential() == null)
+                                {
+                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                                }
+                                else
+                                {
+                                    //The credential has been established. This is our objective.
+                                    //From now on, all the advertisements will be signed by this credential.
+                                }
+                            }
+                            else
+                            {
+                                //javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
+                                //System.exit(0);
+                                LOG.log(Level.SEVERE, "Failed to make PSE membership credential 'ready for join'");
+                                throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                            }
+                        }
+                    } else if ("EngineAuthentication".equals(membershipAuthenticationType)) {
+
+                        AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "EngineAuthentication", null);
+
+                        EngineAuthenticator tempAuth = null;
+                        try
+                        {
+                            tempAuth = (EngineAuthenticator) tempMs.apply(tempAuthCred);
+                        }
+                        catch(ProtocolNotSupportedException ex)
+                        {
+                            //Nothing can be done.
+                            ex.printStackTrace();
+                        }
+                        if (null == tempAuth)
+                        {
+                            throw new PeerGroupException("Failed to get a EngineAuthentication for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                        }
+                        else
+                        {
+
+                            if (tempAuth.isReadyForJoin())
+                            {
+                                tempMs.join(tempAuth);
+                                if (tempMs.getDefaultCredential() == null)
+                                {
+                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                                }
+                                else
+                                {
+                                    //The credential has been established. This is our objective.
+                                    //From now on, all the advertisements will be signed by this credential.
+                                }
+                            }
+                            else
+                            {
+                                LOG.log(Level.SEVERE, "Failed to make PSE membership credential 'ready for join'");
+                                throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+//                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
+//                                System.exit(0);
+                            }
+                        }
+                    } else if ("DialogAuthentication".equals(membershipAuthenticationType) || "InteractiveAuthentication".equals(membershipAuthenticationType)) {
+
+                        AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "DialogAuthentication", null);
+
+                        DialogAuthenticator tempAuth = null;
+                        try
+                        {
+                            tempAuth = (DialogAuthenticator) tempMs.apply(tempAuthCred);
+                        }
+                        catch(ProtocolNotSupportedException ex)
+                        {
+                            //Nothing can be done.
+                            ex.printStackTrace();
+                        }
+                        if (null == tempAuth)
+                        {
+                            throw new PeerGroupException("Failed to get a DialogAuthenticator for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                        }
+                        else
+                        {
+                            char[] tempPass=null;
+                            for(int attempt=0;attempt<3;attempt++)
+                            {
+                                net.jxta.impl.util.Password.singleton().setUsername(this.getPeerName());
+                                tempPass=net.jxta.impl.util.Password.singleton().getPassword();
+                                tempAuth.setAuth1_KeyStorePassword(tempPass);
+                                tempAuth.setAuth2Identity(this.getPeerID());
+                                tempAuth.setAuth3_IdentityPassword(tempPass);
+                                if(tempAuth.isReadyForJoin())
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    net.jxta.impl.util.Password.singleton().resetPassword();
+                                }
+                            }
+
+                            if (tempAuth.isReadyForJoin())
+                            {
+                                tempMs.join(tempAuth);
+                                if (tempMs.getDefaultCredential() == null)
+                                {
+                                    throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                                }
+                                else
+                                {
+                                    //The credential has been established. This is our objective.
+                                    //From now on, all the advertisements will be signed by this credential.
+                                }
+                            }
+                            else
+                            {
+                                LOG.log(Level.SEVERE, "Failed to make PSE membership credential 'ready for join'");
+                                throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+//                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
+//                                System.exit(0);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //The credential has already been established, perhaps done during the module startup.
+                }
+            }
+            else
+            {
+                throw new PeerGroupException("Failed to start peer group membership service for this group: "+this.getPeerGroupName()+". Error="+tempRes);
+            }
+        }
+        
         // We Applications are shelved until startApp()
         applications.putAll(paramAdv.getApps());
 
@@ -791,4 +986,79 @@ public class StdPeerGroup extends GenericPeerGroup {
     public Map<ModuleClassID, Object> getApplications() {
         return Collections.unmodifiableMap(applications);
     }
+
+    /**
+     * PSEPeerValidationEngineFactory
+     */
+    private static PSEMembershipServiceKeystoreInfoFactory defaultPSEMembershipServiceKeystoreInfoFactory = null;
+    /**
+     *  Set the default PSEPeerValidationEngineFactory
+     **/
+    public static void setPSEMembershipServiceKeystoreInfoFactory(PSEMembershipServiceKeystoreInfoFactory newPSEMembershipServiceKeystoreInfoFactory) {
+        synchronized (StdPeerGroup.class) {
+            if (defaultPSEMembershipServiceKeystoreInfoFactory == null)
+                defaultPSEMembershipServiceKeystoreInfoFactory = newPSEMembershipServiceKeystoreInfoFactory;
 }
+    }
+    /**
+     *  A factory for PSE Peer Validation Engines.
+     *
+     * @see PSEPeerValidationEngine
+     */
+    public interface PSEMembershipServiceKeystoreInfoFactory {
+        PSEMembershipServiceKeystoreInfo getInstance(PeerGroup peerGroup) throws PeerGroupException;
+    }
+    /**
+     *  A factory for PSE Peer Validation Engines.
+     *
+     * @see PSEPeerValidationEngine
+     */
+    public interface PSEMembershipServiceKeystoreInfo {
+        PeerGroup getPeerGroup();
+        String getAuthenticationType();
+        String getPassword();
+    }
+    /**
+     *   Returns the default Peer Validation Engine Factory.
+     *
+     *   @return The current default Peer Validation Engine Factory.
+     **/
+    public static PSEMembershipServiceKeystoreInfoFactory getDefaultPSEMembershipServiceKeystoreInfoFactory() {
+        
+        synchronized (StdPeerGroup.class) {
+            if (defaultPSEMembershipServiceKeystoreInfoFactory == null) {
+                defaultPSEMembershipServiceKeystoreInfoFactory = new DefaultPSEMembershipServiceKeystoreInfoFactory();
+            }
+            return defaultPSEMembershipServiceKeystoreInfoFactory;
+        }
+    }
+
+    public static class DefaultPSEMembershipServiceKeystoreInfoFactory implements PSEMembershipServiceKeystoreInfoFactory {
+
+        private String membershipAuthenticationType = System.getProperty("impl.membership.pse.authentication.type", "StringAuthentication");
+        private String membershipPassword = System.getProperty("impl.membership.pse.authentication.password", "the!one!password");
+
+        public DefaultPSEMembershipServiceKeystoreInfoFactory() {
+        }
+
+        public DefaultPSEMembershipServiceKeystoreInfoFactory(String membershipAuthenticationType, String membershipPassword) {
+            this.membershipAuthenticationType = membershipAuthenticationType;
+            this.membershipPassword = membershipPassword;
+        }
+
+        public PSEMembershipServiceKeystoreInfo getInstance(final PeerGroup peerGroup) throws PeerGroupException {
+            return new PSEMembershipServiceKeystoreInfo() {
+                public PeerGroup getPeerGroup() {
+                    return peerGroup;
+                }
+                public String getAuthenticationType() {
+                    return membershipAuthenticationType;
+                }
+                public String getPassword() {
+                    return membershipPassword;
+                }
+            };
+        }
+    }
+}
+

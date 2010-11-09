@@ -332,7 +332,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
                             "Provided Peer Advertisement does not refer to one of the peers in the response list.");
                 }
 
-                StructuredTextDocument asDoc = (StructuredTextDocument) peerAdv.getDocument(MimeMediaType.XMLUTF8);
+                StructuredTextDocument asDoc = (StructuredTextDocument) peerAdv.getSignedDocument();
 
                 element = doc.createElement(PeerAdvTag, asDoc.toString());
                 doc.appendChild(element);

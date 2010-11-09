@@ -435,6 +435,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
             doc = new RouteQuery();
             doc.setDestPeerID(EndpointRouter.addr2pid(peer));
             doc.setSrcRoute(myRoute);
+            doc.setPeerGroup(group);
 
             // check if we have some bad route information
             // for that peer, in that case pass the bad hop count
@@ -819,7 +820,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         try {
             Reader ip = new StringReader(query.getQuery());
             XMLDocument asDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, ip);
-            routeQuery = new RouteQuery(asDoc);
+            routeQuery = new RouteQuery(asDoc, this.group);
         } catch (RuntimeException e) {
             Logging.logCheckedFine(LOG, "Malformed Route query\n", e);
             return ResolverService.OK;

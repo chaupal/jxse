@@ -58,6 +58,7 @@ package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
 import net.jxta.util.ClassFactory;
 
 import java.io.IOException;
@@ -94,6 +95,9 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      * The mime media type of preferred/default wire format.
      */
     public static final MimeMediaType DEFAULT_WIRE_MIME = new MimeMediaType("application/x-jxta-msg").intern();
+
+    public static final boolean CBJX_DISABLE=Boolean.getBoolean(WireFormatMessageFactory.class.getName()+".CBJX_DISABLE");
+    public static final String  CBJX_SIG_ALG=System.getProperty(WireFormatMessageFactory.class.getName()+".CBJX_SIG_ALG","SHA256withRSA");
 
     /**
      * Interface for instantiators of wire format messages.
@@ -162,6 +166,12 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
          * @throws java.io.IOException if an io error occurs
          */
         public Message fromBuffer(ByteBuffer buffer, MimeMediaType type, MimeMediaType contentEncoding) throws IOException;
+
+        public WireFormatMessage toWireExternal(Message msg, MimeMediaType type, MimeMediaType[] preferedContentEncoding, boolean paramDisableCbjx, PeerGroup paramGroup);
+        public WireFormatMessage toWireExternalWithTls(Message msg, MimeMediaType type, MimeMediaType[] preferedContentEncoding, boolean paramDisableCbjx, PeerGroup paramGroup);
+        public Message fromWireExternal(InputStream is, MimeMediaType type, MimeMediaType contentEncoding, boolean paramDisableCbjx, PeerGroup paramGroup, boolean isTls) throws IOException;
+        public Message fromBufferExternal(ByteBuffer buffer, MimeMediaType type, MimeMediaType contentEncoding, boolean paramDisableCbjx, PeerGroup paramGroup) throws IOException;
+
     }
 
     /**
@@ -295,10 +305,72 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
      */
     public static WireFormatMessage toWire(Message msg, MimeMediaType type, MimeMediaType[] preferedEncodings) {
         factory.loadProviders();
-
+        
         Instantiator instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
 
         return instantiator.toWire(msg, type, preferedEncodings);
+    }
+
+    public static Message fromBufferExternal(ByteBuffer buffer, MimeMediaType type, MimeMediaType contentEncoding, PeerGroup paramGroup) throws IOException {
+        factory.loadProviders();
+
+        Instantiator instantiator;
+
+        try {
+            instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
+        } catch (NoSuchElementException badType) {
+            throw new IOException("Unable to deserialize message of type: " + type);
+        }
+
+        return instantiator.fromBufferExternal(buffer, type, contentEncoding, CBJX_DISABLE, paramGroup);
+    }
+
+
+    public static Message fromWireExternalWithTls(InputStream is, MimeMediaType type, MimeMediaType contentEncoding, PeerGroup paramGroup) throws IOException {
+        factory.loadProviders();
+
+        Instantiator instantiator;
+
+        try {
+            instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
+        } catch (NoSuchElementException badType) {
+            throw new IOException("Unable to deserialize message of type: " + type);
+        }
+
+        return instantiator.fromWireExternal(is, type, contentEncoding, CBJX_DISABLE, paramGroup, true);
+    }
+
+
+    public static Message fromWireExternal(InputStream is, MimeMediaType type, MimeMediaType contentEncoding, PeerGroup paramGroup) throws IOException {
+        factory.loadProviders();
+
+        Instantiator instantiator;
+
+        try {
+            instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
+        } catch (NoSuchElementException badType) {
+            throw new IOException("Unable to deserialize message of type: " + type);
+        }
+
+        return instantiator.fromWireExternal(is, type, contentEncoding, CBJX_DISABLE, paramGroup, false);
+    }
+
+
+    public static WireFormatMessage toWireExternalWithTls(Message msg, MimeMediaType type, MimeMediaType[] preferedEncodings, PeerGroup paramGroup) {
+        factory.loadProviders();
+
+        Instantiator instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
+
+        return instantiator.toWireExternalWithTls(msg, type, preferedEncodings, CBJX_DISABLE, paramGroup);
+    }
+
+
+    public static WireFormatMessage toWireExternal(Message msg, MimeMediaType type, MimeMediaType[] preferedEncodings, PeerGroup paramGroup) {
+        factory.loadProviders();
+
+        Instantiator instantiator = factory.getInstantiator(type.getBaseMimeMediaType());
+
+        return instantiator.toWireExternal(msg, type, preferedEncodings, CBJX_DISABLE, paramGroup);
     }
 
     /**

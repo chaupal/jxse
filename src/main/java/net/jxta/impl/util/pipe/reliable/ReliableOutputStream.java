@@ -79,6 +79,7 @@ import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
 
 /**
  * Accepts data and packages it into messages for sending to the remote. The
@@ -244,6 +245,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
     private ReliableOutputStream.Retransmitter retransmitter;
 
+    private PeerGroup group;
+
     /**
      * retrans queue element
      */
@@ -301,9 +304,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      *
      * @param outgoing the outgoing object
      */
-    public ReliableOutputStream(Outgoing outgoing, ScheduledExecutorService executor) {
+    public ReliableOutputStream(PeerGroup group, Outgoing outgoing, ScheduledExecutorService executor) {
         // By default use the old behaviour: fixed fc with a rwin of 20
-        this(outgoing, new FixedFlowControl(20), executor);
+        this(group, outgoing, new FixedFlowControl(20), executor);
     }
 
     /**
@@ -312,7 +315,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      * @param outgoing the outgoing object
      * @param fc       flow-control
      */
-    public ReliableOutputStream(Outgoing outgoing, FlowControl fc, ScheduledExecutorService executor) {
+    public ReliableOutputStream(PeerGroup group, Outgoing outgoing, FlowControl fc, ScheduledExecutorService executor) {
+        this.group = group;
         this.outgoing = outgoing;
         this.executor = executor;
 
@@ -595,7 +599,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
      * @throws IOException if an I/O error occurs
      */
     public int send(Message msg) throws IOException {
-        WireFormatMessage msgSerialized = WireFormatMessageFactory.toWire(msg, Defs.MIME_TYPE_MSG, null);
+        WireFormatMessage msgSerialized = WireFormatMessageFactory.toWireExternal(msg, Defs.MIME_TYPE_MSG, null, group);
         ByteArrayOutputStream baos = new ByteArrayOutputStream((int) msgSerialized.getByteLength());
 
         msgSerialized.sendToStream(baos);

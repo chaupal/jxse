@@ -56,13 +56,15 @@
 
 package net.jxta.protocol;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -75,6 +77,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import net.jxse.systemtests.colocated.configs.PeerConfigurator;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
@@ -85,7 +88,12 @@ import net.jxta.id.IDFactory;
 import net.jxta.impl.protocol.RouteQuery;
 import net.jxta.impl.protocol.RouteResponse;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.NetworkConfigurator;
+import net.jxta.platform.NetworkManager;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -98,6 +106,39 @@ public class TestRouteAdv {
 
 	@Rule
 	public TemporaryFolder tempStorage = new TemporaryFolder();
+	
+	/* XXX: There must be a better way for us to create testable peer groups without starting
+	 * a NetworkManager. If there isn't, this is something we should do to make the code
+	 * easier to test.
+	 */
+	private NetworkManager aliceManager;
+	
+	@Before
+	public void configureAlice() throws Exception {
+		aliceManager = PeerConfigurator.createHttpAdhocPeer("alice", 50000, tempStorage);
+        aliceManager.startNetwork();
+        
+        // XXX (iainmcgin): give the peer time to stabilise
+        Thread.sleep(2000L);
+	}
+	
+	@After
+	public void killAlice() {
+		if(aliceManager != null) {
+			aliceManager.stopNetwork();
+		}
+	}
+	
+	private void configureForHttp(NetworkManager manager, int port) throws IOException {
+            NetworkConfigurator configurator = manager.getConfigurator();
+            configurator.setTcpEnabled(false);
+            configurator.setHttp2Enabled(false);
+
+            configurator.setHttpEnabled(true);
+            configurator.setHttpIncoming(true);
+            configurator.setHttpOutgoing(true);
+            configurator.setHttpPort(port);
+    }
 	
 	@Test
     public void testRouteAdv() {
@@ -427,7 +468,7 @@ public class TestRouteAdv {
     }
 
 	@Test
-    public void testRouteQuery() {
+    public void testRouteQuery() throws Exception {
 
         AccessPointAdvertisement ap = (AccessPointAdvertisement)
                 AdvertisementFactory.newAdvertisement(AccessPointAdvertisement.getAdvertisementType());
@@ -469,56 +510,54 @@ public class TestRouteAdv {
         hops.add(ap4);
         route.setHops(hops);
 
+        PeerGroup peerGroup = aliceManager.getNetPeerGroup();
+
         PeerID pid = IDFactory.newPeerID(IDFactory.newPeerGroupID());
         Set badHops = new HashSet();
         RouteQuery query = new RouteQuery();
         query.setDestPeerID(pid);
         query.setSrcRoute(route);
         query.setBadHops(badHops);
+        query.setPeerGroup(peerGroup);
 
-        // write to a file
-        try {
-            ByteArrayOutputStream fp = new ByteArrayOutputStream();
+        ByteArrayOutputStream fp = new ByteArrayOutputStream();
 
-            fp.write(query.toString().getBytes());
-            fp.close();
+        fp.write(query.toString().getBytes());
+        fp.close();
 
-            Reader is = new InputStreamReader(new ByteArrayInputStream(fp.toByteArray()));
-            RouteQuery query1 = null;
+        Reader is = new InputStreamReader(new ByteArrayInputStream(fp.toByteArray()));
+        RouteQuery query1 = null;
 
-            XMLDocument doc = (XMLDocument)
-                    StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
+        XMLDocument doc = (XMLDocument)
+                StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, is);
 
-            query1 = new RouteQuery(doc);
-            is.close();
-            assertEquals(query.getDestPeerID().toString(), query1.getDestPeerID().toString());
-            // verify advertisement
-            ap = query.getSrcRoute().getDest();
-            AccessPointAdvertisement ap1 = query1.getSrcRoute().getDest();
+        query1 = new RouteQuery(doc, peerGroup);
+        is.close();
+        assertEquals(query.getDestPeerID().toString(), query1.getDestPeerID().toString());
+        // verify advertisement
+        ap = query.getSrcRoute().getDest();
+        AccessPointAdvertisement ap1 = query1.getSrcRoute().getDest();
 
-            assertEquals(ap.getPeerID(), ap1.getPeerID());
-            Enumeration e1 = ap1.getEndpointAddresses();
+        assertEquals(ap.getPeerID(), ap1.getPeerID());
+        Enumeration e1 = ap1.getEndpointAddresses();
 
-            for (Enumeration e = ap.getEndpointAddresses(); e.hasMoreElements();) {
-                assertEquals(e.nextElement(), e1.nextElement());
-            }
-
-            Enumeration r1 = query.getSrcRoute().getHops();
-
-            for (Enumeration e = query1.getSrcRoute().getHops(); e.hasMoreElements();) {
-                ap = (AccessPointAdvertisement) e.nextElement();
-                ap1 = (AccessPointAdvertisement) r1.nextElement();
-                assertEquals(ap.getPeerID(), ap1.getPeerID());
-                e1 = ap1.getEndpointAddresses();
-                for (Enumeration e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
-                    assertEquals(e2.nextElement(), e1.nextElement());
-                }
-            }
-            System.out.println(query1.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Error constructing advertisement");
+        for (Enumeration e = ap.getEndpointAddresses(); e.hasMoreElements();) {
+            assertEquals(e.nextElement(), e1.nextElement());
         }
+
+        Enumeration r1 = query.getSrcRoute().getHops();
+
+        for (Enumeration e = query1.getSrcRoute().getHops(); e.hasMoreElements();) {
+            ap = (AccessPointAdvertisement) e.nextElement();
+            ap1 = (AccessPointAdvertisement) r1.nextElement();
+            assertEquals(ap.getPeerID(), ap1.getPeerID());
+            e1 = ap1.getEndpointAddresses();
+            for (Enumeration e2 = ap.getEndpointAddresses(); e2.hasMoreElements();) {
+                assertEquals(e2.nextElement(), e1.nextElement());
+            }
+        }
+        
+        System.out.println(query1.toString());
     }
 
 	@Test

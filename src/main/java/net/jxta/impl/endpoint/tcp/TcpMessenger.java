@@ -56,6 +56,28 @@
 
 package net.jxta.impl.endpoint.tcp;
 
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
@@ -73,27 +95,6 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 
 /**
  * Implements a messenger which sends messages via raw TCP sockets.
@@ -634,13 +635,16 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         try {
             // todo 20020730 bondolo@jxta.org Do something with content-coding here
             // serialize the message.
-            WireFormatMessage serialed = WireFormatMessageFactory.toWire(msg, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null);
+            WireFormatMessage serialed = WireFormatMessageFactory.toWireExternal(msg, WireFormatMessageFactory.DEFAULT_WIRE_MIME, null, this.tcpTransport.group);
+            ByteArrayOutputStream tempBAOS = new ByteArrayOutputStream();
+            serialed.sendToStream(tempBAOS);
+            ByteBuffer tempBB = ByteBuffer.wrap(tempBAOS.toByteArray());
 
             // Build the package header
             MessagePackageHeader header = new MessagePackageHeader();
 
             header.setContentTypeHeader(serialed.getMimeType());
-            size = serialed.getByteLength();
+            size = tempBB.limit();
             header.setContentLengthHeader(size);
 
             Logging.logCheckedFine(LOG, "Sending ", msg, " (", size, ") to ", dstAddress, " via ", inetAddress.getHostAddress(), ":", port);
@@ -648,7 +652,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             List<ByteBuffer> partBuffers = new ArrayList<ByteBuffer>();
 
             partBuffers.add(header.getByteBuffer());
-            partBuffers.addAll(Arrays.asList(serialed.getByteBuffers()));
+            partBuffers.add(tempBB);
 
             long written;
             writeLock.lock();

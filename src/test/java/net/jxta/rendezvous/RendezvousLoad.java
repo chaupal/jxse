@@ -65,6 +65,7 @@ import junit.textui.TestRunner;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.IPUtils;
+import net.jxta.impl.membership.none.NoneMembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -161,9 +162,7 @@ public class RendezvousLoad extends TestCase {
             String incNum = newIncarnation();
             Message connectMsg = MessageUtil.rdvConnectMessage(padv, incNum);
 
-            MessageUtil.addServiceParam(connectMsg, padv, "tcp://" + getMyAddress() + ":" + (PORT + i), destPeerID, service
-                    ,
-                    serviceParm);
+            MessageUtil.addServiceParam(connectMsg, padv, "tcp://" + getMyAddress() + ":" + (PORT + i), destPeerID, service, serviceParm, new NoneMembershipService());
             // MessageUtil.printMessageStats(connectMsg, true);
             try {
                 connection.sendMessage(connectMsg);

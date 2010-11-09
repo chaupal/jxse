@@ -56,22 +56,6 @@
 
 package net.jxta.impl.membership.pse;
 
-import net.jxta.impl.util.BASE64InputStream;
-import net.jxta.impl.util.BASE64OutputStream;
-import net.jxta.logging.Logging;
-import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.x509.X509NameTokenizer;
-import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
-
-import javax.crypto.Cipher;
-import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
-import javax.security.auth.x500.X500Principal;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -81,15 +65,49 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
-import java.security.*;
+import java.security.AlgorithmParameters;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.logging.Logger;
+
+import javax.crypto.Cipher;
+import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+import javax.security.auth.x500.X500Principal;
+
+import net.jxta.document.Attribute;
+import net.jxta.document.XMLElement;
+import net.jxta.impl.util.BASE64InputStream;
+import net.jxta.impl.util.BASE64OutputStream;
+import net.jxta.logging.Logging;
+
+import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.x509.X509NameTokenizer;
+import org.bouncycastle.jce.X509Principal;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 /**
  * Singleton class of static utility methods.
@@ -117,11 +135,15 @@ public final class PSEUtils {
     private PSEUtils() {
 
         try {
-            ClassLoader sysloader = ClassLoader.getSystemClassLoader();
-
-            Class<?> loaded = sysloader.loadClass(BouncyCastleProvider.class.getName());
-
-            Provider provider = (Provider) loaded.newInstance();
+            //<DC desc="JNLP does not work on this>
+//            ClassLoader sysloader = ClassLoader.getSystemClassLoader();
+//
+//            Class<?> loaded = sysloader.loadClass(BouncyCastleProvider.class.getName());
+//
+//            Provider provider = (Provider) loaded.newInstance();
+            //</DC>
+            //<DC desc="Instantiate it directly so that the JNLP classloader will load it.">
+            Provider provider = new BouncyCastleProvider();
 
             Security.addProvider(provider);
 
@@ -834,7 +856,7 @@ public final class PSEUtils {
         return result.toString();
     }
 
-    private static String toHexDigits(byte[] bytes) {
+    public static String toHexDigits(byte[] bytes) {
         StringBuilder encoded = new StringBuilder(bytes.length * 2);
 
         // build the string.
@@ -842,5 +864,127 @@ public final class PSEUtils {
             encoded.append(toHexDigits(aByte).toUpperCase());
         }
         return encoded.toString();
+    }
+    
+    /**
+     * Traverses a XmlElement and applies it to a MessageDigest
+     *
+     * @param xmlElement   The xmlElement to be traversed.
+     * @param ignoreXmlElementName   Ignore the top level child with this name.
+     * @param messageDigest   The messageDigest to which .
+     * @return An encrypted private key info or null if the key could not be
+     */
+    public static void xmlElementDigest(XMLElement xmlElement, List ignoreXmlElementNames, MessageDigest messageDigest) {
+        PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
+        Enumeration attributes = xmlElement.getAttributes();
+        while(attributes.hasMoreElements()) {
+            Attribute attribute = (Attribute)attributes.nextElement();
+            PSEUtils.writeStringToDigest(attribute.getName(), messageDigest);
+            PSEUtils.writeStringToDigest(attribute.getValue(), messageDigest);
+        }
+        PSEUtils.writeStringToDigest(xmlElement.getValue(), messageDigest);
+        Enumeration children = xmlElement.getChildren();
+        while(children.hasMoreElements()) {
+            XMLElement xmlElementChild = (XMLElement)children.nextElement();
+            if (ignoreXmlElementNames.contains(xmlElementChild.getName()))
+                continue;
+            PSEUtils.xmlElementDigest(xmlElementChild, messageDigest);
+        }
+    }
+    /**
+     * Traverses a XmlElement and applies it to a MessageDigest
+     *
+     * @param xmlElement   The xmlElement to be traversed.
+     * @param messageDigest   The messageDigest to which .
+     * @return An encrypted private key info or null if the key could not be
+     */
+    public static void xmlElementDigest(XMLElement xmlElement, MessageDigest messageDigest) {
+        PSEUtils.writeStringToDigest(xmlElement.getName(), messageDigest);
+        Enumeration attributes = xmlElement.getAttributes();
+        while(attributes.hasMoreElements()) {
+            Attribute attribute = (Attribute)attributes.nextElement();
+            PSEUtils.writeStringToDigest(attribute.getName(), messageDigest);
+            PSEUtils.writeStringToDigest(attribute.getValue(), messageDigest);
+        }
+        PSEUtils.writeStringToDigest(xmlElement.getValue(), messageDigest);
+        Enumeration children = xmlElement.getChildren();
+        while(children.hasMoreElements()) {
+            XMLElement xmlElementChild = (XMLElement)children.nextElement();
+            PSEUtils.xmlElementDigest(xmlElementChild, messageDigest);
+        }
+    }
+/*
+ * Copyright  2009 The Apache Software Foundation.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ * UtfHelpper
+ *
+ */
+    final public static void writeStringToDigest(final String str,final MessageDigest messageDigest) {
+            final int length=str.length();
+            int i=0;
+        char c;
+            while (i<length) {
+                    c=str.charAt(i++);
+            if (c < 0x80)  {
+                messageDigest.update((byte)c);
+                continue;
+            }
+            if ((c >= 0xD800 && c <= 0xDBFF) || (c >= 0xDC00 && c <= 0xDFFF) ){
+                    //No Surrogates in sun java
+                    messageDigest.update((byte)0x3f);
+                    continue;
+            }
+            char ch;
+            int bias;
+            int write;
+            if (c > 0x07FF) {
+                ch=(char)(c>>>12);
+                write=0xE0;
+                if (ch>0) {
+                    write |= ( ch & 0x0F);
+                }
+                messageDigest.update((byte)write);
+                write=0x80;
+                bias=0x3F;
+            } else {
+                    write=0xC0;
+                    bias=0x1F;
+            }
+            ch=(char)(c>>>6);
+            if (ch>0) {
+                 write|= (ch & bias);
+            }
+            messageDigest.update((byte)write);
+            messageDigest.update((byte)(0x80 | ((c) & 0x3F)));
+
+            }
+
+       }
+
+    /**
+     * Compares two byte arrays
+     * @param a1
+     * @param a2
+     * @return
+     */
+    public static boolean arrayCompare(byte[] a1, byte[] a2) {
+        if (a1.length != a2.length)
+            return false;
+        for (int i=0;i<a1.length;i++)
+            if (a1[i]!=a2[i])
+                return false;
+        return true;
     }
 }

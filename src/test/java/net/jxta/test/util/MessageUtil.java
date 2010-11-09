@@ -67,16 +67,18 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
+import net.jxta.impl.endpoint.EndpointServiceImpl;
+import net.jxta.impl.endpoint.router.EndpointRouterMessage;
+import net.jxta.impl.membership.none.NoneMembershipService;
+import net.jxta.impl.rendezvous.StdRendezVousService;
+import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.util.CountingOutputStream;
 import net.jxta.util.DevNullOutputStream;
-
-import net.jxta.impl.endpoint.EndpointServiceImpl;
-import net.jxta.impl.endpoint.router.EndpointRouterMessage;
-import net.jxta.impl.rendezvous.StdRendezVousService;
 
 /**
  *  Utility class to create the various types of JXTA mesasges
@@ -84,7 +86,12 @@ import net.jxta.impl.rendezvous.StdRendezVousService;
 public class MessageUtil {
 
     static String incarnationTagName = "RdvIncarn" + PeerGroupID.defaultNetPeerGroupID.getUniqueValue().toString();
-
+    static final MembershipService DEFAULT_MEMBERSHIP_SERVICE = new NoneMembershipService();
+    
+    public static void addServiceParam(Message message, PeerAdvertisement padv, String myaddress, PeerID dstAddress, String service, String serviceParam) {
+    	addServiceParam(message, padv, myaddress, dstAddress, service, serviceParam, DEFAULT_MEMBERSHIP_SERVICE);
+    }
+    
     /**
      *  Adds source and destination message elements as well as endpoint route
      *  message
@@ -95,7 +102,7 @@ public class MessageUtil {
      *@param  service       destination service id
      *@param  serviceParam  destination service Param
      */
-    public static void addServiceParam(Message message, PeerAdvertisement padv, String myaddress, PeerID dstAddress, String service, String serviceParam) {
+    public static void addServiceParam(Message message, PeerAdvertisement padv, String myaddress, PeerID dstAddress, String service, String serviceParam, MembershipService membershipService) {
 
         PeerID srcPeer = padv.getPeerID();
         EndpointAddress srcAddr = new EndpointAddress("jxta", srcPeer.toString(), null, null);
@@ -111,7 +118,7 @@ public class MessageUtil {
 
         message.replaceMessageElement(EndpointServiceImpl.MESSAGE_DESTINATION_NS, dstAddressElement);
 
-        EndpointRouterMessage erm = new EndpointRouterMessage(message, true);
+        EndpointRouterMessage erm = new EndpointRouterMessage(message, true, membershipService);
 
         erm.setSrcAddress(new EndpointAddress("jxta://" + srcPeer.getUniqueValue().toString()));
         erm.setDestAddress(

@@ -174,7 +174,7 @@ public abstract class RendezVousServiceProvider implements EndpointListener {
             }
 
             if (null != newPadv) {
-                cachedPeerAdvDoc = (XMLDocument) cachedPeerAdv.getDocument(MimeMediaType.XMLUTF8);
+                cachedPeerAdvDoc = (XMLDocument) cachedPeerAdv.getSignedDocument();
             }
         }
 

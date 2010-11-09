@@ -62,6 +62,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Random;
 
 /**
  * The instantiator for the CBID ID Format.
@@ -70,10 +71,11 @@ import java.net.URISyntaxException;
  */
 public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
 
-    /**
+	/**
      * Our ID Format
      */
     final static String CBIDEncoded = "cbid";
+    
 
     /**
      * {@inheritDoc}
@@ -216,7 +218,8 @@ public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public net.jxta.peergroup.PeerGroupID newPeerGroupID(net.jxta.peergroup.PeerGroupID parent) {
-        return new PeerGroupID();
+        PeerGroupID  parentGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(parent);
+        return new PeerGroupID(parentGroupID);
     }
 
     /**
@@ -232,12 +235,17 @@ public class Instantiator implements net.jxta.id.IDFactory.Instantiator {
      * {@inheritDoc}
      */
     public net.jxta.peer.PeerID newPeerID(net.jxta.peergroup.PeerGroupID groupID) {
-        PeerGroupID peerGroupID = (PeerGroupID) IDFormat.translateFromWellKnown(groupID);
-
-        throw new UnsupportedOperationException("Must provide a cert as seed to generate a peer id.");
+        return newPeerID(groupID, generateRandomSeed());
     }
 
-    /**
+    private byte[] generateRandomSeed() {
+		Random r = new Random();
+		byte[] seed = new byte[4];
+		r.nextBytes(seed);
+		return seed;
+	}
+
+	/**
      * {@inheritDoc}
      */
     public net.jxta.peer.PeerID newPeerID(net.jxta.peergroup.PeerGroupID groupID, byte[] seed) {

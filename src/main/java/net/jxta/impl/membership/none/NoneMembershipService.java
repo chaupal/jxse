@@ -487,7 +487,7 @@ public class NoneMembershipService implements MembershipService {
     /**
      *  default constructor. Normally called only by the peer group.
      **/
-    public NoneMembershipService() throws PeerGroupException {
+    public NoneMembershipService() {
         principals = new ArrayList();
         principalsAuth = new ArrayList();
         support = new PropertyChangeSupport(this); // getInterface());

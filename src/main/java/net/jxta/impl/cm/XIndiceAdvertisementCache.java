@@ -698,7 +698,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             XMLDocument doc;
 
             try {
-                doc = (XMLDocument) adv.getDocument(MimeMediaType.XMLUTF8);
+                doc = (XMLDocument) adv.getSignedDocument();
             } catch (RuntimeException e) {
                 IOException failure = new IOException("Advertisement couldn't be saved");
                 failure.initCause(e);

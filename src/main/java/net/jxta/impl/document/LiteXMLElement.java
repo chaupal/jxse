@@ -472,12 +472,14 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
         String name = getName();
 
         if (name == null) {
-            name = "<<null name>>";
+            //It is better just to return "". null is not supposed to happen.
+            name = "";
         }
         String value = getTextValue();
 
         if (value == null) {
-            value = "<<null value>>";
+            //It is better just to return "". null is not supposed to happen.
+            value = "";
         }
 
         if ((value.length() + name.length()) >= 60) {
@@ -786,7 +788,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
 
             // did we find no non-whitespace?
             if (firstNonWhiteSpace >= building.length()) {
-                return null;
+                return "";
             }
 
             while (lastNonWhiteSpace >= firstNonWhiteSpace) {

@@ -74,6 +74,14 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertPath;
+import java.security.cert.CertPathValidator;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -381,12 +389,12 @@ public class PSEAccessService implements AccessService {
         return implAdvertisement;
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    public Service getInterface() {
-//        return this;
-//    }
+    /**
+     * {@inheritDoc}
+     */
+    public Service getInterface() {
+        return this;
+    }
 
     /**
      * {@inheritDoc}
@@ -404,9 +412,9 @@ public class PSEAccessService implements AccessService {
             return AccessResult.DISALLOWED;
         }
 
-        if (null == op) {
-            return AccessResult.PERMITTED;
-        }
+//        if (null == op) {
+//            return AccessResult.PERMITTED;
+//        }
 
         if (!(op instanceof PSEOperation)) {
             return AccessResult.DISALLOWED;
@@ -430,17 +438,116 @@ public class PSEAccessService implements AccessService {
         // PKIX validation and assumes that all presented certificates chains 
         // are valid and trustworthy. IT IS NOT SECURE. (It does not ensure that
         // certficiates are really signed by their claimed issuer.)
-        for (X509Certificate credCert : Arrays.asList(credCerts)) {
-            for (X509Certificate opCert : Arrays.asList(opCerts)) {
-                if (credCert.getPublicKey().equals(opCert.getPublicKey())) {
-                    return AccessResult.PERMITTED;
-                }
-            }
+//        for (X509Certificate credCert : Arrays.asList(credCerts)) {
+//            for (X509Certificate opCert : Arrays.asList(opCerts)) {
+//                if (credCert.getPublicKey().equals(opCert.getPublicKey())) {
+//                    return AccessResult.PERMITTED;
+//                }
+//            }
+//        }
+//
+//        return AccessResult.DISALLOWED;
+
+        try {
+            // FIXME 20100303 njb - crl not implemented yet
+            // Create TrustAnchor. Since we use BouncyCastle provider, we assume
+            // certificate already in correct order
+            java.security.cert.TrustAnchor anchor = new java.security.cert.TrustAnchor(opCerts[0], null);
+            java.security.cert.PKIXParameters params = new java.security.cert.PKIXParameters(java.util.Collections.singleton(anchor));
+            params.setRevocationEnabled(false);
+            CertificateFactory factory = CertificateFactory.getInstance("X509", "BC");
+            CertPath certPath = factory.generateCertPath(Arrays.asList(credCerts));
+            CertPathValidator pathValidator = CertPathValidator.getInstance("PKIX", "BC");
+            pathValidator.validate(certPath, params);
+
+        } catch (CertPathValidatorException ex) {
+            LOG.log(Level.WARNING, null, ex);
+            return AccessResult.DISALLOWED;
+        } catch (NoSuchProviderException ex) {
+            LOG.log(Level.WARNING, null, ex);
+            return AccessResult.DISALLOWED;
+        } catch(CertificateException certExp) {
+            LOG.log(Level.WARNING, certExp.getMessage(), certExp);
+            return AccessResult.DISALLOWED;
+        } catch(NoSuchAlgorithmException noAlgExp) {
+            LOG.log(Level.WARNING, noAlgExp.getMessage(), noAlgExp);
+            return AccessResult.DISALLOWED;
+        } catch(InvalidAlgorithmParameterException paramExp) {
+            LOG.log(Level.WARNING, paramExp.getMessage(), paramExp);
+            return AccessResult.DISALLOWED;
         }
 
+        return AccessResult.PERMITTED;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public AccessResult doAccessCheck(PrivilegedOperation op) {
+
+        if ((null == op)) {
+            return AccessResult.DISALLOWED;
+        }
+
+        if (!(op instanceof PSEOperation)) {
+            return AccessResult.DISALLOWED;
+        }
+
+        if (op.getSourceService() != this) {
+            return AccessResult.DISALLOWED;
+        }
+
+        if (!op.isValid()) {
+            return AccessResult.DISALLOWED;
+        }
+
+        PSECredential offerer = ((PSEOperation) op).getOfferer();
+        try {
+            pseMembership.validateOffererCredential(offerer);
+        } catch (CertPathValidatorException ex) {
+            Logger.getLogger(PSEAccessService.class.getName()).log(Level.SEVERE, null, ex);
+            return AccessResult.DISALLOWED;
+        }
+
+                    return AccessResult.PERMITTED;
+                }
+
+    /**
+     * {@inheritDoc}
+     */
+    public AccessResult doAccessCheck(PrivilegedOperation op, String[] aliases) {
+
+        if ((null == op)) {
+            return AccessResult.DISALLOWED;
+        }
+
+        if (null == aliases) {
+            return AccessResult.DISALLOWED;
+        }
+
+        if (!(op instanceof PSEOperation)) {
+            return AccessResult.DISALLOWED;
+        }
+
+        if (op.getSourceService() != this) {
+            return AccessResult.DISALLOWED;
+            }
+
+        if (!op.isValid()) {
+            return AccessResult.DISALLOWED;
+        }
+
+        PSECredential offerer = ((PSEOperation) op).getOfferer();
+        try {
+            pseMembership.validateOffererCredential(offerer, aliases);
+        } catch (CertPathValidatorException ex) {
+            Logger.getLogger(PSEAccessService.class.getName()).log(Level.SEVERE, null, ex);
         return AccessResult.DISALLOWED;
     }
 
+        return AccessResult.PERMITTED;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -457,16 +564,14 @@ public class PSEAccessService implements AccessService {
             throw new IllegalArgumentException("offerer is not a valid credential");
         }
 
-//        return new PSEOperation((PSEAccessService) getInterface(), (PSECredential) offerer);
-        return new PSEOperation(this, (PSECredential) offerer);
+        return new PSEOperation((PSEAccessService) getInterface(), (PSECredential) offerer);
     }
 
     /**
      * {@inheritDoc}
      */
     public PrivilegedOperation newPrivilegedOperation(Element source) {
-//        return new PSEOperation((PSEAccessService) this, source);
-        return new PSEOperation(this, source);
+        return new PSEOperation((PSEAccessService) getInterface(), source);
     }
 
     /**

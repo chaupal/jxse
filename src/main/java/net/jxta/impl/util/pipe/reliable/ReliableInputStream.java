@@ -62,6 +62,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.PeerGroup;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -114,6 +115,8 @@ public class ReliableInputStream extends InputStream implements Incoming {
      *  The I/O record for the message we are currently using for stream data.
      */
     private final Record record;
+    
+    private PeerGroup group;
 
     /**
      * Input record Object
@@ -187,11 +190,12 @@ public class ReliableInputStream extends InputStream implements Incoming {
         }
     }
 
-    public ReliableInputStream(Outgoing outgoing, int timeout) {
-        this(outgoing, timeout, null);
+    public ReliableInputStream(PeerGroup group, Outgoing outgoing, int timeout) {
+        this(group, outgoing, timeout, null);
     }
 
-    public ReliableInputStream(Outgoing outgoing, int timeout, MsgListener listener) {
+    public ReliableInputStream(PeerGroup group, Outgoing outgoing, int timeout, MsgListener listener) {
+        this.group = group;
         this.outgoing = outgoing;
         setTimeout(timeout);
 
@@ -408,7 +412,7 @@ public class ReliableInputStream extends InputStream implements Incoming {
         try {
 
             Logging.logCheckedFine(LOG, "Converting message seqn :", (sequenceNumber - 1), "element to message");
-            msg = WireFormatMessageFactory.fromWire(elt.getStream(), Defs.MIME_TYPE_MSG, null);
+            msg = WireFormatMessageFactory.fromWireExternal(elt.getStream(), Defs.MIME_TYPE_MSG, null, group);
 
         } catch (IOException ex) {
 
