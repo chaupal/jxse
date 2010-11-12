@@ -786,7 +786,7 @@ public class NetworkConfigurator {
      *
      * @return exclusive determines whether an address is advertised exclusively
      */
-    public boolean getHttpPublicAddressExclusivity() {
+    public boolean isHttpPublicAddressExclusive() {
         return httpConfig.getPublicAddressOnly();
     }
 
@@ -1386,15 +1386,6 @@ public class NetworkConfigurator {
     public void setTcpPublicAddress(String address, boolean exclusive) {
         tcpConfig.setServer(address);
         tcpConfig.setPublicAddressOnly(exclusive);
-    }
-
-    /**
-     * Indicates whether the public TCP address is advertised exclusively.
-     *
-     * @return boolean indicating whether public address is advertised exclusively
-     */
-    public boolean getTcpPublicAddressExclusivity() {
-        return tcpConfig.getPublicAddressOnly();
     }
 
     /**

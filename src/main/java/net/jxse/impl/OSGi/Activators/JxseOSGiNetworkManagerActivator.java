@@ -102,7 +102,7 @@ public class JxseOSGiNetworkManagerActivator implements BundleActivator {
      */
     public void stop(BundleContext context) throws Exception {
 
-        LOG.log(Level.FINE, "Stop called on: " + JxseOSGiNetworkManagerActivator.class.getSimpleName());
+        LOG.log(Level.FINE, "Stop called on: {0}", JxseOSGiNetworkManagerActivator.class.getSimpleName());
 
         // No need to un-register the service, this is done by the OSGi Framework
 

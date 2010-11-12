@@ -62,7 +62,7 @@ import net.jxta.service.JxtaService;
  * API Abstraction for the Service concept in JXSE, the Java implementation of JXTA
  *
  * @since 2.6 Further work is expected on this interface in the coming releases.
- * <p>Do not rely on this code for your applications !!!
+ * <p />Do not rely on this code for your applications !!!
  */
 public interface JxseService extends JxtaService, JxseModule {
 

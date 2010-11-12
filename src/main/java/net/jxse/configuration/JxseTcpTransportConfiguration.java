@@ -390,7 +390,7 @@ public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
      *
      * @return the TCP public address
      */
-    public Boolean getTcpPublicAddressExclusivity() {
+    public Boolean isTcpPublicAddressExclusive() {
 
         return Boolean.parseBoolean(this.getProperty(JXSE_TCP_PUBLIC_ADDRESS_EXCLUSIVE));
 

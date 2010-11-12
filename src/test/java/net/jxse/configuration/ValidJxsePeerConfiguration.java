@@ -54,10 +54,9 @@
  *  This license is based on the BSD license adopted by the Apache Foundation.
  */
 
-package net.jxse.impl.OSGi.Services;
+package net.jxse.configuration;
 
 import java.util.logging.Logger;
-import net.jxse.configuration.JxsePeerConfiguration;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;

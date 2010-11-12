@@ -59,19 +59,11 @@
 package net.jxse.impl.OSGi.Services;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxse.OSGi.Services.JxseOSGiNetworkManagerService;
-import net.jxse.configuration.JxseHttpTransportConfiguration;
-import net.jxse.configuration.JxseMulticastTransportConfiguration;
+import net.jxse.configuration.JxseConfigurationTool;
 import net.jxse.configuration.JxsePeerConfiguration;
-import net.jxse.configuration.JxseTcpTransportConfiguration;
 import net.jxta.configuration.JxtaConfigurationException;
-import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
 
 /**
@@ -150,6 +142,7 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
         return TheNM;
 
     }
+
     /**
      * Converts a {@code JxsePeerConfiguration.ConnectionMode} into a {@code NetworkManager.ConfigMode}.
      * 
@@ -184,213 +177,7 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
      */
     private NetworkManager getNewConfiguredNetworkManager() throws JxtaConfigurationException, IOException {
 
-        // Preparing result
-        NetworkManager Result = null;
-
-        // Extracting constructor data
-        JxsePeerConfiguration.ConnectionMode ExtractedMode = this.TheConfig.getConnectionMode();
-
-        if (ExtractedMode==null) {
-            LOG.severe("No connection mode available for NetworkManager !!!");
-            throw new JxtaConfigurationException("No connection mode available for NetworkManager !!!");
-        }
-
-        LOG.log(Level.FINER, "Connection mode: " + ExtractedMode.toString());
-
-        // Peer Instance Name
-        String InstanceName = this.TheConfig.getPeerInstanceName();
-
-        if (InstanceName==null) {
-            InstanceName="";
-        }
-
-        LOG.log(Level.FINER, "Peer instance name: " + InstanceName);
-
-        // Persistence location
-        URI InstanceHome = this.TheConfig.getPersistenceLocation();
-
-        LOG.log(Level.FINE, "Creating a NetworkManager instance");
-        if (InstanceHome!=null) {
-            Result = new NetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName, InstanceHome);
-        } else {
-            Result = new NetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName);
-        }
-
-        // Retrieving the NetworkConfigurator
-        NetworkConfigurator TheNC = Result.getConfigurator();
-
-        // Seed relays
-        Map<Integer, URI> TheSeedRelays = this.TheConfig.getAllSeedRelays();
-
-        for (URI Item : TheSeedRelays.values()) {
-            LOG.log(Level.FINER, "Adding seed relay: " + Item.toString());
-            TheNC.addSeedRelay(Item);
-        }
-
-        // Seed rendezvous
-        Map<Integer, URI> TheSeedRDVs = this.TheConfig.getAllSeedRendezvous();
-
-        for (URI Item : TheSeedRDVs.values()) {
-            LOG.log(Level.FINER, "Adding seed rendezvous: " + Item.toString());
-            TheNC.addSeedRendezvous(Item);
-        }
-
-        // Seeding relays
-        Map<Integer, URI> TheSeedingRelays = this.TheConfig.getAllSeedingRelays();
-
-        for (URI Item : TheSeedingRelays.values()) {
-            LOG.log(Level.FINER, "Adding seeding relay: " + Item.toString());
-            TheNC.addRelaySeedingURI(Item);
-        }
-
-        // Seeding rendezvous
-        Map<Integer, URI> TheSeedingRDVs = this.TheConfig.getAllSeedingRendezvous();
-
-        for (URI Item : TheSeedingRDVs.values()) {
-            LOG.log(Level.FINER, "Adding seeding rendezvous: " + Item.toString());
-            TheNC.addRdvSeedingURI(Item);
-        }
-
-        // Infrastructure ID
-        PeerGroupID PGID = this.TheConfig.getInfrastructureID();
-        
-        if (PGID!=null) {
-            TheNC.setInfrastructureID(PGID);
-            LOG.log(Level.FINER, "Peer Group ID: " + PGID.toString());
-        }
-
-        // Persistence location
-        URI KSLoc = this.TheConfig.getKeyStoreLocation();
-
-        if (KSLoc!=null) {
-            TheNC.setKeyStoreLocation(KSLoc);
-            LOG.log(Level.FINER, "Keystore location: " + KSLoc.toString());
-        }
-
-        // Multicast enabled
-        TheNC.setUseMulticast(this.TheConfig.getMulticastEnabled());
-        LOG.log(Level.FINER, "Multicast enabled: " + Boolean.toString(this.TheConfig.getMulticastEnabled()));
-
-        // Tcp enabled
-        TheNC.setTcpEnabled(this.TheConfig.getTcpEnabled());
-        LOG.log(Level.FINER, "Multicast enabled: " + Boolean.toString(this.TheConfig.getTcpEnabled()));
-
-        // Peer ID
-        PeerID PID = this.TheConfig.getPeerID();
-
-        if (PID!=null) {
-            TheNC.setPeerID(PID);
-            LOG.log(Level.FINER, "Peer ID: " + PID.toString());
-        }
-
-        // Max relay and rdv clients
-        if (this.TheConfig.getRelayMaxClients()>=0) {
-            TheNC.setRelayMaxClients(this.TheConfig.getRelayMaxClients());
-            LOG.log(Level.FINER, "Relay Max Client: " + this.TheConfig.getRelayMaxClients());
-        }
-        
-        if (this.TheConfig.getRendezvousMaxClients()>=0) {
-            TheNC.setRendezvousMaxClients(this.TheConfig.getRendezvousMaxClients());
-            LOG.log(Level.FINER, "Relay Max Client: " + this.TheConfig.getRelayMaxClients());
-        }
-
-        // Use only rdv relay seeds
-        TheNC.setUseOnlyRelaySeeds(this.TheConfig.getUseOnlyRelaySeeds());
-        LOG.log(Level.FINER, "SetUseOnlyRelaySeeds: " + this.TheConfig.getUseOnlyRelaySeeds());
-
-        TheNC.setUseOnlyRendezvousSeeds(this.TheConfig.getUseOnlyRdvSeeds());
-        LOG.log(Level.FINER, "SetUseOnlyRdvSeeds: " + this.TheConfig.getUseOnlyRdvSeeds());
-
-        // HTTP configuration
-        JxseHttpTransportConfiguration HttpConfig = this.TheConfig.getHttpTransportConfiguration();
-
-        TheNC.setHttpIncoming(HttpConfig.getHttpIncoming());
-        LOG.log(Level.FINER, "Http incoming: " + HttpConfig.getHttpIncoming());
-
-        TheNC.setHttpOutgoing(HttpConfig.getHttpOutgoing());
-        LOG.log(Level.FINER, "Http outgoing: " + HttpConfig.getHttpOutgoing());
-
-        TheNC.setHttpInterfaceAddress(HttpConfig.getHttpInterfaceAddress());
-        LOG.log(Level.FINER, "Http interface address: " + HttpConfig.getHttpInterfaceAddress());
-
-        TheNC.setHttpPublicAddress(HttpConfig.getHttpPublicAddress(),HttpConfig.getHttpPublicAddressExclusive());
-        LOG.log(Level.FINER, "Http public address: " + HttpConfig.getHttpPublicAddress());
-
-        if ( (HttpConfig.getHttpPort()>=0) && (HttpConfig.getHttpPort()<=65535) ) {
-            TheNC.setHttpPort(HttpConfig.getHttpPort());
-            LOG.log(Level.FINER, "Http port: " + HttpConfig.getHttpPort());
-        }
-
-        // Multicast configuration
-        JxseMulticastTransportConfiguration MultiConfig = this.TheConfig.getMulticastTransportConfiguration();
-        
-        String McAdr = MultiConfig.getMulticastAddress();
-        
-        if (McAdr!=null) {
-            TheNC.setMulticastAddress(McAdr);
-            LOG.log(Level.FINER, "Multicast address: " + McAdr);
-        }
-        
-        String McInt = MultiConfig.getMulticastInterface();
-        
-        if (McInt!=null) {
-            TheNC.setMulticastInterface(McInt);
-            LOG.log(Level.FINER, "Multicast address: " + McInt);
-        }
-
-        if (MultiConfig.getMulticastPacketSize()>0) {
-            TheNC.setMulticastSize(MultiConfig.getMulticastPacketSize());
-            LOG.log(Level.FINER, "Multicast packet size: " + MultiConfig.getMulticastPacketSize());
-        }
-        
-        if ( (MultiConfig.getMulticastPort()>=0) && (MultiConfig.getMulticastPort()<=65535) ) {
-            TheNC.setMulticastPort(MultiConfig.getMulticastPort());
-            LOG.log(Level.FINER, "Multicast port: " + MultiConfig.getMulticastPort());
-        }
-        
-        // Tcp Configuration
-        JxseTcpTransportConfiguration TcpConfig = this.TheConfig.getTcpTransportConfiguration();
-
-        if ( (TcpConfig.getTcpStartPort()>=0) && (TcpConfig.getTcpStartPort()<=65535) ) {
-            TheNC.setTcpStartPort(TcpConfig.getTcpStartPort());
-            LOG.log(Level.FINER, "Tcp start port: " + TcpConfig.getTcpStartPort());
-        }
-
-        if ( (TcpConfig.getTcpEndPort()>=0) && (TcpConfig.getTcpEndPort()<=65535) ) {
-            TheNC.setTcpEndPort(TcpConfig.getTcpEndPort());
-            LOG.log(Level.FINER, "Tcp end port: " + TcpConfig.getTcpEndPort());
-        }
-
-        if ( (TcpConfig.getTcpPort()>=0) && (TcpConfig.getTcpPort()<=65535) ) {
-            TheNC.setTcpPort(TcpConfig.getTcpPort());
-            LOG.log(Level.FINER, "Tcp port: " + TcpConfig.getTcpPort());
-        }
-
-        TheNC.setTcpIncoming(TcpConfig.getTcpIncoming());
-        LOG.log(Level.FINER, "Tcp incoming: " + TcpConfig.getTcpIncoming());
-
-        TheNC.setTcpOutgoing(TcpConfig.getTcpOutgoing());
-        LOG.log(Level.FINER, "Tcp outgoing: " + TcpConfig.getTcpOutgoing());
-
-        String TcpPubAddr = TcpConfig.getTcpPublicAddress();
-
-        if ( TcpPubAddr!=null ) {
-            TheNC.setTcpPublicAddress(TcpPubAddr, TcpConfig.getTcpPublicAddressExclusivity());
-            LOG.log(Level.FINER, "Tcp public address: " + TcpPubAddr);
-        }
-
-        LOG.log(Level.FINER, "Tcp public address exclusivity: " + TcpConfig.getTcpPublicAddressExclusivity());
-
-        String TcpIntAddr = TcpConfig.getTcpInterfaceAddress();
-
-        if ( TcpIntAddr!=null ) {
-            TheNC.setTcpInterfaceAddress(TcpIntAddr);
-        }
-
-        LOG.log(Level.FINER, "Tcp interface address: " + TcpIntAddr);
-
-        // Returning result
-        return Result;
+        return JxseConfigurationTool.getConfiguredNetworkManager(TheConfig);
 
     }
 
@@ -398,13 +185,18 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
      * Making sure any NetworkManager has been stopped
      */
     @Override
-    protected void finalize() {
+    @SuppressWarnings("FinalizeDeclaration")
+    protected void finalize() throws Throwable {
 
         if (this.TheNM!=null) {
             if (this.TheNM.isStarted()) {
                 this.TheNM.stopNetwork();
             }
+            this.TheNM=null;
         }
+
+        // Calling super
+        super.finalize();
 
     }
 

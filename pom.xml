@@ -35,7 +35,7 @@
 
     <issueManagement>
         <system>Project Issues</system>
-        <url>http://kenai.com/jira/browse/JXSE</url>
+        <url>https://jxta-jxse.dev.java.net/issues/query.cgi</url>
     </issueManagement>
 
     <licenses>

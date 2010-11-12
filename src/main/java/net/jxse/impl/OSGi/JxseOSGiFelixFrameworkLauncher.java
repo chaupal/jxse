@@ -79,7 +79,10 @@ import org.osgi.framework.launch.Framework;
  *
  * <p>Properties are read from the {@code Felix.properties} file.
  *
+ * @deprecated Since 2.7 - This implementation creates a dependency to the Felix
+ * framework. A better implementation of OSGi is under preparation.
  */
+@Deprecated
 public class JxseOSGiFelixFrameworkLauncher implements JxseOSGiFrameworkLauncher {
 
     /**

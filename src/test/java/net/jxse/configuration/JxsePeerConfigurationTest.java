@@ -131,6 +131,34 @@ public class JxsePeerConfigurationTest {
     }
 
     /**
+     * Test of set/getHttp2TransportConfiguration method, of class JxsePeerConfiguration.
+     */
+    @Test
+    public void testSetGetHttp2TransportConfiguration() {
+
+        JxsePeerConfiguration Source = JxsePeerConfiguration.getDefaultJxsePeerConfiguration();
+        assertTrue(Source.getHttp2TransportConfiguration()!=null);
+
+        JxseHttp2TransportConfiguration Temp2 = new JxseHttp2TransportConfiguration();
+        Temp2.setHttp2InterfaceAddress("DDD.SSS.QQQ.TTT");
+        Temp2.setHttp2Port(4545);
+
+        Source.setHttp2TransportConfiguration(Temp2);
+        JxseHttp2TransportConfiguration Copy2 = Source.getHttp2TransportConfiguration();
+
+        assertTrue(Copy2!=Temp2);
+        assertTrue(Copy2.getHttp2Port()==4545);
+        assertTrue(Copy2.getHttp2InterfaceAddress().compareTo("DDD.SSS.QQQ.TTT")==0);
+
+        Source.setHttp2TransportConfiguration(null);
+        Copy2 = Source.getHttp2TransportConfiguration();
+
+        assertTrue(Copy2.getHttp2Port()!=4545);
+        assertTrue(Copy2.getHttp2InterfaceAddress()==null);
+
+    }
+
+    /**
      * Test of set/getMulticastTransportConfiguration method, of class JxsePeerConfiguration.
      */
     @Test
@@ -872,6 +900,10 @@ public class JxsePeerConfigurationTest {
         JxseHttpTransportConfiguration TempHttp = JxseHttpTransportConfiguration.getDefaultHttpTransportConfiguration();
         TempHttp.setHttpPort(3333);
 
+        // Http2 config
+        JxseHttp2TransportConfiguration TempHttp2 = JxseHttp2TransportConfiguration.getDefaultHttp2TransportConfiguration();
+        TempHttp2.setHttp2Port(8456);
+
         // Multicast config
         JxseMulticastTransportConfiguration TempMulti = JxseMulticastTransportConfiguration.getDefaultMulticastTransportConfiguration();
         TempMulti.setMulticastPort(4444);
@@ -884,6 +916,7 @@ public class JxsePeerConfigurationTest {
         JxsePeerConfiguration Source = JxsePeerConfiguration.getDefaultJxsePeerConfiguration();
 
         Source.setHttpTransportConfiguration(TempHttp);
+        Source.setHttp2TransportConfiguration(TempHttp2);
         Source.setMulticastTransportConfiguration(TempMulti);
         Source.setTcpTransportConfiguration(TempTcp);
 
@@ -927,6 +960,10 @@ public class JxsePeerConfigurationTest {
         // Http config
         TempHttp = Restore.getHttpTransportConfiguration();
         assertTrue(TempHttp.getHttpPort()==3333);
+
+        // Http2 config
+        TempHttp2 = Restore.getHttp2TransportConfiguration();
+        assertTrue(TempHttp2.getHttp2Port()==8456);
 
         // Multicast config
         TempMulti = Restore.getMulticastTransportConfiguration();

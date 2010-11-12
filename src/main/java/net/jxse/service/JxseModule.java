@@ -61,7 +61,7 @@ package net.jxse.service;
  *
  * @since 2.6 this interface is not integrated with the existing {@code net.jxta.platform.Module}
  * interface. Further work is expected in the future releases.
- * <p>Do not rely on this code for your applications !!!
+ * <p />Do not rely on this code for your applications !!!
  */
 public interface JxseModule {
 
