@@ -72,6 +72,7 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.util.pipe.reliable.FixedFlowControl;
 import net.jxta.impl.util.pipe.reliable.Outgoing;
 import net.jxta.impl.util.pipe.reliable.OutgoingMsgrAdaptor;
@@ -100,9 +101,12 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Logger;
+import java.util.Set;
 
 /**
  * JxtaSocket is a sub-class of java.net.socket, and should be used like a java.net.Socket.
@@ -309,6 +313,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     private int outputBufferSize = -1;
     private PeerGroup netPeerGroup;
 
+    private Set<EndpointAddress> acceptMessageVerifiedAddressSet = null;
+    private Set<X509Certificate> acceptMessageCertSet = null;
+
     /**
      * This constructor does not establish a connection. Use this constructor
      * when altering the default parameters, and options of the socket.
@@ -335,6 +342,28 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     protected JxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential remoteCredential, boolean isReliable) throws IOException {
 
+        this( group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, remoteCredential, isReliable, null, null);
+
+    }
+
+    /**
+     * This constructor is used by JxtaServer socket for creating JxtaSocket
+     * instances in response to incoming connections.
+     *
+     * @param group               group context
+     * @param pipeAdv             The original PipeAdvertisement
+     * @param localCredential        Our credential.
+     * @param remoteEphemeralPipeAdv the phemeral pipe advertisement
+     * @param  remotePeerAdv          remote peer advertisement
+     * @param remoteCredential       The remote peer's credential.
+     * @param isReliable          {@code true} for reliable stream connection or
+     *                            {@code false} for unreliable stream connection.
+     * @param acceptMessageVerifiedAddressSet          The verified address set from the connect Message
+     * @param acceptMessageCertSet          The verified cert set from the connect Message
+     * @throws IOException if an io error occurs
+     */
+    protected JxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential remoteCredential, boolean isReliable, Set<EndpointAddress> acceptMessageVerifiedAddressSet, Set<X509Certificate> acceptMessageCertSet) throws IOException {
+
         this.initiator = false;
         this.group = group;
         this.pipeAdv = pipeAdv;
@@ -345,6 +374,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         this.localCredential = localCredential;
         this.remoteCredential = remoteCredential;
         this.isReliable = isReliable;
+        this.acceptMessageVerifiedAddressSet = acceptMessageVerifiedAddressSet;
+        this.acceptMessageCertSet = acceptMessageCertSet;
 
         pipeSvc = group.getPipeService();
         this.localEphemeralPipeIn = pipeSvc.createInputPipe(localEphemeralPipeAdv, this);
@@ -1280,6 +1311,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                         socketConnectLock.notify();
 
+                        acceptMessageVerifiedAddressSet = (Set)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+
+                        acceptMessageCertSet = (Set)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+
                         Logging.logCheckedInfo(LOG, "New Socket Connection : ", this);
 
                     }
@@ -1788,5 +1823,21 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         result.append(isConnected() ? " C " : " c ");
 
         return result.toString();
+    }
+
+    /**
+     * Returns the verified connect message EndpointAddress set
+     * @return The verified connect message EndpointAddress set
+     */
+    public Set<EndpointAddress> getVerifiedAddressSet() {
+        return (acceptMessageVerifiedAddressSet==null)?new HashSet<EndpointAddress>():new HashSet<EndpointAddress>(acceptMessageVerifiedAddressSet);
+    }
+
+    /**
+     * Returns the verified connect message certificate set
+     * @return The verified connect message certificate set
+     */
+    public Set<X509Certificate> getVerifiedCertSet() {
+        return (acceptMessageCertSet==null)?new HashSet<X509Certificate>():new HashSet<X509Certificate>(acceptMessageCertSet);
     }
 }

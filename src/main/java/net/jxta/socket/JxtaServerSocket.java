@@ -60,8 +60,10 @@ import net.jxta.credential.CredentialValidator;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
+import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
+import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
@@ -77,10 +79,12 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.Set;
 
 /**
  * JxtaServerSocket is a bi-directional Pipe that behaves very much like
@@ -630,9 +634,12 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                 isReliable = Boolean.valueOf(el.toString());
             }
 
+            Set<EndpointAddress> verifiedAddressSet = (Set)msg.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+            Set<X509Certificate> tempCertSet = (Set)msg.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+
             if ((null != remoteEphemeralPipeAdv) && (null != remotePeerAdv)) {
 
-                return createEphemeralSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable);
+                return createEphemeralSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable, verifiedAddressSet, tempCertSet);
 
             } else {
 
@@ -682,6 +689,28 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     protected JxtaSocket createEphemeralSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential credential, boolean isReliable) throws IOException {
         return new JxtaSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable);
+    }
+
+    /**
+     * Construct the emphemeral socket result from accept. This method exists
+     * primarily so that sub-classes can substitute a different JxtaSocket
+     * sub-class.
+     *
+     * @param group               The peer group for the socket.
+     * @param pipeAdv             The public pipe advertisement.
+     * @param remoteEphemeralPipeAdv The pipe advertisement of the remote peer's
+     *                            ephemeral pipe.
+     * @param remotePeerAdv          The peer advertisement of the remote peer.
+     * @param localCredential        Our credential.
+     * @param credential          The credential of the remote peer.
+     * @param isReliable          if true, uses the reliability library in non-direct mode
+     * @param verifiedAddressSet          The verified address set from the connect Message
+     * @param verifiedAddressCertSet          The verified cert set from the connect Message
+     * @return The new JxtaSocket instance.
+     * @throws IOException if an io error occurs
+     */
+    protected JxtaSocket createEphemeralSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential credential, boolean isReliable, Set<EndpointAddress> verifiedAddressSet, Set<X509Certificate> verifiedAddressCertSet) throws IOException {
+        return new JxtaSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable, verifiedAddressSet, verifiedAddressCertSet);
     }
 
     /**
