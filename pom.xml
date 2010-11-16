@@ -3,7 +3,7 @@
 
     <artifactId>jxse</artifactId>
     <groupId>com.kenai.jxse</groupId>
-    <version>2.7-Beta</version>
+    <version>2.7-RC1</version>
     <packaging>bundle</packaging>
 
     <parent>
@@ -13,9 +13,9 @@
     </parent>
 
     <scm>
-        <connection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/tags/jxse-2.7-Beta</connection>
-        <developerConnection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/tags/jxse-2.7-Beta</developerConnection>
-        <url>http://jxta-jxse.dev.java.net/svn/jxta-jxse/tags/jxse-2.7-Beta</url>
+        <connection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</connection>
+        <developerConnection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</developerConnection>
+        <url>http://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</url>
     </scm>
 
     <name>JXSE</name>
