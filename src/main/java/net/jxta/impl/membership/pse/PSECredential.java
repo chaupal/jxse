@@ -629,6 +629,17 @@ public final class PSECredential implements Credential, CredentialPCLSupport {
         pseCredentialKeyRetriever.setPrivateKey(privateKey);
     }
     /**
+     * Support for JxtaSocketInputStream key requirement
+     * @param pseCredentialKeyRetriever
+     */
+    public void socketKeyBridge(net.jxta.socket.JxtaSocket.SocketPSEBridge pseCredentialKeyRetriever) throws SecurityException {
+        if (!this.getClass().getClassLoader().equals(pseCredentialKeyRetriever.getClass().getClassLoader()))
+            throw new SecurityException("Illegal attempt to socketKeyBridge - wrong classloader");
+        if (!local)
+            return;
+        pseCredentialKeyRetriever.setPrivateKey(privateKey);
+    }
+    /**
      * Support for PSEMembershipService key requirement
      * @param pseCredentialKeyRetriever
      */

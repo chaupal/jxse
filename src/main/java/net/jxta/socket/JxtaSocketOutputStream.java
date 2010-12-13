@@ -58,6 +58,8 @@ package net.jxta.socket;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
 
 /**
  * This class implements a buffered output stream. By setting up such an output
@@ -87,6 +89,34 @@ class JxtaSocketOutputStream extends OutputStream {
      * JxtaSocket associated with this stream
      */
     protected JxtaSocket socket;
+
+    /**
+     * isEncrypt encrypt the data stream
+     */
+    private boolean isEncrypt = false;
+
+    /**
+     * cipher cipher for encryption
+     */
+    private Cipher cipher = null;
+
+    /**
+     * cipher publicKey for cipher
+     */
+    private PublicKey publicKey = null;
+
+    /**
+     * Constructor for the JxtaSocketOutputStream object
+     *
+     * @param socket JxtaSocket associated with this stream
+     * @param size   buffer size in bytes
+     */
+    public JxtaSocketOutputStream(JxtaSocket socket, int size, boolean isEncrypt, Cipher cipher, PublicKey publicKey) {
+        this(socket, size);
+        this.isEncrypt = isEncrypt;
+        this.cipher = cipher;
+        this.publicKey = publicKey;
+    }
 
     /**
      * Constructor for the JxtaSocketOutputStream object

@@ -57,13 +57,17 @@ package net.jxta.socket;
 
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
+import net.jxta.impl.membership.pse.PSEUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Queue;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 
 /**
  * Provides the stream data source for JxtaSocket.
@@ -102,6 +106,36 @@ class JxtaSocketInputStream extends InputStream {
      * The current message element input stream we are processing.
      */
     private InputStream currentMsgStream = null;
+
+    /**
+     * isEncrypt encryptAsymmetric the data stream
+     */
+    private boolean isEncrypt = false;
+
+    /**
+     * cipher cipher for encryption
+     */
+    private Cipher cipher = null;
+
+    /**
+     * cipher secretKey for cipher
+     */
+    private SecretKey secretKey = null;
+
+    /**
+     * Construct an InputStream for a specified JxtaSocket.
+     *
+     * @param socket  the JxtaSocket
+     * @param queueSize the queue size
+     * @param isEncrypt the encryption flag
+     * @param cipher the encryption cipher
+     */
+    JxtaSocketInputStream(JxtaSocket socket, int queueSize, boolean isEncrypt, Cipher cipher, SecretKey secretKey) {
+        this(socket, queueSize);
+        this.isEncrypt = isEncrypt;
+        this.cipher = cipher;
+        this.secretKey = secretKey;
+    }
 
     /**
      * Construct an InputStream for a specified JxtaSocket.
@@ -251,7 +285,12 @@ class JxtaSocketInputStream extends InputStream {
             }
 
             if (me != null) {
-                currentMsgStream = me.getStream();
+                if (isEncrypt) {
+                    byte[] decryptedBuffer = PSEUtils.decryptSymmetric(me.getBytes(false), cipher, secretKey);
+                    currentMsgStream = new ByteArrayInputStream(decryptedBuffer);
+                } else {
+                    currentMsgStream = me.getStream();
+                }
             }
         }
         return currentMsgStream;

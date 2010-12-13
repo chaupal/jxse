@@ -56,6 +56,9 @@
 
 package net.jxta.socket;
 
+import java.security.InvalidKeyException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.logging.Level;
 import net.jxta.credential.Credential;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -73,6 +76,9 @@ import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
+import net.jxta.impl.membership.pse.PSECredential;
+import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.util.pipe.reliable.FixedFlowControl;
 import net.jxta.impl.util.pipe.reliable.Outgoing;
 import net.jxta.impl.util.pipe.reliable.OutgoingMsgrAdaptor;
@@ -107,6 +113,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.Set;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 
 /**
  * JxtaSocket is a sub-class of java.net.socket, and should be used like a java.net.Socket.
@@ -120,6 +128,12 @@ import java.util.Set;
  *
  */
 public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeListener {
+
+    /**
+    * The name of the cipher algorithm.
+    */
+    public final static String ASYMMETRIC_ALGORITHM = "RSA/ECB/OAEPPadding";
+    public final static String SYMMETRIC_ALGORITHM = "DESede";
 
     /**
      * Logger
@@ -317,6 +331,20 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     private Set<X509Certificate> acceptMessageCertSet = null;
 
     /**
+     * The data encryption flag.
+     */
+    private boolean isEncrypt = false;
+
+    /**
+     * The data encryption flag.
+     */
+    private boolean isServerSponsoredSocket = false;
+
+    private SecretKey localSecretKey = null;
+    private SecretKey remoteSecretKey = null;
+    private Cipher jxtaOutputStreamCipher = null;
+
+    /**
      * This constructor does not establish a connection. Use this constructor
      * when altering the default parameters, and options of the socket.
      * <p/>
@@ -330,6 +358,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      * This constructor is used by JxtaServer socket for creating JxtaSocket
      * instances in response to incoming connections.
      *
+     * @deprecated use following JxtaSocket instead
+     *
      * @param group               group context
      * @param pipeAdv             The original PipeAdvertisement
      * @param localCredential        Our credential.
@@ -340,9 +370,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      *                            {@code false} for unreliable stream connection.
      * @throws IOException if an io error occurs
      */
+    @Deprecated
     protected JxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential remoteCredential, boolean isReliable) throws IOException {
 
-        this( group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, remoteCredential, isReliable, null, null);
+        this( group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, remoteCredential, isReliable, null, null, false);
 
     }
 
@@ -360,9 +391,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      *                            {@code false} for unreliable stream connection.
      * @param acceptMessageVerifiedAddressSet          The verified address set from the connect Message
      * @param acceptMessageCertSet          The verified cert set from the connect Message
+     * @param encryptAsymmetric          encryptAsymmetric the data stream from the connect Message
      * @throws IOException if an io error occurs
      */
-    protected JxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential remoteCredential, boolean isReliable, Set<EndpointAddress> acceptMessageVerifiedAddressSet, Set<X509Certificate> acceptMessageCertSet) throws IOException {
+    protected JxtaSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential remoteCredential, boolean isReliable, Set<EndpointAddress> acceptMessageVerifiedAddressSet, Set<X509Certificate> acceptMessageCertSet, boolean encrypt) throws IOException {
 
         this.initiator = false;
         this.group = group;
@@ -376,6 +408,9 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         this.isReliable = isReliable;
         this.acceptMessageVerifiedAddressSet = acceptMessageVerifiedAddressSet;
         this.acceptMessageCertSet = acceptMessageCertSet;
+        this.isEncrypt = encrypt;
+
+        this.isServerSponsoredSocket = true;
 
         pipeSvc = group.getPipeService();
         this.localEphemeralPipeIn = pipeSvc.createInputPipe(localEphemeralPipeAdv, this);
@@ -852,7 +887,35 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new StringMessageElement(JxtaServerSocket.streamTag, Boolean.toString(isReliable), null));
 
+        if (isServerSponsoredSocket)
+            msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
+                    new StringMessageElement(JxtaServerSocket.encryptTag, Boolean.toString(isEncrypt), null));
+
+        if (isEncrypt) {
+            try {
+                if (localSecretKey==null)
+                    createLocalSecretKey();
+                byte[] encodedSecretKey = PSEUtils.createDESedeKeySpec(localSecretKey);
+                X509Certificate certificate = acceptMessageCertSet.iterator().next();
+                Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM, "BC");
+                byte[] encryptedEncodedSecretKey = PSEUtils.encryptAsymmetric(encodedSecretKey, 0, encodedSecretKey.length, cipher, certificate.getPublicKey());
+                msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
+                        new ByteArrayMessageElement(JxtaServerSocket.symmetricKeyTag, MimeMediaType.AOS, encryptedEncodedSecretKey, null));
+            } catch (Exception failed) {
+                Logger.getLogger(JxtaSocket.class.getName()).log(Level.SEVERE, null, failed);
+                IOException failure = new IOException("Could not create or encode secretKey for encryption.");
+                failure.initCause(failed);
+                throw failure;
+            }
+        }
+
         return msg;
+    }
+
+    private void createLocalSecretKey() throws Exception {
+        if (isEncrypt) {
+            localSecretKey = PSEUtils.generateSymmetricKey();
+        }
     }
 
     /**
@@ -944,25 +1007,50 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             outputBufferSize = Math.min((int) remoteEphemeralPipeMsgr.getMTU(), DEFAULT_OUTPUT_BUFFER_SIZE);
         }
 
+        Cipher inputStreamCipher = null;
+        Cipher outputStreamCipher = null;
+
+        if (group.getMembershipService() instanceof PSEMembershipService && isEncrypt) {
+            try {
+                if (localSecretKey==null)
+                    createLocalSecretKey();
+                inputStreamCipher = Cipher.getInstance(SYMMETRIC_ALGORITHM, "BC");
+                outputStreamCipher = Cipher.getInstance(SYMMETRIC_ALGORITHM, "BC");
+            } catch (Exception ex) {
+                Logging.logCheckedSevere(LOG, "Failed to set up localSecretKey or encryption ciphers for input/output streams ", this, " : ", ex);
+            }
+        }
+
         // Force the creation of the inputStream now. Waiting until someone
         // calls getInputStream() would likely cause us to drop messages.
         if (isReliable) {
             outgoing = makeOutgoing(remoteEphemeralPipeMsgr, retryTimeout);
-            ris = new ReliableInputStream(group, outgoing, soTimeout);
-            ros = new ReliableOutputStream(group, outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService());
+            ris = new ReliableInputStream(group, outgoing, soTimeout, isEncrypt, inputStreamCipher, localSecretKey);
+            ros = new ReliableOutputStream(group, outgoing, new FixedFlowControl(windowSize), group.getTaskManager().getScheduledExecutorService(), isEncrypt, outputStreamCipher, remoteSecretKey);
             try {
                 ros.setSendBufferSize(outputBufferSize);
             } catch (IOException ignored) {// it's only a preference...
             }
         } else {
-            nonReliableInputStream = new JxtaSocketInputStream(this, windowSize);
+            nonReliableInputStream = new JxtaSocketInputStream(this, windowSize, isEncrypt, inputStreamCipher, localSecretKey);
             nonReliableOutputStream = new JxtaSocketOutputStream(this, outputBufferSize);
+            jxtaOutputStreamCipher = outputStreamCipher;
         }
 
         // the socket is now connected!
         setConnected(true);
         // The socket is bound now.
         setBound(true);
+    }
+
+    final public static class SocketPSEBridge {
+        private java.security.PrivateKey privateKey = null;
+        private SocketPSEBridge() {
+
+        }
+        public void setPrivateKey(java.security.PrivateKey privateKey) {
+            this.privateKey = privateKey;
+        }
     }
 
     /**
@@ -1271,6 +1359,29 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 incomingIsReliable = Boolean.valueOf(element.toString());
             }
 
+            element = message.getMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE, JxtaServerSocket.encryptTag);
+            if (element != null) {
+                isEncrypt = Boolean.valueOf(element.toString());
+                if (isEncrypt) {
+                    element = message.getMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE, JxtaServerSocket.symmetricKeyTag);
+                    if (element != null) {
+                        try {
+                            PSECredential credential = (PSECredential) group.getMembershipService().getDefaultCredential();
+                            SocketPSEBridge pseCredentialBridge = new SocketPSEBridge();
+                            credential.socketKeyBridge(pseCredentialBridge);
+                            Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGORITHM, "BC");
+                            byte[] encodedSecretKey = PSEUtils.decryptAsymmetric(element.getBytes(false), cipher, pseCredentialBridge.privateKey);
+                            remoteSecretKey = PSEUtils.createSecretKey(encodedSecretKey);
+                        } catch (Exception ex) {
+                            Logger.getLogger(JxtaSocket.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+
+                    acceptMessageVerifiedAddressSet = (Set)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+                    acceptMessageCertSet = (Set)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+                }
+            }
+
             if ((null != incomingPipeAdv) && (null != incomingRemotePeerAdv)) {
                 if ((null != remotePeerID) &&
                     (remotePeerID.toString().compareTo(incomingRemotePeerAdv.getPeerID().toString())!=0) ) {
@@ -1304,6 +1415,11 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                         } catch (IOException failed) {
 
+                            if (isEncrypt) {
+                                acceptMessageVerifiedAddressSet = null;
+                                acceptMessageCertSet = null;
+                            }
+
                             Logging.logCheckedWarning(LOG, "Connection failed : ", this, failed);
                             return;
 
@@ -1311,9 +1427,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                         socketConnectLock.notify();
 
-                        acceptMessageVerifiedAddressSet = (Set)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
-
-                        acceptMessageCertSet = (Set)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+                        if (!isEncrypt) {
+                            acceptMessageVerifiedAddressSet = (Set)message.getMessageProperty(EndpointServiceImpl.VERIFIED_ADDRESS_SET);
+                            acceptMessageCertSet = (Set)message.getMessageProperty(EndpointServiceImpl.MESSAGE_SIGNER_SET);
+                        }
 
                         Logging.logCheckedInfo(LOG, "New Socket Connection : ", this);
 
@@ -1588,12 +1705,18 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (isReliable) {
             ros.write(buf, offset, length);
         } else {
-            byte[] bufCopy = new byte[length];
-            System.arraycopy(buf, offset, bufCopy, 0, length);
+            MessageElement element;
+            if (isEncrypt) {
+                byte[] encryptedBuffer = PSEUtils.encryptSymmetric(buf, offset, length, jxtaOutputStreamCipher, remoteSecretKey);
+                element = new ByteArrayMessageElement(JxtaServerSocket.dataTag, MimeMediaType.AOS, encryptedBuffer, 0, encryptedBuffer.length, null);
+            } else {
+                byte[] bufCopy = new byte[length];
+                System.arraycopy(buf, offset, bufCopy, 0, length);
+                element = new ByteArrayMessageElement(JxtaServerSocket.dataTag, MimeMediaType.AOS, bufCopy, 0, length, null);
+            }
 
             Message msg = new Message();
-            msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
-                    new ByteArrayMessageElement(JxtaServerSocket.dataTag, MimeMediaType.AOS, bufCopy, 0, length, null));
+            msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE, element);
             remoteEphemeralPipeMsgr.sendMessageB(msg, null, null);
         }
     }

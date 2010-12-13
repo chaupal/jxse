@@ -74,6 +74,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
@@ -91,8 +92,10 @@ import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.security.auth.x500.X500Principal;
@@ -128,6 +131,11 @@ public final class PSEUtils {
      * A SecureRandom for generating keys.
      */
     final transient SecureRandom srng = new SecureRandom();
+
+    /**
+    * The name of the symmetric cipher to use.
+    */
+    public final static String symmetricAlgorithm = "DESede";
 
     /**
      * Singleton utility class
@@ -986,5 +994,130 @@ public final class PSEUtils {
             if (a1[i]!=a2[i])
                 return false;
         return true;
+    }
+
+    /**
+     * Encrypts byte array
+     *
+     * @param data decrypted data array
+     * @param data inputOffset data array offset
+     * @param data inputLen data array length
+     * @param cipher cipher
+     * @param key public key
+     * @return encrypted data
+     * @throws IOException
+     */
+    public static final byte[] encryptAsymmetric(byte[] data, int inputOffset, int inputLen, Cipher cipher, PublicKey key) throws IOException {
+        synchronized (cipher) {
+            try {
+                cipher.init(Cipher.ENCRYPT_MODE, key);
+                return cipher.doFinal(data, inputOffset, inputLen);
+            } catch (Exception ex) {
+                throw new IOException("Failed encrypting stream:", ex);
+            }
+        }
+    }
+
+    /**
+     * Decrypts byte array
+     *
+     * @param data encrypted data
+     * @param cipher cipher
+     * @param key private key
+     * @return decrypted data
+     * @throws IOException
+     */
+    public static byte[] decryptAsymmetric(byte[] data, Cipher cipher, PrivateKey key) throws IOException {
+        synchronized (cipher) {
+            try {
+                cipher.init(Cipher.DECRYPT_MODE, key);
+                return cipher.doFinal(data);
+            } catch (Exception ex) {
+                throw new IOException("Failed decrypting stream:", ex);
+            }
+        }
+    }
+
+    /**
+     * Encrypts byte array
+     *
+     * @param data decrypted data array
+     * @param data inputOffset data array offset
+     * @param data inputLen data array length
+     * @param cipher cipher
+     * @param key public key
+     * @return encrypted data
+     * @throws IOException
+     */
+    public static final byte[] encryptSymmetric(byte[] data, int inputOffset, int inputLen, Cipher cipher, SecretKey key) throws IOException {
+        synchronized (cipher) {
+            try {
+                cipher.init(Cipher.ENCRYPT_MODE, key);
+                return cipher.doFinal(data, inputOffset, inputLen);
+            } catch (Exception ex) {
+                throw new IOException("Failed encrypting stream:", ex);
+            }
+        }
+    }
+
+    /**
+     * Decrypts byte array
+     *
+     * @param data encrypted data
+     * @param cipher cipher
+     * @param key private key
+     * @return decrypted data
+     * @throws IOException
+     */
+    public static byte[] decryptSymmetric(byte[] data, Cipher cipher, SecretKey key) throws IOException {
+        synchronized (cipher) {
+            try {
+                cipher.init(Cipher.DECRYPT_MODE, key);
+                return cipher.doFinal(data);
+            } catch (Exception ex) {
+                throw new IOException("Failed decrypting stream:", ex);
+            }
+        }
+    }
+
+    /**
+    * Generate a symmetric DES3 key.
+    *
+    * @return A DES3 key
+    */
+    public static SecretKey generateSymmetricKey() throws NoSuchAlgorithmException {
+        KeyGenerator symmetricKeyGenerator = KeyGenerator.getInstance(symmetricAlgorithm);
+        return symmetricKeyGenerator.generateKey();
+    }
+
+    /**
+     * Creates an encoded DESedeKeySpec from a SecretKey
+     * 
+     * @param key
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public static byte[] createDESedeKeySpec(SecretKey key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");
+        DESedeKeySpec keyspec = (DESedeKeySpec) keyfactory.getKeySpec(key,
+        DESedeKeySpec.class);
+        return keyspec.getKey();
+    }
+
+    /**
+     *
+     * Creates a SecretKey from an encoded DESedeKeySpec
+     * 
+     * @param rawkey
+     * @return
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public static SecretKey createSecretKey(byte[] rawkey) throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
+        DESedeKeySpec keyspec = new DESedeKeySpec(rawkey);
+        SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");
+        return keyfactory.generateSecret(keyspec);
     }
 }

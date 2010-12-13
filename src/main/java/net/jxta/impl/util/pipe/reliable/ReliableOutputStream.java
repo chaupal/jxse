@@ -60,6 +60,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -69,6 +70,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 
 import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
@@ -76,6 +79,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
+import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.logging.Logging;
@@ -248,6 +252,21 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     private PeerGroup group;
 
     /**
+     * isEncrypt encryptAsymmetric the data stream
+     */
+    private boolean isEncrypt = false;
+
+    /**
+     * cipher cipher for encryption
+     */
+    private Cipher cipher = null;
+
+    /**
+     * cipher secretKey for cipher
+     */
+    private SecretKey secretKey = null;
+
+    /**
      * retrans queue element
      */
     private static class RetrQElt {
@@ -307,6 +326,22 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
     public ReliableOutputStream(PeerGroup group, Outgoing outgoing, ScheduledExecutorService executor) {
         // By default use the old behaviour: fixed fc with a rwin of 20
         this(group, outgoing, new FixedFlowControl(20), executor);
+    }
+
+    /**
+     * Constructor for the ReliableOutputStream object
+     *
+     * @param outgoing the outgoing object
+     * @param fc       flow-control
+     * @param isEncrypt encrypt the stream
+     * @param cipher the encryption cipher
+     * @param secretKey the secret key
+     */
+    public ReliableOutputStream(PeerGroup group, Outgoing outgoing, FlowControl fc, ScheduledExecutorService executor, boolean isEncrypt, Cipher cipher, SecretKey secretKey) {
+        this(group, outgoing, fc, executor);
+        this.isEncrypt = isEncrypt;
+        this.cipher = cipher;
+        this.secretKey = secretKey;
     }
 
     /**
@@ -565,9 +600,19 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             }
 
             int sequenceToUse = sequenceNumber.incrementAndGet();
-            MessageElement element = new ByteArrayMessageElement(Integer.toString(sequenceToUse), Defs.MIME_TYPE_BLOCK, b, off
+
+            MessageElement element;
+
+            if (isEncrypt) {
+                byte[] encryptedBuffer = PSEUtils.encryptSymmetric(b, off, len, cipher, secretKey);
+                element = new ByteArrayMessageElement(Integer.toString(sequenceToUse), Defs.MIME_TYPE_BLOCK, encryptedBuffer, null);
+
+            } else {
+                element = new ByteArrayMessageElement(Integer.toString(sequenceToUse), Defs.MIME_TYPE_BLOCK, b, off
                     ,
                     len, null);
+
+            }
 
             jmsg.addMessageElement(Defs.NAMESPACE, element);
             RetrQElt retrQel = new RetrQElt(sequenceToUse, jmsg.clone());

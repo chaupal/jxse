@@ -128,6 +128,8 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     protected final static String closeReqValue = "close";
     protected final static String closeAckValue = "closeACK";
     protected static final String streamTag = "stream";
+    protected static final String encryptTag = "encrypt";
+    protected static final String symmetricKeyTag = "symmetricKey";
 
     private final static int DEFAULT_BACKLOG = 50;
     private final static long DEFAULT_TIMEOUT = 60 * 1000L;
@@ -177,6 +179,11 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     private PeerGroup netPeerGroup;
 
     /**
+     * The data encryption flag.
+     */
+    private boolean encrypt = false;
+
+    /**
      * Default Constructor
      * <p/>
      * A call to {@code bind()} is needed to finish initializing this object.
@@ -198,6 +205,19 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     }
 
     /**
+     * Constructs and binds a JxtaServerSocket using a JxtaSocketAddress as
+     * the address.
+     *
+     * @param address an instance of JxtaSocketAddress
+     * @param encrypt the data
+     * @throws IOException if an io error occurs
+     * @see net.jxta.socket.JxtaSocketAddress
+     */
+    public JxtaServerSocket(SocketAddress address, boolean encrypt) throws IOException {
+        this(address, DEFAULT_BACKLOG, encrypt);
+    }
+
+    /**
      * Constructs and binds a JxtaServerSocket to the specified pipe.
      *
      * @param group   JXTA PeerGroup
@@ -206,6 +226,18 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     public JxtaServerSocket(PeerGroup group, PipeAdvertisement pipeAdv) throws IOException {
         this(group, pipeAdv, DEFAULT_BACKLOG);
+    }
+
+    /**
+     * Constructs and binds a JxtaServerSocket to the specified pipe.
+     *
+     * @param group   JXTA PeerGroup
+     * @param pipeAdv PipeAdvertisement on which pipe requests are accepted
+     * @param encrypt the data
+     * @throws IOException if an I/O error occurs
+     */
+    public JxtaServerSocket(PeerGroup group, PipeAdvertisement pipeAdv, boolean encrypt) throws IOException {
+        this(group, pipeAdv, DEFAULT_BACKLOG, encrypt);
     }
 
     /**
@@ -222,6 +254,20 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     }
 
     /**
+     * Constructs and binds a JxtaServerSocket using a JxtaSocketAddress as
+     * the address.
+     *
+     * @param address an instance of JxtaSocketAddress
+     * @param backlog the size of the backlog queue
+     * @param encrypt the data
+     * @throws IOException if an I/O error occurs
+     * @see net.jxta.socket.JxtaSocketAddress
+     */
+    public JxtaServerSocket(SocketAddress address, int backlog, boolean encrypt) throws IOException {
+        this(address, backlog, (int) DEFAULT_TIMEOUT, encrypt);
+    }
+
+    /**
      * Constructor for the JxtaServerSocket object
      *
      * @param group   JXTA PeerGroup
@@ -231,6 +277,19 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     public JxtaServerSocket(PeerGroup group, PipeAdvertisement pipeAdv, int backlog) throws IOException {
         this(group, pipeAdv, backlog, (int) DEFAULT_TIMEOUT);
+    }
+
+    /**
+     * Constructor for the JxtaServerSocket object
+     *
+     * @param group   JXTA PeerGroup
+     * @param pipeAdv PipeAdvertisement on which pipe requests are accepted
+     * @param backlog the maximum length of the queue.
+     * @param encrypt the data
+     * @throws IOException if an I/O error occurs
+     */
+    public JxtaServerSocket(PeerGroup group, PipeAdvertisement pipeAdv, int backlog, boolean encrypt) throws IOException {
+        this(group, pipeAdv, backlog, (int) DEFAULT_TIMEOUT, encrypt);
     }
 
     /**
@@ -245,6 +304,23 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      */
     public JxtaServerSocket(SocketAddress address, int backlog, int timeout) throws IOException {
         setSoTimeout(timeout);
+        bind(address, backlog);
+    }
+
+    /**
+     * Constructs and binds a JxtaServerSocket using a JxtaSocketAddress as
+     * the address.
+     *
+     * @param address an instance of JxtaSocketAddress
+     * @param backlog the size of the backlog queue
+     * @param timeout connection timeout in milliseconds
+     * @param encrypt the data
+     * @throws IOException if an I/O error occurs
+     * @see net.jxta.socket.JxtaSocketAddress
+     */
+    public JxtaServerSocket(SocketAddress address, int backlog, int timeout, boolean encrypt) throws IOException {
+        setSoTimeout(timeout);
+        this.encrypt = encrypt;
         bind(address, backlog);
     }
 
@@ -268,12 +344,44 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      * @param pipeAdv PipeAdvertisement on which pipe requests are accepted
      * @param backlog the maximum length of the queue.
      * @param timeout the specified timeout, in milliseconds
+     * @param encrypt the data
+     * @throws IOException if an I/O error occurs
+     */
+    public JxtaServerSocket(PeerGroup group, PipeAdvertisement pipeAdv, int backlog, int timeout, boolean encrypt) throws IOException {
+        this(group, pipeAdv, backlog, timeout, null, encrypt);
+    }
+
+    /**
+     * Constructor for the JxtaServerSocket object.
+     *
+     * @param group   JXTA PeerGroup
+     * @param pipeAdv PipeAdvertisement on which pipe requests are accepted
+     * @param backlog the maximum length of the queue.
+     * @param timeout the specified timeout, in milliseconds
      * @param credValidator the CredentialValidator
      * @throws IOException if an I/O error occurs
      */
     public JxtaServerSocket(PeerGroup group, PipeAdvertisement pipeAdv, int backlog, int timeout, CredentialValidator credValidator) throws IOException {
         setSoTimeout(timeout);
         this.credValidator = credValidator;
+        bind(group, pipeAdv, backlog);
+    }
+
+    /**
+     * Constructor for the JxtaServerSocket object.
+     *
+     * @param group   JXTA PeerGroup
+     * @param pipeAdv PipeAdvertisement on which pipe requests are accepted
+     * @param backlog the maximum length of the queue.
+     * @param timeout the specified timeout, in milliseconds
+     * @param credValidator the CredentialValidator
+     * @param encrypt the data
+     * @throws IOException if an I/O error occurs
+     */
+    public JxtaServerSocket(PeerGroup group, PipeAdvertisement pipeAdv, int backlog, int timeout, CredentialValidator credValidator, boolean encrypt) throws IOException {
+        setSoTimeout(timeout);
+        this.credValidator = credValidator;
+        this.encrypt = encrypt;
         bind(group, pipeAdv, backlog);
     }
 
@@ -536,6 +644,28 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
     }
 
     /**
+     * Gets the encrypt flag status. If true, data will be encrypted between
+     * the remote JxtaSocket and the JxtaSocket created by the JxtaServerSocket.
+     * 
+     * @return encrypt
+     */
+    public boolean isEncrypted() {
+        return encrypt;
+    }
+
+    /**
+     * Sets the encrypt flag status. If true, data will be encrypted between
+     * the remote JxtaSocket and the JxtaSocket created by the JxtaServerSocket.
+     * Can only be set before the JxtaServerSocket is bound
+     *
+     * @param encrypt
+     */
+    public void setEncrypted(boolean encrypt) {
+        if (!isBound())
+            this.encrypt = encrypt;
+    }
+
+    /**
      * Gets the group associated with this JxtaServerSocket object
      *
      * @return The group value
@@ -710,7 +840,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
      * @throws IOException if an io error occurs
      */
     protected JxtaSocket createEphemeralSocket(PeerGroup group, PipeAdvertisement pipeAdv, PipeAdvertisement remoteEphemeralPipeAdv, PeerAdvertisement remotePeerAdv, Credential localCredential, Credential credential, boolean isReliable, Set<EndpointAddress> verifiedAddressSet, Set<X509Certificate> verifiedAddressCertSet) throws IOException {
-        return new JxtaSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable, verifiedAddressSet, verifiedAddressCertSet);
+        return new JxtaSocket(group, pipeAdv, remoteEphemeralPipeAdv, remotePeerAdv, localCredential, credential, isReliable, verifiedAddressSet, verifiedAddressCertSet, encrypt);
     }
 
     /**

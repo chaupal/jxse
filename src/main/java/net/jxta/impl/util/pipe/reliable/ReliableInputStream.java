@@ -60,10 +60,12 @@ import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.WireFormatMessageFactory;
+import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -74,6 +76,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 
 /**
  *  Acts as a reliable input stream. Accepts data which
@@ -117,6 +121,21 @@ public class ReliableInputStream extends InputStream implements Incoming {
     private final Record record;
     
     private PeerGroup group;
+
+    /**
+     * isEncrypt encryptAsymmetric the data stream
+     */
+    private boolean isEncrypt = false;
+
+    /**
+     * cipher cipher for encryption
+     */
+    private Cipher cipher = null;
+
+    /**
+     * cipher secretKey for cipher
+     */
+    private SecretKey secretKey = null;
 
     /**
      * Input record Object
@@ -188,6 +207,13 @@ public class ReliableInputStream extends InputStream implements Incoming {
         public int compareTo(Object o) {
             return compareTo((IQElt) o);
         }
+    }
+
+    public ReliableInputStream(PeerGroup group, Outgoing outgoing, int timeout, boolean isEncrypt, Cipher cipher, SecretKey secretKey) {
+        this(group, outgoing, timeout, null);
+        this.isEncrypt = isEncrypt;
+        this.cipher = cipher;
+        this.secretKey = secretKey;
     }
 
     public ReliableInputStream(PeerGroup group, Outgoing outgoing, int timeout) {
@@ -706,9 +732,20 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
                 sequenceNumber += 1; // next msg sequence number
 
-                // Get the length of the Record
-                record.size = elt.getByteLength();
-                record.inputStream = elt.getStream();
+                if (isEncrypt) {
+                    byte[] decryptedBuffer = PSEUtils.decryptSymmetric(elt.getBytes(false), cipher, secretKey);
+                    ByteArrayInputStream decryptedInputStream = new ByteArrayInputStream(decryptedBuffer);
+
+                    // Get the length of the Record
+                    record.size = decryptedBuffer.length;
+                    record.inputStream = decryptedInputStream;
+                    
+                } else {
+                    // Get the length of the Record
+                    record.size = elt.getByteLength();
+                    record.inputStream = elt.getStream();
+
+                }
 
                 Logging.logCheckedFine(LOG, "new seqn#", sequenceNumber, ", bytes = ", record.size);
 
