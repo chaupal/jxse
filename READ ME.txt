@@ -1,0 +1,44 @@
+ABOUT THE DIRECTORY STRUCTURE:
+==============================
+
+ \contrib
+
+Contains modules which have not been integrated in core code
+
+
+ \lib
+
+Contains a copy of the dependencies used by the JXSE project.
+
+
+ \Old
+
+Contains old files and directories from earlier directory
+organization. Typically, these are obsolete and should only
+be accessed for historical reasons.
+
+
+ \src
+
+The JXSE core project source code organized according to 
+Maven principles.
+
+
+ \tutorial
+
+This repository contains tutorial code. Ideally, it should be
+refactored into a maven module of core project. It currently
+lives as a standalone maven project.
+
+
+ \web
+
+This directory contains an up-to-date copy of both websites
+created on Kenai: jxse.kenai.com and jxta.kenai.com
+
+
+ \www
+
+This directory contains website files related to the 
+https://jxta-jxse.dev.java.net/ website. It has not been 
+maintain and should be considered as historical information.

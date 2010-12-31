@@ -1,0 +1,120 @@
+<!--
+   Copyright (C) The Internet Society (2002).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+-->
+
+body {
+ color: black;
+ background-color: white;
+ margin-left: 1%; 
+ margin-right: 1%;
+ font-family:  serif;
+ text-align: justify;
+}
+
+.legalnotice {
+ font-family: monospace;
+}
+
+.legalnotice .emphasis {
+ font-weight: bold;
+ text-transform: uppercase;
+}
+
+
+tt.literal {
+ font-family: monospace;
+}
+
+span.rfc2119 {
+ text-transform: uppercase;
+ font-variant: small-caps;
+ font-weight: bold;
+ font-family: sans-serif;
+}
+
+.title {
+ font-family: sans-serif;
+ font-weight: bold;
+}
+
+.part .title {
+ font-variant: small-caps;
+}
+
+.chapter .title {
+ font-variant: normal;
+}
+
+.section div.section {
+ margin-left: 1em;
+}
+
+.section .section div.section {
+ margin-left: 1em;
+}
+
+.section td {
+ font-family: monospace;
+}
+
+.programlisting {
+ background-color: #EEEEEE;
+ margin-left: 0.0;
+ padding: 0.5cm;
+ font-family: monospace;
+ border: black 1px solid;
+ white-space: pre;
+}
+
+/* this is so that the classname in a prgram listing is bolded */
+.programlisting tt {
+ font-weight: bold;
+}
+
+/* the callouts are in an html table, to show them as red, the td needs to be red */
+.section .calloutlist td {
+ color: red;
+ font-family: sans-serif;
+}
+
+/* right-margin adj so that browser doesn't scroll
+   I think this has more to do with the width of the graphic(???)
+*/
+.calloutlist .programlisting {
+ color: red;
+ background-color: #EEEEEE;
+ margin-left: 0.0;
+ margin-right: 2.75cm;
+ padding: 0.5cm;
+ font-family: monospace;
+ border: black 1px solid;
+ white-space: pre;
+}
+
+.table p {
+ margin-bottom: 0.0cm;
+}
