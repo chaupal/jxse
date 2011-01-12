@@ -32,7 +32,16 @@
 
     <repositories>
 
-            <!-- Sonatype repository containing JXSE.jar for 2.7 -->
+            <!-- Sonatype repository containing JXSE.jar for 2.7-RC1 -->
+            <repository>
+                    <id>repository.oss.sonatype.org</id>
+                    <url>https://oss.sonatype.org/content/repositories/comkenaijxse-481/</url>
+                    <snapshots>
+                            <enabled>true</enabled>
+                    </snapshots>
+            </repository>
+
+            <!-- Sonatype repository containing JXSE.jar for 2.7-Beta -->
             <repository>
                     <id>repository.oss.sonatype.org</id>
                     <url>https://oss.sonatype.org/content/repositories/comkenaijxse-019/</url>
