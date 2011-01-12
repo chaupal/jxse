@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jxse</artifactId>
     <groupId>com.kenai.jxse</groupId>
-    <version>2.6-SNAPSHOT</version>
+    <version>2.6.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <parent>
@@ -189,7 +188,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <configuration>
-                    <passphrase/>
+                    <passphrase />
                 </configuration>
             </plugin>
 
@@ -339,8 +338,7 @@
                                 <phase>process-sources</phase>
                                 <configuration>
                                     <tasks>
-                                        <replace
-                                                file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+                                        <replace file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
                                             <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
                                             <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
                                         </replace>
@@ -371,8 +369,7 @@
                                 <phase>process-sources</phase>
                                 <configuration>
                                     <tasks>
-                                        <replace
-                                                file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
+                                        <replace file="src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java">
                                             <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
                                             <replacevalue><![CDATA[Collection<Callable<T>>]]></replacevalue>
                                         </replace>
@@ -433,10 +430,10 @@
                                     <tasks>
 
                                         <!-- Deleting kenai dir content -->
-                                        <delete dir="${project.build.directory}/kenai"/>
+                                        <delete dir="${project.build.directory}/kenai" />
 
                                         <!-- Making dir -->
-                                        <mkdir dir="${project.build.directory}/kenai"/>
+                                        <mkdir dir="${project.build.directory}/kenai" />
 
                                         <!-- Copying site (including online Javadoc)
                                           <copy todir="${project.build.directory}/kenai/site">
@@ -444,16 +441,13 @@
                                           </copy>   -->
 
                                         <!-- Tar-gz & zip dependencies -->
-                                        <tar destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar"
-                                             basedir="${project.basedir}/../lib"/>
+                                        <tar destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" basedir="${project.basedir}/../lib" />
 
-                                        <gzip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar.gz"
-                                              src="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar"/>
+                                        <gzip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar.gz" src="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
 
-                                        <delete file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar"/>
+                                        <delete file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
 
-                                        <zip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip"
-                                             basedir="${project.basedir}/../lib"/>
+                                        <zip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip" basedir="${project.basedir}/../lib" />
 
 
                                         <!-- Tar-gz & zip Javadoc
@@ -466,14 +460,11 @@
                                           <zip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.zip" basedir="${project.build.directory}/kenai/site/apidocs" /> -->
 
                                         <!-- Moving the src code packaging -->
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.tar.gz"
-                                              todir="${project.build.directory}/kenai"/>
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.zip"
-                                              todir="${project.build.directory}/kenai"/>
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.tar.gz" todir="${project.build.directory}/kenai" />
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}-project.zip" todir="${project.build.directory}/kenai" />
 
                                         <!-- Moving the .jar -->
-                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                              todir="${project.build.directory}/kenai"/>
+                                        <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" todir="${project.build.directory}/kenai" />
 
                                     </tasks>
                                 </configuration>
