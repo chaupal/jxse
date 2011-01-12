@@ -353,7 +353,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         if (endpParam == null) {
 
-            Logging.logCheckedSevere(LOG, "no Endpoint SVC Params");
+            Logging.logCheckedWarning(LOG, "no Endpoint SVC Params");
 
             // Return whatever we had so far.
             return localRoute;
