@@ -139,7 +139,7 @@ public final class CacheManager {
 
             } catch (Exception e) {
 
-                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property, constructing default\n", e);
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property: '" + CACHE_IMPL_SYSPROP + "', constructing default\n", e);
                 this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
 
             }
@@ -167,7 +167,7 @@ public final class CacheManager {
                     
             } catch (Exception e) {
 
-                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property, constructing default\n", e);
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property: '" + CACHE_IMPL_SYSPROP + "', constructing default\n", e);
                 this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager, gcinterval, trackDeltas);
 
             }
