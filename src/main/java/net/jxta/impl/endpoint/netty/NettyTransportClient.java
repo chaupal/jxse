@@ -1,5 +1,7 @@
 package net.jxta.impl.endpoint.netty;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +29,7 @@ import org.jboss.netty.util.HashedWheelTimer;
 
 /**
  * Client side of a netty based transport. Responsible for initiating outgoing connections.
- * 
+ *
  * @author Iain McGinniss (iain.mcginniss@onedrum.com)
  */
 public class NettyTransportClient implements MessageSender, TransportClientComponent {
@@ -45,25 +47,27 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
     }
 
     private static final Logger LOG = Logger.getLogger(NettyTransportClient.class.getName());
-    
+
     private EndpointAddress localAddress;
-    
+
     private PeerGroupID homeGroupID;
     private PeerID localPeerID;
     private EndpointService endpointService;
-    private MessengerEventListener messageEventListener;
     private AddressTranslator addrTranslator;
-    
+
     private ChannelGroup channels;
     private HashedWheelTimer timeoutTimer;
     private ChannelGroupFuture closeChannelsFuture;
     private AtomicBoolean started;
     private AtomicBoolean stopping;
-    
+
     private ChannelFactory clientFactory;
 
     private EndpointAddress returnAddress;
-    
+
+    private final Object messengerCreateSync = new Object();
+    private Map<String,Messenger> cachedMessengers = new HashMap<String, Messenger>();
+
     public NettyTransportClient(ChannelFactory clientFactory, AddressTranslator addrTranslator, PeerGroup group, EndpointAddress returnAddress) {
         this.started = new AtomicBoolean(false);
         this.stopping = new AtomicBoolean(false);
@@ -71,29 +75,29 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         this.addrTranslator = addrTranslator;
         this.clientFactory = clientFactory;
         this.returnAddress = returnAddress;
-        
+
         localAddress = returnAddress;
-        
+
         this.homeGroupID = group.getPeerGroupID();
         this.localPeerID = group.getPeerID();
-        
+
         timeoutTimer = new HashedWheelTimer();
     }
 
     public boolean start(EndpointService endpointService) {
         this.endpointService = endpointService;
-        messageEventListener = endpointService.addMessageTransport(this);
-        
+        MessengerEventListener messageEventListener = endpointService.addMessageTransport(this);
+
         if(messageEventListener == null) {
             return false;
         }
-        
+
         started.set(true);
         return true;
     }
-    
+
     public void beginStop() {
-        
+
         if(!started.get()) {
 
             Logging.logCheckedWarning(LOG, "Netty transport server for protocol ", addrTranslator.getProtocolName(), " already stopped or never started!");
@@ -105,7 +109,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         stopping.set(true);
 
     }
-    
+
     public void stop() {
 
         if(!stopping.get()) {
@@ -118,35 +122,50 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         closeChannelsFuture.awaitUninterruptibly();
         clientFactory.releaseExternalResources();
         timeoutTimer.stop();
-        
+
         endpointService.removeMessageTransport(this);
         endpointService = null;
 
     }
 
     public Messenger getMessenger(EndpointAddress dest, Object hint) {
-        
+
         if(!started.get()) {
 
             Logging.logCheckedWarning(LOG, "Request to get messenger for ", dest.toString(), " when netty transport client stopped or never started");
             return null;
 
         }
-        
+        Messenger messenger;
+        String key = dest.getProtocolName() + ":" + dest.getProtocolAddress();
+        synchronized (messengerCreateSync)
+        {
+            messenger = cachedMessengers.get(key);
+            if (messenger == null || messenger.isClosed())
+            {
+                messenger = createNewMessenger(dest);
+                cachedMessengers.put(key, messenger);
+            }
+        }
+        return messenger;
+    }
+
+    private Messenger createNewMessenger(EndpointAddress dest)
+    {
         Logging.logCheckedInfo(LOG, "processing request to open connection to ", dest);
-        
+
         ClientConnectionRegistrationHandler clientRegistry = new ClientConnectionRegistrationHandler();
-        
+
         ClientBootstrap bootstrap = new ClientBootstrap(clientFactory);
         bootstrap.setPipelineFactory(new NettyTransportChannelPipelineFactory(localPeerID, timeoutTimer, clientRegistry, addrTranslator, dest, returnAddress));
-        
+
         ChannelFuture connectFuture = bootstrap.connect(addrTranslator.toSocketAddress(dest));
-        
+
         try {
 
             if(!connectFuture.await(5000L, TimeUnit.MILLISECONDS)) {
                 if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                    LOG.log(Level.INFO, "Netty transport for protocol {0} failed to connect to {1} within acceptable time", 
+                    LOG.log(Level.INFO, "Netty transport for protocol {0} failed to connect to {1} within acceptable time",
                             new Object[] { addrTranslator.getProtocolName(), dest });
                 }
                 return null;
@@ -157,11 +176,11 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
             connectFuture.cancel();
             return null;
         }
-        
+
         if(!connectFuture.isSuccess()) {
 
             if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
-                Throwable cause = connectFuture.getCause();
+                @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"}) Throwable cause = connectFuture.getCause();
                 String causeString = (cause != null) ? cause.getMessage() : "cause unknown";
 				String message = String.format("Netty transport for protocol %s failed to connect to %s - %s", addrTranslator.getProtocolName(), dest, causeString);
                 LOG.log(Level.INFO, message);
@@ -170,7 +189,7 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
             return null;
 
         }
-        
+
         boolean established = false;
 
         try {
@@ -180,9 +199,9 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
         } catch(InterruptedException e) {
 
             Logging.logCheckedWarning(LOG, "Interrupted while waiting for connection handover\n", e);
-            
+
         }
-        
+
         if(!established) {
 
             Logging.logCheckedWarning(LOG, "Connection handover timed out - either remote host was not a valid JXTA peer or did not respond on time");
@@ -190,16 +209,16 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
             return null;
 
         }
-        
+
         if(Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, "succeeded in connecting to {0}, remote peer has logical address {1}", new Object[] { dest, clientRegistry.logicalEndpointAddress });
         }
-        
+
         channels.add(connectFuture.getChannel());
         // return new NettyMessenger(connectFuture.getChannel(), homeGroupID, localPeerID, clientRegistry.directedAt, clientRegistry.logicalEndpointAddress, endpointService);
         return new AsynchronousNettyMessenger(connectFuture.getChannel(), homeGroupID, localPeerID, clientRegistry.directedAt, clientRegistry.logicalEndpointAddress, endpointService);
     }
-    
+
     public boolean allowsRouting() {
         return true;
     }
@@ -210,11 +229,6 @@ public class NettyTransportClient implements MessageSender, TransportClientCompo
 
     public boolean isConnectionOriented() {
         return true;
-    }
-
-    @Deprecated
-    public boolean ping(EndpointAddress addr) {
-        throw new RuntimeException("ping is deprecated, do not use!");
     }
 
     public EndpointService getEndpointService() {
