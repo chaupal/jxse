@@ -82,6 +82,8 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
 
     protected final PeerGroup group;
     protected final EndpointService endpoint;
+    private int overFlowMessagesSinceLastLog = 0;
+    private final int logWhenOverflowed = 100;
 
     /**
      * ID of the remote peer.
@@ -156,11 +158,27 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
     public void messageSendFailed(OutgoingMessageEvent event) {
         // If it's just a case of queue overflow, ignore it, report warning
         if (event.getFailure() == null) {
-            final StringBuilder builder = createLogMessage(event);
-            LOG.warning(builder.toString());
+            if(LOG.isLoggable(Level.FINE))
+            {
+                final StringBuilder builder = createLogMessage(event);
+                LOG.fine(builder.toString());
+            }
+            else
+            {
+                if(overFlowMessagesSinceLastLog > logWhenOverflowed)
+                {
+                    logOverFlowedMessages();
+                }
+            }
             return;
         }
         setConnected(false);
+    }
+
+    private void logOverFlowedMessages()
+    {
+        LOG.warning("Overflowed " + overFlowMessagesSinceLastLog + " messages");
+        overFlowMessagesSinceLastLog = 0;
     }
 
     private StringBuilder createLogMessage(OutgoingMessageEvent event)
@@ -181,6 +199,10 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
      * {@inheritDoc}
      */
     public void messageSendSucceeded(OutgoingMessageEvent event) {// hurray!
+        if(overFlowMessagesSinceLastLog > 0)
+        {
+            logOverFlowedMessages();
+        }
     }
 
     /**

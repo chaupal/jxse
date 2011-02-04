@@ -70,7 +70,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,7 +95,6 @@ import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -136,12 +134,6 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * that wasn't needed after all.
      */
     public final static long ASYNC_MESSENGER_WAIT = 3L * TimeUtils.ASECOND;
-
-    /**
-     * MessageTransport Control operation
-     */
-    public final static Integer GET_ROUTE_CONTROL = 0; // Return RouteControl Object
-    public final static int RouteControlOp = 0; // Return RouteControl Object
 
     /**
      * MAX timeout (seconds) for route discovery after that timeout
@@ -626,7 +618,6 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 } else if (TransportUtils.isMarkedWithOverflow(message)) {
                     if (TransportUtils.isAnSRDIMessage(message))
                     {
-                        LOG.log(Level.WARNING, "messenger to {0} is saturated, retrying SRDI message", sendVia.getDestinationAddress());
                         TransportUtils.clearOverflowMarker(message);
                         try {
                             Thread.sleep(delayBeforeRetry);
@@ -640,6 +631,13 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                         return;
                     }
                 }
+                if (retries > 0)
+                {
+                    if (LOG.isLoggable(Level.WARNING))
+                    {
+                        LOG.log(Level.WARNING, "messenger to " + sendVia.getDestinationAddress() + " was saturated, retried " + retries + " before delivery");
+                    }
+                }
                 break;
             }
 
@@ -650,11 +648,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         // Now see why we're here.
         // If we're here for no other reason than failing to get a messenger
         // say so. Otherwise, report the failure from the last time we tried.
-        if (lastIoe == null) {
-            lastIoe = new IOException("No reachable endpoints for " + destination);
-        }
-
-        Logging.logCheckedFine(LOG, "Could not send to ", destination, "\n", lastIoe);
+        Logging.logCheckedFine(LOG, "Could not send to ", destination, "\n", new IOException("No reachable endpoints for " + destination));
 
         throw lastIoe;
     }
@@ -936,7 +930,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
             // to give a chance for the async messenger to respond (success or failure)
             long findRouteAt = TimeUtils.toAbsoluteTimeMillis(ASYNC_MESSENGER_WAIT);
 
-            EndpointAddress addr = null;
+            EndpointAddress addr;
 
             while (TimeUtils.toRelativeTimeMillis(quitAt) > 0) {
                 // Then check if by any chance we can talk to it directly.
@@ -1514,7 +1508,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
     public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
         EndpointAddress srcPeerAddress;
         EndpointAddress destPeer;
-        EndpointAddress lastHop = null;
+        EndpointAddress lastHop;
         boolean connectLastHop = false;
         EndpointAddress origSrcAddr;
         EndpointAddress origDstAddr;
@@ -2488,7 +2482,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      */
     static PeerID addr2pid(EndpointAddress addr) {
 
-        URI asURI = null;
+        URI asURI;
 
         try {
 

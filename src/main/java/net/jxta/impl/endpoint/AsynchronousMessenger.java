@@ -151,7 +151,6 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
                {
                    throw new IOException("Waited 60 secs for message delivery, giving up, must be an issue with channel");
                }
-               LOG.warning("Waiting for message send for "  + totalWaitTime);
             }
             if(!listener.isWriteSubmitted())
             {
@@ -161,6 +160,10 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
                 IOException failedWrite = new IOException("Failed to write message");
                 failedWrite.initCause(listener.getFailureCause());
                 throw failedWrite;
+            }
+            if (totalWaitTime > 500)
+            {
+                LOG.warning("Unexpectedly long time to deliver message " +  totalWaitTime + "ms greater than 500ms");
             }
         } catch(InterruptedException e) {
             IOException failure = new IOException("Interrupted while synchronously sending message");

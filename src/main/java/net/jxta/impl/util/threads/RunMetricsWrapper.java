@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import net.jxta.logging.Logging;
+import sun.util.LocaleServiceProviderPool;
 
 /**
  * Decorator for Callable instances which will monitor how long it takes before the callable
@@ -53,7 +54,9 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
         future.cancel(true);
         
         if(elapsedTime > 200 && Logging.SHOW_WARNING && SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
-            SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [{0}] took {1}ms to complete in the shared executor", new Object[] { getWrappedType(), elapsedTime });
+            if (SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
+                SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [" + getWrappedType() + "] took {" + elapsedTime + "}ms to complete in the shared executor");
+            }
         }
         
         return returnVal;
