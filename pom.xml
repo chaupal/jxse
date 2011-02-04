@@ -13,9 +13,9 @@
     </parent>
 
     <scm>
-        <connection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</connection>
-        <developerConnection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</developerConnection>
-        <url>http://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</url>
+        <connection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/branches/2.6.0.1</connection>
+        <developerConnection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/branches/2.6.0.1</developerConnection>
+        <url>http://jxta-jxse.dev.java.net/svn/jxta-jxse/branches/2.6.0.1</url>
     </scm>
 
     <name>JXSE</name>
