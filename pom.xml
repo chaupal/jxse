@@ -6,9 +6,9 @@
     <version>2.6.0.1</version>
     <packaging>bundle</packaging>
     <scm>
-        <connection>scm:svn:https://quolos-svn.cvsdude.com/quolos/tags/jxse-2.6.0.1</connection>
-        <developerConnection>scm:svn:https://quolos-svn.cvsdude.com/quolos/tags/jxse-2.6.0.1</developerConnection>
-        <url>https://quolos-svn.cvsdude.com/quolos/tags/jxse-2.6.0.1</url>
+        <connection>scm:svn:https://svn.java.net/svn/jxta-jxse~svn/branches/2.6.0.1</connection>
+        <developerConnection>scm:svn:https://svn.java.net/svn/jxta-jxse~svn/branches/2.6.0.1</developerConnection>
+        <url>https://svn.java.net/svn/jxta-jxse~svn/branches/2.6.0.1</url>
     </scm>
 
     <name>JXSE</name>
@@ -190,7 +190,7 @@
                 <version>2.0</version>
                 <configuration>
                     <preparationGoals>clean install</preparationGoals>
-                    <tagBase>https://quolos-svn.cvsdude.com/quolos/tags</tagBase>
+                    <tagBase>https://svn.java.net/svn/jxta-jxse~svn/tags</tagBase>
                 </configuration>
             </plugin>
 
