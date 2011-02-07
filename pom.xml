@@ -5,17 +5,10 @@
     <groupId>com.kenai.jxse</groupId>
     <version>2.6.0.1</version>
     <packaging>bundle</packaging>
-
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>3</version>
-    </parent>
-
     <scm>
-        <connection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/tags/jxse-2.6.0.1</connection>
-        <developerConnection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/tags/jxse-2.6.0.1</developerConnection>
-        <url>http://jxta-jxse.dev.java.net/svn/jxta-jxse/tags/jxse-2.6.0.1</url>
+        <connection>scm:svn:https://svn.java.net/svn/jxta-jxse~svn/branches/jxse-2.6.0.1</connection>
+        <developerConnection>scm:svn:https://svn.java.net/svn/jxta-jxse~svn/branches/jxse-2.6.0.1</developerConnection>
+        <url>https://svn.java.net/svn/jxta-jxse~svn/branches/jxse-2.6.0.1</url>
     </scm>
 
     <name>JXSE</name>
