@@ -596,8 +596,6 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
      * @throws java.io.IOException if an io error occurs
      */
     void sendOnLocalRoute(EndpointAddress destination, Message message) throws IOException {
-
-        IOException lastIoe = null;
         Messenger sendVia;
 
         // Try sending the message as long as we get have transport messengers
@@ -648,8 +646,9 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         // Now see why we're here.
         // If we're here for no other reason than failing to get a messenger
         // say so. Otherwise, report the failure from the last time we tried.
-        Logging.logCheckedFine(LOG, "Could not send to ", destination, "\n", new IOException("No reachable endpoints for " + destination));
 
+        IOException lastIoe = new IOException("No reachable endpoints for " + destination);
+        Logging.logCheckedFine(LOG, "Could not send to ", destination, "\n", lastIoe);
         throw lastIoe;
     }
 
