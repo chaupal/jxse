@@ -360,7 +360,10 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         
         synchronized (retrQ) {
             retrQ.notifyAll();
-            retransmitter.doRetransmitCheck();
+            if (retransmitter != null)
+            {
+                retransmitter.doRetransmitCheck();
+            }
         }
         
         Logging.logCheckedInfo(LOG, "Closed.");
