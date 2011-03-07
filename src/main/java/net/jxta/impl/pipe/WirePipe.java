@@ -67,6 +67,7 @@ import net.jxta.id.ID;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
+import net.jxta.impl.util.LimitedSizeMap;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -82,7 +83,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -101,7 +101,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     /**
      * The number of message ID we track to eliminate duplicate messages.
      */
-    private static final int MAX_RECORDED_MSGIDS = 250;
+    private static final int MAX_RECORDED_MSGIDS = 10000;
 
     private volatile boolean closed = false;
 
@@ -113,7 +113,6 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
     private final RendezVousService rendezvous;
     private final PeerID localPeerId;
     private NonBlockingWireOutputPipe repropagater;
-    int messagesReceived = 0;
 
     /**
      * Table of local input pipes listening on this pipe. Weak map (used as a
@@ -126,24 +125,10 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * The list of message ids we have already seen. The most recently seen
      * messages are at the end of the list.
      * <p/>
-     * XXX 20031102 bondolo@jxta.org: We might want to consider three
-     * performance enhancements:
-     * <p/>
-     * <ul>
-     * <li>Reverse the order of elements in the list. This would result
-     * in faster searching since the default strategy for ArrayList to
-     * search in index order. We are most likely to see duplicate messages
-     * amongst the messages we have seen recently. This would make
-     * additions more costly.</li>
-     * <p/>
-     * <li>When we do find a duplicate in the list, exchange it's location
-     * with the newest message in the list. This will keep annoying dupes
-     * close to the start of the list.</li>
-     * <p/>
-     * <li>When the array reaches MaxNbOfStoredIds treat it as a ring.</li>
-     * </ul>
+     * Change to a map which is shared across multiple wire pipes to reduce memory impact.
      */
-    private final List<UUID> msgIds = new ArrayList<UUID>(MAX_RECORDED_MSGIDS);
+
+    private static final Map<UUID, UUID> msgIdMap = Collections.synchronizedMap(new LimitedSizeMap<UUID, UUID>(MAX_RECORDED_MSGIDS));
 
     /**
      * Constructor
@@ -270,7 +255,6 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
         }
 
         wireinputpipes.clear();
-        msgIds.clear();
         wireService.forgetWirePipe(pipeAdv.getPipeID());
     }
 
@@ -438,6 +422,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
                 return;
             }
             if (null == repropagater) {
+                //noinspection unchecked
                 repropagater = wireService.createOutputPipe(pipeAdv, Collections.EMPTY_SET);
             }
         }
@@ -554,28 +539,6 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
                 msgid = UUIDFactory.newHashUUID(id.hashCode(), 0);
             }
         }
-        synchronized (msgIds) {
-
-            if (msgIds.contains(msgid)) {
-
-                // Already there. Nothing to do
-                Logging.logCheckedFine(LOG, "duplicate ", msgid);
-                return true;
-
-            }
-
-            if (msgIds.size() < MAX_RECORDED_MSGIDS) {
-                msgIds.add(msgid);
-            } else {
-                msgIds.set((messagesReceived % MAX_RECORDED_MSGIDS), msgid);
-            }
-
-            messagesReceived++;
-
-        }
-
-        Logging.logCheckedFine(LOG, "added ", msgid);
-        return false;
-        
+        return msgIdMap.put(msgid, msgid) != null;
     }
 }
