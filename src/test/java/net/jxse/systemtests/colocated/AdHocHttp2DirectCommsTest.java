@@ -51,5 +51,6 @@ public class AdHocHttp2DirectCommsTest {
 	@Test
 	public void testSimpleComms() throws Exception {
 		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+        SystemTestUtils.testPeerPropagatedCommunication(aliceManager, bobManager);
 	}
 }

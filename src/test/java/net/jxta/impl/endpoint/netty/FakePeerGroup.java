@@ -14,6 +14,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.pipe.WirePipe;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -212,6 +213,11 @@ public class FakePeerGroup implements PeerGroup {
     }
 
     public TaskManager getTaskManager() {
+        throw new RuntimeException("not implemented");
+    }
+
+    public WirePipe.IDCache getWirePipeIDCache()
+    {
         throw new RuntimeException("not implemented");
     }
 

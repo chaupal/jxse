@@ -82,5 +82,6 @@ public class RelayedHttpCommsTest {
 	@Test(timeout=30000)
 	public void testComms() throws Exception {
 		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+        SystemTestUtils.testPeerPropagatedCommunication(aliceManager, bobManager);
 	}
 }

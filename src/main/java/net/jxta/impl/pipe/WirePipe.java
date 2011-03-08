@@ -128,7 +128,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      * Change to a map which is shared across multiple wire pipes to reduce memory impact.
      */
 
-    private static final Map<UUID, UUID> msgIdMap = Collections.synchronizedMap(new LimitedSizeMap<UUID, UUID>(MAX_RECORDED_MSGIDS));
+    private final Map<UUID, UUID> msgIdMap;
 
     /**
      * Constructor
@@ -140,6 +140,7 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
      */
     public WirePipe(PeerGroup group, PipeResolver pipeResolver, WirePipeImpl wireService, PipeAdvertisement adv) {
         this.peerGroup = group;
+        msgIdMap = this.peerGroup.getWirePipeIDCache().msgIdMap;
         this.pipeResolver = pipeResolver;
         this.wireService = wireService;
         this.pipeAdv = adv;
@@ -540,5 +541,12 @@ public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
             }
         }
         return msgIdMap.put(msgid, msgid) != null;
+    }
+
+    public static final class IDCache
+    {
+        private final Map<UUID, UUID> msgIdMap = Collections.synchronizedMap(new LimitedSizeMap<UUID, UUID>(MAX_RECORDED_MSGIDS));
+        public IDCache()
+        {}
     }
 }

@@ -73,6 +73,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.pipe.WirePipe;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -1085,4 +1086,9 @@ public interface PeerGroup extends Service {
      * @return the task manager associated with this peer group.
      */
     public TaskManager getTaskManager();
+
+    /**
+     * FOR JXTA IMPLEMENTATION ONLY.
+     */
+    public WirePipe.IDCache getWirePipeIDCache();
 }

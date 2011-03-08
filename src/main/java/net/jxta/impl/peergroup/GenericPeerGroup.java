@@ -90,6 +90,7 @@ import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.loader.RefJxtaLoader;
+import net.jxta.impl.pipe.WirePipe;
 import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigFlag;
@@ -1666,6 +1667,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
     public TaskManager getTaskManager() {
         return parentGroup.getTaskManager();
         }
+
+    public WirePipe.IDCache getWirePipeIDCache()
+    {
+        return parentGroup.getWirePipeIDCache();
+    }
 
     @Deprecated
     public ThreadGroup getHomeThreadGroup() {

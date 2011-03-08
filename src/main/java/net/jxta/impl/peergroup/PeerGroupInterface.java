@@ -64,6 +64,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
+import net.jxta.impl.pipe.WirePipe;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
@@ -754,5 +755,15 @@ class PeerGroupInterface implements PeerGroup {
         }
         
         return temp.getTaskManager();
+    }
+
+    public WirePipe.IDCache getWirePipeIDCache() {
+        PeerGroup temp = groupImpl;
+
+        if(unrefed.get() || (null == temp)) {
+            throw new IllegalStateException("This Peer Group interface object has been unreferenced and can no longer be used. {" + instance + "}");
+        }
+
+        return temp.getWirePipeIDCache();
     }
 }

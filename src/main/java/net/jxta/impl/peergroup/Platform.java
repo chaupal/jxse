@@ -63,6 +63,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.impl.endpoint.mcast.McastTransport;
+import net.jxta.impl.pipe.WirePipe;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
@@ -100,6 +101,7 @@ public class Platform extends StdPeerGroup {
     private final static transient Logger LOG = Logger.getLogger(Platform.class.getName());
     private final GlobalRegistry globalRegistry = new GlobalRegistry();
     private final TaskManager taskManager = new TaskManager();
+    private WirePipe.IDCache idCache = new WirePipe.IDCache();
 
     /**
      *  Create and populate the default module impl Advertisement for this class.
@@ -273,6 +275,12 @@ public class Platform extends StdPeerGroup {
     public TaskManager getTaskManager() {
         return taskManager;
     }
+
+    @Override
+    public WirePipe.IDCache getWirePipeIDCache() {
+        return idCache;
+    }
+
     
     @Override
     public void stopApp() {

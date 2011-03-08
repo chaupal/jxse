@@ -1,9 +1,13 @@
 package net.jxse.systemtests.colocated;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -12,10 +16,8 @@ import net.jxta.document.AdvertisementFactory;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.id.IDFactory;
-import net.jxta.pipe.PipeID;
-import net.jxta.pipe.PipeMsgEvent;
-import net.jxta.pipe.PipeMsgListener;
-import net.jxta.pipe.PipeService;
+import net.jxta.peergroup.PeerGroup;
+import net.jxta.pipe.*;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.util.JxtaBiDiPipe;
@@ -51,6 +53,27 @@ public class SystemTestUtils {
         Message msg = new Message();
         msg.addMessageElement(TEST_NAMESPACE, new StringMessageElement(STRING_PAYLOAD_ELEMENT, payload, null));
         return msg;
+    }
+
+    public static void testPeerPropagatedCommunication(NetworkManager aliceManager, NetworkManager bobManager) throws IOException, InterruptedException
+    {
+        final CountDownLatch bobReceived = new CountDownLatch(1);
+        final String name = "testPropagate";
+        final InputPipe bobInput = createPropagatedInputPipe(bobManager, name, new PipeMsgListener()
+        {
+            public void pipeMsgEvent(PipeMsgEvent event)
+            {
+                bobReceived.countDown();
+            }
+        });
+        final OutputPipe aliceOut = createPropagatedOutputPipe(aliceManager, name);
+        assertEquals(aliceOut.getPipeID(), bobInput.getPipeID());
+        Thread.sleep(5000); //Pipe would not have been set up quickly
+        final Message testPayload = createMessage("TestPayload");
+        aliceOut.send(testPayload);
+        assertTrue(bobReceived.await(5, TimeUnit.SECONDS));
+        bobInput.close();
+        aliceOut.close();
     }
     
     public static void testPeerCommunication(NetworkManager aliceManager, NetworkManager bobManager) throws IOException, InterruptedException {
@@ -106,6 +129,36 @@ public class SystemTestUtils {
         return biDiPipe;
     }
 
+    private static PipeID getPipeID(PeerGroup pg, String name)
+    {
+        return IDFactory.newPipeID(pg.getPeerGroupID(), hash("collocatedTest"));
+    }
+
+    private static PipeAdvertisement createMulticastSocketAdvertisement(NetworkManager manager, String name)
+    {
+        PipeID socketID = getPipeID(manager.getNetPeerGroup(), name);
+
+        PipeAdvertisement advertisement = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(PipeAdvertisement
+                .getAdvertisementType());
+        advertisement.setPipeID(socketID);
+        // set to type to propagate
+        advertisement.setType(PipeService.PropagateType);
+        advertisement.setName(name);
+        return advertisement;
+    }
+
+    public static InputPipe createPropagatedInputPipe(NetworkManager manager, String name, PipeMsgListener listener) throws IOException
+    {
+        PipeAdvertisement adv = createMulticastSocketAdvertisement(manager, name);
+        return manager.getNetPeerGroup().getPipeService().createInputPipe(adv, listener);
+    }
+
+    public static OutputPipe createPropagatedOutputPipe(NetworkManager manager, String name) throws IOException
+    {
+        PipeAdvertisement adv = createMulticastSocketAdvertisement(manager, name);
+        return manager.getNetPeerGroup().getPipeService().createOutputPipe(adv, 50000);
+    }
+
 	private static JxtaBiDiPipe connectWithRetry(NetworkManager clientManager, 
 												 PipeAdvertisement pipeAdv, 
 												 PipeMsgListener clientListener) throws IOException {
@@ -120,5 +173,39 @@ public class SystemTestUtils {
 				}
 			}
 		}
+	}
+    private static byte[] hash(final String expression)
+	{
+		byte[] result;
+		MessageDigest digest;
+
+		if (expression == null)
+		{
+			throw new IllegalArgumentException("Invalid null expression");
+		}
+
+		try
+		{
+			digest = MessageDigest.getInstance("SHA1");
+		} catch (NoSuchAlgorithmException failed)
+		{
+			failed.printStackTrace(System.err);
+			RuntimeException failure = new IllegalStateException("Could not get SHA-1 Message");
+			failure.initCause(failed);
+			throw failure;
+		}
+
+		try
+		{
+			byte[] expressionBytes = expression.getBytes("UTF-8");
+			result = digest.digest(expressionBytes);
+		} catch (UnsupportedEncodingException impossible)
+		{
+			RuntimeException failure = new IllegalStateException("Could not encode expression as UTF8");
+
+			failure.initCause(impossible);
+			throw failure;
+		}
+		return result;
 	}
 }
