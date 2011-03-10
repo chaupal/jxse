@@ -291,8 +291,8 @@ public class SrdiManager implements RendezvousListener {
 
         }
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
-            group.getPeerGroupName(), handlername, peer));
+        Logging.logCheckedFine(LOG, "[{0} / {1}] Forwarding Query to {2}",
+            group.getPeerGroupName(), handlername, peer);
         
         resolver.sendQuery(peer.toString(), query);
     }
@@ -311,7 +311,7 @@ public class SrdiManager implements RendezvousListener {
         // FIXME: hardcoded constant
         if (query.getHopCount() > 2) {
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("hopCount exceeded not forwarding query {0}", query.getHopCount()));
+            Logging.logCheckedFine(LOG, "hopCount exceeded not forwarding query {0}", query.getHopCount());
             
             // query has been forwarded too many times
             return;
@@ -320,8 +320,8 @@ public class SrdiManager implements RendezvousListener {
 
         for (PeerID destPeer : peers) {
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding Query to {2}",
-                group.getPeerGroupName(), handlername, destPeer));
+            Logging.logCheckedFine(LOG, "[{0} / {1}] Forwarding Query to {2}",
+                group.getPeerGroupName(), handlername, destPeer);
             
             resolver.sendQuery(destPeer.toString(), query);
 
@@ -344,8 +344,8 @@ public class SrdiManager implements RendezvousListener {
         // FIXME: hardcoded constant
         if (query.getHopCount() > 2) {
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] hopCount exceeded ({2}) not forwarding query.",
-                group.getPeerGroupName(), handlername, query.getHopCount()));
+            Logging.logCheckedFine(LOG, "[{0} / {1}] hopCount exceeded ({2}) not forwarding query.",
+                group.getPeerGroupName(), handlername, query.getHopCount());
 
             // query has been forwarded too many times
             return;
@@ -406,7 +406,7 @@ public class SrdiManager implements RendezvousListener {
             int pos = (digest.multiply(sizeOfSpace)).divide(sizeOfHashSpace).intValue();
 
             pid = rpv.get(pos);
-            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Found a direct peer {2}", group.getPeerGroupName(), handlername, pid));
+            Logging.logCheckedFine(LOG, "[{0} / {1}] Found a direct peer {2}", group.getPeerGroupName(), handlername, pid);
             
             return pid;
 
@@ -436,8 +436,8 @@ public class SrdiManager implements RendezvousListener {
 
             ResolverSrdiMsgImpl resSrdi = new ResolverSrdiMsgImpl(handlername, credential, srdimsg.toString());
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName(),
-                handlername, primaryKey, peerid));
+            Logging.logCheckedFine(LOG, "[{0} / {1}] Forwarding a SRDI messsage of type {2} to {3}", group.getPeerGroupName(),
+                handlername, primaryKey, peerid);
             
             resolver.sendSrdi(peerid.toString(), resSrdi);
 
@@ -455,7 +455,7 @@ public class SrdiManager implements RendezvousListener {
 
         int theEventType = event.getType();
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("[{0} / {1}] Processing {2}", group.getPeerGroupName(), handlername, event));
+        Logging.logCheckedFine(LOG, "[{0} / {1}] Processing {2}", group.getPeerGroupName(), handlername, event);
 
         switch (theEventType) {
 
@@ -505,7 +505,7 @@ public class SrdiManager implements RendezvousListener {
 
             default:
 
-                Logging.logCheckedWarning(LOG, MessageFormat.format("[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event));
+                Logging.logCheckedWarning(LOG, "[{0} / {1}] Unexpected RDV event {2}", group.getPeerGroupName(), handlername, event);
                 break;
 
         }

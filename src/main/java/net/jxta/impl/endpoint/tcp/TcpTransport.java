@@ -972,7 +972,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                             Logging.logCheckedFine(LOG, "Key was cancelled\n", cke);
                         }
 
-                        Logging.logCheckedFine(LOG, MessageFormat.format("MessengerSelector has {0} selected keys", selectedKeys));
+                        Logging.logCheckedFine(LOG, "MessengerSelector has {0} selected keys", selectedKeys);
                         
                         if (selectedKeys == 0 && messengerSelector.selectNow() == 0) {
                             // We were probably just woken.
@@ -981,7 +981,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
                         Set<SelectionKey> keySet = messengerSelector.selectedKeys();
 
-                        Logging.logCheckedFine(LOG, MessageFormat.format("KeySet has {0} selected keys", keySet.size()));
+                        Logging.logCheckedFine(LOG,"KeySet has {0} selected keys", keySet.size());
 
                         Iterator<SelectionKey> it = keySet.iterator();
 
@@ -1007,7 +1007,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
                                         try {
                                             executor.execute(msgr);
                                         } catch (RejectedExecutionException re) {
-                                            Logging.logCheckedFine(LOG, MessageFormat.format("Executor rejected task for messenger :{0}", msgr.toString()),
+                                            Logging.logCheckedFine(LOG, "Executor rejected task for messenger :{0}", msgr.toString(),
                                                 "\n", re);
                                         }
                                     }
@@ -1090,7 +1090,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
     private synchronized void updateChannelRegisterations() {
 
         if (!regisMap.isEmpty() ) {
-            Logging.logCheckedFine(LOG, MessageFormat.format("Registering {0} channels with MessengerSelectorThread", regisMap.size()));
+            Logging.logCheckedFine(LOG, "Registering {0} channels with MessengerSelectorThread", regisMap.size());
         }
 
         if (!regisMap.isEmpty()) {
@@ -1110,7 +1110,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
                     key.interestOps(key.interestOps() | SelectionKey.OP_READ);
 
-                    Logging.logCheckedFiner(LOG, MessageFormat.format("Key interestOps on channel {0}, bit set :{1}", channel, key.interestOps()));
+                    Logging.logCheckedFiner(LOG, "Key interestOps on channel {0}, bit set :{1}", channel, key.interestOps());
 
                 } catch (ClosedChannelException e) {
 
@@ -1139,7 +1139,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
         // Unregister and close channels.
         if (!unregisMap.isEmpty()) {
-            Logging.logCheckedFine(LOG, MessageFormat.format("Unregistering {0} channels with MessengerSelectorThread", unregisMap.size()));
+            Logging.logCheckedFine(LOG, "Unregistering {0} channels with MessengerSelectorThread", unregisMap.size());
         }
 
         if (!unregisMap.isEmpty()) {

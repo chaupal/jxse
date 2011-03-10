@@ -424,7 +424,7 @@ public class StdPeerGroup extends GenericPeerGroup {
             progress = false;
             iterations++;
             
-            Logging.logCheckedFine(LOG, MessageFormat.format("Service startApp() round {0} of {1}(max)", iterations, maxIterations));
+            Logging.logCheckedFine(LOG, "Service startApp() round {0} of {1}(max)", iterations, maxIterations);
             
             Iterator<Map.Entry<ModuleClassID, Module>> eachService = services.entrySet().iterator();
             

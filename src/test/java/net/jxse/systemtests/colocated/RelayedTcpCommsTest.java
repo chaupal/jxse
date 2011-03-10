@@ -79,7 +79,7 @@ public class RelayedTcpCommsTest {
         relayManager.stopNetwork();
     }
 	
-	@Test(timeout=30000)
+	@Test
 	public void testComms() throws Exception {
 		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
         SystemTestUtils.testPeerPropagatedCommunication(aliceManager, bobManager);

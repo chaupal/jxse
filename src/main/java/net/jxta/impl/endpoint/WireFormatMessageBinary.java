@@ -246,8 +246,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                     anElement = readMessageElement(buffer);
 
-                    Logging.logCheckedFiner(LOG, MessageFormat.format("Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString(),
-                                buffer.toString()));
+                    Logging.logCheckedFiner(LOG, "Read element of size {0}, [{1}] {2}", anElement.length, anElement.toString(),
+                                buffer.toString());
 
                 } catch (IOException failed) {
 
@@ -415,7 +415,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             int namespaceCnt = buffer.getShort();
 
-            Logging.logCheckedFiner(LOG, MessageFormat.format("Message defines {0} namespaces buffer stats{1}", namespaceCnt, buffer.toString()));
+            Logging.logCheckedFiner(LOG, "Message defines {0} namespaces buffer stats{1}", namespaceCnt, buffer.toString());
 
             if (namespaceCnt > 253) {
 
@@ -648,7 +648,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             } else {
 
                 value = new byte[dataLen];
-                Logging.logCheckedFiner(LOG, MessageFormat.format("expecting {0} bytes, Buffer stats {1}", dataLen, buffer.toString()));
+                Logging.logCheckedFiner(LOG, "expecting {0} bytes, Buffer stats {1}", dataLen, buffer.toString());
                 buffer.get(value);
 
             }
@@ -778,7 +778,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 partBuffers.addAll(Arrays.asList(anElement.getByteBuffers()));
             }
             
-            Logging.logCheckedFiner(LOG, MessageFormat.format("Returning {0} buffers for {1}", partBuffers.size(), message));
+            Logging.logCheckedFiner(LOG, "Returning {0} buffers for {1}", partBuffers.size(), message);
 
             return partBuffers.toArray(new ByteBuffer[partBuffers.size()]);
 
@@ -801,8 +801,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             InputStream theStream = new SequenceInputStream(Collections.enumeration(streamParts));
 
-            Logging.logCheckedFiner(LOG, MessageFormat.format("Returning {0}@{1} for {2}", theStream.getClass().getName(),
-                        System.identityHashCode(theStream), message));
+            Logging.logCheckedFiner(LOG, "Returning {0}@{1} for {2}", theStream.getClass().getName(),
+                        System.identityHashCode(theStream), message);
 
             return theStream;
             

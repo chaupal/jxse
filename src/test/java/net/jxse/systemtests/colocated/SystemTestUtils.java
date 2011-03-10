@@ -72,6 +72,10 @@ public class SystemTestUtils {
         final Message testPayload = createMessage("TestPayload");
         aliceOut.send(testPayload);
         assertTrue(bobReceived.await(5, TimeUnit.SECONDS));
+//        for (int i = 0 ; i < 100000; i++)
+//        {
+//            aliceOut.send(testPayload);
+//        }
         bobInput.close();
         aliceOut.close();
     }

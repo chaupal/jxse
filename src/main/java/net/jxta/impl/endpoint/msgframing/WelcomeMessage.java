@@ -273,13 +273,13 @@ public class WelcomeMessage {
     public boolean read(ByteBuffer buffer) throws IOException {
         int limit = buffer.limit();
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("Reading a buffer of size :{0}", limit));
+        Logging.logCheckedFine(LOG, "Reading a buffer of size :{0}", limit);
         
         if (limit == 0) throw new IOException(MessageFormat.format("Invalid welcome message. Invalid length {0}", limit));
         
         int eomPos = findEom(buffer, 0, limit);
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("Buffer size :{0} Welcome End-Of-Message pos :{1}", limit, eomPos));
+        Logging.logCheckedFine(LOG, "Buffer size :{0} Welcome End-Of-Message pos :{1}", limit, eomPos);
         
         if (eomPos < 0) return false;
         
@@ -292,7 +292,7 @@ public class WelcomeMessage {
             // skip <cr><ln>
             buffer.position(eomPos + 2);
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("buffer stats :{0}", buffer.toString()));
+            Logging.logCheckedFine(LOG, "buffer stats :{0}", buffer.toString());
             
         } catch (BufferUnderflowException buf) {
 
@@ -452,7 +452,7 @@ public class WelcomeMessage {
      */
     public ByteBuffer getByteBuffer() throws IOException {
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("Sending welcome message of size:{0}", welcomeBytes.length + 2));
+        Logging.logCheckedFine(LOG, "Sending welcome message of size:{0}", welcomeBytes.length + 2);
         
         ByteBuffer buffer = ByteBuffer.allocate(welcomeBytes.length + 2);
 

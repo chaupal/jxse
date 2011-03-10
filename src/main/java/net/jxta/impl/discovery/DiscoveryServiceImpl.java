@@ -1534,7 +1534,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
             default:
 
-                Logging.logCheckedWarning(LOG, MessageFormat.format("[{0}] Unexpected RDV event : {1}", group.getPeerGroupName(), event));
+                Logging.logCheckedWarning(LOG, "[{0}] Unexpected RDV event : {1}", group.getPeerGroupName(), event);
                 break;
                 
         }

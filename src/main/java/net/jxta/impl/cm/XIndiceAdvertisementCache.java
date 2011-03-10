@@ -508,16 +508,16 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
         if (expiresin <= 0) {
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("Record expired lifetime   : {0} expiration: {1} expires in: {2}", life, exp, expiresin));
-            Logging.logCheckedFine(LOG, MessageFormat.format("Record expired on :{0}", new Date(life)));
+            Logging.logCheckedFine(LOG, "Record expired lifetime   : {0} expiration: {1} expires in: {2}", life, exp, expiresin);
+            Logging.logCheckedFine(LOG, "Record expired on :{0}", new Date(life));
 
             // The record has spent more time in cache than required (as of now in time).
             return -1;
 
         } else {
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("Record lifetime: {0} expiration: {1} expires in: {2}", life, exp, expiresin));
-            Logging.logCheckedFine(LOG, MessageFormat.format("Record expires on :{0}", new Date(life)));
+            Logging.logCheckedFine(LOG, "Record lifetime: {0} expiration: {1} expires in: {2}", life, exp, expiresin);
+            Logging.logCheckedFine(LOG, "Record expires on :{0}", new Date(life));
 
             // The record should stay in cache a little longer, but not more than
             // the default maximum amount of relative time it should live in cache
@@ -728,8 +728,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 if (absoluteLifetime < oldLife) {
 
                     // make sure we don't override the original value
-                    Logging.logCheckedFine(LOG, MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
-                        new Date(oldLife), new Date(absoluteLifetime)));
+                    Logging.logCheckedFine(LOG, "Overriding attempt to decrease adv lifetime from : {0} to :{1}",
+                        new Date(oldLife), new Date(absoluteLifetime));
                     
                     absoluteLifetime = oldLife;
                 }
@@ -757,7 +757,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
         } catch (DBException de) {
 
-            Logging.logCheckedWarning(LOG, MessageFormat.format("Failed to write {0}/{1} {2} {3}", dn, fn, lifetime, expiration), "\n", de);
+            Logging.logCheckedWarning(LOG, "Failed to write {0}/{1} {2} {3}\n{4}", dn, fn, lifetime, expiration, de);
             IOException failure = new IOException("Failed to write " + dn + "/" + fn + " " + lifetime + " " + expiration);
             failure.initCause(de);
             throw failure;
@@ -812,8 +812,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 if (absoluteLifetime < oldLife) {
 
                     // make sure we don't override the original value
-                    Logging.logCheckedFine(LOG, MessageFormat.format("Overriding attempt to decrease adv lifetime from : {0} to :{1}",
-                        new Date(oldLife), new Date(absoluteLifetime)));
+                    Logging.logCheckedFine(LOG, "Overriding attempt to decrease adv lifetime from : {0} to :{1}",
+                        new Date(oldLife), new Date(absoluteLifetime));
 
                     // We make sure we don't shorten existing lifetime
                     absoluteLifetime = oldLife;

@@ -302,7 +302,7 @@ public class MessagePackageHeader {
      */
     public boolean readHeader(ByteBuffer buffer) throws IOException {
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("Parsing Package Header from byte buffer :{0}", buffer.toString()));
+        Logging.logCheckedFine(LOG, "Parsing Package Header from byte buffer :{0}", buffer.toString());
         
         int count = getHeaderCount(buffer);
 
@@ -319,7 +319,7 @@ public class MessagePackageHeader {
             byte[] headerValueBytes = new byte[headerValueLength];
             
             buffer.get(headerValueBytes);
-            Logging.logCheckedFiner(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
+            Logging.logCheckedFiner(LOG, "Adding Name {0}: {1}", headerNameString, headerValueBytes);
 
             headers.add(new Header(headerNameString, headerValueBytes));
 
@@ -327,7 +327,7 @@ public class MessagePackageHeader {
         
         // get the end-of-pkg
         buffer.get();
-        Logging.logCheckedFiner(LOG, MessageFormat.format("Parsed {0} header elements, buffer stats :{1}", count, buffer.toString()));
+        Logging.logCheckedFiner(LOG, "Parsed {0} header elements, buffer stats :{1}", count, buffer.toString());
 
         return true;
     }

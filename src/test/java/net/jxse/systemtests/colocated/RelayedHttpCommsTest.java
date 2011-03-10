@@ -82,6 +82,7 @@ public class RelayedHttpCommsTest {
 	@Test(timeout=30000)
 	public void testComms() throws Exception {
 		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+        //Newly added propagated pipes test does not work on HTTP?
         SystemTestUtils.testPeerPropagatedCommunication(aliceManager, bobManager);
 	}
 }

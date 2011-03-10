@@ -546,7 +546,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         
         is.close();
         
-        Logging.logCheckedFine(LOG, MessageFormat.format("Loaded #{0} seeds from : {1}", result.size(), seedingURI));
+        Logging.logCheckedFine(LOG, "Loaded #{0} seeds from : {1}", result.size(), seedingURI);
         
         return result.toArray(new RouteAdvertisement[result.size()]);
 

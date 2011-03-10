@@ -662,8 +662,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 transportBindingMeter.messageSent(initiator, msg, TimeUtils.timeNow() - sendBeginTime, written);
             }
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("Sent {0} bytes {1} successfully via {2}:{3}", written, msg,
-                inetAddress.getHostAddress(), port));
+            Logging.logCheckedFine(LOG, "Sent {0} bytes {1} successfully via {2}:{3}", written, msg,
+                inetAddress.getHostAddress(), port);
             
             tcpTransport.incrementBytesSent(written);
             tcpTransport.incrementMessagesSent();
@@ -725,7 +725,7 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
                     if (wroteBytes < 0) throw new EOFException();
                     
-                    Logging.logCheckedFiner(LOG, MessageFormat.format("Wrote {0} bytes", wroteBytes));
+                    Logging.logCheckedFiner(LOG, "Wrote {0} bytes", wroteBytes);
                     
                 } while (wroteBytes != 0);
 
@@ -845,12 +845,12 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             header = new MessagePackageHeader();
         }
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("{0} Processing message package header, buffer stats:{1}", Thread.currentThread(), buffer.toString()));
+        Logging.logCheckedFine(LOG, "{0} Processing message package header, buffer stats:{1}", Thread.currentThread(), buffer.toString());
         
         try {
 
             if (!header.readHeader(buffer)) {
-                Logging.logCheckedFine(LOG, MessageFormat.format("{0} maintaining current state at header, buffer stats :{1}", Thread.currentThread(), buffer.toString()));
+                Logging.logCheckedFine(LOG, "{0} maintaining current state at header, buffer stats :{1}", Thread.currentThread(), buffer.toString());
                 return false;
             }
 
@@ -868,8 +868,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         }
 
-        Logging.logCheckedFine(LOG, MessageFormat.format("{0} setting current state to body, Buffer stats :{1}, remaining elements {2}:",
-            Thread.currentThread(), buffer.toString(), buffer.remaining()));
+        Logging.logCheckedFine(LOG, "{0} setting current state to body, Buffer stats :{1}, remaining elements {2}:",
+            Thread.currentThread(), buffer.toString(), buffer.remaining());
         
         return true;
     }
@@ -924,15 +924,15 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         try {
             
-            Logging.logCheckedFine(LOG, MessageFormat.format("{0} State before read(): {1}, buffer stats : {2}, remaining :{3}",
-                Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining()));
+            Logging.logCheckedFine(LOG, "{0} State before read(): {1}, buffer stats : {2}, remaining :{3}",
+                Thread.currentThread(), state.get(), buffer.toString(), buffer.remaining());
 
             int read = socketChannel.read(buffer);
             if (read < 0) {
 
                 if (!socketChannel.isConnected() || read < 0) {
 
-                    Logging.logCheckedFine(LOG, MessageFormat.format("{0} Closing due to EOF", Thread.currentThread()));
+                    Logging.logCheckedFine(LOG, "{0} Closing due to EOF", Thread.currentThread());
                     Logging.logCheckedWarning(LOG, "SocketChannel is not connected. closing connection");
                     closeImpl();
 
@@ -951,8 +951,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
             // prepare the buffer for reading
             buffer.flip();
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("{0} SocketChannel.read() == {1} bytes. Buffer stats:{2}, remaining {3}",
-                Thread.currentThread(), read, buffer.toString(), buffer.remaining()));
+            Logging.logCheckedFine(LOG, "{0} SocketChannel.read() == {1} bytes. Buffer stats:{2}, remaining {3}",
+                Thread.currentThread(), read, buffer.toString(), buffer.remaining());
             
             return true;
 
@@ -965,8 +965,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
         } catch (InterruptedIOException woken) {
 
             // Framing is maintained within this object, therefore a read maybe interrupted then resumed
-            Logging.logCheckedWarning(LOG, MessageFormat.format("tcp receive - interrupted : read() {0} {1}:{2}",
-                woken.bytesTransferred, inetAddress.getHostAddress(), port));
+            Logging.logCheckedWarning(LOG, "tcp receive - interrupted : read() {0} {1}:{2}",
+                woken.bytesTransferred, inetAddress.getHostAddress(), port);
             
         } catch (IOException ioe) {
 
@@ -1000,8 +1000,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         while (!done) {
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("{0} processBuffer({1}). Buffer stats:{2}, elements remaining {3}",
-                Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining()));
+            Logging.logCheckedFine(LOG, "{0} processBuffer({1}). Buffer stats:{2}, elements remaining {3}",
+                Thread.currentThread(), state.getClass(), buffer.toString(), buffer.remaining());
 
             switch (state.get()) {
 
@@ -1033,8 +1033,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                         ByteBuffer src = buffer;
 
                         // create an array backed buffer
-                        Logging.logCheckedFine(LOG, MessageFormat.format("{0} Reallocating a new buffer of size {1} to replace :{2}",
-                            Thread.currentThread(), header.getContentLengthHeader(), buffer.toString()));
+                        Logging.logCheckedFine(LOG, "{0} Reallocating a new buffer of size {1} to replace :{2}",
+                            Thread.currentThread(), header.getContentLengthHeader(), buffer.toString());
 
                         // This implementation limits the message size to the MTU which is always < 2GB
                         buffer = ByteBuffer.allocate((int) header.getContentLengthHeader());
@@ -1047,8 +1047,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
                 case BODY:
 
                     // process the message body
-                    Logging.logCheckedFine(LOG, MessageFormat.format(" {0} Proccessing Message Body. expecting {1}, {2} elements remaining {3}",
-                        Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining()));
+                    Logging.logCheckedFine(LOG, " {0} Proccessing Message Body. expecting {1}, {2} elements remaining {3}",
+                        Thread.currentThread(), header.getContentLengthHeader(), buffer.toString(), buffer.remaining());
                     
                     if (buffer.remaining() >= (int) header.getContentLengthHeader()) {
                         
@@ -1106,9 +1106,9 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
         public void run() {
 
-            Logging.logCheckedFine(LOG, MessageFormat.format("{0} calling EndpointService.demux({1})",
+            Logging.logCheckedFine(LOG, "{0} calling EndpointService.demux({1})",
                 Thread.currentThread(),
-                msg, inetAddress.getHostAddress(), port));
+                msg, inetAddress.getHostAddress(), port);
 
             tcpTransport.endpoint.processIncomingMessage(msg);
 

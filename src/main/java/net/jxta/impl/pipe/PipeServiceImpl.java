@@ -574,8 +574,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 					} else {
 
                                             Logging.logCheckedWarning(LOG,
-                                                MessageFormat.format("rejecting local pipe ({0}) because type is not ({1})",
-                                                    local.getType(), pipeAdv.getType()));
+                                                "rejecting local pipe ({0}) because type is not ({1})",
+                                                    local.getType(), pipeAdv.getType());
 						
 					}
 				}
