@@ -397,7 +397,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
 
         synchronized (retrQ) {
             retrQ.notifyAll();
-            retransmitter.doRetransmitCheck();
+            if ( retransmitter != null ) {
+                retransmitter.doRetransmitCheck();
+            }
         }
 
         Logging.logCheckedInfo(LOG, "Closed.");
@@ -1065,7 +1067,9 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                 rwindow = fc.ackEventEnd(rmaxQSize, aveRTT, fallBackDt);
             }
             retrQ.notifyAll();
-            retransmitter.doRetransmitCheck();
+            if ( retransmitter != null ) {
+                retransmitter.doRetransmitCheck();
+            }
         }
     }
 
