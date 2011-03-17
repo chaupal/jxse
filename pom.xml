@@ -3,7 +3,7 @@
 
     <artifactId>jxse</artifactId>
     <groupId>com.kenai.jxse</groupId>
-    <version>2.7-RC1</version>
+    <version>2.7</version>
     <packaging>bundle</packaging>
 
     <parent>
@@ -95,6 +95,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.6</target>
@@ -137,6 +138,7 @@
 
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
 
                 <executions>
                     <execution>
@@ -160,7 +162,7 @@
 
                     <!-- Don't remove skip, it is sometimes necessary to
                       disactivate tests for the Sonatype OSS release. -->
-                    <skip>false</skip>
+                    <skip>true</skip>
 
                 </configuration>
             </plugin>
@@ -168,10 +170,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.1</version>
                 <configuration>
                     <passphrase />
                 </configuration>
-                <version>1.1</version>
             </plugin>
 
         </plugins>
@@ -187,13 +189,13 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.3</version>
+            <version>2.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.13</version>
+            <version>1.2.16</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -427,7 +429,6 @@
                                         <delete file="${project.build.directory}/kenai/lib-dependencies-${project.version}.tar" />
                                         <zip destfile="${project.build.directory}/kenai/lib-dependencies-${project.version}.zip" basedir="${basedir}/lib" />
 
-
                                         <!-- Tar-gz & zip Javadoc -->
                                         <tar destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" basedir="${project.build.directory}/apidocs" />
                                         <gzip destfile="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar.gz" src="${project.build.directory}/kenai/${project.artifactId}-${project.version}-javadoc.tar" />
@@ -520,4 +521,3 @@
     </profiles>
 
 </project>
-
