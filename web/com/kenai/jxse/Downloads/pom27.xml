@@ -32,19 +32,10 @@
 
     <repositories>
 
-            <!-- Sonatype repository containing JXSE.jar for 2.7-RC1 -->
+            <!-- Sonatype repository containing JXSE.jar for 2.7 -->
             <repository>
                     <id>repository.oss.sonatype.org</id>
-                    <url>https://oss.sonatype.org/content/repositories/comkenaijxse-481/</url>
-                    <snapshots>
-                            <enabled>true</enabled>
-                    </snapshots>
-            </repository>
-
-            <!-- Sonatype repository containing JXSE.jar for 2.7-Beta -->
-            <repository>
-                    <id>repository.oss.sonatype.org</id>
-                    <url>https://oss.sonatype.org/content/repositories/comkenaijxse-019/</url>
+                    <url>https://oss.sonatype.org/content/repositories/comkenaijxse-014/</url>
                     <snapshots>
                             <enabled>true</enabled>
                     </snapshots>
@@ -75,7 +66,7 @@
             <dependency>
                     <groupId>com.kenai.jxse</groupId>
                     <artifactId>jxse</artifactId>
-                    <version>2.7-Beta</version>
+                    <version>2.7</version>
             </dependency>
 
             <dependency>
