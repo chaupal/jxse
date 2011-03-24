@@ -36,13 +36,12 @@ class LongTaskDetector implements Runnable {
                 stackTrace.append('\n');
             }
             
-            TaskManager.LOG.log(Level.WARNING, "task of type [{0}] still running after {1}ms in thread {2}, current stack:\n{3}", 
-                    new Object[] { 
-                        taskToMonitor.getWrappedType(), 
-                        taskToMonitor.getExecutionTime(), 
-                        taskToMonitor.getExecutorThreadName(),
+            TaskManager.LOG.log(Level.WARNING, "task of type [" + taskToMonitor.getWrappedType()
+                    + "] still running after {" + taskToMonitor.getExecutionTime()
+                    + "}ms in thread {"+ taskToMonitor.getExecutorThreadName()
+                    +"}, current stack:",
                         stackTrace
-                    });
+                    );
         }
     }
 }
