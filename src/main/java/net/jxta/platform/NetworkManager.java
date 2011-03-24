@@ -67,7 +67,6 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.StringAuthenticator;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
@@ -641,13 +640,6 @@ public class NetworkManager implements RendezvousListener {
         if ( TheFile == null )
             Logging.logCheckedSevere(LOG, "Attempting to recursively delete a NULL directoy");
 
-        if ( TheFile.isDirectory() ) {
-            try {
-                Logging.logCheckedFine(LOG, "Recursively deleting: ", TheFile.getCanonicalPath());
-            } catch (IOException ex) {
-                Logging.logCheckedSevere(LOG, "Cannot retrieve canonical path:", ex);
-            }
-        }
 
         File[] SubFiles = TheFile.listFiles();
 

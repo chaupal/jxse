@@ -62,7 +62,6 @@ import net.jxta.document.XMLDocument;
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.JxtaError;
 import net.jxta.exception.PeerGroupException;
-import net.jxta.impl.peergroup.Platform;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 import java.io.File;
@@ -257,7 +256,7 @@ public final class PeerGroupFactory {
     @Deprecated
     public static void setConfiguratorClass(Class c) {
 
-        Logging.logCheckedFine(LOG, "Setting configurator class to : ", c);
+
         configurator = c;
 
     }
@@ -477,8 +476,7 @@ public final class PeerGroupFactory {
 
                     tunables = new NetPeerGroupFactory.NetGroupTunables(rsrcs, tunables);
 
-                    Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
-                    
+
                 } catch (MissingResourceException ignored) {
                     
                 } catch (IOException ignored) {

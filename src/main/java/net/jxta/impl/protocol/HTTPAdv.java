@@ -66,9 +66,8 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
-import net.jxta.logging.Logging;
 import net.jxta.protocol.TransportAdvertisement;
-import java.util.logging.Level;
+
 import java.util.logging.Logger;
 
 import java.util.Arrays;
@@ -211,7 +210,8 @@ public class HTTPAdv extends TransportAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
 
         }

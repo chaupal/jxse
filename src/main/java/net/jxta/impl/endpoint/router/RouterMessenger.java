@@ -64,7 +64,6 @@ import net.jxta.logging.Logging;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -172,8 +171,8 @@ class RouterMessenger extends BlockingMessenger {
                 sendTo = router.addressMessage(message, dest);
 
                 if (null == sendTo) break;
-                
-                Logging.logCheckedFine(LOG, "Sending ", message, " to ", sendTo);
+
+
                 router.sendOnLocalRoute(sendTo, message);
 
                 // it worked! We are done.
@@ -238,7 +237,7 @@ class RouterMessenger extends BlockingMessenger {
 
         // Kind of stupid. Have to convert the runtime exceptions so that we
         // can re-throw them.
-        Logging.logCheckedFine(LOG, "Messenger failed:\n", lastFailure);
+
 
         if (lastFailure instanceof IOException) {
             throw (IOException) lastFailure;

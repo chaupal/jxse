@@ -129,7 +129,6 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         StringBuilder theString = new StringBuilder();
 
@@ -215,7 +214,6 @@ public abstract class TextMessageElement extends MessageElement implements TextD
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         long len = getCharLength();
 

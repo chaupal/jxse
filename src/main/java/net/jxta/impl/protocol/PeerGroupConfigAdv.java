@@ -60,13 +60,11 @@ package net.jxta.impl.protocol;
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -210,7 +208,8 @@ public final class PeerGroupConfigAdv extends ExtendableAdvertisement implements
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
 
         }

@@ -412,10 +412,8 @@ public class SimpleACLAccessService implements AccessService {
                 
                 allowed.add(anIdentity);
             }
-            
-            Logging.logCheckedFine(LOG, "Adding operation  : \'", ((null == operation) ? "<<DEFAULT>>" : operation),
-                "\' with ", allowed.size(), " identities.");
-            
+
+
             ACLs.put(operation, allowed);
         }
     }

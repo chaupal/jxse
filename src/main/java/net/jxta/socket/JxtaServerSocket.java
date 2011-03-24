@@ -80,7 +80,6 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -316,7 +315,6 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
         try {
 
-            Logging.logCheckedFine(LOG, "Waiting for a connection");
 
             while (true) {
 
@@ -335,7 +333,7 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
                 // make sure we have a socket returning
                 if (socket != null) {
 
-                    Logging.logCheckedFine(LOG, "New socket connection ", socket);
+
                     return socket;
 
                 } else {
@@ -569,7 +567,6 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
         } catch (InterruptedException woken) {
 
-            Logging.logCheckedFine(LOG, "Interrupted\n", woken);
 
         }
 
@@ -592,7 +589,6 @@ public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
         PeerAdvertisement remotePeerAdv = null;
         Credential credential = null;
 
-        Logging.logCheckedFine(LOG, "Processing a connection message : ", msg);
 
         try {
             MessageElement el = msg.getMessageElement(MSG_ELEMENT_NAMESPACE, reqPipeTag);

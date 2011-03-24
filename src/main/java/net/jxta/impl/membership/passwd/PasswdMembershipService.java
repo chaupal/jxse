@@ -474,10 +474,6 @@ public class PasswdMembershipService implements MembershipService {
          * {@inheritDoc}
          */
         synchronized public boolean isReadyForJoin() {
-            if ( null == password )
-                Logging.logCheckedFine(LOG, "null password");
-            if ( null == password )
-                Logging.logCheckedFine(LOG, "null whoami");
             return ((null != password) && (null != whoami));
         }
         
@@ -645,7 +641,7 @@ public class PasswdMembershipService implements MembershipService {
                 int lastDelim = etcPasswd.indexOf(':', nextDelim + 1);
                 String passwd = etcPasswd.substring(nextDelim + 1, lastDelim);
 
-                Logging.logCheckedFine(LOG, "Adding login : \'", login, "\' with encoded password : \'", passwd, "\'");
+
                 logins.put(login, passwd);
 
             }
@@ -820,8 +816,8 @@ public class PasswdMembershipService implements MembershipService {
         }
         
         String encodedPW = makePsswd(passwd);
-        Logging.logCheckedFine(LOG, "Password \'", passwd, "\' encodes as: \'", encodedPW, "\'");
-        
+
+
         String mustMatch = (String) logins.get(identity);
         
         // if there is a null password for this identity then match everything.

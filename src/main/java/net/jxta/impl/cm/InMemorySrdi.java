@@ -204,8 +204,7 @@ public class InMemorySrdi implements SrdiAPI {
                         break;
                     }
 
-                    Logging.logCheckedFine(LOG, "Expired: ", exp, " is less than:", now );
-                    
+
                     HashMap items = (HashMap)this.expiryIndex.get( exp );
 
                     ArrayList<IndexItem> removalKeys = new ArrayList<IndexItem>();
@@ -239,10 +238,9 @@ public class InMemorySrdi implements SrdiAPI {
 	
 	                            this.peeridValueIndex.insert( item.getTreeKey(), pids );
 	                        }
-	
-	                        Logging.logCheckedFine(LOG, "TST size: ", this.peeridValueIndex.getSize());
-	                        
-                                removalKeys.add( item );
+
+
+                            removalKeys.add( item );
 
 	                    }
 	
@@ -460,7 +458,6 @@ public class InMemorySrdi implements SrdiAPI {
 
         stoppedCheck();
 
-        Logging.logCheckedFine(LOG, "[", indexName, "] Adding ", pkey, "/", skey, " = \'", value, "\' for ", pid );
 
         String treeKey = pkey + "\u0800" + skey + "\u0801" + value;
 

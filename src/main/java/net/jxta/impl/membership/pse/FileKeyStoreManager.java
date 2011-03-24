@@ -68,7 +68,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -205,7 +204,6 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
 
         try {
 
@@ -243,8 +241,7 @@ public class FileKeyStoreManager implements KeyStoreManager {
      */
     public void saveKeyStore(KeyStore store, char[] password) throws KeyStoreException, IOException {
 
-        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
-        
+
         try {
             OutputStream os = new FileOutputStream(keystore_location);
 

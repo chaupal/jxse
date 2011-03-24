@@ -326,13 +326,13 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        Logging.logCheckedFine(LOG, "processIncomingMessage : Received message from: ", srcAddr);
 
         // extract the Crypto info from the message
         MessageElement cryptoElement = message.getMessageElement(CBJX_MSG_NS, CBJX_MSG_INFO);
 
         if (cryptoElement == null) {
-            Logging.logCheckedFine(LOG, "processIncomingMessage : No \'", CBJX_MSG_INFO, "\' in the message");
+
+
             return;
         }
 
@@ -364,7 +364,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
         // give back the message to the endpoint
         try {
 
-            Logging.logCheckedFine(LOG, "processIncomingMessage: delivering ", submessage, " to: ", cryptoInfo.getDestinationAddress());
+
             endpoint.processIncomingMessage(submessage, cryptoInfo.getSourceAddress(), cryptoInfo.getDestinationAddress());
 
         } catch (Throwable all) {
@@ -384,7 +384,6 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
      */
     public Message addCryptoInfo(Message submessage, EndpointAddress destAddress) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Building CBJX wrapper for ", submessage);
 
         // Remove all existing CbJx Elements from source
         Iterator eachCbJxElement = submessage.getMessageElementsOfNamespace(CbJxTransport.CBJX_MSG_NS);
@@ -425,7 +424,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
 
         } catch (Throwable e) {
 
-            Logging.logCheckedFine(LOG, "failed to sign ", submessage, "\n", e);
+
             return null;
 
         }
@@ -453,7 +452,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
 
         } catch (Throwable e) {
 
-            Logging.logCheckedFine(LOG, "failed to sign", submessage, "\n", e);
+
             return null;
 
         }
@@ -523,8 +522,7 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
 
             }
 
-            Logging.logCheckedFine(LOG, "CBID of the message is valid");
-            
+
         } catch (Throwable e) {
 
             Logging.logCheckedWarning(LOG, "failed to verify cbid\n", e);
@@ -601,7 +599,8 @@ public class CbJxTransport implements Module, MessageSender, MessageReceiver, En
                 MessageElement cryptoElement = message.getMessageElement(CBJX_MSG_NS, CBJX_MSG_INFO);
 
                 if (cryptoElement == null) {
-                    Logging.logCheckedFine(LOG, "No \'", CBJX_MSG_INFO, "\' in the message");
+
+
                     return null;
                 }
 

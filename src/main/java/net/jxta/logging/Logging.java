@@ -57,7 +57,6 @@
 package net.jxta.logging;
 
 import java.io.PrintStream;
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -243,21 +242,7 @@ public final class Logging {
         }
 
     }
-    /**
-     * This method checks whether {@code SHOW_FINE} is set to {@code true),
-     * and whether the provided logger allows fine messages. If yes, the
-     * message is logged.
-     *
-     * @param inLog a logger
-     * @param inMsg the messages to concatenate
-     */
-    public static void logCheckedFine(Logger inLog, String format, Object... inMsg) {
 
-        if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
-            inLog.fine(MessageFormat.format(format, inMsg));
-        }
-
-    }
 
     /**
      * This method checks whether {@code SHOW_FINER} is set to {@code true),
@@ -277,21 +262,6 @@ public final class Logging {
 
     }
 
-    /**
-     * This method checks whether {@code SHOW_FINER} is set to {@code true),
-     * and whether the provided logger allows finer messages. If yes, the
-     * message is logged.
-     *
-     * @param inLog a logger
-     * @param inMsg the messages to concatenate
-     */
-    public static void logCheckedFiner(Logger inLog, String format, Object... inMsg) {
-
-        if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
-            inLog.finer(MessageFormat.format(format, inMsg));
-        }
-
-    }
 
     /**
      * This method checks whether {@code SHOW_FINEST} is set to {@code true),
@@ -325,15 +295,6 @@ public final class Logging {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.info(Msg.toString());
-        }
-
-    }
-
-    public static void logCheckedInfo(Logger inLog, String format, Object... inMsg) {
-
-        if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO))
-        {
-            inLog.info(MessageFormat.format(format, inMsg));
         }
 
     }
@@ -383,10 +344,11 @@ public final class Logging {
      * @param inLog a logger
      * @param inMsg the messages to concatenate
      */
-    public static void logCheckedWarning(Logger inLog, String format,Object... inMsg) {
+    public static void logCheckedWarning(Logger inLog, String inMsg, Throwable t) {
 
         if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
-            inLog.warning(MessageFormat.format(format, inMsg));
+            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            inLog.log(Level.WARNING,inMsg, t);
         }
 
     }

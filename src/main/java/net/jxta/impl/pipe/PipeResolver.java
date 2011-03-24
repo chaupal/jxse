@@ -74,7 +74,6 @@ import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.SrdiMessageImpl;
 import net.jxta.impl.resolver.InternalQueryHandler;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -221,7 +220,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             if (MembershipService.DEFAULT_CREDENTIAL_PROPERTY.equals(evt.getPropertyName())) {
 
-                Logging.logCheckedFine(LOG, "New default credential event");
 
                 synchronized (PipeResolver.this) {
                     Credential cred = (Credential) evt.getNewValue();
@@ -433,7 +431,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         }
 
         String responseDest = query.getSrcPeer().toString();
-        Logging.logCheckedFine(LOG, "Starting for :", query.getQueryId(), " from ", srcAddr);
+
 
         Reader queryReader = new StringReader(query.getQuery());
         StructuredTextDocument doc = null;
@@ -444,8 +442,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
         } catch (IOException e) {
 
-            Logging.logCheckedFine(LOG, "discarding malformed request\n", e);
-            
+
             // no sense in re-propagation here
             return ResolverService.OK;
 
@@ -469,8 +466,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
         } catch (IllegalArgumentException badDoc) {
 
-            Logging.logCheckedFine(LOG, "discarding malformed request\n", badDoc);
-            
+
             // no sense in re-propagation here
             return ResolverService.OK;
 
@@ -483,8 +479,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         // is it a query?
         if (!pipeQuery.getMsgType().equals(MessageType.QUERY)) {
 
-            Logging.logCheckedFine(LOG, "expected query - discarding.");
-            
+
             // no sense in re-propagation here
             return ResolverService.OK;
 
@@ -510,15 +505,14 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
                 if (query.getSrcPeer().toString().equals(queryFrom)) {
 
                     // we only respond if the original src was not the query forwarder
-                    Logging.logCheckedFine(LOG, "discarding query. Query not for us.");
+
 
                     // tell the resolver no further action is needed.
                     return ResolverService.OK;
 
                 }
 
-                Logging.logCheckedFine(LOG, "responding to \'misdirected\' forwarded query.");
-                
+
                 responseDest = queryFrom;
 
             }
@@ -543,7 +537,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
                 if (!results.isEmpty()) {
 
-                    Logging.logCheckedFine(LOG, "forwarding query to ", results.size(), " peers");
+
                     srdiManager.forwardQuery(results, query);
 
                     // tell the resolver no further action is needed.
@@ -560,15 +554,14 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
                 if (query.getSrcPeer().toString().equals(queryFrom)) {
 
                     // we only respond if the original src was not the query forwarder
-                    Logging.logCheckedFine(LOG, "discarding query.");
+
 
                     // tell the resolver no further action is needed.
                     return ResolverService.OK;
 
                 }
 
-                Logging.logCheckedFine(LOG, "responding to query forwarded for \'misdirected\' query.");
-                
+
                 responseDest = queryFrom;
 
             }
@@ -599,7 +592,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         }
         res.setResponse(pipeResp.getDocument(MimeMediaType.XMLUTF8).toString());
 
-        Logging.logCheckedFine(LOG, "Sending answer for query \'", query.getQueryId(), "\' to : ", responseDest);
+
         resolver.sendResponse(responseDest, res);
 
         return ResolverService.OK;
@@ -617,7 +610,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      */
     public void processResponse(ResolverResponseMsg response, EndpointAddress srcAddr) {
 
-        Logging.logCheckedFine(LOG, "got a response for \'", response.getQueryId(), "\'");
 
         Reader resp = new StringReader(response.getResponse());
         StructuredTextDocument doc = null;
@@ -629,7 +621,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
         } catch (Throwable e) {
 
-            Logging.logCheckedFine(LOG, "malformed response - discard\n", e);
+
             return;
 
         } finally {
@@ -651,7 +643,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
         } catch (Throwable caught) {
 
-            Logging.logCheckedFine(LOG, "malformed response - discarding.\n", caught);
+
             return;
 
         } finally {
@@ -663,7 +655,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         // check if it's a response.
         if (!pipeResp.getMsgType().equals(MessageType.ANSWER)) {
 
-            Logging.logCheckedFine(LOG, "expected response - discarding.");
+
             return;
 
         }
@@ -696,7 +688,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             if (!pipeResp.isFound()) {
 
-                Logging.logCheckedFine(LOG, "NACK for pipe \'", ipId, "\' from peer ", peer);
 
                 // We have received a NACK. Remove that entry.
                 srdiIndex.add(pipeResp.getPipeType(), PipeAdvertisement.IdTag, ipId, peer, 0);
@@ -707,8 +698,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
                 if ((PipeServiceImpl.VERIFYINTERVAL / 2) > exp) {
 
-                    Logging.logCheckedFine(LOG, "Using Expiration ", (PipeServiceImpl.VERIFYINTERVAL / 2), " which is > ", exp);
-                    
+
                     // create antry only if one does not exist,or entry exists with
                     // lesser lifetime
                     // cache the result for half the verify interval
@@ -717,8 +707,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
                 } else {
 
-                    Logging.logCheckedFine(LOG, "DB Expiration ", exp, " > ", (PipeServiceImpl.VERIFYINTERVAL / 2)
-                        + " overriding attempt to decrease lifetime");
 
                 }
             }
@@ -751,12 +739,14 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         }
 
         if (message == null) {
-            Logging.logCheckedFine(LOG, "no SRDI message");
+
+
             return false;
         }
 
         if (message.getPayload() == null) {
-            Logging.logCheckedFine(LOG, "empty SRDI message");
+
+
             return false;
         }
 
@@ -771,12 +761,12 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         } catch (Throwable e) {
 
             // we don't understand this msg, let's skip it
-            Logging.logCheckedFine(LOG, "Invalid SRDI message\n", e);
+
+
             return false;
 
         }
 
-        Logging.logCheckedFine(LOG, "Received an SRDI messsage with ", srdiMsg.getEntries().size(), " entries from ", srdiMsg.getPeerID());
 
         for (Object o : srdiMsg.getEntries()) {
             Entry entry = (Entry) o;
@@ -873,7 +863,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             }
 
-            Logging.logCheckedFine(LOG, "Registering local InputPipe for ", pipeID);
+
             localInputPipes.put(pipeID, ip);
 
         }
@@ -895,14 +885,14 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      */
     public InputPipe findLocal(PipeID pipeID) {
 
-        Logging.logCheckedFine(LOG, "Find local InputPipe for ", pipeID);
 
         // First look if the pipe is a local InputPipe
         InputPipe ip = localInputPipes.get(pipeID);
 
         // Found it.
         if (null != ip) {
-            Logging.logCheckedFine(LOG, "found local InputPipe for ", pipeID);
+
+
         }
 
         return ip;
@@ -915,7 +905,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
         PipeID pipeID = (PipeID) pipe.getPipeID();
 
-        Logging.logCheckedFine(LOG, "Unregistering local InputPipe for ", pipeID);
 
         // Unconditionally announce the change to SRDI.
         // FIXME 20040529 bondolo This is overkill, it should be able to wait
@@ -970,7 +959,8 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         boolean alreadyThere = perpipelisteners.containsKey(queryID);
 
         if (!alreadyThere) {
-            Logging.logCheckedFine(LOG, "adding listener for ", pipeID, " / ", queryID);
+
+
             perpipelisteners.put(queryID, listener);
         }
 
@@ -1003,7 +993,10 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
                 if (null == perpipelisteners) {
 
                     if (ANYQUERY != qid)
-                        Logging.logCheckedFine(LOG, "No listener for pipe ", pipeID);
+                    {
+
+
+                    }
 
                     break;
 
@@ -1015,7 +1008,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             if (null != pipeListener) {
 
-                Logging.logCheckedFine(LOG, "Calling Pipe resolver listener ", (NAK ? "NAK " : ""), "for ", pipeID);
 
                 try {
 
@@ -1055,7 +1047,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
             return null;
         }
 
-        Logging.logCheckedFine(LOG, "removing listener for ", pipeID, " / ", queryID);
 
         Listener removedListener = perpipelisteners.remove(queryID);
 
@@ -1080,8 +1071,7 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
         // choose a query id if non-prechosen.
         if (0 == queryID) queryID = getNextQueryID();
 
-        Logging.logCheckedFine(LOG, (acceptablePeers.isEmpty() ? "Undirected" : "Directed"), " query (", queryID, ") for ", adv.getPipeID());
-        
+
         Collection<? extends ID> targetPeers = new ArrayList<ID>(acceptablePeers);
 
         // check local srdiManager to see if we have a potential answer
@@ -1099,7 +1089,8 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
             // we will send a directed query to ONLY those peers.
             if (!knownLocations.isEmpty()) {
                 targetPeers = knownLocations;
-                Logging.logCheckedFine(LOG, "Using SRDI cache results for directed query (", queryID, ") for ", adv.getPipeID());
+
+
             }
 
         }
@@ -1169,7 +1160,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
      */
     private void pushSrdi(PeerID peer, boolean all) {
 
-        Logging.logCheckedFine(LOG, "Pushing ", (all ? "all" : "deltas"), " SRDI to ", peer);
 
         Map<String, List<Entry>> types = new HashMap<String, List<Entry>>();
 
@@ -1191,7 +1181,6 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             List<Entry> entries = types.get(type);
 
-            Logging.logCheckedFine(LOG, "Sending a Pipe SRDI messsage in ", myGroup.getPeerGroupID(), " of ", entries.size(), " entries of type ", type);
 
             SrdiMessage srdiMsg = new SrdiMessageImpl(myGroup.getPeerID(), 1, type, entries);
 
@@ -1223,15 +1212,11 @@ class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, Sr
 
             if (myGroup.isRendezvous()) {
 
-                Logging.logCheckedFine(LOG, "Replicating a", (adding ? "n add" : " remove"),
-                        " Pipe SRDI entry for pipe [", ip.getPipeID(), "] of type ", ip.getType());
 
                 srdiManager.replicateEntries(srdiMsg);
 
             } else {
 
-                Logging.logCheckedFine(LOG, "Sending a", (adding ? "n add" : " remove")
-                    + " Pipe SRDI messsage for pipe [" + ip.getPipeID() + "] of type " + ip.getType());
 
                 srdiManager.pushSrdi(null, srdiMsg);
 

@@ -59,7 +59,6 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.RdvAdvertisement;
@@ -68,7 +67,6 @@ import net.jxta.protocol.RouteAdvertisement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -161,7 +159,8 @@ public class RdvAdv extends RdvAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
             
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
 
         }

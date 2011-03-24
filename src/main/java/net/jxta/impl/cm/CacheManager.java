@@ -59,6 +59,7 @@ package net.jxta.impl.cm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,33 +125,52 @@ public final class CacheManager {
 	 * XXX yet another pool floating around.  SingleThreadExecutor is used in the default impl.
      * @throws IOException 
      */
-    public CacheManager(URI storeRoot, String areaName, TaskManager taskManager) throws IOException {
+    public CacheManager(URI storeRoot, String areaName, TaskManager taskManager) throws IOException
+    {
 
-    	String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
-    	
-        if(cacheImpl == null) {
-    	    this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
-    	} else {
-            try {
+        String cacheImpl = System.getProperty(CACHE_IMPL_SYSPROP);
+
+        if (cacheImpl == null)
+        {
+            this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
+        }
+        else
+        {
+            try
+            {
                 Class<?> cacheClass = Class.forName(cacheImpl);
                 Class<? extends AdvertisementCache> cacheClassChecked = cacheClass.asSubclass(AdvertisementCache.class);
                 Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class, TaskManager.class);
                 this.wrappedImpl = constructor.newInstance(storeRoot, areaName, taskManager);
 
-            } catch (Exception e) {
-
-                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property: '" + CACHE_IMPL_SYSPROP + "', constructing default\n", e);
+            }
+            catch (InvocationTargetException e)
+            {
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property: '" + CACHE_IMPL_SYSPROP + "', constructing default\n", e.getTargetException());
                 this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
 
             }
-    	}
+            catch (Exception e)
+            {
+
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property: '" + CACHE_IMPL_SYSPROP + "', constructing default\n", e);
+                this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
+            }
+            finally
+            {
+                if (this.wrappedImpl == null)
+                {
+                    this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
+                }
+            }
+        }
     }
 
-    /**
-     * Creates a Cm which wraps a {@link XIndiceAdvertisementCache } constructed with the
-     * provided parameters.
-     * @throws IOException 
-     */
+        /**
+        * Creates a Cm which wraps a {@link XIndiceAdvertisementCache } constructed with the
+        * provided parameters.
+        * @throws IOException
+        */
     
     public CacheManager(URI storeRoot, String areaName, TaskManager taskManager, long gcinterval, boolean trackDeltas) throws IOException {
     	
@@ -165,11 +185,25 @@ public final class CacheManager {
                 Constructor<? extends AdvertisementCache> constructor = cacheClassChecked.getConstructor(URI.class, String.class, TaskManager.class, long.class, boolean.class);
                 this.wrappedImpl = constructor.newInstance(storeRoot, areaName, taskManager, gcinterval, trackDeltas);
                     
-            } catch (Exception e) {
+            }
+            catch (InvocationTargetException e)
+            {
+                Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property: '" + CACHE_IMPL_SYSPROP + "', constructing default\n", e.getTargetException());
+                this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
+
+            }
+            catch (Exception e)
+            {
 
                 Logging.logCheckedSevere(LOG, "Unable to construct cache type [", cacheImpl, "] specified by system property: '" + CACHE_IMPL_SYSPROP + "', constructing default\n", e);
-                this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager, gcinterval, trackDeltas);
-
+                this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
+            }
+            finally
+            {
+                if (this.wrappedImpl == null)
+                {
+                    this.wrappedImpl = new XIndiceAdvertisementCache(storeRoot, areaName, taskManager);
+                }
             }
     	}
     }

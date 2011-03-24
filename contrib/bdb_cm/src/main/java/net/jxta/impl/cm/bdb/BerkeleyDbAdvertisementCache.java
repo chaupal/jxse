@@ -87,9 +87,8 @@ public class BerkeleyDbAdvertisementCache implements AdvertisementCache {
 	
 	public BerkeleyDbAdvertisementCache(URI storeRoot, String areaName, TaskManager taskManager, boolean enablePeriodicClean) throws IOException {
 
-		Logging.logCheckedFine(LOG, "Creating BDB cache within [" + storeRoot.toString() + "], areaName = [" + areaName + "]");
-		
-		this.areaName = areaName;
+
+        this.areaName = areaName;
 
 		File dbHome = createStoreRoot(storeRoot);
 		

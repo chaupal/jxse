@@ -97,7 +97,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.endpoint.router.RouteController;
-import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 
 /**
@@ -406,7 +405,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
                 if ((cachedMessenger.getState() & Messenger.TERMINAL) != 0) {
 
-                    Logging.logCheckedFine(LOG, "Closing TERMINAL internal messenger : attempting requested connect.");
+
                     cachedMessenger.close();
                     cachedMessenger = null;
 
@@ -749,7 +748,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
                 if (null == filtered) {
 
-                    Logging.logCheckedFine(LOG, "   message ", myMsg, " discarded upon filter decision");
 
                     if (EndpointMeterBuildSettings.ENDPOINT_METERING) metrics.numFilteredOut++;
                     
@@ -918,7 +916,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             if (localPeerId.equals(srcPeer)) {
 
                 // This is a loopback. Discard.
-                Logging.logCheckedFine(LOG, msg, " is a propagate loopback. Discarded");
 
                 if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                     endpointMeter.discardedLoopbackDemuxMessage();
@@ -980,8 +977,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // If processFilters retuns null, the message is to be discarded.
         if (msg == null) {
 
-            Logging.logCheckedFine(LOG, "Message discarded during filter processing");
-            
+
             if (EndpointMeterBuildSettings.ENDPOINT_METERING && (endpointMeter != null)) {
                 endpointMeter.incomingMessageFilteredOut();
             }
@@ -1018,9 +1014,11 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         try {
 
             if (null != decodedServiceParam) {
-                Logging.logCheckedFine(LOG, "Calling listener for \'", decodedServiceName, "/", decodedServiceParam, "\' with ", msg);
+
+
             } else {
-                Logging.logCheckedFine(LOG, "Calling listener for \'", decodedServiceName, "\' with ", msg);
+
+
             }
 
             listener.processIncomingMessage(msg, srcAddress, demangledAddress);
@@ -1196,7 +1194,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             while (allAddresses.hasNext()) {
 
                 EndpointAddress anEndpointAddress = allAddresses.next();
-                Logging.logCheckedFine(LOG, "Adding endpoint address to route advertisement : ", anEndpointAddress);
+
+
                 ea.add(anEndpointAddress.toString());
 
             }
@@ -1300,7 +1299,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
             while (allAddresses.hasNext()) {
 
                 EndpointAddress anEndpointAddress = allAddresses.next();
-                Logging.logCheckedFine(LOG, "Removing endpoint address from route advertisement : ", anEndpointAddress);
+
+
                 ea.add(anEndpointAddress.toString());
 
             }
@@ -1600,7 +1600,8 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         // Try our ancestors enpoints, if any.
 
         if (parentEndpoint == null) {
-            Logging.logCheckedFine(LOG, "Could not create messenger for : ", addr);
+
+
             return null;
         }
 
@@ -1637,12 +1638,14 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         Messenger messenger = null;
 
         if (sender != null) {
-            Logging.logCheckedFine(LOG, "Trying address \'", addr, "\' with : ", sender);
+
+
             messenger = sender.getMessenger(addr, hint);
         }
 
         if (messenger == null) {
-            Logging.logCheckedFine(LOG, "Couldn\'t create messenger for : ", addr);
+
+
         }
 
         return messenger;
@@ -1727,9 +1730,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         Messenger messengerForHere;
         EndpointAddress connAddr = event.getConnectionAddress();
 
-        Logging.logCheckedFine(LOG, "New ", messenger, " for : ",
-                    messenger.getDestinationAddress(), " (",
-                    messenger.getLogicalDestinationAddress(), ")");
 
         int highestPrec = EndpointService.HighPrecedence;
         int lowestPrec = EndpointService.LowPrecedence;
@@ -1816,7 +1816,6 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     if (listener.messengerReady(newMessenger)) {
 
                         // A listener has taken the messenger. we're done.
-                        Logging.logCheckedFine(LOG, newMessenger, " claimed by ", listener);
 
                         return true;
 
@@ -1831,7 +1830,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
         }
 
         // Note that the messenger was not wanted.
-        Logging.logCheckedFine(LOG, "Nobody cared about ", event);
+
 
         return false;
     }

@@ -90,7 +90,6 @@ import java.security.spec.KeySpec;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -187,7 +186,6 @@ public final class PSEUtils {
 
             if (null == issuerinfo) {
 
-                Logging.logCheckedFine(LOG, "Generating Self Signed Cert ...");
 
                 if (!cn.endsWith("-CA")) {
                     useCN = cn + "-CA";
@@ -197,7 +195,7 @@ public final class PSEUtils {
 
             } else {
 
-                Logging.logCheckedFine(LOG, "Generating Client Cert ...");
+
                 useCN = cn;
 
             }
@@ -301,9 +299,11 @@ public final class PSEUtils {
 
             // dump the certificate?
             if (null == issuer) {
-                Logging.logCheckedFine(LOG, "Root Cert : \n", info.cert);
+
+
             } else {
-                Logging.logCheckedFine(LOG, "Client Cert : \n", info.cert);
+
+
             }
 
             return info;
@@ -788,8 +788,6 @@ public final class PSEUtils {
 
         String encoded = base64.toString();
 
-        Logging.logCheckedFiner(LOG, "Encoded ", in.length, " bytes -> ", encoded.length(), " characters.");
-        
         return encoded;
     }
 
@@ -814,8 +812,6 @@ public final class PSEUtils {
         } while (true);
 
         byte[] result = bos.toByteArray();
-
-        Logging.logCheckedFiner(LOG, "Decoded ", result.length, " bytes.");
 
         return result;
     }

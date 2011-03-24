@@ -169,7 +169,6 @@ class HttpMessageSender implements MessageSender {
      */
     public Messenger getMessenger(EndpointAddress destAddr, Object hintIgnored) {
 
-        Logging.logCheckedFine(LOG, "getMessenger for : ", destAddr);
 
         if (!getProtocolName().equals(destAddr.getProtocolName())) {
 

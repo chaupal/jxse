@@ -64,21 +64,16 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredTextDocument;
-import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.SrdiMessage;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -275,9 +270,8 @@ public class SrdiMessageImpl extends SrdiMessage {
                     addEntry(entry);
 
                 } else {
-                    
-                    Logging.logCheckedFine(LOG, "SrdiMessage Entry with a Null value");
-                    
+
+
                 }
             }
         }

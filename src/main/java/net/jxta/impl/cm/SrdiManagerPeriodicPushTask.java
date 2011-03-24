@@ -89,9 +89,8 @@ public class SrdiManagerPeriodicPushTask implements Runnable {
     public void start() {
 
         if(!stopped) return;
-        
-        Logging.logCheckedFine(LOG, handlerName, ": Periodic Srdi delta push starting, delay = ", pushIntervalInMs, "ms");
-        
+
+
         stopped = false;
         publishAll = true;
         selfHandle = executorService.scheduleWithFixedDelay(this, 0L, pushIntervalInMs, TimeUnit.MILLISECONDS);
@@ -102,7 +101,6 @@ public class SrdiManagerPeriodicPushTask implements Runnable {
         
         if(stopped) return;
 
-        Logging.logCheckedFine(LOG, handlerName, ": Periodic Srdi delta push stopping");
 
         stopped = true;
         selfHandle.cancel(false);
@@ -113,7 +111,6 @@ public class SrdiManagerPeriodicPushTask implements Runnable {
 
         try {
 
-            Logging.logCheckedFiner(LOG, handlerName, ": Pushing ", (publishAll ? "all entries" : "deltas"));
             pushNotifier.pushEntries(publishAll);
             publishAll = false;
 

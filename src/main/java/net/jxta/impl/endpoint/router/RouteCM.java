@@ -346,8 +346,7 @@ class RouteCM implements Module {
                 return;
             }
         }
-        
-        Logging.logCheckedFine(LOG, "try to publish route ");
+
 
         // we need to retrieve the current adv to get all the known
         // endpoint addresses
@@ -364,7 +363,8 @@ class RouteCM implements Module {
             
             if (!advs.hasMoreElements()) {
                 // No route, sorry
-                Logging.logCheckedFine(LOG, "could not find a route advertisement ", realPeerID);
+
+
                 return;
             }
             
@@ -392,7 +392,8 @@ class RouteCM implements Module {
                 advs = discovery.getLocalAdvertisements(DiscoveryService.ADV, RouteAdvertisement.DEST_PID_TAG, realPeerID);
                 if (!advs.hasMoreElements()) {
                     // No route, sorry
-                    Logging.logCheckedFine(LOG, "could not find a route advertisement for hop ", realPeerID);
+
+
                     return;
                 }
                 adv = advs.nextElement();
@@ -408,9 +409,8 @@ class RouteCM implements Module {
             }
             
             newRoute.setHops(newHops);
-            
-            Logging.logCheckedFine(LOG, "publishing new route \n", newRoute.display());
-            
+
+
             lruCache.put(route.getDestPeerID(), route);
 
             // XXX 20060106 bondolo These publication values won't be obeyed if
@@ -441,9 +441,8 @@ class RouteCM implements Module {
                 return;
             }
         }
-        
-        Logging.logCheckedFine(LOG, "Publishing route for ", route.getDestPeerID());
-        
+
+
         // publish route adv
         if (!lruCache.contains(route.getDestPeerID())) {
             
@@ -509,7 +508,7 @@ class RouteCM implements Module {
             try {
 
                 discovery.flushAdvertisement(adv);
-                Logging.logCheckedFine(LOG, "removed RouteAdvertisement for ", peerIDStr);
+
 
             } catch (IOException ex) {// protect against flush IOException when the entry is not there
 
@@ -539,7 +538,8 @@ class RouteCM implements Module {
             // ok so let's delete the advertisement
             try {
                 discovery.flushAdvertisement(adv);
-                Logging.logCheckedFine(LOG, "removed PeerAdvertisement for ", peerIDStr);
+
+
             } catch (IOException ex) {// protect against flush IOException when the entry is not there
             }
         }
@@ -595,7 +595,8 @@ class RouteCM implements Module {
                 return true;
             }
         } catch (Exception e) {
-            Logging.logCheckedFine(LOG, "  failure to publish route advertisement response\n", e);
+
+
         }
         return false;
     }

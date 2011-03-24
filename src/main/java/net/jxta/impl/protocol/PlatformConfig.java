@@ -67,7 +67,6 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -166,7 +165,8 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
             XMLElement elem = elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
 
         }

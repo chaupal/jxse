@@ -74,7 +74,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -302,8 +301,7 @@ public class MessagePackageHeader {
      */
     public boolean readHeader(ByteBuffer buffer) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Parsing Package Header from byte buffer :{0}", buffer.toString());
-        
+
         int count = getHeaderCount(buffer);
 
         if (count < 0) {
@@ -319,7 +317,6 @@ public class MessagePackageHeader {
             byte[] headerValueBytes = new byte[headerValueLength];
             
             buffer.get(headerValueBytes);
-            Logging.logCheckedFiner(LOG, "Adding Name {0}: {1}", headerNameString, headerValueBytes);
 
             headers.add(new Header(headerNameString, headerValueBytes));
 
@@ -327,7 +324,6 @@ public class MessagePackageHeader {
         
         // get the end-of-pkg
         buffer.get();
-        Logging.logCheckedFiner(LOG, "Parsed {0} header elements, buffer stats :{1}", count, buffer.toString());
 
         return true;
     }
@@ -348,8 +344,6 @@ public class MessagePackageHeader {
         if (value.length > 65535) {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
-        
-        Logging.logCheckedFiner(LOG, "Add header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
 
         headers.add(new Header(name, value));
 
@@ -364,9 +358,7 @@ public class MessagePackageHeader {
      * length.
      */
     public void addHeader(String name, String value) {
-        
-        Logging.logCheckedFiner(LOG, "Add header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
-        
+
         try {
             addHeader(name, value.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException never) {
@@ -391,9 +383,7 @@ public class MessagePackageHeader {
         if (value.length > 65535) {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
-        
-        Logging.logCheckedFiner(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
-        
+
         Header newHeader = new Header(name, value);
         ListIterator<Header> eachHeader = getHeaders();
         boolean replaced = false;
@@ -422,8 +412,6 @@ public class MessagePackageHeader {
      */
     public void replaceHeader(String name, String value) {
 
-        Logging.logCheckedFiner(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
-        
         try {
             replaceHeader(name, value.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException never) {

@@ -96,10 +96,8 @@ import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
-import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
@@ -864,7 +862,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
         Iterator eachListener = Arrays.asList(eventListeners.toArray()).iterator();
         RendezvousEvent event = new RendezvousEvent(getInterface(), type, regarding);
 
-        Logging.logCheckedFine(LOG, "Calling listeners for ", event);
 
         while (eachListener.hasNext()) {
 
@@ -951,8 +948,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             found = msgIds.contains(id);
         }
 
-        Logging.logCheckedFiner(LOG, id, " = ", found);
-        
+
         return found;
 
     }
@@ -980,8 +976,6 @@ public final class RendezVousServiceImpl implements RendezVousService {
 
             messagesReceived++;
         }
-
-        Logging.logCheckedFiner(LOG, "Added Message ID : ", id);
 
         return true;
     }

@@ -62,7 +62,6 @@ import net.jxta.id.ID;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.util.BASE64InputStream;
 import net.jxta.impl.util.BASE64OutputStream;
-import net.jxta.logging.Logging;
 import net.jxta.protocol.SignedAdvertisement;
 
 import java.io.ByteArrayOutputStream;
@@ -75,7 +74,6 @@ import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.Signature;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -179,7 +177,8 @@ public class SignedAdv extends SignedAdvertisement {
             Element elem = (Element) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
 
         }

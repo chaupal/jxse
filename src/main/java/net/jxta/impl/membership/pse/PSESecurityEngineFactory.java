@@ -60,13 +60,11 @@ package net.jxta.impl.membership.pse;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.PSEConfigAdv;
-import net.jxta.logging.Logging;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -172,16 +170,14 @@ public abstract class PSESecurityEngineFactory {
                 if (cname.endsWith("-CA"))
                     cname = cname.substring(0, cname.length() - 3);
             }
-            
-            Logging.logCheckedFine(LOG, "Generating new service cert for \'", cname, "\'");
-            
+
+
             // generate the service cert and private key
             IssuerInfo serviceinfo = PSEUtils.genCert(cname, info);
 
             // IssuerInfo serviceinfo = membership.genCert( cname, info, "SHA1withRSA" );
-            
-            Logging.logCheckedFine(LOG, "Generated new service cert for \'", cname, "\'");
-            
+
+
             return serviceinfo;
         }
         

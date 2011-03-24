@@ -56,7 +56,6 @@
 
 package net.jxta.document;
 
-import net.jxta.logging.Logging;
 import net.jxta.util.ClassFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -211,7 +210,6 @@ public class AdvertisementFactory extends ClassFactory<String, AdvertisementFact
 
         } catch (Exception all) {
 
-            Logging.logCheckedFine(LOG, "Failed to register \'", className, "\'\n", all);
 
         }
         

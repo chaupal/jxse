@@ -68,7 +68,6 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
-import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
 import java.io.ByteArrayInputStream;
@@ -80,7 +79,6 @@ import java.net.URISyntaxException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -363,7 +361,8 @@ public class CbJxMessageInfo {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem.getName());
+
+
             }
 
         }

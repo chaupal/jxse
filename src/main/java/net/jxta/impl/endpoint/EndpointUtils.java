@@ -65,7 +65,6 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -94,7 +93,8 @@ public final class EndpointUtils {
             XMLElement endpParam = (XMLElement) adv.getServiceParam(PeerGroup.endpointClassID);
             
             if (endpParam == null) {
-                Logging.logCheckedFine(LOG, "No Endpoint Params");
+
+
                 return null;
             }
             
@@ -105,7 +105,8 @@ public final class EndpointUtils {
             if (paramChilds.hasMoreElements()) {
                 param = (XMLElement) paramChilds.nextElement();
             } else {
-                Logging.logCheckedFine(LOG, "No Route Adv in Peer Adv");
+
+
                 return null;
             }
             

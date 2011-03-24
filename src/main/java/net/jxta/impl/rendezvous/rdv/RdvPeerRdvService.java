@@ -82,7 +82,6 @@ import net.jxta.impl.rendezvous.rendezvousMeter.ClientConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -101,7 +100,6 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -180,7 +178,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
         RdvConfigAdv rdvConfigAdv;
 
         if (!(adv instanceof RdvConfigAdv)) {
-            Logging.logCheckedFine(LOG, "Creating new RdvConfigAdv for defaults.");
+
+
             rdvConfigAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
         } else {
             rdvConfigAdv = (RdvConfigAdv) adv;
@@ -248,7 +247,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
          */
         public void processIncomingMessage(Message msg, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-            Logging.logCheckedFine(LOG, "[", group.getPeerGroupID(), "] processing ", msg);
 
             if (msg.getMessageElement("jxta", ConnectRequest) != null)
                 processLeaseRequest(msg);
@@ -402,8 +400,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Propagating ", msg, "(TTL=", useTTL, ") to :",
-                    "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -431,8 +427,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Propagating ", msg, "(TTL=", useTTL, ") in group to :",
-                    "\n\tsvc name:", serviceName, "\tsvc params:", serviceParam);
 
         RendezVousPropagateMessage propHdr = updatePropHeader(msg, getPropHeader(msg), serviceName, serviceParam, useTTL);
 
@@ -520,7 +514,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     private ClientConnection removeClient(PeerConnection pConn, boolean requested) {
 
-        Logging.logCheckedFine(LOG, "Disconnecting client ", pConn);
 
         if (pConn.isConnected()) {
             pConn.setConnected(false);
@@ -627,7 +620,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
         if (null != pConn) {
 
-            Logging.logCheckedFine(LOG, "Renewing client lease to ", pConn);
+
             lease = LEASE_DURATION;
 
         } else {
@@ -635,7 +628,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
             if (clients.size() < MAX_CLIENTS) {
 
                 lease = LEASE_DURATION;
-                Logging.logCheckedFine(LOG, "Offering new client lease to ", padv.getName(), " [", padv.getPeerID(), "]");
+
 
             } else {
 
@@ -665,7 +658,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
      */
     private boolean sendLease(ClientConnection pConn, long lease) {
 
-        Logging.logCheckedFine(LOG, "Sending lease (", lease, ") to ", pConn.getPeerName());
 
         Message msg = new Message();
 
@@ -690,9 +682,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG,
-            "Undirected walk of ", msg, "(TTL=", useTTL, ") to :", "\n\tsvc name:",
-            serviceName, "\tsvc params:", serviceParam);
 
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
@@ -727,8 +716,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
         msg = msg.clone();
         int useTTL = Math.min(initialTTL, MAX_TTL);
 
-        Logging.logCheckedFine(LOG, "Directed walk of ", msg, "(TTL=", useTTL, ") to :\n\tsvc name:",
-            serviceName, "\tsvc params:", serviceParam);
 
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_NAME, serviceName, null));
         msg.replaceMessageElement("jxta", new StringMessageElement(RDV_WALK_SVC_PARAM, serviceParam, null));
@@ -780,7 +767,7 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
                             // This client has dropped out or the lease is over.
                             // remove it.
-                            Logging.logCheckedFine(LOG, "GC CLIENT: dropping ", pConn);
+
 
                             pConn.setConnected(false);
                             removeClient(pConn, false);
@@ -795,9 +782,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
                     }
                 }
 
-                Logging.logCheckedFine(LOG, "Client GC ", gcedClients, " of ", allClients.size(),
-                    " clients completed in ", TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), gcStart),
-                    "ms.");
 
             } catch (Throwable all) {
 
@@ -821,7 +805,8 @@ public class RdvPeerRdvService extends StdRendezVousService {
             MessageElement serviceME = msg.getMessageElement("jxta", RDV_WALK_SVC_NAME);
 
             if (null == serviceME) {
-                Logging.logCheckedFine(LOG, "Discarding ", msg, " because its missing service name element");
+
+
                 return;
             }
 
@@ -841,8 +826,6 @@ public class RdvPeerRdvService extends StdRendezVousService {
 
             EndpointAddress realDest = new EndpointAddress(dstAddr, sName, sParam);
 
-            Logging.logCheckedFine(LOG, "Calling local listener for [", realDest.getServiceName(),
-                " / ", realDest.getServiceParameter(), "] with ", msg);
 
             rdvService.endpoint.processIncomingMessage(msg, srcAddr, realDest);
 

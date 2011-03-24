@@ -59,15 +59,13 @@ package net.jxta.impl.membership.pse;
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.id.ID;
-import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
-import net.jxta.logging.Logging;
+
 import javax.crypto.EncryptedPrivateKeyInfo;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -202,10 +200,12 @@ public class StringAuthenticator implements Authenticator {
      **/
     synchronized public boolean isReadyForJoin() {
         if (null != seedCert) {
-            Logging.logCheckedFine(LOG, "seed certificate:\n", seedCert.toString());
+
+
             return null != PSEUtils.pkcs5_Decrypt_pbePrivateKey(key_password, seedCert.getPublicKey().getAlgorithm(), seedKey);
         } else {
-            Logging.logCheckedFine(LOG, "null seed certificate");
+
+
             return source.pseStore.validPasswd(identity, store_password, key_password);
         }
     }

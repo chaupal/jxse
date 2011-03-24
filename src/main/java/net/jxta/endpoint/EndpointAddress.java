@@ -56,11 +56,9 @@
 package net.jxta.endpoint;
 
 import net.jxta.id.ID;
-import net.jxta.logging.Logging;
 
 import java.lang.ref.SoftReference;
 import java.net.URI;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -497,21 +495,21 @@ public class EndpointAddress {
 
         if (-1 == protocolEnd) {
 
-            Logging.logCheckedFine(LOG, "Address is not a valid URI: ", addr);
+
             throw new IllegalArgumentException("Address is not a valid URI: " + addr);
 
         }
 
         if (!"urn".equalsIgnoreCase(addr.substring(0, protocolEnd))) {
 
-            Logging.logCheckedFine(LOG, "Address is unrecognized URI form: ", addr);
+
             throw new IllegalArgumentException("Address is unrecognized URI form: " + addr);
 
         }
 
         if ((addr.length() - 1) == protocolEnd) {
 
-            Logging.logCheckedFine(LOG, "Address URN does not have a namespace: ", addr);
+
             throw new IllegalArgumentException("Address URN does not have a namespace: " + addr);
 
         }
@@ -521,7 +519,7 @@ public class EndpointAddress {
 
         if (-1 == namespaceEnd) {
 
-            Logging.logCheckedFine(LOG, "Address URN does not have a namespace: ", addr);
+
             throw new IllegalArgumentException("Address URN does not have a namespace: " + addr);
 
         }
@@ -530,7 +528,7 @@ public class EndpointAddress {
 
         if ((addr.length() - 1) == namespaceEnd) {
 
-            Logging.logCheckedFine(LOG, "Address URN does not have a NSS portion: ", addr);
+
             throw new IllegalArgumentException("Address URN does not have a NSS portion: " + addr);
 
         }
@@ -567,14 +565,14 @@ public class EndpointAddress {
 
         if (index == -1) {
 
-            Logging.logCheckedFine(LOG, "Address is not in absolute form: ", addr);
+
             throw new IllegalArgumentException("Address is not in absolute form: " + addr);
 
         }
 
         if (0 == index) {
 
-            Logging.logCheckedFine(LOG, "Protocol is missing: ", addr);
+
             throw new IllegalArgumentException("Protocol is missing: " + addr);
 
         }
@@ -586,7 +584,7 @@ public class EndpointAddress {
 
         } catch (Exception e) {
 
-            Logging.logCheckedFine(LOG, "Protocol address is missing: ", addr);
+
             throw new IllegalArgumentException("Protocol address is missing: " + addr);
 
         }

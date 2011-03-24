@@ -266,7 +266,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         discovery = group.getDiscoveryService();
         pipe = group.getPipeService();
 
-        Logging.logCheckedFine(LOG, "addListener ", serviceName, serviceParameter);
+
         endpoint.addIncomingMessageListener(this, serviceName, serviceParameter);
 
         Logging.logCheckedInfo(LOG, "JXME Proxy Service started.");
@@ -279,7 +279,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     public void stopApp() {
 
-        Logging.logCheckedFine(LOG, "removeListener ", serviceName, serviceParameter);
+
         endpoint.removeIncomingMessageListener(serviceName, serviceParameter);
 
         Logging.logCheckedInfo(LOG, "JXME Proxy Service stopped.");
@@ -330,7 +330,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         }
 
         String request = popString(REQUEST_TAG, message);
-        Logging.logCheckedFine(LOG, "request = ", request, " requestor ", requestor);
+
 
         if (request != null && requestor != null) {
             if (REQUEST_JOIN.equals(request)) {
@@ -399,7 +399,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleCreateRequest(Requestor requestor, String type, String name, String id, String arg) {
 
-        Logging.logCheckedFine(LOG, "handleCreateRequest type=", type, " name=", name, " id=", id, " arg=", arg);
 
         if (name == null) name = ""; // default name
 
@@ -459,8 +458,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleSearchRequest(Requestor requestor, String type, String attribute, String value, String threshold) {
 
-        Logging.logCheckedFine(LOG, "handleSearchRequest type=", type, " attribute=", attribute, " value=", value, " threshold=", threshold);
-        
+
         int discoveryType;
         int thr = DEFAULT_THRESHOLD;
 
@@ -517,7 +515,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     private void handleListenRequest(Requestor requestor, String id) {
 
-        Logging.logCheckedFine(LOG, "handleListenRequest id=", id);
 
         if (id == null) {
             requestor.notifyError("Pipe ID not specified");
@@ -533,14 +530,12 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String pipeId = pipeAdv.getPipeID().toString();
 
-        Logging.logCheckedFine(LOG, "listen to pipe name=", pipeAdv.getName(), " id=", pipeAdv.getPipeID(), " type=", pipeAdv.getType());
-        
+
         // check to see if the input pipe already exist
         PipeListenerList list = pipeListeners.get(pipeId);
 
         if (list == null) {
 
-            Logging.logCheckedFine(LOG, "first listener, create input pipe");
 
             // create an input pipe
             try {
@@ -562,9 +557,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         // add requestor to list
         list.add(requestor);
 
-        Logging.logCheckedFine(LOG, "add requestor=", requestor, " id=", pipeId, " list=", list);
-        Logging.logCheckedFine(LOG, "publish PipeAdvertisement");
-        
+
         // advertise the pipe locally
         try {
 
@@ -576,7 +569,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             
         }
 
-        Logging.logCheckedFine(LOG, "done with listen request");
 
         // notify requestor of success
         requestor.notifySuccess();
@@ -584,11 +576,10 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleCloseRequest(Requestor requestor, String id) {
 
-        Logging.logCheckedFine(LOG, "handleCloseRequest id=", id);
 
         PipeListenerList list = pipeListeners.get(id);
-        Logging.logCheckedFine(LOG, "handleCloseRequest list = ", list);
-        
+
+
         if (list != null) {
             list.remove(requestor);
             if (list.size() == 0) {
@@ -606,7 +597,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         try {
 
             out.send(mess);
-            Logging.logCheckedFine(LOG, "output pipe send end");
+
 
             // notify requestor of success
             req.notifySuccess();
@@ -614,7 +605,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         } catch (IOException e) {
 
             req.notifyError("could not send to pipe");
-            Logging.logCheckedFine(LOG, "could not send to pipe\n", e);
+
 
         }
     }
@@ -661,7 +652,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     private void handleSendRequest(Requestor requestor, String id, Message message) {
 
-        Logging.logCheckedFine(LOG, "handleSendRequest id=", id);
 
         PipeAdvertisement pipeAdv = findPipeAdvertisement(null, id, null);
 
@@ -672,21 +662,18 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String pipeId = pipeAdv.getPipeID().toString();
 
-        Logging.logCheckedFine(LOG, "send to pipe name=", pipeAdv.getName(), " id=",
-                pipeAdv.getPipeID().toString(), " arg=", pipeAdv.getType());
 
         // check if there are local listeners
 
         PipeListenerList list = pipeListeners.get(pipeId);
-        Logging.logCheckedFine(LOG, "local listener list ", list);
+
 
         if (list != null && PipeService.UnicastType.equals(pipeAdv.getType())) {
 
-            Logging.logCheckedFine(LOG, "start sending to each requestor");
 
             list.send(message, pipeId);
-            Logging.logCheckedFine(LOG, "end sending to each requestor");
-            
+
+
             // notify requestor of success
             requestor.notifySuccess();
             return;
@@ -702,7 +689,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         // Carefull that the resolution can occur synchronously by this
         // very thread, and java lock will not prevent re-entry.
 
-        Logging.logCheckedFine(LOG, "output pipe creation begin");
 
         // Look for the pipe in the resolved list. If not found
         // look in the pending list or add it there.
@@ -756,7 +742,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         if (pid == null) pid = IDFactory.newPeerID(group.getPeerGroupID());
 
-        Logging.logCheckedFine(LOG, "newPeerAdvertisement name=", name, " id=", pid.toString());
 
         try {
 
@@ -802,7 +787,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         if (gid == null) gid = IDFactory.newPeerGroupID();
 
-        Logging.logCheckedFine(LOG, "newPeerGroupAdvertisement name=", name, " id=", gid.toString());
 
         adv = group.getPeerGroupAdvertisement().clone();
 
@@ -831,7 +815,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         PipeAdvertisement adv = null;
 
-        Logging.logCheckedFine(LOG, "newPipeAdvertisement name=", pipeName, " pipeId=", pipeId, " pipeType=", pipeType);
 
         if (pipeType == null || pipeType.length() == 0) {
             pipeType = PipeService.UnicastType;
@@ -862,7 +845,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
         String attribute, value;
 
-        Logging.logCheckedFine(LOG, "findPipeAdvertisement name=", name, " id=", id, " arg=", arg);
 
         if (id != null) {
             attribute = PipeAdvertisement.IdTag;
@@ -897,7 +879,8 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             if (adv instanceof PipeAdvertisement) {
 
                 pipeAdv = (PipeAdvertisement) adv;
-                Logging.logCheckedFine(LOG, "found PipeAdvertisement = ", pipeAdv);
+
+
                 break;
 
             }
@@ -908,7 +891,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
     public synchronized void discoveryEvent(DiscoveryEvent event) {
 
-        Logging.logCheckedFine(LOG, "discoveryEvent ", event);
 
         Requestor requestor = searchRequests.get(event.getQueryID());
         if (requestor == null) {
@@ -948,7 +930,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     public synchronized void pipeMsgEvent(PipeMsgEvent event) {
 
-        Logging.logCheckedFine(LOG, "pipeMsgEvent ", event.getPipeID());
 
         String id = event.getPipeID().toString();
 
@@ -958,15 +939,15 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
             Message message = event.getMessage();
 
-            Logging.logCheckedFine(LOG, "pipeMsgEvent: start sending to each requestor");
+
             list.send(message.clone(), id);
-            Logging.logCheckedFine(LOG, "pipeMsgEvent: end sending to each requestor");
-            
+
+
         } else {
 
             // there are no listeners, close the input pipe
             ((InputPipe) event.getSource()).close();
-            Logging.logCheckedFine(LOG, "close pipe id=", id);
+
 
         }
     }
@@ -976,7 +957,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
      */
     public synchronized void outputPipeEvent(OutputPipeEvent event) {
 
-        Logging.logCheckedFine(LOG, "outputPipeEvent ", event);
 
         PendingPipe p = (PendingPipe) pendingPipes.remove(event.getPipeID());
 
@@ -1023,10 +1003,12 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
             Logging.logCheckedInfo(LOG, "add ", requestor, " from ", this);
             
             if (!list.contains(requestor)) {
-                Logging.logCheckedFine(LOG, "requestor add");
+
+
                 list.add(requestor);
             } else {
-                Logging.logCheckedFine(LOG, "requestor exits already");
+
+
             }
             
         }
@@ -1034,8 +1016,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         void remove(Requestor requestor) {
 
             Logging.logCheckedInfo(LOG, "remove ", requestor, " from ", this);
-            
-            Logging.logCheckedFine(LOG, "removed = ", list.remove(requestor));
+
 
             if (list.size() == 0) {
                 // close the pipe and remove from the listenerList
@@ -1052,7 +1033,7 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
         int size() {
 
             int size = list.size();
-            Logging.logCheckedFine(LOG, "size ", size);
+
 
             return size;
         }
@@ -1074,32 +1055,32 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
 
                 if (name.startsWith("RendezVousPropagate")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
+
                     elements.remove();
 
                 } else if (name.startsWith("JxtaWireHeader")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
+
                     elements.remove();
 
                 } else if (name.startsWith("RdvIncarnjxta")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
+
                     elements.remove();
 
                 } else if (name.startsWith("JxtaEndpointRouter")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
+
                     elements.remove();
 
                 } else if (name.startsWith("EndpointRouterMsg")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
+
                     elements.remove();
 
                 } else if (name.startsWith("EndpointHeaderSrcPeer")) {
 
-                    Logging.logCheckedFine(LOG, "removeMessageElement ", name);
+
                     elements.remove();
 
                 }
@@ -1117,7 +1098,6 @@ public class ProxyService implements Service, EndpointListener, PipeMsgListener,
                 }
             } catch (Exception ex) {
 
-                Logging.logCheckedFine(LOG, "Error sending", ex);
 
             }
         }

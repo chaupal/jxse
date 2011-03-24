@@ -75,7 +75,6 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.util.UUIDUtilities;
@@ -278,7 +277,6 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String charset = type.getParameter("charset");
 
@@ -398,7 +396,6 @@ public abstract class MessageElement implements Document {
             }
         }
 
-        Logging.logCheckedFine(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         long len = getByteLength();
 

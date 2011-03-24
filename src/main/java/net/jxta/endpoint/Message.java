@@ -78,7 +78,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.annotation.DoNotDelete;
 import net.jxta.annotation.DoNotRelyOnThisCode;
@@ -442,10 +441,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             list.remove();
             origModCount = Message.this.incMessageModCount();
 
-            Logging.logCheckedFiner(LOG, "Removed ", current.namespace, "::",
-                    current.element.getElementName(), "/", current.element.getClass().getName(),
-                    "@", current.element.hashCode(), " from ", Message.this);
-
             current = null;
             
         }
@@ -525,13 +520,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             list.set(newCurrent);
             origModCount = Message.this.incMessageModCount();
 
-            Logging.logCheckedFiner(LOG,
-                        "Replaced ", current.namespace, "::", current.element.getElementName(), "/",
-                        current.element.getClass().getName(), "@", current.element.hashCode(), " with ",
-                        newCurrent.namespace, "::", newCurrent.element.getElementName(), "/",
-                        newCurrent.element.getClass().getName(), "@", newCurrent.element.hashCode(),
-                        " in ", Message.this);
-            
             current = newCurrent;
 
         }
@@ -649,8 +637,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             clone.namespaces.put(aNamespace, newNamespaceElements);
         }
 
-        Logging.logCheckedFiner(LOG, "Created clone ", clone, " of ", this);
-        
         return clone;
 
     }
@@ -887,9 +873,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
         namespaceElements.add(add);
         incMessageModCount();
 
-        Logging.logCheckedFiner(LOG, "Added ", namespace, "::", add.getElementName(), "/",
-                    add.getClass().getName(), "@", add.hashCode(), " to ", this);
-        
     }
 
     /**
@@ -1247,8 +1230,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
 
         incMessageModCount();
 
-        Logging.logCheckedFiner(LOG, "Cleared ", this);
-        
     }
 
     /**
@@ -1305,8 +1286,6 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             throw failure;
             
         }
-
-        Logging.logCheckedFiner(LOG, "Modification to ", this);
 
         return modCount;
         

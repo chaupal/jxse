@@ -233,32 +233,22 @@ public class TransferAggregator
                 }
                 if (transfer == null) {
 
-                    Logging.logCheckedFine(LOG, hashHex(),
-                                ": Provider returned null transfer: ", prov);
-                    
+
                 } else {
 
-                    Logging.logCheckedFiner(LOG, hashHex(),
-                                ": Provider '", prov, "' returned transfer: ",
-                                transfer);
                     idle.add(transfer);
 
                 }
 
                 if (content != null) {
 
-                    Logging.logCheckedFiner(LOG, hashHex(), ": Provider '", prov,
-                                "' found the Content.  Skipping remaining ",
-                                "providers.");
                     break;
 
                 }
 
             } catch (UnsupportedOperationException unsupx) {
 
-                Logging.logCheckedFine(LOG, hashHex(),
-                            ": Provider does not support operation: ", prov);
-                
+
             }
         }
 
@@ -369,8 +359,7 @@ public class TransferAggregator
 
         } catch (TransferException transx) {
 
-            Logging.logCheckedFinest(LOG, hashHex(), ": Ignoring exception\n", transx);
-            
+
         }
 
         // This indirectly provides event notification
@@ -558,12 +547,6 @@ public class TransferAggregator
                 if (oldState != locationState || locationCount != null) {
 
                     if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
-                        Logging.logCheckedFiner(LOG, hashHex(),
-                                ": Location update (location count: ",
-                                locationCount, ")");
-                        Logging.logCheckedFiner(LOG, "    Was  : ", oldState);
-                        Logging.logCheckedFiner(LOG, "    Is   : ", locationState);
-                        Logging.logCheckedFiner(LOG, "    Cause: ", state);
                     }
 
                     toFire = new ContentTransferEvent.Builder(this)
@@ -603,9 +586,7 @@ public class TransferAggregator
         boolean terminateTransfer = false;
         boolean doTransferStart = false;
 
-        Logging.logCheckedFine(LOG, hashHex(), ": Transfer state updated: ", transfer,
-                    " (", state, ")");
-        
+
         if (state.isSuccessful()) {
             /* NOTE mcumings 20061229: This is a bit odd in that
              * theoretically an idle transfer can declare that it is
@@ -649,8 +630,6 @@ public class TransferAggregator
 
                 // Only go crazy if this is the first provider to succeed
                 if (eureka) {
-
-                    Logging.logCheckedFiner(LOG, hashHex(), ": Eureka!");
 
                     if (newSelected) {
                         fireSelectedContentTransfer(transfer);
@@ -698,9 +677,6 @@ public class TransferAggregator
 
                 if (transferState.isFinished()) {
 
-                    Logging.logCheckedFiner(LOG, hashHex(), " Ignoring event due to being ",
-                                "in a finished state");
-
                 } else if (transfer == selected) {
                     if (destFile != null) {
                         doTransferStart = true;
@@ -712,9 +688,6 @@ public class TransferAggregator
             synchronized(this) {
 
                 if (transferState.isFinished()) {
-
-                    Logging.logCheckedFiner(LOG, hashHex(), " Ignoring event due to being ",
-                                "in a finished state");
 
                 } else if (transfer == selected && transferState != state) {
                     /*
@@ -773,7 +746,6 @@ public class TransferAggregator
 
         if (doTransferStart) {
 
-            Logging.logCheckedFiner(LOG, hashHex(), ": Starting transfer: ", transfer);
             transfer.startTransfer(destFile);
 
         }
@@ -920,16 +892,12 @@ public class TransferAggregator
          */
         if (doStart) {
 
-            Logging.logCheckedFine(LOG, hashHex(), ": Starting source location for transfer: ",
-                        transfer);
-            
+
             transfer.startSourceLocation();
 
         } else if (doStop) {
 
-            Logging.logCheckedFine(LOG, hashHex(), ": Stopping source location for transfer: ",
-                        transfer);
-            
+
             transfer.stopSourceLocation();
 
         }
@@ -973,7 +941,6 @@ public class TransferAggregator
             } else if (!transferState.isRetrieving() && selected != null) {
 
                 // Make sure the transfer has started
-                Logging.logCheckedFiner(LOG, hashHex(), ": Starting transfer: ", selected);
                 selected.startTransfer(destFile);
 
             }
@@ -1013,8 +980,6 @@ public class TransferAggregator
      */
     private void fireLocationStateUpdated(ContentTransferEvent event) {
 
-        Logging.logCheckedFiner(LOG, hashHex(), ": Firing event: ", event);
-
         for (ContentTransferListener listener : ctListeners) {
             
             try {
@@ -1032,8 +997,6 @@ public class TransferAggregator
      * @param event event information to send to listeners
      */
     private void fireTransferStateUpdated(ContentTransferEvent event) {
-
-        Logging.logCheckedFiner(LOG, hashHex(), ": Firing event: ", event);
 
         for (ContentTransferListener listener : ctListeners) {
             
@@ -1058,8 +1021,6 @@ public class TransferAggregator
     private void fireSelectedContentTransfer(ContentTransfer newSelected) {
 
         ContentTransferAggregatorEvent event = null;
-
-        Logging.logCheckedFiner(LOG, hashHex(), ": Firing new selected: ", newSelected);
 
         for (ContentTransferAggregatorListener listener : ctaListeners) {
             try {

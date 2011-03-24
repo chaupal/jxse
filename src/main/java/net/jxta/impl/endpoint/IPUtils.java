@@ -73,7 +73,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -230,8 +229,6 @@ public final class IPUtils {
         // if nothing suitable was found then return loopback address.
         if (allAddr.isEmpty() || Boolean.getBoolean("net.jxta.impl.IPUtils.localOnly")) {
 
-            Logging.logCheckedFiner(LOG, "Adding loopback interfaces");
-
             if (null != LOOPBACKV4) {
                 allAddr.add(LOOPBACKV4);
             }
@@ -241,7 +238,6 @@ public final class IPUtils {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Returning ", allAddr.size(), " addresses.");
 
         return allAddr;
     }

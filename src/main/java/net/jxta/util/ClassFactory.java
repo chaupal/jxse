@@ -336,7 +336,6 @@ public abstract class ClassFactory<K, I> {
 
         getAssocTable().put(key, instantiator);
 
-        Logging.logCheckedFine(LOG, "Factory : ", getClass().getName(), " Registered instantiator \'", instantiator, "\' for \'", key, "\'");
 
         return true;
     }

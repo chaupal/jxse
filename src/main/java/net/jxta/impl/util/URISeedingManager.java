@@ -77,7 +77,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -338,9 +337,8 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         if (TimeUtils.timeNow() < nextSeedingURIrefreshTime) {
             return;
         }
-        
-        Logging.logCheckedFine(LOG, "Regenerating active seeds list.");
-        
+
+
         activeSeeds.clear();
         
         if (!seedingURIs.isEmpty()) {
@@ -353,8 +351,7 @@ public class URISeedingManager extends RdvAdvSeedingManager {
 
                 try {
 
-                    Logging.logCheckedFine(LOG, "Loading seeding list from : ", aSeedingURI);
-                    
+
                     RouteAdvertisement ras[] = loadSeeds(aSeedingURI);
                     
                     for (RouteAdvertisement aRA : Arrays.asList(ras)) {
@@ -545,9 +542,8 @@ public class URISeedingManager extends RdvAdvSeedingManager {
         }
         
         is.close();
-        
-        Logging.logCheckedFine(LOG, "Loaded #{0} seeds from : {1}", result.size(), seedingURI);
-        
+
+
         return result.toArray(new RouteAdvertisement[result.size()]);
 
     }

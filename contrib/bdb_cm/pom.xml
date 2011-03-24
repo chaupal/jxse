@@ -5,7 +5,7 @@
     <groupId>net.jxta.ext</groupId>
     <artifactId>bdb-cache</artifactId>
     <packaging>bundle</packaging>
-    <version>2.6-SNAPSHOT</version>
+    <version>2.6.0.4-SNAPSHOT</version>
     <name>bdb-cache</name>
     <repositories>
         <repository>

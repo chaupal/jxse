@@ -365,7 +365,6 @@ class JTlsOutputStream extends OutputStream {
 
                 jmsg.addMessageElement(JTlsDefs.TLSNameSpace, ciphertext);
 
-                Logging.logCheckedFine(LOG, "TLS CT WRITE : seqn#", sequenceNumber, " length=", len);
 
                 // (1)  See if the most recent remote input queue size is close to
                 // it's maximum input queue size
@@ -389,8 +388,7 @@ class JTlsOutputStream extends OutputStream {
 
                     long inQueue = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), retrQ.get(0).enqueuedAt);
 
-                    Logging.logCheckedFine(LOG, "write : Retry queue idle for ", inQueue);
-                    
+
                     if (inQueue > tp.RETRMAXAGE) {
 
                         if (inQueue > (2 * tp.RETRMAXAGE)) {
@@ -417,13 +415,11 @@ class JTlsOutputStream extends OutputStream {
 
                     // see if max. wait has arrived.
                     if (i++ == waitCt) {
-                        Logging.logCheckedFine(LOG, "write() wait for ACK, maxwait timer expired while enqueuing seqn#", sequenceNumber);
+
+
                         break;
                     }
 
-                    Logging.logCheckedFine(LOG, "write() wait 60ms for ACK while enqueuing seqn#", sequenceNumber, "\n\tremote IQ free space = ",
-                                mrrIQFreeSpace, "\n\tMIN free space to continue = ", (rmaxQSize / 5), "\n\tretQ.size()=",
-                                retrQ.size());
 
                     // Less than 20% free queue space is left. Wait.
                     try {
@@ -438,7 +434,6 @@ class JTlsOutputStream extends OutputStream {
 
                 retrQ.add(r);
 
-                Logging.logCheckedFine(LOG, "Retrans Enqueue added seqn#", sequenceNumber, " retQ.size()=", retrQ.size());
 
             }
 
@@ -447,8 +442,7 @@ class JTlsOutputStream extends OutputStream {
             // assume we have now taken a slot
             mrrIQFreeSpace--;
 
-            Logging.logCheckedFine(LOG, "TLS CT SENT : seqn#", sequenceNumber, " length=", len);
-            
+
         } finally {
 
             if (closeStale) {
@@ -493,9 +487,8 @@ class JTlsOutputStream extends OutputStream {
             RTO = Math.max(newRTO, minRTO);
             RTO = Math.min(RTO, maxRTO);
         }
-        
-        Logging.logCheckedFine(LOG, "TLS!! RTT = ", dt, "ms aveRTT = ", aveRTT, "ms RTO = ", RTO, "ms maxRTO = ", maxRTO, "ms");
-        
+
+
     }
 
     private int calcAVEIQ(int iq) {
@@ -573,13 +566,14 @@ class JTlsOutputStream extends OutputStream {
                 RetrQElt r = (RetrQElt) eachRetryQueueEntry.next();
 
                 if (r.seqnum > seqnum) {
-                    Logging.logCheckedFine(LOG, "r.seqnum :", r.seqnum, " > seqnum :", seqnum);
+
+
                     break;
                 }
 
                 // Acknowledged
-                Logging.logCheckedFine(LOG, "seqnum :", seqnum);
-                Logging.logCheckedFine(LOG, "Removing :", r.seqnum, " from retransmit queue");
+
+
                 eachRetryQueueEntry.remove();
 
                 // Update RTT, RTO
@@ -598,7 +592,6 @@ class JTlsOutputStream extends OutputStream {
                 conn.lastAccessed = TimeUtils.timeNow();
             }
 
-            Logging.logCheckedFine(LOG, "TLS!! SEQUENTIALLY ACKD SEQN = ", seqnum, ", (", numberACKed, " acked)");
 
             // most recent remote IQ free space
             rmaxQSize = Math.max(rmaxQSize, sackList.length);
@@ -611,7 +604,6 @@ class JTlsOutputStream extends OutputStream {
             // We will keep the rwin <= ave real input queue size.
             int aveIQ = calcAVEIQ(sackList.length);
 
-            Logging.logCheckedFine(LOG, "remote IQ free space = ", mrrIQFreeSpace, " remote avg IQ occupancy = ", aveIQ);
 
             int retrans = 0;
 
@@ -648,7 +640,6 @@ class JTlsOutputStream extends OutputStream {
                             calcRTT(enqueuetime);
                         }
 
-                        Logging.logCheckedFine(LOG, "TLS!! SACKD SEQN = ", r.seqnum);
 
                         // GC this stuff
                         r.msg.clear();
@@ -666,12 +657,12 @@ class JTlsOutputStream extends OutputStream {
                         // We retransmit 12.
                         if (seqnum < r.seqnum) {
                             retrans++;
-                            Logging.logCheckedFine(LOG, "RETR: Fill hole, SACK, seqn#", r.seqnum, ", Window =", retrans);
+
+
                         }
                     }
                 }
 
-                Logging.logCheckedFine(LOG, "TLS!! SELECTIVE ACKD (", numberACKed, ") ", retrans, " retrans wanted");
 
                 // retransmit 1 retq mem. only
                 if (retrans > 0) {
@@ -700,7 +691,8 @@ class JTlsOutputStream extends OutputStream {
             numberToRetrans = Math.min(retrQ.size(), rwin);
 
             if (numberToRetrans > 0) {
-                Logging.logCheckedFine(LOG, "RETRANSMITING [rwindow = ", numberToRetrans, "]");
+
+
             }
 
             for (int j = 0; j < numberToRetrans; j++) {
@@ -758,7 +750,6 @@ class JTlsOutputStream extends OutputStream {
 
             try {
 
-                Logging.logCheckedFine(LOG, "TLS!! RETRANSMIT seqn#", r.seqnum);
 
                 Message sending = r.msg;
 
@@ -776,13 +767,13 @@ class JTlsOutputStream extends OutputStream {
                 }
             } catch (IOException e) {
 
-                Logging.logCheckedFine(LOG, "FAILED RETRANS seqn#", r.seqnum, "\n", e);
+
                 break; // don't bother continuing.
 
             }
         }
 
-        Logging.logCheckedFine(LOG, "RETRANSMITED ", retransmitted, " of ", numberToRetrans);
+
         return retransmitted;
     }
 
@@ -820,7 +811,6 @@ class JTlsOutputStream extends OutputStream {
                 while (!closed) {
                     long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), conn.lastAccessed);
 
-                    Logging.logCheckedFine(LOG, "RETRANS : ", conn, " idle for ", conn_idle);
 
                     // check to see if we have not idled out.
                     if (tp.CONNECTION_IDLE_TIMEOUT < conn_idle) {
@@ -860,7 +850,8 @@ class JTlsOutputStream extends OutputStream {
                     long sinceLastSACKRetr = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), sackRetransTime);
 
                     if (sinceLastSACKRetr < RTO) {
-                        Logging.logCheckedFine(LOG, "RETRANS : SACK retrans ", sinceLastSACKRetr, "ms ago");
+
+
                         continue;
                     }
 
@@ -876,7 +867,6 @@ class JTlsOutputStream extends OutputStream {
                         }
                     }
 
-                    Logging.logCheckedFine(LOG, "RETRANS : Last ACK ", sinceLastACK, "ms ago. Age of oldest in Queue ", oldestInQueueWait, "ms");
 
                     // see if the queue has gone dead
                     if (oldestInQueueWait > (tp.RETRMAXAGE * 2)) {
@@ -911,7 +901,6 @@ class JTlsOutputStream extends OutputStream {
                     // has not been idle for the RTO.
                     if ((realWait >= RTO) && (oldestInQueueWait >= RTO)) {
 
-                        Logging.logCheckedFine(LOG, "RETRANS : RTO RETRANSMISSION [", RWINDOW, "]");
 
                         // retrasmit
                         int retransed = retransmit(RWINDOW, TimeUtils.timeNow());
@@ -932,8 +921,6 @@ class JTlsOutputStream extends OutputStream {
                             nAtThisRTO = 0;
                         }
 
-                        Logging.logCheckedFine(LOG, "RETRANS : RETRANSMISSION ", retransed, " retrans ", nAtThisRTO, " at this RTO (", RTO,
-                                    ") ", nretransmitted, " total retrans");
 
                     } else {
 
@@ -946,7 +933,6 @@ class JTlsOutputStream extends OutputStream {
                             nAtThisRTO = 0;
                         }
 
-                        Logging.logCheckedFine(LOG, "RETRANS : IDLE : RTO=", RTO, " WAIT=", realWait);
 
                     }
                 }

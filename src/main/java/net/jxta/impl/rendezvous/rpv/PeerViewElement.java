@@ -65,7 +65,6 @@ import net.jxta.logging.Logging;
 import net.jxta.protocol.RdvAdvertisement;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -360,7 +359,7 @@ public final class PeerViewElement extends PeerViewDestination implements Outgoi
 
                 cachedMessenger = null;
 
-                Logging.logCheckedFine(LOG, "Getting cached Messenger for ", radv.getName());
+
                 cachedMessenger = endpoint.getMessengerImmediate(getDestAddress(), radv.getRouteAdv());
                 
                 if (null == cachedMessenger) {

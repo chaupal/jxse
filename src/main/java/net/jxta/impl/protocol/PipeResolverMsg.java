@@ -67,7 +67,6 @@ import net.jxta.document.TextElement;
 import net.jxta.document.XMLDocument;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 import net.jxta.pipe.PipeID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeResolverMessage;
@@ -220,7 +219,7 @@ public class PipeResolverMsg extends PipeResolverMessage {
 											new StringReader(peerAdv))));
                 } catch (IOException caught) {
 
-                    Logging.logCheckedFine(LOG, "Malformed peer adv in message\n", caught);
+
                     throw new IllegalArgumentException("Malformed peer adv in message : " + caught.getMessage());
 
                 }

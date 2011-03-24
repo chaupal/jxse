@@ -72,7 +72,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -216,7 +215,6 @@ public class NullConfigurator implements PlatformConfigurator {
     @Deprecated
     protected PlatformConfig load(URI loadFile) throws ConfiguratorException {
 
-        Logging.logCheckedFine(LOG, "Reading Platform Config from : ", loadFile);
 
         InputStream advStream = null;
 
@@ -227,8 +225,7 @@ public class NullConfigurator implements PlatformConfigurator {
             XMLDocument xmlDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, advStream);
             PlatformConfig result = (PlatformConfig) AdvertisementFactory.newAdvertisement(xmlDoc);
 
-            Logging.logCheckedFine(LOG, "Recovered Platform Config from : ", loadFile);
-            
+
             return result;
 
         } catch (FileNotFoundException e) {

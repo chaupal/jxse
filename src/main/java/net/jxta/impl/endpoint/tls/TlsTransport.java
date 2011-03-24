@@ -70,7 +70,6 @@ import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.membership.pse.PSEMembershipService;
-import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
@@ -514,16 +513,15 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      * underlying messenger.
      */
     public Messenger getMessenger(EndpointAddress addr, Object hintIgnored) {
-        
-        Logging.logCheckedFine(LOG, "getMessenger for ", addr);
-        
+
+
         EndpointAddress plainAddress = new EndpointAddress(addr, null, null);
         
         // If the dest is the local peer, just loop it back without going
         // through the TLS. Local communication do not use TLS.
         if (plainAddress.equals(localTlsPeerAddr)) {
 
-            Logging.logCheckedFine(LOG, "returning TlsLoopbackMessenger");
+
             return new TlsLoopbackMessenger(endpoint, plainAddress, addr, localPeerAddr);
 
         }
@@ -544,9 +542,8 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
             return null;
 
         }
-        
-        Logging.logCheckedFine(LOG, "TlsMessanger with TlsConn DONE");
-        
+
+
         // Build a TlsMessenger around it that will add our header.
         // Right now we do not want to "announce" outgoing messengers because they get pooled and so must
         // not be grabbed by a listener. If "announcing" is to be done, that should be by the endpoint
@@ -560,8 +557,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
      */
     void processReceivedMessage(final Message msg) {
 
-        Logging.logCheckedFine(LOG, "processReceivedMessage starts");
-        
+
         // add a property to the message to indicate it came from us.
         msg.setMessageProperty(TlsTransport.class, this);
         
@@ -685,10 +681,8 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     
                     X500Principal credSubjectDN = cred.getCertificate().getSubjectX500Principal();
                     X500Principal peerCertSubjectDN = peerCert.getSubjectX500Principal();
-                    
-                    Logging.logCheckedFine(LOG, "Checking credential cert for match to peer cert",
-                        "\n\tcred subject=", credSubjectDN, "\n\tpeer subject=", peerCertSubjectDN);
-                    
+
+
                     if (peerCertSubjectDN.equals(credSubjectDN)) {
                         serviceCert = cred.generateServiceCertificate(assignedID);
                     }
@@ -718,10 +712,8 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
                     
                     X500Principal credSubjectDN = credCert.getSubjectX500Principal();
                     X500Principal serviceIssuerDN = serviceCert[0].getIssuerX500Principal();
-                    
-                    Logging.logCheckedFine(LOG, "Checking credential cert for match to service issuer cert\n\tcred subject=", credSubjectDN,
-                        "\n\t  svc issuer=", serviceIssuerDN);
-                    
+
+
                     if (credSubjectDN.equals(serviceIssuerDN)) {
 
                         Logging.logCheckedInfo(LOG, "Setting credential/certfile");

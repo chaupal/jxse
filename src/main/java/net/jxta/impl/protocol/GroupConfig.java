@@ -65,11 +65,9 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
-import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -148,7 +146,8 @@ public class GroupConfig extends ConfigParams implements Cloneable {
             Element elem = (Element) elements.nextElement();
             
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
 
         }

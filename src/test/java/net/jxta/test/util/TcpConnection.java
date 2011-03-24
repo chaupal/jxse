@@ -66,7 +66,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.logging.Logger;
-import java.util.logging.Level;
+
 import net.jxta.logging.Logging;
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
@@ -434,18 +434,16 @@ public class TcpConnection implements Runnable {
                 while (isConnected()) {
 
                     if (closed) break;
-                    
-                    Logging.logCheckedFine(LOG, "tcp receive - message starts for " + inetAddress.getHostAddress() + ":" + port);
-                    
+
+
                     // We can stay blocked here for a long time, it's ok.
                     MessagePackageHeader header = new MessagePackageHeader(inputStream);
                     MimeMediaType msgMime = header.getContentTypeHeader();
                     long msglength = header.getContentLengthHeader();
                     
                     // FIXME 20020730 bondolo@jxta.org Do something with content-coding here.
-                    
-                    Logging.logCheckedFine(LOG, "Message body (" + msglength + ") starts for " + inetAddress.getHostAddress() + ":" + port);
-                    
+
+
                     // read the message!
                     // We have received the header, so, the rest had better
                     // come. Turn the short timeout on.
@@ -467,10 +465,8 @@ public class TcpConnection implements Runnable {
                         // We can relax again.
                         inputActive(false);
                     }
-                    
-                    Logging.logCheckedFine(LOG, "Handing incoming message from "
-                        + inetAddress.getHostAddress() + ":" + port + " to EndpointService");
-                    
+
+
                     try {
 
                         // Demux the message for the upper layers
@@ -554,10 +550,8 @@ public class TcpConnection implements Runnable {
                 header.setContentTypeHeader(serialed.getMimeType());
                 size = serialed.getByteLength();
                 header.setContentLengthHeader(size);
-                
-                Logging.logCheckedFine(LOG, "sendMessage (" + serialed.getByteLength() + ") to " + dstAddress + " via "
-                    + inetAddress.getHostAddress() + ":" + port);
-                
+
+
                 // Write the header and the message.
                 header.sendToStream(outputStream);
                 outputStream.flush();
@@ -624,8 +618,7 @@ public class TcpConnection implements Runnable {
         // Ok, we can wait for messages now.
         inputActive(false);
 
-        Logging.logCheckedFine(LOG, "Hello from " + itsWelcome.getPublicAddress() + " [" + itsWelcome.getPeerID() + "]");
-        
+
         recvThread = new Thread(this);
         setThreadName();
         recvThread.setDaemon(true);

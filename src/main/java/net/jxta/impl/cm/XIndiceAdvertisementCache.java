@@ -63,16 +63,13 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.concurrent.ScheduledExecutorService;
@@ -344,7 +341,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         ArrayList<InputStream> res = new ArrayList<InputStream>();
 
     	if (dn == null) {
-            Logging.logCheckedFine(LOG, "null directory name");
+
+
             return res;
     	} else {
 
@@ -367,9 +365,11 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 }
 
             } catch (DBException dbe) {
-                Logging.logCheckedFine(LOG, "Exception during getRecords(): " + dbe);
+
+
             } catch (IOException ie) {
-                Logging.logCheckedFine(LOG, "Exception during getRecords(): " + ie);
+
+
             }
 
             return res;
@@ -384,7 +384,6 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             long t0 = TimeUtils.timeNow();
             getRecords(indexName, Integer.MAX_VALUE, null, true);
-            Logging.logCheckedFiner(LOG, "Cm garbageCollect :", indexName, " in :" + (TimeUtils.timeNow() - t0));
 
         }
     }
@@ -408,16 +407,15 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             
             Long life = (Long) record.getMetaData(Record.LIFETIME);
 
-            Logging.logCheckedFine(LOG, "Lifetime for :", fn, "  ", life);
-            
+
             if (life < TimeUtils.timeNow()) {
 
-                Logging.logCheckedFine(LOG, "Removing expired record :", fn);
-                
+
                 try {
                     remove(dn, fn);
                 } catch (IOException e) {
-                    Logging.logCheckedFine(LOG, "Failed to remove record\n", e);
+
+
                 }
 
             }
@@ -451,16 +449,15 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             // Retrieving amount of relative time record should stay in cache
             long expiration = calcExpiration(record);
 
-            Logging.logCheckedFine(LOG, "Expiration for :", fn, "  ", expiration);
-            
+
             if (expiration < 0) {
 
-                Logging.logCheckedFine(LOG, "Removing expired record :", fn);
-                
+
                 try {
                     remove(dn, fn);
                 } catch (IOException e) {
-                    Logging.logCheckedFine(LOG, "Failed to remove record\n", e);
+
+
                 }
             }
 
@@ -484,7 +481,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
     private static long calcExpiration(Record record) {
 
         if (record == null) {
-            Logging.logCheckedFine(LOG, "Record is null returning expiration of -1");
+
+
             return -1;
         }
 
@@ -508,16 +506,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
         if (expiresin <= 0) {
 
-            Logging.logCheckedFine(LOG, "Record expired lifetime   : {0} expiration: {1} expires in: {2}", life, exp, expiresin);
-            Logging.logCheckedFine(LOG, "Record expired on :{0}", new Date(life));
 
             // The record has spent more time in cache than required (as of now in time).
             return -1;
 
         } else {
 
-            Logging.logCheckedFine(LOG, "Record lifetime: {0} expiration: {1} expires in: {2}", life, exp, expiresin);
-            Logging.logCheckedFine(LOG, "Record expires on :{0}", new Date(life));
 
             // The record should stay in cache a little longer, but not more than
             // the default maximum amount of relative time it should live in cache
@@ -543,8 +537,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Record record = cacheDB.readRecord(key);
 
             if (record == null) return null;
-            
-            Logging.logCheckedFine(LOG, "Restored record for ", key);
+
 
             Value val = record.getValue();
 
@@ -594,23 +587,23 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
                         // add it to deltas to expire it in srdi (0 = remove)
                         addDelta(dn, indexables, 0);
-                        Logging.logCheckedFine(LOG, "removed ", record);
-                        
+
+
                     }
 
                 } catch (Exception e) {
 
                     // bad bits we are done
-                    Logging.logCheckedFine(LOG, "failed to remove ", dn, "/", fn, "\n", e);
-                    
+
+
                 }
             }
 
         } catch (DBException de) {
 
             // entry does not exist
-            Logging.logCheckedFine(LOG, "failed to remove ", dn, "/", fn);
-            
+
+
         }
         
     }
@@ -645,9 +638,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Record record = cacheDB.readRecord(key);
 
             if (record == null) return null;
-            
-            Logging.logCheckedFine(LOG, "restored ", record);
-            
+
+
             Value val = record.getValue();
 
             if (val != null) {
@@ -728,9 +720,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 if (absoluteLifetime < oldLife) {
 
                     // make sure we don't override the original value
-                    Logging.logCheckedFine(LOG, "Overriding attempt to decrease adv lifetime from : {0} to :{1}",
-                        new Date(oldLife), new Date(absoluteLifetime));
-                    
+
+
                     absoluteLifetime = oldLife;
                 }
 
@@ -745,10 +736,9 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Map<String, String> indexables = CacheUtils.getIndexfields(adv.getIndexFields(), doc);
             Map<String, String> keyedIdx = addKey(dn, indexables);
 
-            Logging.logCheckedFine(LOG, "Indexing ", keyedIdx, " at ", pos);
+
             indexer.addToIndex(keyedIdx, pos);
 
-            Logging.logCheckedFine(LOG, "Stored ", indexables, " at ", pos);
 
             if (expiration > 0) {
                 // Update for SRDI with our caches lifetime only if we are prepared to share the advertisement with others.
@@ -812,8 +802,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 if (absoluteLifetime < oldLife) {
 
                     // make sure we don't override the original value
-                    Logging.logCheckedFine(LOG, "Overriding attempt to decrease adv lifetime from : {0} to :{1}",
-                        new Date(oldLife), new Date(absoluteLifetime));
+
 
                     // We make sure we don't shorten existing lifetime
                     absoluteLifetime = oldLife;
@@ -885,8 +874,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         public boolean indexInfo(Value val, long pos) {
 
             if (results.size() >= threshold) return false;
-            
-            Logging.logCheckedFine(LOG, "Found ", val.toString(), " at ", pos);
+
 
             Record record;
 
@@ -913,8 +901,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             Long life = (Long) record.getMetaData(Record.LIFETIME);
             SrdiMessage.Entry entry = new SrdiMessage.Entry(key, val.toString(), life - TimeUtils.timeNow());
 
-            Logging.logCheckedFine(LOG, " key [", entry.key, "] value [", entry.value, "] exp [", entry.expiration, "]");
-            
+
             results.add(entry);
             return true;
         }
@@ -958,11 +945,9 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         public boolean indexInfo(Value val, long pos) {
 
             if (results.size() >= threshold) {
-                Logging.logCheckedFiner(LOG, "SearchCallback.indexInfo reached Threshold :", threshold);
                 return false;
             }
 
-            Logging.logCheckedFine(LOG, "Found ", val.toString(), " at ", pos);
 
             Record record;
 
@@ -979,8 +964,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             if (record == null) return true;
 
-            Logging.logCheckedFinest(LOG, "Search callback record ", record.toString());
-            
+
             long exp = calcExpiration(record);
 
             if (exp < 0) {
@@ -1034,8 +1018,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             value = value.substring(1, value.length() - 1);
         }
 
-        Logging.logCheckedFine(LOG, "Index query operator :", operator);
-        
+
         return new IndexQuery(operator, new Value(value));
     }
 
@@ -1165,8 +1148,6 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 newDeltas.add(entry);
             }
 
-            Logging.logCheckedFiner(LOG, "Adding ", newDeltas.size(), "entires to '", dn, "' deltas");
-
             synchronized (deltaMap) {
                 List<SrdiMessage.Entry> deltas = deltaMap.get(dn);
 
@@ -1256,12 +1237,12 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
                 long gcStart = TimeUtils.timeNow();
 
-                Logging.logCheckedFine(LOG, "Starting Garbage collection");
+
                 garbageCollect();
 
                 long gcStop = TimeUtils.timeNow();
-                Logging.logCheckedFine(LOG, "Garbage collection completed in ", (gcStop - gcStart), "ms.");
-                
+
+
             } catch (Throwable all) {
 
                 Logging.logCheckedSevere(LOG, "Uncaught Throwable in thread :", Thread.currentThread().getName(), "\n", all);
@@ -1321,8 +1302,7 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                     String dn = getDirName(adv);
                     Map<String, String> keyedIdx = addKey(dn, indexables);
 
-                    Logging.logCheckedFine(LOG, "Restoring index ", keyedIdx, " at ", pos);
-                    
+
                     index.addToIndex(keyedIdx, pos);
 
                 }

@@ -199,8 +199,6 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating toString of ", getClass().getName(), "@", super.hashCode());
-        
         result = doc.toString();
         cachedToString = new SoftReference<String>(result);
         
@@ -281,8 +279,6 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
-
         String charset = type.getParameter("charset");
 
         if (null == charset) {
@@ -337,8 +333,6 @@ public class TextDocumentMessageElement extends TextMessageElement {
                 }
             }
         }
-
-        Logging.logCheckedFiner(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String asString = toString();
 

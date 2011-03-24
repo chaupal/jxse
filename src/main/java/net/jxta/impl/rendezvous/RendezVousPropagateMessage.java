@@ -66,13 +66,11 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
-import net.jxta.logging.Logging;
 
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -143,7 +141,10 @@ public class RendezVousPropagateMessage {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement(elem))
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+            {
+
+
+            }
             
         }
 

@@ -662,9 +662,8 @@ public final class PSEMembershipService implements MembershipService {
      *  @param credential   The issuer credential for the service credential.
      **/
     X509Certificate[] generateServiceCertificate(ID assignedID, PSECredential credential) throws  IOException, KeyStoreException, InvalidKeyException, SignatureException {
-        
-        Logging.logCheckedFine(LOG, "Generating new service cert for ", assignedID);
-        
+
+
         IssuerInfo serviceinfo = peerSecurityEngine.generateCertificate(credential);
         
         // write the client root cert and private key
@@ -682,9 +681,8 @@ public final class PSEMembershipService implements MembershipService {
         }
         
         getPSEConfig().setKey(assignedID, serviceChain, serviceinfo.subjectPkey, keyPass);
-        
-        Logging.logCheckedFine(LOG, "Generated new service cert");
-        
+
+
         return serviceChain;
     }
     
@@ -697,9 +695,8 @@ public final class PSEMembershipService implements MembershipService {
     public PSECredential getServiceCredential(ID assignedID, PSECredential credential) throws IOException, PeerGroupException, InvalidKeyException, SignatureException {
         
         PSECredential pseCredential = null;
-        
-        Logging.logCheckedFine(LOG, "Getting service redential for ", assignedID);
-        
+
+
         Authenticator authenticate = null;
         
         if (null != authenticatorEngine) {

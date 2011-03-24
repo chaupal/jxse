@@ -71,7 +71,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -223,9 +222,8 @@ public class CMKeyStoreManager implements KeyStoreManager {
      *  {@inheritDoc}
      **/
     public KeyStore loadKeyStore(char[] password) throws KeyStoreException, IOException {
-        
-        Logging.logCheckedFine(LOG, "Loading (", keystore_type, ",", keystore_provider, ") store from ", keystore_location);
-        
+
+
         try {
 
             KeyStore store;
@@ -263,9 +261,8 @@ public class CMKeyStoreManager implements KeyStoreManager {
      *  {@inheritDoc}
      **/
     public void saveKeyStore(KeyStore store, char[] password) throws IOException, KeyStoreException {
-        
-        Logging.logCheckedFine(LOG, "Writing ", store, " to ", keystore_location);
-        
+
+
         try {
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();

@@ -411,7 +411,6 @@ class TlsConn {
 
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
 
-                Logging.logCheckedFine(LOG, "Getting messenger for ", destAddr);
 
                 EndpointAddress realAddr = new EndpointAddress(destAddr, JTlsDefs.ServiceName, null);
 
@@ -427,7 +426,6 @@ class TlsConn {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sending ", msg, " to ", destAddr);
 
         // Good we have a messenger. Send the message.
         return outBoundMessenger.sendMessage(msg);
@@ -497,7 +495,8 @@ class TlsConn {
                         }
 
                         // dispatch it to TlsTransport for demuxing
-                        Logging.logCheckedFine(LOG, "Dispatching ", msg, " to TlsTransport");
+
+
                         TlsConn.this.transport.processReceivedMessage(msg);
 
                         synchronized (TlsConn.this.lastAccessedLock) {
@@ -579,7 +578,6 @@ class TlsConn {
                     continue;
                 }
 
-                Logging.logCheckedFine(LOG, "CHECKING: ", certificate.getIssuerX500Principal(), " in ", allIssuers);
 
                 if (allIssuers.contains(certificate.getIssuerX500Principal())) {
                     return "theone";
@@ -691,17 +689,14 @@ class TlsConn {
                     Collection<Principal> allIssuers = Arrays.asList(issuers);
 
                     if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
-                        
-                        Logging.logCheckedFine(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
-                        Logging.logCheckedFine(LOG, "Issuers : ", allIssuers);
+
 
                         java.security.Principal prin = cred.getCertificate().getIssuerX500Principal();
-                        Logging.logCheckedFine(LOG, "  Principal Type :", prin.getClass().getName());
+
 
                         for (Principal issuer : allIssuers) {
-                            Logging.logCheckedFine(LOG, "Issuer Type : ", issuer.getClass().getName());
-                            Logging.logCheckedFine(LOG, "Issuer value : ", issuer);
-                            Logging.logCheckedFine(LOG, "tmp.equals(prin) : ", issuer.equals(prin));
+
+
                         }
 
                     }

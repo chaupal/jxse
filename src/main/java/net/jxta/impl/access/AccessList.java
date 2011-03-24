@@ -80,7 +80,6 @@ import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -187,7 +186,6 @@ public class AccessList {
 
     private InputStream getInputStream(URI uri) throws IOException {
 
-        Logging.logCheckedFine(LOG, "Loading ACL : ", uri);
 
         URL url = uri.toURL();
 

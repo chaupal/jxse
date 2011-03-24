@@ -60,7 +60,6 @@ package net.jxta.impl.endpoint.msgframing;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -74,7 +73,6 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -273,14 +271,12 @@ public class WelcomeMessage {
     public boolean read(ByteBuffer buffer) throws IOException {
         int limit = buffer.limit();
 
-        Logging.logCheckedFine(LOG, "Reading a buffer of size :{0}", limit);
-        
+
         if (limit == 0) throw new IOException(MessageFormat.format("Invalid welcome message. Invalid length {0}", limit));
         
         int eomPos = findEom(buffer, 0, limit);
 
-        Logging.logCheckedFine(LOG, "Buffer size :{0} Welcome End-Of-Message pos :{1}", limit, eomPos);
-        
+
         if (eomPos < 0) return false;
         
         welcomeBytes = new byte[eomPos];
@@ -292,8 +288,7 @@ public class WelcomeMessage {
             // skip <cr><ln>
             buffer.position(eomPos + 2);
 
-            Logging.logCheckedFine(LOG, "buffer stats :{0}", buffer.toString());
-            
+
         } catch (BufferUnderflowException buf) {
 
             // not enough data, signal for another read
@@ -427,8 +422,7 @@ public class WelcomeMessage {
             noPropagate = false;
             preferredMessageVersion = 0;
         }
-        
-        Logging.logCheckedFine(LOG, "Successfuly parsed a welcome message :", getWelcomeString());
+
 
     }
 
@@ -452,8 +446,7 @@ public class WelcomeMessage {
      */
     public ByteBuffer getByteBuffer() throws IOException {
 
-        Logging.logCheckedFine(LOG, "Sending welcome message of size:{0}", welcomeBytes.length + 2);
-        
+
         ByteBuffer buffer = ByteBuffer.allocate(welcomeBytes.length + 2);
 
         buffer.put(welcomeBytes);

@@ -68,7 +68,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -194,8 +193,8 @@ public class RelayReferralSeedingManager extends URISeedingManager {
             Logging.logCheckedWarning(LOG, "Unexpected error getting relays", ez1);
             
         }
-        
-        Logging.logCheckedFine(LOG, "Found ", result.size(), " relay seeds.");
+
+
         return result;
 
     }

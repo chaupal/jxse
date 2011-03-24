@@ -186,8 +186,6 @@ public class JxtaBidiPipeExample implements Runnable, PipeMsgListener {
 
         try {
 
-            Logging.logCheckedFiner(LOG, "[" + Thread.currentThread().getName() + "] Received a message");
-
             // Get the message element.
             MessageElement msgElement = msg.getMessageElement(JxtaServerPipeExample.MESSAGE_NAMESPACE_NAME, JxtaServerPipeExample.MESSAGE_ELEMENT_NAME);
 

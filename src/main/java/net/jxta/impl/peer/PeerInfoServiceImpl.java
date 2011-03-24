@@ -402,7 +402,8 @@ public class PeerInfoServiceImpl implements PeerInfoService {
             try {
                 requestSourceID = (PeerID) query.getSrcPeer();
             } catch (Exception e) {
-                Logging.logCheckedFine(LOG, "PeerInfoService.processQuery got a bad query, not valid src\n", e);
+
+
                 return ResolverService.OK;
             }
             
@@ -432,11 +433,13 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                     peerInfoHandler.processRequest(queryId, requestSourceID, pipquery,
                         requestElement, resolverServicePeerInfoMessenger);
                 } else {
-                    Logging.logCheckedFine(LOG, "No registered PeerInfoHandler for this type of request");
+
+
                 }
 
             } else {
-                Logging.logCheckedFine(LOG, "No request PeerInfoQueryMessage Request Element found");
+
+
             }
             
             return ResolverService.OK;
@@ -459,7 +462,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
 
             } catch (Exception e) {
 
-                Logging.logCheckedFine(LOG, "PeerInfoService.processResponse got a bad adv\n", e);
+
                 return;
 
             }
@@ -473,11 +476,13 @@ public class PeerInfoServiceImpl implements PeerInfoService {
                 if (peerInfoHandler != null) {
                     peerInfoHandler.processResponse(queryId, resp, responseElement, resolverServicePeerInfoMessenger);
                 } else {
-                    Logging.logCheckedFine(LOG, "No registered PeerInfoHandler for this type of response");
+                       Logging.logCheckedInfo(LOG, "No registered PeerInfoHandler for this type of response");
+
                 }
 
             } else {
-                Logging.logCheckedFine(LOG, "No request PeerInfoResponseMessage Response Element found");
+              Logging.logCheckedInfo(LOG, "No request PeerInfoResponseMessage Response Element found");
+
             }
         }
     }

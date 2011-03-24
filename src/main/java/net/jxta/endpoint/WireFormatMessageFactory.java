@@ -67,7 +67,6 @@ import java.nio.ByteBuffer;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -240,7 +239,6 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
 
         boolean registeredSomething = false;
 
-        Logging.logCheckedFine(LOG, "Registering : ", className);
 
         try {
             Class msgClass = Class.forName(className);
@@ -251,7 +249,6 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
 
             for (MimeMediaType mimeType : mimeTypes) {
 
-                Logging.logCheckedFiner(LOG, "   Registering Type : ", mimeType);
                 registeredSomething |= registerInstantiator(mimeType, instantiator);
 
             }

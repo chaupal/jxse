@@ -79,7 +79,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -242,8 +241,11 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
 
             XMLElement elem = (XMLElement) elements.nextElement();
 
-            if (!handleElement(elem)) 
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+            if (!handleElement(elem))
+            {
+
+
+            }
 
         }
 
@@ -385,7 +387,6 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setCertificate(X509Certificate newCert) {
 
-        Logging.logCheckedFine(LOG, "setCert : ", newCert);
 
         certs.clear();
 
@@ -405,7 +406,6 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setCertificateChain(X509Certificate[] newCerts) {
 
-        Logging.logCheckedFine(LOG, "setCert : ", newCerts);
 
         certs.clear();
 
@@ -598,7 +598,6 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setEncryptedPrivateKey(EncryptedPrivateKeyInfo newPriv, String algorithm) {
 
-        Logging.logCheckedFine(LOG, "setPrivateKey : ", newPriv);
 
         encryptedPrivateKey = newPriv;
         privAlgorithm = algorithm;
@@ -613,8 +612,7 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
      */
     public void setPrivateKey(PrivateKey newPriv, char[] password) {
 
-        Logging.logCheckedFine(LOG, "setPrivateKey : ", newPriv);
-        
+
         EncryptedPrivateKeyInfo encypted = PSEUtils.pkcs5_Encrypt_pbePrivateKey(password, newPriv, 500);
         setEncryptedPrivateKey(encypted, newPriv.getAlgorithm());
         
@@ -669,7 +667,6 @@ public final class PSEConfigAdv extends ExtendableAdvertisement implements Clone
                     continue;
                 }
 
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", eachcertelem.getName());
 
             }
 

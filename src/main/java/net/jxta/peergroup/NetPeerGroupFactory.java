@@ -139,8 +139,8 @@ public final class NetPeerGroupFactory {
                         ResourceBundle rsrcs = new PropertyResourceBundle(new FileInputStream(configProperties));
 
                         tunables = new NetGroupTunables(rsrcs, tunables);
-                        Logging.logCheckedFine(LOG, "Loaded defaults from ", rsrcs);
-                        
+
+
                     } catch (MissingResourceException ignored) {
                         // ingnored
                     } catch (IOException ignored) {
@@ -531,7 +531,6 @@ public final class NetPeerGroupFactory {
 
                 if (null != defaults) {
 
-                    Logging.logCheckedFine(LOG, "NetPeerGroup tunables not defined or could not be loaded. Using defaults.\n\n", failed);
 
                     idTmp = defaults.id;
                     nameTmp = defaults.name;

@@ -72,7 +72,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
-import net.jxta.logging.Logging;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
@@ -429,7 +429,8 @@ public class NoneMembershipService implements MembershipService {
          *  <code>join()</code>
          **/
         synchronized public boolean isReadyForJoin() {
-            Logging.logCheckedFine(LOG, "Always ready to join");
+
+
             // always ready.
             return true;
         }

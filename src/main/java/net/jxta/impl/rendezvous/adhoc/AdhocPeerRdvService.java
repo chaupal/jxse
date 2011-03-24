@@ -294,7 +294,6 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
                     ID dest = destPeerIDs.nextElement();
 
-                    Logging.logCheckedFine(LOG, "Sending ", msg, " to client ", dest);
 
                     EndpointAddress addr = mkAddress(dest, PropSName, PropPName);
 
@@ -374,7 +373,6 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
     @Override
     protected void repropagate(Message msg, RendezVousPropagateMessage propHdr, String serviceName, String serviceParam) {
 
-        Logging.logCheckedFine(LOG, "Repropagating ", msg, " (", propHdr.getMsgId(), ")");
 
         if (RendezvousMeterBuildSettings.RENDEZVOUS_METERING && (rendezvousMeter != null)) {
             rendezvousMeter.receivedMessageRepropagatedInGroup();
@@ -386,7 +384,8 @@ public class AdhocPeerRdvService extends RendezVousServiceProvider {
             if (null != propHdr) {
                 sendToNetwork(msg, propHdr);
             } else {
-                Logging.logCheckedFine(LOG, "No propagate header, declining to repropagate ", msg, ")");
+
+
             }
 
         } catch (Exception ez1) {

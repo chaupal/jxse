@@ -195,14 +195,8 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
 
         @Override
         public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-            
-            Logging.logCheckedFine(LOG, String.format("Incoming connection for transport %s from %s to %s (handled by %s)",
-                  getProtocolName(),
-                  e.getChildChannel().getRemoteAddress(),
-                  e.getChildChannel().getLocalAddress(),
-                  ctx.getChannel().getLocalAddress()
-                  ));
-                
+
+
             channels.add(e.getChildChannel());
             super.childChannelOpen(ctx, e);
         }

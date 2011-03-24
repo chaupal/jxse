@@ -67,7 +67,6 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.tcp.TcpMessenger;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
@@ -80,13 +79,6 @@ import net.jxta.protocol.PipeAdvertisement;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Properties;
 
@@ -418,8 +410,8 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (el != null) {
 
                 isReliable = Boolean.valueOf((el.toString()));
-                Logging.logCheckedFine(LOG, "Connection request [isReliable] :", isReliable);
-                
+
+
             }
 
             el = msg.getMessageElement(nameSpace, directSupportedTag);
@@ -428,8 +420,8 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (el != null) {
 
                 directSupported = Boolean.valueOf((el.toString()));
-                Logging.logCheckedFine(LOG, "Connection request [directSupported] :", directSupported);
-                
+
+
             }
             
             el = msg.getMessageElement(nameSpace, connectionPropertiesTag);
@@ -438,9 +430,9 @@ public class JxtaServerPipe implements PipeMsgListener {
             if (el != null) {
 
                 connectionPropertiesBytes = el.getBytes(false);
-                Logging.logCheckedFine(LOG, "Connection request [connectionPropertiesBytes] :", connectionPropertiesBytes);
 
-                if (connectionPropertiesBytes != null) 
+
+                if (connectionPropertiesBytes != null)
                     connectionProperties = bytesToProperties(connectionPropertiesBytes);
                 
             }
@@ -460,8 +452,7 @@ public class JxtaServerPipe implements PipeMsgListener {
 
             if (msgr != null) {
 
-                Logging.logCheckedFine(LOG, "Reliability set to :", isReliable);
-                
+
                 PipeAdvertisement newpipe = newInputPipe(group, outputPipeAdv);
                 JxtaBiDiPipe pipe = null;
 
@@ -481,8 +472,8 @@ public class JxtaServerPipe implements PipeMsgListener {
         } catch (IOException e) {
 
             // deal with the error
-            Logging.logCheckedFine(LOG, "IOException occured\n", e);
-            
+
+
         }
         
         return null;

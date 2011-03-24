@@ -628,7 +628,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             pipeSvc.createOutputPipe(pipeAdv, Collections.singleton(peerid), this);
         }
 
-        Logging.logCheckedFine(LOG, "Beginning Output Pipe Resolution. ", this);
 
         // Wait for the pipe resolution.
         synchronized (pipeResolveLock) {
@@ -646,8 +645,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                     }
                 } catch (InterruptedException ie) {
 
-                    Logging.logCheckedFine(LOG, "Interrupted\n", ie);
-                    
+
                     Thread.interrupted();
                     SocketException exp = new SocketException("Connect Interrupted");
                     exp.initCause(ie);
@@ -662,7 +660,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         try {
 
-            Logging.logCheckedFine(LOG, "Sending connect message. ", this);
 
             // send connect message
             connectOutpipe.send(openMsg);
@@ -685,8 +682,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                     } catch (InterruptedException ie) {
 
-                        Logging.logCheckedFine(LOG, "Interrupted\n" + ie);
-                        
+
                         Thread.interrupted();
                         SocketException exp = new SocketException("Connect Interrupted");
                         exp.initCause(ie);
@@ -1019,7 +1015,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                         sendClose();
                     }
 
-                    Logging.logCheckedFine(LOG, "Sent close, awaiting ACK for ", this);
 
                     // Don't send our close too many times.
                     try {
@@ -1037,7 +1032,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 if (isConnected()) {
 
                     // Last ditch close attempt
-                    Logging.logCheckedFine(LOG, "Still connected at end of timeout. Forcing closed.", this);
+
+
                     sendClose();
                     throw new SocketTimeoutException("Failed to receive close ack from remote connection.");
 
@@ -1077,7 +1073,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         synchronized (closeLock) {
 
-            Logging.logCheckedFine(LOG, "Received a remote close request.", this);
 
             // If we are still bound then send them a close ACK.
             if (isBound() && (ros != null && ros.isQueueEmpty())) {
@@ -1127,11 +1122,10 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         setBound(false);
 
         // close pipe and messenger
-        Logging.logCheckedFine(LOG, "Closing ephemeral input pipe");
+
 
         localEphemeralPipeIn.close();
 
-        Logging.logCheckedFine(LOG, "Closing remote ephemeral pipe messenger");
 
         if(null != outgoing) {
             outgoing.close();
@@ -1144,8 +1138,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
 
-        Logging.logCheckedFiner(LOG, "Pipe Message Event for ", this, "\n\t", event.getMessage(), " for ", event.getPipeID());
-
         Message message = event.getMessage();
         if (message == null) {
             return;
@@ -1156,13 +1148,12 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
         if (element != null) {
 
-            Logging.logCheckedFine(LOG, "Handling a close message ", this, " : ", element);
-            
+
             if (JxtaServerSocket.closeReqValue.equals(element.toString())) {
 
                 try {
 
-                    Logging.logCheckedFine(LOG, "Received a close request");
+
                     closeFromRemote();
 
                 } catch (IOException ie) {
@@ -1173,8 +1164,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
             } else if (JxtaServerSocket.closeAckValue.equals(element.toString())) {
 
-                Logging.logCheckedFine(LOG, "Received a close acknowledgement");
-                
+
                 synchronized (closeLock) {
                     closeAckReceived = true;
                     setConnected(false);
@@ -1189,7 +1179,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         if (!isConnected()) {
 
             // connect response
-            Logging.logCheckedFine(LOG, "Processing connect response : ", message);
+
 
             // look for a remote pipe answer
             element = message.getMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE, JxtaServerSocket.remPipeTag);
@@ -1300,7 +1290,6 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
 
                 if (waitFor <= 0) break;
 
-                Logging.logCheckedFine(LOG, "Holding ", message, " for ", timeout);
 
                 try {
                     socketConnectLock.wait(timeout);
@@ -1393,8 +1382,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
             throw new IllegalArgumentException(pipeAdv.getType() + " is not a supported pipe type");
         }
 
-        Logging.logCheckedFine(LOG, "New pipe lightweight messenger for ", addr);
-        
+
         return endpoint.getMessenger(addr, routeHint);
     }
 
@@ -1410,8 +1398,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 ,
                 new StringMessageElement(JxtaServerSocket.closeTag, JxtaServerSocket.closeReqValue, null));
 
-        Logging.logCheckedFine(LOG, "Sending a close request ", this, " : ", msg);
-        
+
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
             
             Logging.logCheckedSevere(LOG, "Failed to send a close request ", this, " : ", msg);
@@ -1429,8 +1416,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
         msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                 new StringMessageElement(JxtaServerSocket.closeTag, JxtaServerSocket.closeAckValue, null));
 
-        Logging.logCheckedFine(LOG, "Sending a close ACK ", this, " : ", msg);
-        
+
         if( ! remoteEphemeralPipeMsgr.sendMessageN(msg, null, null) ){
             
             Logging.logCheckedSevere(LOG, "Failed to send a close ACK ", this, " : ", msg);

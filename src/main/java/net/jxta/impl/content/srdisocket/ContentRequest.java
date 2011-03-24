@@ -63,9 +63,8 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
+
 import net.jxta.content.ContentID;
 import net.jxta.document.Document;
 import net.jxta.document.Element;
@@ -180,7 +179,8 @@ public class ContentRequest {
             Element elem = (Element) elements.nextElement();
 
             if (!handleElement(elem)) {
-                Logging.logCheckedFine(LOG, "Unhandled Element : ", elem);
+
+
             }
         }
     }

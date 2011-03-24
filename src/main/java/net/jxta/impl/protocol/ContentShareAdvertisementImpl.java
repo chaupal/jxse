@@ -57,9 +57,8 @@
 package net.jxta.impl.protocol;
 
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Attribute;
@@ -181,7 +180,8 @@ public class ContentShareAdvertisementImpl extends ContentShareAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
 
             if (!handleElement( elem )) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
             
         }

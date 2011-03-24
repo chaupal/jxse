@@ -115,7 +115,6 @@ public class DefaultConfigurator extends AutomaticConfigurator {
             File file = new File(jxtaHomeDir, "reconf");
             forceReconfig = file.exists();
 
-            Logging.logCheckedFine(LOG, "force reconfig : ", forceReconfig);
 
             return forceReconfig;
 

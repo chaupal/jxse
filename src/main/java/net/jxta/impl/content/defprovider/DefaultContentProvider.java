@@ -72,7 +72,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.Content;
@@ -277,8 +276,7 @@ public class DefaultContentProvider implements
      */
     public void init(PeerGroup group, ID assignedID, Advertisement implAdv) {
 
-        Logging.logCheckedFine(LOG, "initProvider(): group=", group);
-        
+
         peerGroup = group;
         executor = Executors.newScheduledThreadPool(
                 5, new ThreadFactoryImpl(group));
@@ -300,8 +298,7 @@ public class DefaultContentProvider implements
      */
     public synchronized int startApp(String[] args) {
 
-        Logging.logCheckedFine(LOG, "startApp()");
-        
+
         if (running) return Module.START_OK;
         
         running = true;
@@ -336,7 +333,8 @@ public class DefaultContentProvider implements
                 try {
                     processMessages();
                 } catch (InterruptedException intx) {
-                    Logging.logCheckedFine(LOG, "Interrupted\n" + intx);
+
+
                     Thread.interrupted();
                 }
             }
@@ -351,9 +349,8 @@ public class DefaultContentProvider implements
      * {@inheritDoc}
      */
     public synchronized void stopApp() {
-        
-        Logging.logCheckedFine(LOG, "stopApp()");
-        
+
+
         if (!running) return;
         
         tracker.stop();
@@ -423,8 +420,7 @@ public class DefaultContentProvider implements
      */
     public ContentTransfer retrieveContent(ContentID contentID) {
 
-        Logging.logCheckedFine(LOG, "retrieveContent(", contentID, ")");
-        
+
         synchronized(this) {
             if (!running) return null;
         }
@@ -443,8 +439,7 @@ public class DefaultContentProvider implements
      */
     public ContentTransfer retrieveContent(ContentShareAdvertisement adv) {
 
-        Logging.logCheckedFine(LOG, "retrieveContent(", adv, ")");
-        
+
         synchronized(this) {
             if (!running) return null;
         }
@@ -463,7 +458,6 @@ public class DefaultContentProvider implements
      */
     public List<ContentShare> shareContent(Content content) {
 
-        Logging.logCheckedFine(LOG, "shareContent(): Content=", content, " ", this);
 
         PipeAdvertisement pAdv;
 
@@ -472,7 +466,8 @@ public class DefaultContentProvider implements
         }
 
         if (pipeAdv == null) {
-            Logging.logCheckedFine(LOG, "Cannot create share before initialization");
+
+
             return null;
         }
 
@@ -505,8 +500,7 @@ public class DefaultContentProvider implements
      */
     public boolean unshareContent(ContentID contentID) {
 
-        Logging.logCheckedFine(LOG, "unhareContent(): ContentID=", contentID);
-        
+
         ContentShare oldShare;
         synchronized(shares) {
             oldShare = shares.remove(contentID);
@@ -571,7 +565,8 @@ public class DefaultContentProvider implements
         if (msgQueue.offer(pme)) {
             notifyAll();
         } else {
-            Logging.logCheckedFine(LOG, "Dropped message due to full queue");
+
+
         }
     }
 
@@ -618,8 +613,7 @@ public class DefaultContentProvider implements
         PipeMsgEvent pme;
         Message msg;
 
-        Logging.logCheckedFine(LOG, "Worker thread starting");
-        
+
         while (true) {
             synchronized(this) {
                 if (!running) {
@@ -645,7 +639,6 @@ public class DefaultContentProvider implements
             }
         }
 
-        Logging.logCheckedFine(LOG, "Worker thread closing up shop");
 
     }
 
@@ -659,7 +652,6 @@ public class DefaultContentProvider implements
         StructuredDocument doc;
         DataRequest req;
 
-        Logging.logCheckedFinest(LOG, "Incoming message:\n", msg.toString(), "\n");
 
         it = msg.getMessageElementsOfNamespace(MSG_NAMESPACE);
 
@@ -679,12 +671,12 @@ public class DefaultContentProvider implements
 
             } catch (IOException iox) {
 
-                Logging.logCheckedFine(LOG, "Could not process message\n", iox);
+
                 return;
 
             }
 
-            Logging.logCheckedFinest(LOG, "Request: ", req.getDocument(MimeMediaType.XMLUTF8));
+
             processDataRequest(req);
 
         }
@@ -701,12 +693,6 @@ public class DefaultContentProvider implements
         DefaultContentShare share;
         int written;
 
-        Logging.logCheckedFinest(LOG, "DataRequest:");
-        Logging.logCheckedFinest(LOG, "   ContentID: ", req.getContentID());
-        Logging.logCheckedFinest(LOG, "   Offset : ", req.getOffset());
-        Logging.logCheckedFinest(LOG, "   Length : ", req.getLength());
-        Logging.logCheckedFinest(LOG, "   QID    : ", req.getQueryID());
-        Logging.logCheckedFinest(LOG, "   PipeAdv: ", req.getResponsePipe());
 
         share = getShare(req.getContentID());
 
@@ -769,16 +755,13 @@ public class DefaultContentProvider implements
             msg.addMessageElement(MSG_NAMESPACE, msge);
         }
 
-        Logging.logCheckedFiner(LOG, "Sending response: " + msg);
-
         try {
             if (destPipe.send(msg)) return;
         } catch (IOException iox) {
             Logging.logCheckedWarning(LOG, "IOException during message send\n", iox);
         }
 
-        Logging.logCheckedFine(LOG, "Did not send message");
-        
+
     }
     
     /**

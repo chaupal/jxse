@@ -257,7 +257,6 @@ public final class RelayTransport implements EndpointListener, Module {
 
         endpoint.addIncomingMessageListener(this, serviceName, null);
 
-        Logging.logCheckedFine(LOG, "Message Listener added ", serviceName);
 
         if (relayServer != null) {
             if (!relayServer.startServer()) {
@@ -291,7 +290,7 @@ public final class RelayTransport implements EndpointListener, Module {
         } else {
 
             endpoint.removeIncomingMessageListener(serviceName, null);
-            Logging.logCheckedFine(LOG, "Message Listener removed ", serviceName);
+
 
         }
 
@@ -308,7 +307,6 @@ public final class RelayTransport implements EndpointListener, Module {
      */
     public void processIncomingMessage(Message message, EndpointAddress srcAddr, EndpointAddress dstAddr) {
 
-        Logging.logCheckedFine(LOG, "Started for ", message, "\tsrc=", srcAddr);
 
         MessageElement element;
 

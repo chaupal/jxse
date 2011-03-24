@@ -63,7 +63,6 @@ import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -171,7 +170,6 @@ public class CbJxMessenger extends BlockingMessenger {
 
         EndpointAddress destAddressToUse = getDestAddressToUse(service, serviceParam);
 
-        Logging.logCheckedFine(LOG, "Messenger: sending out ", msg, " to: ", destAddressToUse);
 
         // add the cbjx info to the message
         msg = transport.addCryptoInfo(msg, destAddressToUse);
@@ -200,7 +198,7 @@ public class CbJxMessenger extends BlockingMessenger {
 
             if ((null == outBoundMessenger) || outBoundMessenger.isClosed()) {
 
-                Logging.logCheckedFine(LOG, "Getting messenger for ", newDestAddr);
+
                 outBoundMessenger = transport.endpoint.getMessengerImmediate(newDestAddr, null);
 
                 if (outBoundMessenger == null) {
@@ -212,7 +210,6 @@ public class CbJxMessenger extends BlockingMessenger {
             }
         }
 
-        Logging.logCheckedFine(LOG, "Sending ", msg, " to endpoint ", newDestAddr);
 
         // Good we have a messenger. Send the message.
         outBoundMessenger.sendMessageB(msg, null, null);

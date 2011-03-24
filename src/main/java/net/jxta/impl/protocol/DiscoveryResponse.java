@@ -67,7 +67,6 @@ import java.io.StringReader;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -265,7 +264,8 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
                     String aResponse = elem.getTextValue();
 
                     if (null == aResponse) {
-                        Logging.logCheckedFine(LOG, "Discarding an empty response tag");
+
+
                         continue;
                     }
 
@@ -283,8 +283,8 @@ public class DiscoveryResponse extends DiscoveryResponseMsg {
                     } else {
 
                         // if there are no attribute use DEFAULT_EXPIRATION
-                        Logging.logCheckedFine(LOG,
-                            "Received an old-style DiscoveryResponse.\n You received a response from a peer that does \nnot support advertisement aging. \nSetting expiration to DiscoveryService.DEFAULT_EXPIRATION ");
+
+
                         exp = DiscoveryService.DEFAULT_EXPIRATION;
 
                     }

@@ -73,10 +73,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -277,7 +275,8 @@ public class IncomingUnicastServer implements Runnable {
                                 transport.executor.execute(builder);
                                 transport.incrementConnectionsAccepted();
                             } catch (RejectedExecutionException re) {
-                                Logging.logCheckedFine(LOG, "Executor rejected task : {0}\n{1}", builder.toString(), re.toString());
+
+
                             }
                         }
                     }
@@ -318,7 +317,8 @@ public class IncomingUnicastServer implements Runnable {
                     try {
                         temp.close();
                     } catch (IOException ignored) {
-                        Logging.logCheckedFine(LOG, "Exception occurred while closing server socket\n", ignored);
+
+
                     }
                 }
                 acceptThread = null;
@@ -426,7 +426,7 @@ public class IncomingUnicastServer implements Runnable {
             } catch (IOException io) {
 
                 // protect against invalid connections
-                Logging.logCheckedFine(LOG, "Messenger creation failure\n\n", io);
+
 
             } catch (Throwable all) {
 

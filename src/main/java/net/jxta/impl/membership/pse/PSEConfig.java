@@ -77,7 +77,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
-import net.jxta.logging.Logging;
 
 /**
  * Manages the state of a Personal Security Enviroment.
@@ -268,7 +267,8 @@ public final class PSEConfig {
     boolean validPasswd(ID id, char[] store_password, char[] key_password) {
 
         if (null == id) {
-            Logging.logCheckedFine(LOG, "null id");
+
+
             return false;
         }
 
@@ -293,7 +293,10 @@ public final class PSEConfig {
                 Key key = store.getKey(alias, key_password);
                 
                 if ( key == null )
-                    Logging.logCheckedFine(LOG, "Can't retrieve key for alias: ", alias);
+                {
+
+
+                }
 
                 return (null != key);
             }

@@ -59,10 +59,8 @@ package net.jxta.impl.util.pipe.reliable;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.logging.Logging;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -162,8 +160,8 @@ public class OutgoingMsgrAdaptor implements Outgoing {
      *@param  time  The new lastAccessed in milliseconds
      */
     public void setLastAccessed(long time) {
-        
-        Logging.logCheckedFine(LOG, "Setting lastAccessed to :", lastAccessed);
+
+
         lastAccessed = time;
 
     }
@@ -178,8 +176,8 @@ public class OutgoingMsgrAdaptor implements Outgoing {
     public boolean send(Message msg) throws IOException {
 
         if (closed) throw new IOException("broken connection");
-        
-        Logging.logCheckedFine(LOG, "Sending a Message");
+
+
         msgr.sendMessageB(msg, null, null);
         
         return true;

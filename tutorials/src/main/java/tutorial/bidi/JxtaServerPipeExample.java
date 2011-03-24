@@ -162,8 +162,6 @@ public class JxtaServerPipeExample {
                 // grab the message from the event
                 Message msg = event.getMessage();
 
-                Logging.logCheckedFiner(LOG, "[" + Thread.currentThread().getName() + "] Received a response");
-                
                 // get the message element named SenderMessage
                 MessageElement msgElement = msg.getMessageElement(MESSAGE_NAMESPACE_NAME, RESPONSE_ELEMENT_NAME);
                 

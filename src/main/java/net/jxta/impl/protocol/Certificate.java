@@ -67,7 +67,6 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.membership.pse.PSEUtils;
-import net.jxta.logging.Logging;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -81,7 +80,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -191,7 +189,8 @@ public class Certificate {
             Element elem = (Element) elements.nextElement();
 
             if (!elem.getKey().equals("Issuer")) {
-                Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
                 continue;
             }
 

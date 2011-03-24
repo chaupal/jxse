@@ -142,8 +142,6 @@ class PeerGroupInterface implements PeerGroup {
         groupImpl = theRealThing;
         requestor = new Throwable("Requestor Stack Trace : " + theRealThing.getPeerGroupID());
         instance = interfaceInstanceCount.incrementAndGet();
-        
-        Logging.logCheckedFine(LOG, "Peer Group Interface Constructed {", instance, "}\n", requestor.toString());
 
     }
 
@@ -267,15 +265,12 @@ class PeerGroupInterface implements PeerGroup {
 
         if (unref) {
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
 
                 Throwable unrefer = new Throwable("Unrefer Stack Trace", requestor);
-                Logging.logCheckedFiner(LOG, "Peer Group Interface Unreference {", instance, "}\n",
-                        unrefer);
 
-            } else {
+
                 Logging.logCheckedInfo(LOG, "Peer Group Interface Unreference {", instance, "}");
-            }
+
 
             groupImpl = null;
 

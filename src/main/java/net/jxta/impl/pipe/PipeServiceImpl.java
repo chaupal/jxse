@@ -77,7 +77,6 @@ import net.jxta.service.Service;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -397,9 +396,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 					"PipeAdvertisement PipeID may not be null");
 		}
 
-		Logging.logCheckedFine(LOG, "Create ", type, " InputPipe for ", pipeId);
 
-		InputPipe inputPipe;
+        InputPipe inputPipe;
 		// create an InputPipe.
 		if (type.equals(PipeService.UnicastType)) {
 			inputPipe = new InputPipeImpl(pipeResolver, adv, listener);
@@ -451,10 +449,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
 		createOutputPipe(adv, resolvablePeers, localListener, queryid);
 
-		Logging.logCheckedFine(LOG, "Waiting synchronously for ", timeout,
-                    "ms to resolve OutputPipe for ", adv.getPipeID());
 
-		try {
+        try {
 			synchronized (localListener) {
 				while ((null == localListener.event)
 						&& (TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(),
@@ -519,9 +515,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
 		}
 
-		Logging.logCheckedFine(LOG, "Create ", type, " OutputPipe for ", pipeId);
 
-		if (PipeService.PropagateType.equals(type)) {
+        if (PipeService.PropagateType.equals(type)) {
 			OutputPipe op;
 
 			if (resolvablePeers.size() == 1) {
@@ -609,10 +604,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 						+ pipeHolder.queryid);
 			}
 
-			Logging.logCheckedFine(LOG, "Adding pipe listener for pipe ", pipeId,
-		            " and query ", pipeHolder.queryid);
 
-			perpipelisteners.put(pipeHolder.queryid, pipeHolder);
+            perpipelisteners.put(pipeHolder.queryid, pipeHolder);
 		}
 	}
 
@@ -642,8 +635,9 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
                         if (pl.listener == listener) {
                                 pipeResolver.removeListener((PipeID) pipeID, pl.queryid);
-                                Logging.logCheckedFine(LOG, "Removing listener for query ", pl.queryid);
-                                perpipelisteners.remove(entry.getKey());
+
+
+                            perpipelisteners.remove(entry.getKey());
                         }
 
                     }
@@ -682,7 +676,6 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
                     OutputPipeHolder pipeHolder = perpipelisteners.get(queryID);
                     perpipelisteners.remove(queryID);
 
-                    Logging.logCheckedFine(LOG, "Removing listener for query ", queryID);
 
                     // clean up the map if there are no more listeners for the pipe
                     if (perpipelisteners.isEmpty()) outputPipeListeners.remove(pipeID);
@@ -717,7 +710,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
                     if (perpipelisteners == null) {
 
-                        Logging.logCheckedFine(LOG, "No listener for event for pipe ", pipeID);
+
                         return false;
 
                     }
@@ -726,7 +719,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
                     if (pipeHolder == null) {
 
-                        Logging.logCheckedFine(LOG, "No listener for event for query ", queryID);
+
                         return false;
 
                     }
@@ -785,8 +778,8 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
             }
 
-            Logging.logCheckedFine(LOG, "No listener for event for ", event.getPipeID());
-            return false;
+
+        return false;
 
 	}
 

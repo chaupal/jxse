@@ -86,7 +86,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.content.ContentService;
 
@@ -223,7 +222,8 @@ public class LightWeightPeerGroup implements PeerGroup {
         try {
             return group;
         } catch (Exception ex) {
-            Logging.logCheckedFine(LOG, "LightWeightPeerGroup is a base PeerGroup: no parent");
+
+
             throw new RuntimeException("LightWeightPeerGroup is a base PeerGroup: no parent");
         }
 

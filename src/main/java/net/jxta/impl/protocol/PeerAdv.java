@@ -68,7 +68,6 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleClassID;
@@ -78,7 +77,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -182,7 +180,8 @@ public class PeerAdv extends PeerAdvertisement {
             XMLElement elem = (XMLElement) elements.nextElement();
             
             if (!handleElement(elem)) {
-                    Logging.logCheckedFine(LOG, "Unhandled Element: ", elem);
+
+
             }
             
         }

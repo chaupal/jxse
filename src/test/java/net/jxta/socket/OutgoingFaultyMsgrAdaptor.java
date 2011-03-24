@@ -65,9 +65,8 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
 
-import java.util.logging.Level;
 import net.jxta.impl.util.pipe.reliable.*;
-import net.jxta.logging.Logging;
+
 import java.util.logging.Logger;
 
 
@@ -190,7 +189,7 @@ public class OutgoingFaultyMsgrAdaptor implements Outgoing {
      */
     public void setLastAccessed(long time) {
 
-        Logging.logCheckedFine(LOG, "Setting lastAccessed to :" + lastAccessed);
+
         lastAccessed = time;
 
     }
@@ -205,13 +204,13 @@ public class OutgoingFaultyMsgrAdaptor implements Outgoing {
     public synchronized boolean send(Message msg) throws IOException {
 
         if (closed) throw new IOException("broken connection");
-        
-        Logging.logCheckedFine(LOG, "Sending a Message");
-        
+
+
         if (rand.nextDouble() < MESSAGE_LOSS_PROBABILITY) {
 
             // we sent it. Really! we sent it!....
-            Logging.logCheckedFine(LOG, "Losing " + msg);
+
+
             return true;
 
         }
@@ -221,7 +220,8 @@ public class OutgoingFaultyMsgrAdaptor implements Outgoing {
         if (delay > 50) {
 
             delayMessageTimer.schedule(new DelayTask(msg), delay);
-            Logging.logCheckedFine(LOG, "Delaying " + msg + " for " + delay + "ms.");
+
+
             return true;
 
         } else {        

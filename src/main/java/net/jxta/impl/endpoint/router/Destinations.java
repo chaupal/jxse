@@ -61,24 +61,19 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 
 
@@ -216,7 +211,8 @@ class Destinations {
             Messenger currentIncoming = getIncoming();
 
             if (currentIncoming == null) {
-                Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
+
+
                 incomingMessenger = m;
                 return true;
             }
@@ -245,7 +241,6 @@ class Destinations {
 
             incomingMessenger = m;
 
-            Logging.logCheckedFine(LOG, "Accepted new incoming messenger for ", m.getDestinationAddress());
 
             return true;
         }
@@ -258,7 +253,7 @@ class Destinations {
             xportDest = m.getDestinationAddress();
             expiresAt = TimeUtils.toAbsoluteTimeMillis(EXPIRATION);
 
-            Logging.logCheckedFine(LOG, "Accepted new outgoing messenger for ", xportDest);
+
             return true;
 
         }

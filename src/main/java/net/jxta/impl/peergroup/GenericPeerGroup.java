@@ -808,7 +808,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             } catch (ProtocolNotSupportedException failed) {
 
                 // Incompatible implementation.
-                Logging.logCheckedFine(LOG, "Incompatbile impl adv");
+                Logging.logCheckedWarning(LOG, "Initialization failed incompatible implementation\n", failed);
 
             } catch (PeerGroupException failed) {
 
@@ -1047,7 +1047,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             // the config to see if we have any PeerGroupConfigAdv params
             if (null == parentGroup) {
 
-                Logging.logCheckedFine(LOG, "Setting up group loader -> static loader");
+
                 loader = new RefJxtaLoader(new URL[0], staticLoader, COMP_EQ, this);
 
             } else {
@@ -1068,7 +1068,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                     }
                 }
 
-                Logging.logCheckedFine(LOG, "Setting up group loader -> ", upLoader);
+
                 loader = new RefJxtaLoader(new URL[0], upLoader, COMP_EQ, this);
 
             }
@@ -1560,7 +1560,11 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     public boolean isRendezvous() {
 
-        if (rendezvous == null) Logging.logCheckedFine(LOG, "Rendezvous service null");
+        if (rendezvous == null)
+        {
+
+
+        }
 
         return (rendezvous != null) && rendezvous.isRendezVous();
 

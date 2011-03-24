@@ -67,7 +67,6 @@ import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -97,7 +96,8 @@ public class TlsMessenger extends BlockingMessenger {
               false);
         
         if (conn == null) {
-            Logging.logCheckedFine(LOG, "null TLS connection!");
+
+
             throw new IllegalArgumentException("null TLS connection!");
         }
         
@@ -158,9 +158,8 @@ public class TlsMessenger extends BlockingMessenger {
      */
     @Override
     public synchronized void sendMessageBImpl(Message message, String service, String serviceParam) throws IOException {
-        
-        Logging.logCheckedFine(LOG, "Starting send for ", message);
-        
+
+
         // check if the connection has died.
         if (HandshakeState.CONNECTIONDEAD == conn.getHandshakeState()) {
 
@@ -201,8 +200,7 @@ public class TlsMessenger extends BlockingMessenger {
             throw caught;
 
         }
-        
-        Logging.logCheckedFine(LOG, "Message send to \'", dstAddress, "\' succeeded for ", message);
 
-    }    
+
+    }
 }

@@ -63,7 +63,6 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.StringMessageElement;
-import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
@@ -90,7 +89,6 @@ public class Requestor {
 
         int count;
 
-        Logging.logCheckedFine(LOG, "send to ", address);
 
         try {
 
@@ -113,7 +111,8 @@ public class Requestor {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
                             Thread.interrupted();
-                            Logging.logCheckedFine(LOG, "Retry getting a messenger\n", e);
+
+
                         }
                         count++;
                     }
@@ -137,7 +136,6 @@ public class Requestor {
 
     public boolean send(Advertisement adv, String resultType) {
 
-        Logging.logCheckedFine(LOG, "send ", adv);
 
         Message message = new Message();
 
@@ -165,7 +163,6 @@ public class Requestor {
                     ,
                     new StringMessageElement(ProxyService.ID_TAG, peerAdv.getPeerID().toString(), null));
 
-            Logging.logCheckedFine(LOG, "send PeerAdvertisement name=", peerAdv.getName(), " id=", peerAdv.getPeerID());
 
         } else if (adv instanceof PeerGroupAdvertisement) {
 
@@ -204,8 +201,6 @@ public class Requestor {
                     ,
                     new StringMessageElement(ProxyService.ARG_TAG, pipeAdv.getType(), null));
 
-            Logging.logCheckedFine(LOG, "send PipeAdvertisement name=", pipeAdv.getName(), " id=",
-                pipeAdv.getPipeID(), " arg=", pipeAdv.getType());
 
         } else {
             return false;
@@ -232,7 +227,6 @@ public class Requestor {
 
     public boolean notifyError(String errorString) {
 
-        Logging.logCheckedFine(LOG, "notifyError ", errorString);
 
         Message message = new Message();
 
@@ -254,8 +248,6 @@ public class Requestor {
      */
     @Override
     public boolean equals(Object obj) {
-
-        Logging.logCheckedFine(LOG, this, " equals ", obj);
 
         if (obj instanceof Requestor) {
             Requestor dest = (Requestor) obj;
@@ -297,7 +289,6 @@ public class Requestor {
     public static Requestor createRequestor(PeerGroup group, Message message, EndpointAddress address, int threshold) throws IOException {
         Requestor requestor;
 
-        Logging.logCheckedFine(LOG, "create new Requestor - ", address);
 
         MessageElement elem = message.getMessageElement(ProxyService.REQUESTID_TAG);
 

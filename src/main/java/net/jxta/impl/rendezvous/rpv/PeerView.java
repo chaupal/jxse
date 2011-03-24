@@ -101,7 +101,6 @@ import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
-import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -438,7 +437,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         if (!(adv instanceof RdvConfigAdv)) {
 
-            Logging.logCheckedFine(LOG, "Creating new RdvConfigAdv for defaults.");
+
             rdvConfigAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType());
 
         } else {
@@ -612,7 +611,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         // Is this a message about ourself?
         if (group.getPeerID().equals(radv.getPeerID())) {
 
-            Logging.logCheckedFine(LOG, "Received a PeerView message about self. Discard.");
+
             return;
 
         }
@@ -740,7 +739,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 // with our own advertisement.
                 status = send(pve, self, true, false);
 
-                Logging.logCheckedFine(LOG, "Type 1 (Respond with self PVE) : Sent to ", pve, " result =", status);
 
                 // Type 3: Respond with random entry from our PV when we are probed.
                 //
@@ -749,7 +747,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                 if ((sendpve != null) && !pve.equals(sendpve) && !self.equals(sendpve)) {
                     status = send(pve, sendpve, true, false);
-                    Logging.logCheckedFine(LOG, "Type 3 (Respond with random PVE) : Sent ", sendpve, " to ", pve, " result=", status);
+
+
                 }
 
             } else {
@@ -767,7 +766,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 // seeds happens as part of the "kick" strategy).
                 status = send(pve, self, false, false);
 
-                Logging.logCheckedFine(LOG, "Type 2 (Probe PVE) : Probed ", pve, " result=", status);
 
             } else {
                 // Already known or ignoring: do nothing.
@@ -795,7 +793,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             int theEventType = event.getType();
 
-            Logging.logCheckedFine(LOG, "[", group.getPeerGroupName(), "] Processing  ", event);
 
             refreshSelf();
 
@@ -1082,7 +1079,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
     private void scheduleOpenPipes(long delay) {
 
-        Logging.logCheckedFine(LOG, "Scheduling open pipes attempt in ", delay, "ms.");
+
         addTask(new OpenPipesTask(), delay, -1);
 
     }
@@ -1101,7 +1098,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         boolean result = dest.sendMessage(msg, SERVICE_NAME, uniqueGroupId);
 
-        Logging.logCheckedFine(LOG, "Sending ", msg, " to ", dest, " success = ", result);
+
         return result;
 
     }
@@ -1129,7 +1126,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     boolean result = messenger.sendMessage(msg);
 
-                    Logging.logCheckedFine(LOG, "Sending ", msg, " to ", dest, " success = ", result);
 
                     return result;
 
@@ -1153,7 +1149,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             try {
 
                 endpoint.propagate(msg, SERVICE_NAME, uniqueGroupId);
-                Logging.logCheckedFine(LOG, "Sent ", msg, " via propagate");
+
+
                 return true;
 
             } catch (IOException ez) {
@@ -1282,7 +1279,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
      */
     void notifyFailure(PeerViewElement pve, boolean propagateFailure) {
 
-        Logging.logCheckedFine(LOG, "Notifying failure of ", pve);
 
         try {
 
@@ -1310,7 +1306,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 OutputPipe op = localGroupWirePipeOutputPipe;
 
                 if (null != op) {
-                    Logging.logCheckedFine(LOG, "Propagating failure of ", pve);
+
+
                     send(op, pve, true, true);
                 }
 
@@ -1331,7 +1328,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         try {
 
-            Logging.logCheckedFine(LOG, "Begun kick() in ", group.getPeerGroupID());
 
             // Use seed strategy. (it has its own throttling and resource limiting).
             seed();
@@ -1340,7 +1336,8 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             PeerViewElement refreshee = refreshRecipientStrategy.next();
 
             if ((refreshee != null) && (self != refreshee)) {
-                Logging.logCheckedFine(LOG, "Refresh ", refreshee);
+
+
                 send(refreshee, self, false, false);
             }
 
@@ -1350,24 +1347,27 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             PeerViewElement recipient = kickRecipientStrategy.next();
 
             if (recipient == null) {
-                Logging.logCheckedFine(LOG, "No recipient to send adv ");
+
+
                 return;
             }
 
             PeerViewElement rpve = kickAdvertisementStrategy.next();
 
             if (rpve == null) {
-                Logging.logCheckedFine(LOG, "No adv to send");
+
+
                 return;
             }
 
             if (rpve.equals(recipient) || self.equals(recipient)) {
                 // give up: no point in sending a peer its own adv
-                Logging.logCheckedFine(LOG, "adv to send is same as recipient: Nothing to do.");
+
+
                 return;
             }
 
-            Logging.logCheckedFine(LOG, "Sending adv ", rpve, " to ", recipient);
+
             send(recipient, rpve, true, false);
 
         } finally {
@@ -1411,8 +1411,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             long tilNextKick = DEFAULT_BOOTSTRAP_KICK_INTERVAL * ((1L << bootLevel) - 1);
 
-            Logging.logCheckedFine(LOG, "Scheduling kick in ", (tilNextKick / TimeUtils.ASECOND),
-                " seconds at bootLevel ", bootLevel, " in group ", group.getPeerGroupID());
 
             KickerTask task = new KickerTask();
             addTask(task, tilNextKick, -1);
@@ -1492,7 +1490,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         boolean added = rpvListeners.add(listener);
 
-        Logging.logCheckedFine(LOG, "Registered PeerViewEvent Listener (", listener.getClass().getName(), ")");
 
         return added;
     }
@@ -1507,7 +1504,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         boolean removed = rpvListeners.remove(listener);
 
-        Logging.logCheckedFine(LOG, "Removed PeerViewEvent Listener (", listener.getClass().getName(), ")");
 
         return removed;
         
@@ -1523,7 +1519,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         PeerViewEvent newevent = new PeerViewEvent(this, type, element);
 
-        Logging.logCheckedFine(LOG, "Calling listeners for ", newevent, " in group ", group.getPeerGroupID());
 
         for (Object o : Arrays.asList(rpvListeners.toArray())) {
 
@@ -1593,8 +1588,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
         } catch (Exception failed) {
 
-            Logging.logCheckedFine(LOG, "PipeService not ready yet. Trying again in 1 second.");
-            
+
             // Try again in one second.
             scheduleOpenPipes(TimeUtils.ASECOND);
             return;
@@ -1624,7 +1618,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
             } catch (Exception failed) {
 
-                Logging.logCheckedFine(LOG, "Could not open pipes in local group. Trying again in 1 second.");
 
                 // Try again in one second.
                 scheduleOpenPipes(TimeUtils.ASECOND);
@@ -1678,8 +1671,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
             boolean failure = (null != msg.getMessageElement(MESSAGE_NAMESPACE, FAILURE_ELEMENT_NAME));
             boolean response = (null != msg.getMessageElement(MESSAGE_NAMESPACE, RESPONSE_ELEMENT_NAME));
 
-            Logging.logCheckedFine(LOG, "Received a PeerView ", (failure ? "failure " : ""), (response ? "response " : ""),
-                "message [", msg, "] on propagated pipe ", event.getPipeID());
 
             if (!failure && !response) {
 
@@ -1699,7 +1690,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     if (randinview >= minHappyPeerView) {
 
-                        Logging.logCheckedFine(LOG, "Ignoring ", msg, " from pipe ", event.getPipeID());
 
                         // We "lose".
                         return;
@@ -1985,7 +1975,6 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                 if (closed) return;
 
-                Logging.logCheckedFine(LOG, "Watchdog task executing for group ", PeerView.this.group.getPeerGroupID());
 
                 refreshSelf();
                 
@@ -2007,7 +1996,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     } else {
 
-                        Logging.logCheckedFine(LOG, "Checking on UP peer : ", up);
+
                         PeerView.this.send(up, PeerView.this.getSelf(), false, false);
 
                     }
@@ -2024,7 +2013,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
 
                     } else {
 
-                        Logging.logCheckedFine(LOG, "Checking on DOWN peer : ", down);
+
                         PeerView.this.send(down, PeerView.this.getSelf(), false, false);
 
                     }
