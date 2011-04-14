@@ -98,12 +98,14 @@ public class MessageDispatchHandler extends SimpleChannelUpstreamHandler {
         }
         
 		dispatchImportantListenerEvent(new Runnable() {
-			public void run() {
-				listener.connectionDied();
-			}
-		});
+            public void run() {
+                listener.connectionDied();
+            }
+        });
         
-        Channels.close(ctx, ctx.getChannel().getCloseFuture());
+        if (ctx.getChannel().isOpen()) {
+            Channels.close(ctx, ctx.getChannel().getCloseFuture());
+        }
     }
     
     @Override
