@@ -144,7 +144,8 @@ public abstract class AsynchronousMessenger extends AbstractMessenger {
             sendQueue.put(new QueuedMessage(msg, listener));
             attemptPushMessages();
             long totalWaitTime = 0;
-            while (listener.isWriteSubmitted() && !listener.await(500, TimeUnit.MILLISECONDS))
+            while (((stateMachine.getState() & USABLE) != 0) && listener.isWriteSubmitted() &&
+                    !listener.await(500, TimeUnit.MILLISECONDS))
             {
                totalWaitTime = totalWaitTime + 500;
                if (totalWaitTime > 60000)
