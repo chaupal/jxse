@@ -218,7 +218,7 @@ public final class Logging {
     public static void logCheckedConfig(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.config(Msg.toString());
         }
@@ -236,7 +236,7 @@ public final class Logging {
     public static void logCheckedFine(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.fine(Msg.toString());
         }
@@ -255,7 +255,7 @@ public final class Logging {
     public static void logCheckedFiner(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.finer(Msg.toString());
         }
@@ -274,7 +274,7 @@ public final class Logging {
     public static void logCheckedFinest(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.finest(Msg.toString());
         }
@@ -292,7 +292,7 @@ public final class Logging {
     public static void logCheckedInfo(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.info(Msg.toString());
         }
@@ -311,7 +311,7 @@ public final class Logging {
     public static void logCheckedSevere(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.severe(Msg.toString());
         }
@@ -329,7 +329,7 @@ public final class Logging {
     public static void logCheckedWarning(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.warning(Msg.toString());
         }
@@ -347,7 +347,7 @@ public final class Logging {
     public static void logCheckedWarning(Logger inLog, String inMsg, Throwable t) {
 
         if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+            StringBuilder Msg = new StringBuilder(getCaller(new Exception().getStackTrace())).append('\n');
             inLog.log(Level.WARNING,inMsg, t);
         }
 
@@ -393,7 +393,7 @@ public final class Logging {
 
         StackTraceElement STE = inSTE[1];
 
-        StringBuffer Result = new StringBuffer();
+        StringBuilder Result = new StringBuilder();
         Result.append("Line ").append(STE.getLineNumber())
                 .append(' ').append(STE.getClassName())
                 .append('.').append(STE.getMethodName())
@@ -413,7 +413,7 @@ public final class Logging {
     public static String getMethodCallsTrace(PrintStream inPS) {
 
         StackTraceElement[] STE = new Exception().getStackTrace();
-        StringBuffer Result = new StringBuffer();
+        StringBuilder Result = new StringBuilder();
 
         for (int i=1;i<STE.length;i++) {
             Result.append("Line ").append(STE[i].getLineNumber())
@@ -438,7 +438,7 @@ public final class Logging {
     public static String retrieveStackTrace(Throwable t) {
 
         StackTraceElement[] STE = t.getStackTrace();
-        StringBuffer Result = new StringBuffer();
+        StringBuilder Result = new StringBuilder();
 
         Result.append(t.toString()).append('\n');
 

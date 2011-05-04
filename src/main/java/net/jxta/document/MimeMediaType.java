@@ -607,7 +607,7 @@ public class MimeMediaType implements Serializable {
         boolean inSeperator = true;
         boolean inComment = false;
         boolean inAttribute = false;
-        StringBuffer currentValue = null;
+        StringBuilder currentValue = null;
         boolean inValue = false;
         boolean inQuoted = false;
         boolean nextEscaped = false;
@@ -651,7 +651,7 @@ public class MimeMediaType implements Serializable {
                 inValue = true;
                 inQuoted = false;
                 nextEscaped = false;
-                currentValue = new StringBuffer();
+                currentValue = new StringBuilder();
             } else if (inValue) {
                 if (inQuoted) {
                     if (nextEscaped) {

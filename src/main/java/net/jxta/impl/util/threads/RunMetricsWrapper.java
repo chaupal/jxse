@@ -3,14 +3,13 @@
  */
 package net.jxta.impl.util.threads;
 
+import net.jxta.logging.Logging;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-
-import net.jxta.logging.Logging;
-import sun.util.LocaleServiceProviderPool;
 
 /**
  * Decorator for Callable instances which will monitor how long it takes before the callable
@@ -21,7 +20,9 @@ import sun.util.LocaleServiceProviderPool;
  * @author iain.mcginniss@onedrum.com
  */
 class RunMetricsWrapper<T> implements Callable<T>, Runnable {
-	
+
+    private static final Long DELAY = Long.getLong("net.jxta.impl.util.threads.RunMetricsWrapper.delay",1L);
+    private static final Long INTERVAL = Long.getLong("net.jxta.impl.util.threads.RunMetricsWrapper.interval",20L);
     private Callable<T> wrappedRunnable;
     Thread executorThread;
     
@@ -42,17 +43,22 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
     
     public T call() throws Exception {
         executorThread = Thread.currentThread();
-        ScheduledFuture<?> future = longTaskMonitor.scheduleAtFixedRate(new LongTaskDetector(this), 
-                Long.getLong("net.jxta.impl.util.threads.RunMetricsWrapper.delay",1L), 
-                Long.getLong("net.jxta.impl.util.threads.RunMetricsWrapper.interval",20L),
+        ScheduledFuture<?> future = longTaskMonitor.scheduleAtFixedRate(new LongTaskDetector(this),
+                DELAY,
+                INTERVAL,
                 TimeUnit.SECONDS);
-
+        T returnVal;
         startTime = System.currentTimeMillis();
-        T returnVal = wrappedRunnable.call();
+        try
+        {
+            returnVal = wrappedRunnable.call();
+
+        }
+        finally
+        {
+            future.cancel(true);
+        }
         long elapsedTime = System.currentTimeMillis() - startTime;
-        
-        future.cancel(true);
-        
         if(elapsedTime > 200 && Logging.SHOW_WARNING && SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
             if (SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
                 SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [" + getWrappedType() + "] took {" + elapsedTime + "}ms to complete in the shared executor");
@@ -80,10 +86,8 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
     
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof RunMetricsWrapper<?>) {
-            wrappedRunnable.equals(((RunMetricsWrapper<?>)obj).wrappedRunnable);
-        }
-        return false;
+        return obj instanceof RunMetricsWrapper<?>
+                && wrappedRunnable.equals(((RunMetricsWrapper<?>) obj).wrappedRunnable);
     }
     
     @Override
@@ -95,7 +99,7 @@ class RunMetricsWrapper<T> implements Callable<T>, Runnable {
     	try {
 			call();
 		} catch (Exception e) {
-			
+           SharedThreadPoolExecutor.LOG.log(Level.WARNING,"Scheduled thread threw uncaught exception",e);
 		}
     }
 }

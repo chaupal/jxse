@@ -27,7 +27,7 @@ public class QueueTimeRunMetricsWrapper<T> extends RunMetricsWrapper<T> {
 
             if(queuedTime > 2000 && Logging.SHOW_WARNING && SharedThreadPoolExecutor.LOG.isLoggable(Level.WARNING)) {
             
-                SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [{0}] queued for {1}ms!", new Object[] { getWrappedType(), queuedTime });
+                SharedThreadPoolExecutor.LOG.log(Level.WARNING, "task of type [" + getWrappedType() + "] queued for " + queuedTime + "ms!");
                 
             }
 		
