@@ -62,10 +62,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 import net.jxta.util.ConcurrentWeakHashMap;
@@ -112,7 +109,7 @@ public class MimeMediaType implements Serializable {
      * in the mean time.
      * 
      */
-    private static final ConcurrentMap<MimeMediaType, MimeMediaType> interned = new ConcurrentWeakHashMap<MimeMediaType, MimeMediaType>();
+    private static final Map<MimeMediaType, MimeMediaType> interned = new WeakHashMap<MimeMediaType, MimeMediaType>();
 
     /**
      * Common Mime Media Type for arbitrary unparsed binary data.
@@ -825,12 +822,16 @@ public class MimeMediaType implements Serializable {
      *         guaranteed to be from a pool of unique types.
      */
     public MimeMediaType intern() {
-    	MimeMediaType singleton = interned.putIfAbsent(this, this);
-    	if(singleton == null) {
-    		return this;
-    	}
-    	
-    	return singleton;
+        final MimeMediaType internedValue = interned.get(this);
+        if (internedValue == null)
+        {
+            interned.put(this, this);
+            return this;
+        }
+        else
+        {
+            return internedValue;
+        }
     }
 
     /**

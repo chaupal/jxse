@@ -331,7 +331,13 @@ public class ListenerAdaptor implements Runnable {
          */
         @Override
         protected void process(Message message) {
-            OutgoingMessageEvent event = (OutgoingMessageEvent) message.getMessageProperty(Messenger.class);
+            final Object messageProperty = message.getMessageProperty(Messenger.class);
+            if (messageProperty instanceof Throwable)
+            {
+               Throwable t = (Throwable) messageProperty;
+               Logging.logCheckedSevere(LOG, "Expected an OutgoingMessageEvent, there was an exception in the message" + t, t);
+            }
+            OutgoingMessageEvent event = (OutgoingMessageEvent) messageProperty;
 
             if (event == null) {
                 return;
