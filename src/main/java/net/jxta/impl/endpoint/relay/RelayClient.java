@@ -145,7 +145,8 @@ public class RelayClient implements MessageReceiver, Runnable {
     private final SeedingManager seedingManager;
     
     RelayServerConnection currentServer = null;
-    
+    private ArrayList<StateListener> stateListeners = new ArrayList<StateListener>();
+
     public RelayClient(PeerGroup group, String serviceName, RelayConfigAdv relayConfig) {
         this.group = group;
         this.groupName = group.getPeerGroupID().getUniqueValue().toString();
@@ -531,7 +532,14 @@ public class RelayClient implements MessageReceiver, Runnable {
         addActiveRelay(holdDest, holdAdv);
         
         // maintain the relay server connection
-        referral = maintainRelayConnection(server);
+        try
+        {
+            notifyConnected();
+            referral = maintainRelayConnection(server);
+        }
+        finally {
+            notifyDisconnected();
+        }
         
         // unregister this relay server
         removeActiveRelay(holdDest, holdAdv);
@@ -1286,6 +1294,40 @@ public class RelayClient implements MessageReceiver, Runnable {
         }
 
         return hops;        
+    }
+
+    private void notifyConnected()
+    {
+        for (StateListener l : new ArrayList<StateListener>(stateListeners))
+        {
+            l.connected(this);
+        }
+    }
+    private void notifyDisconnected()
+    {
+        for (StateListener l : new ArrayList<StateListener>(stateListeners))
+        {
+            l.disconnected(this);
+        }
+    }
+    public void addStateListener(StateListener listener)
+    {
+        stateListeners.add(listener);
+    }
+    public void removeStateListener(StateListener listener)
+    {
+        stateListeners.remove(listener);
+    }
+
+    public boolean isConnected()
+    {
+        return currentServer != null;
+    }
+
+    public interface StateListener
+    {
+        void connected(RelayClient client);
+        void disconnected(RelayClient client);
     }
 
 }
