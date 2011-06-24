@@ -87,6 +87,8 @@ import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+import sun.tools.tree.ReturnStatement;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -146,6 +148,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     
     RelayServerConnection currentServer = null;
     private ArrayList<StateListener> stateListeners = new ArrayList<StateListener>();
+    private boolean connected = false;
 
     public RelayClient(PeerGroup group, String serviceName, RelayConfigAdv relayConfig) {
         this.group = group;
@@ -1298,6 +1301,7 @@ public class RelayClient implements MessageReceiver, Runnable {
 
     private void notifyConnected()
     {
+        connected = true;
         for (StateListener l : new ArrayList<StateListener>(stateListeners))
         {
             l.connected(this);
@@ -1305,6 +1309,7 @@ public class RelayClient implements MessageReceiver, Runnable {
     }
     private void notifyDisconnected()
     {
+        connected = false;
         for (StateListener l : new ArrayList<StateListener>(stateListeners))
         {
             l.disconnected(this);
@@ -1321,7 +1326,7 @@ public class RelayClient implements MessageReceiver, Runnable {
 
     public boolean isConnected()
     {
-        return currentServer != null;
+        return connected;
     }
 
     public interface StateListener
