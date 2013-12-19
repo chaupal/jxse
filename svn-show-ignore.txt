@@ -1,0 +1,892 @@
+
+# /branches/2.6.0.1/
+/branches/2.6.0.1/.ant.properties
+/branches/2.6.0.1/.cache
+/branches/2.6.0.1/.classpath
+/branches/2.6.0.1/.jxta
+/branches/2.6.0.1/.project
+/branches/2.6.0.1/.settings
+/branches/2.6.0.1/Old
+/branches/2.6.0.1/bin
+/branches/2.6.0.1/build_classes
+/branches/2.6.0.1/build_generated
+/branches/2.6.0.1/classes
+/branches/2.6.0.1/dist
+/branches/2.6.0.1/doc
+/branches/2.6.0.1/felix-cache
+/branches/2.6.0.1/jnlp
+/branches/2.6.0.1/local.*
+/branches/2.6.0.1/test_classes
+/branches/2.6.0.1/tmp
+/branches/2.6.0.1/target
+
+# /branches/2.6.0.1/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/branches/2.6.0.1/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /branches/2.6.0.1/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/branches/2.6.0.1/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /branches/2.6.0.1/src/main/java/net/jxta/impl/meter/
+/branches/2.6.0.1/src/main/java/net/jxta/impl/meter/
+
+# /branches/2.6.0.1/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/branches/2.6.0.1/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /branches/2.6.0.1/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/branches/2.6.0.1/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /branches/2.6.0.1/src/main/java/net/jxta/impl/util/threads/
+/branches/2.6.0.1/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /branches/2.6.0.1/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/branches/2.6.0.1/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /branches/2.6.0.1/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/branches/2.6.0.1/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /branches/2.6.0.1/src/main/resources/net/jxta/impl/meter/
+/branches/2.6.0.1/src/main/resources/net/jxta/impl/meter/
+
+# /branches/2.6.0.1/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/branches/2.6.0.1/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /branches/2.6.0.1/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/branches/2.6.0.1/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /branches/2.6.0.1/src/main/resources/net/jxta/impl/util/threads/
+/branches/2.6.0.1/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /branches/2.6.0.1/src/test/java/net/jxta/impl/peergroup/
+/branches/2.6.0.1/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /branches/2.6.0.1/tutorials/
+/branches/2.6.0.1/tutorials/classes
+/branches/2.6.0.1/tutorials/dist
+/branches/2.6.0.1/tutorials/.cache
+/branches/2.6.0.1/tutorials/target
+
+# /branches/sailfin-556/
+/branches/sailfin-556/build_generated
+/branches/sailfin-556/build_classes
+/branches/sailfin-556/test_classes
+/branches/sailfin-556/classes
+/branches/sailfin-556/dist
+/branches/sailfin-556/doc
+/branches/sailfin-556/jnlp
+/branches/sailfin-556/tmp
+/branches/sailfin-556/.cache
+/branches/sailfin-556/.jxta
+
+# /branches/sailfin-556/impl/src/net/jxta/impl/endpoint/endpointMeter/
+/branches/sailfin-556/impl/src/net/jxta/impl/endpoint/endpointMeter/
+
+# /branches/sailfin-556/impl/src/net/jxta/impl/endpoint/transportMeter/
+/branches/sailfin-556/impl/src/net/jxta/impl/endpoint/transportMeter/
+
+# /branches/sailfin-556/impl/src/net/jxta/impl/meter/
+/branches/sailfin-556/impl/src/net/jxta/impl/meter/
+
+# /branches/sailfin-556/impl/src/net/jxta/impl/rendezvous/rendezvousMeter/
+/branches/sailfin-556/impl/src/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /branches/sailfin-556/impl/src/net/jxta/impl/resolver/resolverMeter/
+/branches/sailfin-556/impl/src/net/jxta/impl/resolver/resolverMeter/
+
+# /branches/sailfin-556/nbproject/
+/branches/sailfin-556/nbproject/private
+/branches/sailfin-556/nbproject/.cvsignore
+
+# /branches/sailfin-556/tutorials/
+/branches/sailfin-556/tutorials/classes
+/branches/sailfin-556/tutorials/dist
+
+# /tags/2.5/
+/tags/2.5/build_generated
+/tags/2.5/build_classes
+/tags/2.5/test_classes
+/tags/2.5/classes
+/tags/2.5/dist
+/tags/2.5/doc
+/tags/2.5/jnlp
+/tags/2.5/tmp
+
+# /tags/2.5/impl/src/net/jxta/impl/endpoint/endpointMeter/
+/tags/2.5/impl/src/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/2.5/impl/src/net/jxta/impl/endpoint/transportMeter/
+/tags/2.5/impl/src/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/2.5/impl/src/net/jxta/impl/meter/
+/tags/2.5/impl/src/net/jxta/impl/meter/
+
+# /tags/2.5/impl/src/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/2.5/impl/src/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/2.5/impl/src/net/jxta/impl/resolver/resolverMeter/
+/tags/2.5/impl/src/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/2.5/nbproject/
+/tags/2.5/nbproject/private
+/tags/2.5/nbproject/.cvsignore
+
+# /tags/2.5/tutorials/
+/tags/2.5/tutorials/classes
+/tags/2.5/tutorials/dist
+
+# /tags/2.6/
+/tags/2.6/build_generated
+/tags/2.6/build_classes
+/tags/2.6/test_classes
+/tags/2.6/classes
+/tags/2.6/dist
+/tags/2.6/doc
+/tags/2.6/jnlp
+/tags/2.6/tmp
+/tags/2.6/.cache
+/tags/2.6/.jxta
+/tags/2.6/.ant.properties
+/tags/2.6/local.*
+/tags/2.6/.settings
+/tags/2.6/.classpath
+/tags/2.6/.project
+/tags/2.6/bin
+/tags/2.6/felix-cache
+
+# /tags/2.6/jxse/
+/tags/2.6/jxse/target
+/tags/2.6/jxse/.jxta
+/tags/2.6/jxse/.cache
+/tags/2.6/jxse/nbactions-Sonatype-Snapshot.xml
+
+# /tags/2.6/jxse-tutorial/
+/tags/2.6/jxse-tutorial/target
+
+# /tags/2.7/
+/tags/2.7/.ant.properties
+/tags/2.7/.cache
+/tags/2.7/.classpath
+/tags/2.7/.jxta
+/tags/2.7/.project
+/tags/2.7/.settings
+/tags/2.7/Old
+/tags/2.7/alice
+/tags/2.7/bin
+/tags/2.7/bob
+/tags/2.7/build_classes
+/tags/2.7/build_generated
+/tags/2.7/classes
+/tags/2.7/dist
+/tags/2.7/doc
+/tags/2.7/felix-cache
+/tags/2.7/jnlp
+/tags/2.7/local.*
+/tags/2.7/target
+/tags/2.7/test_classes
+/tags/2.7/tmp
+
+# /tags/2.7/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/2.7/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/2.7/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/2.7/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/2.7/src/main/java/net/jxta/impl/meter/
+/tags/2.7/src/main/java/net/jxta/impl/meter/
+
+# /tags/2.7/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/2.7/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/2.7/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/2.7/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/2.7/src/main/java/net/jxta/impl/util/threads/
+/tags/2.7/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/2.7/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/2.7/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/2.7/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/2.7/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/2.7/src/main/resources/net/jxta/impl/meter/
+/tags/2.7/src/main/resources/net/jxta/impl/meter/
+
+# /tags/2.7/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/2.7/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/2.7/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/2.7/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/2.7/src/main/resources/net/jxta/impl/util/threads/
+/tags/2.7/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/2.7/src/test/java/net/jxta/impl/peergroup/
+/tags/2.7/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/2.7/tutorials/
+/tags/2.7/tutorials/classes
+/tags/2.7/tutorials/dist
+/tags/2.7/tutorials/.cache
+/tags/2.7/tutorials/target
+
+# /tags/jxse-2.6.0.1/
+/tags/jxse-2.6.0.1/.ant.properties
+/tags/jxse-2.6.0.1/.cache
+/tags/jxse-2.6.0.1/.classpath
+/tags/jxse-2.6.0.1/.jxta
+/tags/jxse-2.6.0.1/.project
+/tags/jxse-2.6.0.1/.settings
+/tags/jxse-2.6.0.1/Old
+/tags/jxse-2.6.0.1/bin
+/tags/jxse-2.6.0.1/build_classes
+/tags/jxse-2.6.0.1/build_generated
+/tags/jxse-2.6.0.1/classes
+/tags/jxse-2.6.0.1/dist
+/tags/jxse-2.6.0.1/doc
+/tags/jxse-2.6.0.1/felix-cache
+/tags/jxse-2.6.0.1/jnlp
+/tags/jxse-2.6.0.1/local.*
+/tags/jxse-2.6.0.1/test_classes
+/tags/jxse-2.6.0.1/tmp
+/tags/jxse-2.6.0.1/target
+
+# /tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.1/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.1/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.1/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.1/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.1/tutorials/
+/tags/jxse-2.6.0.1/tutorials/classes
+/tags/jxse-2.6.0.1/tutorials/dist
+/tags/jxse-2.6.0.1/tutorials/.cache
+/tags/jxse-2.6.0.1/tutorials/target
+
+# /tags/jxse-2.6.0.2/
+/tags/jxse-2.6.0.2/.ant.properties
+/tags/jxse-2.6.0.2/.cache
+/tags/jxse-2.6.0.2/.classpath
+/tags/jxse-2.6.0.2/.jxta
+/tags/jxse-2.6.0.2/.project
+/tags/jxse-2.6.0.2/.settings
+/tags/jxse-2.6.0.2/Old
+/tags/jxse-2.6.0.2/bin
+/tags/jxse-2.6.0.2/build_classes
+/tags/jxse-2.6.0.2/build_generated
+/tags/jxse-2.6.0.2/classes
+/tags/jxse-2.6.0.2/dist
+/tags/jxse-2.6.0.2/doc
+/tags/jxse-2.6.0.2/felix-cache
+/tags/jxse-2.6.0.2/jnlp
+/tags/jxse-2.6.0.2/local.*
+/tags/jxse-2.6.0.2/test_classes
+/tags/jxse-2.6.0.2/tmp
+/tags/jxse-2.6.0.2/target
+
+# /tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.2/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.2/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.2/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.2/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.2/tutorials/
+/tags/jxse-2.6.0.2/tutorials/classes
+/tags/jxse-2.6.0.2/tutorials/dist
+/tags/jxse-2.6.0.2/tutorials/.cache
+/tags/jxse-2.6.0.2/tutorials/target
+
+# /tags/jxse-2.6.0.3/
+/tags/jxse-2.6.0.3/.ant.properties
+/tags/jxse-2.6.0.3/.cache
+/tags/jxse-2.6.0.3/.classpath
+/tags/jxse-2.6.0.3/.jxta
+/tags/jxse-2.6.0.3/.project
+/tags/jxse-2.6.0.3/.settings
+/tags/jxse-2.6.0.3/Old
+/tags/jxse-2.6.0.3/bin
+/tags/jxse-2.6.0.3/build_classes
+/tags/jxse-2.6.0.3/build_generated
+/tags/jxse-2.6.0.3/classes
+/tags/jxse-2.6.0.3/dist
+/tags/jxse-2.6.0.3/doc
+/tags/jxse-2.6.0.3/felix-cache
+/tags/jxse-2.6.0.3/jnlp
+/tags/jxse-2.6.0.3/local.*
+/tags/jxse-2.6.0.3/test_classes
+/tags/jxse-2.6.0.3/tmp
+/tags/jxse-2.6.0.3/target
+
+# /tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.3/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.3/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.3/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.3/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.3/tutorials/
+/tags/jxse-2.6.0.3/tutorials/classes
+/tags/jxse-2.6.0.3/tutorials/dist
+/tags/jxse-2.6.0.3/tutorials/.cache
+/tags/jxse-2.6.0.3/tutorials/target
+
+# /tags/jxse-2.6.0.4/
+/tags/jxse-2.6.0.4/.ant.properties
+/tags/jxse-2.6.0.4/.cache
+/tags/jxse-2.6.0.4/.classpath
+/tags/jxse-2.6.0.4/.jxta
+/tags/jxse-2.6.0.4/.project
+/tags/jxse-2.6.0.4/.settings
+/tags/jxse-2.6.0.4/Old
+/tags/jxse-2.6.0.4/bin
+/tags/jxse-2.6.0.4/build_classes
+/tags/jxse-2.6.0.4/build_generated
+/tags/jxse-2.6.0.4/classes
+/tags/jxse-2.6.0.4/dist
+/tags/jxse-2.6.0.4/doc
+/tags/jxse-2.6.0.4/felix-cache
+/tags/jxse-2.6.0.4/jnlp
+/tags/jxse-2.6.0.4/local.*
+/tags/jxse-2.6.0.4/test_classes
+/tags/jxse-2.6.0.4/tmp
+/tags/jxse-2.6.0.4/target
+
+# /tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.4/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.4/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.4/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.4/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.4/tutorials/
+/tags/jxse-2.6.0.4/tutorials/classes
+/tags/jxse-2.6.0.4/tutorials/dist
+/tags/jxse-2.6.0.4/tutorials/.cache
+/tags/jxse-2.6.0.4/tutorials/target
+
+# /tags/jxse-2.6.0.5/
+/tags/jxse-2.6.0.5/.ant.properties
+/tags/jxse-2.6.0.5/.cache
+/tags/jxse-2.6.0.5/.classpath
+/tags/jxse-2.6.0.5/.jxta
+/tags/jxse-2.6.0.5/.project
+/tags/jxse-2.6.0.5/.settings
+/tags/jxse-2.6.0.5/Old
+/tags/jxse-2.6.0.5/bin
+/tags/jxse-2.6.0.5/build_classes
+/tags/jxse-2.6.0.5/build_generated
+/tags/jxse-2.6.0.5/classes
+/tags/jxse-2.6.0.5/dist
+/tags/jxse-2.6.0.5/doc
+/tags/jxse-2.6.0.5/felix-cache
+/tags/jxse-2.6.0.5/jnlp
+/tags/jxse-2.6.0.5/local.*
+/tags/jxse-2.6.0.5/test_classes
+/tags/jxse-2.6.0.5/tmp
+/tags/jxse-2.6.0.5/target
+
+# /tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.5/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.5/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.5/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.5/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.5/tutorials/
+/tags/jxse-2.6.0.5/tutorials/classes
+/tags/jxse-2.6.0.5/tutorials/dist
+/tags/jxse-2.6.0.5/tutorials/.cache
+/tags/jxse-2.6.0.5/tutorials/target
+
+# /tags/jxse-2.6.0.6/
+/tags/jxse-2.6.0.6/.ant.properties
+/tags/jxse-2.6.0.6/.cache
+/tags/jxse-2.6.0.6/.classpath
+/tags/jxse-2.6.0.6/.jxta
+/tags/jxse-2.6.0.6/.project
+/tags/jxse-2.6.0.6/.settings
+/tags/jxse-2.6.0.6/Old
+/tags/jxse-2.6.0.6/bin
+/tags/jxse-2.6.0.6/build_classes
+/tags/jxse-2.6.0.6/build_generated
+/tags/jxse-2.6.0.6/classes
+/tags/jxse-2.6.0.6/dist
+/tags/jxse-2.6.0.6/doc
+/tags/jxse-2.6.0.6/felix-cache
+/tags/jxse-2.6.0.6/jnlp
+/tags/jxse-2.6.0.6/local.*
+/tags/jxse-2.6.0.6/test_classes
+/tags/jxse-2.6.0.6/tmp
+/tags/jxse-2.6.0.6/target
+
+# /tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.6/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.6/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.6/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.6/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.6/tutorials/
+/tags/jxse-2.6.0.6/tutorials/classes
+/tags/jxse-2.6.0.6/tutorials/dist
+/tags/jxse-2.6.0.6/tutorials/.cache
+/tags/jxse-2.6.0.6/tutorials/target
+
+# /tags/jxse-2.6.0.7/
+/tags/jxse-2.6.0.7/.ant.properties
+/tags/jxse-2.6.0.7/.cache
+/tags/jxse-2.6.0.7/.classpath
+/tags/jxse-2.6.0.7/.jxta
+/tags/jxse-2.6.0.7/.project
+/tags/jxse-2.6.0.7/.settings
+/tags/jxse-2.6.0.7/Old
+/tags/jxse-2.6.0.7/bin
+/tags/jxse-2.6.0.7/build_classes
+/tags/jxse-2.6.0.7/build_generated
+/tags/jxse-2.6.0.7/classes
+/tags/jxse-2.6.0.7/dist
+/tags/jxse-2.6.0.7/doc
+/tags/jxse-2.6.0.7/felix-cache
+/tags/jxse-2.6.0.7/jnlp
+/tags/jxse-2.6.0.7/local.*
+/tags/jxse-2.6.0.7/test_classes
+/tags/jxse-2.6.0.7/tmp
+/tags/jxse-2.6.0.7/target
+
+# /tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.7/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.7/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.7/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.7/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.7/tutorials/
+/tags/jxse-2.6.0.7/tutorials/classes
+/tags/jxse-2.6.0.7/tutorials/dist
+/tags/jxse-2.6.0.7/tutorials/.cache
+/tags/jxse-2.6.0.7/tutorials/target
+
+# /tags/jxse-2.6.0.8/
+/tags/jxse-2.6.0.8/.ant.properties
+/tags/jxse-2.6.0.8/.cache
+/tags/jxse-2.6.0.8/.classpath
+/tags/jxse-2.6.0.8/.jxta
+/tags/jxse-2.6.0.8/.project
+/tags/jxse-2.6.0.8/.settings
+/tags/jxse-2.6.0.8/Old
+/tags/jxse-2.6.0.8/bin
+/tags/jxse-2.6.0.8/build_classes
+/tags/jxse-2.6.0.8/build_generated
+/tags/jxse-2.6.0.8/classes
+/tags/jxse-2.6.0.8/dist
+/tags/jxse-2.6.0.8/doc
+/tags/jxse-2.6.0.8/felix-cache
+/tags/jxse-2.6.0.8/jnlp
+/tags/jxse-2.6.0.8/local.*
+/tags/jxse-2.6.0.8/test_classes
+/tags/jxse-2.6.0.8/tmp
+/tags/jxse-2.6.0.8/target
+
+# /tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.8/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.8/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.8/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.8/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.8/tutorials/
+/tags/jxse-2.6.0.8/tutorials/classes
+/tags/jxse-2.6.0.8/tutorials/dist
+/tags/jxse-2.6.0.8/tutorials/.cache
+/tags/jxse-2.6.0.8/tutorials/target
+
+# /tags/jxse-2.6.0.9/
+/tags/jxse-2.6.0.9/.ant.properties
+/tags/jxse-2.6.0.9/.cache
+/tags/jxse-2.6.0.9/.classpath
+/tags/jxse-2.6.0.9/.jxta
+/tags/jxse-2.6.0.9/.project
+/tags/jxse-2.6.0.9/.settings
+/tags/jxse-2.6.0.9/Old
+/tags/jxse-2.6.0.9/bin
+/tags/jxse-2.6.0.9/build_classes
+/tags/jxse-2.6.0.9/build_generated
+/tags/jxse-2.6.0.9/classes
+/tags/jxse-2.6.0.9/dist
+/tags/jxse-2.6.0.9/doc
+/tags/jxse-2.6.0.9/felix-cache
+/tags/jxse-2.6.0.9/jnlp
+/tags/jxse-2.6.0.9/local.*
+/tags/jxse-2.6.0.9/test_classes
+/tags/jxse-2.6.0.9/tmp
+/tags/jxse-2.6.0.9/target
+
+# /tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/meter/
+/tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.9/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/meter/
+/tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/meter/
+
+# /tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/util/threads/
+/tags/jxse-2.6.0.9/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /tags/jxse-2.6.0.9/src/test/java/net/jxta/impl/peergroup/
+/tags/jxse-2.6.0.9/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /tags/jxse-2.6.0.9/tutorials/
+/tags/jxse-2.6.0.9/tutorials/classes
+/tags/jxse-2.6.0.9/tutorials/dist
+/tags/jxse-2.6.0.9/tutorials/.cache
+/tags/jxse-2.6.0.9/tutorials/target
+
+# /trunk/
+/trunk/.ant.properties
+/trunk/.cache
+/trunk/.classpath
+/trunk/.jxta
+/trunk/.project
+/trunk/.settings
+/trunk/Old
+/trunk/alice
+/trunk/bin
+/trunk/bob
+/trunk/build_classes
+/trunk/build_generated
+/trunk/classes
+/trunk/dist
+/trunk/doc
+/trunk/felix-cache
+/trunk/jnlp
+/trunk/local.*
+/trunk/target
+/trunk/test_classes
+/trunk/tmp
+
+# /trunk/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+/trunk/src/main/java/net/jxta/impl/endpoint/endpointMeter/
+
+# /trunk/src/main/java/net/jxta/impl/endpoint/transportMeter/
+/trunk/src/main/java/net/jxta/impl/endpoint/transportMeter/
+
+# /trunk/src/main/java/net/jxta/impl/meter/
+/trunk/src/main/java/net/jxta/impl/meter/
+
+# /trunk/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+/trunk/src/main/java/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /trunk/src/main/java/net/jxta/impl/resolver/resolverMeter/
+/trunk/src/main/java/net/jxta/impl/resolver/resolverMeter/
+
+# /trunk/src/main/java/net/jxta/impl/util/threads/
+/trunk/src/main/java/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /trunk/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+/trunk/src/main/resources/net/jxta/impl/endpoint/endpointMeter/
+
+# /trunk/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+/trunk/src/main/resources/net/jxta/impl/endpoint/transportMeter/
+
+# /trunk/src/main/resources/net/jxta/impl/meter/
+/trunk/src/main/resources/net/jxta/impl/meter/
+
+# /trunk/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+/trunk/src/main/resources/net/jxta/impl/rendezvous/rendezvousMeter/
+
+# /trunk/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+/trunk/src/main/resources/net/jxta/impl/resolver/resolverMeter/
+
+# /trunk/src/main/resources/net/jxta/impl/util/threads/
+/trunk/src/main/resources/net/jxta/impl/util/threads/ProxiedScheduledExecutorService.java
+
+# /trunk/src/test/java/net/jxta/impl/peergroup/
+/trunk/src/test/java/net/jxta/impl/peergroup/.TestModule.java.swp
+
+# /trunk/tutorials/
+/trunk/tutorials/classes
+/trunk/tutorials/dist
+/trunk/tutorials/.cache
+/trunk/tutorials/target
