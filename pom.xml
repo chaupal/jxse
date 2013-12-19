@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jxse</artifactId>
-    <groupId>com.kenai.jxse</groupId>
+    <groupId>io.github.chaupal</groupId>
     <version>2.8-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
@@ -13,15 +13,15 @@
     </parent>
 
     <scm>
-        <connection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</connection>
-        <developerConnection>scm:svn:https://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</developerConnection>
-        <url>http://jxta-jxse.dev.java.net/svn/jxta-jxse/trunk</url>
+        <connection>scm:git:git://github.com/chaupal/jxse</connection>
+        <developerConnection>scm:git:git@github.com:chaupal/jxse.git</developerConnection>
+        <url>https://github.com/chaupal/jxse/</url>
     </scm>
 
     <name>JXSE</name>
     <organization>
-        <name>Project JXSE</name>
-        <url>http://jxse.kenai.com/</url>
+        <name>The Chaupal P2P Organisation</name>
+        <url>http://chaupal.github.io/</url>
     </organization>
 
     <description>JXTA technology is a set of open protocols that allow any connected device on the
@@ -40,29 +40,29 @@
     <licenses>
         <license>
             <name>Sun Project JXTA(TM) Software License</name>
-            <url>http://jxse.kenai.com/License/License.html</url>
+            <url>http://chaupal.github.io/jxta-license.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
     <mailingLists>
         <mailingList>
-            <name>cvs</name>
-            <subscribe>cvs@platform.jxta.org</subscribe>
-            <unsubscribe>cvs-unsubscribe@platform.jxta.org</unsubscribe>
-            <archive>http://platform.jxta.org/servlets/SummarizeList?listName=cvs</archive>
+            <name>announce</name>
+            <subscribe>announce@platform.jxta.org</subscribe>
+            <unsubscribe>announce-unsubscribe@platform.jxta.org</unsubscribe>
+            <archive>https://java.net/nonav/projects/jxta/lists/announce/archive</archive>
         </mailingList>
         <mailingList>
             <name>dev</name>
             <subscribe>dev@platform.jxta.org</subscribe>
             <unsubscribe>dev-unsubscribe@platform.jxta.org</unsubscribe>
-            <archive>http://platform.jxta.org/servlets/SummarizeList?listName=dev</archive>
+            <archive>https://java.net/nonav/projects/jxta/lists/dev/archive</archive>
         </mailingList>
         <mailingList>
-            <name>issues</name>
-            <subscribe>issues@platform.jxta.org</subscribe>
-            <unsubscribe>issues-unsubscribe@platform.jxta.org</unsubscribe>
-            <archive>http://platform.jxta.org/servlets/SummarizeList?listName=issues</archive>
+            <name>discuss</name>
+            <subscribe>discuss@platform.jxta.org</subscribe>
+            <unsubscribe>discuss-unsubscribe@platform.jxta.org</unsubscribe>
+            <archive>https://java.net/nonav/projects/jxta/lists/discuss/archive</archive>
         </mailingList>
     </mailingLists>
     <developers>
