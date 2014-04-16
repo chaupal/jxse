@@ -68,6 +68,7 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigFlag;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.JxtaLoader;
@@ -430,7 +431,7 @@ public class PeerGroupTest {
         pga.setName(name);
         pga.setModuleSpecID(msid);
         pga.setPeerGroupID(pgid);
-        pga.putServiceParam(PeerGroup.peerGroupClassID,
+        pga.putServiceParam(IModuleDefinitions.peerGroupClassID,
                 (Element) pgca.getDocument(MimeMediaType.XMLUTF8));
         disco.publish(pga);
         LOG.finest(name + " PGA:\n" + pga);
@@ -451,7 +452,7 @@ public class PeerGroupTest {
         PeerGroupAdvertisement pga = pg.getPeerGroupAdvertisement();
         PeerGroupConfigAdv pgca = (PeerGroupConfigAdv)
                 AdvertisementFactory.newAdvertisement((XMLElement)
-                pga.getServiceParam(PeerGroup.peerGroupClassID));
+                pga.getServiceParam(IModuleDefinitions.peerGroupClassID));
         if (enabled) {
             assertTrue(pgca.isFlagSet(flag));
         } else {

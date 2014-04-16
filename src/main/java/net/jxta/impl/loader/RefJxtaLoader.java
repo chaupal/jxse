@@ -66,6 +66,7 @@ import net.jxta.impl.peergroup.CompatibilityEquater;
 import net.jxta.impl.peergroup.CompatibilityUtils;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
@@ -183,7 +184,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return the Class
      * @throws ClassNotFoundException if class not found
      */
-    protected Class loadClass(String name, URI uri) throws ClassNotFoundException {
+    protected Class<?> loadClass(String name, URI uri) throws ClassNotFoundException {
         return loadClass(name, uri, false);
     }
 
@@ -198,7 +199,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * @return the class
      * @throws ClassNotFoundException if class not found
      */
-    protected Class loadClass(String name, URI uri, boolean resolve) throws ClassNotFoundException {
+    protected Class<?> loadClass(String name, URI uri, boolean resolve) throws ClassNotFoundException {
         try {
             // First, make sure we don't already have it loaded/loadable
             return loadClass(name, resolve);
@@ -259,7 +260,7 @@ public class RefJxtaLoader extends JxtaLoader {
      * fail to load the requested class.
      */
     @Override
-    protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         /*
          * First, we ask the super-class.  This will consult the local
          * classes already laoded, the parent loader (if set), and the
@@ -276,7 +277,7 @@ public class RefJxtaLoader extends JxtaLoader {
          * The only thing left to try is the context loader.
          */
         ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
-        Class newClass = contextLoader.loadClass(name);
+        Class<?> newClass = contextLoader.loadClass(name);
         if (resolve) {
             resolveClass(newClass);
         }
@@ -345,7 +346,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
             if (parentLoader instanceof JxtaLoader) {
 
-                JxtaLoader jxtaLoader = (JxtaLoader) parentLoader;
+                IJxtaLoader jxtaLoader = (IJxtaLoader) parentLoader;
                 Class<? extends Module> result = jxtaLoader.loadClass(spec);
 
                 Logging.logCheckedFinest(LOG, hashHex(), ": Parent found: ", result);
@@ -363,11 +364,11 @@ public class RefJxtaLoader extends JxtaLoader {
             // Fall through
 
         }
-
+ 
         // Now try locally
         try {
 
-            Class found = findClass(spec);
+            Class<?> found = findClass(spec);
             Logging.logCheckedFinest(LOG, hashHex(), ": Self loaded: ", found);
 
             return verifyAndCast(found);
@@ -437,7 +438,8 @@ public class RefJxtaLoader extends JxtaLoader {
     /**
      * {@inheritDoc}
      */
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public ModuleImplAdvertisement findModuleImplAdvertisement(Class clazz) {
         Class<? extends Module> modClass;
         try {
@@ -451,7 +453,7 @@ public class RefJxtaLoader extends JxtaLoader {
 
         ClassLoader parentLoader = getParent();
         if (parentLoader instanceof JxtaLoader) {
-            JxtaLoader jxtaLoader = (JxtaLoader) parentLoader;
+            IJxtaLoader jxtaLoader = (IJxtaLoader) parentLoader;
             ModuleImplAdvertisement result = jxtaLoader.findModuleImplAdvertisement(modClass);
             if (result != null) {
                 return result;
@@ -540,7 +542,7 @@ public class RefJxtaLoader extends JxtaLoader {
         for (Map.Entry<String, Class<? extends Module>> anEntry : compats.entrySet()) {
             String aCompat = anEntry.getKey();
 
-            StructuredDocument asDoc;
+            StructuredDocument<?> asDoc;
 
             try {
                 asDoc = StructuredDocumentFactory.newStructuredDocument(
@@ -1002,4 +1004,7 @@ public class RefJxtaLoader extends JxtaLoader {
         return Integer.toString(hashCode(), 16);
     }
 
+	public ClassLoader getClassLoader() {
+		return this;
+	}
 }

@@ -64,6 +64,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
+import net.jxta.platform.IJxtaLoader;
 
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
@@ -216,7 +217,8 @@ class HttpMessageReceiver implements MessageReceiver {
         handler.initialize(handlerContext);
 
         // Use peer group class loader (useful for HttpMessageServlet)
-        handlerContext.setClassLoader( GenericPeerGroup.getLoader().getClass().getClassLoader());
+        IJxtaLoader loader = GenericPeerGroup.getLoader();
+        handlerContext.setClassLoader(loader.getClassLoader());
         handlerContext.addHandler(handler);
 
         // Set up support for downloading midlets.

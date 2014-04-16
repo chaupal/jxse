@@ -1050,7 +1050,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             if (null == parentGroup) {
 
                 Logging.logCheckedFine(LOG, "Setting up group loader -> static loader");
-                loader = new RefJxtaLoader(new URL[0], (ClassLoader) staticLoader, COMP_EQ, this);
+                loader = new RefJxtaLoader(new URL[0], staticLoader.getClassLoader(), COMP_EQ, this);
 
             } else {
                 IJxtaLoader upLoader = ((GenericPeerGroup) parentGroup).getLoader();

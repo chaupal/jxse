@@ -15,6 +15,12 @@ public interface IJxtaLoader {
 
 	public void addURL( URL url );
 	
+	/**
+	 * Get the class loader for this loader
+	 * @return
+	 */
+	public ClassLoader getClassLoader();
+	
     /**
      * Finds and loads the class with the specified spec ID from the URL search
      * path. Any URLs referring to JAR files are loaded and opened as needed

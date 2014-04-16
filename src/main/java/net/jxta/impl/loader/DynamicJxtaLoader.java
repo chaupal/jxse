@@ -27,6 +27,8 @@ public class DynamicJxtaLoader implements IJxtaLoader {
     };
 
     private static DynamicJxtaLoader loader = new DynamicJxtaLoader();
+    private IJxtaLoader ref;
+    
     
     private Collection<IJxtaLoader> loaders;
     private JxtaModuleServiceLoader moduleLoader;
@@ -35,7 +37,8 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		loaders = new ArrayList<IJxtaLoader>();
 		moduleLoader = new JxtaModuleServiceLoader();
 		loaders.add( moduleLoader );
-		loaders.add( new RefJxtaLoader( new URL[0], COMP_EQ ));
+		ref = new RefJxtaLoader( new URL[0], COMP_EQ );
+		loaders.add( ref);
 	}
 
 	public static DynamicJxtaLoader getInstance(){
@@ -50,15 +53,15 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		moduleLoader.removeModuleService( service );
 	}
 
-	@Override
 	public void addURL(URL url) {
-		// TODO Auto-generated method stub
-		
+		ref.addURL(url);
 	}
 
-	@Override
-	public Class<? extends Module> findClass(ModuleSpecID spec)
-			throws ClassNotFoundException {
+	public ClassLoader getClassLoader() {
+		return (ClassLoader) ref;
+	}
+
+	public Class<? extends Module> findClass(ModuleSpecID spec) throws ClassNotFoundException {
 		for( IJxtaLoader loader: loaders ){
 			Class<? extends Module> clss = loader.findClass(spec);
 			if( clss != null )
@@ -67,7 +70,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		return null;
 	}
 
-	@Override
 	public Class<? extends Module> loadClass(ModuleSpecID spec)
 			throws ClassNotFoundException {
 		for( IJxtaLoader loader: loaders ){
@@ -78,7 +80,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		return null;
 	}
 
-	@Override
 	public Class<? extends Module> defineClass(ModuleImplAdvertisement impl) {
 		for( IJxtaLoader loader: loaders ){
 			Class<? extends Module> clss = loader.defineClass(impl);
@@ -88,7 +89,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		return null;
 	}
 
-	@Override
 	public ModuleImplAdvertisement findModuleImplAdvertisement(
 			Class<? extends Module> clazz) {
 		for( IJxtaLoader loader: loaders ){
@@ -99,7 +99,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 		return null;
 	}
 
-	@Override
 	public ModuleImplAdvertisement findModuleImplAdvertisement(ModuleSpecID msid) {
 		for( IJxtaLoader loader: loaders ){
 			ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement( msid );
@@ -118,7 +117,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			services = new ArrayList<IJxtaModuleService<Module>>();
 		}
 
-		@Override
 		public Class<? extends Module> findClass(ModuleSpecID spec)
 				throws ClassNotFoundException {
 			for( IJxtaModuleService<Module> service: services ){
@@ -128,7 +126,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			return null;
 		}
 
-		@Override
 		public Class<? extends Module> loadClass(ModuleSpecID spec)
 				throws ClassNotFoundException {
 			return this.findClass(spec);
@@ -142,7 +139,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			this.services.remove( service );
 		}
 
-		@Override
 		public Class<? extends Module> defineClass(ModuleImplAdvertisement impl) {
 			for( IJxtaModuleService<Module> service: services ){
 				if( service.getModuleImplAdvertisement().equals( impl ))
@@ -151,7 +147,6 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			return null;
 		}
 
-		@Override
 		public ModuleImplAdvertisement findModuleImplAdvertisement(
 				Class<? extends Module> clazz) {
 			for( IJxtaModuleService<Module> service: services ){
@@ -161,13 +156,19 @@ public class DynamicJxtaLoader implements IJxtaLoader {
 			return null;
 		}
 
-		@Override
 		public ModuleImplAdvertisement findModuleImplAdvertisement(
 				ModuleSpecID msid) {
 			for( IJxtaModuleService<Module> service: services ){
 				if( service.getModuleSpecID().equals( msid ))
 					return service.getModuleImplAdvertisement();
 			}
+			return null;
+		}
+
+		public void addURL(URL url) {
+		}
+
+		public ClassLoader getClassLoader() {
 			return null;
 		}
 		

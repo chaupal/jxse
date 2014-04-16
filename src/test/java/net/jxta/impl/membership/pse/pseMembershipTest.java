@@ -57,17 +57,18 @@
 package net.jxta.impl.membership.pse;
 
 import javax.crypto.EncryptedPrivateKeyInfo;
+
 import java.security.PrivateKey;
 import java.util.Arrays;
 import java.util.Map;
 
 import junit.framework.*;
-
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.XMLDocument;
 import net.jxta.id.IDFactory;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -75,10 +76,10 @@ import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.membership.MembershipService;
-
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.PSEConfigAdv;
+
 import org.junit.Ignore;
 
 @Ignore("JXTA Configurator & PeerGroupFactory Required")
@@ -101,9 +102,9 @@ public class pseMembershipTest extends TestCase {
 
                     Map services = params.getServices();
 
-                    ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(PeerGroup.membershipClassID);
+                    ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(IModuleDefinitions.membershipClassID);
 
-                    services.remove(PeerGroup.membershipClassID);
+                    services.remove(IModuleDefinitions.membershipClassID);
 
                     ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(
                             ModuleImplAdvertisement.getAdvertisementType());
@@ -116,7 +117,7 @@ public class pseMembershipTest extends TestCase {
                     implAdv.setDescription("PSE Membership Service");
 
                     // replace it
-                    services.put(PeerGroup.membershipClassID, implAdv);
+                    services.put(IModuleDefinitions.membershipClassID, implAdv);
 
                     newGroupImpl.setParam((Element) params.getDocument(MimeMediaType.XMLUTF8));
 
@@ -145,7 +146,7 @@ public class pseMembershipTest extends TestCase {
 
                     XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
 
-                    newPGAdv.putServiceParam(PeerGroup.membershipClassID, pseDoc);
+                    newPGAdv.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);
 
                     npg.getDiscoveryService().publish(newPGAdv, PeerGroup.DEFAULT_LIFETIME, PeerGroup.DEFAULT_EXPIRATION);
 

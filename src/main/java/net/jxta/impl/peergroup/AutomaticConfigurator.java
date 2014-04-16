@@ -477,7 +477,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         return reconf;
     }
 
-    private boolean isValidInetAddress(String address) {
+    public static boolean isValidInetAddress(String address) {
         boolean found = false;
         boolean loopback;
 

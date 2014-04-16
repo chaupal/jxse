@@ -89,7 +89,6 @@
     </repositories>
 
     <build>
-
         <plugins>
 
             <plugin>
@@ -325,6 +324,7 @@
                 <jdk>[1.6,)</jdk>
             </activation>
             <build>
+              <pluginManagement>
                 <plugins>
                     <plugin>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -348,6 +348,7 @@
                         </executions>
                     </plugin>
                 </plugins>
+              </pluginManagement>
             </build>
         </profile>
 
