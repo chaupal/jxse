@@ -58,9 +58,6 @@ package net.jxta.protocol;
 
 import java.io.*;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -72,7 +69,7 @@ import net.jxta.impl.protocol.GroupConfig;
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.impl.protocol.RdvConfigAdv;
 import net.jxta.impl.protocol.RelayConfigAdv;
-import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.IModuleDefinitions;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -89,10 +86,10 @@ public class GroupConfigTest {
         GroupConfig cp = (GroupConfig) params;
 
         // Add some sections.
-        cp.putServiceParam(PeerGroup.httpProtoClassID, wrapParm(AdvertisementFactory.newAdvertisement(HTTPAdv.getAdvertisementType()), false));
-        cp.setSvcConfigAdvertisement(PeerGroup.relayProtoClassID, AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType()), true);
-        cp.setSvcConfigAdvertisement(PeerGroup.rendezvousClassID, AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType()), false);
-        cp.putServiceParam(PeerGroup.discoveryClassID, wrapParm(AdvertisementFactory.newAdvertisement(DiscoveryConfigAdv.getAdvertisementType()), true));
+        cp.putServiceParam(IModuleDefinitions.httpProtoClassID, wrapParm(AdvertisementFactory.newAdvertisement(HTTPAdv.getAdvertisementType()), false));
+        cp.setSvcConfigAdvertisement(IModuleDefinitions.relayProtoClassID, AdvertisementFactory.newAdvertisement(RelayConfigAdv.getAdvertisementType()), true);
+        cp.setSvcConfigAdvertisement(IModuleDefinitions.rendezvousClassID, AdvertisementFactory.newAdvertisement(RdvConfigAdv.getAdvertisementType()), false);
+        cp.putServiceParam(IModuleDefinitions.discoveryClassID, wrapParm(AdvertisementFactory.newAdvertisement(DiscoveryConfigAdv.getAdvertisementType()), true));
 
         return cp;
     }

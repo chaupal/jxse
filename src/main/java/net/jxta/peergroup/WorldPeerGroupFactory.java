@@ -59,7 +59,7 @@ package net.jxta.peergroup;
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.logging.Logging;
-import net.jxta.platform.JxtaLoader;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
@@ -71,6 +71,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.impl.peergroup.DefaultConfigurator;
 import net.jxta.impl.peergroup.NullConfigurator;
 
@@ -234,9 +235,9 @@ public final class WorldPeerGroupFactory {
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
 
         try {
-            JxtaLoader loader = net.jxta.impl.peergroup.GenericPeerGroup.getJxtaLoader();
+            IJxtaLoader loader = net.jxta.impl.peergroup.GenericPeerGroup.getLoader();
 
-            ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(PeerGroup.refPlatformSpecID);
+            ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
 
             if(null == worldGroupImplAdv) {
                 throw new PeerGroupException("Could not locate World PeerGroup Module Implementation.");

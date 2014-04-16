@@ -67,7 +67,7 @@ import java.net.URLClassLoader;
  * and class loading will determine suitability using the provided
  * compatibility statements.
  */
-public abstract class JxtaLoader extends URLClassLoader {
+public abstract class JxtaLoader extends URLClassLoader implements IJxtaLoader {
 
     /**
      *  Construct a new loader with the specified parent loader and

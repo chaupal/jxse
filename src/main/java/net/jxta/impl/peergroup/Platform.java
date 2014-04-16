@@ -66,9 +66,10 @@ import net.jxta.impl.endpoint.mcast.McastTransport;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
-import net.jxta.platform.JxtaLoader;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
@@ -80,14 +81,14 @@ import java.net.URL;
 import java.util.logging.Logger;
 
 /**
- * Provides the implementation for the World PeerGroup. The World peer group
+ * Provides the implementation for the World IModuleDefinitions. The World peer group
  * differs from other peer groups in the following ways :
  * <ul>
  *     <li>The World Peer Group has no parent. It is the primordial peer group.
  *     </li>
  *     <li>The World Peer Group provides the default definition for the Network
  *     Peer Group. Peers are free to use alternate implementations for the
- *     Network PeerGroup.</li>
+ *     Network IModuleDefinitions.</li>
  *     <li>The World Peer Group is initialized with configuration parameters and
  *     the store home location.</li>
  * </ul>
@@ -109,7 +110,7 @@ public class Platform extends StdPeerGroup {
     public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
         ModuleImplAdvertisement implAdv = 
                 CompatibilityUtils.createModuleImplAdvertisement(
-                PeerGroup.refPlatformSpecID, Platform.class.getName(),
+                IModuleDefinitions.refPlatformSpecID, Platform.class.getName(),
                 "Standard World PeerGroup Reference Implementation");
 
         // Build the param section now.
@@ -118,22 +119,22 @@ public class Platform extends StdPeerGroup {
         // Do the Services
 
         // "Core" Services
-        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
-        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
-        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
+        paramAdv.addService(IModuleDefinitions.endpointClassID, IModuleDefinitions.refEndpointSpecID);
+        paramAdv.addService(IModuleDefinitions.resolverClassID, IModuleDefinitions.refResolverSpecID);
+        paramAdv.addService(IModuleDefinitions.membershipClassID, PSEMembershipService.pseMembershipSpecID);
+        paramAdv.addService(IModuleDefinitions.accessClassID, IModuleDefinitions.refAccessSpecID);
 
         // "Standard" Services
 
-        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
-        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
-        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
+        paramAdv.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
+        paramAdv.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
+        paramAdv.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
 
         // Do the Message Transports
 
-        paramAdv.addProto(PeerGroup.tcpProtoClassID, PeerGroup.refTcpProtoSpecID);
-        paramAdv.addProto(PeerGroup.httpProtoClassID, PeerGroup.refHttpProtoSpecID);
-        paramAdv.addProto(PeerGroup.http2ProtoClassID, PeerGroup.refHttp2ProtoSpecID);
+        paramAdv.addProto(IModuleDefinitions.tcpProtoClassID, IModuleDefinitions.refTcpProtoSpecID);
+        paramAdv.addProto(IModuleDefinitions.httpProtoClassID, IModuleDefinitions.refHttpProtoSpecID);
+        paramAdv.addProto(IModuleDefinitions.http2ProtoClassID, IModuleDefinitions.refHttp2ProtoSpecID);
         paramAdv.addProto(McastTransport.MCAST_TRANSPORT_CLASSID, McastTransport.MCAST_TRANSPORT_SPECID);
 
         // Do the Applications
@@ -189,7 +190,7 @@ public class Platform extends StdPeerGroup {
         // XXX 20080817 mcumings - Need to find a way to have this passed in
         //     so that we can use the passed-in loader as the overall root
         //     loader.
-        JxtaLoader loader = getJxtaLoader();
+        IJxtaLoader loader = getJxtaLoader();
 
         ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) impl;
         if(null == implAdv) {
@@ -247,12 +248,12 @@ public class Platform extends StdPeerGroup {
      */
     @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        JxtaLoader loader = getLoader();
+        IJxtaLoader loader = getLoader();
 
         // For now, use the well know NPG naming, it is not identical to the 
         // allPurpose PG because we use the class ShadowPeerGroup which 
         // initializes the peer config from its parent.
-        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.refNetPeerGroupSpecID);
+        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refNetPeerGroupSpecID);
 
         return implAdv;
     }
@@ -264,9 +265,9 @@ public class Platform extends StdPeerGroup {
     protected void checkServices() throws ServiceNotFoundException {
         super.checkServices();
         Service ignored;
-        ignored = lookupService(discoveryClassID);
-        ignored = lookupService(rendezvousClassID);
-        ignored = lookupService(peerinfoClassID);
+        ignored = lookupService(IModuleDefinitions.discoveryClassID);
+        ignored = lookupService(IModuleDefinitions.rendezvousClassID);
+        ignored = lookupService(IModuleDefinitions.peerinfoClassID);
     }
 
     @Override

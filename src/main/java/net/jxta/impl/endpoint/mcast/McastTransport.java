@@ -83,6 +83,7 @@ import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
@@ -90,6 +91,7 @@ import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -107,6 +109,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.impl.protocol.MulticastAdv;
 
 /**
@@ -292,7 +295,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         }
 
         // Get our peer-defined parameters in the configAdv
-        param = (XMLElement) configAdv.getServiceParam(PeerGroup.multicastProtoClassID);
+        param = (XMLElement) configAdv.getServiceParam(IModuleDefinitions.multicastProtoClassID);
 
         if (null == param) {
             throw new IllegalArgumentException(TransportAdvertisement.getAdvertisementType() + " could not be located.");

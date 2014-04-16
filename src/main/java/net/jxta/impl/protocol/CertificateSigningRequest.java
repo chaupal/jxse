@@ -64,7 +64,7 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.membership.pse.PSEUtils;
-import org.bouncycastle.jce.PKCS10CertificationRequest;
+import org.spongycastle.jce.PKCS10CertificationRequest;
 
 import java.io.IOException;
 import java.io.StringReader;

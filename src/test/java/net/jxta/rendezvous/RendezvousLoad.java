@@ -58,6 +58,7 @@ package net.jxta.rendezvous;
 import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.Hashtable;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -67,7 +68,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.membership.none.NoneMembershipService;
 import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.test.util.AdvUtil;
@@ -94,7 +95,7 @@ public class RendezvousLoad extends TestCase {
     private int ITERATIONS = 1000;
     private long NAP = 100;
     private String serviceParm = PeerGroupID.defaultNetPeerGroupID.getUniqueValue().toString();
-    private String service = PeerGroup.rendezvousClassID.toString();
+    private String service = IModuleDefinitions.rendezvousClassID.toString();
 
     /**
      *  Constructor for the RendezvousLoad

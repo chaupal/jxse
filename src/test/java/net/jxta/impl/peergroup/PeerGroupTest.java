@@ -59,6 +59,7 @@ package net.jxta.impl.peergroup;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Element;
@@ -77,6 +78,7 @@ import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.test.util.TempDir;
+
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -259,7 +261,7 @@ public class PeerGroupTest {
      */
     @Test
     public void staticJxtaLoader() {
-        ClassLoader loader = GenericPeerGroup.getJxtaLoader();
+        ClassLoader loader = (ClassLoader) GenericPeerGroup.getJxtaLoader();
         try {
             Class clazz = loader.loadClass("TestClass");
             fail("Static loader could see the test class: " + clazz);
@@ -275,7 +277,7 @@ public class PeerGroupTest {
      */
     @Test
     public void staticInheritedOnly() {
-        JxtaLoader staticLoader = GenericPeerGroup.getJxtaLoader();
+        JxtaLoader staticLoader = (JxtaLoader) GenericPeerGroup.getJxtaLoader();
         PeerGroup group = pg111;
         do {
             PeerGroup parentGroup = group.getParentGroup();

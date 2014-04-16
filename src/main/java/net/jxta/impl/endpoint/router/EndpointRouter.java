@@ -73,6 +73,7 @@ import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLElement;
@@ -97,6 +98,7 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.AccessPointAdvertisement;
@@ -347,7 +349,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
 
         // Get its EndpointService advertisement
         XMLElement endpParam = (XMLElement)
-                newPadv.getServiceParam(PeerGroup.endpointClassID);
+                newPadv.getServiceParam(IModuleDefinitions.endpointClassID);
 
         if (endpParam == null) {
 

@@ -59,7 +59,7 @@ package net.jxta.impl.endpoint;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLElement;
 import net.jxta.logging.Logging;
-import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
@@ -88,7 +88,7 @@ public final class EndpointUtils {
         try {
 
             // Get its EndpointService advertisement
-            XMLElement endpParam = (XMLElement) adv.getServiceParam(PeerGroup.endpointClassID);
+            XMLElement endpParam = (XMLElement) adv.getServiceParam(IModuleDefinitions.endpointClassID);
 
             if (endpParam == null) {
                 Logging.logCheckedFine(LOG, "No Endpoint Params");

@@ -71,8 +71,10 @@ import net.jxta.impl.protocol.RdvConfigAdv;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.TransportAdvertisement;
+
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.Enumeration;
@@ -172,13 +174,13 @@ public class AutomaticConfigurator extends NullConfigurator {
         }
 
         // Check the HTTP Message Transport parameters.
-        XMLDocument http = (XMLDocument) advertisement.getServiceParam(PeerGroup.httpProtoClassID);
+        XMLDocument http = (XMLDocument) advertisement.getServiceParam(IModuleDefinitions.httpProtoClassID);
         HTTPAdv httpAdv = null;
         boolean httpEnabled = true;
 
         if (http != null) {
             try {
-                httpEnabled = advertisement.isSvcEnabled(PeerGroup.httpProtoClassID);
+                httpEnabled = advertisement.isSvcEnabled(IModuleDefinitions.httpProtoClassID);
 
                 XMLElement param = null;
 
@@ -256,16 +258,16 @@ public class AutomaticConfigurator extends NullConfigurator {
         if (!httpEnabled) {
             http.appendChild(http.createElement("isOff"));
         }
-        advertisement.putServiceParam(PeerGroup.httpProtoClassID, http);
+        advertisement.putServiceParam(IModuleDefinitions.httpProtoClassID, http);
 
         // Check the TCP Message Transport parameters.
-        XMLDocument tcp = (XMLDocument) advertisement.getServiceParam(PeerGroup.tcpProtoClassID);
+        XMLDocument tcp = (XMLDocument) advertisement.getServiceParam(IModuleDefinitions.tcpProtoClassID);
         TCPAdv tcpAdv = null;
         boolean tcpEnabled = true;
 
         if (tcp != null) {
             try {
-                tcpEnabled = advertisement.isSvcEnabled(PeerGroup.tcpProtoClassID);
+                tcpEnabled = advertisement.isSvcEnabled(IModuleDefinitions.tcpProtoClassID);
 
                 XMLElement param = null;
 
@@ -340,13 +342,13 @@ public class AutomaticConfigurator extends NullConfigurator {
         if (!tcpEnabled) {
             tcp.appendChild(tcp.createElement("isOff"));
         }
-        advertisement.putServiceParam(PeerGroup.tcpProtoClassID, tcp);
+        advertisement.putServiceParam(IModuleDefinitions.tcpProtoClassID, tcp);
 
         // Check the relay config
         RelayConfigAdv relayConfig = null;
 
         try {
-            XMLElement param = (XMLElement) advertisement.getServiceParam(PeerGroup.relayProtoClassID);
+            XMLElement param = (XMLElement) advertisement.getServiceParam(IModuleDefinitions.relayProtoClassID);
 
             if (param != null) {
                 // XXX 20041027 backwards compatibility
@@ -383,13 +385,13 @@ public class AutomaticConfigurator extends NullConfigurator {
 
         XMLDocument relayDoc = (XMLDocument) relayConfig.getDocument(MimeMediaType.XMLUTF8);
 
-        advertisement.putServiceParam(PeerGroup.relayProtoClassID, relayDoc);
+        advertisement.putServiceParam(IModuleDefinitions.relayProtoClassID, relayDoc);
 
         // Check Rendezvous Configuration
         RdvConfigAdv rdvAdv = null;
 
         try {
-            XMLElement param = (XMLElement) advertisement.getServiceParam(PeerGroup.rendezvousClassID);
+            XMLElement param = (XMLElement) advertisement.getServiceParam(IModuleDefinitions.rendezvousClassID);
 
             if (param != null) {
                 // XXX 20041027 backwards compatibility
@@ -424,10 +426,10 @@ public class AutomaticConfigurator extends NullConfigurator {
          */
         XMLDocument rdvDoc = (XMLDocument) rdvAdv.getDocument(MimeMediaType.XMLUTF8);
 
-        advertisement.putServiceParam(PeerGroup.rendezvousClassID, rdvDoc);
+        advertisement.putServiceParam(IModuleDefinitions.rendezvousClassID, rdvDoc);
 
 //        // if no proxy param section, disable it.
-//        XMLDocument proxy = (XMLDocument) advertisement.getServiceParam(PeerGroup.proxyClassID);
+//        XMLDocument proxy = (XMLDocument) advertisement.getServiceParam(IModuleDefinitions.proxyClassID);
 //
 //        if (null == proxy) {
 //            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
@@ -436,14 +438,14 @@ public class AutomaticConfigurator extends NullConfigurator {
 //
 //            proxy = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 //            proxy.appendChild(proxy.createElement("isOff"));
-//            advertisement.putServiceParam(PeerGroup.proxyClassID, proxy);
+//            advertisement.putServiceParam(IModuleDefinitions.proxyClassID, proxy);
 //        }
 
         // Check the PSE Configuration
         PSEConfigAdv pseConfig = null;
 
         try {
-            XMLElement param = (XMLElement) advertisement.getServiceParam(PeerGroup.membershipClassID);
+            XMLElement param = (XMLElement) advertisement.getServiceParam(IModuleDefinitions.membershipClassID);
 
             if (param != null) {
                 // XXX 20041027 backwards compatibility
@@ -466,7 +468,7 @@ public class AutomaticConfigurator extends NullConfigurator {
             pseConfig = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(PSEConfigAdv.getAdvertisementType());
             XMLDocument pseDoc = (XMLDocument) pseConfig.getDocument(MimeMediaType.XMLUTF8);
 
-            advertisement.putServiceParam(PeerGroup.membershipClassID, pseDoc);
+            advertisement.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);
         }
 
         // If we did not modify anything of importance or see anything wrong,

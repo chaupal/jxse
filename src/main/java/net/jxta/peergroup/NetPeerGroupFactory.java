@@ -125,7 +125,7 @@ public final class NetPeerGroupFactory {
 
         try {
             ConfigParams cp = worldGroup.getConfigAdvertisement();
-            PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
+            PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
 
             if (null == netGroupConfig) {
                 tunables = new NetGroupTunables(ResourceBundle.getBundle("net.jxta.impl.config"), new NetGroupTunables());
@@ -170,7 +170,7 @@ public final class NetPeerGroupFactory {
      */
     public NetPeerGroupFactory(PeerGroup parentGroup) throws PeerGroupException {
         ConfigParams cp = parentGroup.getConfigAdvertisement();
-        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
+        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
         NetGroupTunables tunables;
 
         if (null == netGroupConfig) {
@@ -204,7 +204,7 @@ public final class NetPeerGroupFactory {
         PeerGroup worldGroup = world.getWorldPeerGroup();
 
         try {
-            PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) config.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
+            PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) config.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
             NetGroupTunables tunables;
 
             if (null == netGroupConfig) {
@@ -258,7 +258,7 @@ public final class NetPeerGroupFactory {
         }
 
         ConfigParams cp = parentGroup.getConfigAdvertisement();
-        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
+        PeerGroupConfigAdv netGroupConfig = (PeerGroupConfigAdv) cp.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
         NetGroupTunables tunables;
 
         if (null == netGroupConfig) {

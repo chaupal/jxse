@@ -86,10 +86,14 @@ import net.jxta.impl.membership.pse.EngineAuthenticator;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.membership.pse.PSEPeerValidationEngine;
 import net.jxta.impl.membership.pse.StringAuthenticator;
+import net.jxta.impl.peergroup.CompatibilityUtils;
+import net.jxta.impl.peergroup.GenericPeerGroup;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.JxtaLoader;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
@@ -197,7 +201,7 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
         ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(
-                PeerGroup.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(),
+                IModuleDefinitions.allPurposePeerGroupSpecID, StdPeerGroup.class.getName(),
                 "General Purpose Peer Group Implementation");
 
         // Create the service list for the group.
@@ -206,26 +210,26 @@ public class StdPeerGroup extends GenericPeerGroup {
         // set the services
 
         // core services
-        JxtaLoader loader = getJxtaLoader();
+        IJxtaLoader loader = getJxtaLoader();
 
-        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
+        paramAdv.addService(IModuleDefinitions.endpointClassID, IModuleDefinitions.refEndpointSpecID);
 
-        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
+        paramAdv.addService(IModuleDefinitions.resolverClassID, IModuleDefinitions.refResolverSpecID);
 
-        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
+        paramAdv.addService(IModuleDefinitions.membershipClassID, PSEMembershipService.pseMembershipSpecID);
 
-        paramAdv.addService(PeerGroup.accessClassID, PSEAccessService.PSE_ACCESS_SPEC_ID);
+        paramAdv.addService(IModuleDefinitions.accessClassID, PSEAccessService.PSE_ACCESS_SPEC_ID);
 
         // standard services
-        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
+        paramAdv.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
 
-        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
+        paramAdv.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
 
-        paramAdv.addService(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
+        paramAdv.addService(IModuleDefinitions.pipeClassID, IModuleDefinitions.refPipeSpecID);
 
-        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
+        paramAdv.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
 
-        paramAdv.addService(PeerGroup.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
+        paramAdv.addService(IModuleDefinitions.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
 //        // Applications
 //        ModuleImplAdvertisement moduleAdv = loader.findModuleImplAdvertisement(PeerGroup.refShellSpecID);
@@ -633,7 +637,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         //The membership service is mandatory from now on (Jan. 20, 2008). It will be loaded first
         //and logged in. That will make sure the subsequent publishing will be signed.
         //The objective of this section is to establish the peer's default credential for this group.
-        Object tempMsSpec = initServices.remove(PeerGroup.membershipClassID);
+        Object tempMsSpec = initServices.remove(IModuleDefinitions.membershipClassID);
         if(tempMsSpec==null)
         {
             throw new PeerGroupException("Membership service is mandatory. It is not found for this group : " + this.getPeerGroupName());
@@ -641,7 +645,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         else
         {
             Map<ModuleClassID, Object> tempMsMap = new HashMap<ModuleClassID, Object>();
-            tempMsMap.put(PeerGroup.membershipClassID, tempMsSpec);
+            tempMsMap.put(IModuleDefinitions.membershipClassID, tempMsSpec);
             loadAllModules(tempMsMap,true);
             int tempRes = startModules((Map)tempMsMap);
             if(Module.START_OK ==tempRes)
@@ -955,10 +959,10 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     // @Override
     public ModuleImplAdvertisement getAllPurposePeerGroupImplAdvertisement() {
-        JxtaLoader loader = getLoader();
+        IJxtaLoader loader = getLoader();
 
         // grab an impl adv
-        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(PeerGroup.allPurposePeerGroupSpecID);
+        ModuleImplAdvertisement implAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.allPurposePeerGroupSpecID);
 
         return implAdv;
     }

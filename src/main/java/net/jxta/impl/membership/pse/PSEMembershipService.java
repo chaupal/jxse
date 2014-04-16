@@ -114,6 +114,7 @@ import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
@@ -472,9 +473,9 @@ public final class PSEMembershipService implements MembershipService {
 
                 StructuredDocumentUtils.copyElements(paramDoc, paramDoc, peerCertsAsDoc, "RootCert");
 
-                peeradv.putServiceParam(PeerGroup.peerGroupClassID, paramDoc);
+                peeradv.putServiceParam(IModuleDefinitions.peerGroupClassID, paramDoc);
             } else {
-                peeradv.removeServiceParam(PeerGroup.peerGroupClassID);
+                peeradv.removeServiceParam(IModuleDefinitions.peerGroupClassID);
             }
 
         } catch (Exception ignored) {

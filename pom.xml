@@ -183,9 +183,19 @@
     <dependencies>
 
         <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-            <version>140</version>
+            <groupId>spongycastle</groupId>
+            <artifactId>sc-light-jdk15on</artifactId>
+            <version>1.47.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>spongycastle</groupId>
+            <artifactId>scpkix-jdk15on</artifactId>
+            <version>1.47.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>spongycastle</groupId>
+            <artifactId>scprov-jdk15on</artifactId>
+            <version>1.47.0.2</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

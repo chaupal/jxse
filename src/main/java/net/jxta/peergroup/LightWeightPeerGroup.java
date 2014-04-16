@@ -70,7 +70,7 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
 import net.jxta.pipe.PipeService;
-import net.jxta.platform.JxtaLoader;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ConfigParams;
@@ -86,6 +86,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.logging.Logger;
+
 import net.jxta.content.ContentService;
 
 /**
@@ -204,9 +205,9 @@ public class LightWeightPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public JxtaLoader getLoader() {
+    public IJxtaLoader getLoader() {
         if (group != null) {
-            return group.getLoader();
+            return ((LightWeightPeerGroup) group).getLoader();
         } else {
             return null;
         }

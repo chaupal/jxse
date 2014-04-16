@@ -62,7 +62,7 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.protocol.MulticastAdv;
-import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.PeerAdvertisement;
@@ -111,7 +111,7 @@ public class AdvUtil {
 
             StructuredDocumentUtils.copyElements(tcp, tcp, (StructuredDocument)
                     tcpAdv.getDocument(MimeMediaType.XMLUTF8));
-            peerAdvertisement.putServiceParam(PeerGroup.tcpProtoClassID, tcp);
+            peerAdvertisement.putServiceParam(IModuleDefinitions.tcpProtoClassID, tcp);
         } catch (Exception e) {
             e.printStackTrace();
         }

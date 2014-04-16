@@ -58,6 +58,7 @@ package net.jxta.impl.loader;
 
 import java.io.File;
 import java.net.URI;
+
 import net.jxta.content.ContentProviderEvent;
 import net.jxta.impl.peergroup.*;
 
@@ -65,6 +66,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import junit.framework.JUnit4TestAdapter;
 import net.jxta.content.Content;
 import net.jxta.content.ContentID;
@@ -79,6 +81,7 @@ import net.jxta.document.Element;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
@@ -87,6 +90,7 @@ import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.test.util.TempDir;
+
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -441,7 +445,7 @@ public class RefJxtaLoaderTest {
             mia.setCompat(
                     sibling1.getAllPurposePeerGroupImplAdvertisement().getCompat());
             mia.setDescription("Module in a Jar");
-            JxtaLoader groupLoader = sibling1.getLoader();
+            IJxtaLoader groupLoader = sibling1.getLoader();
             clazz1 = groupLoader.defineClass(mia);
         } catch (Error err) {
             fail("Was not able to load a Module into sibling1");

@@ -61,11 +61,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.Map;
-
 import java.net.URISyntaxException;
 
 import junit.framework.*;
-
 import net.jxta.access.AccessService;
 import net.jxta.access.AccessService.AccessResult;
 import net.jxta.credential.Credential;
@@ -79,14 +77,15 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.membership.MembershipService;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.WorldPeerGroupFactory;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
-
 import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
+
 import org.junit.Ignore;
 
 @Ignore("JXTA Configurator & PeerGroupFactory Required")
@@ -111,9 +110,9 @@ public class SimpleACLAccessServiceTest extends TestCase {
 
                     Map services = params.getServices();
 
-                    ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(PeerGroup.accessClassID);
+                    ModuleImplAdvertisement aModuleAdv = (ModuleImplAdvertisement) services.get(IModuleDefinitions.accessClassID);
 
-                    services.remove(PeerGroup.accessClassID);
+                    services.remove(IModuleDefinitions.accessClassID);
 
                     ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement)
                             AdvertisementFactory.newAdvertisement(ModuleImplAdvertisement.getAdvertisementType());
@@ -126,11 +125,11 @@ public class SimpleACLAccessServiceTest extends TestCase {
                     implAdv.setDescription("Simple ACL Access Service");
 
                     // replace it
-                    services.put(PeerGroup.accessClassID, implAdv);
+                    services.put(IModuleDefinitions.accessClassID, implAdv);
 
                     newGroupImpl.setParam((Element) params.getDocument(MimeMediaType.XMLUTF8));
 
-                    if (!newGroupImpl.getModuleSpecID().equals(PeerGroup.allPurposePeerGroupSpecID)) {
+                    if (!newGroupImpl.getModuleSpecID().equals(IModuleDefinitions.allPurposePeerGroupSpecID)) {
                         newGroupImpl.setModuleSpecID(IDFactory.newModuleSpecID(newGroupImpl.getModuleSpecID().getBaseClass()));
                     } else {
                         try {
@@ -171,7 +170,7 @@ public class SimpleACLAccessServiceTest extends TestCase {
                     perm = accessparams.createElement("perm", "deny:notpermit,notallow");
                     accessparams.appendChild(perm);
 
-                    newPGAdv.putServiceParam(PeerGroup.accessClassID, accessparams);
+                    newPGAdv.putServiceParam(IModuleDefinitions.accessClassID, accessparams);
 
                     npg.getDiscoveryService().publish(newPGAdv, PeerGroup.DEFAULT_LIFETIME, PeerGroup.DEFAULT_EXPIRATION);
 

@@ -79,11 +79,13 @@ import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.TransportAdvertisement;
+
 import javax.security.cert.CertificateException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -103,6 +105,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
+
 import net.jxta.impl.protocol.MulticastAdv;
 
 /**
@@ -1612,16 +1615,16 @@ public class NetworkConfigurator {
         XMLElement<?> param;
 
         // TCP
-        tcpEnabled = platformConfig.isSvcEnabled(PeerGroup.tcpProtoClassID);
-        tcpConfig = loadTcpAdv(platformConfig, PeerGroup.tcpProtoClassID);
+        tcpEnabled = platformConfig.isSvcEnabled(IModuleDefinitions.tcpProtoClassID);
+        tcpConfig = loadTcpAdv(platformConfig, IModuleDefinitions.tcpProtoClassID);
 
-        multicastEnabled = platformConfig.isSvcEnabled(PeerGroup.multicastProtoClassID);
-        multicastConfig = loadMulticastAdv(platformConfig, PeerGroup.multicastProtoClassID);
+        multicastEnabled = platformConfig.isSvcEnabled(IModuleDefinitions.multicastProtoClassID);
+        multicastConfig = loadMulticastAdv(platformConfig, IModuleDefinitions.multicastProtoClassID);
 
         // HTTP
         try {
-            param = (XMLElement) platformConfig.getServiceParam(PeerGroup.httpProtoClassID);
-            httpEnabled = platformConfig.isSvcEnabled(PeerGroup.httpProtoClassID);
+            param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.httpProtoClassID);
+            httpEnabled = platformConfig.isSvcEnabled(IModuleDefinitions.httpProtoClassID);
 
             Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
@@ -1640,13 +1643,13 @@ public class NetworkConfigurator {
         }
 
         // HTTP2
-        http2Enabled = platformConfig.isSvcEnabled(PeerGroup.http2ProtoClassID);
-        http2Config = loadTcpAdv(platformConfig, PeerGroup.http2ProtoClassID);
+        http2Enabled = platformConfig.isSvcEnabled(IModuleDefinitions.http2ProtoClassID);
+        http2Config = loadTcpAdv(platformConfig, IModuleDefinitions.http2ProtoClassID);
 
 //        // ProxyService
 //        try {
-//            param = (XMLElement) platformConfig.getServiceParam(PeerGroup.proxyClassID);
-//            if (param != null && !platformConfig.isSvcEnabled(PeerGroup.proxyClassID)) {
+//            param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.proxyClassID);
+//            if (param != null && !platformConfig.isSvcEnabled(IModuleDefinitions.proxyClassID)) {
 //                mode = mode | PROXY_SERVER;
 //            }
 //        } catch (Exception failure) {
@@ -1657,7 +1660,7 @@ public class NetworkConfigurator {
 
         // Rendezvous
         try {
-            param = (XMLElement) platformConfig.getServiceParam(PeerGroup.rendezvousClassID);
+            param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.rendezvousClassID);
             // backwards compatibility
             param.addAttribute("type", RdvConfigAdv.getAdvertisementType());
             rdvConfig = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
@@ -1676,8 +1679,8 @@ public class NetworkConfigurator {
 
         // Relay
         try {
-            param = (XMLElement) platformConfig.getServiceParam(PeerGroup.relayProtoClassID);
-            if (param != null && !platformConfig.isSvcEnabled(PeerGroup.relayProtoClassID)) {
+            param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.relayProtoClassID);
+            if (param != null && !platformConfig.isSvcEnabled(IModuleDefinitions.relayProtoClassID)) {
                 mode = mode | RELAY_OFF;
             }
             // backwards compatibility
@@ -1690,7 +1693,7 @@ public class NetworkConfigurator {
         }
 
         // PSE
-        param = (XMLElement) platformConfig.getServiceParam(PeerGroup.membershipClassID);
+        param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.membershipClassID);
         if (param != null) {
 
             Advertisement adv = null;
@@ -1714,7 +1717,7 @@ public class NetworkConfigurator {
         }
 
         // Infra Group
-        infraPeerGroupConfig = (PeerGroupConfigAdv) platformConfig.getSvcConfigAdvertisement(PeerGroup.peerGroupClassID);
+        infraPeerGroupConfig = (PeerGroupConfigAdv) platformConfig.getSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID);
         if (null == infraPeerGroupConfig) {
             infraPeerGroupConfig = createInfraConfigAdv();
             try {
@@ -2028,22 +2031,22 @@ public class NetworkConfigurator {
 
         if (tcpConfig != null) {
             boolean enabled = tcpEnabled && (tcpConfig.isServerEnabled() || tcpConfig.isClientEnabled());
-            advertisement.putServiceParam(PeerGroup.tcpProtoClassID, getParmDoc(enabled, tcpConfig));
+            advertisement.putServiceParam(IModuleDefinitions.tcpProtoClassID, getParmDoc(enabled, tcpConfig));
         }
 
         if (multicastConfig != null) {
             boolean enabled = multicastConfig.getMulticastState();
-            advertisement.putServiceParam(PeerGroup.multicastProtoClassID, getParmDoc(enabled, multicastConfig));
+            advertisement.putServiceParam(IModuleDefinitions.multicastProtoClassID, getParmDoc(enabled, multicastConfig));
         }
 
         if (httpConfig != null) {
             boolean enabled = httpEnabled && (httpConfig.isServerEnabled() || httpConfig.isClientEnabled());
-            advertisement.putServiceParam(PeerGroup.httpProtoClassID, getParmDoc(enabled, httpConfig));
+            advertisement.putServiceParam(IModuleDefinitions.httpProtoClassID, getParmDoc(enabled, httpConfig));
         }
 
         if (http2Config != null) {
         	boolean enabled = http2Enabled && (http2Config.isServerEnabled() || http2Config.isClientEnabled());
-        	advertisement.putServiceParam(PeerGroup.http2ProtoClassID, getParmDoc(enabled, http2Config));
+        	advertisement.putServiceParam(IModuleDefinitions.http2ProtoClassID, getParmDoc(enabled, http2Config));
         }
 
         if (relayConfig != null) {
@@ -2053,12 +2056,12 @@ public class NetworkConfigurator {
             if (isOff) {
                 relayDoc.appendChild(relayDoc.createElement("isOff"));
             }
-            advertisement.putServiceParam(PeerGroup.relayProtoClassID, relayDoc);
+            advertisement.putServiceParam(IModuleDefinitions.relayProtoClassID, relayDoc);
         }
 
         if (rdvConfig != null) {
             XMLDocument rdvDoc = (XMLDocument) rdvConfig.getDocument(MimeMediaType.XMLUTF8);
-            advertisement.putServiceParam(PeerGroup.rendezvousClassID, rdvDoc);
+            advertisement.putServiceParam(IModuleDefinitions.rendezvousClassID, rdvDoc);
         }
         
         if (principal == null) {
@@ -2084,7 +2087,7 @@ public class NetworkConfigurator {
                 }
             }
             XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
-            advertisement.putServiceParam(PeerGroup.membershipClassID, pseDoc);
+            advertisement.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);
         }
         
         if (authenticationType == null) {
@@ -2098,13 +2101,13 @@ public class NetworkConfigurator {
         advertisement.setPeerID(peerid);
 
 //        if (proxyConfig != null && ((mode & PROXY_SERVER) == PROXY_SERVER)) {
-//            advertisement.putServiceParam(PeerGroup.proxyClassID, proxyConfig);
+//            advertisement.putServiceParam(IModuleDefinitions.proxyClassID, proxyConfig);
 //        }
 
         if ((null != infraPeerGroupConfig) && (null != infraPeerGroupConfig.getPeerGroupID())
                 && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
                 && (PeerGroupID.defaultNetPeerGroupID != infraPeerGroupConfig.getPeerGroupID())) {
-            advertisement.setSvcConfigAdvertisement(PeerGroup.peerGroupClassID, infraPeerGroupConfig);
+            advertisement.setSvcConfigAdvertisement(IModuleDefinitions.peerGroupClassID, infraPeerGroupConfig);
         }
         return advertisement;
     }

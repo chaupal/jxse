@@ -106,11 +106,11 @@ import net.jxta.impl.util.BASE64InputStream;
 import net.jxta.impl.util.BASE64OutputStream;
 import net.jxta.logging.Logging;
 
-import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.x509.X509NameTokenizer;
-import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
+import org.spongycastle.asn1.DERObjectIdentifier;
+import org.spongycastle.asn1.x509.X509NameTokenizer;
+import org.spongycastle.jce.X509Principal;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
+import org.spongycastle.x509.X509V3CertificateGenerator;
 
 /**
  * Singleton class of static utility methods.

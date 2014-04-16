@@ -63,8 +63,8 @@ import net.jxta.id.ID;
 import net.jxta.impl.content.ContentServiceImpl;
 //import net.jxta.impl.membership.none.NoneMembershipService;
 import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.platform.Application;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
@@ -86,7 +86,7 @@ public class ShadowPeerGroup extends StdPeerGroup {
      */
     public static ModuleImplAdvertisement getDefaultModuleImplAdvertisement() {
         ModuleImplAdvertisement implAdv = CompatibilityUtils.createModuleImplAdvertisement(
-                PeerGroup.refNetPeerGroupSpecID, ShadowPeerGroup.class.getName(),
+                IModuleDefinitions.refNetPeerGroupSpecID, ShadowPeerGroup.class.getName(),
                 "Default Network PeerGroup reference implementation");
 
         // Build the param section now.
@@ -94,29 +94,29 @@ public class ShadowPeerGroup extends StdPeerGroup {
 
         // Set the services
         // "Core" Services
-        paramAdv.addService(PeerGroup.endpointClassID, PeerGroup.refEndpointSpecID);
-        paramAdv.addService(PeerGroup.resolverClassID, PeerGroup.refResolverSpecID);
-        paramAdv.addService(PeerGroup.membershipClassID, PSEMembershipService.pseMembershipSpecID);
-        paramAdv.addService(PeerGroup.accessClassID, PeerGroup.refAccessSpecID);
+        paramAdv.addService(IModuleDefinitions.endpointClassID, IModuleDefinitions.refEndpointSpecID);
+        paramAdv.addService(IModuleDefinitions.resolverClassID, IModuleDefinitions.refResolverSpecID);
+        paramAdv.addService(IModuleDefinitions.membershipClassID, PSEMembershipService.pseMembershipSpecID);
+        paramAdv.addService(IModuleDefinitions.accessClassID, IModuleDefinitions.refAccessSpecID);
 
         // "Standard" Services
-        paramAdv.addService(PeerGroup.discoveryClassID, PeerGroup.refDiscoverySpecID);
-        paramAdv.addService(PeerGroup.rendezvousClassID, PeerGroup.refRendezvousSpecID);
-        paramAdv.addService(PeerGroup.pipeClassID, PeerGroup.refPipeSpecID);
-        paramAdv.addService(PeerGroup.peerinfoClassID, PeerGroup.refPeerinfoSpecID);
-//        paramAdv.addService(PeerGroup.proxyClassID, PeerGroup.refProxySpecID);
-        paramAdv.addService(PeerGroup.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
+        paramAdv.addService(IModuleDefinitions.discoveryClassID, IModuleDefinitions.refDiscoverySpecID);
+        paramAdv.addService(IModuleDefinitions.rendezvousClassID, IModuleDefinitions.refRendezvousSpecID);
+        paramAdv.addService(IModuleDefinitions.pipeClassID, IModuleDefinitions.refPipeSpecID);
+        paramAdv.addService(IModuleDefinitions.peerinfoClassID, IModuleDefinitions.refPeerinfoSpecID);
+//        paramAdv.addService(IModuleDefinitions.proxyClassID, IModuleDefinitions.refProxySpecID);
+        paramAdv.addService(IModuleDefinitions.contentClassID, ContentServiceImpl.MODULE_SPEC_ID);
 
         /**
-         * NPG used to be a StdPeerGroup in 2.5, however, it should be a ShadowPeerGroup.
+         * NPG used to be a StdPeerGroup in 2.5, however, it should be a ShadowIModuleDefinitions.
          * StdPeerGroup does defines the below protos transports. There is no reason why
          * the NPG should define tls and CbJxDefs in 2.6.
          */
 //        // High-level Message Transports.
-        paramAdv.addProto(PeerGroup.routerProtoClassID, PeerGroup.refRouterProtoSpecID);
-        paramAdv.addProto(PeerGroup.tlsProtoClassID, PeerGroup.refTlsProtoSpecID);
+        paramAdv.addProto(IModuleDefinitions.routerProtoClassID, IModuleDefinitions.refRouterProtoSpecID);
+        paramAdv.addProto(IModuleDefinitions.tlsProtoClassID, IModuleDefinitions.refTlsProtoSpecID);
 //        paramAdv.addProto(CbJxDefs.msgtptClassID, CbJxDefs.cbjxMsgTransportSpecID);
-        paramAdv.addProto(PeerGroup.relayProtoClassID, PeerGroup.refRelayProtoSpecID);
+        paramAdv.addProto(IModuleDefinitions.relayProtoClassID, IModuleDefinitions.refRelayProtoSpecID);
 
         // Pour our newParamAdv in implAdv
         XMLElement paramElement = (XMLElement) paramAdv.getDocument(MimeMediaType.XMLUTF8);
@@ -165,8 +165,8 @@ public class ShadowPeerGroup extends StdPeerGroup {
         }
 
 //        // Main app is the shell (if it is available).
-//        if (null != getLoader().findModuleImplAdvertisement(PeerGroup.refShellSpecID)) {
-//            shell = (Application) loadModule(PeerGroup.applicationClassID, PeerGroup.refShellSpecID, PeerGroup.Both);
+//        if (null != getLoader().findModuleImplAdvertisement(IModuleDefinitions.refShellSpecID)) {
+//            shell = (Application) loadModule(IModuleDefinitions.applicationClassID, IModuleDefinitions.refShellSpecID, IModuleDefinitions.Both);
 //
 //            if (null == shell) {
 //                return -1;

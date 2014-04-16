@@ -74,6 +74,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
 import net.jxta.discovery.DiscoveryService;
@@ -88,6 +89,7 @@ import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.loader.DynamicJxtaLoader;
 import net.jxta.impl.loader.RefJxtaLoader;
 import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
@@ -99,10 +101,11 @@ import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peer.PeerInfoService;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeService;
-import net.jxta.platform.JxtaLoader;
+import net.jxta.platform.IJxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
@@ -150,16 +153,17 @@ public abstract class GenericPeerGroup implements PeerGroup {
      * XXX 20080817 mcumings - I'd like this to go away entirely, now that
      * each group has it's own JxtaLoader instance.  If the root loader was
      * simply the JxtaLoader used by the WPG things would make more sense.
+     * XXX 20140415 cppieters: removed RefJxtaLoader to a static instance in order to improve compatibility with OSGI
      */
-    private final static JxtaLoader staticLoader =
-            new RefJxtaLoader(new URL[0], COMP_EQ);
+    private final static IJxtaLoader staticLoader = DynamicJxtaLoader.getInstance();
+            //new RefJxtaLoader(new URL[0], COMP_EQ);
 
     private static final ThreadGroup JXSE_THREAD_GROUP = new ThreadGroup("JXSE");
 
     /**
      * The PeerGroup-specific JxtaLoader instance.
      */
-    private JxtaLoader loader;
+    private static IJxtaLoader loader;
 
     /*
      * Shortcuts to well known services.
@@ -295,7 +299,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *  {@code getLoader()} method.
      */
     @Deprecated
-    public static JxtaLoader getJxtaLoader() {
+    public static IJxtaLoader getJxtaLoader() {
         return staticLoader;
     }
 
@@ -467,38 +471,38 @@ public abstract class GenericPeerGroup implements PeerGroup {
      *                {@code null} to clear the shortcut.
      */
     private void setShortCut(ModuleClassID mcid, Service service) {
-        if (endpointClassID.equals(mcid)) {
+        if (IModuleDefinitions.endpointClassID.equals(mcid)) {
             endpoint = (EndpointService) service;
             return;
         }
-        if (resolverClassID.equals(mcid)) {
+        if (IModuleDefinitions.resolverClassID.equals(mcid)) {
             resolver = (ResolverService) service;
             return;
         }
-        if (discoveryClassID.equals(mcid)) {
+        if (IModuleDefinitions.discoveryClassID.equals(mcid)) {
             discovery = (DiscoveryService) service;
             return;
         }
-        if (pipeClassID.equals(mcid)) {
+        if (IModuleDefinitions.pipeClassID.equals(mcid)) {
             pipe = (PipeService) service;
             return;
         }
-        if (membershipClassID.equals(mcid)) {
+        if (IModuleDefinitions.membershipClassID.equals(mcid)) {
             membership = (MembershipService) service;
             return;
         }
-        if (peerinfoClassID.equals(mcid)) {
+        if (IModuleDefinitions.peerinfoClassID.equals(mcid)) {
             peerinfo = (PeerInfoService) service;
             return;
         }
-        if (rendezvousClassID.equals(mcid)) {
+        if (IModuleDefinitions.rendezvousClassID.equals(mcid)) {
             rendezvous = (RendezVousService) service;
             return;
         }
-        if (accessClassID.equals(mcid)) {
+        if (IModuleDefinitions.accessClassID.equals(mcid)) {
             access = (AccessService) service;
         }
-        if (contentClassID.equals(mcid)) {
+        if (IModuleDefinitions.contentClassID.equals(mcid)) {
             content = (ContentService) service;
         }
     }
@@ -574,10 +578,10 @@ public abstract class GenericPeerGroup implements PeerGroup {
     protected void checkServices() throws ServiceNotFoundException {
         Service ignored;
 
-        ignored = lookupService(endpointClassID);
-        ignored = lookupService(resolverClassID);
-        ignored = lookupService(membershipClassID);
-        ignored = lookupService(accessClassID);
+        ignored = lookupService(IModuleDefinitions.endpointClassID);
+        ignored = lookupService(IModuleDefinitions.resolverClassID);
+        ignored = lookupService(IModuleDefinitions.membershipClassID);
+        ignored = lookupService(IModuleDefinitions.accessClassID);
 
     /**
          * ignored = lookupService(discoveryClassID);
@@ -989,7 +993,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 if ((null == configPID) || (ID.nullID == configPID)) {
                     if ("cbid".equals(IDFactory.getDefaultIDFormat())) {
                         // Get our peer-defined parameters in the configAdv
-                        XMLElement param = (XMLElement) platformConfig.getServiceParam(PeerGroup.membershipClassID);
+                        XMLElement param = (XMLElement) platformConfig.getServiceParam(IModuleDefinitions.membershipClassID);
 
                         if (null == param) {
                             throw new IllegalArgumentException(PSEConfigAdv.getAdvertisementType() + " could not be located");
@@ -1046,28 +1050,28 @@ public abstract class GenericPeerGroup implements PeerGroup {
             if (null == parentGroup) {
 
                 Logging.logCheckedFine(LOG, "Setting up group loader -> static loader");
-                loader = new RefJxtaLoader(new URL[0], staticLoader, COMP_EQ, this);
+                loader = new RefJxtaLoader(new URL[0], (ClassLoader) staticLoader, COMP_EQ, this);
 
             } else {
-                ClassLoader upLoader = parentGroup.getLoader();
+                IJxtaLoader upLoader = ((GenericPeerGroup) parentGroup).getLoader();
                 StructuredDocument cfgDoc =
                         peerGroupAdvertisement.getServiceParam(
-                        PeerGroup.peerGroupClassID);
+                        		IModuleDefinitions.peerGroupClassID);
                 PeerGroupConfigAdv pgca;
                 if (cfgDoc != null) {
                     pgca = (PeerGroupConfigAdv)
                             AdvertisementFactory.newAdvertisement((XMLElement)
-                            peerGroupAdvertisement.getServiceParam(PeerGroup.peerGroupClassID));
+                            peerGroupAdvertisement.getServiceParam(IModuleDefinitions.peerGroupClassID));
                     if (pgca.isFlagSet(PeerGroupConfigFlag.SHUNT_PARENT_CLASSLOADER)) {
                         // We'll shunt to the same class loader that loaded this
                         // class, but not the JXTA form (to prevent Module
                         // definitions).
-                        upLoader = getClass().getClassLoader();
+                        upLoader = (IJxtaLoader) getClass().getClassLoader();
                     }
                 }
 
                 Logging.logCheckedFine(LOG, "Setting up group loader -> ", upLoader);
-                loader = new RefJxtaLoader(new URL[0], upLoader, COMP_EQ, this);
+                loader = new RefJxtaLoader(new URL[0], (ClassLoader) upLoader, COMP_EQ, this);
 
             }
 
@@ -1505,7 +1509,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
     /**
      * {@inheritDoc}
      */
-    public JxtaLoader getLoader() {
+    public static IJxtaLoader getLoader() {
         return loader;
     }
 

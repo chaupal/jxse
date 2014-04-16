@@ -67,10 +67,12 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.logging.Logging;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
+
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -451,7 +453,7 @@ public class StdPeerGroupParamAdv {
 
             if (theTable == apps) {
                 // Only the first (or only) one may use the base class.
-                if (classID == PeerGroup.applicationClassID) {
+                if (classID == IModuleDefinitions.applicationClassID) {
                     if (appCount++ != 0) {
                         classID = IDFactory.newModuleClassID(classID);
                     }

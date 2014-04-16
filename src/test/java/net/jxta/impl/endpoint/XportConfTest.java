@@ -57,7 +57,7 @@
 package net.jxta.impl.endpoint;
 
 import junit.framework.*;
-
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 // import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.endpoint.EndpointAddress;
@@ -67,10 +67,10 @@ import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.TransportAdvertisement;
-
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.protocol.TCPAdv;
+
 import org.junit.Ignore;
 
 import java.util.Enumeration;
@@ -155,16 +155,16 @@ public class XportConfTest extends TestCase {
 
     private void removeRelay(ConfigParams config) throws Exception {
         StructuredTextDocument param = (StructuredTextDocument)
-                config.getServiceParam(PeerGroup.relayProtoClassID);
+                config.getServiceParam(IModuleDefinitions.relayProtoClassID);
 
         param.appendChild(param.createElement("isOff"));
 
-        config.putServiceParam(PeerGroup.relayProtoClassID, param);
+        config.putServiceParam(IModuleDefinitions.relayProtoClassID, param);
     }
 
     private TCPAdv extractTcp(ConfigParams config) throws Exception {
 
-        Element param = config.getServiceParam(PeerGroup.tcpProtoClassID);
+        Element param = config.getServiceParam(IModuleDefinitions.tcpProtoClassID);
 
         Enumeration tcpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
@@ -195,7 +195,7 @@ public class XportConfTest extends TestCase {
 
     private HTTPAdv extractHttp(ConfigParams config) throws Exception {
 
-        Element param = config.getServiceParam(PeerGroup.httpProtoClassID);
+        Element param = config.getServiceParam(IModuleDefinitions.httpProtoClassID);
 
         Enumeration httpChilds = param.getChildren(TransportAdvertisement.getAdvertisementType());
 
@@ -231,7 +231,7 @@ public class XportConfTest extends TestCase {
         StructuredDocument parm = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
         StructuredDocumentUtils.copyElements(parm, parm, (StructuredDocument) tcpAdv.getDocument(MimeMediaType.XMLUTF8));
-        config.putServiceParam(PeerGroup.tcpProtoClassID, parm);
+        config.putServiceParam(IModuleDefinitions.tcpProtoClassID, parm);
     }
 
     private void insertHttp(HTTPAdv httpAdv, ConfigParams config) throws Exception {
@@ -239,7 +239,7 @@ public class XportConfTest extends TestCase {
         StructuredDocument parm = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, "Parm");
 
         StructuredDocumentUtils.copyElements(parm, parm, (StructuredDocument) httpAdv.getDocument(MimeMediaType.XMLUTF8));
-        config.putServiceParam(PeerGroup.httpProtoClassID, parm);
+        config.putServiceParam(IModuleDefinitions.httpProtoClassID, parm);
     }
 
     private void fixConfig() throws Exception {
@@ -347,7 +347,7 @@ public class XportConfTest extends TestCase {
 	
         // Get its EndpointService advertisement
         TextElement endpParam = (TextElement)
-                peerAdv.getServiceParam(PeerGroup.endpointClassID);
+                peerAdv.getServiceParam(IModuleDefinitions.endpointClassID);
 	
         if (endpParam == null) {
             return null;

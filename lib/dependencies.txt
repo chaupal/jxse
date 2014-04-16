@@ -1,5 +1,7 @@
 Mandatory runtime dependencies:
-bouncycastle/bcprov-jdk15-145.jar - used for encryption
+spongycastle/sc-light-jdk15on-1.47.0.2.jar - used for encryption
+spongycastle/scpkix-jdk15on-1.47.0.2.jar - used for encryption
+spongycastle/scprov-jdk15on-1.47.0.2.jar - used for encryption
 h2/h2-1.1.127.jar - used by the H2 implementation of the cache manager (Cm)
 jetty/javax.servlet.jar - required by Jetty
 jetty/org.mortbay.jetty.jar - required by the HTTP transport

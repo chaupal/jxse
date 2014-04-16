@@ -57,6 +57,7 @@
 package net.jxta.impl.endpoint.relay;
 
 import java.util.Collection;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -82,11 +83,13 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -1126,7 +1129,7 @@ public class RelayClient implements MessageReceiver, Runnable {
      */
     private void addRelay(PeerGroup pg, RouteAdvertisement relayRoute) {
 
-        ID assignedID = PeerGroup.endpointClassID;
+        ID assignedID = IModuleDefinitions.endpointClassID;
 
         try {
             // get the advertisement of the associated endpoint address as we
@@ -1211,7 +1214,7 @@ public class RelayClient implements MessageReceiver, Runnable {
 
         // we can keep the advertisement for now (should remove it)
         // remove the relay from its active list
-        ID assignedID = PeerGroup.endpointClassID;
+        ID assignedID = IModuleDefinitions.endpointClassID;
         PeerID relayPid = relayRoute.getDestPeerID();
 
         try {

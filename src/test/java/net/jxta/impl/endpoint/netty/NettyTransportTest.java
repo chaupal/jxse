@@ -12,6 +12,7 @@ import net.jxta.impl.document.DOMXMLElement;
 import net.jxta.impl.protocol.GroupConfig;
 import net.jxta.impl.protocol.ModuleImplAdv;
 import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.TransportAdvertisement;
@@ -47,7 +48,7 @@ public class NettyTransportTest {
         instanceConfig.setPort(7901);
         addInstanceConfigurationToGroupConfig(instanceConfig);
         
-        assignedID = PeerGroup.tcpProtoClassID;
+        assignedID = IModuleDefinitions.tcpProtoClassID;
         standardImplAdv = createImplAdvertisement(null);
     }
     
@@ -58,7 +59,7 @@ public class NettyTransportTest {
 
     private ModuleImplAdv createImplAdvertisement(String protocolName) {
         ModuleImplAdv implAdv = (ModuleImplAdv) new ModuleImplAdv.Instantiator().newInstance();
-        implAdv.setModuleSpecID(PeerGroup.refTcpProtoSpecID);
+        implAdv.setModuleSpecID(IModuleDefinitions.refTcpProtoSpecID);
         implAdv.setDescription("Reference Implementation of the JXSE 2.6+ HTTP Message Transport");
         implAdv.setCode(NettyTransport.class.getName());
         implAdv.setUri("http://jxta-jxse.dev.java.net/download/jxta.jar");
@@ -125,7 +126,7 @@ public class NettyTransportTest {
 
     private void addInstanceConfigurationToGroupConfig(TCPAdv instanceConfig) {
         XMLDocument<?> instanceConfigDoc = createCloneableAdv(instanceConfig);
-        groupConfig.putServiceParam(PeerGroup.tcpProtoClassID, instanceConfigDoc);
+        groupConfig.putServiceParam(IModuleDefinitions.tcpProtoClassID, instanceConfigDoc);
     }
     
     // TODO: move to client and server tests
