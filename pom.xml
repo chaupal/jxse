@@ -162,7 +162,7 @@
 
                     <!-- Don't remove skip, it is sometimes necessary to
                       disactivate tests for the Sonatype OSS release. -->
-                    <skip>false</skip>
+                    <skip>true</skip>
 
                 </configuration>
             </plugin>
@@ -182,17 +182,17 @@
     <dependencies>
 
         <dependency>
-            <groupId>spongycastle</groupId>
+            <groupId>com.madgag</groupId>
             <artifactId>sc-light-jdk15on</artifactId>
             <version>1.47.0.2</version>
         </dependency>
         <dependency>
-            <groupId>spongycastle</groupId>
+            <groupId>com.madgag</groupId>
             <artifactId>scpkix-jdk15on</artifactId>
             <version>1.47.0.2</version>
         </dependency>
         <dependency>
-            <groupId>spongycastle</groupId>
+            <groupId>com.madgag</groupId>
             <artifactId>scprov-jdk15on</artifactId>
             <version>1.47.0.2</version>
         </dependency>
