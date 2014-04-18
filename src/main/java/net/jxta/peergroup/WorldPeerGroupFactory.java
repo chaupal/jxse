@@ -72,6 +72,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.jxta.impl.loader.DynamicJxtaLoader;
 import net.jxta.impl.peergroup.DefaultConfigurator;
 import net.jxta.impl.peergroup.NullConfigurator;
 
@@ -235,7 +236,7 @@ public final class WorldPeerGroupFactory {
     private static Class getDefaultWorldPeerGroupClass() throws PeerGroupException {
 
         try {
-            IJxtaLoader loader = net.jxta.impl.peergroup.GenericPeerGroup.getLoader();
+            IJxtaLoader loader = DynamicJxtaLoader.getInstance();
 
             ModuleImplAdvertisement worldGroupImplAdv = loader.findModuleImplAdvertisement(IModuleDefinitions.refPlatformSpecID);
 
