@@ -63,8 +63,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.jxta.configuration.JxtaConfigurationException;
+import net.jxta.exception.JxtaException;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
 
@@ -86,7 +88,7 @@ public class JxseConfigurationTool {
      * @return instance of a NetworkManager.
      * @throws Exception if an issue is encountered while retrieving the {@code NetworkManager}.
      */
-    public static NetworkManager getConfiguredNetworkManager(JxsePeerConfiguration inConfig) throws JxtaConfigurationException, IOException {
+    public static NetworkManager getConfiguredNetworkManager(JxsePeerConfiguration inConfig) throws JxtaConfigurationException, IOException, JxtaException {
 
         // Preparing result
         NetworkManager Result = null;
@@ -114,11 +116,14 @@ public class JxseConfigurationTool {
         URI InstanceHome = inConfig.getPersistenceLocation();
 
         LOG.log(Level.FINE, "Creating a NetworkManager instance");
-        if (InstanceHome!=null) {
-            Result = new NetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName, InstanceHome);
-        } else {
+        
+        /*if (InstanceHome!=null) {
+            Result = new NetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName, InstanceHome);            
+        } else {            
             Result = new NetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName);
-        }
+        }*/
+        
+        Result = JxtaApplication.getNetworkManager(convertToNetworkManagerConfigMode(ExtractedMode), InstanceName, InstanceHome);
 
         // Retrieving the NetworkConfigurator
         NetworkConfigurator TheNC = Result.getConfigurator();

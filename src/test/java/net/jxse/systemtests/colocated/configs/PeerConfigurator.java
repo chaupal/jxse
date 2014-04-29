@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import net.jxta.exception.JxtaException;
+import net.jxta.platform.JxtaApplication;
 
 import org.junit.rules.TemporaryFolder;
 
@@ -134,29 +136,33 @@ public class PeerConfigurator {
 		}
 	}
 	
-	public static NetworkManager createTcpRdvRelayPeer(String name, int port, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createTcpRdvRelayPeer(String name, int port, TemporaryFolder tempFolder) throws IOException, JxtaException {
+		//NetworkManager man = new NetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
 		configureTcpOnly(man, port);
 		configureIsolation(man, true);
 		return man;
 	}
 	
-	public static NetworkManager createHttpRdvRelayPeer(String name, int port, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createHttpRdvRelayPeer(String name, int port, TemporaryFolder tempFolder) throws IOException, JxtaException {
+//		/NetworkManager man = new NetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
 		configureHttpOnly(man, port);
 		configureIsolation(man, true);
 		return man;
 	}
 	
-	public static NetworkManager createHttp2RdvRelayPeer(String name, int port, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createHttp2RdvRelayPeer(String name, int port, TemporaryFolder tempFolder) throws IOException, JxtaException {
+		//NetworkManager man = new NetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.RENDEZVOUS_RELAY, name, tempFolder.newFolder(name).toURI());
 		configureHttp2Only(man, port);
 		configureIsolation(man, true);
 		return man;
 	}
 	
-	public static NetworkManager createTcpClientPeer(String name, NetworkManager relay, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createTcpClientPeer(String name, NetworkManager relay, TemporaryFolder tempFolder) throws IOException, JxtaException {
+		//NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
 		configureTcpOnly(man, -1);
 		configureIsolation(man, true);
 		configureRelayClient(man, relay);
@@ -164,8 +170,9 @@ public class PeerConfigurator {
 		return man;
 	}
 	
-	public static NetworkManager createHttpClientPeer(String name, NetworkManager relay, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createHttpClientPeer(String name, NetworkManager relay, TemporaryFolder tempFolder) throws IOException, JxtaException {
+		//NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
 		configureHttpOnly(man, -1);
 		configureIsolation(man, true);
 		configureRelayClient(man, relay);
@@ -173,8 +180,9 @@ public class PeerConfigurator {
 		return man;
 	}
 	
-	public static NetworkManager createHttp2ClientPeer(String name, NetworkManager relay, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createHttp2ClientPeer(String name, NetworkManager relay, TemporaryFolder tempFolder) throws IOException, JxtaException {
+//		/NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
 		configureHttp2Only(man, -1);
 		configureIsolation(man, true);
 		configureRelayClient(man, relay);
@@ -182,24 +190,27 @@ public class PeerConfigurator {
 		return man;
 	}
 	
-	public static NetworkManager createTcpAdhocPeer(String name, int port, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createTcpAdhocPeer(String name, int port, TemporaryFolder tempFolder) throws IOException, JxtaException {
+		//NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
 		configureTcpOnly(man, port);
 		configureIsolation(man, false);
 		
 		return man;
 	}
 	
-	public static NetworkManager createHttpAdhocPeer(String name, int port, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createHttpAdhocPeer(String name, int port, TemporaryFolder tempFolder) throws IOException, JxtaException {
+		//NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
 		configureHttp2Only(man, port);
 		configureIsolation(man, false);
 		
 		return man;
 	}
 	
-	public static NetworkManager createHttp2AdhocPeer(String name, int port, TemporaryFolder tempFolder) throws IOException {
-		NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+	public static NetworkManager createHttp2AdhocPeer(String name, int port, TemporaryFolder tempFolder) throws IOException, JxtaException {
+		//NetworkManager man = new NetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
+                NetworkManager man = JxtaApplication.getNetworkManager(ConfigMode.EDGE, name, tempFolder.newFolder(name).toURI());
 		configureHttp2Only(man, port);
 		configureIsolation(man, false);
 		

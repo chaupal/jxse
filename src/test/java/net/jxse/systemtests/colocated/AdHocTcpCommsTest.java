@@ -25,8 +25,14 @@ public class AdHocTcpCommsTest {
 	
 	@Before
 	public void createPeers() throws Exception {
-		aliceManager = PeerConfigurator.createTcpAdhocPeer("alice", 58000, tempStorage);
-		bobManager = PeerConfigurator.createTcpAdhocPeer("bob", 58001, tempStorage);
+		String aliceInstanceName = "alice";
+                String bobInstanceName = "bob";
+
+                aliceManager = PeerConfigurator.createTcpAdhocPeer(aliceInstanceName, 58000, tempStorage);
+                bobManager = PeerConfigurator.createTcpAdhocPeer(bobInstanceName, 58001, tempStorage);
+
+                aliceManager.getConfigurator().setPrincipal(aliceInstanceName);
+                bobManager.getConfigurator().setPrincipal(bobInstanceName);
 		
 		aliceManager.startNetwork();
 		bobManager.startNetwork();

@@ -71,6 +71,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.jxta.credential.Credential;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.protocol.PeerAdvertisement;
 
 /**
@@ -97,7 +98,8 @@ public class SocketServer extends TestCase {
         synchronized (SocketServer.class) {
             try {
                 if(null == manager) {
-                    manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer", new File(new File(".cache"), "SocketServer").toURI());
+                    //manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer", new File(new File(".cache"), "SocketServer").toURI());
+                    manager = JxtaApplication.getNetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketServer", new File(new File(".cache"), "SocketServer").toURI());                    
 
                     manager.startNetwork();
 

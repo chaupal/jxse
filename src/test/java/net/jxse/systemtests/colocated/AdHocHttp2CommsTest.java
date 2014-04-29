@@ -25,8 +25,14 @@ public class AdHocHttp2CommsTest {
 	
 	@Before
 	public void createPeers() throws Exception {
-		aliceManager = PeerConfigurator.createHttp2AdhocPeer("alice", 58000, tempStorage);
-		bobManager = PeerConfigurator.createHttp2AdhocPeer("bob", 58001, tempStorage);
+                String aliceInstanceName = "alice";
+                String bobInstanceName = "bob";
+                
+		aliceManager = PeerConfigurator.createHttp2AdhocPeer(aliceInstanceName, 58000, tempStorage);
+		bobManager = PeerConfigurator.createHttp2AdhocPeer(bobInstanceName, 58001, tempStorage);
+                
+                aliceManager.getConfigurator().setPrincipal(aliceInstanceName);
+                bobManager.getConfigurator().setPrincipal(bobInstanceName);
 
 		aliceManager.startNetwork();
 		bobManager.startNetwork();

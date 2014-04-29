@@ -64,6 +64,7 @@ import net.jxse.OSGi.Services.JxseOSGiNetworkManagerService;
 import net.jxse.configuration.JxseConfigurationTool;
 import net.jxse.configuration.JxsePeerConfiguration;
 import net.jxta.configuration.JxtaConfigurationException;
+import net.jxta.exception.JxtaException;
 import net.jxta.platform.NetworkManager;
 
 /**
@@ -122,7 +123,7 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
      * @throws IOException if an issue is encountered when creating the {@code NetworkManager}.
      */
     @Override
-    public NetworkManager getConfiguredNetworkManager() throws JxtaConfigurationException, IOException {
+    public NetworkManager getConfiguredNetworkManager() throws JxtaConfigurationException, IOException, JxtaException {
 
         if (this.TheNM!=null) {
             
@@ -175,7 +176,7 @@ public class JxseOSGiNetworkManagerServiceImpl extends JxseOSGiNetworkManagerSer
      * @throws JxtaConfigurationException if the peer configuration is invalid.
      * @throws IOException if there is an issue when creating the {@code NetworkManager}.
      */
-    private NetworkManager getNewConfiguredNetworkManager() throws JxtaConfigurationException, IOException {
+    private NetworkManager getNewConfiguredNetworkManager() throws JxtaConfigurationException, IOException, JxtaException {
 
         return JxseConfigurationTool.getConfiguredNetworkManager(TheConfig);
 

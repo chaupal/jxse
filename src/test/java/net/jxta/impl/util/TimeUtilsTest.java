@@ -170,7 +170,7 @@ public class TimeUtilsTest extends TestCase {
 
     public void testTimeWarp() {
 
-        assertTrue("Warper active", TimeUtils.WARPBEGAN == 0); // private API
+        assertTrue("Warper active", TimeUtils.WARPBEGAN == 0L); // private API
 
         TimeUtils.TIMEWARP = 0; // private API
 

@@ -68,7 +68,6 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
-import net.jxta.impl.peergroup.StdPeerGroup;
 import net.jxta.impl.protocol.HTTPAdv;
 import net.jxta.impl.protocol.PSEConfigAdv;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
@@ -105,6 +104,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
+import net.jxta.exception.ConfiguratorException;
 
 import net.jxta.impl.protocol.MulticastAdv;
 
@@ -1776,7 +1776,7 @@ public class NetworkConfigurator {
      * @throws IOException If there is a failure saving the PlatformConfig.
      * @see #load
      */
-    public void save() throws IOException {
+    public void save() throws IOException, ConfiguratorException {
 
         httpEnabled = (httpConfig.isClientEnabled() || httpConfig.isServerEnabled());
         tcpEnabled = (tcpConfig.isClientEnabled() || tcpConfig.isServerEnabled());
@@ -2021,8 +2021,9 @@ public class NetworkConfigurator {
      * each object directly.
      *
      * @return the PeerPlatformConfig Advertisement
+     * @throws net.jxta.exception.ConfiguratorException
      */
-    public ConfigParams getPlatformConfig() {
+    public ConfigParams getPlatformConfig() throws ConfiguratorException {
         PlatformConfig advertisement = (PlatformConfig) AdvertisementFactory.newAdvertisement(
                 PlatformConfig.getAdvertisementType());
 
@@ -2065,20 +2066,27 @@ public class NetworkConfigurator {
         }
         
         if (principal == null) {
-            principal = System.getProperty("impl.membership.pse.authentication.principal", "JxtaCN");
+            principal = System.getProperty("impl.membership.pse.authentication.principal", "");
+            if (principal.equals("")) {                
+                throw new ConfiguratorException("Principal is empty!");
+            }
         }
+        
         if (password == null) {
-            password = System.getProperty("impl.membership.pse.authentication.password", "the!one!password");
+            password = System.getProperty("impl.membership.pse.authentication.password", "");            
         }
 
-        if (cert != null) {
-            pseConf = createPSEAdv(cert);
-        } else {
-            pseConf = createPSEAdv(principal, password);
+        // Checking if certificate is present in platform configuration. If not - create it.
+        if (cert == null) {
+            pseConf = createPSEAdv(principal, password);            
             cert = pseConf.getCertificateChain();
         }
 
-        if (pseConf != null) {
+        if (pseConf != null) { 
+            //Get private key form certificate
+            PrivateKey certificatePrivateKey = PSEUtils.pkcs5_Decrypt_pbePrivateKey(password.toCharArray(), pseConf.getEncryptedPrivateKeyAlgo(), pseConf.getEncryptedPrivateKey());
+            setPrivateKey(certificatePrivateKey);            
+                    
             if (keyStoreLocation != null) {
                 if (keyStoreLocation.isAbsolute()) {
                     pseConf.setKeyStoreLocation(keyStoreLocation);
@@ -2087,22 +2095,18 @@ public class NetworkConfigurator {
                 }
             }
             XMLDocument pseDoc = (XMLDocument) pseConf.getDocument(MimeMediaType.XMLUTF8);
-            advertisement.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);
+            advertisement.putServiceParam(IModuleDefinitions.membershipClassID, pseDoc);                                  
         }
         
         if (authenticationType == null) {
             authenticationType = System.getProperty("impl.membership.pse.authentication.type", "StringAuthentication");
-        }
-        StdPeerGroup.setPSEMembershipServiceKeystoreInfoFactory(new StdPeerGroup.DefaultPSEMembershipServiceKeystoreInfoFactory(authenticationType, password));
+        }              
         
         if (peerid == null) {
             peerid = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID, cert[0].getPublicKey().getEncoded());
         }
+        
         advertisement.setPeerID(peerid);
-
-//        if (proxyConfig != null && ((mode & PROXY_SERVER) == PROXY_SERVER)) {
-//            advertisement.putServiceParam(IModuleDefinitions.proxyClassID, proxyConfig);
-//        }
 
         if ((null != infraPeerGroupConfig) && (null != infraPeerGroupConfig.getPeerGroupID())
                 && (ID.nullID != infraPeerGroupConfig.getPeerGroupID())
@@ -2123,9 +2127,7 @@ public class NetworkConfigurator {
         try {
             url = location.toURL();
         } catch (MalformedURLException mue) {
-            IllegalArgumentException failure = new IllegalArgumentException("Failed to convert URI to URL");
-            failure.initCause(mue);
-            throw failure;
+            throw new IllegalArgumentException("Failed to convert URI to URL", mue);
         }
 
         InputStream input = url.openStream();

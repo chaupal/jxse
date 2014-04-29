@@ -1,5 +1,6 @@
 package net.jxse.systemtests.colocated;
 
+import net.jxta.platform.JxtaApplication;
 import static org.junit.Assert.*;
 import net.jxta.platform.NetworkManager;
 import net.jxta.platform.NetworkManager.ConfigMode;
@@ -19,9 +20,13 @@ public class ShutdownIsolationTest {
 
     @Before
     public void initPeers() throws Exception {
-        aliceManager = new NetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
-        bobManager = new NetworkManager(ConfigMode.ADHOC, "bob", tempStorage.newFolder("bob").toURI());
-        cliveManager = new NetworkManager(ConfigMode.ADHOC, "clive", tempStorage.newFolder("clive").toURI());
+        //aliceManager = new NetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
+        //bobManager = new NetworkManager(ConfigMode.ADHOC, "bob", tempStorage.newFolder("bob").toURI());
+        //cliveManager = new NetworkManager(ConfigMode.ADHOC, "clive", tempStorage.newFolder("clive").toURI());
+        
+        aliceManager = JxtaApplication.getNetworkManager(ConfigMode.ADHOC, "alice", tempStorage.newFolder("alice").toURI());
+        bobManager = JxtaApplication.getNetworkManager(ConfigMode.ADHOC, "bob", tempStorage.newFolder("bob").toURI());
+        cliveManager = JxtaApplication.getNetworkManager(ConfigMode.ADHOC, "clive", tempStorage.newFolder("clive").toURI());
 
         aliceManager.startNetwork();
         bobManager.startNetwork();

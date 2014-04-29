@@ -11,6 +11,7 @@ import net.jxta.peergroup.PeerGroupID;
 import net.jxse.configuration.JxsePeerConfiguration.ConnectionMode;
 import java.net.URI;
 import java.io.IOException;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.NetworkManager;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -247,7 +248,8 @@ public class JxseConfigurationToolTest {
         assertTrue(ToBeDeleted.exists());
 
         // Retrieving the NetworkManager
-        NetworkManager TheNM = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "Zoubidoo", ToBeDeleted.toURI());
+        //NetworkManager TheNM = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "Zoubidoo", ToBeDeleted.toURI());        
+        NetworkManager TheNM = JxtaApplication.getNetworkManager(NetworkManager.ConfigMode.ADHOC, "Zoubidoo", ToBeDeleted.toURI());
         NetworkConfigurator TheNC = TheNM.getConfigurator();
 
         // Http config

@@ -115,8 +115,11 @@ public class TestRouteAdv {
 	
 	@Before
 	public void configureAlice() throws Exception {
-		aliceManager = PeerConfigurator.createHttpAdhocPeer("alice", 50000, tempStorage);
-        aliceManager.startNetwork();
+            String aliceInstanceName = "alice";
+            aliceManager = PeerConfigurator.createHttpAdhocPeer(aliceInstanceName, 50000, tempStorage);
+            aliceManager.getConfigurator().setPrincipal(aliceInstanceName);
+            
+            aliceManager.startNetwork();
         
         // XXX (iainmcgin): give the peer time to stabilise
         Thread.sleep(2000L);

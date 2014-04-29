@@ -20,12 +20,19 @@ public class RelayedHttp2CommsTest {
 	
     @Before
     public void initPeers() throws Exception {
-    	relayManager = PeerConfigurator.createHttp2RdvRelayPeer("relay", 50000, tempStorage);
-        aliceManager = PeerConfigurator.createHttp2ClientPeer("alice", relayManager, tempStorage);
-        bobManager = PeerConfigurator.createHttp2ClientPeer("bob", relayManager, tempStorage);
-
+        String instanceName = "relay";
+    	relayManager = PeerConfigurator.createHttp2RdvRelayPeer(instanceName, 50000, tempStorage);
+        relayManager.getConfigurator().setPrincipal(instanceName);
         relayManager.startNetwork();
+        
+        instanceName = "alice";
+        aliceManager = PeerConfigurator.createHttp2ClientPeer(instanceName, relayManager, tempStorage);
+        aliceManager.getConfigurator().setPrincipal(instanceName);
         aliceManager.startNetwork();
+        
+        instanceName = "bob";
+        bobManager = PeerConfigurator.createHttp2ClientPeer(instanceName, relayManager, tempStorage);
+        bobManager.getConfigurator().setPrincipal(instanceName);
         bobManager.startNetwork();
         
         Thread.sleep(5000L);

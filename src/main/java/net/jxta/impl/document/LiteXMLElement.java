@@ -1603,6 +1603,7 @@ public class LiteXMLElement implements XMLElement<LiteXMLElement> {
             getDocument().docContent.delete(oldAttr.body.start, oldAttr.body.end + 1);
             getDocument().docContent.insert(oldAttr.body.start, value);
 
+            
             int delta = value.length() - (oldAttr.body.end - oldAttr.body.start + 1);
 
             // move all doc locations which follow this one based on how much we

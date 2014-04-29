@@ -20,12 +20,20 @@ public class RelayedTcpCommsTest {
 	
     @Before
     public void initPeers() throws Exception {
-    	relayManager = PeerConfigurator.createTcpRdvRelayPeer("relay", 50000, tempStorage);
-        aliceManager = PeerConfigurator.createTcpClientPeer("alice", relayManager, tempStorage);
-        bobManager = PeerConfigurator.createTcpClientPeer("bob", relayManager, tempStorage);
-
+    	    
+        String instanceName = "relay";
+    	relayManager = PeerConfigurator.createTcpRdvRelayPeer(instanceName, 50000, tempStorage);
+        relayManager.getConfigurator().setPrincipal(instanceName);
         relayManager.startNetwork();
+        
+        instanceName = "alice";
+        aliceManager = PeerConfigurator.createTcpClientPeer(instanceName, relayManager, tempStorage);
+        aliceManager.getConfigurator().setPrincipal(instanceName);
         aliceManager.startNetwork();
+        
+        instanceName = "bob";
+        bobManager = PeerConfigurator.createTcpClientPeer(instanceName, relayManager, tempStorage);
+        bobManager.getConfigurator().setPrincipal(instanceName);
         bobManager.startNetwork();
         
         Thread.sleep(5000);

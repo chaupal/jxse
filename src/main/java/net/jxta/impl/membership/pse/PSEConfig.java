@@ -58,7 +58,6 @@ package net.jxta.impl.membership.pse;
 
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.logging.Logging;
 
 import java.io.IOException;
 import java.net.URI;
@@ -91,42 +90,42 @@ public final class PSEConfig {
     /**
      * Manager for the keystore we are using.
      */
-    private final KeyStoreManager keystore_manager;
+    private final KeyStoreManager keystoreManager;
 
     /**
      * The keystore passphrase.
      */
-    private char[] keystore_password = null;
+    private char[] keystorePassword = null;
 
     /**
      * Standard constructor.
      *
      * @param storeManager   The StoreManager to be used for this PSEConfig
      *                       instance.
-     * @param store_password The passphrase for the keystore or <tt>null</tt>.
+     * @param storePassword The passphrase for the keystore or <tt>null</tt>.
      *                       The passphrase may be set independantly via
      *                       {@link #setKeyStorePassword(char[])}.
      */
-    PSEConfig(KeyStoreManager storeManager, char[] store_password) {
-        this.keystore_manager = storeManager;
-        setKeyStorePassword(store_password);
+    PSEConfig(KeyStoreManager storeManager, char[] storePassword) {
+        this.keystoreManager = storeManager;
+        setKeyStorePassword(storePassword);
     }
 
     /**
      * Sets the passphrase to be used when unlocking the keystore.
      *
-     * @param store_password The passphrase used to unlock the keystore may be
+     * @param storePassword The passphrase used to unlock the keystore may be
      *                       {@code null} for keystores with no passphrase.
      */
-    public final void setKeyStorePassword(char[] store_password) {
-        if (null != this.keystore_password) {
-            Arrays.fill(this.keystore_password, '\0');
+    public final void setKeyStorePassword(char[] storePassword) {
+        if (null != this.keystorePassword) {
+            Arrays.fill(this.keystorePassword, '\0');
         }
 
-        if (null == store_password) {
-            this.keystore_password = null;
+        if (null == storePassword) {
+            this.keystorePassword = null;
         } else {
-            this.keystore_password = store_password.clone();
+            this.keystorePassword = storePassword.clone();
         }
     }
 
@@ -135,8 +134,8 @@ public final class PSEConfig {
      */
     @Override
     protected void finalize() throws Throwable {
-        if (null != keystore_password) {
-            Arrays.fill(keystore_password, '\0');
+        if (null != keystorePassword) {
+            Arrays.fill(keystorePassword, '\0');
         }
 
         super.finalize();
@@ -153,12 +152,12 @@ public final class PSEConfig {
      */
     public boolean isInitialized() {
         try {
-            if (keystore_password != null) {
-                return keystore_manager.isInitialized(keystore_password);
+            if (keystorePassword != null) {
+                return keystoreManager.isInitialized(keystorePassword);
             } else {
-                return keystore_manager.isInitialized();
+                return keystoreManager.isInitialized();
             }
-        } catch (Exception ignored) {
+        } catch (KeyStoreException ignored) {
             return false;
         }
     }
@@ -170,22 +169,22 @@ public final class PSEConfig {
      * @throws IOException       For errors related to processing the keystore.
      */
     public void initialize() throws KeyStoreException, IOException {
-
         Logging.logCheckedInfo(LOG, "Initializing new PSE keystore...");
 
-        synchronized (keystore_manager) {
+        synchronized (keystoreManager) {
             try {
 
-                if (keystore_manager.isInitialized(keystore_password)) return;
+                if (keystoreManager.isInitialized(keystorePassword)) {
+                    return;
+                }
 
-                keystore_manager.createKeyStore(keystore_password);
+                keystoreManager.createKeyStore(keystorePassword);
 
             } catch (KeyStoreException failed) {
 
                 Logging.logCheckedSevere(LOG, "Failure accessing or creating keystore.\n", failed);
-                keystore_manager.eraseKeyStore();
+                keystoreManager.eraseKeyStore();
                 throw failed;
-
             }
         }
     }
@@ -196,8 +195,8 @@ public final class PSEConfig {
      * @throws IOException If the PSE cannot be successfully deleted.
      */
     public void erase() throws IOException {
-        synchronized (keystore_manager) {
-            keystore_manager.eraseKeyStore();
+        synchronized (keystoreManager) {
+            keystoreManager.eraseKeyStore();
         }
     }
 
@@ -215,7 +214,7 @@ public final class PSEConfig {
 
         try {
 
-            return getKeyStore(keystore_password);
+            return getKeyStore(keystorePassword);
 
         } catch (KeyStoreException failed) {
 
@@ -238,16 +237,16 @@ public final class PSEConfig {
      * the PSE. Changing the returned keystore will not result in changes to
      * the PSE.
      *
-     * @param store_password The passphrase used to unlock the keystore may be
+     * @param storePassword The passphrase used to unlock the keystore may be
      *                       {@code null} for keystores with no passphrase.
      * @return The keystore.
      * @throws KeyStoreException When the wrong keystore has been provided.
      * @throws IOException       For errors related to processing the keystore.
      * @since JXTA 2.4
      */
-    public KeyStore getKeyStore(char[] store_password) throws KeyStoreException, IOException {
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(store_password);
+    public KeyStore getKeyStore(char[] storePassword) throws KeyStoreException, IOException {
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(storePassword);
 
             return store;
         }
@@ -257,14 +256,14 @@ public final class PSEConfig {
      * Check if the provided passwords are correct for the specified identity.
      *
      * @param id             The identity to be validated.
-     * @param store_password The passphrase used to unlock the keystore may be
+     * @param storePassword The passphrase used to unlock the keystore may be
      *                       {@code null} for keystores with no passphrase.
      * @param key_password   The passphrase associated with the private key or
      *                       {@code null} if the key has no passphrase.
      * @return {@code true} if the passwords were valid for the given id
      *         otherwise {@code false}.
      */
-    boolean validPasswd(ID id, char[] store_password, char[] key_password) {
+    boolean validPasswd(ID id, char[] storePassword, char[] key_password) {
 
         if (null == id) {
             Logging.logCheckedFine(LOG, "null id");
@@ -274,14 +273,14 @@ public final class PSEConfig {
         Throwable failure;
 
         try {
-            synchronized (keystore_manager) {
+            synchronized (keystoreManager) {
                 KeyStore store;
 
-                if (null != store_password) {
-                    store = keystore_manager.loadKeyStore(store_password);
+                if (null != storePassword) {
+                    store = keystoreManager.loadKeyStore(storePassword);
                 } else {
-                    if (null != keystore_password) {
-                        store = keystore_manager.loadKeyStore(keystore_password);
+                    if (null != keystorePassword) {
+                        store = keystoreManager.loadKeyStore(keystorePassword);
                     } else {
                         throw new UnrecoverableKeyException("KeyStore passphrase not initialized");
                     }
@@ -330,8 +329,8 @@ public final class PSEConfig {
     public ID[] getTrustedCertsList() throws KeyStoreException, IOException {
         List<ID> trustedCertsList = new ArrayList<ID>();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(keystore_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
 
             Enumeration<String> eachAlias = store.aliases();
 
@@ -361,24 +360,24 @@ public final class PSEConfig {
      * @throws IOException       For errors related to processing the keystore.
      */
     public ID[] getKeysList() throws KeyStoreException, IOException {
-        return getKeysList(keystore_password);
+        return getKeysList(keystorePassword);
     }
 
     /**
      * Returns the list of root certificates for which there is an associated
      * local private key.
      *
-     * @param store_password The passphrase used to unlock the keystore may be
+     * @param storePassword The passphrase used to unlock the keystore may be
      *                       {@code null} for keystores with no passphrase.
      * @return an array of the available keys. May be an empty array.
      * @throws KeyStoreException When the wrong keystore has been provided.
      * @throws IOException       For errors related to processing the keystore.
      */
-    ID[] getKeysList(char[] store_password) throws KeyStoreException, IOException {
+    ID[] getKeysList(char[] storePassword) throws KeyStoreException, IOException {
         List<ID> keyedRootsList = new ArrayList<ID>();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(store_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(storePassword);
 
             Enumeration<String> eachAlias = store.aliases();
 
@@ -413,8 +412,8 @@ public final class PSEConfig {
 
         String anAlias = null;
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(keystore_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
 
             anAlias = store.getCertificateAlias(cert);
         }
@@ -444,26 +443,26 @@ public final class PSEConfig {
      */
     public X509Certificate getTrustedCertificate(ID id) throws KeyStoreException, IOException {
 
-        return getTrustedCertificate(id, keystore_password);
+        return getTrustedCertificate(id, keystorePassword);
     }
 
     /**
      * Returns the trusted cert for the specified id.
      *
      * @param id             The id of the Certificate to retrieve.
-     * @param store_password The passphrase used to unlock the keystore may be
+     * @param storePassword The passphrase used to unlock the keystore may be
      *                       {@code null} for keystores with no passphrase.
      * @return Certificate for the specified ID or null if the store does not
      *         contain the specified certificate.
      * @throws KeyStoreException When the wrong keystore has been provided.
      * @throws IOException       For errors related to processing the keystore.
      */
-    X509Certificate getTrustedCertificate(ID id, char[] store_password) throws KeyStoreException, IOException {
+    X509Certificate getTrustedCertificate(ID id, char[] storePassword) throws KeyStoreException, IOException {
 
         String alias = id.toString();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(store_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(storePassword);
 
             if (!store.containsAlias(alias)) {
                 return null;
@@ -486,8 +485,8 @@ public final class PSEConfig {
 
         String alias = id.toString();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(keystore_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
 
             if (!store.containsAlias(alias)) {
                 return null;
@@ -522,8 +521,8 @@ public final class PSEConfig {
         String alias = id.toString();
 
         try {
-            synchronized (keystore_manager) {
-                KeyStore store = keystore_manager.loadKeyStore(keystore_password);
+            synchronized (keystoreManager) {
+                KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
 
                 if (!store.containsAlias(alias) || !store.isKeyEntry(alias)) {
                     return null;
@@ -563,7 +562,7 @@ public final class PSEConfig {
      * @throws IOException       For errors related to processing the keystore.
      */
     public boolean isKey(ID id) throws KeyStoreException, IOException {
-        return isKey(id, keystore_password);
+        return isKey(id, keystorePassword);
     }
 
     /**
@@ -571,18 +570,18 @@ public final class PSEConfig {
      * key.
      *
      * @param id             The ID of the requested private key.
-     * @param store_password The passphrase used to unlock the keystore may be
+     * @param storePassword The passphrase used to unlock the keystore may be
      *                       {@code null} for keystores with no passphrase.
      * @return <tt>true</tt> if a private key with the specified ID is present
      *         otherwise <tt>false</tt>
      * @throws KeyStoreException When the wrong keystore has been provided.
      * @throws IOException       For errors related to processing the keystore.
      */
-    public boolean isKey(ID id, char[] store_password) throws KeyStoreException, IOException {
+    public boolean isKey(ID id, char[] storePassword) throws KeyStoreException, IOException {
         String alias = id.toString();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(store_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(storePassword);
 
             return store.containsAlias(alias) & store.isKeyEntry(alias);
         }
@@ -601,14 +600,14 @@ public final class PSEConfig {
     public void setTrustedCertificate(ID id, X509Certificate cert) throws KeyStoreException, IOException {
         String alias = id.toString();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(keystore_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
 
             store.deleteEntry(alias);
 
             store.setCertificateEntry(alias, cert);
 
-            keystore_manager.saveKeyStore(store, keystore_password);
+            keystoreManager.saveKeyStore(store, keystorePassword);
         }
     }
 
@@ -629,8 +628,8 @@ public final class PSEConfig {
 
         String alias = id.toString();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(keystore_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
 
             // Remove any existing entry.
             if (store.isKeyEntry(alias))
@@ -638,7 +637,7 @@ public final class PSEConfig {
 
             store.setKeyEntry(alias, key, key_password, certchain);
 
-            keystore_manager.saveKeyStore(store, keystore_password);
+            keystoreManager.saveKeyStore(store, keystorePassword);
         }
     }
 
@@ -653,12 +652,12 @@ public final class PSEConfig {
     public void erase(ID id) throws KeyStoreException, IOException {
         String alias = id.toString();
 
-        synchronized (keystore_manager) {
-            KeyStore store = keystore_manager.loadKeyStore(keystore_password);
+        synchronized (keystoreManager) {
+            KeyStore store = keystoreManager.loadKeyStore(keystorePassword);
 
             store.deleteEntry(alias);
 
-            keystore_manager.saveKeyStore(store, keystore_password);
+            keystoreManager.saveKeyStore(store, keystorePassword);
         }
     }
 }

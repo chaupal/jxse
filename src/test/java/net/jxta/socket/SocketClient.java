@@ -71,6 +71,7 @@ import net.jxta.credential.Credential;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.pipe.reliable.Outgoing;
 import net.jxta.peer.PeerID;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.protocol.PeerAdvertisement;
 
 /**
@@ -123,7 +124,9 @@ public class SocketClient extends TestCase {
         synchronized (SocketClient.class) {
             try {
                 if(null == manager) {
-                    manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
+                    /*manager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
+                            new File(new File(".cache"), "SocketClient").toURI());*/
+                    manager = JxtaApplication.getNetworkManager(NetworkManager.ConfigMode.ADHOC, "SocketClient",
                             new File(new File(".cache"), "SocketClient").toURI());
                     manager.startNetwork();
 

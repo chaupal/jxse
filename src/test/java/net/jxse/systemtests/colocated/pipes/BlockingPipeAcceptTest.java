@@ -32,9 +32,17 @@ public class BlockingPipeAcceptTest {
 
     @Before
     public void initPeers() throws Exception {
-    	relayManager = PeerConfigurator.createTcpRdvRelayPeer("relay", 50000, tempStorage);
-        aliceManager = PeerConfigurator.createTcpClientPeer("alice", relayManager, tempStorage);
-        bobManager = PeerConfigurator.createTcpClientPeer("bob", relayManager, tempStorage);
+        String aliceInstanceName = "alice";
+        String bobInstanceName = "bob";
+        String relayInstanceName = "relay";
+            
+    	relayManager = PeerConfigurator.createTcpRdvRelayPeer(relayInstanceName, 50000, tempStorage);
+        aliceManager = PeerConfigurator.createTcpClientPeer(aliceInstanceName, relayManager, tempStorage);
+        bobManager = PeerConfigurator.createTcpClientPeer(bobInstanceName, relayManager, tempStorage);
+        
+        aliceManager.getConfigurator().setPrincipal(aliceInstanceName);
+        bobManager.getConfigurator().setPrincipal(bobInstanceName);
+        relayManager.getConfigurator().setPrincipal(relayInstanceName);
 
         relayManager.startNetwork();
         aliceManager.startNetwork();

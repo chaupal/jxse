@@ -27,10 +27,17 @@ public class AdHocCommsTest {
 	
 	@Test(timeout=60000)
 	public void testTcpComms() throws Exception {
-		aliceManager = PeerConfigurator.createTcpAdhocPeer("alice", 58000, tempStorage);
-		bobManager = PeerConfigurator.createTcpAdhocPeer("bob", 58001, tempStorage);
-		startPeers();
-		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+            String aliceInstanceName = "alice";
+            String bobInstanceName = "bob";
+            
+            aliceManager = PeerConfigurator.createTcpAdhocPeer(aliceInstanceName, 58000, tempStorage);
+            bobManager = PeerConfigurator.createTcpAdhocPeer(bobInstanceName, 58001, tempStorage);
+            
+            aliceManager.getConfigurator().setPrincipal(aliceInstanceName);
+            bobManager.getConfigurator().setPrincipal(bobInstanceName);
+                
+            startPeers();
+            SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
 	}
 	
 	@Test(timeout=60000)

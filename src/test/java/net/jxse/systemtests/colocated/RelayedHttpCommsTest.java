@@ -19,13 +19,20 @@ public class RelayedHttpCommsTest {
     private NetworkManager relayManager;
 	
     @Before
-    public void initPeers() throws Exception {
-    	relayManager = PeerConfigurator.createHttpRdvRelayPeer("relay", 50000, tempStorage);
-        aliceManager = PeerConfigurator.createHttpClientPeer("alice", relayManager, tempStorage);
-        bobManager = PeerConfigurator.createHttpClientPeer("bob", relayManager, tempStorage);
-
+    public void initPeers() throws Exception {        
+        String instanceName = "relay";
+    	relayManager = PeerConfigurator.createHttpRdvRelayPeer(instanceName, 50000, tempStorage);
+        relayManager.getConfigurator().setPrincipal(instanceName);
         relayManager.startNetwork();
+        
+        instanceName = "alice";
+        aliceManager = PeerConfigurator.createHttpClientPeer(instanceName, relayManager, tempStorage);
+        aliceManager.getConfigurator().setPrincipal(instanceName);
         aliceManager.startNetwork();
+        
+        instanceName = "bob";
+        bobManager = PeerConfigurator.createHttpClientPeer(instanceName, relayManager, tempStorage);
+        bobManager.getConfigurator().setPrincipal(instanceName);
         bobManager.startNetwork();
         
         Thread.sleep(5000);

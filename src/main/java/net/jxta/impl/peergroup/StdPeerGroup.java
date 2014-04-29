@@ -55,6 +55,7 @@
  */
 package net.jxta.impl.peergroup;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
@@ -94,9 +94,11 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.IJxtaLoader;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
+import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
@@ -651,17 +653,27 @@ public class StdPeerGroup extends GenericPeerGroup {
             if(Module.START_OK ==tempRes)
             {
                 MembershipService tempMs = this.getMembershipService();
-                Credential tempCred = null;
-
-                PSEMembershipServiceKeystoreInfo pseMembershipServiceKeystoreInfo = getDefaultPSEMembershipServiceKeystoreInfoFactory().getInstance(this);
-
-                String membershipAuthenticationType = pseMembershipServiceKeystoreInfo.getAuthenticationType();
-                String membershipPassword = pseMembershipServiceKeystoreInfo.getPassword();
+                Credential tempCred = null;                                
+                
+                NetworkManager networkManager = JxtaApplication.findNetworkManager(getStoreHome());
+                assert networkManager != null;
+                
+                String membershipAuthenticationType = "";
+                String membershipPassword = "";
+                
+                try {
+                    membershipAuthenticationType = networkManager.getConfigurator().getAuthenticationType();
+                    membershipPassword = networkManager.getConfigurator().getPassword();
+                } catch (IOException ex) {                    
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append("Failed to retrieve network manager!");
+                    stringBuilder.append(ex.getLocalizedMessage());
+                    LOG.log(Level.SEVERE, stringBuilder.toString());                                       
+                }                
 
                 tempCred = tempMs.getDefaultCredential();
                 if (null == tempCred)
                 {
-
                     if ("StringAuthentication".equals(membershipAuthenticationType)) {
 
                         AuthenticationCredential tempAuthCred = new AuthenticationCredential(this, "StringAuthentication", null);
@@ -701,11 +713,9 @@ public class StdPeerGroup extends GenericPeerGroup {
                                 }
                             }
                             else
-                            {
-                                //javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
-                                //System.exit(0);
+                            {                                
                                 LOG.log(Level.SEVERE, "Failed to make PSE membership credential 'ready for join'");
-                                throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
+                                throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error=" + tempRes);
                             }
                         }
                     } else if ("EngineAuthentication".equals(membershipAuthenticationType)) {
@@ -989,80 +999,6 @@ public class StdPeerGroup extends GenericPeerGroup {
      */
     public Map<ModuleClassID, Object> getApplications() {
         return Collections.unmodifiableMap(applications);
-    }
-
-    /**
-     * PSEPeerValidationEngineFactory
-     */
-    private static PSEMembershipServiceKeystoreInfoFactory defaultPSEMembershipServiceKeystoreInfoFactory = null;
-    /**
-     *  Set the default PSEPeerValidationEngineFactory
-     **/
-    public static void setPSEMembershipServiceKeystoreInfoFactory(PSEMembershipServiceKeystoreInfoFactory newPSEMembershipServiceKeystoreInfoFactory) {
-        synchronized (StdPeerGroup.class) {
-            if (defaultPSEMembershipServiceKeystoreInfoFactory == null)
-                defaultPSEMembershipServiceKeystoreInfoFactory = newPSEMembershipServiceKeystoreInfoFactory;
-}
-    }
-    /**
-     *  A factory for PSE Peer Validation Engines.
-     *
-     * @see PSEPeerValidationEngine
-     */
-    public interface PSEMembershipServiceKeystoreInfoFactory {
-        PSEMembershipServiceKeystoreInfo getInstance(PeerGroup peerGroup) throws PeerGroupException;
-    }
-    /**
-     *  A factory for PSE Peer Validation Engines.
-     *
-     * @see PSEPeerValidationEngine
-     */
-    public interface PSEMembershipServiceKeystoreInfo {
-        PeerGroup getPeerGroup();
-        String getAuthenticationType();
-        String getPassword();
-    }
-    /**
-     *   Returns the default Peer Validation Engine Factory.
-     *
-     *   @return The current default Peer Validation Engine Factory.
-     **/
-    public static PSEMembershipServiceKeystoreInfoFactory getDefaultPSEMembershipServiceKeystoreInfoFactory() {
-        
-        synchronized (StdPeerGroup.class) {
-            if (defaultPSEMembershipServiceKeystoreInfoFactory == null) {
-                defaultPSEMembershipServiceKeystoreInfoFactory = new DefaultPSEMembershipServiceKeystoreInfoFactory();
-            }
-            return defaultPSEMembershipServiceKeystoreInfoFactory;
-        }
-    }
-
-    public static class DefaultPSEMembershipServiceKeystoreInfoFactory implements PSEMembershipServiceKeystoreInfoFactory {
-
-        private String membershipAuthenticationType = System.getProperty("impl.membership.pse.authentication.type", "StringAuthentication");
-        private String membershipPassword = System.getProperty("impl.membership.pse.authentication.password", "the!one!password");
-
-        public DefaultPSEMembershipServiceKeystoreInfoFactory() {
-        }
-
-        public DefaultPSEMembershipServiceKeystoreInfoFactory(String membershipAuthenticationType, String membershipPassword) {
-            this.membershipAuthenticationType = membershipAuthenticationType;
-            this.membershipPassword = membershipPassword;
-        }
-
-        public PSEMembershipServiceKeystoreInfo getInstance(final PeerGroup peerGroup) throws PeerGroupException {
-            return new PSEMembershipServiceKeystoreInfo() {
-                public PeerGroup getPeerGroup() {
-                    return peerGroup;
-                }
-                public String getAuthenticationType() {
-                    return membershipAuthenticationType;
-                }
-                public String getPassword() {
-                    return membershipPassword;
-                }
-            };
-        }
-    }
+    }    
 }
 

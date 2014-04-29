@@ -91,7 +91,6 @@ import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
-import net.jxta.service.Service;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;

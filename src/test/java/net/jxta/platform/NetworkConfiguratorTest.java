@@ -57,11 +57,11 @@ package net.jxta.platform;
 
 import java.io.IOException;
 import java.io.File;
-import java.net.URI;
 
 import junit.framework.TestSuite;
 import junit.framework.TestCase;
 import junit.framework.Test;
+import net.jxta.exception.ConfiguratorException;
 
 /**
  *  A JUnit test for NetworkConfigurator
@@ -114,7 +114,7 @@ public class NetworkConfiguratorTest extends TestCase {
     /**
      *  The JUnit setup method
      */
-    public void testCreateConfiguration() {
+    public void testCreateConfiguration() throws ConfiguratorException {
         createConfiguration(NetworkConfigurator.ADHOC_NODE);
         createConfiguration(NetworkConfigurator.EDGE_NODE);
         createConfiguration(NetworkConfigurator.RDV_NODE);
@@ -123,7 +123,7 @@ public class NetworkConfiguratorTest extends TestCase {
 //        createConfiguration(NetworkConfigurator.RDV_RELAY_PROXY_NODE);
     }
 
-    private void createConfiguration(int mode) {
+    private void createConfiguration(int mode) throws ConfiguratorException {
         try {
             NetworkConfigurator config = null;
 

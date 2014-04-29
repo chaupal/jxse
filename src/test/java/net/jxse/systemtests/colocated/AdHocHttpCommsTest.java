@@ -25,14 +25,18 @@ public class AdHocHttpCommsTest {
 	
 	@Before
 	public void createPeers() throws Exception {
-		aliceManager = PeerConfigurator.createHttpAdhocPeer("alice", 58000, tempStorage);
-		bobManager = PeerConfigurator.createHttpAdhocPeer("bob", 58001, tempStorage);
-		
-		aliceManager.startNetwork();
-		bobManager.startNetwork();
-		
-		// XXX: give the network managers time to stabilise
-		Thread.sleep(5000L);
+            String instanceName = "alice";
+            aliceManager = PeerConfigurator.createHttpAdhocPeer(instanceName, 58000, tempStorage);
+            aliceManager.getConfigurator().setPrincipal(instanceName);
+            aliceManager.startNetwork();
+            
+            instanceName = "bob";
+            bobManager = PeerConfigurator.createHttpAdhocPeer(instanceName, 58001, tempStorage);
+            bobManager.getConfigurator().setPrincipal(instanceName);            
+            bobManager.startNetwork();
+
+            // XXX: give the network managers time to stabilise
+            Thread.sleep(5000L);
 	}
 	
 	@Test
