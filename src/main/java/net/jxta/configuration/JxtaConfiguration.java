@@ -61,7 +61,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * Generic JXTA configuration object based on the {@code Properties} object, which can be
@@ -69,11 +68,6 @@ import java.util.logging.Logger;
  * 
  */
 public class JxtaConfiguration extends Properties {
-
-    /**
-     *  Logger.
-     */
-    private final static Logger LOG = Logger.getLogger(JxtaConfiguration.class.getName());
 
     /**
      * This constructor copies all entries from the provided parameter into this object,
