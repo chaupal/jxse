@@ -59,6 +59,7 @@ package net.jxta.configuration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -220,7 +221,6 @@ public class JxtaConfiguration extends Properties {
         for (String Item : PropertiesUtil.stringPropertyNames(this)) {
 
             if (Item.startsWith(DEFAULT_PREFIX)) {
-
                 // Registering entry in the transport
                 this.defaults.setProperty(Item.substring(DEFAULT_PREFIX.length()), this.getProperty(Item));
                 this.remove(Item);
@@ -256,14 +256,7 @@ public class JxtaConfiguration extends Properties {
     @Override
     public void storeToXML(OutputStream os, String comment) throws IOException {
 
-        // Preparing transport configuration entries
-        prepareDefaultEntries();
-
-        // ...and calling super
-        super.storeToXML(os, comment);
-
-        // Cleaning the mess
-        removeExistingDefaultEntries();
+    	storeToXML(os, comment, "UTF-8");
 
     }
 
@@ -275,16 +268,24 @@ public class JxtaConfiguration extends Properties {
     @Override
     public void storeToXML(OutputStream os, String comment, String encoding) throws IOException {
 
-        // Preparing transport configuration entries
-        prepareDefaultEntries();
-
-        // ...and calling super
-        super.storeToXML(os, comment, encoding);
-
-        // Cleaning the mess
-        removeExistingDefaultEntries();
+    	serialisableProperties().storeToXML(os, comment, encoding);
 
     }
+
+	private Properties serialisableProperties() {
+
+		Properties propsToStore = new Properties();
+        for (Enumeration<?> e = defaults.keys() ; e.hasMoreElements() ;) {
+            String key = (String)e.nextElement();
+    		propsToStore.put("DEFAULT_" + key, defaults.getProperty(key));
+        }
+        for (Enumeration<?> e = keys() ; e.hasMoreElements() ;) {
+            String key = (String)e.nextElement();
+    		propsToStore.put(key, getProperty(key));
+        }
+		return propsToStore;
+
+	}
 
     /**
      * {@inheritDoc}
@@ -294,14 +295,7 @@ public class JxtaConfiguration extends Properties {
     @Override
     public void store(OutputStream out, String comments) throws IOException {
 
-        // Preparing transport configuration entries
-        prepareDefaultEntries();
-
-        // ...and calling super
-        super.store(out, comments);
-
-        // Cleaning the mess
-        removeExistingDefaultEntries();
+        serialisableProperties().store(out, comments);
 
     }
 
