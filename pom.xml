@@ -88,25 +88,48 @@
         </repository>
     </repositories>
 
-    <build>
-          <plugins>
+    <build>        
+        <plugins>
            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>    
+                <executions>
+                    <execution>
+                       <phase>package</phase>
+                       <goals>
+                          <goal>jar</goal>
+                       </goals>
+                       <configuration>
+                          <finalName>${project.artifactId}-${project.version}</finalName>
+                       </configuration>
+                    </execution>
+                 </executions>
             </plugin>
 
             <!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <version>2.0.1</version>
                 <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                      <archive>
                        <addMavenDescriptor>true</addMavenDescriptor>
@@ -151,17 +174,15 @@
                             org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
                             org.jboss.netty.handler.timeout;version="3.6.2.Final",
                             org.jboss.netty.util;version="3.6.2.Final"
-                        </Import-Package>
-                    </instructions>
-                </configuration>
+                        </Import-Package>                        
+                    </instructions>                    
+                </configuration>                
             </plugin>
 
-            <plugin>
-
+        <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
-
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -171,7 +192,6 @@
                         </goals>
                     </execution>
                 </executions>
-
             </plugin>
 
             <!-- Configuring JUnits / Surefire -->
@@ -186,7 +206,6 @@
                     <!-- Don't remove skip, it is sometimes necessary to
                       disactivate tests for the Sonatype OSS release. -->
                     <skip>false</skip>
-
                 </configuration>
             </plugin>
 
@@ -198,7 +217,7 @@
                     <passphrase />
                 </configuration>
             </plugin>
-        </plugins>
+        </plugins>                
     </build>
 
     <dependencies>
@@ -313,7 +332,6 @@
     </reporting>
 
     <profiles>
-
         <profile>
             <id>mikeci</id>
             <activation>
@@ -560,7 +578,5 @@
                 </plugins>
             </build>
         </profile>
-
-    </profiles>
-
+    </profiles>   
 </project>
