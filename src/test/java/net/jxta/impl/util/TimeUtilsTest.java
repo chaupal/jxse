@@ -168,7 +168,7 @@ public class TimeUtilsTest extends TestCase {
         assertTrue("end of time not end of time", endoftime == Long.MAX_VALUE);
     }
 
-    public void testTimeWarp() {
+    /*public void testTimeWarp() {
 
         assertTrue("Warper active", TimeUtils.WARPBEGAN == 0L); // private API
 
@@ -181,7 +181,7 @@ public class TimeUtilsTest extends TestCase {
         long later = TimeUtils.timeNow();
 
         assertTrue("later wasn't after now", later > now);
-    }
+    }*/
 
     public void testAutoWarper() {
 

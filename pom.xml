@@ -204,7 +204,7 @@
 
                     <!-- Don't remove skip, it is sometimes necessary to
                       disactivate tests for the Sonatype OSS release. -->
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
             </plugin>
 
@@ -574,5 +574,5 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>   
+    </profiles>    
 </project>
