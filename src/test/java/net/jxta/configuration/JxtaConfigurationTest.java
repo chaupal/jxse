@@ -122,8 +122,6 @@ public class JxtaConfigurationTest {
         assertFalse(Destination.containsKey("PROP3"));
         assertFalse(Destination.containsValue("VALUE3"));
 
-        // TODO copy constructor is incorrectly bringing this default into the
-        // main properties. MJG will fix this...
         assertFalse(Destination.containsKey("PROP4"));
         assertFalse(Destination.containsValue("VALUE4"));
 
@@ -133,7 +131,7 @@ public class JxtaConfigurationTest {
         assertTrue(Source.size()==2);
         assertTrue(Source.size()==Destination.size());
 
-        assertTrue(Source.getDefaultsCopy().size()==1);
+        assertTrue(Source.getDefaultsCopy().size()==2);
         assertTrue(Destination.getDefaultsCopy().size()==Source.getDefaultsCopy().size());
 
     }

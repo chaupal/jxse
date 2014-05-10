@@ -81,20 +81,25 @@ public class JxtaConfiguration extends Properties {
         super();
         
         // Copying entries
-        for (String Item : PropertiesUtil.stringPropertyNames(toCopy)) {
-            this.setProperty(Item, toCopy.getProperty(Item));
-        }
+        copyProperties(toCopy, this);
 
         // Initializing defaults
         this.defaults = new Properties();
 
         // Copying defaults
-        for (String Item : PropertiesUtil.stringPropertyNames(toCopy.defaults)) {
-            this.defaults.setProperty(Item, toCopy.defaults.getProperty(Item));
-        }
+        copyProperties(toCopy.defaults, defaults);
         
     }
 
+    private void copyProperties(Properties from, Properties to) {
+    	
+        for (Enumeration<?> e = from.keys() ; e.hasMoreElements() ;) {
+        	String key = (String)e.nextElement();
+            to.setProperty(key, from.getProperty(key));
+        }
+    	
+    }
+    
     /**
      * Simple constructor
      */
@@ -160,10 +165,8 @@ public class JxtaConfiguration extends Properties {
 
         // Preparing result
         Properties Result = new Properties();
-
-        for (String Items : PropertiesUtil.stringPropertyNames(this.defaults)) {
-            Result.setProperty(Items, this.defaults.getProperty(Items));
-        }
+        
+        copyProperties(this.defaults, Result);
 
         // Returning result
         return Result;
