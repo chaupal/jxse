@@ -88,57 +88,100 @@
         </repository>
     </repositories>
 
-    <build>
+    <build>        
         <plugins>
-
-            <plugin>
+           <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>    
+                <executions>
+                    <execution>
+                       <phase>package</phase>
+                       <goals>
+                          <goal>jar</goal>
+                       </goals>
+                       <configuration>
+                          <finalName>${project.artifactId}-${project.version}</finalName>
+                       </configuration>
+                    </execution>
+                 </executions>
             </plugin>
 
             <!-- Making our jar an OSGi bundle too by adding info in the MANIFEST -->
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <version>2.0.1</version>
                 <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <instructions>
+                     <archive>
+                       <addMavenDescriptor>true</addMavenDescriptor>
+                     </archive>
+                     <supportedProjectTypes>
+                       <supportedProjectType>jar</supportedProjectType>
+                     </supportedProjectTypes>
+                     <instructions>
+                        <Built-By>${project.organization.name}</Built-By>
+                        <Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+                        <Bundle-ContactAddress>${project.organization.url}</Bundle-ContactAddress>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Bundle-DocURL>${bundle.doc.url}</Bundle-DocURL>
                         <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
                         <Bundle-DocURL>${project.url}</Bundle-DocURL>
-                        <Eclipse-BuddyPolicy>registered</Eclipse-BuddyPolicy>
-                        <!-- Needs a bit more thought before enabling
-                        <Bundle-Activator>
-                            net.jxse.OSGi.Services.JxseOSGiNetworkManagerService
-                        </Bundle-Activator>
-                        -->
+                        <Bundle-Category>${bundle.category}</Bundle-Category>
+                        <Bundle-Version>${project.version}</Bundle-Version>
                         <Export-Package>
                             net.jxta.*;version=${project.version},
-                            net.jxse.*;version=${project.version},
+                            net.jxse.*;version=${project.version}
                         </Export-Package>
                         <Private-Package>
                             ${project.groupId}.example.*,
                             ${project.groupId}.util.internal.*,
                         </Private-Package>
                         <Import-Package>
-                            *;resolution:=optional
-                        </Import-Package>
-                    </instructions>
-                </configuration>
+                            org.apache.derby.jdbc,
+                            org.h2;version="1.3.170",
+                            org.h2.jdbcx;version="1.3.170",
+                            org.spongycastle.asn1,
+                            org.spongycastle.asn1.x509,
+                            org.spongycastle.jce,
+                            org.spongycastle.jce.provider,
+                            org.spongycastle.x509,
+                            org.jboss.netty.bootstrap;version="3.6.2.Final",
+                            org.jboss.netty.buffer;version="3.6.2.Final",
+                            org.jboss.netty.channel;version="3.6.2.Final",
+                            org.jboss.netty.channel.group;version="3.6.2.Final",
+                            org.jboss.netty.channel.socket;version="3.6.2.Final",
+                            org.jboss.netty.channel.socket.httptunnel;version="0.92.0",
+                            org.jboss.netty.channel.socket.nio;version="3.6.2.Final",
+                            org.jboss.netty.handler.codec.oneone;version="3.6.2.Final",
+                            org.jboss.netty.handler.timeout;version="3.6.2.Final",
+                            org.jboss.netty.util;version="3.6.2.Final"
+                        </Import-Package>                        
+                    </instructions>                    
+                </configuration>                
             </plugin>
-
             <plugin>
-
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
-
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -148,7 +191,6 @@
                         </goals>
                     </execution>
                 </executions>
-
             </plugin>
 
             <!-- Configuring JUnits / Surefire -->
@@ -163,7 +205,6 @@
                     <!-- Don't remove skip, it is sometimes necessary to
                       disactivate tests for the Sonatype OSS release. -->
                     <skip>false</skip>
-
                 </configuration>
             </plugin>
 
@@ -175,7 +216,6 @@
                     <passphrase />
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
@@ -291,7 +331,6 @@
     </reporting>
 
     <profiles>
-
         <profile>
             <id>mikeci</id>
             <activation>
@@ -535,7 +574,5 @@
                 </plugins>
             </build>
         </profile>
-
-    </profiles>
-
+    </profiles>    
 </project>
