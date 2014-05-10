@@ -56,14 +56,7 @@
 
 package net.jxta.configuration;
 
-import java.util.logging.Logger;
-
 public class JxtaPeerConfiguration extends JxtaConfiguration {
-
-    /**
-     *  Logger.
-     */
-    private final static Logger LOG = Logger.getLogger(JxtaPeerConfiguration.class.getName());
 
     /**
      * This constructor copies all entries from the provided parameter into this object,

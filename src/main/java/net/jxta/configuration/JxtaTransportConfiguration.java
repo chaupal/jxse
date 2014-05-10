@@ -57,17 +57,11 @@
 package net.jxta.configuration;
 
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * API to describe the configuration of transports necessary for a JXTA implementation.
  */
 public abstract class JxtaTransportConfiguration extends JxtaConfiguration {
-
-    /**
-     *  Logger.
-     */
-    private final static Logger LOG = Logger.getLogger(JxtaTransportConfiguration.class.getName());
 
     /**
      * This constructor returns an empty configuration object.

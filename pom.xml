@@ -178,8 +178,7 @@
                     </instructions>                    
                 </configuration>                
             </plugin>
-
-        <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
@@ -205,7 +204,7 @@
 
                     <!-- Don't remove skip, it is sometimes necessary to
                       disactivate tests for the Sonatype OSS release. -->
-                    <skip>false</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
 
@@ -217,7 +216,7 @@
                     <passphrase />
                 </configuration>
             </plugin>
-        </plugins>                
+        </plugins>
     </build>
 
     <dependencies>
@@ -347,10 +346,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
-                          <archive>
-                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                          </archive>                           
-                          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
                             <forkMode>pertest</forkMode>
                             <excludes>
                                 <!-- multicast not supported -->
