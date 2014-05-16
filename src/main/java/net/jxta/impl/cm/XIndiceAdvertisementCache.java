@@ -89,6 +89,7 @@ import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLDocument;
 import net.jxta.impl.util.JxtaHash;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.impl.util.threads.SharedScheduledThreadPoolExecutor;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.impl.xindice.core.DBException;
 import net.jxta.impl.xindice.core.data.Key;
@@ -1197,7 +1198,11 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
             indexer.close();
             stop = true;
             gcTaskHandle.cancel(false);
-            GC_TIMER.purge();
+            GC_TIMER.purge();    
+            
+            //mindarchitect 16052014
+            //Closing executor gracefully
+            ((SharedScheduledThreadPoolExecutor)XIndiceAdvertisementCache.this.executor).shutdownNowShared();
 
         } catch (DBException ex) {
 

@@ -60,10 +60,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Logger;
-import net.jxta.exception.ConfiguratorException;
 import javax.security.cert.CertificateException;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
+import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.impl.membership.pse.StringAuthenticator;
@@ -71,9 +71,11 @@ import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.NetPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
@@ -466,7 +468,7 @@ public class NetworkManager implements RendezvousListener {
     }
 
     /**
-     * Stops and unreferences the NetPeerGroup
+     * Stops NetPeerGroup
      */
     public synchronized void stopNetwork() {
 
@@ -482,16 +484,30 @@ public class NetworkManager implements RendezvousListener {
             networkConnectLock.notifyAll();
         }
 
-        rendezvous.removeListener(this);
-        netPeerGroup.stopApp();
-//        netPeerGroup.unref();
-        netPeerGroup = null;
+        rendezvous.removeListener(this);               
+        
+        PeerGroup worldPeerGroup = netPeerGroup.getParentGroup();
+        
+        //mindarchitect 16052014
+        //Check parent peer group should not be null
+        if (worldPeerGroup != null) {
+            PeerGroupAdvertisement worldPeerGroupAdvertisement = worldPeerGroup.getPeerGroupAdvertisement();
+            
+            //mindarchitect 16052014
+            //Should be platform specification ID
+            //Unfortunately cannot check by ID as WorldPeerGroupID is package level visible only
+            if (worldPeerGroupAdvertisement.getModuleSpecID().equals(IModuleDefinitions.refPlatformSpecID)) {
+                //Stop peer group
+                worldPeerGroup.stopApp();                
+            }
+        }
+        
+        netPeerGroup.stopApp();        
 
-        // permit restart.
+        // Permit restart.
         started = false;
 
         Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
-
     }
 
     /**
