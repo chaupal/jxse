@@ -85,19 +85,4 @@ public class ResolverMsgTest {
     @After
     public void tearDown() {
     }
-
-    @Test
-    public void testNewResolverQueryMsg() {
-
-        assert(ResolverQueryMsg.newResolverQueryMsg()!=null);
-
-    }
-
-    @Test
-    public void testNewResolverResponseMsg() {
-
-        assert(ResolverResponseMsg.newResolverResponseMsg()!=null);
-
-    }
-
 }

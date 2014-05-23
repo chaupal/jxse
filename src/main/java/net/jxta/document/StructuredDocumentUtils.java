@@ -68,8 +68,7 @@ public final class StructuredDocumentUtils {
     /**
      *  A singleton class, not meant to be constructed
      **/
-    private StructuredDocumentUtils() {
-        ;
+    private StructuredDocumentUtils() {     
     }
 
     /**

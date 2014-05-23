@@ -65,7 +65,7 @@ import net.jxta.util.SimpleSelectable;
 /**
  * An AbstractMessenger is used to implement messengers (for example, by transport modules).
  * It supplies the convenience, bw compatible, obvious, or otherwise rarely changed methods.
- * Many method cannot be overloaded in order to ensure standard behaviour.
+ * Many method cannot be overloaded in order to ensure standard behavior.
  * The rest is left to implementations.
  *
  * @see net.jxta.endpoint.EndpointService

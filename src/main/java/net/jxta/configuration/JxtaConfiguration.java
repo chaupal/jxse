@@ -59,8 +59,8 @@ package net.jxta.configuration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * Generic JXTA configuration object based on the {@code Properties} object, which can be
@@ -70,11 +70,6 @@ import java.util.logging.Logger;
 public class JxtaConfiguration extends Properties {
 
     /**
-     *  Logger.
-     */
-    private final static Logger LOG = Logger.getLogger(JxtaConfiguration.class.getName());
-
-    /**
      * This constructor copies all entries from the provided parameter into this object,
      * including defaults.
      * 
@@ -82,30 +77,31 @@ public class JxtaConfiguration extends Properties {
      */
     public JxtaConfiguration(JxtaConfiguration toCopy) {
         
-        // Calling super
         super();
         
-        // Copying entries
-        for (String Item : PropertiesUtil.stringPropertyNames(toCopy)) {
-            this.setProperty(Item, toCopy.getProperty(Item));
-        }
+        copyProperties(toCopy, this);
 
         // Initializing defaults
         this.defaults = new Properties();
 
-        // Copying defaults
-        for (String Item : PropertiesUtil.stringPropertyNames(toCopy.defaults)) {
-            this.defaults.setProperty(Item, toCopy.defaults.getProperty(Item));
-        }
+        copyProperties(toCopy.defaults, defaults);
         
     }
 
+    private void copyProperties(Properties from, Properties to) {
+    	
+        for (Enumeration<?> e = from.keys() ; e.hasMoreElements() ;) {
+        	String key = (String)e.nextElement();
+            to.setProperty(key, from.getProperty(key));
+        }
+    	
+    }
+    
     /**
      * Simple constructor
      */
     public JxtaConfiguration() {
 
-        // Calling super
         super();
 
         // Initializing defaults
@@ -163,14 +159,10 @@ public class JxtaConfiguration extends Properties {
      */
     public Properties getDefaultsCopy() {
 
-        // Preparing result
         Properties Result = new Properties();
+        
+        copyProperties(this.defaults, Result);
 
-        for (String Items : PropertiesUtil.stringPropertyNames(this.defaults)) {
-            Result.setProperty(Items, this.defaults.getProperty(Items));
-        }
-
-        // Returning result
         return Result;
 
     }
@@ -179,34 +171,6 @@ public class JxtaConfiguration extends Properties {
      * Required to prepare default entries saving
      */
     private static final String DEFAULT_PREFIX = "DEFAULT_";
-
-    /**
-     * Prepares entries for Defaults, before storage/saving
-     */
-    private void prepareDefaultEntries() {
-
-        // Removing any existing entries first
-        removeExistingDefaultEntries();
-
-        for (String Item : PropertiesUtil.stringPropertyNames(this.defaults)) {
-            super.setProperty(DEFAULT_PREFIX + Item, this.defaults.getProperty(Item));
-        }
-
-    }
-
-    /**
-     * Removing any existing transport configuration sub-entries.
-     */
-    private void removeExistingDefaultEntries() {
-
-        // Removing any existing sub-entries
-        for (String Item : PropertiesUtil.stringPropertyNames(this)) {
-            if ( Item.startsWith(DEFAULT_PREFIX) ) {
-                this.remove(Item);
-            }
-        }
-
-    }
 
     /**
      * Restore defaults entries
@@ -220,7 +184,6 @@ public class JxtaConfiguration extends Properties {
         for (String Item : PropertiesUtil.stringPropertyNames(this)) {
 
             if (Item.startsWith(DEFAULT_PREFIX)) {
-
                 // Registering entry in the transport
                 this.defaults.setProperty(Item.substring(DEFAULT_PREFIX.length()), this.getProperty(Item));
                 this.remove(Item);
@@ -240,10 +203,8 @@ public class JxtaConfiguration extends Properties {
     @Override
     public void loadFromXML(InputStream in) throws IOException {
 
-        // Calling super
         super.loadFromXML(in);
 
-        // ...and recreating transport configuration
         recreateTransportConfiguration();
 
     }
@@ -256,14 +217,7 @@ public class JxtaConfiguration extends Properties {
     @Override
     public void storeToXML(OutputStream os, String comment) throws IOException {
 
-        // Preparing transport configuration entries
-        prepareDefaultEntries();
-
-        // ...and calling super
-        super.storeToXML(os, comment);
-
-        // Cleaning the mess
-        removeExistingDefaultEntries();
+    	storeToXML(os, comment, "UTF-8");
 
     }
 
@@ -275,16 +229,24 @@ public class JxtaConfiguration extends Properties {
     @Override
     public void storeToXML(OutputStream os, String comment, String encoding) throws IOException {
 
-        // Preparing transport configuration entries
-        prepareDefaultEntries();
-
-        // ...and calling super
-        super.storeToXML(os, comment, encoding);
-
-        // Cleaning the mess
-        removeExistingDefaultEntries();
+    	serialisableProperties().storeToXML(os, comment, encoding);
 
     }
+
+	private Properties serialisableProperties() {
+
+		Properties propsToStore = new Properties();
+        for (Enumeration<?> e = defaults.keys() ; e.hasMoreElements() ;) {
+            String key = (String)e.nextElement();
+    		propsToStore.put("DEFAULT_" + key, defaults.getProperty(key));
+        }
+        for (Enumeration<?> e = keys() ; e.hasMoreElements() ;) {
+            String key = (String)e.nextElement();
+    		propsToStore.put(key, getProperty(key));
+        }
+		return propsToStore;
+
+	}
 
     /**
      * {@inheritDoc}
@@ -294,14 +256,7 @@ public class JxtaConfiguration extends Properties {
     @Override
     public void store(OutputStream out, String comments) throws IOException {
 
-        // Preparing transport configuration entries
-        prepareDefaultEntries();
-
-        // ...and calling super
-        super.store(out, comments);
-
-        // Cleaning the mess
-        removeExistingDefaultEntries();
+        serialisableProperties().store(out, comments);
 
     }
 
@@ -313,10 +268,8 @@ public class JxtaConfiguration extends Properties {
     @Override
     public synchronized void load(InputStream in) throws IOException {
 
-        // Calling super
         super.load(in);
 
-        // ...and recreating transport configuration
         recreateTransportConfiguration();
 
     }

@@ -71,6 +71,7 @@ import net.jxta.impl.protocol.PeerGroupConfigFlag;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.JxtaLoader;
 import net.jxta.platform.Module;
 import net.jxta.platform.ModuleClassID;
@@ -103,8 +104,8 @@ public class PeerGroupTest {
     public static void setupClass() throws Exception {
         LOG.info("============ Begin setupClass");
         home = new TempDir();
-        netMan = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "test");
-        netMan.setInstanceHome(home.toURI());
+        //netMan = new NetworkManager(NetworkManager.ConfigMode.ADHOC, "test");
+        netMan = JxtaApplication.getNetworkManager(NetworkManager.ConfigMode.ADHOC, "test", home.toURI());        
         pg1 = netMan.startNetwork();
         netMan.waitForRendezvousConnection(1000);
 

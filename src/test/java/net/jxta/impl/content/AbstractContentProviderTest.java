@@ -86,6 +86,7 @@ import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
 import net.jxta.platform.NetworkManager.ConfigMode;
@@ -135,9 +136,8 @@ public abstract class AbstractContentProviderTest {
                 throws Exception {
             LOG.info("Constructing ContentSharer for class: " + className);
             targetProvClass = className;
-            nm = new NetworkManager(
-                    ConfigMode.EDGE, "TestNet", tempDir.toURI());
-            nm.setInstanceHome(tempDir.toURI());
+            //nm = new NetworkManager(ConfigMode.EDGE, "TestNet", tempDir.toURI());
+            nm = JxtaApplication.getNetworkManager(ConfigMode.EDGE, "TestNet", tempDir.toURI());
 //            nm.setUseDefaultSeeds(false);
             NetworkConfigurator nc = nm.getConfigurator();
             nc.setTcpStartPort(60000);
@@ -238,8 +238,8 @@ public abstract class AbstractContentProviderTest {
     public static void setupClass() throws Exception {
         LOG.info("============ Begin setupClass");
         home = new TempDir();
-        netMan = new NetworkManager(NetworkManager.ConfigMode.SUPER, "test");
-        netMan.setInstanceHome(home.toURI());
+        //netMan = new NetworkManager(NetworkManager.ConfigMode.SUPER, "test");
+        netMan = JxtaApplication.getNetworkManager(NetworkManager.ConfigMode.SUPER, "test", home.toURI());        
 //        netMan.setUseDefaultSeeds(false);
         NetworkConfigurator nc = netMan.getConfigurator();
         nc.setHttpEnabled(false);

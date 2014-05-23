@@ -63,17 +63,19 @@ import java.util.logging.Logger;
 import javax.security.cert.CertificateException;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
+import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
-import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.StringAuthenticator;
 import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.NetPeerGroupFactory;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
@@ -88,8 +90,7 @@ import net.jxta.rendezvous.RendezvousListener;
  * ADHOC : A node which typically deployed in an ad-hoc network
  * EDGE : In addition to supporting ADHOC function, an Edge node can attach to a infrastructure (a Rendezvous, Relay, or both)
  * RENDEZVOUS: provides network bootstrapping services, such as discovery, pipe resolution, etc.
- * RELAY: provides message relaying services, enabling cross firewall traversal
- * PROXY: provide JXME JXTA for J2ME proxying services
+ * RELAY: provides message relaying services, enabling cross firewall traversal 
  * SUPER: provide the functionality of a Rendezvous, Relay, Proxy node.
  */
 
@@ -156,6 +157,10 @@ public class NetworkManager implements RendezvousListener {
     private NetworkConfigurator config;
     private boolean configPersistent = true;
 //    private boolean useDefaultSeeds;
+    
+    static final String DEFAULT_INSTANCE_HOME = ".jxta/";
+    
+    
 
     /**
      * Creates NetworkManger instance with default instance home set to "$CWD"/.jxta"
@@ -163,12 +168,12 @@ public class NetworkManager implements RendezvousListener {
      * specified, the default NetPeerGroupID will be used, and a new PeerID will be generated. Also note the default
      * seeding URIs are the to development. Alternate values must be specified, if desired, prior to a call to {@link #startNetwork}
      *
-     * @param mode         Operating mode  the node operating {@link ConfigMode}
+     * @param mode         Operating mode of the node {@link ConfigMode}
      * @param instanceName Node name
      * @throws IOException if an io error occurs
      */
-    public NetworkManager(ConfigMode mode, String instanceName) throws IOException {
-        this(mode, instanceName, new File(".jxta/").toURI());
+    NetworkManager(ConfigMode mode, String instanceName) throws IOException {
+        this(mode, instanceName, new File(DEFAULT_INSTANCE_HOME).toURI());
     }
 
     /**
@@ -182,7 +187,7 @@ public class NetworkManager implements RendezvousListener {
      * @param instanceHome instance home is a uri to the instance persistent store (aka Cache Manager store home)
      * @throws IOException if an io error occurs
      */
-    public NetworkManager(ConfigMode mode, String instanceName, URI instanceHome) throws IOException {
+    NetworkManager(ConfigMode mode, String instanceName, URI instanceHome) throws IOException {
         this.instanceName = instanceName;
         this.mode = mode;
         this.instanceHome = instanceHome;
@@ -236,7 +241,7 @@ public class NetworkManager implements RendezvousListener {
      *
      * @param instanceName Value to set for property 'instanceName'.
      */
-    public void setInstanceName(String instanceName) {
+    private void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
     }
 
@@ -254,7 +259,7 @@ public class NetworkManager implements RendezvousListener {
      *
      * @param instanceHome Value to set for property 'instanceHome'.
      */
-    public void setInstanceHome(URI instanceHome) {
+    private void setInstanceHome(URI instanceHome) {
         this.instanceHome = instanceHome;
     }
 
@@ -337,10 +342,6 @@ public class NetworkManager implements RendezvousListener {
                 config = NetworkConfigurator.newRdvRelayConfiguration(instanceHome);
                 break;
 
-//            case PROXY:
-//                config = NetworkConfigurator.newProxyConfiguration(instanceHome);
-//                break;
-
             case SUPER:
                 config = NetworkConfigurator.newRdvRelayConfiguration(instanceHome);
                 break;
@@ -372,10 +373,7 @@ public class NetworkManager implements RendezvousListener {
             try {
                 config.load(pc.toURI());
             } catch (CertificateException pseFailed) {
-                IOException failure = new IOException("Failure reading membership service certificates.");
-
-                failure.initCause(pseFailed);
-                throw failure;
+                throw new IOException("Failure reading membership service certificates.", pseFailed);
             }
 
             // XXX 20070524 bondolo Aren't we completely ignoring the mode? What if it changed?
@@ -391,8 +389,9 @@ public class NetworkManager implements RendezvousListener {
      * @throws net.jxta.exception.PeerGroupException
      *                             if the group fails to initialize
      * @throws java.io.IOException if an io error occurs
+     * @throws net.jxta.exception.ConfiguratorException if platform is not configured properly
      */
-    public synchronized PeerGroup startNetwork() throws PeerGroupException, IOException {
+    public synchronized PeerGroup startNetwork() throws PeerGroupException, IOException, ConfiguratorException {
 
         if (started) {
             return netPeerGroup;
@@ -404,15 +403,15 @@ public class NetworkManager implements RendezvousListener {
 
         Logging.logCheckedInfo(LOG, "Starting JXTA Network! MODE = ", mode, ",  HOME = ", instanceHome);
 
-        // create, and Start the default jxta NetPeerGroup
-        NetPeerGroupFactory factory = new NetPeerGroupFactory(config.getPlatformConfig(), instanceHome);
+        // create, and Start the default jxta NetPeerGroup                
+        NetPeerGroupFactory factory = new NetPeerGroupFactory(config.getPlatformConfig(), instanceHome);        
 
         netPeerGroup = factory.getNetPeerGroup();
 
         // Saving if config is persistent
         if (configPersistent) {
             config.save();
-        }
+        }                
 
         rendezvous = netPeerGroup.getRendezVousService();
         rendezvous.addListener(this);
@@ -422,7 +421,6 @@ public class NetworkManager implements RendezvousListener {
         Logging.logCheckedInfo(LOG, "Started JXTA Network!");
 
         return netPeerGroup;
-
     }
 
     /**
@@ -430,16 +428,16 @@ public class NetworkManager implements RendezvousListener {
      * to utilize TLS messengers or secure pipes
      *
      * @param group              peer group to establish credentials in
-     * @param keystore_password  The passphrase for the keystore. This is a
+     * @param keystorePassword  The passphrase for the keystore. This is a
      *                           char[] rather than a String so that it can be blanked after use.
-     * @param principal_password The passphrase for the identity. This is a
+     * @param principalPassword The passphrase for the identity. This is a
      *                           char[] rather than a String so that it can be blanked after use.
      * @throws net.jxta.exception.PeerGroupException
      *          if group credentials were rejected
      * @throws net.jxta.exception.ProtocolNotSupportedException
      *          if authenticator rejected the credential
      */
-    public static void login(PeerGroup group, char[] keystore_password, char[] principal_password) throws PeerGroupException, ProtocolNotSupportedException {
+    public static void login(PeerGroup group, char[] keystorePassword, char[] principalPassword) throws PeerGroupException, ProtocolNotSupportedException {
         StringAuthenticator auth;
         MembershipService membership = group.getMembershipService();
         Credential cred = membership.getDefaultCredential();
@@ -449,9 +447,9 @@ public class NetworkManager implements RendezvousListener {
 
             auth = (StringAuthenticator) membership.apply(authCred);
             if (auth != null) {
-                auth.setAuth1_KeyStorePassword(keystore_password);
+                auth.setAuth1_KeyStorePassword(keystorePassword);
                 auth.setAuth2Identity(group.getPeerID());
-                auth.setAuth3_IdentityPassword(principal_password);
+                auth.setAuth3_IdentityPassword(principalPassword);
                 if (auth.isReadyForJoin()) {
                     membership.join(auth);
                 }
@@ -470,7 +468,7 @@ public class NetworkManager implements RendezvousListener {
     }
 
     /**
-     * Stops and unreferences the NetPeerGroup
+     * Stops NetPeerGroup
      */
     public synchronized void stopNetwork() {
 
@@ -486,16 +484,30 @@ public class NetworkManager implements RendezvousListener {
             networkConnectLock.notifyAll();
         }
 
-        rendezvous.removeListener(this);
-        netPeerGroup.stopApp();
-//        netPeerGroup.unref();
-        netPeerGroup = null;
+        rendezvous.removeListener(this);               
+        
+        PeerGroup worldPeerGroup = netPeerGroup.getParentGroup();
+        
+        //mindarchitect 16052014
+        //Check parent peer group should not be null
+        if (worldPeerGroup != null) {
+            PeerGroupAdvertisement worldPeerGroupAdvertisement = worldPeerGroup.getPeerGroupAdvertisement();
+            
+            //mindarchitect 16052014
+            //Should be platform specification ID
+            //Unfortunately cannot check by ID as WorldPeerGroupID is package level visible only
+            if (worldPeerGroupAdvertisement.getModuleSpecID().equals(IModuleDefinitions.refPlatformSpecID)) {
+                //Stop peer group
+                worldPeerGroup.stopApp();                
+            }
+        }
+        
+        netPeerGroup.stopApp();        
 
-        // permit restart.
+        // Permit restart.
         started = false;
 
         Logging.logCheckedInfo(LOG, "Stopped JXTA Network!");
-
     }
 
     /**

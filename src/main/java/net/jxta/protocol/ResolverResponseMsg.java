@@ -55,7 +55,6 @@
  */
 package net.jxta.protocol;
 
-import net.jxse.JxseInstantiator;
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
@@ -197,23 +196,5 @@ public abstract class ResolverResponseMsg {
     }
 
     private static final String RESOLVER_RESPONSE_MSG_IMPL = "net.jxta.impl.protocol.ResolverResponse";
-
-    /**
-     * Provides an instance of a resolver response message implementation.
-     *
-     * @return a resolver response message object instance
-     */
-    public static ResolverResponseMsg newResolverResponseMsg() {
-
-        // Checking for any system properties, or use default implementation
-        String ToResolve = System.getProperty("RESOLVER_RESPONSE_MSG_IMPL", RESOLVER_RESPONSE_MSG_IMPL);
-
-        // Retrieving implementing class
-        Class ToInstantiate = JxseInstantiator.forName(ToResolve);
-
-        // Instantiating object
-        return (ResolverResponseMsg) JxseInstantiator.instantiateWithNoParameterConstructor(ToInstantiate);
-
-    }
 
 }

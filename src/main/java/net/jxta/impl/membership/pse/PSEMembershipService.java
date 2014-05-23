@@ -91,7 +91,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
@@ -116,7 +115,10 @@ import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.peergroup.PeerGroup;
+import net.jxta.platform.JxtaApplication;
 import net.jxta.platform.ModuleSpecID;
+import net.jxta.platform.NetworkConfigurator;
+import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
@@ -240,6 +242,8 @@ public final class PSEMembershipService implements MembershipService {
 
     /**
      * {@inheritDoc}
+     * @param impl
+     * @throws net.jxta.exception.PeerGroupException
      **/
     public void init(PeerGroup group, ID assignedID, Advertisement impl) throws PeerGroupException {
         this.group = group;
@@ -256,8 +260,7 @@ public final class PSEMembershipService implements MembershipService {
         if (null != param) {
             try {
                 paramsAdv = AdvertisementFactory.newAdvertisement((XMLElement) param);
-            } catch (NoSuchElementException ignored) {
-                ;
+            } catch (NoSuchElementException ignored) {                
             }
 
             if (!(paramsAdv instanceof PSEConfigAdv)) {
@@ -271,14 +274,30 @@ public final class PSEMembershipService implements MembershipService {
         }
 
         peerSecurityEngine = getDefaultPSESecurityEngineFactory().getInstance(this, config);
-
-        authenticatorEngine = getDefaultPSEAuthenticatorEngineFactory().getInstance(this, config);
-        
+        authenticatorEngine = getDefaultPSEAuthenticatorEngineFactory().getInstance(this, config);        
         peerValidationEngine = getDefaultPSEPeerValidationEngineFactory().getInstance(this, config);
+        KeyStoreManager storeManager = getDefaultKeyStoreManagerFactory().getInstance(this, config);        
+        
+        NetworkManager networkManager = JxtaApplication.findNetworkManager(group.getStoreHome());
+        assert networkManager != null;                                              
 
-        KeyStoreManager storeManager = getDefaultKeyStoreManagerFactory().getInstance(this, config);
-
-        pseStore = new PSEConfig(storeManager, null);
+        try {            
+            NetworkConfigurator networkConfigurator = networkManager.getConfigurator();            
+            String membershipPassword = networkConfigurator.getPassword();
+            
+            pseStore = new PSEConfig(storeManager, membershipPassword.toCharArray());
+            pseStore.initialize();            
+        } catch (IOException ex) {                    
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Failed to retrieve network manager configuration!");
+            stringBuilder.append(ex.getLocalizedMessage());
+            LOG.log(Level.SEVERE, stringBuilder.toString());                                       
+        } catch (KeyStoreException ex) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Key store is not initialized!");
+            stringBuilder.append(ex.getLocalizedMessage());
+            LOG.log(Level.SEVERE, stringBuilder.toString());                                       
+        }                
 
         if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
 
@@ -302,9 +321,7 @@ public final class PSEMembershipService implements MembershipService {
             configInfo.append("\n\t\tPSE KeyStore provider : ").append((null != config.getKeyStoreProvider()) ? config.getKeyStoreProvider() : "<default>");
 
             LOG.config(configInfo.toString());
-        }
-
-        resign();
+        }        
     }
 
     /**
@@ -328,9 +345,7 @@ public final class PSEMembershipService implements MembershipService {
      * arguments.
      */
     public int startApp(String[] arg) {
-
         Logging.logCheckedInfo(LOG, "PSE Membmership Service started.");
-
         return 0;
 
     }
@@ -339,9 +354,7 @@ public final class PSEMembershipService implements MembershipService {
      * {@inheritDoc}
      **/
     public void stopApp() {
-
         resign();
-
         Logging.logCheckedInfo(LOG, "PSE Membmership Service stopped.");
 
     }
@@ -362,6 +375,7 @@ public final class PSEMembershipService implements MembershipService {
      * <code>"EngineAuthentication"</code> and
      * <code>"InteractiveAuthentication"</code> (an alias for
      * <code>"DialogAuthentication"</code>)
+     * @throws net.jxta.exception.ProtocolNotSupportedException
      **/
     public Authenticator apply(AuthenticationCredential application) throws ProtocolNotSupportedException {
 
@@ -1209,23 +1223,21 @@ public final class PSEMembershipService implements MembershipService {
                     public KeyStoreManager getInstance(PSEMembershipService service, PSEConfigAdv config) throws PeerGroupException {
 
                         URI location = config.getKeyStoreLocation();
-                        KeyStoreManager store_manager;
+                        KeyStoreManager storeManager;
 
                         try {
                             if (null == location) {
-                                store_manager = new CMKeyStoreManager(config.getKeyStoreType(), config.getKeyStoreProvider()
-                                        ,
-                                        service.getGroup(), service.getAssignedID());
+                                storeManager = new CMKeyStoreManager(config.getKeyStoreType(), config.getKeyStoreProvider(), service.getGroup(), service.getAssignedID());                                
                             } else {
                                 if (!location.isAbsolute()) {
                                     // Resolve the location of the keystore relative to our prefs location.
                                     location = service.getPeerGroup().getStoreHome().resolve(location);
                                 }
 
-                                store_manager = new URIKeyStoreManager(config.getKeyStoreType(), config.getKeyStoreProvider(), location);
+                                storeManager = new URIKeyStoreManager(config.getKeyStoreType(), config.getKeyStoreProvider(), location);
                             }
 
-                            return store_manager;
+                            return storeManager;
                         } catch (java.security.NoSuchProviderException not_available) {
                             throw new PeerGroupException("Requested KeyStore provider not available", not_available);
                         } catch (java.security.KeyStoreException bad) {

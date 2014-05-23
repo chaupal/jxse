@@ -78,11 +78,11 @@ import org.junit.rules.TemporaryFolder;
  */
 public class JxtaConfigurationTest {
 
-	@Rule
-	public TemporaryFolder tempStorage = new TemporaryFolder();
+    @Rule
+    public TemporaryFolder tempStorage = new TemporaryFolder();
 
     @Test
-    public void testConstructor_0Param() {
+    public void testConstructor() {
 
         JxtaConfiguration Source = new JxtaConfiguration();
 
@@ -97,7 +97,7 @@ public class JxtaConfigurationTest {
     }
 
     @Test
-    public void testConstructor_1Param() {
+    public void testCopyConstructor() {
 
         JxtaConfiguration Source = new JxtaConfiguration();
 
@@ -105,6 +105,7 @@ public class JxtaConfigurationTest {
         Source.setProperty("PROP2", "VALUE2");
 
         Source.setDefaultPropertyValue("PROP1", "DEFAULT1");
+        Source.setDefaultPropertyValue("PROP4", "DEFAULT4");
 
         JxtaConfiguration Destination;
 
@@ -121,13 +122,16 @@ public class JxtaConfigurationTest {
         assertFalse(Destination.containsKey("PROP3"));
         assertFalse(Destination.containsValue("VALUE3"));
 
+        assertFalse(Destination.containsKey("PROP4"));
+        assertFalse(Destination.containsValue("VALUE4"));
+
         assertTrue(Destination.getDefaultPropertyValue("PROP1").compareTo("DEFAULT1")==0);
         assertTrue(Destination.getDefaultPropertyValue("PROP2")==null);
 
         assertTrue(Source.size()==2);
         assertTrue(Source.size()==Destination.size());
 
-        assertTrue(Source.getDefaultsCopy().size()==1);
+        assertTrue(Source.getDefaultsCopy().size()==2);
         assertTrue(Destination.getDefaultsCopy().size()==Source.getDefaultsCopy().size());
 
     }
@@ -147,6 +151,9 @@ public class JxtaConfigurationTest {
 
         assertTrue(Source.containsKey("PROP1"));
         assertTrue(Source.containsValue("VALUE1"));
+
+        assertFalse(Source.containsKey("PROP2"));
+        assertFalse(Source.containsValue("VALUE2"));
 
         assertFalse(Source.containsKey("PROP3"));
         assertFalse(Source.containsValue("VALUE3"));
@@ -220,6 +227,8 @@ public class JxtaConfigurationTest {
         Source.setProperty("XXX", "YYY");
         Source.setDefaultPropertyValue("DDD", "FFF");
 
+        assertXMLConfigInvariants(Source);
+
         File TempFile = tempStorage.newFile("testStoreLoadFromXML");
         TempFile.delete();
 
@@ -245,19 +254,27 @@ public class JxtaConfigurationTest {
         }
 
         // Checking content
-        assertTrue(Restore.size()==1);
-
-        assertTrue(Restore.containsKey("XXX"));
-        assertTrue(Restore.containsValue("YYY"));
-
-        Properties TempP = Restore.getDefaultsCopy();
-
-        assertTrue(TempP.size()==1);
-
-        assertTrue(TempP.containsKey("DDD"));
-        assertTrue(TempP.containsValue("FFF"));
+        assertXMLConfigInvariants(Restore);
 
     }
+
+	private void assertXMLConfigInvariants(JxtaConfiguration Config) {
+
+        assertTrue(Config.size() == 1);
+
+        assertTrue(Config.containsKey("XXX"));
+        assertTrue(Config.containsValue("YYY"));
+        assertFalse(Config.containsKey("DDD"));
+        assertFalse(Config.containsValue("FFF"));
+
+        Properties RestoredDefaults = Config.getDefaultsCopy();
+
+        assertTrue(RestoredDefaults.size() == 1);
+
+        assertTrue(RestoredDefaults.containsKey("DDD"));
+        assertTrue(RestoredDefaults.containsValue("FFF"));
+
+	}
 
     /**
      * Test of Store/loadFromXML method with encoding, of class JxtaConfiguration.
@@ -271,6 +288,8 @@ public class JxtaConfigurationTest {
 
         Source.setProperty("���", "�");
         Source.setDefaultPropertyValue("DDD", "���");
+
+        assertXMLEncodedConfigInvariants(Source);
 
         ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
 
@@ -293,21 +312,29 @@ public class JxtaConfigurationTest {
         }
 
         // Checking content
-        assertTrue(Restore.size()==1);
-
-        assertTrue(Restore.containsKey("���"));
-        assertTrue(Restore.containsValue("�"));
-
-        Properties TempP = Restore.getDefaultsCopy();
-
-        assertTrue(TempP.size()==1);
-
-        assertTrue(TempP.containsKey("DDD"));
-        assertTrue(TempP.containsValue("���"));
+        assertXMLEncodedConfigInvariants(Restore);
 
     }
 
-    /**
+    private void assertXMLEncodedConfigInvariants(JxtaConfiguration Config) {
+        assertTrue(Config.size() == 1);
+
+        assertTrue(Config.containsKey("���"));
+        assertTrue(Config.containsValue("�"));
+
+        assertFalse(Config.containsKey("DDD"));
+        assertFalse(Config.containsValue("���"));
+
+        Properties Defaults = Config.getDefaultsCopy();
+
+        assertTrue(Defaults.size() == 1);
+
+        assertTrue(Defaults.containsKey("DDD"));
+        assertTrue(Defaults.containsValue("���"));
+
+	}
+
+	/**
      * Test of store/load method, of class JxtaConfiguration.
      */
     @Test
@@ -346,12 +373,15 @@ public class JxtaConfigurationTest {
         assertTrue(Restore.containsKey("XXX"));
         assertTrue(Restore.containsValue("YYY"));
 
-        Properties TempP = Restore.getDefaultsCopy();
+        assertFalse(Restore.containsKey("DDD"));
+        assertFalse(Restore.containsValue("FFF"));
 
-        assertTrue(TempP.size()==1);
+        Properties Defaults = Restore.getDefaultsCopy();
 
-        assertTrue(TempP.containsKey("DDD"));
-        assertTrue(TempP.containsValue("FFF"));
+        assertTrue(Defaults.size()==1);
+
+        assertTrue(Defaults.containsKey("DDD"));
+        assertTrue(Defaults.containsValue("FFF"));
 
     }
 
