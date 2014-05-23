@@ -62,7 +62,6 @@ package net.jxta.impl.cm.srdi.inmemory;
  */
 public class SearchKey {
 
-    // private final static transient Logger LOG = Logger.getLogger( SearchKey.class.getName(  ) );
     private static final char WILDCARD = '*';
 
     // Strings used to separate key components 

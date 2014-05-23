@@ -68,7 +68,6 @@ import org.spongycastle.jce.PKCS10CertificationRequest;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.logging.Logger;
 
 /**
  * A lightweight container for a PKCS#10/RFC2986 Certificate Signing Request.
@@ -90,11 +89,6 @@ import java.util.logging.Logger;
  **/
 @Deprecated
 public class CertificateSigningRequest {
-
-    /**
-     *  Logger
-     **/
-    private final static transient Logger LOG = Logger.getLogger(CertificateSigningRequest.class.getName());
 
     private PKCS10CertificationRequest csr = null;
 

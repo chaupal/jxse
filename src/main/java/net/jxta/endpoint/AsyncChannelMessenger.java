@@ -68,11 +68,6 @@ import java.util.concurrent.BlockingQueue;
  */
 public abstract class AsyncChannelMessenger extends ChannelMessenger {
 
-    /*
-     *  Logger
-     * private final static transient Logger LOG = Logger.getLogger(AsyncChannelMessenger.class.getName());
-     */
-
     /**
      * {@code true} if we have deliberately closed our one message input queue.
      */

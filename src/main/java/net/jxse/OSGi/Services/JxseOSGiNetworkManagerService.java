@@ -58,7 +58,6 @@
 
 package net.jxse.OSGi.Services;
 
-import java.util.logging.Logger;
 import net.jxse.configuration.JxsePeerConfiguration;
 import net.jxta.configuration.JxtaConfigurationException;
 import net.jxta.platform.NetworkManager;
@@ -73,11 +72,6 @@ import net.jxta.platform.NetworkManager;
  * Jxse OSGi framework is active.
  */
 public abstract class JxseOSGiNetworkManagerService extends JxseOSGiService {
-
-    /**
-     *  Logger
-     */
-    private final static Logger LOG = Logger.getLogger(JxseOSGiNetworkManagerService.class.getName());
 
     /**
      * Set the peer configuration if the {@code NetworkManager} is not in a started status, else

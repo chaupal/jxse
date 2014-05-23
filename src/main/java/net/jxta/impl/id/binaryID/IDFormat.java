@@ -56,8 +56,6 @@
 
 package net.jxta.impl.id.binaryID;
 
-import java.util.logging.Logger;
-
 /**
  * The 'BinaryID' format is a general purpose JXTA ID Format. It implements all of
  * the six standard ID types. It was originally created for the Java 2 SE
@@ -67,11 +65,6 @@ import java.util.logging.Logger;
  * @author Daniel Brookshier <a HREF="mailto:turbogeek@cluck.com">turbogeek@cluck.com</a>
  */
 public class IDFormat {
-
-    /**
-     * LOG4J Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(IDFormat.class.getName());
 
     /**
      * This table maps our local private versions of the well known ids to the

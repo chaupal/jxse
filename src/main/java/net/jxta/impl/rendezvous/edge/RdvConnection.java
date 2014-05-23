@@ -62,17 +62,10 @@ import net.jxta.impl.util.TimeUtils;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 
-import java.util.logging.Logger;
-
 /**
  * Manages a connection with a client or a rendezvous peer.
  */
 public class RdvConnection extends PeerConnection {
-
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(RdvConnection.class.getName());
 
     protected long leasedTil;
     protected long beginRenewalAt;

@@ -60,17 +60,10 @@ import net.jxta.impl.id.UUID.IDBytes;
 import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
 
-import java.util.logging.Logger;
-
 /**
  * An implementation of the {@link net.jxta.platform.ModuleClassID} ID Type.
  */
 public final class ModuleClassID extends net.jxta.impl.id.UUID.ModuleClassID {
-
-    /**
-     * Log4J categorgy
-     */
-    private static final transient Logger LOG = Logger.getLogger(ModuleClassID.class.getName());
 
     /**
      * Constructor.

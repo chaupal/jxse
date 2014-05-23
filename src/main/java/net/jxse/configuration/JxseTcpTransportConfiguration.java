@@ -57,18 +57,12 @@
  */
 package net.jxse.configuration;
 
-import java.util.logging.Logger;
 import net.jxta.configuration.JxtaTransportConfiguration;
 
 /**
  * Defines the TCP transport configuration when connecting to the JXTA network.
  */
 public class JxseTcpTransportConfiguration extends JxtaTransportConfiguration {
-
-    /**
-     *  Logger
-     */
-    private final static Logger LOG = Logger.getLogger(JxseTcpTransportConfiguration.class.getName());
 
     /**
      * Transport name.

@@ -56,7 +56,6 @@
 
 package net.jxse.configuration;
 
-import java.util.logging.Logger;
 import net.jxta.id.IDFactory;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -65,11 +64,6 @@ import net.jxta.peergroup.PeerGroupID;
  * Dummy valid Jxse peer configuration for testing purposes
  */
 public class ValidJxsePeerConfiguration extends JxsePeerConfiguration {
-
-    /**
-     *  Logger.
-     */
-    private final static Logger LOG = Logger.getLogger(ValidJxsePeerConfiguration.class.getName());
 
     public static final PeerID PID = IDFactory.newPeerID(PeerGroupID.worldPeerGroupID);
 

@@ -62,17 +62,11 @@ import net.jxta.impl.id.UUID.UUIDFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.ProviderException;
-import java.util.logging.Logger;
 
 /**
  * An implementation of the {@link net.jxta.pipe.PipeID} ID Type.
  */
 public class PipeID extends net.jxta.impl.id.UUID.PipeID {
-
-    /**
-     * Log4J categorgy
-     */
-    private static final transient Logger LOG = Logger.getLogger(PipeID.class.getName());
 
     /**
      * Used only internally

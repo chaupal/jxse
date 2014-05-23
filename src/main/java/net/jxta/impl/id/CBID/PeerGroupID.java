@@ -63,17 +63,11 @@ import net.jxta.impl.id.UUID.UUIDFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.ProviderException;
-import java.util.logging.Logger;
 
 /**
  * An implementation of the {@link net.jxta.peergroup.PeerGroupID} ID Type.
  */
 public class PeerGroupID extends net.jxta.impl.id.UUID.PeerGroupID {
-
-    /**
-     * Log4J categorgy
-     */
-    private static final transient Logger LOG = Logger.getLogger(PeerGroupID.class.getName());
 
     /**
      * Intializes contents from provided ID.

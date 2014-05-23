@@ -56,17 +56,10 @@
 
 package net.jxta.configuration;
 
-import java.util.logging.Logger;
-
 /**
  * Generic JXTA configuration exception
  */
 public class JxtaConfigurationException extends Exception {
-
-    /**
-     *  Logger.
-     */
-    private final static Logger LOG = Logger.getLogger(JxtaConfiguration.class.getName());
 
     /**
      * {@inheritdoc}

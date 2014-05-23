@@ -64,7 +64,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import net.jxta.configuration.JxtaPeerConfiguration;
 import net.jxta.configuration.PropertiesUtil;
 import net.jxta.peer.PeerID;
@@ -74,11 +73,6 @@ import net.jxta.peergroup.PeerGroupID;
  *
  */
 public class JxsePeerConfiguration extends JxtaPeerConfiguration {
-
-    /**
-     *  Logger
-     */
-    private final static Logger LOG = Logger.getLogger(JxsePeerConfiguration.class.getName());
 
     /**
      * Types of connections mode to the JXTA network provided by the JXSE implementation.

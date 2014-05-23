@@ -61,17 +61,10 @@ import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
 
-import java.util.logging.Logger;
-
 /**
  * Manages a connection with a client peer.
  */
 public class ClientConnection extends PeerConnection {
-
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(ClientConnection.class.getName());
 
     /**
      * Constructor for the PeerConnection object

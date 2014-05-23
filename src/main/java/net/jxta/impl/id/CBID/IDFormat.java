@@ -59,8 +59,6 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.id.UUID.UUID;
 
-import java.util.logging.Logger;
-
 /**
  * A general purpose JXTA ID Format implementing all of the six standard ID
  * Types. It was originally created for the Java 2 SE reference implementation.
@@ -71,11 +69,6 @@ import java.util.logging.Logger;
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#ids" target="_blank">JXTA Protocols Specification : IDs</a>
  */
 public class IDFormat extends net.jxta.impl.id.UUID.IDFormat {
-
-    /**
-     * Log4J Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(IDFormat.class.getName());
 
     /**
      * Our local version of the world Peer Group ID. We need this for cases

@@ -57,7 +57,6 @@
 package net.jxta.impl.id.unknown;
 
 import java.net.URI;
-import java.util.logging.Logger;
 
 /**
  *  IDs are used to uniquely identify peers, peer groups, pipes and other
@@ -73,11 +72,6 @@ import java.util.logging.Logger;
  *
  **/
 public final class ID extends net.jxta.id.ID {
-
-    /**
-     *  Logger
-     **/
-    private static final transient Logger LOG = Logger.getLogger(ID.class.getName());
 
     String  unqiueValue;
 

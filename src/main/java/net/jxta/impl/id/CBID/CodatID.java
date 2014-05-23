@@ -65,17 +65,11 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.ProviderException;
-import java.util.logging.Logger;
 
 /**
  * An implementation of the {@link net.jxta.codat.CodatID} ID Type.
  */
 public class CodatID extends net.jxta.impl.id.UUID.CodatID {
-
-    /**
-     * Log4J Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(CodatID.class.getName());
 
     /**
      * Internal constructor

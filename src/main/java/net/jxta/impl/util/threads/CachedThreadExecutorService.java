@@ -10,7 +10,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Logger;
 
 /**
  * Wrapping class offering a cached thread pool executor service - guards against termination
@@ -20,8 +19,6 @@ import java.util.logging.Logger;
  * on tasks which take an excessive amount of time to complete.
  */
 public class CachedThreadExecutorService implements ExecutorService {
-
-    static final Logger LOG = Logger.getLogger(CachedThreadExecutorService.class.getName());
 
     private final ExecutorService cachedExecutorService;
 

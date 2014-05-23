@@ -62,7 +62,6 @@ package net.jxta.impl.cm.srdi.inmemory;
  */
 public class GcKey {
 
-    // private final static transient Logger LOG = Logger.getLogger( GcKey.class.getName(  ) );
     private final SearchKey searchKey;
     private final PeerIdKey peerIdKey;
     private int hashCode;
