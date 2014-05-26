@@ -172,7 +172,7 @@ public class NetworkManager implements RendezvousListener {
      * @param instanceName Node name
      * @throws IOException if an io error occurs
      */
-    NetworkManager(ConfigMode mode, String instanceName) throws IOException {
+    public NetworkManager(ConfigMode mode, String instanceName) throws IOException {
         this(mode, instanceName, new File(DEFAULT_INSTANCE_HOME).toURI());
     }
 
@@ -187,7 +187,7 @@ public class NetworkManager implements RendezvousListener {
      * @param instanceHome instance home is a uri to the instance persistent store (aka Cache Manager store home)
      * @throws IOException if an io error occurs
      */
-    NetworkManager(ConfigMode mode, String instanceName, URI instanceHome) throws IOException {
+    public NetworkManager(ConfigMode mode, String instanceName, URI instanceHome) throws IOException {
         this.instanceName = instanceName;
         this.mode = mode;
         this.instanceHome = instanceHome;
@@ -241,7 +241,7 @@ public class NetworkManager implements RendezvousListener {
      *
      * @param instanceName Value to set for property 'instanceName'.
      */
-    private void setInstanceName(String instanceName) {
+    public void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
     }
 
@@ -259,7 +259,7 @@ public class NetworkManager implements RendezvousListener {
      *
      * @param instanceHome Value to set for property 'instanceHome'.
      */
-    private void setInstanceHome(URI instanceHome) {
+    public void setInstanceHome(URI instanceHome) {
         this.instanceHome = instanceHome;
     }
 
