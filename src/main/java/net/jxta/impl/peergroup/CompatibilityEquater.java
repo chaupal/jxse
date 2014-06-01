@@ -61,7 +61,7 @@ public interface CompatibilityEquater {
 
     /**
      * Evaluates if the given compatibility statement makes the module that
-     * bears it is lodable by this group.
+     * bears it is loadable by this group.
      *
      * @param test the element to test
      * @return boolean True if test is compatible with target.

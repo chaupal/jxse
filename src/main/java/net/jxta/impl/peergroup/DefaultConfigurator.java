@@ -119,6 +119,7 @@ public class DefaultConfigurator extends AutomaticConfigurator {
 
     /**
      * {@inheritDoc}
+     * @param reconfigure
      */
     @Override
     public void setReconfigure(boolean reconfigure) {

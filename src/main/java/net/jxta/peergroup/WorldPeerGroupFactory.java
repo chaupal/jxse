@@ -132,21 +132,21 @@ public final class WorldPeerGroupFactory {
      */
     public WorldPeerGroupFactory() throws PeerGroupException {
         // Establish the default store location via long established hackery.
-        String jxta_home = System.getProperty("JXTA_HOME", ".jxta/");
+        String jxtaHome = System.getProperty("JXTA_HOME", ".jxta/");
 
         // ensure that it ends in a seperator.
-        if (!jxta_home.endsWith(File.separator)) {
-            jxta_home += File.separator;
+        if (!jxtaHome.endsWith(File.separator)) {
+            jxtaHome += File.separator;
         }
 
-        File jxta_home_dir = new File(jxta_home);
+        File jxtaHomeDir = new File(jxtaHome);
 
         // Ensure the homedir exists.
-        if (!jxta_home_dir.exists()) {
-            jxta_home_dir.mkdirs();
+        if (!jxtaHomeDir.exists()) {
+            jxtaHomeDir.mkdirs();
         }
 
-        URI storeHome = jxta_home_dir.toURI();
+        URI storeHome = jxtaHomeDir.toURI();
 
         // Instantiate the default configurator. Do not do this in your own code!
         try {
