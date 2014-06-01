@@ -72,7 +72,6 @@ import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
-import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.TransportAdvertisement;
 
 import java.net.InetAddress;
