@@ -25,18 +25,21 @@ public class AdHocHttp2CommsTest {
 	
 	@Before
 	public void createPeers() throws Exception {
-                String aliceInstanceName = "alice";
-                String bobInstanceName = "bob";
+                String instanceName = "alice";                
                 
-		aliceManager = PeerConfigurator.createHttp2AdhocPeer(aliceInstanceName, 58000, tempStorage);
-                aliceManager.getConfigurator().setPrincipal(aliceInstanceName);
+		aliceManager = PeerConfigurator.createHttp2AdhocPeer(instanceName, 58000, tempStorage);
+                aliceManager.getConfigurator().setPrincipal(instanceName);
                 aliceManager.startNetwork();
                 
-		bobManager = PeerConfigurator.createHttp2AdhocPeer(bobInstanceName, 58001, tempStorage);               
-                bobManager.getConfigurator().setPrincipal(bobInstanceName);
+                // give the network managers time to stabilise
+		Thread.sleep(5000L);
+                
+                instanceName = "bob";
+		bobManager = PeerConfigurator.createHttp2AdhocPeer(instanceName, 58001, tempStorage);               
+                bobManager.getConfigurator().setPrincipal(instanceName);
                 bobManager.startNetwork();
 		
-		// XXX: give the network managers time to stabilise
+		// give the network managers time to stabilise
 		Thread.sleep(5000L);
 	}
 	
@@ -45,14 +48,11 @@ public class AdHocHttp2CommsTest {
 		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
 	}
 	
-	@After
-	public void killAlice() throws Exception {
-		aliceManager.stopNetwork();
-	}
-	
-	@After
-	public void killBob() throws Exception {
-		bobManager.stopNetwork();
-	}
-	
+    @After
+    public void terminatePeers() throws Exception {        
+        aliceManager.stopNetwork();
+        if (!aliceManager.isStarted()) {
+            bobManager.stopNetwork();
+        }
+    }	
 }

@@ -17,41 +17,41 @@ import org.junit.rules.TemporaryFolder;
  */
 public class AdHocHttpCommsTest {
 
-	@Rule
-	public TemporaryFolder tempStorage = new TemporaryFolder();
-	
-	private NetworkManager aliceManager;
-	private NetworkManager bobManager;
-	
-	@Before
-	public void createPeers() throws Exception {
-            String instanceName = "alice";
-            aliceManager = PeerConfigurator.createHttpAdhocPeer(instanceName, 58000, tempStorage);
-            aliceManager.getConfigurator().setPrincipal(instanceName);
-            aliceManager.startNetwork();
-            
-            instanceName = "bob";
-            bobManager = PeerConfigurator.createHttpAdhocPeer(instanceName, 58001, tempStorage);
-            bobManager.getConfigurator().setPrincipal(instanceName);            
-            bobManager.startNetwork();
+    @Rule
+    public TemporaryFolder tempStorage = new TemporaryFolder();
 
-            // XXX: give the network managers time to stabilise
-            Thread.sleep(5000L);
-	}
-	
-	@Test
-	public void testComms() throws Exception {
-		SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
-	}
-	
-	@After
-	public void killAlice() throws Exception {
-		aliceManager.stopNetwork();
-	}
-	
-	@After
-	public void killBob() throws Exception {
-		bobManager.stopNetwork();
-	}
-	
+    private NetworkManager aliceManager;
+    private NetworkManager bobManager;
+
+    @Before
+    public void createPeers() throws Exception {
+        String instanceName = "alice";
+        aliceManager = PeerConfigurator.createHttpAdhocPeer(instanceName, 58000, tempStorage);
+        aliceManager.getConfigurator().setPrincipal(instanceName);
+        aliceManager.startNetwork();
+
+        // XXX: give the network managers time to stabilise
+        Thread.sleep(5000L);
+
+        instanceName = "bob";
+        bobManager = PeerConfigurator.createHttpAdhocPeer(instanceName, 58001, tempStorage);
+        bobManager.getConfigurator().setPrincipal(instanceName);            
+        bobManager.startNetwork();
+
+        // XXX: give the network managers time to stabilise
+        Thread.sleep(5000L);
+    }
+
+    @Test
+    public void testComms() throws Exception {
+            SystemTestUtils.testPeerCommunication(aliceManager, bobManager);
+    }
+
+    @After
+    public void terminatePeers() throws Exception {        
+        aliceManager.stopNetwork();
+        if (!aliceManager.isStarted()) {
+            bobManager.stopNetwork();
+        }
+    }			
 }
