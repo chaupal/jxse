@@ -208,7 +208,7 @@ public final class AuthenticationCredential implements Credential {
     /**
      * {@inheritDoc}
      * <p/>
-     * There is no straightforward mechansim for identifying the subject
+     * There is no straightforward mechanism for identifying the subject
      * unfortunately.
      */
     public Object getSubject() {
@@ -309,7 +309,7 @@ public final class AuthenticationCredential implements Credential {
                 ID pid = IDFactory.fromURI(pID);
 
                 if (!pid.equals(getPeerID())) {
-                    throw new IllegalArgumentException("Operation is from a different group. " + pid + " != " + getPeerID());
+                    throw new IllegalArgumentException("Operation is from a different peer. " + pid + " != " + getPeerID());
                 }
             } catch (URISyntaxException badID) {
                 throw new IllegalArgumentException("Bad Peer ID in advertisement: " + elem.getTextValue());
