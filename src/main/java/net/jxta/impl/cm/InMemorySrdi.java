@@ -265,9 +265,9 @@ public class InMemorySrdi implements SrdiAPI {
                 if ( expiration.compareTo( now ) > 0 ) {
 
                     // This entry is not yet expired, we are done, exit the GC
-                    if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+                    if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
-                        LOG.fine( "[" + this.indexName + "] GC: cleared " + counter + " item(s) from the index" );
+                        LOG.debug( "[" + this.indexName + "] GC: cleared " + counter + " item(s) from the index" );
                     }
 
                     printStatus(  );
@@ -289,9 +289,9 @@ public class InMemorySrdi implements SrdiAPI {
                             // Recover the search key
                             SearchKey searchKey = gcKey.getSearchKey(  );
 
-                            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+                            if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
-                                LOG.fine( "[" + this.indexName + "] GC: using tree key " + searchKey );
+                                LOG.debug( "[" + this.indexName + "] GC: using tree key " + searchKey );
                             }
 
                             // Clean-up the search index
@@ -308,18 +308,18 @@ public class InMemorySrdi implements SrdiAPI {
                         // This *is* possible if the index item was removed via a call to add(), below, after we called getAllKeys() but before we
                         // iterated down to the expiration key to process the entry.  Just log it and carry on...
                     	// LOGGING: was FINER
-                        if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+                        if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
-                            LOG.fine( "[" + this.indexName + "] GC: Removing GC Index using: " + expiration +
+                            LOG.debug( "[" + this.indexName + "] GC: Removing GC Index using: " + expiration +
                                 " returned a null set.  Assuming it's already been removed via a concurrent add()." );
                         }
                     }
                 }
             }
 
-            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+            if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
-                LOG.fine( "[" + this.indexName + "] GC: cleared ALL ( e.g." + counter + " ) item(s) from the index" );
+                LOG.debug( "[" + this.indexName + "] GC: cleared ALL ( e.g." + counter + " ) item(s) from the index" );
             }
 
             printStatus(  );
@@ -336,7 +336,7 @@ public class InMemorySrdi implements SrdiAPI {
 
     private void printStatus(  ) {
 
-        if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+        if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
             StringBuffer sb = new StringBuffer(  );
 
@@ -363,7 +363,7 @@ public class InMemorySrdi implements SrdiAPI {
             sb.append( 
                 "------------------------------------------------------------------------------------------------------------------------\n" );
 
-            LOG.fine( sb.toString(  ) );
+            LOG.debug( sb.toString(  ) );
         }
     }
 
@@ -458,9 +458,9 @@ public class InMemorySrdi implements SrdiAPI {
 
             if ( entries == null ) { // Nothing to do...
 
-                if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+                if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
-                    LOG.fine( "[" + indexName + "]  Did not Remove:  Peer ID " + peerIdKey + ": is not in the index" );
+                    LOG.debug( "[" + indexName + "]  Did not Remove:  Peer ID " + peerIdKey + ": is not in the index" );
                 }
 
                 return;
@@ -492,9 +492,9 @@ public class InMemorySrdi implements SrdiAPI {
             }
 
             // LOGGING: was FINEST
-            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+            if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
-                LOG.fine( "[" + indexName + "]  Removing  Peer ID '" + peerIdKey + "' led to the expiration of '" + counter +
+                LOG.debug( "[" + indexName + "]  Removing  Peer ID '" + peerIdKey + "' led to the expiration of '" + counter +
                     "' item(s) in the index" );
             }
         } catch ( Throwable th ) {
@@ -535,9 +535,9 @@ public class InMemorySrdi implements SrdiAPI {
             GcKey gcKey = new GcKey( searchKey, peerIdKey );
 
             // LOGGING: was FINEST
-            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
+            if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
 
-                LOG.fine( "[" + indexName + "] Adding / Updating " + searchKey + " for " + peerIdKey + " expires in: " +
+                LOG.debug( "[" + indexName + "] Adding / Updating " + searchKey + " for " + peerIdKey + " expires in: " +
                     ( expiration - TimeUtils.timeNow(  ) ) + "ms (at: " + expiration + ")" );
             }
 

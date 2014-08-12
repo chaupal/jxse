@@ -307,7 +307,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         }
 
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
             StringBuilder query = new StringBuilder("Sending query#" + myQueryID + " for " + threshold + " " + dirname[type] + " advs");
 
             if (attribute != null) {
@@ -316,7 +316,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                     query.append("\tvalue = ").append(value);
                 }
             }
-            LOG.fine(query.toString());
+            LOG.debug(query.toString());
         }
 
         long t0 = System.currentTimeMillis();
@@ -395,14 +395,14 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             throw new IllegalArgumentException("Unknown Advertisement type");
         }
 
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
 
             StringBuilder query = new StringBuilder("Searching for " + dirname[type] + " advs");
 
             if (attribute != null) query.append("\n\tattr = ").append(attribute);
             if (value != null) query.append("\tvalue = ").append(value);
 
-            LOG.fine(query.toString());
+            LOG.debug(query.toString());
 
         }
 

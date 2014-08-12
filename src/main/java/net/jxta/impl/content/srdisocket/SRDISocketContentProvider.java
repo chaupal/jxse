@@ -506,7 +506,7 @@ public class SRDISocketContentProvider
                 try {
 
                     if (serverSocket == null) {
-                        LOG.fine("Creating new server socket");
+                        LOG.debug("Creating new server socket");
                         serverSocket = new JxtaServerSocket(peerGroup, pipeAdv);
                     }
 

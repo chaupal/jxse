@@ -1161,7 +1161,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected void initLast() throws PeerGroupException {
 
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
 
@@ -1195,7 +1195,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(anImplAdv.getDescription());
             }
 
-            LOG.fine(configInfo.toString());
+            LOG.debug(configInfo.toString());
         }
     }
 

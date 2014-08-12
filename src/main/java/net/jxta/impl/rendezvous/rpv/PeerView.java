@@ -620,7 +620,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         boolean isFromEdge = (msg.getMessageElement(MESSAGE_NAMESPACE, EDGE_ELEMENT_NAME) != null);
         boolean isTrusted = isFromEdge || seedingManager.isAcceptablePeer(radv.getRouteAdv());
 
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
 
             String srcPeer = srcAddr.toString();
 
@@ -639,7 +639,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
                 }
             }
 
-            LOG.fine(
+            LOG.debug(
                     "[" + group.getPeerGroupID() + "] Received a" + (isCached ? " cached" : "") + (isResponse ? " response" : "")
                     + (isFailure ? " failure" : "") + " message (" + msg.toString() + ")" + (isFromEdge ? " from edge" : "")
                     + " regarding \"" + radv.getName() + "\" from " + srcPeer);

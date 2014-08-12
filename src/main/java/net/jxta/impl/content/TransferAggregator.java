@@ -430,7 +430,7 @@ public class TransferAggregator
      * {@inheritDoc}
      */
     public void cancel() {
-        LOG.fine(hashHex() + ": Cancelling transfer");
+        LOG.debug(hashHex() + ": Cancelling transfer");
         cancelAll(null, false);
         synchronized(this) {
             if (!transferState.isFinished()) {
@@ -555,7 +555,7 @@ public class TransferAggregator
                 if (oldState != locationState || locationCount != null) {
 
                 	// LOGGING: was FINER
-                    if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+                    if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
                         Logging.logCheckedFine(LOG, hashHex(),
                                 ": Location update (location count: ",
                                 locationCount, ")");

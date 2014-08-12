@@ -360,7 +360,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
         boolean registeredSomething = false;
 
         // LOGGING: was FINER
-        LOG.fine("Registering : " + className);
+        LOG.debug("Registering : " + className);
 
         try {
             Class docClass = Class.forName(className);
@@ -371,7 +371,7 @@ public final class StructuredDocumentFactory extends ClassFactory<MimeMediaType,
 
             for (MimeMediaType mimeType : mimeTypes) {
                 // LOGGING: was FINER
-                LOG.fine("   Registering Type : " + mimeType.getMimeMediaType());
+                LOG.debug("   Registering Type : " + mimeType.getMimeMediaType());
                 registeredSomething |= registerInstantiator(mimeType, instantiator);
             }
 

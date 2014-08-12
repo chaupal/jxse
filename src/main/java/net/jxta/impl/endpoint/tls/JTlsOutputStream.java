@@ -531,7 +531,7 @@ class JTlsOutputStream extends OutputStream {
             maxACK = Math.max(maxACK, seqnum);
 
             // dump the current Retry queue and the SACK list
-            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
 
                 StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
 
@@ -556,7 +556,7 @@ class JTlsOutputStream extends OutputStream {
                     dumpRETRQ.append(sackList[y]);
                 }
 
-                LOG.fine(dumpRETRQ.toString());
+                LOG.debug(dumpRETRQ.toString());
 
             }
 

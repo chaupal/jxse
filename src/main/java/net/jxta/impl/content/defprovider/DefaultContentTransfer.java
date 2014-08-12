@@ -994,7 +994,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         msg.addMessageElement(DefaultContentProvider.MSG_NAMESPACE, msge);
 
         // LOGGING: was FINEST
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
             Logging.logCheckedFine(LOG, "Sending DataRequest (idx=", idx, ", node=", node, "):");
             Logging.logCheckedFine(LOG, "   ContentID: ", req.getContentID());
             Logging.logCheckedFine(LOG, "   Offset : ", req.getOffset());
@@ -1027,7 +1027,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         long offs;
 
         // LOGGING: was FINEST
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
             Logging.logCheckedFine(LOG, "DataResponse:");
             Logging.logCheckedFine(LOG, "   ContentID: ", resp.getContentID());
             Logging.logCheckedFine(LOG, "   Offset : ", resp.getOffset());
@@ -1089,7 +1089,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         // We have what appears to be a good packet.
         if (SIMULATE_PACKET_LOSS) {
             if (RANDOM.nextInt(100) < PACKET_LOSS_PERCENT) {
-                if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+                if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
                     Logging.logCheckedFine(LOG, "Simulating lost packet");
                     return;
                 }
@@ -1114,7 +1114,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (couldWrite) {
 
             // LOGGING: was FINEST
-            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
                 Logging.logCheckedFine(LOG, "Wrote the following to disk:");
                 Logging.logCheckedFine(LOG, "   Offset : ", resp.getOffset());
                 Logging.logCheckedFine(LOG, "   Length : ", resp.getLength());

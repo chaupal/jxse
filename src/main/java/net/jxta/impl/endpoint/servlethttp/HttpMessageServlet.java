@@ -209,7 +209,7 @@ public class HttpMessageServlet extends HttpServlet {
         TransportBindingMeter transportBindingMeter = null;
 
         // LOGGING: was FINEST
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
             printRequest(req);
         }
 
@@ -637,7 +637,7 @@ public class HttpMessageServlet extends HttpServlet {
         builder.append("  isSecure: ").append(req.isSecure());
 
         // LOGGING: was FINEST
-        LOG.fine(builder.toString());
+        LOG.debug(builder.toString());
     }
 
     /**

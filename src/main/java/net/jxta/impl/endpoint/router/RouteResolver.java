@@ -520,7 +520,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
                             return;
 
                         } else {
-                            LOG.fine("processQuery srdiIndex DHT forward resulted in no op");
+                            LOG.debug("processQuery srdiIndex DHT forward resulted in no op");
                         }
                     }
                 }
@@ -834,14 +834,14 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         Collection<PeerID> badHops = routeQuery.getBadHops();
 
         // LOGGING: was FINER
-        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
             StringBuilder badHopsDump = new StringBuilder("bad Hops :\n");
 
             for (ID aBadHop : badHops) {
                 badHopsDump.append('\t').append(aBadHop);
             }
 
-            LOG.fine(badHopsDump.toString());
+            LOG.debug(badHopsDump.toString());
         }
 
         // if our source route is not null, then publish it
@@ -1287,8 +1287,8 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
             // FIXME: Very questionable strategy, because the replica peer may keep
             // outdated information longer than necessary.
 
-            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
-                LOG.fine("sending a router SRDI message add route " + id);
+            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                LOG.debug("sending a router SRDI message add route " + id);
             }
             if (peer == null) {
                 peer = srdiManager.getReplicaPeer(id.toString());

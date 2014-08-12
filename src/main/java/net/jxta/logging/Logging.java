@@ -281,10 +281,10 @@ public final class Logging {
      */
     public static void logCheckedFine(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_FINE && inLog.isFineEnabled()) {
+        if (Logging.SHOW_FINE && inLog.isDebugEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.fine(Msg.toString());
+            inLog.debug(Msg.toString());
         }
 
     }

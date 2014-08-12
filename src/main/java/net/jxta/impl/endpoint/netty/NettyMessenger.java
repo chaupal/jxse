@@ -56,7 +56,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
     @Override
     protected void closeImpl() {
         // TODO: do we need to wait for this?
-    	LOG.fineParams("Closing netty channel for messenger to {}", logicalDestinationAddr);
+    	LOG.debugParams("Closing netty channel for messenger to {}", logicalDestinationAddr);
     	if(channel.isOpen()) {
     		channel.close();
     	}

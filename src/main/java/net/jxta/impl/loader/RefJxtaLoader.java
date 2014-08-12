@@ -964,7 +964,7 @@ public class RefJxtaLoader extends JxtaLoader {
     private void attachDebugListeners(ContentTransfer xfer) {
 
     	// LOGGING: was FINEST
-        if (!(Logging.SHOW_FINE && LOG.isFineEnabled())) {
+        if (!(Logging.SHOW_FINE && LOG.isDebugEnabled())) {
             // Early out.
             return;
         }
@@ -974,15 +974,15 @@ public class RefJxtaLoader extends JxtaLoader {
         final ContentTransferListener xListener = new ContentTransferListener() {
 
             public void contentLocationStateUpdated(ContentTransferEvent event) {
-                LOG.fine(prefix + ": Received event: " + event);
+                LOG.debug(prefix + ": Received event: " + event);
             }
 
             public void contentTransferStateUpdated(ContentTransferEvent event) {
-                LOG.fine(prefix + ": Received event: " + event);
+                LOG.debug(prefix + ": Received event: " + event);
             }
 
             public void contentTransferProgress(ContentTransferEvent event) {
-                LOG.fine(prefix + ": Received event: " + event);
+                LOG.debug(prefix + ": Received event: " + event);
             }
 
         };
@@ -990,21 +990,21 @@ public class RefJxtaLoader extends JxtaLoader {
         final ContentTransferAggregatorListener xaListener = new ContentTransferAggregatorListener() {
 
             public void selectedContentTransfer(ContentTransferAggregatorEvent event) {
-                LOG.fine(prefix + ": Received event: " + event);
+                LOG.debug(prefix + ": Received event: " + event);
             }
 
             public void updatedContentTransferList(ContentTransferAggregatorEvent event) {
-                LOG.fine(prefix + ": Received event: " + event);
+                LOG.debug(prefix + ": Received event: " + event);
             }
 
         };
 
-        LOG.fine(hashHex() + ": Attaching ContentTransferListener to: " + xfer);
+        LOG.debug(hashHex() + ": Attaching ContentTransferListener to: " + xfer);
         xfer.addContentTransferListener(xListener);
 
         if (xfer instanceof ContentTransferAggregator) {
             ContentTransferAggregator xferAgg = (ContentTransferAggregator) xfer;
-            LOG.fine(hashHex() + ": Attaching ContentTransferAggregatorListener to: " + xfer);
+            LOG.debug(hashHex() + ": Attaching ContentTransferAggregatorListener to: " + xfer);
             xferAgg.addContentTransferAggregatorListener(xaListener);
 
             // Recurse...

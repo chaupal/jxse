@@ -283,7 +283,7 @@ public class AutomaticConfigurator extends NullConfigurator {
                             reconf = true;
 
                             if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
-                                LOG.fine("Reconfig requested - invalid interface address");
+                                LOG.debug("Reconfig requested - invalid interface address");
                             }
                         }
                     }

@@ -416,7 +416,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
             // state loop
             while (WorkerState.CLOSED != workerstate) {
                 synchronized (this) {
-                    LOG.fine("NON-BLOCKING WORKER AT STATE : " + workerstate
+                    LOG.debug("NON-BLOCKING WORKER AT STATE : " + workerstate
                             + ((WorkerState.SENDMESSAGES == workerstate)
                                     ? "\n\t" + TimeUtils.toRelativeTimeMillis(nextVerifyAt, TimeUtils.timeNow())
                                     + " until verify."

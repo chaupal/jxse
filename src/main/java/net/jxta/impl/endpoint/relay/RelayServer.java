@@ -578,7 +578,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
                 }
             }
 
-            LOG.fine("request lease string = " + requestedLeaseString + "\treturn relay adv = " + returnRelayAdv + "\n\treturn other relay adv = " + returnOtherRelayAdv + "\tflush queue = " + flushQueue);
+            LOG.debug("request lease string = " + requestedLeaseString + "\treturn relay adv = " + returnRelayAdv + "\n\treturn other relay adv = " + returnOtherRelayAdv + "\tflush queue = " + flushQueue);
 
             if (requestedLeaseString != null) {
 

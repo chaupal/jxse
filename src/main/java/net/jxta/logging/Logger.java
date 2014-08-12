@@ -6,10 +6,9 @@ package net.jxta.logging;
  * 
  */
 public interface Logger {
-	// TODO rename to debug
-	boolean isFineEnabled();
-	void fine(String message);
-	void fineParams(String format, Object ... params);
+	boolean isDebugEnabled();
+	void debug(String message);
+	void debugParams(String format, Object ... params);
 
 	boolean isInfoEnabled();
 	void info(String message);

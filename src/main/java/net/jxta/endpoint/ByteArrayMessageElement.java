@@ -288,8 +288,8 @@ public class ByteArrayMessageElement extends MessageElement {
         }
 
         // LOGGING: was FINER
-        if (LOG.isFineEnabled()) {
-            LOG.fine("creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
         }
 
         String charset = type.getParameter("charset");

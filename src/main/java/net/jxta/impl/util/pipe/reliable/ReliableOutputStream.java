@@ -878,7 +878,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             maxACK = Math.max(maxACK, seqnum);
 
             // dump the current Retry queue and the SACK list
-            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
 
                 StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
                 dumpRETRQ.append('\n');
@@ -1211,8 +1211,8 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         {
            long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), outgoing.getLastAccessed());
 
-           if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
-                LOG.fine(outgoing + " idle for " + conn_idle);
+           if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                LOG.debug(outgoing + " idle for " + conn_idle);
            }
             // check to see if we have not idled out.
             if (outgoing.getIdleTimeout() < conn_idle)

@@ -11,15 +11,15 @@ public class SLF4JLogger implements Logger {
 		this(loggerClass.getName());
 	}
 	
-	public boolean isFineEnabled() {
+	public boolean isDebugEnabled() {
 		return logger.isDebugEnabled();
 	}
 
-	public void fine(final String message) {
+	public void debug(final String message) {
 		logger.debug(message);
 	}
 
-	public void fineParams(String format, Object... params) {
+	public void debugParams(String format, Object... params) {
 		logger.debug(format, params);
 	}
 

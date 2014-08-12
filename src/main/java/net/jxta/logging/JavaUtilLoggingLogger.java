@@ -37,15 +37,15 @@ public class JavaUtilLoggingLogger implements Logger {
 		this(loggerClass.getName());
 	}
 
-	public boolean isFineEnabled() {
+	public boolean isDebugEnabled() {
 		return logger.isLoggable(Level.FINE);
 	}
 
-	public void fine(final String message) {
+	public void debug(final String message) {
 		logger.fine(message);
 	}
 
-	public void fineParams(String format, Object... params) {
+	public void debugParams(String format, Object... params) {
 		logger.log(Level.FINE, JavaUtilLoggingLogger.slf4jFormatToJULFormat(format), params);
 	}
 

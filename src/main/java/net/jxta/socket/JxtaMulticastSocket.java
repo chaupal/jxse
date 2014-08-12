@@ -288,7 +288,7 @@ public class JxtaMulticastSocket extends MulticastSocket implements PipeMsgListe
             Logging.logCheckedFine(LOG, "Pushing a message onto queue");
 
             if(!queue.offer(message, -1, TimeUnit.MILLISECONDS))
-            	LOG.fine("Failed to push the message onto queue due to no available space");
+            	LOG.debug("Failed to push the message onto queue due to no available space");
 
         } catch (InterruptedException e) {
 

@@ -179,7 +179,7 @@ public class ContentServiceImpl implements ContentService {
                     ModuleLifecycleState newState) {
                 ContentProviderSPI provider =
                         (ContentProviderSPI) subject.getModule();
-                LOG.fine("Content provider lifecycle state update: "
+                LOG.debug("Content provider lifecycle state update: "
                         + provider + " --> " + newState);
                 if (newState == ModuleLifecycleState.STARTED) {
                     active.add(provider);
