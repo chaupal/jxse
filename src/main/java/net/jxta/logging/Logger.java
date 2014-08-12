@@ -15,11 +15,10 @@ public interface Logger {
 	void info(String message, Throwable t);
 	void infoParams(String format, Object ... params);
 
-	// TODO rename to warn
-	boolean isWarningLoggable(); // TODO rename to ..Enabled
-	void warning(String message);
-	void warning(String message, Throwable t);
-	void warnParams(String format, Object ... params); // TODO rename to warningParams
+	boolean isWarnEnabled();
+	void warn(String message);
+	void warn(String message, Throwable t);
+	void warnParams(String format, Object ... params);
 
 	// TODO rename to error
 	boolean isSevereLoggable(); // TODO rename to ..Enabled

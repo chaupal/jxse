@@ -738,8 +738,8 @@ public class ResolverServiceImpl implements ResolverService {
 
         } catch (IOException e) {
 
-            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                LOG.warning("Failure propagating query\n", e);
+            if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                LOG.warn("Failure propagating query\n", e);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.queryPropagationError(query);
@@ -995,8 +995,8 @@ public class ResolverServiceImpl implements ResolverService {
 
         } else {
 
-            if (Logging.SHOW_WARNING && LOG.isWarningLoggable() && group.isRendezvous()) {
-                LOG.warning("No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
+            if (Logging.SHOW_WARNING && LOG.isWarnEnabled() && group.isRendezvous()) {
+                LOG.warn("No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
             } else {
                 Logging.logCheckedFine(LOG, "No srdi handler registered :", handlerName, " for Group ID:", group.getPeerGroupID());
             }

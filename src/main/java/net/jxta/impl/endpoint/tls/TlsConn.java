@@ -232,7 +232,7 @@ class TlsConn {
         // XXX 20040830 bondolo Other solutions go here!
         if (!choseTMF) {
             tmf = javax.net.ssl.TrustManagerFactory.getInstance(javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm());
-            LOG.warning("Using defeualt Trust Manager Factory algorithm. This may not work as expected.");
+            LOG.warn("Using defeualt Trust Manager Factory algorithm. This may not work as expected.");
         }
 
         KeyStore trusted = transport.membership.getPSEConfig().getKeyStore();

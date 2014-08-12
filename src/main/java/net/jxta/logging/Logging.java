@@ -195,7 +195,7 @@ public final class Logging {
                 useJUL = loggingImpl.equalsIgnoreCase("jul");
             }
         } catch (SecurityException disallowed) {
-            LOG.warning("Could not read configuration property.", disallowed);
+            LOG.warn("Could not read configuration property.", disallowed);
         }
 
         try {
@@ -205,7 +205,7 @@ public final class Logging {
                 setLevel = Level.parse(propertyLevel);
             }
         } catch (SecurityException disallowed) {
-            LOG.warning("Could not read configuration property.", disallowed);
+            LOG.warn("Could not read configuration property.", disallowed);
         }
 
         // Set the default level for the JXTA packages so that everything below
@@ -335,10 +335,10 @@ public final class Logging {
      */
     public static void logCheckedWarning(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_WARNING && inLog.isWarningLoggable()) {
+        if (Logging.SHOW_WARNING && inLog.isWarnEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.warning(Msg.toString());
+            inLog.warn(Msg.toString());
         }
 
     }

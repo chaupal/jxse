@@ -84,8 +84,8 @@ public class CacheUtils {
 	
 	    if (doc == null) {
 
-	        if (Logging.SHOW_WARNING && XIndiceAdvertisementCache.LOG.isWarningLoggable()) {
-	            XIndiceAdvertisementCache.LOG.warning("Null document");
+	        if (Logging.SHOW_WARNING && XIndiceAdvertisementCache.LOG.isWarnEnabled()) {
+	            XIndiceAdvertisementCache.LOG.warn("Null document");
 	        }
 
 	        return map;

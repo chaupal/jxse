@@ -533,7 +533,7 @@ public class SRDISocketContentProvider
                     try {
                         serverSocket.close();
                     } catch (IOException iox2) {
-                        LOG.warning("Could not close socket\n", iox);
+                        LOG.warn("Could not close socket\n", iox);
                     } finally {
                         serverSocket = null;
                     }
@@ -550,7 +550,7 @@ public class SRDISocketContentProvider
                     }
 
                 } catch (RuntimeException rtx) {
-                    LOG.warning("Caught runtime exception\n", rtx);
+                    LOG.warn("Caught runtime exception\n", rtx);
                     throw(rtx);
                 }
             }
@@ -560,7 +560,7 @@ public class SRDISocketContentProvider
                 try {
                     serverSocket.close();
                 } catch (IOException iox) {
-                    LOG.warning("Could not close socket\n", iox);
+                    LOG.warn("Could not close socket\n", iox);
                 }
             }
         }

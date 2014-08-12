@@ -579,7 +579,7 @@ class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnab
                         serviceThread = null;
                         break;
                     } else {
-                        LOG.warning("Unrecognized state in worker thread : " + workerstate);
+                        LOG.warn("Unrecognized state in worker thread : " + workerstate);
                     }
                 }
 

@@ -212,9 +212,9 @@ public class InMemorySrdi implements SrdiAPI {
 
         if ( !stopped ) {
 
-            if ( Logging.SHOW_WARNING && LOG.isWarningLoggable( ) ) {
+            if ( Logging.SHOW_WARNING && LOG.isWarnEnabled( ) ) {
 
-                LOG.warning( "Clearing an index that has not been stopped!" );
+                LOG.warn( "Clearing an index that has not been stopped!" );
             }
         }
 

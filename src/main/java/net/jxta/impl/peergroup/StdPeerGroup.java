@@ -393,7 +393,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         moduleStartOrder.clear();
 
         if (!messageTransports.isEmpty()) {
-            LOG.warning(messageTransports.size() + " message transports could not be shut down during peer group stop.");
+            LOG.warn(messageTransports.size() + " message transports could not be shut down during peer group stop.");
         }
 
         messageTransports.clear();

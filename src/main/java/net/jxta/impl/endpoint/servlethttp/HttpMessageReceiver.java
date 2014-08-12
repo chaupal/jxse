@@ -191,7 +191,7 @@ class HttpMessageReceiver implements MessageReceiver {
         //       then a default STDERR logSink will also be added as default: org.mortbay.util.OutputStreamLogSink
         // LOGGING: was Finer
         org.mortbay.util.Code.setDebug(Logging.SHOW_FINE && LOG.isDebugEnabled());
-        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isWarningLoggable()));
+        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isWarnEnabled()));
         // LOGGING: was Finer
         org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINE && LOG.isDebugEnabled()));
 

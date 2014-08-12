@@ -153,7 +153,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
         // If it's just a case of queue overflow, ignore it, report warning
         if (event.getFailure() == null) {
             final StringBuilder builder = createLogMessage(event);
-            LOG.warning(builder.toString());
+            LOG.warn(builder.toString());
             return;
         }
         setConnected(false);
@@ -391,7 +391,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
             }
             catch (IOException e)
             {
-                LOG.warning("Failed to send blocking message owing to IOException " + e);
+                LOG.warn("Failed to send blocking message owing to IOException " + e);
             }
             return true;
         } else {

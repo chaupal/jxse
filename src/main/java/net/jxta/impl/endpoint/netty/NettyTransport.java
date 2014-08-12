@@ -261,7 +261,7 @@ public class NettyTransport implements Module {
 
             port = Math.max(min, Math.min(port, max));
 
-            if(Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+            if(Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
                 LOG.warnParams("{} port was outside legal range ({}-{}), changed to {}", new Object[] { portName, min, max, port });
             }
             

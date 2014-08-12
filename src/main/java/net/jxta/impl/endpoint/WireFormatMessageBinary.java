@@ -437,7 +437,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 value = new byte[dataLen];
                 String mayFail = null;
 
-                if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+                if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
                     mayFail = is.toString();
                 }
 

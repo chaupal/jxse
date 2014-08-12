@@ -262,7 +262,7 @@ public abstract class ClassFactory<K, I> {
             }
 
         } catch (IOException ex) {
-            LOG.warning("Failed to read provider list " + providerList, ex);
+            LOG.warn("Failed to read provider list " + providerList, ex);
             return false;
         } finally {
             if(null != urlStream) {

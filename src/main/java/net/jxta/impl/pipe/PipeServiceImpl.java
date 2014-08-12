@@ -604,7 +604,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 			}
 
 			if (perpipelisteners.get(pipeHolder.queryid) != null) {
-				LOG.warning("Clobbering output pipe listener for query "
+				LOG.warn("Clobbering output pipe listener for query "
 						+ pipeHolder.queryid);
 			}
 

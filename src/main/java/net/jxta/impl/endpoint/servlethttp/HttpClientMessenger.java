@@ -494,8 +494,8 @@ final class HttpClientMessenger extends BlockingMessenger {
                 // warning and treat it as OK.71
                 if (responseCode == -1) {
 
-                    if (neverWarned && Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                        LOG.warning("Obsolete HTTP proxy does not issue HTTP_OK response. Assuming OK");
+                    if (neverWarned && Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                        LOG.warn("Obsolete HTTP proxy does not issue HTTP_OK response. Assuming OK");
                         neverWarned = false;
                     }
 

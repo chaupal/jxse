@@ -1222,12 +1222,12 @@ public abstract class GenericPeerGroup implements PeerGroup {
             try {
                 removeService(aService);
             } catch (Exception failure) {
-                LOG.warning("Failure shutting down service : " + aService, failure);
+                LOG.warn("Failure shutting down service : " + aService, failure);
             }
         }
 
         if (!services.isEmpty()) {
-            LOG.warning(services.size() + " services could not be shut down during peer group stop.");
+            LOG.warn(services.size() + " services could not be shut down during peer group stop.");
         }
 
         // remove everything (just in case);

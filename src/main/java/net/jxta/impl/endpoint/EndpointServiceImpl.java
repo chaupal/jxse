@@ -521,7 +521,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
                     if (requestedSize > 0) {
                         vmQueueSize = requestedSize;
                     } else {
-                        LOG.warning("Illegal MessengerQueueSize : " + textQSz);
+                        LOG.warn("Illegal MessengerQueueSize : " + textQSz);
                     }
                 } catch (NumberFormatException e) {
 

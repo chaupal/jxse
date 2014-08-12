@@ -65,11 +65,11 @@ public class JavaUtilLoggingLogger implements Logger {
 		logger.info(message);
 	}
 
-	public void warning(final String message) {
+	public void warn(final String message) {
 		logger.warning(message);
 	}
 
-	public void warning(final String message, final Throwable t) {
+	public void warn(final String message, final Throwable t) {
 		logger.log(Level.WARNING, message, t);
 	}
 
@@ -77,7 +77,7 @@ public class JavaUtilLoggingLogger implements Logger {
 		logger.log(Level.WARNING, JavaUtilLoggingLogger.slf4jFormatToJULFormat(format), params);
 	}
 
-	public boolean isWarningLoggable() {
+	public boolean isWarnEnabled() {
 		return logger.isLoggable(Level.WARNING);
 	}
 

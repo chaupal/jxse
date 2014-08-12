@@ -1111,7 +1111,7 @@ public abstract class AbstractContentTransfer
                         case COMPLETED:
                             synchronized(lockObject) {
                                 if (content == null) {
-                                    LOG.warning("Transfer attempt returned "
+                                    LOG.warn("Transfer attempt returned "
                                             + attemptResult
                                             + " but content was not set!");
                                 } else {

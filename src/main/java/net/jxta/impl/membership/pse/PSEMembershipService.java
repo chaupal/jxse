@@ -1111,19 +1111,19 @@ public final class PSEMembershipService implements MembershipService {
             pathValidator.validate(certPath, params);
 
         } catch(KeyStoreException storeExp) {
-            LOG.warning(storeExp.getMessage(), storeExp);
+            LOG.warn(storeExp.getMessage(), storeExp);
             throw new CertPathValidatorException("Trusted Certificates could not be verified.");
         } catch(CertificateException certExp) {
-            LOG.warning(certExp.getMessage(), certExp);
+            LOG.warn(certExp.getMessage(), certExp);
             throw new CertPathValidatorException("Certificates could not be validated.");
         } catch(NoSuchAlgorithmException noAlgExp) {
-            LOG.warning(noAlgExp.getMessage(), noAlgExp);
+            LOG.warn(noAlgExp.getMessage(), noAlgExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         } catch(CertPathValidatorException validateExp) {
-            LOG.warning(validateExp.getMessage(), validateExp);
+            LOG.warn(validateExp.getMessage(), validateExp);
             throw validateExp;
         } catch(InvalidAlgorithmParameterException paramExp) {
-            LOG.warning(paramExp.getMessage(), paramExp);
+            LOG.warn(paramExp.getMessage(), paramExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         }
     }
@@ -1156,19 +1156,19 @@ public final class PSEMembershipService implements MembershipService {
             pathValidator.validate(certPath, params);
 
         } catch(KeyStoreException storeExp) {
-            LOG.warning(storeExp.getMessage(), storeExp);
+            LOG.warn(storeExp.getMessage(), storeExp);
             throw new CertPathValidatorException("Trusted Certificates could not be verified.");
         } catch(CertificateException certExp) {
-            LOG.warning(certExp.getMessage(), certExp);
+            LOG.warn(certExp.getMessage(), certExp);
             throw new CertPathValidatorException("Certificates could not be validated.");
         } catch(NoSuchAlgorithmException noAlgExp) {
-            LOG.warning(noAlgExp.getMessage(), noAlgExp);
+            LOG.warn(noAlgExp.getMessage(), noAlgExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         } catch(CertPathValidatorException validateExp) {
-            LOG.warning(validateExp.getMessage(), validateExp);
+            LOG.warn(validateExp.getMessage(), validateExp);
             throw validateExp;
         } catch(InvalidAlgorithmParameterException paramExp) {
-            LOG.warning(paramExp.getMessage(), paramExp);
+            LOG.warn(paramExp.getMessage(), paramExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         }
     }

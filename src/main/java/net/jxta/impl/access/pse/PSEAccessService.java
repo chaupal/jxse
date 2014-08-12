@@ -457,19 +457,19 @@ public class PSEAccessService implements AccessService {
             pathValidator.validate(certPath, params);
 
         } catch (CertPathValidatorException ex) {
-            LOG.warning(null, ex);
+            LOG.warn(null, ex);
             return AccessResult.DISALLOWED;
         } catch (NoSuchProviderException ex) {
-            LOG.warning(null, ex);
+            LOG.warn(null, ex);
             return AccessResult.DISALLOWED;
         } catch(CertificateException certExp) {
-            LOG.warning(certExp.getMessage(), certExp);
+            LOG.warn(certExp.getMessage(), certExp);
             return AccessResult.DISALLOWED;
         } catch(NoSuchAlgorithmException noAlgExp) {
-            LOG.warning(noAlgExp.getMessage(), noAlgExp);
+            LOG.warn(noAlgExp.getMessage(), noAlgExp);
             return AccessResult.DISALLOWED;
         } catch(InvalidAlgorithmParameterException paramExp) {
-            LOG.warning(paramExp.getMessage(), paramExp);
+            LOG.warn(paramExp.getMessage(), paramExp);
             return AccessResult.DISALLOWED;
         }
 

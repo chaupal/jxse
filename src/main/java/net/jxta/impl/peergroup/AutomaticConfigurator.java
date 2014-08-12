@@ -204,8 +204,8 @@ public class AutomaticConfigurator extends NullConfigurator {
                 }
             } catch (RuntimeException advTrouble) {
 
-                if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                    LOG.warning("HTTP advertisement corrupted", advTrouble);
+                if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                    LOG.warn("HTTP advertisement corrupted", advTrouble);
                 }
 
                 httpAdv = null;
@@ -228,13 +228,13 @@ public class AutomaticConfigurator extends NullConfigurator {
                     if ((propertyPort < 65536) && (propertyPort >= 0)) {
                         port = propertyPort;
                     } else {
-                        if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                            LOG.warning("Property \'jxta.http.port\' is not a valid port number : " + propertyPort);
+                        if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                            LOG.warn("Property \'jxta.http.port\' is not a valid port number : " + propertyPort);
                         }
                     }
                 } catch (NumberFormatException ignored) {
-                    if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                        LOG.warning("Property \'jxta.http.port\' was not an integer : " + http);
+                    if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                        LOG.warn("Property \'jxta.http.port\' was not an integer : " + http);
                     }
                 }
             }
@@ -289,8 +289,8 @@ public class AutomaticConfigurator extends NullConfigurator {
                     }
                 }
             } catch (RuntimeException advTrouble) {
-                if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                    LOG.warning("TCP advertisement corrupted", advTrouble);
+                if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                    LOG.warn("TCP advertisement corrupted", advTrouble);
                 }
 
                 tcpAdv = null;
@@ -313,13 +313,13 @@ public class AutomaticConfigurator extends NullConfigurator {
                     if ((propertyPort < 65536) && (propertyPort >= 0)) {
                         port = propertyPort;
                     } else {
-                        if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                            LOG.warning("Property \'jxta.tcp.port\' is not a valid port number : " + propertyPort);
+                        if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                            LOG.warn("Property \'jxta.tcp.port\' is not a valid port number : " + propertyPort);
                         }
                     }
                 } catch (NumberFormatException ignored) {
-                    if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                        LOG.warning("Property \'jxta.tcp.port\' was not an integer : " + tcpPort);
+                    if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                        LOG.warn("Property \'jxta.tcp.port\' was not an integer : " + tcpPort);
                     }
                 }
             }
@@ -352,8 +352,8 @@ public class AutomaticConfigurator extends NullConfigurator {
                 relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
             }
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                LOG.warning("Problem reading relay configuration\n", failure);
+            if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                LOG.warn("Problem reading relay configuration\n", failure);
             }
         }
 
@@ -395,8 +395,8 @@ public class AutomaticConfigurator extends NullConfigurator {
                 rdvAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
             }
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                LOG.warning("Problem reading rendezvous configuration\n", failure);
+            if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                LOG.warn("Problem reading rendezvous configuration\n", failure);
             }
         }
 
@@ -449,8 +449,8 @@ public class AutomaticConfigurator extends NullConfigurator {
                 pseConfig = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(param);
             }
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
-                LOG.warning("Problem reading pse configuration\n", failure);
+            if (Logging.SHOW_WARNING && LOG.isWarnEnabled()) {
+                LOG.warn("Problem reading pse configuration\n", failure);
             }
         }
 

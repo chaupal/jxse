@@ -39,15 +39,15 @@ public class SLF4JLogger implements Logger {
 		logger.info(message);
 	}
 
-	public void warning(final String message) {
+	public void warn(final String message) {
 		logger.warn(message);
 	}
 	
-	public void warning(final String message, final Throwable t) {
+	public void warn(final String message, final Throwable t) {
 		logger.warn(message, t);
 	}
 
-	public boolean isWarningLoggable() {
+	public boolean isWarnEnabled() {
 		return logger.isWarnEnabled();
 	}
 
