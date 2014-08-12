@@ -61,7 +61,6 @@ import java.util.Timer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import net.jxta.endpoint.AbstractMessenger;
 import net.jxta.endpoint.ChannelMessenger;
@@ -73,6 +72,7 @@ import net.jxta.endpoint.MessengerStateListener;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.util.SimpleSelectable;
@@ -91,10 +91,7 @@ import net.jxta.util.SimpleSelectable;
  */
 public abstract class BlockingMessenger extends AbstractMessenger {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(BlockingMessenger.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(BlockingMessenger.class.getName());
 
     /**
      * The self destruct timer.

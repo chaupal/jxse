@@ -58,6 +58,7 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -67,7 +68,6 @@ import net.jxta.protocol.RouteAdvertisement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * This class implements the RdvAdvertisement.
@@ -87,10 +87,7 @@ import java.util.logging.Logger;
  **/
 public class RdvAdv extends RdvAdvertisement {
 
-    /**
-     *  Log4J Logger
-     **/
-    private final static transient Logger LOG = Logger.getLogger(RdvAdv.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(RdvAdv.class.getName());
 
     private static final String[] INDEX_FIELDS = { PeerIDTag, ServiceNameTag, GroupIDTag };
 

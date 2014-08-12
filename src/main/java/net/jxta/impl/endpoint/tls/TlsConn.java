@@ -63,12 +63,14 @@ import net.jxta.endpoint.WireFormatMessage;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.util.IgnoreFlushFilterOutputStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,8 +88,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class implements the TLS connection between two peers.
@@ -100,10 +100,7 @@ import java.util.logging.Logger;
  */
 class TlsConn {
 
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(TlsConn.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(TlsConn.class.getName());
     static final int BOSIZE = 16000;
     /**
      * TLS transport this connection is working for.
@@ -691,7 +688,7 @@ class TlsConn {
 
                     Collection<Principal> allIssuers = Arrays.asList(issuers);
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
 
                         Logging.logCheckedFine(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
                         Logging.logCheckedFine(LOG, "Issuers : ", allIssuers);

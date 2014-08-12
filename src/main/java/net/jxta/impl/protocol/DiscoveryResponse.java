@@ -58,6 +58,7 @@ package net.jxta.impl.protocol;
 
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.*;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.PeerAdvertisement;
@@ -66,7 +67,6 @@ import java.io.StringReader;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  *  DiscoveryResponse.
@@ -112,7 +112,7 @@ import java.util.logging.Logger;
  */
 public class DiscoveryResponse extends DiscoveryResponseMsg {
 
-    private final static transient Logger LOG = Logger.getLogger(DiscoveryResponse.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(DiscoveryResponse.class.getName());
 
     private final static String countTag = "Count";
     private final static String expirationTag = "Expiration";

@@ -57,6 +57,7 @@
 package net.jxta.impl.endpoint.msgframing;
 
 import net.jxta.document.MimeMediaType;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.DataInput;
@@ -73,17 +74,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Logger;
 
 /**
  * Header Package for Messages. Analogous to HTTP Headers.
  */
 public class MessagePackageHeader {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(MessagePackageHeader.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(MessagePackageHeader.class.getName());
 
     /**
      * Standard header name for content-length
@@ -316,7 +313,8 @@ public class MessagePackageHeader {
             byte[] headerValueBytes = new byte[headerValueLength];
 
             buffer.get(headerValueBytes);
-            Logging.logCheckedFiner(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, MessageFormat.format("Adding Name {0}: {1}", headerNameString, headerValueBytes));
 
             headers.add(new Header(headerNameString, headerValueBytes));
 
@@ -324,7 +322,8 @@ public class MessagePackageHeader {
 
         // get the end-of-pkg
         buffer.get();
-        Logging.logCheckedFiner(LOG, MessageFormat.format("Parsed {0} header elements, buffer stats :{1}", count, buffer.toString()));
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, MessageFormat.format("Parsed {0} header elements, buffer stats :{1}", count, buffer.toString()));
 
         return true;
     }
@@ -346,7 +345,8 @@ public class MessagePackageHeader {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
 
-        Logging.logCheckedFiner(LOG, "Add header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Add header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
 
         headers.add(new Header(name, value));
 
@@ -362,7 +362,8 @@ public class MessagePackageHeader {
      */
     public void addHeader(String name, String value) {
 
-        Logging.logCheckedFiner(LOG, "Add header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
+    	// LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Add header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
 
         try {
             addHeader(name, value.getBytes("UTF-8"));
@@ -389,7 +390,8 @@ public class MessagePackageHeader {
             throw new IllegalArgumentException("value may not exceed 65535 bytes in length.");
         }
 
-        Logging.logCheckedFiner(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length, " bytes of value");
 
         Header newHeader = new Header(name, value);
         ListIterator<Header> eachHeader = getHeaders();
@@ -419,7 +421,8 @@ public class MessagePackageHeader {
      */
     public void replaceHeader(String name, String value) {
 
-        Logging.logCheckedFiner(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
+    	// LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Replace header :", name, "(", name.length(), ") with ", value.length(), " chars of value");
 
         try {
             replaceHeader(name, value.getBytes("UTF-8"));

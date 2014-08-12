@@ -55,13 +55,13 @@
  */
 package net.jxta.util;
 
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Logger;
 
 /**
  * This a tool to implement selectable objects. It may be composed or extended.
@@ -79,10 +79,7 @@ import java.util.logging.Logger;
 
 public abstract class AbstractSimpleSelectable implements SimpleSelectable {
 
-    /**
-     *  Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(AbstractSimpleSelectable.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(AbstractSimpleSelectable.class.getName());
 
     /**
      * The identity reference for this selectable.

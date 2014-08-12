@@ -59,6 +59,7 @@ package net.jxta.protocol;
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.net.URI;
@@ -69,7 +70,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 /**
  * A container for collections of configuration parameters. Configuration
@@ -78,10 +78,7 @@ import java.util.logging.Logger;
  */
 public abstract class ConfigParams extends ExtendableAdvertisement implements Cloneable {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(ConfigParams.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(ConfigParams.class.getName());
 
     private static final String SVC_TAG = "Svc";
     private static final String MCID_TAG = "MCID";

@@ -60,6 +60,7 @@ import net.jxta.document.Advertisement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -74,6 +75,7 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.service.Service;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -83,8 +85,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A JXTA {@link net.jxta.pipe.PipeService} implementation which implements the
@@ -105,10 +105,7 @@ import java.util.logging.Logger;
  */
 public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 
-	/**
-	 * The Logger
-	 */
-	private final static Logger LOG = Logger.getLogger(PipeServiceImpl.class
+	private final static Logger LOG = Logging.getLogger(PipeServiceImpl.class
 			.getName());
 
 	/**
@@ -244,7 +241,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 		this.group = group;
 		implAdvertisement = (ModuleImplAdvertisement) impl;
 
-		if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+		if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 			StringBuilder configInfo = new StringBuilder(
 					"Configuring Pipe Service : " + assignedID);
 
@@ -336,7 +333,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 				wirePipe.stopApp();
 			}
 		} catch (Throwable failed) {
-			LOG.log(Level.SEVERE, "Failed to stop wire pipe\n", failed);
+			LOG.severe("Failed to stop wire pipe", failed);
 		} finally {
 			wirePipe = null;
 		}
@@ -346,7 +343,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 				pipeResolver.stop();
 			}
 		} catch (Throwable failed) {
-			LOG.log(Level.SEVERE, "Failed to stop pipe resolver\n", failed);
+			LOG.severe("Failed to stop pipe resolver", failed);
 		} finally {
 			pipeResolver = null;
 		}

@@ -61,6 +61,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.id.ID;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
@@ -74,19 +75,15 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
- * An implementation of Ouput Pipe which sends messages on the pipe
+ * An implementation of Output Pipe which sends messages on the pipe
  * asynchronously. The <code>send()</code> method for this implementation will
  * never block.
  */
 class NonBlockingOutputPipe implements PipeResolver.Listener, OutputPipe, Runnable {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(NonBlockingOutputPipe.class.getName());
+    private static final Logger LOG = Logging.getLogger(NonBlockingOutputPipe.class.getName());
 
     /**
      * Amount of time an idle worker thread will linger

@@ -86,6 +86,7 @@ import net.jxta.impl.access.AccessList;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -110,18 +111,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Relay server that maintains outgoing message queues, leases, etc.
  */
 public class RelayServer implements MessageSender, MessengerEventListener, Runnable {
 
-    /**
-     *  Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(RelayServer.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(RelayServer.class.getName());
     /**
      * The maximum number of relay servers we will cache to provide as referrals.
      */
@@ -216,7 +212,7 @@ public class RelayServer implements MessageSender, MessengerEventListener, Runna
 
         }
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Relay Server");
 

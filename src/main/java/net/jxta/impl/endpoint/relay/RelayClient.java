@@ -81,6 +81,7 @@ import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -102,18 +103,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * RelayClient manages the relationship with the RelayServer(s)
  */
 public class RelayClient implements MessageReceiver, Runnable {
 
-    /**
-     *  Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(RelayClient.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(RelayClient.class.getName());
 
     private final static long DEFAULT_EXPIRATION = 20L * TimeUtils.AMINUTE;
 
@@ -180,7 +176,7 @@ public class RelayClient implements MessageReceiver, Runnable {
         peerId = group.getPeerID().getUniqueValue().toString();
         publicAddress = new EndpointAddress(RelayTransport.protocolName, peerId, null, null);
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Relay Client");
 

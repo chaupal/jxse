@@ -62,13 +62,14 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.SrdiMessage.Entry;
 
@@ -101,7 +102,7 @@ public final class CacheManager {
     public static final int NO_THRESHOLD = Integer.MAX_VALUE;
 	public static final String CACHE_IMPL_SYSPROP = "net.jxta.impl.cm.cache.impl";
 
-	private final static Logger LOG = Logger.getLogger(CacheManager.class.getName());
+	private final static Logger LOG = Logging.getLogger(CacheManager.class.getName());
 	
     /**
      * @deprecated use {@link XIndiceAdvertisementCache#DEFAULT_GC_MAX_INTERVAL } instead

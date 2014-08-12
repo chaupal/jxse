@@ -58,7 +58,7 @@ package net.jxta.socket;
 
 import java.security.InvalidKeyException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.logging.Level;
+
 import net.jxta.credential.Credential;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -84,6 +84,7 @@ import net.jxta.impl.util.pipe.reliable.Outgoing;
 import net.jxta.impl.util.pipe.reliable.OutgoingMsgrAdaptor;
 import net.jxta.impl.util.pipe.reliable.ReliableInputStream;
 import net.jxta.impl.util.pipe.reliable.ReliableOutputStream;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -100,6 +101,7 @@ import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -111,8 +113,8 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.logging.Logger;
 import java.util.Set;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
@@ -135,10 +137,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
     public final static String ASYMMETRIC_ALGORITHM = "RSA/ECB/OAEPPadding";
     public final static String SYMMETRIC_ALGORITHM = "DESede";
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(JxtaSocket.class.getName());
+    private final static Logger LOG = Logging.getLogger(JxtaSocket.class.getName());
     private final static int MAXRETRYTIMEOUT = 120 * 1000;
     private final static int DEFAULT_TIMEOUT = 15 * 1000;
 
@@ -902,7 +901,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                         new ByteArrayMessageElement(JxtaServerSocket.symmetricKeyTag, MimeMediaType.AOS, encryptedEncodedSecretKey, null));
             } catch (Exception failed) {
-                Logger.getLogger(JxtaSocket.class.getName()).log(Level.SEVERE, null, failed);
+                LOG.severe(null, failed);
                 IOException failure = new IOException("Could not create or encode secretKey for encryption.");
                 failure.initCause(failed);
                 throw failure;
@@ -1264,7 +1263,8 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
      */
     public void pipeMsgEvent(PipeMsgEvent event) {
 
-        Logging.logCheckedFiner(LOG, "Pipe Message Event for ", this, "\n\t", event.getMessage(), " for ", event.getPipeID());
+    	// LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Pipe Message Event for ", this, "\n\t", event.getMessage(), " for ", event.getPipeID());
 
         Message message = event.getMessage();
         if (message == null) {
@@ -1373,7 +1373,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                             byte[] encodedSecretKey = PSEUtils.decryptAsymmetric(element.getBytes(false), cipher, pseCredentialBridge.privateKey);
                             remoteSecretKey = PSEUtils.createSecretKey(encodedSecretKey);
                         } catch (Exception ex) {
-                            Logger.getLogger(JxtaSocket.class.getName()).log(Level.SEVERE, null, ex);
+                            LOG.severe(null, ex);
                         }
                     }
 

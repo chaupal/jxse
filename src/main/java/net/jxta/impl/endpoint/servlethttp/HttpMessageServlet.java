@@ -66,6 +66,7 @@ import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import javax.servlet.ServletConfig;
@@ -74,13 +75,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *  This is a simple servlet that accepts JXTA Messages from clients using HTTP
@@ -92,10 +92,7 @@ import java.util.logging.Logger;
  */
 public class HttpMessageServlet extends HttpServlet {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(HttpMessageServlet.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(HttpMessageServlet.class.getName());
 
     /**
      *  The maximum duration in milliseconds we will keep a connection alive
@@ -211,7 +208,8 @@ public class HttpMessageServlet extends HttpServlet {
         int requestSize = 0;
         TransportBindingMeter transportBindingMeter = null;
 
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
+        // LOGGING: was FINEST
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
             printRequest(req);
         }
 
@@ -638,7 +636,8 @@ public class HttpMessageServlet extends HttpServlet {
         builder.append("  SERVER_PORT: ").append(req.getServerPort()).append(nl);
         builder.append("  isSecure: ").append(req.isSecure());
 
-        LOG.finest(builder.toString());
+        // LOGGING: was FINEST
+        LOG.fine(builder.toString());
     }
 
     /**
@@ -742,7 +741,8 @@ public class HttpMessageServlet extends HttpServlet {
             // check for incoming message
             messageContent = hasMessageContent(req);
 
-            Logging.logCheckedFiner(LOG,
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG,
                         "New JXTA Request for Requestor=", requestorAddr, "\n\tResponse Timeout=", responseTimeout,
                         "\tAdditional Response Timeout=", extraResponsesTimeout, "\tRequest Destination Address=", destAddr,
                         "\tHas Message Content=", Boolean.toString(messageContent));
@@ -779,7 +779,8 @@ public class HttpMessageServlet extends HttpServlet {
                 }
             }
 
-            Logging.logCheckedFiner(LOG, "requestorPeerId = ", requestorPeerId);
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "requestorPeerId = ", requestorPeerId);
 
             return requestorPeerId;
         }
@@ -807,7 +808,8 @@ public class HttpMessageServlet extends HttpServlet {
 
             }
 
-            Logging.logCheckedFiner(LOG, "requestTimeout = ", timeout);
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "requestTimeout = ", timeout);
 
             return timeout;
         }
@@ -867,7 +869,8 @@ public class HttpMessageServlet extends HttpServlet {
 
             }
 
-            Logging.logCheckedFiner(LOG, "hasMessageContent = ", hasContent);
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "hasMessageContent = ", hasContent);
 
             return hasContent;
         }

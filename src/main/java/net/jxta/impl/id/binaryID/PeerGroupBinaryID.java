@@ -56,10 +56,10 @@
 package net.jxta.impl.id.binaryID;
 
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.net.URI;
-import java.util.logging.Logger;
 
 /**
  * This class implements a PeerGroup ID. Each peer group is assigned a unique
@@ -75,10 +75,7 @@ import java.util.logging.Logger;
  */
 public final class PeerGroupBinaryID extends net.jxta.peergroup.PeerGroupID {
 
-    /**
-     * LOG object for this class.
-     */
-    private final static transient Logger LOG = Logger.getLogger(PeerGroupBinaryID.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PeerGroupBinaryID.class.getName());
 
     /**
      * This is the id string used in the XML of the id. The format is TX0..Xn where T is the type and X0 through Xn are the base64 encoded id.

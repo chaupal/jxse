@@ -72,7 +72,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.Content;
 import net.jxta.content.ContentID;
@@ -162,11 +163,9 @@ import net.jxta.protocol.ModuleImplAdvertisement;
  */
 public class DefaultContentProvider implements
         ContentProviderSPI, PipeMsgListener, ActiveTransferTrackerListener {
-    /**
-     * Logger instance.
-     */
-    private static final Logger LOG =
-            Logger.getLogger(DefaultContentProvider.class.getName());
+
+	private static final Logger LOG =
+            Logging.getLogger(DefaultContentProvider.class.getName());
 
     /**
      * Maximum incoming message queue size.  Once full, additional incoming
@@ -657,7 +656,8 @@ public class DefaultContentProvider implements
         StructuredDocument doc;
         DataRequest req;
 
-        Logging.logCheckedFinest(LOG, "Incoming message:\n", msg.toString(), "\n");
+        // LOGGING: was Finest
+        Logging.logCheckedFine(LOG, "Incoming message:\n", msg.toString(), "\n");
 
         it = msg.getMessageElementsOfNamespace(MSG_NAMESPACE);
 
@@ -682,7 +682,8 @@ public class DefaultContentProvider implements
 
             }
 
-            Logging.logCheckedFinest(LOG, "Request: ", req.getDocument(MimeMediaType.XMLUTF8));
+            // LOGGING: was Finest
+            Logging.logCheckedFine(LOG, "Request: ", req.getDocument(MimeMediaType.XMLUTF8));
             processDataRequest(req);
 
         }
@@ -699,12 +700,13 @@ public class DefaultContentProvider implements
         DefaultContentShare share;
         int written;
 
-        Logging.logCheckedFinest(LOG, "DataRequest:");
-        Logging.logCheckedFinest(LOG, "   ContentID: ", req.getContentID());
-        Logging.logCheckedFinest(LOG, "   Offset : ", req.getOffset());
-        Logging.logCheckedFinest(LOG, "   Length : ", req.getLength());
-        Logging.logCheckedFinest(LOG, "   QID    : ", req.getQueryID());
-        Logging.logCheckedFinest(LOG, "   PipeAdv: ", req.getResponsePipe());
+        // LOGGING: was Finest
+        Logging.logCheckedFine(LOG, "DataRequest:");
+        Logging.logCheckedFine(LOG, "   ContentID: ", req.getContentID());
+        Logging.logCheckedFine(LOG, "   Offset : ", req.getOffset());
+        Logging.logCheckedFine(LOG, "   Length : ", req.getLength());
+        Logging.logCheckedFine(LOG, "   QID    : ", req.getQueryID());
+        Logging.logCheckedFine(LOG, "   PipeAdv: ", req.getResponsePipe());
 
         share = getShare(req.getContentID());
 
@@ -767,7 +769,8 @@ public class DefaultContentProvider implements
             msg.addMessageElement(MSG_NAMESPACE, msge);
         }
 
-        Logging.logCheckedFiner(LOG, "Sending response: " + msg);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Sending response: " + msg);
 
         try {
             if (destPipe.send(msg)) return;

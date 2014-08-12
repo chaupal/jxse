@@ -59,6 +59,7 @@ package net.jxta.impl.endpoint.msgframing;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.EOFException;
@@ -73,7 +74,6 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Contains a JXTA connection Welcome Message. The Welcome Message is sent by
@@ -84,7 +84,7 @@ import java.util.logging.Logger;
  * <li>The address to which the local peer believes it is connected.</li>
  * <li>The local peer's return address, the source address.</li>
  * <li>The local peer's peer id.</li>
- * <li>A flag which controls propagation behaviour for this conneciton.</li>
+ * <li>A flag which controls propagation behaviour for this connection.</li>
  * </ul>
  *
  * @see <a href="https://jxta-spec.dev.java.net/nonav/JXTAProtocols.html#trans-tcpipt"
@@ -92,10 +92,7 @@ import java.util.logging.Logger;
  */
 public class WelcomeMessage {
 
-    /**
-     * Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(WelcomeMessage.class.getName());
+    private static final Logger LOG = Logging.getLogger(WelcomeMessage.class.getName());
 
     /**
      * The Welcome Message Signature/Preamble

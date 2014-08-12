@@ -55,6 +55,7 @@
  */
 package net.jxta.endpoint;
 
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 
@@ -62,7 +63,6 @@ import java.io.IOException;
 import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
 
 /**
  * This is a messenger meant to be shared by multiple channels and automatically
@@ -71,10 +71,7 @@ import java.util.logging.Logger;
  */
 public abstract class ThreadedMessenger extends AbstractMessenger implements Runnable {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(ThreadedMessenger.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(ThreadedMessenger.class.getName());
 
     /**
      * Our thread group.

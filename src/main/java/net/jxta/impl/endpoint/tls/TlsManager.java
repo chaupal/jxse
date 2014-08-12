@@ -62,6 +62,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.DataInputStream;
@@ -70,17 +71,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Manages the connection pool between peers.
  **/
 class TlsManager implements EndpointListener {
 
-    /**
-     *  Log4J Logger
-     **/
-    private final static transient Logger LOG = Logger.getLogger(TlsManager.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(TlsManager.class.getName());
 
     /**
      *  Transport we are working for.

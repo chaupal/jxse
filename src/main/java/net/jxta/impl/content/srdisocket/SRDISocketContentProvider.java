@@ -63,7 +63,7 @@ import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
-import net.jxta.impl.content.ModuleWrapperFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.PipeID;
@@ -88,8 +88,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Reference implementation of the ContentProvider interface.  This
@@ -123,11 +121,9 @@ import java.util.logging.Logger;
  */
 public class SRDISocketContentProvider
         implements ContentProviderSPI {
-    /**
-     * Logger instance.
-     */
-    private static final Logger LOG =
-            Logger.getLogger(SRDISocketContentProvider.class.getName());
+
+	private static final Logger LOG =
+            Logging.getLogger(SRDISocketContentProvider.class.getName());
 
     /**
      * The number of milliseconds the accept loop will sleep when an
@@ -514,7 +510,8 @@ public class SRDISocketContentProvider
                         serverSocket = new JxtaServerSocket(peerGroup, pipeAdv);
                     }
 
-                    Logging.logCheckedFiner(LOG, "Waiting to accept client...");
+                    // LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "Waiting to accept client...");
 
                     Socket socket = serverSocket.accept();
 
@@ -525,7 +522,8 @@ public class SRDISocketContentProvider
 
                 } catch (SocketTimeoutException socktox) {
 
-                    Logging.logCheckedFinest(LOG, "Socket timed out");
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "Socket timed out");
 
                 } catch (IOException iox) {
 
@@ -535,7 +533,7 @@ public class SRDISocketContentProvider
                     try {
                         serverSocket.close();
                     } catch (IOException iox2) {
-                        LOG.log(Level.WARNING, "Could not close socket\n", iox);
+                        LOG.warning("Could not close socket\n", iox);
                     } finally {
                         serverSocket = null;
                     }
@@ -552,7 +550,7 @@ public class SRDISocketContentProvider
                     }
 
                 } catch (RuntimeException rtx) {
-                    LOG.log(Level.WARNING, "Caught runtime exception\n", rtx);
+                    LOG.warning("Caught runtime exception\n", rtx);
                     throw(rtx);
                 }
             }
@@ -562,7 +560,7 @@ public class SRDISocketContentProvider
                 try {
                     serverSocket.close();
                 } catch (IOException iox) {
-                    LOG.log(Level.WARNING, "Could not close socket\n", iox);
+                    LOG.warning("Could not close socket\n", iox);
                 }
             }
         }
@@ -632,7 +630,8 @@ public class SRDISocketContentProvider
             try {
                 socket.close();
             } catch (IOException ignore) {
-                Logging.logCheckedFinest(LOG, "Ignoring exception", ignore);
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Ignoring exception", ignore);
             }
 
         }

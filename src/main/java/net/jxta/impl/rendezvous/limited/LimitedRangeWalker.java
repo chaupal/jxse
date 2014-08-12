@@ -63,11 +63,11 @@ import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvWalker;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * The Limited Range Walker is designed to be used by Rendezvous Peer in
@@ -78,10 +78,7 @@ import java.util.logging.Logger;
  */
 public class LimitedRangeWalker implements RdvWalker {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(LimitedRangeWalker.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(LimitedRangeWalker.class.getName());
 
     /**
      * The walk we are associated with.

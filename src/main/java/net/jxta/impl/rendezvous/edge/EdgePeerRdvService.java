@@ -68,7 +68,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -96,6 +96,7 @@ import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
 import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -115,10 +116,7 @@ import net.jxta.rendezvous.RendezvousEvent;
  */
 public class EdgePeerRdvService extends StdRendezVousService {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(EdgePeerRdvService.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(EdgePeerRdvService.class.getName());
 
     /**
      * Interval in milliseconds at which we will check our rendezvous connection.

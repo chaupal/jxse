@@ -58,7 +58,9 @@ package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.TextDocument;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,17 +69,13 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
-import java.util.logging.Logger;
 
 /**
  * A Message Element using JXTA TextDocument for the element data.
  */
 public class TextDocumentMessageElement extends TextMessageElement {
 
-    /**
-     * Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(TextDocumentMessageElement.class.getName());
+    private static final Logger LOG = Logging.getLogger(TextDocumentMessageElement.class.getName());
 
     /**
      * The data for this element.
@@ -199,7 +197,8 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating toString of ", getClass().getName(), "@", super.hashCode());
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "creating toString of ", getClass().getName(), "@", super.hashCode());
 
         result = doc.toString();
         cachedToString = new SoftReference<String>(result);
@@ -281,7 +280,8 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "creating getBytes of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String charset = type.getParameter("charset");
 
@@ -338,7 +338,8 @@ public class TextDocumentMessageElement extends TextMessageElement {
             }
         }
 
-        Logging.logCheckedFiner(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "creating getChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
         String asString = toString();
 

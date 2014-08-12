@@ -64,6 +64,7 @@ import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
@@ -79,17 +80,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * The Wire (Propagated) Pipe Service.
  */
 public class WirePipeImpl implements EndpointListener {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(WirePipeImpl.class.getName());
+    private final static Logger LOG = Logging.getLogger(WirePipeImpl.class.getName());
 
     /**
      * Service name we register our listener with.

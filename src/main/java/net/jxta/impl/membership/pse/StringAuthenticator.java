@@ -61,8 +61,11 @@ import net.jxta.id.ID;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+
 import javax.crypto.EncryptedPrivateKeyInfo;
+
 import java.io.IOException;
 import java.net.URI;
 import java.security.KeyStoreException;
@@ -71,7 +74,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * An authenticator associated with the PSE membership service.
@@ -81,10 +83,7 @@ import java.util.logging.Logger;
  **/
 public class StringAuthenticator implements Authenticator {
 
-    /**
-     * Log
-     */
-    private static final Logger LOG = Logger.getLogger(StringAuthenticator.class.getName());
+    private static final Logger LOG = Logging.getLogger(StringAuthenticator.class.getName());
 
     /**
      * The Membership Service which generated this authenticator.

@@ -58,14 +58,15 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ResolverQueryMsg;
 import net.jxta.protocol.ResolverResponseMsg;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Implements the Resolver Query Message according to the
@@ -99,10 +100,7 @@ import java.util.logging.Logger;
  */
 public class ResolverQuery extends ResolverQueryMsg implements Cloneable {
 
-    /**
-     * The logger
-     */
-    private final static Logger LOG = Logger.getLogger(ResolverQuery.class.getName());
+    private final static Logger LOG = Logging.getLogger(ResolverQuery.class.getName());
 
     private static final String handlernameTag = "HandlerName";
     private static final String credentialTag = "jxta:Cred";

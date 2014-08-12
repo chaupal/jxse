@@ -56,12 +56,12 @@
 package net.jxta.impl.id.binaryID;
 
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.logging.Logger;
 
 /**
  * This class implements a Pipe ID. Each pipe is assigned a unique id.
@@ -73,10 +73,7 @@ import java.util.logging.Logger;
  */
 public final class CodatBinaryID extends net.jxta.codat.CodatID {
 
-    /**
-     * LOG object for this class.
-     */
-    private final static transient Logger LOG = Logger.getLogger(CodatBinaryID.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(CodatBinaryID.class.getName());
 
     /**
      * The id data

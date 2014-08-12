@@ -67,17 +67,18 @@ import net.jxta.document.TextElement;
 import net.jxta.document.XMLDocument;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.PipeID;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeResolverMessage;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * This class implements {@link net.jxta.protocol.PipeResolverMessage} by
@@ -123,10 +124,7 @@ import java.util.logging.Logger;
  */
 public class PipeResolverMsg extends PipeResolverMessage {
 
-    /**
-     * Log4J Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(PipeResolverMsg.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PipeResolverMsg.class.getName());
 
     private final static String MsgTypeTag = "MsgType";
     private final static String PipeIdTag = "PipeId";

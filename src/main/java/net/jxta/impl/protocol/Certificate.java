@@ -66,6 +66,7 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.membership.pse.PSEUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.ByteArrayInputStream;
@@ -80,7 +81,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * A lightweight container for X.509 Certificates.
@@ -95,18 +95,10 @@ import java.util.logging.Logger;
  */
 public class Certificate {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(Certificate.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(Certificate.class.getName());
 
-    /**
-     *
-     **/
     private List<X509Certificate> certs = null;
 
-    /**
-     **/
     public Certificate() {
         super();
     }

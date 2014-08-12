@@ -59,6 +59,7 @@ package net.jxta.impl.protocol;
 import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.PeerAdvertisement;
 
@@ -68,7 +69,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 /**
  * A Leasing Protocol Request Message.
@@ -99,10 +99,7 @@ import java.util.logging.Logger;
  */
 public class LeaseRequestMsg {
 
-    /**
-     *  Log4J Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(LeaseRequestMsg.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(LeaseRequestMsg.class.getName());
 
     private final static String LEASE_REQUEST_MSG = "LeaseRequestMessage";
     private final static String CLIENT_ID_ATTR = "client_id";

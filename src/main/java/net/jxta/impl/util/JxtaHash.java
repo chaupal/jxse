@@ -55,19 +55,19 @@
  */
 package net.jxta.impl.util;
 
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Logger;
 
 /**
  *  A message digest wrapper to provide hashing using java.security.MesssageDigest
  */
 public class JxtaHash {
-    private final static Logger LOG = Logger.getLogger(JxtaHash.class.getName());
+    private final static Logger LOG = Logging.getLogger(JxtaHash.class.getName());
     public final static String SHA = "SHA";
     public final static String SHA1 = "SHA1";
     public final static String MD2 = "MD2";

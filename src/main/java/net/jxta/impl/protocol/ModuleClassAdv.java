@@ -66,6 +66,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.protocol.ModuleClassAdvertisement;
@@ -73,7 +74,6 @@ import net.jxta.protocol.ModuleClassAdvertisement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Provides XML serialization support for ModuleClassAdvertisement matching the
@@ -95,10 +95,7 @@ import java.util.logging.Logger;
  */
 public class ModuleClassAdv extends ModuleClassAdvertisement {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(ModuleClassAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(ModuleClassAdv.class.getName());
 
     private static final String nameTag = "Name";
     private static final String idTag = "MCID";

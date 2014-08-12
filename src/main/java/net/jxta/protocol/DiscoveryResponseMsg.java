@@ -63,6 +63,7 @@ import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
@@ -75,7 +76,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  *  This class defines the DiscoveryService message "Response". <p/>
@@ -89,10 +89,7 @@ import java.util.logging.Logger;
  */
 public abstract class DiscoveryResponseMsg {
 
-    /**
-     *  Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(DiscoveryResponseMsg.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(DiscoveryResponseMsg.class.getName());
 
     /**
      *  attribute used by the query

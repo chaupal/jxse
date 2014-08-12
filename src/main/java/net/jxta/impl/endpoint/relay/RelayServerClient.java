@@ -64,13 +64,13 @@ import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.AbstractSelectionKey;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
@@ -79,10 +79,7 @@ import net.jxta.peer.PeerID;
  */
 class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
-	/**
-	 * Logger
-	 */
-	private static final Logger LOG = Logger.getLogger(RelayServerClient.class.getName());
+	private static final Logger LOG = Logging.getLogger(RelayServerClient.class.getName());
 
 	/**
 	 * the Relay Server of this client
@@ -438,7 +435,8 @@ class RelayServerClient extends AbstractSelectableChannel implements Runnable {
 
             long now = TimeUtils.timeNow();
             boolean isExpired = !isOpen() || (now > leaseExpireAt) || (now > queueStallAt);
-            Logging.logCheckedFiner(LOG, this, " : isExpired() = ", isExpired);
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, this, " : isExpired() = ", isExpired);
 
             return isExpired;
 

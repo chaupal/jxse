@@ -63,7 +63,8 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.ContentID;
 import net.jxta.document.Document;
@@ -95,7 +96,7 @@ import net.jxta.util.LimitInputStream;
  */
 public class ContentResponse {
     private static Logger LOG =
-            Logger.getLogger(ContentResponse.class.getName());
+            Logging.getLogger(ContentResponse.class.getName());
     private static final String tagRoot = "ContentResponse";
     private static final String tagID = "ContentID";
     private static final String tagSuccess = "Success";

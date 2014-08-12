@@ -71,8 +71,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -96,6 +94,7 @@ import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -109,10 +108,7 @@ import net.jxta.service.Service;
 
 public class EndpointRouter implements EndpointListener, EndpointRoutingTransport, MessageReceiver, MessageSender, MessengerEventListener, Module {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(EndpointRouter.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(EndpointRouter.class.getName());
 
     /**
      * Until we decide otherwise, the router is *by definition* handling
@@ -626,17 +622,17 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                 } else if (TransportUtils.isMarkedWithOverflow(message)) {
                     if (TransportUtils.isAnSRDIMessage(message))
                     {
-                        LOG.log(Level.WARNING, "messenger to {0} is saturated, retrying SRDI message", sendVia.getDestinationAddress());
+                        LOG.warnParams("messenger to {} is saturated, retrying SRDI message", sendVia.getDestinationAddress());
                         TransportUtils.clearOverflowMarker(message);
                         try {
                             Thread.sleep(delayBeforeRetry);
                         }
                         catch (InterruptedException e) {
-                            LOG.log(Level.SEVERE, e.getMessage());
+                            LOG.severe(e.getMessage());
                         }
                         continue;
                     } else {
-                        LOG.log(Level.INFO, "messenger to {0} is saturated, dropping message", sendVia.getDestinationAddress());
+                        LOG.infoParams("messenger to {} is saturated, dropping message", sendVia.getDestinationAddress());
                         return;
                     }
                 }
@@ -679,7 +675,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
         // Creating the route controller
         theRouteController = new RouteControl(this, localPeerId);
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Router Transport : " + assignedID);
 

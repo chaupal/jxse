@@ -61,6 +61,7 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.impl.protocol.PlatformConfig;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 
@@ -72,7 +73,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.util.logging.Logger;
 
 /**
  * A minimal Platform Configurator. This implementation can load a
@@ -88,10 +88,7 @@ import java.util.logging.Logger;
  */
 public class NullConfigurator {
 
-    /**
-     * logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(NullConfigurator.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(NullConfigurator.class.getName());
 
     /**
      * The location in which the configuration files will reside.

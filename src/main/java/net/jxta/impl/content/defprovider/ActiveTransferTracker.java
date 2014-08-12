@@ -66,7 +66,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PipeAdvertisement;
@@ -82,11 +83,9 @@ import net.jxta.protocol.PipeAdvertisement;
  * to transfers already in progress.
  */
 public class ActiveTransferTracker {
-    /**
-     * Logger.
-     */
-    private static final Logger LOG =
-            Logger.getLogger(ActiveTransferTracker.class.getName());
+
+	private static final Logger LOG =
+            Logging.getLogger(ActiveTransferTracker.class.getName());
 
     /**
      * Maximum number of clients to serve concurrently.
@@ -238,7 +237,8 @@ public class ActiveTransferTracker {
                 try {
                     session.close();
                 } catch (IOException iox) {
-                    Logging.logCheckedFinest(LOG, "Ignoring exception\n", iox);
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "Ignoring exception\n", iox);
                 }
                 toNotify.add(session);
             }
@@ -250,7 +250,8 @@ public class ActiveTransferTracker {
                     gcTask.cancel(false);
                 }
             } catch (IllegalStateException isx) {
-                Logging.logCheckedFinest(LOG, "Ignoring exception\n" + isx);
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Ignoring exception\n" + isx);
             } finally {
                 gcTask = null;
             }
@@ -276,7 +277,8 @@ public class ActiveTransferTracker {
         List<ActiveTransfer> toNotify = null;
         ActiveTransfer session;
 
-        Logging.logCheckedFinest(LOG, "clientGC");
+        // LOGGING: was Finest
+        Logging.logCheckedFine(LOG, "clientGC");
 
         synchronized(this) {
 
@@ -294,7 +296,8 @@ public class ActiveTransferTracker {
                     try {
                         session.close();
                     } catch (IOException iox) {
-                        Logging.logCheckedFinest(LOG, "Ignoring exception\n", iox);
+                        // LOGGING: was Finest
+                        Logging.logCheckedFine(LOG, "Ignoring exception\n", iox);
                     }
 
                     if (toNotify == null) {

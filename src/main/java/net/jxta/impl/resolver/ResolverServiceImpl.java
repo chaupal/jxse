@@ -75,6 +75,7 @@ import net.jxta.impl.resolver.resolverMeter.ResolverMeter;
 import net.jxta.impl.resolver.resolverMeter.ResolverMeterBuildSettings;
 import net.jxta.impl.resolver.resolverMeter.ResolverServiceMonitor;
 import net.jxta.impl.resolver.resolverMeter.SrdiHandlerMeter;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.meter.MonitorResources;
@@ -103,10 +104,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
 import net.jxta.endpoint.router.RouteController;
 
 /**
@@ -118,10 +118,7 @@ import net.jxta.endpoint.router.RouteController;
  */
 public class ResolverServiceImpl implements ResolverService {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(ResolverServiceImpl.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(ResolverServiceImpl.class.getName());
 
     /**
      * Resolver query endpoint postfix
@@ -278,7 +275,7 @@ public class ResolverServiceImpl implements ResolverService {
         }
 
         // Tell tell the world about our configuration.
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Resolver Service : " + assignedID);
 
@@ -741,8 +738,8 @@ public class ResolverServiceImpl implements ResolverService {
 
         } catch (IOException e) {
 
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Failure propagating query\n", e);
+            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+                LOG.warning("Failure propagating query\n", e);
 
                 if (ResolverMeterBuildSettings.RESOLVER_METERING && (resolverMeter != null)) {
                     resolverMeter.queryPropagationError(query);
@@ -998,7 +995,7 @@ public class ResolverServiceImpl implements ResolverService {
 
         } else {
 
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING) && group.isRendezvous()) {
+            if (Logging.SHOW_WARNING && LOG.isWarningLoggable() && group.isRendezvous()) {
                 LOG.warning("No srdi handler registered :" + handlerName + " for Group ID:" + group.getPeerGroupID());
             } else {
                 Logging.logCheckedFine(LOG, "No srdi handler registered :", handlerName, " for Group ID:", group.getPeerGroupID());
@@ -1046,7 +1043,8 @@ public class ResolverServiceImpl implements ResolverService {
 
         if (route == null) {
 
-            Logging.logCheckedFiner(LOG, "No route info available for ", destPeer);
+        	// LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "No route info available for ", destPeer);
 
         } else {
 
@@ -1057,12 +1055,14 @@ public class ResolverServiceImpl implements ResolverService {
 
             } else {
 
-                Logging.logCheckedFiner(LOG, "Added route for ", route.getDestPeerID());
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Added route for ", route.getDestPeerID());
 
             }
         }
 
-        Logging.logCheckedFiner(LOG, "Creating a messenger immediate for :", destAddress);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Creating a messenger immediate for :", destAddress);
 
         messenger = endpoint.getMessengerImmediate(destAddress, route);
 

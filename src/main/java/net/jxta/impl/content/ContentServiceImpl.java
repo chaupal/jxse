@@ -60,6 +60,7 @@ import net.jxta.content.*;
 import net.jxta.document.Advertisement;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleSpecID;
@@ -74,8 +75,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Reference implementation of the ContentService.  This implementation
@@ -94,11 +93,7 @@ public class ContentServiceImpl implements ContentService {
             "urn:jxta:uuid-DDC5CA55578E4AB99A0AA81D2DC6EF3F"
             + "3F7E9F18B5D84DD58D21CE9E37E19E6C06"));
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = Logger.getLogger(
-            ContentServiceImpl.class.getName());
+    private static final Logger LOG = Logging.getLogger(ContentServiceImpl.class.getName());
 
     /**
      * List of all currently registered providers, used only for providing
@@ -216,7 +211,7 @@ public class ContentServiceImpl implements ContentService {
             waitingForInit = null;
         }
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder();
 
@@ -480,7 +475,8 @@ public class ContentServiceImpl implements ContentService {
 
             } catch (UnsupportedOperationException uox) {
 
-                Logging.logCheckedFinest(LOG, "Ignoring provider which doesn't support ",
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Ignoring provider which doesn't support ",
                             "share operation: ", provider);
 
             }

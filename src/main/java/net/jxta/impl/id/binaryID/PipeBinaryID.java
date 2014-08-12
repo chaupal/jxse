@@ -57,9 +57,10 @@
 package net.jxta.impl.id.binaryID;
 
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+
 import java.net.URI;
-import java.util.logging.Logger;
 
 /**
  * This class implements a Pipe ID. Each pipe is assigned a unique id.
@@ -71,10 +72,7 @@ import java.util.logging.Logger;
  */
 public final class PipeBinaryID extends net.jxta.pipe.PipeID {
 
-    /**
-     * LOG object for this class.
-     */
-    private final static transient Logger LOG = Logger.getLogger(PipeBinaryID.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PipeBinaryID.class.getName());
 
     /**
      * The id data

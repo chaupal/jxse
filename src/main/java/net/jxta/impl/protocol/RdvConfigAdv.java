@@ -58,12 +58,13 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Contains parameters for configuration of the Reference Implementation
@@ -105,10 +106,7 @@ import java.util.logging.Logger;
  */
 public final class RdvConfigAdv extends ExtendableAdvertisement implements Cloneable {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(RdvConfigAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(RdvConfigAdv.class.getName());
 
     /**
      * Instantiator for RdvConfigAdv

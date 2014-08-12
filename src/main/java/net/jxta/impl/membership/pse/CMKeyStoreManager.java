@@ -59,6 +59,7 @@ package net.jxta.impl.membership.pse;
 import net.jxta.id.ID;
 import net.jxta.impl.cm.CacheManager;
 import net.jxta.impl.peergroup.StdPeerGroup;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 
@@ -70,17 +71,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.util.logging.Logger;
 
 /**
  *  Manages a Keystore located within the JXTA CM.
  **/
 public class CMKeyStoreManager implements KeyStoreManager {
 
-    /**
-     *  Log4J Logger
-     **/
-    private final static transient Logger LOG = Logger.getLogger(CMKeyStoreManager.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(CMKeyStoreManager.class.getName());
 
     /**
      *  Our default keystore type.

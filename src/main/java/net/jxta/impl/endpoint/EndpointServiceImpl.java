@@ -65,7 +65,6 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.*;
-import net.jxta.endpoint.EndpointAddress;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.peer.PeerID;
@@ -80,6 +79,7 @@ import net.jxta.impl.endpoint.relay.RelayClient;
 import net.jxta.impl.endpoint.router.EndpointRouter;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.util.SequenceIterator;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.PeerGroup;
@@ -89,13 +89,13 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import net.jxta.endpoint.router.EndpointRoutingTransport;
 import net.jxta.endpoint.router.RouteController;
 import net.jxta.impl.util.TimeUtils;
@@ -109,10 +109,7 @@ import net.jxta.impl.util.TimeUtils;
  */
 public class EndpointServiceImpl implements EndpointService, MessengerEventListener {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(EndpointServiceImpl.class.getName());
+    private static final Logger LOG = Logging.getLogger(EndpointServiceImpl.class.getName());
 
     // // constants ////
 
@@ -553,7 +550,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         initialized = true;
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Endpoint Service : " + assignedID);
 
@@ -1531,7 +1528,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (addr == null) throw new IllegalArgumentException("null endpoint address not allowed.");
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
 
             Throwable trace = new Throwable("Stack Trace");
             StackTraceElement elements[] = trace.getStackTrace();

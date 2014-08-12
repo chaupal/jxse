@@ -60,11 +60,11 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import net.jxta.document.Element;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorEvent;
 import net.jxta.meter.MonitorException;
@@ -92,7 +92,7 @@ class RemoteMonitorPeerInfoHandler implements PeerInfoHandler {
     public static final int MIN_LEASE = 60 * 1000; // 1 minute
 
     private static final Random rand = new Random();
-    private final static Logger LOG = Logger.getLogger(RemoteMonitorPeerInfoHandler.class.getName());
+    private final static Logger LOG = Logging.getLogger(RemoteMonitorPeerInfoHandler.class.getName());
 
     private Hashtable<Integer, RequestInfo> requestInfos = new Hashtable<Integer, RequestInfo>();
     private Hashtable<Integer, LeaseInfo> leaseInfos = new Hashtable<Integer, LeaseInfo>();

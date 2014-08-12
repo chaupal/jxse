@@ -64,6 +64,7 @@ import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.protocol.PeerGroupConfigAdv;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -74,7 +75,6 @@ import java.net.URI;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
 import net.jxta.impl.peergroup.ShadowPeerGroup;
 
 /**
@@ -96,10 +96,7 @@ import net.jxta.impl.peergroup.ShadowPeerGroup;
  */
 public final class NetPeerGroupFactory {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(NetPeerGroupFactory.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(NetPeerGroupFactory.class.getName());
 
     /**
      * Our strong reference to the net peer group.

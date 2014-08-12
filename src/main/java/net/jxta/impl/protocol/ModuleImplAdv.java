@@ -67,6 +67,7 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -74,7 +75,6 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Provides XML serialization support for ModuleImplAdvertisement matching the
@@ -100,10 +100,7 @@ import java.util.logging.Logger;
  */
 public class ModuleImplAdv extends ModuleImplAdvertisement {
 
-    /**
-     * Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(ModuleImplAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(ModuleImplAdv.class.getName());
 
     private static final String msidTag = "MSID";
     private static final String compTag = "Comp";

@@ -58,23 +58,20 @@ package net.jxta.impl.endpoint;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  *  Utility functions related to the Endpoint Service.
  */
 public final class EndpointUtils {
 
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(EndpointUtils.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(EndpointUtils.class.getName());
 
     /**
      * Extracts a route advertisement from a peer advertisement.

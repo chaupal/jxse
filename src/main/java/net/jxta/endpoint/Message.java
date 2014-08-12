@@ -56,6 +56,7 @@
 package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.util.AbstractSimpleSelectable;
 import net.jxta.util.SimpleSelectable;
@@ -78,7 +79,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
+
 import net.jxta.annotation.DoNotDelete;
 import net.jxta.annotation.DoNotRelyOnThisCode;
 
@@ -109,10 +110,7 @@ import net.jxta.annotation.DoNotRelyOnThisCode;
  */
 public class Message extends AbstractSimpleSelectable implements Serializable {
 
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(Message.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(Message.class.getName());
 
     /**
      * Magic value for this format of serialization version.
@@ -440,8 +438,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             nsPosition.remove();
             list.remove();
             origModCount = Message.this.incMessageModCount();
-
-            Logging.logCheckedFiner(LOG, "Removed ", current.namespace, "::",
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Removed ", current.namespace, "::",
                     current.element.getElementName(), "/", current.element.getClass().getName(),
                     "@", current.element.hashCode(), " from ", Message.this);
 
@@ -524,7 +522,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             list.set(newCurrent);
             origModCount = Message.this.incMessageModCount();
 
-            Logging.logCheckedFiner(LOG,
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG,
                         "Replaced ", current.namespace, "::", current.element.getElementName(), "/",
                         current.element.getClass().getName(), "@", current.element.hashCode(), " with ",
                         newCurrent.namespace, "::", newCurrent.element.getElementName(), "/",
@@ -647,7 +646,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             clone.namespaces.put(aNamespace, newNamespaceElements);
         }
 
-        Logging.logCheckedFiner(LOG, "Created clone ", clone, " of ", this);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Created clone ", clone, " of ", this);
 
         return clone;
 
@@ -884,8 +884,9 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
 
         namespaceElements.add(add);
         incMessageModCount();
-
-        Logging.logCheckedFiner(LOG, "Added ", namespace, "::", add.getElementName(), "/",
+        
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Added ", namespace, "::", add.getElementName(), "/",
                     add.getClass().getName(), "@", add.hashCode(), " to ", this);
 
     }
@@ -1245,7 +1246,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
 
         incMessageModCount();
 
-        Logging.logCheckedFiner(LOG, "Cleared ", this);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Cleared ", this);
 
     }
 
@@ -1303,8 +1305,8 @@ public class Message extends AbstractSimpleSelectable implements Serializable {
             throw failure;
 
         }
-
-        Logging.logCheckedFiner(LOG, "Modification to ", this);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Modification to ", this);
 
         return modCount;
 

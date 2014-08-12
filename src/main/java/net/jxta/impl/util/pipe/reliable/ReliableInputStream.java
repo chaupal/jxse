@@ -62,6 +62,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 
@@ -75,7 +76,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
@@ -85,10 +86,7 @@ import javax.crypto.SecretKey;
  */
 public class ReliableInputStream extends InputStream implements Incoming {
 
-    /**
-     *  Logger
-     */
-    private static final Logger LOG = Logger.getLogger(ReliableInputStream.class.getName());
+    private static final Logger LOG = Logging.getLogger(ReliableInputStream.class.getName());
 
     /**
      *  Connection we are working for.
@@ -308,7 +306,8 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
             if (len > 0) {
 
-                Logging.logCheckedFiner(LOG, "Read() : " + (a[0] & 255));
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Read() : " + (a[0] & 255));
                 return a[0] & 0xFF; // The byte
 
             }
@@ -336,7 +335,8 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
         int i = local_read(a, offset, length);
 
-        Logging.logCheckedFiner(LOG, "Read(byte[], int, ", length, "), bytes read = ", i);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Read(byte[], int, ", length, "), bytes read = ", i);
 
         // If we've reached EOF; there's nothing to do but close().
         if (i == -1) close();
@@ -770,7 +770,8 @@ public class ReliableInputStream extends InputStream implements Incoming {
 
             record.nextByte += copied;
 
-            Logging.logCheckedFiner(LOG, "Requested ", length, ", Read ", copied, " bytes");
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Requested ", length, ", Read ", copied, " bytes");
 
             return copied;
         }

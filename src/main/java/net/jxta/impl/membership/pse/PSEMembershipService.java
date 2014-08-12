@@ -89,8 +89,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.document.Advertisement;
@@ -109,6 +108,7 @@ import net.jxta.id.ID;
 import net.jxta.impl.membership.pse.PSEUtils.IssuerInfo;
 import net.jxta.impl.protocol.Certificate;
 import net.jxta.impl.protocol.PSEConfigAdv;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
@@ -131,10 +131,7 @@ import net.jxta.service.Service;
  **/
 public final class PSEMembershipService implements MembershipService {
 
-    /**
-     *  Log4J Logger
-     **/
-    private final static transient Logger LOG = Logger.getLogger(PSEMembershipService.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PSEMembershipService.class.getName());
 
     /**
      * Well known service specification identifier: pse membership
@@ -291,15 +288,15 @@ public final class PSEMembershipService implements MembershipService {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Failed to retrieve network manager configuration!");
             stringBuilder.append(ex.getLocalizedMessage());
-            LOG.log(Level.SEVERE, stringBuilder.toString());                                       
+            LOG.severe(stringBuilder.toString());                                       
         } catch (KeyStoreException ex) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Key store is not initialized!");
             stringBuilder.append(ex.getLocalizedMessage());
-            LOG.log(Level.SEVERE, stringBuilder.toString());                                       
+            LOG.severe(stringBuilder.toString());                                       
         }                
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring PSE Membership Service : " + assignedID);
 
@@ -1114,19 +1111,19 @@ public final class PSEMembershipService implements MembershipService {
             pathValidator.validate(certPath, params);
 
         } catch(KeyStoreException storeExp) {
-            LOG.log(Level.WARNING, storeExp.getMessage(), storeExp);
+            LOG.warning(storeExp.getMessage(), storeExp);
             throw new CertPathValidatorException("Trusted Certificates could not be verified.");
         } catch(CertificateException certExp) {
-            LOG.log(Level.WARNING, certExp.getMessage(), certExp);
+            LOG.warning(certExp.getMessage(), certExp);
             throw new CertPathValidatorException("Certificates could not be validated.");
         } catch(NoSuchAlgorithmException noAlgExp) {
-            LOG.log(Level.WARNING, noAlgExp.getMessage(), noAlgExp);
+            LOG.warning(noAlgExp.getMessage(), noAlgExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         } catch(CertPathValidatorException validateExp) {
-            LOG.log(Level.WARNING, validateExp.getMessage(), validateExp);
+            LOG.warning(validateExp.getMessage(), validateExp);
             throw validateExp;
         } catch(InvalidAlgorithmParameterException paramExp) {
-            LOG.log(Level.WARNING, paramExp.getMessage(), paramExp);
+            LOG.warning(paramExp.getMessage(), paramExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         }
     }
@@ -1159,19 +1156,19 @@ public final class PSEMembershipService implements MembershipService {
             pathValidator.validate(certPath, params);
 
         } catch(KeyStoreException storeExp) {
-            LOG.log(Level.WARNING, storeExp.getMessage(), storeExp);
+            LOG.warning(storeExp.getMessage(), storeExp);
             throw new CertPathValidatorException("Trusted Certificates could not be verified.");
         } catch(CertificateException certExp) {
-            LOG.log(Level.WARNING, certExp.getMessage(), certExp);
+            LOG.warning(certExp.getMessage(), certExp);
             throw new CertPathValidatorException("Certificates could not be validated.");
         } catch(NoSuchAlgorithmException noAlgExp) {
-            LOG.log(Level.WARNING, noAlgExp.getMessage(), noAlgExp);
+            LOG.warning(noAlgExp.getMessage(), noAlgExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         } catch(CertPathValidatorException validateExp) {
-            LOG.log(Level.WARNING, validateExp.getMessage(), validateExp);
+            LOG.warning(validateExp.getMessage(), validateExp);
             throw validateExp;
         } catch(InvalidAlgorithmParameterException paramExp) {
-            LOG.log(Level.WARNING, paramExp.getMessage(), paramExp);
+            LOG.warning(paramExp.getMessage(), paramExp);
             throw new CertPathValidatorException("Problem with Certificate Algorithm");
         }
     }
@@ -1335,10 +1332,7 @@ public final class PSEMembershipService implements MembershipService {
      **/
     private static class PSEPeerSecurityEngineDefault implements PSEPeerSecurityEngine {
 
-        /**
-         *  Log4J Logger
-         **/
-        private static final Logger LOG = Logger.getLogger(PSEPeerSecurityEngineDefault.class.getName());
+        private static final Logger LOG = Logging.getLogger(PSEPeerSecurityEngineDefault.class.getName());
 
         /**
          *   {@inheritDoc}

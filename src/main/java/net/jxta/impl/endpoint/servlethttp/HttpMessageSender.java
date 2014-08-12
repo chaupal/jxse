@@ -60,6 +60,7 @@ import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.MessageSender;
 import net.jxta.endpoint.Messenger;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.net.ConnectException;
@@ -67,18 +68,13 @@ import java.net.SocketTimeoutException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Simple Client MessageSender
  */
 class HttpMessageSender implements MessageSender {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(HttpMessageSender.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(HttpMessageSender.class.getName());
 
     /**
      * The ServletHttpTransport that created this object
@@ -104,7 +100,7 @@ class HttpMessageSender implements MessageSender {
         this.servletHttpTransport = servletHttpTransport;
         this.publicAddress = publicAddress;
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
             StringBuilder configInfo = new StringBuilder( "Configuring HTTP Client Message Transport : " + servletHttpTransport.assignedID);
             configInfo.append("\n\tPublic Address = ").append(publicAddress);
             LOG.config(configInfo.toString());

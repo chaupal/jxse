@@ -63,17 +63,16 @@ import java.util.TimerTask;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
-
 import net.jxta.impl.util.pipe.reliable.*;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
 
 /**
  *  An Outgoing Messenger adpator that implements synthetic faults. The faults
  *  include dropping messages and delaying messages.
  */
 public class OutgoingFaultyMsgrAdaptor implements Outgoing { 
-    private final static transient Logger LOG = Logger.getLogger(OutgoingMsgrAdaptor.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(OutgoingMsgrAdaptor.class.getName());
 
     private final double MESSAGE_LOSS_PROBABILITY;
 

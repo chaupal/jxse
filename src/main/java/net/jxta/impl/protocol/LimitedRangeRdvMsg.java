@@ -65,13 +65,13 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * The LimitedRangeRdv walk header message.
@@ -106,10 +106,7 @@ import java.util.logging.Logger;
  */
 public class LimitedRangeRdvMsg {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(LimitedRangeRdvMsg.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(LimitedRangeRdvMsg.class.getName());
 
     private final static String TTL_ELEMENT = "TTL";
     private final static String DIRECTION_ELEMENT = "Dir";

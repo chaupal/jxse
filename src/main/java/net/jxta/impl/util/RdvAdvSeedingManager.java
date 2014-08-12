@@ -59,6 +59,7 @@ package net.jxta.impl.util;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointAddress;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.RdvAdvertisement;
@@ -70,17 +71,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Adds the ability to discover RdvAdvs via Discovery.
  */
 public class RdvAdvSeedingManager extends ACLSeedingManager {
 
-    /**
-     *  Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(URISeedingManager.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(URISeedingManager.class.getName());
 
     /**
      *  The minimum frequence at which we will update our seed lists.

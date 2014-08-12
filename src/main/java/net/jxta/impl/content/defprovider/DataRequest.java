@@ -61,7 +61,8 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.ContentID;
 import net.jxta.document.AdvertisementFactory;
@@ -99,7 +100,7 @@ import net.jxta.protocol.PipeAdvertisement;
  */
 public class DataRequest {
     private static Logger LOG =
-            Logger.getLogger(DataRequest.class.getName());
+            Logging.getLogger(DataRequest.class.getName());
     private static final String tagRoot = "DataRequest";
     private static final String tagID = "ContentID";
     private static final String tagOffs = "Offs";

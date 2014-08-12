@@ -66,6 +66,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.AccessPointAdvertisement;
@@ -75,7 +76,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * This class implements the basic Route advertisement.
@@ -106,10 +106,7 @@ import java.util.logging.Logger;
  */
 public class RouteAdv extends RouteAdvertisement implements Cloneable {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(RouteAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(RouteAdv.class.getName());
 
     private static final String[] INDEX_FIELDS = {DEST_PID_TAG};
 

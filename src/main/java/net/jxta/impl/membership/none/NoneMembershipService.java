@@ -64,6 +64,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
@@ -72,13 +73,13 @@ import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.service.Service;
 import net.jxta.logging.Logging;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import net.jxta.platform.ModuleSpecID;
 
 /**
@@ -95,10 +96,7 @@ import net.jxta.platform.ModuleSpecID;
  */
 public class NoneMembershipService implements MembershipService {
 
-    /**
-     *  Log4J Logger
-     **/
-    private static final Logger LOG = Logger.getLogger(NoneMembershipService.class.getName());
+    private static final Logger LOG = Logging.getLogger(NoneMembershipService.class.getName());
 
     /**
      * Well known service specification identifier: pse membership
@@ -539,7 +537,7 @@ public class NoneMembershipService implements MembershipService {
         implAdvertisement = (ModuleImplAdvertisement) impl;
         peergroup = group;
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring None Membership Service : " + assignedID);
 

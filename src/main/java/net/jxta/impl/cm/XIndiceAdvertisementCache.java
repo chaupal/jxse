@@ -78,7 +78,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -99,6 +99,7 @@ import net.jxta.impl.xindice.core.filer.BTreeCallback;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.impl.xindice.core.indexer.NameIndexer;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
@@ -109,10 +110,7 @@ import net.jxta.protocol.SrdiMessage;
  */
 public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implements AdvertisementCache {
 
-    /**
-     * Logger.
-     */
-    final static Logger LOG = Logger.getLogger(XIndiceAdvertisementCache.class.getName());
+    final static Logger LOG = Logging.getLogger(XIndiceAdvertisementCache.class.getName());
     /**
      * adv types
      */
@@ -384,7 +382,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             long t0 = TimeUtils.timeNow();
             getRecords(indexName, Integer.MAX_VALUE, null, true);
-            Logging.logCheckedFiner(LOG, "Cm garbageCollect :", indexName, " in :" + (TimeUtils.timeNow() - t0));
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Cm garbageCollect :", indexName, " in :" + (TimeUtils.timeNow() - t0));
 
         }
     }
@@ -958,7 +957,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
         public boolean indexInfo(Value val, long pos) {
 
             if (results.size() >= threshold) {
-                Logging.logCheckedFiner(LOG, "SearchCallback.indexInfo reached Threshold :", threshold);
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "SearchCallback.indexInfo reached Threshold :", threshold);
                 return false;
             }
 
@@ -979,7 +979,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
 
             if (record == null) return true;
 
-            Logging.logCheckedFinest(LOG, "Search callback record ", record.toString());
+            // LOGGING: was Finest
+            Logging.logCheckedFine(LOG, "Search callback record ", record.toString());
             
             long exp = calcExpiration(record);
 
@@ -1165,7 +1166,8 @@ public class XIndiceAdvertisementCache extends AbstractAdvertisementCache implem
                 newDeltas.add(entry);
             }
 
-            Logging.logCheckedFiner(LOG, "Adding ", newDeltas.size(), "entires to '", dn, "' deltas");
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Adding ", newDeltas.size(), "entires to '", dn, "' deltas");
 
             synchronized (deltaMap) {
                 List<SrdiMessage.Entry> deltas = deltaMap.get(dn);

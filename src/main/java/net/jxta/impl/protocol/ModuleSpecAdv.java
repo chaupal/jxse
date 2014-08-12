@@ -58,6 +58,7 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleSpecAdvertisement;
@@ -66,7 +67,6 @@ import net.jxta.protocol.PipeAdvertisement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Provides XML serialization support for ModuleSpecAdvertisement matching the
@@ -95,10 +95,7 @@ import java.util.logging.Logger;
  */
 public class ModuleSpecAdv extends ModuleSpecAdvertisement {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(ModuleSpecAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(ModuleSpecAdv.class.getName());
 
     private static final String idTag = "MSID";
     private static final String nameTag = "Name";

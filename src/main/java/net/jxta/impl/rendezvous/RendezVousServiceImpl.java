@@ -73,8 +73,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.XMLDocument;
@@ -96,6 +95,7 @@ import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peer.PeerID;
@@ -122,10 +122,7 @@ import net.jxta.service.Service;
  */
 public final class RendezVousServiceImpl implements RendezVousService {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(RendezVousServiceImpl.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(RendezVousServiceImpl.class.getName());
 
     private final static long rdv_watchdog_interval_default = 5 * TimeUtils.AMINUTE; // 5 Minutes
 
@@ -263,7 +260,7 @@ public final class RendezVousServiceImpl implements RendezVousService {
             config = RdvConfigAdv.RendezVousConfiguration.AD_HOC;
         }
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
             StringBuilder configInfo = new StringBuilder("Configuring RendezVous Service : " + assignedID);
 
             if (implAdvertisement != null) {
@@ -955,7 +952,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
             found = msgIds.contains(id);
         }
 
-        Logging.logCheckedFiner(LOG, id, " = ", found);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, id, " = ", found);
 
         return found;
 
@@ -985,7 +983,8 @@ public final class RendezVousServiceImpl implements RendezVousService {
             messagesReceived++;
         }
 
-        Logging.logCheckedFiner(LOG, "Added Message ID : ", id);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Added Message ID : ", id);
 
         return true;
     }

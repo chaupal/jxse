@@ -66,6 +66,7 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.platform.ModuleClassID;
@@ -76,7 +77,6 @@ import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Not actually an advertisement, but often acts as part of one.
@@ -92,10 +92,7 @@ import java.util.logging.Logger;
 @Deprecated
 public class StdPeerGroupParamAdv {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(StdPeerGroupParamAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(StdPeerGroupParamAdv.class.getName());
 
     private static final String PARAM_TAG = "Parm";
     private static final String PROTO_TAG = "Proto";

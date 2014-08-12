@@ -65,6 +65,7 @@ import net.jxta.id.ID;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.util.LRUCache;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -74,6 +75,7 @@ import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,8 +83,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class is used to manage a persistent CM cache  of route
@@ -90,10 +90,7 @@ import java.util.logging.Logger;
  */
 class RouteCM implements Module {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(RouteCM.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(RouteCM.class.getName());
 
     /**
      * Default expiration time for Route advertisements. This is the amount
@@ -163,7 +160,7 @@ class RouteCM implements Module {
 
         this.group = group;
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : " + assignedID);
 

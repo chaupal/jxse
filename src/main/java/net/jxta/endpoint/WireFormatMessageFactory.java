@@ -57,6 +57,7 @@
 package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.util.ClassFactory;
@@ -67,7 +68,6 @@ import java.nio.ByteBuffer;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Logger;
 
 /**
  * This class is a class factory for Wire Format Messages. This class abstracts
@@ -86,10 +86,7 @@ import java.util.logging.Logger;
  */
 public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, WireFormatMessageFactory.Instantiator> {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(WireFormatMessageFactory.class.getName());
+    private static final Logger LOG = Logging.getLogger(WireFormatMessageFactory.class.getName());
 
     /**
      * The mime media type of preferred/default wire format.
@@ -258,7 +255,8 @@ public final class WireFormatMessageFactory extends ClassFactory<MimeMediaType, 
 
             for (MimeMediaType mimeType : mimeTypes) {
 
-                Logging.logCheckedFiner(LOG, "   Registering Type : ", mimeType);
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "   Registering Type : ", mimeType);
                 registeredSomething |= registerInstantiator(mimeType, instantiator);
 
             }

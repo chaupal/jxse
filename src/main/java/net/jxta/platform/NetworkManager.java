@@ -59,7 +59,6 @@ package net.jxta.platform;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.logging.Logger;
 import javax.security.cert.CertificateException;
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
@@ -67,6 +66,7 @@ import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.impl.membership.pse.StringAuthenticator;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.InteractiveAuthenticator;
 import net.jxta.membership.MembershipService;
@@ -96,10 +96,7 @@ import net.jxta.rendezvous.RendezvousListener;
 
 public class NetworkManager implements RendezvousListener {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(NetworkManager.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(NetworkManager.class.getName());
 
 //    protected final transient URI publicSeedingRdvURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/rendezvous.cgi?3");
 //    protected final transient URI publicSeedingRelayURI = URI.create("http://rdv.jxtahosts.net/cgi-bin/relays.cgi?3");

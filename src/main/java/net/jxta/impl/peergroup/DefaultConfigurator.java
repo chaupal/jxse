@@ -56,12 +56,12 @@
 package net.jxta.impl.peergroup;
 
 import net.jxta.exception.ConfiguratorException;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.logging.Logger;
 
 /**
  * This implementation provides the ability to reconfigure a JXTA PlatformConfig
@@ -69,10 +69,7 @@ import java.util.logging.Logger;
  */
 public class DefaultConfigurator extends AutomaticConfigurator {
 
-    /**
-     * logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(DefaultConfigurator.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(DefaultConfigurator.class.getName());
 
     /**
      * Configures the platform using the specified directory.

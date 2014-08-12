@@ -56,12 +56,13 @@
 
 package net.jxta.document;
 
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.util.ClassFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Logger;
 
 /**
  * A Factory class for constructing Advertisements. This class abstracts the
@@ -90,10 +91,7 @@ import java.util.logging.Logger;
  */
 public class AdvertisementFactory extends ClassFactory<String, AdvertisementFactory.Instantiator> {
 
-    /**
-     *  Logger
-     */
-    private static final Logger LOG = Logger.getLogger(AdvertisementFactory.class.getName());
+    private static final Logger LOG = Logging.getLogger(AdvertisementFactory.class.getName());
 
     /**
      *  Interface for instantiators of Advertisements

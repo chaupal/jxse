@@ -67,6 +67,7 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -77,7 +78,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Logger;
 
 /**
  * Implementation of {@link PeerAdvertisement} matching the standard JXTA
@@ -102,10 +102,7 @@ import java.util.logging.Logger;
  **/
 public class PeerAdv extends PeerAdvertisement {
 
-    /**
-     *  Logger
-     **/
-    private static final Logger LOG = Logger.getLogger(PeerAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(PeerAdv.class.getName());
 
     private static final String pidTag = "PID";
     private static final String gidTag = "GID";

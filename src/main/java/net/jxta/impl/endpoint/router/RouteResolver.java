@@ -75,9 +75,9 @@ import net.jxta.protocol.*;
 import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
-import java.util.logging.Level;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-import java.util.logging.Logger;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -91,10 +91,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntriesInterface {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(RouteResolver.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(RouteResolver.class.getName());
 
     /**
      * Router Service Name
@@ -287,7 +284,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
 
         localPeerAddr = EndpointRouter.pid2addr(group.getPeerID());
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Router Transport Resolver : " + assignedID);
 
@@ -836,14 +833,15 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         RouteAdvertisement srcRoute = routeQuery.getSrcRoute();
         Collection<PeerID> badHops = routeQuery.getBadHops();
 
-        if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+        // LOGGING: was FINER
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
             StringBuilder badHopsDump = new StringBuilder("bad Hops :\n");
 
             for (ID aBadHop : badHops) {
                 badHopsDump.append('\t').append(aBadHop);
             }
 
-            LOG.finer(badHopsDump.toString());
+            LOG.fine(badHopsDump.toString());
         }
 
         // if our source route is not null, then publish it
@@ -1289,7 +1287,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
             // FIXME: Very questionable strategy, because the replica peer may keep
             // outdated information longer than necessary.
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
                 LOG.fine("sending a router SRDI message add route " + id);
             }
             if (peer == null) {

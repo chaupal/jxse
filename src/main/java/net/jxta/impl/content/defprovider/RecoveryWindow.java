@@ -61,7 +61,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 /**
@@ -74,7 +75,7 @@ import net.jxta.logging.Logging;
  */
 public class RecoveryWindow {
     private static final Logger LOG =
-            Logger.getLogger(RecoveryWindow.class.getName());
+            Logging.getLogger(RecoveryWindow.class.getName());
 
     /**
      * Maximum number of bytes per node.
@@ -122,7 +123,8 @@ public class RecoveryWindow {
         int totalRead;
         int written = 0;
 
-        Logging.logCheckedFiner(LOG, "Data request: offset=", offset, ", length=", length);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Data request: offset=", offset, ", length=", length);
 
         try {
 
@@ -130,13 +132,15 @@ public class RecoveryWindow {
             // starting point.
             if (head != null) {
 
-                Logging.logCheckedFinest(LOG, "Walking backwards to find starting node");
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Walking backwards to find starting node");
 
                 idx=0;
 
                 while (node != null) {
 
-                    Logging.logCheckedFinest(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
 
                     if (node.offset <= offset) {
                         // Beginning of chain found.
@@ -151,21 +155,25 @@ public class RecoveryWindow {
                 if (node == null) {
 
                     // Cannot recover data that far back.
-                    Logging.logCheckedFinest(LOG, "Data requested extends beyond recovery window");
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "Data requested extends beyond recovery window");
                     throw(new IOException("Data requested extends beyond recovery window"));
 
                 }
 
-                Logging.logCheckedFinest(LOG, "Walked backwards ", idx, " nodes from head");
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Walked backwards ", idx, " nodes from head");
 
             }
 
             // Walk forwards through nodes that we do have
-            Logging.logCheckedFinest(LOG, "Beginning forward walk");
+            // LOGGING: was Finest
+            Logging.logCheckedFine(LOG, "Beginning forward walk");
 
             while (node != null) {
 
-                Logging.logCheckedFinest(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Now at node: offset=", node.offset, ", length=", node.data.length);
 
                 idx = (int) (offset - node.offset);
                 adjustedLen = node.data.length - idx;
@@ -173,7 +181,8 @@ public class RecoveryWindow {
 
                 if (len > 0) {
 
-                    Logging.logCheckedFinest(LOG, "Writing: idx=", idx, ", len=", len );
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "Writing: idx=", idx, ", len=", len );
 
                     out.write(node.data, idx, len);
                     written += len;
@@ -186,7 +195,8 @@ public class RecoveryWindow {
 
                     // No more data is required.
                     // Already, know you, that which you need.
-                    Logging.logCheckedFinest(LOG, "Request fulfilled.  written=", written);
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "Request fulfilled.  written=", written);
 
                     return written;
 
@@ -195,7 +205,8 @@ public class RecoveryWindow {
                 if (node.next == node) {
 
                     // This is EOF.  We're done.
-                    Logging.logCheckedFinest(LOG, "EOF encountered.  written=", -written);
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "EOF encountered.  written=", -written);
 
                     return -written;
 
@@ -208,7 +219,8 @@ public class RecoveryWindow {
 
             // Now try to read the data we dont have
             // Walk forwards through nodes that we do have
-            Logging.logCheckedFinest(LOG, "Beginning new data reads");
+            // LOGGING: was Finest
+            Logging.logCheckedFine(LOG, "Beginning new data reads");
 
             while (length > 0) {
 
@@ -231,7 +243,8 @@ public class RecoveryWindow {
                     len = maxNodeLength;
                 }
 
-                Logging.logCheckedFinest(LOG, "Now at: offset=", idx, ", length=", len);
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Now at: offset=", idx, ", length=", len);
 
                 // Allocate and link the new node
                 node = new Node();
@@ -245,7 +258,8 @@ public class RecoveryWindow {
 
                 head = node;
 
-                Logging.logCheckedFinest(LOG, "Allocated new data node.  offset=", node.offset,
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Allocated new data node.  offset=", node.offset,
                             ", length=", node.data.length);
 
                 // Read in the node's data
@@ -263,7 +277,8 @@ public class RecoveryWindow {
                         System.arraycopy(tooBig, 0, node.data, 0, totalRead);
                         node.next = node;
 
-                        Logging.logCheckedFinest(LOG, "Reallocating node.  offset=", node.offset,
+                        // LOGGING: was Finest
+                        Logging.logCheckedFine(LOG, "Reallocating node.  offset=", node.offset,
                                     ", len=", node.data.length);
 
                     } else {
@@ -277,7 +292,8 @@ public class RecoveryWindow {
                 // Write the node's data
                 if (idx == offset) {
 
-                    Logging.logCheckedFinest(LOG, "Writing node data.  offset=", node.offset,
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "Writing node data.  offset=", node.offset,
                                 ", len=", node.data.length);
 
                     out.write(node.data);
@@ -290,7 +306,8 @@ public class RecoveryWindow {
                 if (node.next == node) {
 
                     // This was EOF.  We're done.
-                    Logging.logCheckedFinest(LOG, "EOF encountered.  written=", -written);
+                    // LOGGING: was Finest
+                    Logging.logCheckedFine(LOG, "EOF encountered.  written=", -written);
                     return -written;
 
                 }
@@ -299,7 +316,8 @@ public class RecoveryWindow {
 
             }
 
-            Logging.logCheckedFinest(LOG, "Request fulfilled.  written=", written);
+            // LOGGING: was Finest
+            Logging.logCheckedFine(LOG, "Request fulfilled.  written=", written);
 
         } catch (Exception x) {
 

@@ -72,8 +72,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.jxta.access.AccessService;
 import net.jxta.content.ContentService;
@@ -97,6 +95,7 @@ import net.jxta.impl.protocol.PeerGroupConfigFlag;
 import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -122,10 +121,7 @@ import net.jxta.service.Service;
  */
 public abstract class GenericPeerGroup implements PeerGroup {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(GenericPeerGroup.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(GenericPeerGroup.class.getName());
 
     /**
      *  Holder for configuration parameters for groups in the process of being created.
@@ -1165,7 +1161,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
      */
     protected void initLast() throws PeerGroupException {
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
 
@@ -1199,7 +1195,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
                 configInfo.append("\n\t\t\t").append(aMCID).append("\t").append(anImplAdv.getDescription());
             }
 
-            LOG.config(configInfo.toString());
+            LOG.fine(configInfo.toString());
         }
     }
 
@@ -1226,7 +1222,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
             try {
                 removeService(aService);
             } catch (Exception failure) {
-                LOG.log(Level.WARNING, "Failure shutting down service : " + aService, failure);
+                LOG.warning("Failure shutting down service : " + aService, failure);
             }
         }
 
@@ -1271,7 +1267,7 @@ public abstract class GenericPeerGroup implements PeerGroup {
 
         int new_count = masterRefCount.decrementAndGet();
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+        if (Logging.SHOW_INFO && LOG.isInfoEnabled()) {
             Throwable trace = new Throwable("Stack Trace");
             StackTraceElement elements[] = trace.getStackTrace();
             LOG.info("[" + getPeerGroupID() + "] GROUP REF COUNT DECCREMENTED TO: " + new_count + " by\n\t" + elements[2]);

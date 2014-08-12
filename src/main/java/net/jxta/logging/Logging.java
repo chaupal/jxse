@@ -58,7 +58,6 @@ package net.jxta.logging;
 
 import java.io.PrintStream;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class defines constants for JXTA JSE's logging facilities. In this
@@ -79,16 +78,35 @@ import java.util.logging.Logger;
  * </li>
  * </ul>
  *
- * To control logging within applications :
- * 
+ * By default, JXTA uses slf4j API based loggers, with no dependency on any
+ * specific slf4j backend, or adapter. You can switch to using
+ * java.util.logging directly by defining:
  * <pre>
  * <code>
- * System.setProperty("net.jxta.logging.Logging", "FINEST");
- * System.setProperty("net.jxta.level", "FINEST");
+ * System.setProperty("net.jxta.logging.LoggingImpl", "jul");
+ * </code>
+ * </pre>
+ *   
+ * To control the logging level within applications:
+ * <pre>
+ * <code>
+ * System.setProperty("net.jxta.logging.Logging", "FINE");
+ * System.setProperty("net.jxta.level", "FINE");
+ * </code>
+ * </pre>
+ * The values of this property are FINE, INFO, CONFIG, WARNING, SEVERE. 
+ * 
+ * If using java.util.logging, configure the logging with:
+ * <pre>
+ * <code>
  * System.setProperty("java.util.logging.config.file", "/home/userhome/logging.properties");
  * </code>
  * </pre>
  *
+ * Note that under java.util.logging, FINE is the finest level we use; there
+ * is no longer any FINER or FINEST logging in JXTA (all usage at these levels
+ * has been converted to FINE).
+ * 
  * <p/>
  * Sample logging properties :
  * <p/>
@@ -101,7 +119,7 @@ import java.util.logging.Logger;
  * java.util.logging.FileHandler.formatter = java.util.logging.XMLFormatter
  * 
  * # Limit the message that are printed on the console to INFO and above
- * java.util.logging.ConsoleHandler.level = FINEST
+ * java.util.logging.ConsoleHandler.level = FINE
  * java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
  *
  * # Facility specific properties.
@@ -109,42 +127,36 @@ import java.util.logging.Logger;
  * #
  * # For example, set the net.jxta.impi.pipe.PipeResolver logger to only log SEVERE
  * # messages:
- * net.jxta.impi.pipe.PipeResolver.level = FINEST
+ * net.jxta.impi.pipe.PipeResolver.level = FINE
  * </code>
  * </pre>
  */
 public final class Logging {
 
-    /**
-     * Our Logger !
-     */
-    private final static Logger LOG = Logger.getLogger(Logging.class.getName());
+    private final static Logger LOG = getLogger(Logging.class);
 
     /**
      * The name of the system property from which we will attempt to read our
-     * logging configuration.
+     * logging implementation configuration.
+     */
+    public final static String JXTA_LOGGING_IMPL_PROPERTY = "net.jxta.logging.LoggingImpl";
+    public static boolean useJUL = false;
+
+    /**
+     * The name of the system property from which we will attempt to read our
+     * logging level configuration.
      */
     public final static String JXTA_LOGGING_PROPERTY = "net.jxta.logging.Logging";
 
     /**
      * The default logging level.
      */ 
-    private final static Level DEFAULT_LOGGING_LEVEL = Level.FINEST;
+    private final static Level DEFAULT_LOGGING_LEVEL = Level.INFO;
 
     /**
      * The logging level for this run.
      */
     public final static Level MIN_SHOW_LEVEL;
-
-    /**
-     * Is Level.FINEST enabled?
-     */
-    public final static boolean SHOW_FINEST;
-
-    /**
-     * Is Level.FINER enabled?
-     */
-    public final static boolean SHOW_FINER;
 
     /**
      * Is Level.FINE enabled?
@@ -177,21 +189,29 @@ public final class Logging {
         Level setLevel = DEFAULT_LOGGING_LEVEL;
 
         try {
+            String loggingImpl = System.getProperty(JXTA_LOGGING_IMPL_PROPERTY);
+
+            if (null != loggingImpl) {
+                useJUL = loggingImpl.equalsIgnoreCase("jul");
+            }
+        } catch (SecurityException disallowed) {
+            LOG.warning("Could not read configuration property.", disallowed);
+        }
+
+        try {
             String propertyLevel = System.getProperty(JXTA_LOGGING_PROPERTY);
 
             if (null != propertyLevel) {
                 setLevel = Level.parse(propertyLevel);
             }
         } catch (SecurityException disallowed) {
-            LOG.log(Level.WARNING, "Could not read configuration property.", disallowed);
+            LOG.warning("Could not read configuration property.", disallowed);
         }
 
         // Set the default level for the JXTA packages so that everything below
         // inherits our default.
         MIN_SHOW_LEVEL = setLevel;
 
-        SHOW_FINEST = MIN_SHOW_LEVEL.intValue() <= Level.FINEST.intValue();
-        SHOW_FINER = MIN_SHOW_LEVEL.intValue() <= Level.FINER.intValue();
         SHOW_FINE = MIN_SHOW_LEVEL.intValue() <= Level.FINE.intValue();
         SHOW_CONFIG = MIN_SHOW_LEVEL.intValue() <= Level.CONFIG.intValue();
         SHOW_INFO = MIN_SHOW_LEVEL.intValue() <= Level.INFO.intValue();
@@ -208,6 +228,32 @@ public final class Logging {
     private Logging() {}
 
     /**
+     * Factory method for Logger instances.
+     * @param className the name of the class to generate a Logger for.
+     * @return a Logger, currently a java.util.logging one.
+     */
+    public static Logger getLogger(final String className) {
+    	if (useJUL) {
+    		return new JavaUtilLoggingLogger(className);
+    	} else {
+    		return new SLF4JLogger(className);
+    	}
+    }
+
+    /**
+     * Factory method for Logger instances.
+     * @param loggerClass the class to generate a Logger for.
+     * @return a Logger, currently a java.util.logging one.
+     */
+    public static Logger getLogger(final Class<?> loggerClass) {
+    	if (useJUL) {
+    		return new JavaUtilLoggingLogger(loggerClass.getName());
+    	} else {
+    		return new SLF4JLogger(loggerClass);
+    	}
+    }
+
+    /**
      * This method checks whether {@code SHOW_CONFIG} is set to {@code true),
      * and whether the provided logger allows config messages. If yes, the
      * message is logged.
@@ -217,7 +263,7 @@ public final class Logging {
      */
     public static void logCheckedConfig(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_CONFIG && inLog.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && inLog.isConfigEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.config(Msg.toString());
@@ -235,46 +281,10 @@ public final class Logging {
      */
     public static void logCheckedFine(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_FINE && inLog.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_FINE && inLog.isFineEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.fine(Msg.toString());
-        }
-
-    }
-
-    /**
-     * This method checks whether {@code SHOW_FINER} is set to {@code true),
-     * and whether the provided logger allows finer messages. If yes, the
-     * message is logged.
-     *
-     * @param inLog a logger
-     * @param inMsg the messages to concatenate
-     */
-    public static void logCheckedFiner(Logger inLog, Object... inMsg) {
-
-        if (Logging.SHOW_FINER && inLog.isLoggable(Level.FINER)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.finer(Msg.toString());
-        }
-
-    }
-
-    /**
-     * This method checks whether {@code SHOW_FINEST} is set to {@code true),
-     * and whether the provided logger allows finest messages. If yes, the
-     * message is logged.
-     *
-     * @param inLog a logger
-     * @param inMsg the messages to concatenate
-     */
-    public static void logCheckedFinest(Logger inLog, Object... inMsg) {
-
-        if (Logging.SHOW_FINEST && inLog.isLoggable(Level.FINEST)) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.finest(Msg.toString());
         }
 
     }
@@ -289,7 +299,7 @@ public final class Logging {
      */
     public static void logCheckedInfo(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_INFO && inLog.isLoggable(Level.INFO)) {
+        if (Logging.SHOW_INFO && inLog.isInfoEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.info(Msg.toString());
@@ -307,7 +317,7 @@ public final class Logging {
      */
     public static void logCheckedSevere(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_SEVERE && inLog.isLoggable(Level.SEVERE)) {
+        if (Logging.SHOW_SEVERE && inLog.isSevereLoggable()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.severe(Msg.toString());
@@ -325,7 +335,7 @@ public final class Logging {
      */
     public static void logCheckedWarning(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_WARNING && inLog.isLoggable(Level.WARNING)) {
+        if (Logging.SHOW_WARNING && inLog.isWarningLoggable()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.warning(Msg.toString());

@@ -65,9 +65,10 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.xindice.core.data.Key;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -88,7 +89,7 @@ public class Srdi implements SrdiAPI {
 	public static final long DEFAULT_GC_INTERVAL = 10 * TimeUtils.AMINUTE;
 	public static final long NO_AUTO_GC = -1;
 	
-    private final static transient Logger LOG = Logger.getLogger(Srdi.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(Srdi.class.getName());
 
     private SrdiAPI backend;
     private ScheduledFuture<?> gcHandle;

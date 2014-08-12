@@ -70,8 +70,9 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
 import javax.sql.ConnectionPoolDataSource;
+
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.Document;
@@ -84,6 +85,7 @@ import net.jxta.impl.cm.CacheUtils;
 import net.jxta.impl.cm.DeltaTracker;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.SrdiMessage.Entry;
 
@@ -101,7 +103,7 @@ import net.jxta.protocol.SrdiMessage.Entry;
  */
 public abstract class JdbcAdvertisementCache extends AbstractAdvertisementCache {
 
-	private static final Logger LOG = Logger.getLogger(JdbcAdvertisementCache.class.getName());
+	private static final Logger LOG = Logging.getLogger(JdbcAdvertisementCache.class.getName());
 	private static final int MAX_CONNECTIONS = 16;
 	
 	private static final String CREATE_RECORD_TABLE_SQL 

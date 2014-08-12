@@ -70,6 +70,7 @@ import net.jxta.impl.endpoint.LoopbackMessenger;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -78,6 +79,7 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ModuleImplAdvertisement;
 
 import javax.security.auth.x500.X500Principal;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -92,8 +94,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *  A JXTA {@link net.jxta.endpoint.MessageTransport} implementation which
@@ -101,10 +101,7 @@ import java.util.logging.Logger;
  */
 public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
-    /**
-     *   Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(TlsTransport.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(TlsTransport.class.getName());
 
     /**
      *  If true then we can accept incoming connections. Eventually this should
@@ -319,7 +316,7 @@ public class TlsTransport implements Module, MessageSender, MessageReceiver {
 
         myThreadGroup = new ThreadGroup("TLSTransport " + localTlsPeerAddr);
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring TLS Transport : " + assignedID);
 

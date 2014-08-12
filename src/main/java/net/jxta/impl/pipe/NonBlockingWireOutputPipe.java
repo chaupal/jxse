@@ -61,6 +61,7 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
@@ -69,19 +70,15 @@ import net.jxta.protocol.PipeAdvertisement;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
- * An implementation of Ouput Pipe which sends messages on the pipe
+ * An implementation of Output Pipe which sends messages on the pipe
  * asynchronously. The <code>send()</code> method for this implementation will
  * never block.
  */
 class NonBlockingWireOutputPipe implements OutputPipe {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(NonBlockingWireOutputPipe.class.getName());
+    private static final Logger LOG = Logging.getLogger(NonBlockingWireOutputPipe.class.getName());
 
     /**
      * If true then the pipe has been closed and will no longer accept messages.

@@ -65,8 +65,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.content.Content;
@@ -356,7 +356,7 @@ public abstract class AbstractContentTransfer
         executor = schedExecutor;
         peerGroup = group;
         masterID = contentAdv.getContentID();
-        LOG = Logger.getLogger(
+        LOG = Logging.getLogger(
                 AbstractContentTransfer.class.getName() + "-" + loggerID);
         addDiscoveredSource(contentAdv);
     }
@@ -382,7 +382,7 @@ public abstract class AbstractContentTransfer
         executor = schedExecutor;
         peerGroup = group;
         masterID = contentID;
-        LOG = Logger.getLogger(
+        LOG = Logging.getLogger(
                 AbstractContentTransfer.class.getName() + "-" + loggerID);
     }
 
@@ -758,7 +758,7 @@ public abstract class AbstractContentTransfer
 
         synchronized(lockObject) {
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
                 Logging.logCheckedFine(LOG, "Check transfer state");
                 Logging.logCheckedFine(LOG, "   Last State: ", lastTransferState);
                 Logging.logCheckedFine(LOG, "   State     : ", transferState);
@@ -904,7 +904,8 @@ public abstract class AbstractContentTransfer
             if (allSources.contains(adv)) {
 
                 // Already found this source.
-                Logging.logCheckedFinest(LOG, "Advertisement was already found:\n", adv);
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Advertisement was already found:\n", adv);
                 return;
 
             }
@@ -912,7 +913,8 @@ public abstract class AbstractContentTransfer
             if (uselessSources.contains(adv)) {
 
                 // Already found this one too.
-                Logging.logCheckedFinest(LOG, "Advertisement was already found to be unusable:\n", adv);
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Advertisement was already found to be unusable:\n", adv);
                 return;
 
             }
@@ -926,13 +928,13 @@ public abstract class AbstractContentTransfer
                 lockObject.notifyAll();
                 doFire = checkSources();
                 doStop = locationState.hasMany();
-
-                Logging.logCheckedFiner(LOG, "Sources known now at: ",
+                // LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Sources known now at: ",
                             allSources.size(), "   State: ", locationState);
 
             } else {
-
-                Logging.logCheckedFiner(LOG, "Advertisement determined to not be usable");
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Advertisement determined to not be usable");
 
                 uselessSources.add(adv);
                 doFire = false;
@@ -1031,8 +1033,8 @@ public abstract class AbstractContentTransfer
 
         try {
             do {
-
-                Logging.logCheckedFiner(LOG, "Updating transfer attempt source lists");
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Updating transfer attempt source lists");
 
                 doDelay = false;
                 allList.clear();

@@ -63,8 +63,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryService;
@@ -85,6 +84,7 @@ import net.jxta.impl.membership.pse.DialogAuthenticator;
 import net.jxta.impl.membership.pse.EngineAuthenticator;
 import net.jxta.impl.membership.pse.PSEMembershipService;
 import net.jxta.impl.membership.pse.StringAuthenticator;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -105,10 +105,7 @@ import net.jxta.service.Service;
  */
 public class StdPeerGroup extends GenericPeerGroup {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(StdPeerGroup.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(StdPeerGroup.class.getName());
 
 //    /**
 //     * This field is for backwards compatibility with broken code and will
@@ -474,13 +471,15 @@ public class StdPeerGroup extends GenericPeerGroup {
 
                     case Module.START_AGAIN_PROGRESS:
 
-                        Logging.logCheckedFiner(LOG, "Service made progress during start : ", aModule);
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "Service made progress during start : ", aModule);
                         progress = true;
                         break;
 
                     case Module.START_AGAIN_STALLED:
 
-                        Logging.logCheckedFiner(LOG, "Service stalled during start : ", aModule);
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "Service stalled during start : ", aModule);
                         break;
 
                     case Module.START_DISABLED:
@@ -508,7 +507,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         // Uh-oh. Services co-dependency prevented them from starting.
         if (!services.isEmpty()) {
 
-            if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+            if (Logging.SHOW_SEVERE && LOG.isSevereLoggable()) {
                 StringBuilder failed = new StringBuilder( "No progress is being made in starting services after "
                         + iterations + " iterations. Giving up.");
 
@@ -664,7 +663,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                     StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append("Failed to retrieve network manager!");
                     stringBuilder.append(ex.getLocalizedMessage());
-                    LOG.log(Level.SEVERE, stringBuilder.toString());                                       
+                    LOG.severe(stringBuilder.toString());                                       
                 }                
 
                 tempCred = tempMs.getDefaultCredential();
@@ -710,7 +709,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {                                
-                                LOG.log(Level.SEVERE, "Failed to make PSE membership credential 'ready for join'");
+                                LOG.severe("Failed to make PSE membership credential 'ready for join'");
                                 throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error=" + tempRes);
                             }
                         }
@@ -750,7 +749,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {
-                                LOG.log(Level.SEVERE, "Failed to make PSE membership credential 'ready for join'");
+                                LOG.severe("Failed to make PSE membership credential 'ready for join'");
                                 throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
 //                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
 //                                System.exit(0);
@@ -809,7 +808,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {
-                                LOG.log(Level.SEVERE, "Failed to make PSE membership credential 'ready for join'");
+                                LOG.severe("Failed to make PSE membership credential 'ready for join'");
                                 throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
 //                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
 //                                System.exit(0);
@@ -861,7 +860,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         try {
             checkServices();
         } catch (ServiceNotFoundException e) {
-            LOG.log(Level.SEVERE, "Missing peer group service\n", e);
+            LOG.severe("Missing peer group service", e);
             throw new PeerGroupException("Missing peer group service", e);
         }
 
@@ -902,7 +901,7 @@ public class StdPeerGroup extends GenericPeerGroup {
 
         super.initLast();
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Group : " + getPeerGroupID());
 

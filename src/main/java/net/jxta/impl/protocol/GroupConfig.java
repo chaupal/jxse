@@ -64,21 +64,18 @@ import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.ConfigParams;
 
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Configuration container for any Peer Group.
  */
 public class GroupConfig extends ConfigParams implements Cloneable {
 
-    /**
-     *  Logger
-     */
-    private static final Logger LOG = Logger.getLogger(GroupConfig.class.getName());
+    private static final Logger LOG = Logging.getLogger(GroupConfig.class.getName());
 
     private static final String advType = "jxta:GroupConfig";
 

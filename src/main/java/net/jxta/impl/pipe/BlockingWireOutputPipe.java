@@ -63,6 +63,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -71,7 +72,6 @@ import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Created when a call to {@code PipeService.createOutputPipe(propgateAdv)} with
@@ -83,10 +83,7 @@ import java.util.logging.Logger;
  */
 public class BlockingWireOutputPipe implements OutputPipe {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(NonBlockingWireOutputPipe.class.getName());
+    private static final Logger LOG = Logging.getLogger(NonBlockingWireOutputPipe.class.getName());
 
     /**
      * If true then the pipe has been closed and will no longer accept messages.

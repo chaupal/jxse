@@ -5,7 +5,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
@@ -13,6 +12,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.OutgoingMessageEvent;
 import net.jxta.endpoint.StringMessageElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 /**
@@ -23,7 +23,7 @@ import net.jxta.logging.Logging;
  */
 public class TransportUtils {
 
-    private static final Logger LOG = Logger.getLogger(TransportUtils.class.getName());
+    private static final Logger LOG = Logging.getLogger(TransportUtils.class.getName());
 
     /**
      * Will attempt to resolve the physical adapter's InetAddress for the given interface

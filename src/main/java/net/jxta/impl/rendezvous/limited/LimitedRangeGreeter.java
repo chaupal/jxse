@@ -62,10 +62,10 @@ import net.jxta.endpoint.Message;
 import net.jxta.impl.protocol.LimitedRangeRdvMsg;
 import net.jxta.impl.rendezvous.RdvGreeter;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * The limited range rendezvous peer greeter.
@@ -77,10 +77,7 @@ import java.util.logging.Logger;
  */
 public class LimitedRangeGreeter implements EndpointListener, RdvGreeter {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(LimitedRangeGreeter.class.getName());
+    private static final Logger LOG = Logging.getLogger(LimitedRangeGreeter.class.getName());
 
     /**
      * The walk we are associated with.

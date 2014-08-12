@@ -60,6 +60,7 @@ import net.jxta.endpoint.ByteArrayMessageElement;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.ByteArrayOutputStream;
@@ -72,7 +73,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  *  Acts as the input for TLS. Accepts ciphertext which arrives in messages
@@ -84,7 +84,7 @@ import java.util.logging.Logger;
  *
  */
 class JTlsInputStream extends InputStream {
-    private static final Logger LOG = Logger.getLogger(JTlsInputStream.class.getName());
+    private static final Logger LOG = Logging.getLogger(JTlsInputStream.class.getName());
 
     private static final boolean  DEBUGIO = false;
 

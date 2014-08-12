@@ -58,23 +58,21 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.platform.ModuleClassID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.PeerGroupAdvertisement;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Logger;
 
 public class PeerGroupAdv extends PeerGroupAdvertisement {
 
-    /**
-     * Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(PeerGroupAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(PeerGroupAdv.class.getName());
 
     private static final String nameTag = "Name";
     private static final String gidTag = "GID";

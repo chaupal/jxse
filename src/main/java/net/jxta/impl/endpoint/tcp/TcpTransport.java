@@ -78,6 +78,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.TCPAdv;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peer.PeerID;
@@ -86,6 +87,7 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.TransportAdvertisement;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetAddress;
@@ -115,8 +117,6 @@ import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class implements the TCP Message Transport.
@@ -130,10 +130,7 @@ import java.util.logging.Logger;
  */
 public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(TcpTransport.class.getName());
+    private static final Logger LOG = Logging.getLogger(TcpTransport.class.getName());
 
     /**
      * The TCP send buffer size.
@@ -605,7 +602,7 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         }
 
         // Tell tell the world about our configuration.
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring TCP Message Transport : " + assignedID);
 
@@ -761,13 +758,13 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
         endpoint = null;
         group = null;
 
-        if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO)) {
+        if (Logging.SHOW_INFO && LOG.isInfoEnabled()) {
 
-            LOG.info(MessageFormat.format("Total bytes sent : {0}", getBytesSent()));
-            LOG.info(MessageFormat.format("Total Messages sent : {0}", getMessagesSent()));
-            LOG.info(MessageFormat.format("Total bytes received : {0}", getBytesReceived()));
-            LOG.info(MessageFormat.format("Total Messages received : {0}", getMessagesReceived()));
-            LOG.info(MessageFormat.format("Total connections accepted : {0}", getConnectionsAccepted()));
+            LOG.infoParams("Total bytes sent : {}", getBytesSent());
+            LOG.infoParams("Total Messages sent : {}", getMessagesSent());
+            LOG.infoParams("Total bytes received : {}", getBytesReceived());
+            LOG.infoParams("Total Messages received : {}", getMessagesReceived());
+            LOG.infoParams("Total connections accepted : {}", getConnectionsAccepted());
 
             LOG.info("TCP Message Transport shut down.");
 
@@ -1125,7 +1122,8 @@ public class TcpTransport implements Module, MessageSender, MessageReceiver {
 
                     key.interestOps(key.interestOps() | SelectionKey.OP_READ);
 
-                    Logging.logCheckedFiner(LOG, MessageFormat.format("Key interestOps on channel {0}, bit set :{1}", channel, key.interestOps()));
+                    // LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, MessageFormat.format("Key interestOps on channel {0}, bit set :{1}", channel, key.interestOps()));
 
                 } catch (ClosedChannelException e) {
 

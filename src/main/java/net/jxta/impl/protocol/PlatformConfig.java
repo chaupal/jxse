@@ -67,12 +67,13 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Configuration container for the World Peer Group. For historical reasons the
@@ -113,7 +114,7 @@ public final class PlatformConfig extends GroupConfig implements Cloneable {
         }
     }
 
-    private static final Logger LOG = Logger.getLogger(PlatformConfig.class.getName());
+    private static final Logger LOG = Logging.getLogger(PlatformConfig.class.getName());
 
     private static final String PID_TAG = "PID";
     private static final String NAME_TAG = "Name";

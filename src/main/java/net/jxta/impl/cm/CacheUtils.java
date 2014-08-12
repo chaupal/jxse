@@ -60,6 +60,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+
 import net.jxta.document.Element;
 import net.jxta.document.StructuredDocument;
 import net.jxta.impl.util.TimeUtils;
@@ -83,7 +84,7 @@ public class CacheUtils {
 	
 	    if (doc == null) {
 
-	        if (Logging.SHOW_WARNING && XIndiceAdvertisementCache.LOG.isLoggable(Level.WARNING)) {
+	        if (Logging.SHOW_WARNING && XIndiceAdvertisementCache.LOG.isWarningLoggable()) {
 	            XIndiceAdvertisementCache.LOG.warning("Null document");
 	        }
 

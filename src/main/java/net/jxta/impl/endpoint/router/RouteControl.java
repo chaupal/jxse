@@ -63,27 +63,25 @@ import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.endpoint.MessengerEvent;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * Provides an "IOCTL" style interface to the JXTA router transport
  */
 public class RouteControl implements RouteController {
 
-    /**
-     * Logger
-     */
-    private static transient final Logger LOG = Logger.getLogger(RouteControl.class.getName());
+    private static transient final Logger LOG = Logging.getLogger(RouteControl.class.getName());
 
     /**
      * Endpoint Router pointer

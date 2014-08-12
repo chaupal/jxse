@@ -76,7 +76,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.EndpointAddress;
@@ -93,6 +92,7 @@ import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
@@ -101,10 +101,7 @@ import net.jxta.peer.PeerID;
  */
 public class TcpMessenger extends BlockingMessenger implements Runnable {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(TcpMessenger.class.getName());
+    private static final Logger LOG = Logging.getLogger(TcpMessenger.class.getName());
 
     /**
      * The number of times we allow our write selector to be selected with no
@@ -729,7 +726,8 @@ public class TcpMessenger extends BlockingMessenger implements Runnable {
 
                     if (wroteBytes < 0) throw new EOFException();
 
-                    Logging.logCheckedFiner(LOG, MessageFormat.format("Wrote {0} bytes", wroteBytes));
+                    // LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, MessageFormat.format("Wrote {0} bytes", wroteBytes));
 
                 } while (wroteBytes != 0);
 

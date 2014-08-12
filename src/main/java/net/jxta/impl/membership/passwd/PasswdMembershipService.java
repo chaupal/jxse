@@ -64,6 +64,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
@@ -79,8 +80,6 @@ import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *  The passwd membership service provides a Membership Service implementation
@@ -96,10 +95,7 @@ import java.util.logging.Logger;
  */
 public class PasswdMembershipService implements MembershipService {
 
-    /**
-     *  Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(PasswdMembershipService.class.getName());
+    private static final Logger LOG = Logging.getLogger(PasswdMembershipService.class.getName());
 
     /**
      * Well known service specification identifier: password membership
@@ -603,7 +599,7 @@ public class PasswdMembershipService implements MembershipService {
         peergroup = group;
         implAdvertisement = (ModuleImplAdvertisement) impl;
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Password Membership Service : " + assignedID);
 

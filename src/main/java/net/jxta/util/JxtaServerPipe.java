@@ -67,6 +67,7 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.tcp.TcpMessenger;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
@@ -79,7 +80,6 @@ import net.jxta.protocol.PipeAdvertisement;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.logging.Logger;
 import java.util.Properties;
 
 /**
@@ -89,7 +89,7 @@ import java.util.Properties;
  */
 public class JxtaServerPipe implements PipeMsgListener {
 
-    private static final Logger LOG = Logger.getLogger(JxtaServerPipe.class.getName());
+    private static final Logger LOG = Logging.getLogger(JxtaServerPipe.class.getName());
     protected static final String nameSpace = "JXTABIP";
     protected static final String credTag = "Cred";
     protected static final String reqPipeTag = "reqPipe";

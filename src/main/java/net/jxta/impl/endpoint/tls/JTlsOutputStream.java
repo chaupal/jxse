@@ -62,6 +62,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
@@ -71,8 +72,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *  Acts as the output for TLS. Accepts ciphertext from TLS and packages it into
@@ -81,10 +80,7 @@ import java.util.logging.Logger;
  **/
 class JTlsOutputStream extends OutputStream {
 
-    /**
-     *  Log4J Logger
-     **/
-    private static final Logger LOG = Logger.getLogger(JTlsOutputStream.class.getName());
+    private static final Logger LOG = Logging.getLogger(JTlsOutputStream.class.getName());
 
     // constants
 
@@ -535,7 +531,7 @@ class JTlsOutputStream extends OutputStream {
             maxACK = Math.max(maxACK, seqnum);
 
             // dump the current Retry queue and the SACK list
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
 
                 StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
 

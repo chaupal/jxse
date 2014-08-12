@@ -56,6 +56,7 @@
 
 package net.jxta.impl.membership.pse;
 
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.File;
@@ -68,7 +69,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.util.logging.Logger;
 
 /**
  *  Manages a Keystore located at URI. This version precludes KeyStores which
@@ -76,10 +76,7 @@ import java.util.logging.Logger;
  **/
 public class URIKeyStoreManager implements KeyStoreManager {
 
-    /**
-     *  Log4J Logger
-     **/
-    private final static transient Logger LOG = Logger.getLogger(URIKeyStoreManager.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(URIKeyStoreManager.class.getName());
 
     /**
      *  The default keystore type we will use.

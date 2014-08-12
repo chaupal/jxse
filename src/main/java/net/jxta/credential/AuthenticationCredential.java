@@ -66,6 +66,7 @@ import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.TextElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.service.Service;
@@ -73,7 +74,6 @@ import net.jxta.service.Service;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Authentication credentials are used by JXTA Membership Services as the
@@ -93,10 +93,7 @@ import java.util.logging.Logger;
  */
 public final class AuthenticationCredential implements Credential {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(AuthenticationCredential.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(AuthenticationCredential.class.getName());
 
     /**
      * the authentication method which will be requested when this credential is

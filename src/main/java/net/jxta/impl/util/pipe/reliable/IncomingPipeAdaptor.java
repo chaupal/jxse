@@ -57,13 +57,13 @@
 package net.jxta.impl.util.pipe.reliable;
 
 import net.jxta.endpoint.Message;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.InputPipe;
-import java.util.logging.Logger;
 
 public class IncomingPipeAdaptor implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(IncomingPipeAdaptor.class.getName());
+    private static final Logger LOG = Logging.getLogger(IncomingPipeAdaptor.class.getName());
 
     private InputPipe pipe = null;
     private Incoming incoming = null;

@@ -74,7 +74,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 /**
@@ -82,10 +83,7 @@ import net.jxta.logging.Logging;
  */
 public final class PSEConfig {
 
-    /**
-     * Log4J Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(PSEConfig.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PSEConfig.class.getName());
 
     /**
      * Manager for the keystore we are using.

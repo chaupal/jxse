@@ -63,6 +63,7 @@ import net.jxta.endpoint.MessengerEventListener;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.impl.peergroup.GenericPeerGroup;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.platform.IJxtaLoader;
 
@@ -85,18 +86,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Simple Message Receiver for server side.
  */
 class HttpMessageReceiver implements MessageReceiver {
 
-    /**
-     *  logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(HttpMessageReceiver.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(HttpMessageReceiver.class.getName());
 
     /**
      * the relative URI of where the message receiver servlet will be mounted.
@@ -150,7 +146,7 @@ class HttpMessageReceiver implements MessageReceiver {
                 new File(new File(servletHttpTransport.getEndpointService().getGroup().getStoreHome()), "jxta.properties"));
         initFromProperties(prop);
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring HTTP Servlet Message Transport : " + servletHttpTransport.assignedID);
 
@@ -163,15 +159,19 @@ class HttpMessageReceiver implements MessageReceiver {
         }
 
         // Configure Jetty Logging
-        if (!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER))) {
+        // LOGGING: was Finer
+        if (!(Logging.SHOW_FINE && LOG.isFineEnabled())) {
             Log.instance().disableLog();
         }
 
         // Setup the logger to match the rest of JXTA unless explicitly configured.
         // "LOG_CLASSES" is a Jetty thing.
+        // MJG: Unsure how to get this working with our logging abstraction -
+        // jetty seems fixated on JUL loggers, which are classes not interfaces,
+        // so cannot be adapted...
         if (System.getProperty("LOG_CLASSES") == null) {
             LoggerLogSink logSink = new LoggerLogSink();
-            Logger jettyLogger = Logger.getLogger(org.mortbay.http.HttpServer.class.getName());
+            java.util.logging.Logger jettyLogger = java.util.logging.Logger.getLogger(org.mortbay.http.HttpServer.class.getName());
 
             logSink.setLogger(jettyLogger);
 
@@ -189,9 +189,11 @@ class HttpMessageReceiver implements MessageReceiver {
 
         // SPT - these methods call log internally.  If they are called before we add our JUL as a logSink (above)
         //       then a default STDERR logSink will also be added as default: org.mortbay.util.OutputStreamLogSink
-        org.mortbay.util.Code.setDebug(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER));
-        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)));
-        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)));
+        // LOGGING: was Finer
+        org.mortbay.util.Code.setDebug(Logging.SHOW_FINE && LOG.isFineEnabled());
+        org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isWarningLoggable()));
+        // LOGGING: was Finer
+        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINE && LOG.isFineEnabled()));
 
         // Initialize the Jetty HttpServer
         server = new HttpServer();

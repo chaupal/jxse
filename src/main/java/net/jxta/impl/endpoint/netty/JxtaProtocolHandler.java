@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.endpoint.msgframing.MessagePackageHeader;
 import net.jxta.impl.endpoint.msgframing.WelcomeMessage;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 
@@ -40,7 +40,7 @@ import org.jboss.netty.util.Timer;
 @ChannelPipelineCoverage("one")
 public class JxtaProtocolHandler extends SimpleChannelHandler implements ChannelHandler, ChannelFutureListener {
     
-    private static final Logger LOG = Logger.getLogger(JxtaProtocolHandler.class.getName());
+    private static final Logger LOG = Logging.getLogger(JxtaProtocolHandler.class.getName());
 	public static final String NAME = "jxtaProtocolHandler";
 	private static final String WELCOME_TIMEOUT_HANDLER_NAME = "welcomeTimeoutHandler";
 	

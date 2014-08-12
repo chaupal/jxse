@@ -68,8 +68,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
@@ -82,6 +81,7 @@ import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 
@@ -92,10 +92,7 @@ import net.jxta.peergroup.PeerGroup;
  */
 public class ReliableOutputStream extends OutputStream implements Incoming {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(ReliableOutputStream.class.getName());
+    private final static Logger LOG = Logging.getLogger(ReliableOutputStream.class.getName());
 
     /**
      * Initial estimated Round Trip Time
@@ -881,7 +878,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
             maxACK = Math.max(maxACK, seqnum);
 
             // dump the current Retry queue and the SACK list
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
 
                 StringBuilder dumpRETRQ = new StringBuilder("ACK RECEIVE : " + Integer.toString(seqnum));
                 dumpRETRQ.append('\n');
@@ -1214,13 +1211,13 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
         {
            long conn_idle = TimeUtils.toRelativeTimeMillis(TimeUtils.timeNow(), outgoing.getLastAccessed());
 
-           if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+           if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
                 LOG.fine(outgoing + " idle for " + conn_idle);
            }
             // check to see if we have not idled out.
             if (outgoing.getIdleTimeout() < conn_idle)
             {
-                if (Logging.SHOW_INFO && LOG.isLoggable(Level.INFO))
+                if (Logging.SHOW_INFO && LOG.isInfoEnabled())
                 {
                     LOG.info("Shutting down idle " + "connection " + outgoing);
                 }
@@ -1339,7 +1336,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     }
                     scheduleReTransmitCheck();
             } catch (Throwable all) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                LOG.severe("Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
                 hardClose();
                 Logging.logCheckedInfo(LOG, "STOPPED Retransmit thread");
             }

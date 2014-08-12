@@ -67,6 +67,7 @@ import net.jxta.impl.endpoint.TransportUtils;
 import net.jxta.impl.rendezvous.rdv.RdvPeerRdvService;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerViewElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
@@ -78,7 +79,6 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Base class for providers which implement the JXTA Standard Rendezvous
@@ -88,10 +88,7 @@ import java.util.logging.Logger;
  */
 public abstract class StdRendezVousService extends RendezVousServiceProvider {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(StdRendezVousService.class.getName());
+    private final static Logger LOG = Logging.getLogger(StdRendezVousService.class.getName());
 
     public final static String ConnectRequest = "Connect";
     public final static String DisconnectRequest = "Disconnect";

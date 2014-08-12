@@ -59,7 +59,6 @@ import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
@@ -70,6 +69,7 @@ import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.threads.SelfCancellingTask;
 import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 
@@ -82,10 +82,7 @@ import net.jxta.peergroup.PeerGroupID;
  */
 final class HttpServletMessenger extends BlockingMessenger {
 
-    /**
-     *  Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(HttpServletMessenger.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(HttpServletMessenger.class.getName());
 
     // We need an explicit idle state. outgoingMessage being null is not enough
     // because there is an intermediate state where the http servlet must know

@@ -58,10 +58,10 @@ package net.jxta.impl.protocol;
 
 import net.jxta.document.*;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Contains parameters for configuration of the Reference Implemenation
@@ -105,10 +105,7 @@ public final class DiscoveryConfigAdv extends ExtendableAdvertisement {
         }
     }
 
-    /**
-     *  Logger
-     */
-    private static final Logger LOG = Logger.getLogger(DiscoveryConfigAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(DiscoveryConfigAdv.class.getName());
 
     /**
      *  Our DOCTYPE

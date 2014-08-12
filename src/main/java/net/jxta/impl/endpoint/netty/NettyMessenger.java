@@ -2,8 +2,6 @@ package net.jxta.impl.endpoint.netty;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -12,6 +10,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.StringMessageElement;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -29,7 +28,7 @@ import org.jboss.netty.channel.ChannelFuture;
  */
 public class NettyMessenger extends BlockingMessenger implements MessageArrivalListener {
 
-    private static final Logger LOG = Logger.getLogger(NettyMessenger.class.getName());
+    private static final Logger LOG = Logging.getLogger(NettyMessenger.class.getName());
 
     private Channel channel;
     private EndpointAddress logicalDestinationAddr;
@@ -57,7 +56,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
     @Override
     protected void closeImpl() {
         // TODO: do we need to wait for this?
-    	LOG.log(Level.FINE, "Closing netty channel for messenger to {0}", logicalDestinationAddr);
+    	LOG.fineParams("Closing netty channel for messenger to {}", logicalDestinationAddr);
     	if(channel.isOpen()) {
     		channel.close();
     	}
@@ -150,7 +149,7 @@ public class NettyMessenger extends BlockingMessenger implements MessageArrivalL
 	}
 	
 	public void connectionDied() {
-		LOG.log(Level.INFO, "Underlying channel for messenger to {0} has died - closing messenger", logicalDestinationAddr);
+		LOG.infoParams("Underlying channel for messenger to {} has died - closing messenger", logicalDestinationAddr);
 	    close();
 	}
 	

@@ -60,6 +60,7 @@ import net.jxta.endpoint.EndpointListener;
 import net.jxta.endpoint.Message;
 import net.jxta.id.ID;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.InputPipe;
 import net.jxta.pipe.PipeID;
@@ -71,8 +72,6 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implements the {@link net.jxta.pipe.InputPipe} interface by listening on the
@@ -80,10 +79,7 @@ import java.util.logging.Logger;
  */
 class InputPipeImpl implements EndpointListener, InputPipe {
 
-    /**
-     * logger
-     */
-    private final static Logger LOG = Logger.getLogger(InputPipeImpl.class.getName());
+    private final static Logger LOG = Logging.getLogger(InputPipeImpl.class.getName());
 
     protected final static int QUEUESIZE = 100;
 
@@ -229,7 +225,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
                 }
             }
 
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
                 synchronized (this) {
                     Logging.logCheckedFine(LOG, "Queued ", msg, " for ", pipeID);
                 }

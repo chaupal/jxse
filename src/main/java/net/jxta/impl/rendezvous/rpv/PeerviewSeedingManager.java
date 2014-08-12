@@ -67,6 +67,7 @@ import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.impl.util.ACLSeedingManager;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.OutputPipe;
@@ -74,13 +75,13 @@ import net.jxta.pipe.PipeService;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.protocol.RdvAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * A Seeding Manager which uses the peerview advertisement pipes in order to
@@ -93,10 +94,7 @@ import java.util.logging.Logger;
 @Deprecated
 public class PeerviewSeedingManager extends ACLSeedingManager implements EndpointListener {
 
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(PeerviewSeedingManager.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(PeerviewSeedingManager.class.getName());
 
     /**
      * This is the minimum interval at which we will refresh our "peerview"

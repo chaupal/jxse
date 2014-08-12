@@ -56,11 +56,11 @@
 package net.jxta.endpoint;
 
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.lang.ref.SoftReference;
 import java.net.URI;
-import java.util.logging.Logger;
 
 /**
  * Describes a destination to which JXTA messages may be sent. This may be:
@@ -116,10 +116,7 @@ import java.util.logging.Logger;
  */
 public class EndpointAddress {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(EndpointAddress.class.getName());
+    private static final Logger LOG = Logging.getLogger(EndpointAddress.class.getName());
 
     /**
      * If {@code true} then endpoint addresses based upon IDs are represented

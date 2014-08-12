@@ -59,7 +59,8 @@ package net.jxta.impl.content.defprovider;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.ContentID;
 import net.jxta.document.Attribute;
@@ -101,7 +102,7 @@ import net.jxta.id.IDFactory;
  */
 public class DataResponse {
     private static Logger LOG =
-            Logger.getLogger(DataResponse.class.getName());
+            Logging.getLogger(DataResponse.class.getName());
     private static final String tagRoot = "DataResponse";
     private static final String tagID = "ContentID";
     private static final String tagOffs = "Offs";

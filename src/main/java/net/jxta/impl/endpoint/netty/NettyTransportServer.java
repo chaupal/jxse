@@ -7,8 +7,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.EndpointService;
@@ -16,6 +14,7 @@ import net.jxta.endpoint.MessageReceiver;
 import net.jxta.endpoint.MessengerEvent;
 import net.jxta.endpoint.MessengerEventListener;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -43,7 +42,7 @@ import org.jboss.netty.util.HashedWheelTimer;
  */
 public class NettyTransportServer implements NettyChannelRegistry, MessageReceiver, TransportServerComponent {
 
-    private static final Logger LOG = Logger.getLogger(NettyTransportServer.class.getName());
+    private static final Logger LOG = Logging.getLogger(NettyTransportServer.class.getName());
     
     private ServerBootstrap serverBootstrap;
     private Channel serverChannel;
@@ -214,7 +213,7 @@ public class NettyTransportServer implements NettyChannelRegistry, MessageReceiv
             // BindExceptions are transformed into ChannelBindExceptions by the netty
             // ServerBootstrap, and handled in in bindServerChannel()
             if(!(e.getCause() instanceof BindException)) {
-                LOG.log(Level.WARNING, "Unexpected exception on server channel for {0} protocol:\n{1}", 
+                LOG.warnParams("Unexpected exception on server channel for {} protocol:\n{}", 
                         new Object[] { getProtocolName(), e.getCause() });
             }
         }

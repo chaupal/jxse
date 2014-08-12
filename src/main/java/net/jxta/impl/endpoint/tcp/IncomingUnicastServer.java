@@ -58,6 +58,7 @@ package net.jxta.impl.endpoint.tcp;
 import net.jxta.impl.endpoint.IPUtils;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
@@ -76,17 +77,13 @@ import java.nio.channels.spi.SelectorProvider;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.logging.Logger;
 
 /**
  * This server handles incoming unicast TCP connections
  */
 public class IncomingUnicastServer implements Runnable {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(IncomingUnicastServer.class.getName());
+    private static final Logger LOG = Logging.getLogger(IncomingUnicastServer.class.getName());
     /**
      * The transport which owns this server.
      */

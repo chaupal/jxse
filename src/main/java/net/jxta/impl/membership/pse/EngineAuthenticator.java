@@ -62,7 +62,9 @@ import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +74,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * An authenticator associated with the PSE membership service.
@@ -82,10 +83,7 @@ import java.util.logging.Logger;
  **/
 public class EngineAuthenticator implements Authenticator {
 
-    /**
-     *  Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(EngineAuthenticator.class.getName());
+    private static final Logger LOG = Logging.getLogger(EngineAuthenticator.class.getName());
 
     /**
      * The Membership Service which generated this authenticator.

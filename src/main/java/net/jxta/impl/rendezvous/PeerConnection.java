@@ -60,6 +60,7 @@ import net.jxta.endpoint.*;
 import net.jxta.id.ID;
 import net.jxta.impl.endpoint.EndpointUtils;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PeerAdvertisement;
@@ -67,18 +68,13 @@ import net.jxta.protocol.RouteAdvertisement;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Manages a connection with a remote client or a rendezvous peer.
  */
 public abstract class PeerConnection implements OutgoingMessageEventListener {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(PeerConnection.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PeerConnection.class.getName());
 
     protected final PeerGroup group;
     protected final EndpointService endpoint;
@@ -395,7 +391,7 @@ public abstract class PeerConnection implements OutgoingMessageEventListener {
             }
             catch (IOException e)
             {
-                LOG.log(Level.WARNING, "Failed to send blocking message owing to IOException " + e);
+                LOG.warning("Failed to send blocking message owing to IOException " + e);
             }
             return true;
         } else {

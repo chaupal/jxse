@@ -58,14 +58,15 @@ package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.TextDocument;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.util.CountingWriter;
 import net.jxta.util.DevNullWriter;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
-import java.util.logging.Logger;
 
 /**
  * An extension of MessageElement for managing elements that are composed of
@@ -83,10 +84,7 @@ import java.util.logging.Logger;
  */
 public abstract class TextMessageElement extends MessageElement implements TextDocument {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(TextMessageElement.class.getName());
+    private static final Logger LOG = Logging.getLogger(TextMessageElement.class.getName());
 
     /**
      * cached result of {@link #getCharLength()} operation.

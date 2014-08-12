@@ -58,17 +58,17 @@ package net.jxta.impl.util.pipe.reliable;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.Messenger;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  *  OutgoingMessengerAdaptor
  */
 public class OutgoingMsgrAdaptor implements Outgoing {
 
-    private final static transient Logger LOG = Logger.getLogger(OutgoingMsgrAdaptor.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(OutgoingMsgrAdaptor.class.getName());
 
     private final Messenger msgr;
     private int timeout;

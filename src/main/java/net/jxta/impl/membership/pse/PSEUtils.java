@@ -88,7 +88,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
@@ -104,6 +103,7 @@ import net.jxta.document.Attribute;
 import net.jxta.document.XMLElement;
 import net.jxta.impl.util.BASE64InputStream;
 import net.jxta.impl.util.BASE64OutputStream;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import org.spongycastle.asn1.DERObjectIdentifier;
@@ -117,10 +117,7 @@ import org.spongycastle.x509.X509V3CertificateGenerator;
  */
 public final class PSEUtils {
 
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(PSEUtils.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(PSEUtils.class.getName());
 
     /**
      * Singleton instance.
@@ -815,7 +812,8 @@ public final class PSEUtils {
 
         String encoded = base64.toString();
 
-        Logging.logCheckedFiner(LOG, "Encoded ", in.length, " bytes -> ", encoded.length(), " characters.");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Encoded ", in.length, " bytes -> ", encoded.length(), " characters.");
 
         return encoded;
     }
@@ -842,7 +840,8 @@ public final class PSEUtils {
 
         byte[] result = bos.toByteArray();
 
-        Logging.logCheckedFiner(LOG, "Decoded ", result.length, " bytes.");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Decoded ", result.length, " bytes.");
 
         return result;
     }

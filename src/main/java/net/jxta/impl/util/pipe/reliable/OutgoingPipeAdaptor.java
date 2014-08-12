@@ -58,15 +58,15 @@ package net.jxta.impl.util.pipe.reliable;
 
 import net.jxta.endpoint.Message;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.OutputPipe;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 public class OutgoingPipeAdaptor implements Outgoing {
 
-    private static final Logger LOG = Logger.getLogger(OutgoingPipeAdaptor.class.getName());
+    private static final Logger LOG = Logging.getLogger(OutgoingPipeAdaptor.class.getName());
 
     private final OutputPipe pipe;
 

@@ -58,19 +58,19 @@ package net.jxta.impl.pipe;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.impl.endpoint.tls.TlsTransport;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.pipe.PipeMsgListener;
 import net.jxta.protocol.PipeAdvertisement;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Implements the {@link net.jxta.pipe.InputPipe} interface by listening on the
  * endpoint for messages to service "PipeService" and a param of the Pipe ID.
  */
 public class SecureInputPipeImpl extends InputPipeImpl {
-    private final static Logger LOG = Logger.getLogger(SecureInputPipeImpl.class.getName());
+    private final static Logger LOG = Logging.getLogger(SecureInputPipeImpl.class.getName());
 
     /**
      * Constructor for the SecureInputPipeImpl object

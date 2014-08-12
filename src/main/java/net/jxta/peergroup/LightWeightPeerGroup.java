@@ -65,6 +65,7 @@ import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.exception.ServiceNotFoundException;
 import net.jxta.id.ID;
 import net.jxta.impl.util.threads.TaskManager;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -85,7 +86,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import net.jxta.content.ContentService;
 
@@ -111,10 +111,7 @@ import net.jxta.content.ContentService;
  */
 public class LightWeightPeerGroup implements PeerGroup {
 
-    /**
-     *  Logger
-     */
-    private static final Logger LOG = Logger.getLogger(LightWeightPeerGroup.class.getName());
+    private static final Logger LOG = Logging.getLogger(LightWeightPeerGroup.class.getName());
     private PeerGroup group = null;
     private ID assignedID = null;
     private ModuleImplAdvertisement implAdv = null;

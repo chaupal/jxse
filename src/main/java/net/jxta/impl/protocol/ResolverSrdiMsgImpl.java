@@ -63,19 +63,19 @@ import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.StructuredDocumentUtils;
 import net.jxta.document.StructuredTextDocument;
 import net.jxta.document.XMLElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.protocol.ResolverSrdiMsg;
 
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * ResolverQuery provides the binding for the message to query other nodes
  */
 public class ResolverSrdiMsgImpl extends ResolverSrdiMsg {
 
-    private final static Logger LOG = Logger.getLogger(ResolverSrdiMsgImpl.class.getName());
+    private final static Logger LOG = Logging.getLogger(ResolverSrdiMsgImpl.class.getName());
 
     /**
      * Description of the Field

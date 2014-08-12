@@ -71,6 +71,7 @@ import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousServiceMonitor;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
@@ -81,7 +82,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * This abstract class must be extended for all RendezVous Service providers
@@ -93,10 +93,7 @@ import java.util.logging.Logger;
  */
 public abstract class RendezVousServiceProvider implements EndpointListener {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(RendezVousServiceProvider.class.getName());
+    private final static Logger LOG = Logging.getLogger(RendezVousServiceProvider.class.getName());
 
     protected static final String PropSName = "JxtaPropagate";
 

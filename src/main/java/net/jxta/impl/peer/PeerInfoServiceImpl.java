@@ -73,6 +73,7 @@ import net.jxta.impl.protocol.PeerInfoQueryMsg;
 import net.jxta.impl.protocol.PeerInfoResponseMsg;
 import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.ResolverResponse;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.meter.MonitorException;
@@ -95,12 +96,11 @@ import net.jxta.resolver.QueryHandler;
 import net.jxta.resolver.ResolverService;
 import net.jxta.service.Service;
 import net.jxta.util.documentSerializable.DocumentSerializable;
+
 import java.io.StringReader;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *  Peer Info provides a mechanism to obtain  information about peers.
@@ -109,7 +109,7 @@ import java.util.logging.Logger;
 
 public class PeerInfoServiceImpl implements PeerInfoService {
 
-    private final static Logger LOG = Logger.getLogger(PeerInfoServiceImpl.class.getName());
+    private final static Logger LOG = Logging.getLogger(PeerInfoServiceImpl.class.getName());
 
     /**
      *  Time in milli seconds since midnight, January 1, 1970 UTC and when this
@@ -163,7 +163,7 @@ public class PeerInfoServiceImpl implements PeerInfoService {
         // record start time at end of successful init
         startTime = System.currentTimeMillis();
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring PeerInfo Service : " + assignedID);
 

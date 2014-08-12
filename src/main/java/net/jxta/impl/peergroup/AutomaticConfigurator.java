@@ -70,6 +70,7 @@ import net.jxta.impl.protocol.PlatformConfig;
 import net.jxta.impl.protocol.RdvConfigAdv;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.IModuleDefinitions;
 import net.jxta.protocol.TransportAdvertisement;
@@ -78,8 +79,6 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A simple platform configurator. This implementation provides reasonable
@@ -96,10 +95,7 @@ import java.util.logging.Logger;
  */
 public class AutomaticConfigurator extends NullConfigurator {
 
-    /**
-     * Log4J logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(AutomaticConfigurator.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(AutomaticConfigurator.class.getName());
 
     /**
      * Configures the platform using the specified directory.
@@ -154,7 +150,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         boolean reconf = false;
 
         if (advertisement == null) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
                 LOG.config("New PlatformConfig Advertisement");
             }
             advertisement = (PlatformConfig) AdvertisementFactory.newAdvertisement(PlatformConfig.getAdvertisementType());
@@ -200,7 +196,7 @@ public class AutomaticConfigurator extends NullConfigurator {
                         if ((null != intf) && !isValidInetAddress(intf)) {
                             reconf = true;
 
-                            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+                            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
                                 LOG.config("Reconfig requested - invalid interface address");
                             }
                         }
@@ -208,8 +204,8 @@ public class AutomaticConfigurator extends NullConfigurator {
                 }
             } catch (RuntimeException advTrouble) {
 
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "HTTP advertisement corrupted", advTrouble);
+                if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+                    LOG.warning("HTTP advertisement corrupted", advTrouble);
                 }
 
                 httpAdv = null;
@@ -217,7 +213,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         }
 
         if (httpAdv == null) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
                 LOG.config("HTTP advertisement missing, making a new one.");
             }
 
@@ -232,12 +228,12 @@ public class AutomaticConfigurator extends NullConfigurator {
                     if ((propertyPort < 65536) && (propertyPort >= 0)) {
                         port = propertyPort;
                     } else {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
                             LOG.warning("Property \'jxta.http.port\' is not a valid port number : " + propertyPort);
                         }
                     }
                 } catch (NumberFormatException ignored) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
                         LOG.warning("Property \'jxta.http.port\' was not an integer : " + http);
                     }
                 }
@@ -286,15 +282,15 @@ public class AutomaticConfigurator extends NullConfigurator {
                         if ((null != intf) && !isValidInetAddress(intf)) {
                             reconf = true;
 
-                            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
-                                LOG.config("Reconfig requested - invalid interface address");
+                            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
+                                LOG.fine("Reconfig requested - invalid interface address");
                             }
                         }
                     }
                 }
             } catch (RuntimeException advTrouble) {
-                if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                    LOG.log(Level.WARNING, "TCP advertisement corrupted", advTrouble);
+                if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+                    LOG.warning("TCP advertisement corrupted", advTrouble);
                 }
 
                 tcpAdv = null;
@@ -302,7 +298,7 @@ public class AutomaticConfigurator extends NullConfigurator {
         }
 
         if (tcpAdv == null) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
                 LOG.config("TCP advertisement missing, making a new one.");
             }
 
@@ -317,12 +313,12 @@ public class AutomaticConfigurator extends NullConfigurator {
                     if ((propertyPort < 65536) && (propertyPort >= 0)) {
                         port = propertyPort;
                     } else {
-                        if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                        if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
                             LOG.warning("Property \'jxta.tcp.port\' is not a valid port number : " + propertyPort);
                         }
                     }
                 } catch (NumberFormatException ignored) {
-                    if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
                         LOG.warning("Property \'jxta.tcp.port\' was not an integer : " + tcpPort);
                     }
                 }
@@ -356,13 +352,13 @@ public class AutomaticConfigurator extends NullConfigurator {
                 relayConfig = (RelayConfigAdv) AdvertisementFactory.newAdvertisement(param);
             }
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading relay configuration\n", failure);
+            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+                LOG.warning("Problem reading relay configuration\n", failure);
             }
         }
 
         if (null == relayConfig) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
                 LOG.config("Relay Config advertisement missing, making a new one.");
             }
 
@@ -399,13 +395,13 @@ public class AutomaticConfigurator extends NullConfigurator {
                 rdvAdv = (RdvConfigAdv) AdvertisementFactory.newAdvertisement(param);
             }
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading rendezvous configuration\n", failure);
+            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+                LOG.warning("Problem reading rendezvous configuration\n", failure);
             }
         }
 
         if (null == rdvAdv) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
                 LOG.config("Rdv Config advertisement missing, making a new one.");
             }
 
@@ -453,13 +449,13 @@ public class AutomaticConfigurator extends NullConfigurator {
                 pseConfig = (PSEConfigAdv) AdvertisementFactory.newAdvertisement(param);
             }
         } catch (Exception failure) {
-            if (Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
-                LOG.log(Level.WARNING, "Problem reading pse configuration\n", failure);
+            if (Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
+                LOG.warning("Problem reading pse configuration\n", failure);
             }
         }
 
         if (null == pseConfig) {
-            if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+            if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
                 LOG.config("PSE Config advertisement missing, making a new one.");
             }
 

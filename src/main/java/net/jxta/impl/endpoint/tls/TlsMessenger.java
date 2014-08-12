@@ -63,17 +63,17 @@ import net.jxta.endpoint.StringMessageElement;
 import net.jxta.impl.endpoint.BlockingMessenger;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.tls.TlsConn.HandshakeState;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * This class implements sending messages through a TLS connection.
  */
 public class TlsMessenger extends BlockingMessenger {
 
-    private static final Logger LOG = Logger.getLogger(TlsMessenger.class.getName());
+    private static final Logger LOG = Logging.getLogger(TlsMessenger.class.getName());
 
     private TlsTransport transport = null;
     private TlsConn conn = null;

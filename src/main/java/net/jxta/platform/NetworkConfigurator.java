@@ -76,6 +76,7 @@ import net.jxta.impl.protocol.RdvConfigAdv;
 import net.jxta.impl.protocol.RdvConfigAdv.RendezVousConfiguration;
 import net.jxta.impl.protocol.RelayConfigAdv;
 import net.jxta.impl.protocol.TCPAdv;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -103,7 +104,6 @@ import java.util.NoSuchElementException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Logger;
 import net.jxta.exception.ConfiguratorException;
 
 import net.jxta.impl.protocol.MulticastAdv;
@@ -179,10 +179,7 @@ import net.jxta.impl.protocol.MulticastAdv;
  */
 public class NetworkConfigurator {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(NetworkConfigurator.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(NetworkConfigurator.class.getName());
 
     // begin configuration modes
 

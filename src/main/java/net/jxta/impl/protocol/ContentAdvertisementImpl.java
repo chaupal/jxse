@@ -59,7 +59,8 @@ package net.jxta.impl.protocol;
 import java.util.Enumeration;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.ContentID;
 import net.jxta.document.Advertisement;
@@ -82,11 +83,8 @@ import net.jxta.protocol.ContentAdvertisement;
  * data set.
  */
 public class ContentAdvertisementImpl extends ContentAdvertisement {
-    /**
-     * Logger.
-     */
     private static final Logger LOG =
-            Logger.getLogger(ContentAdvertisementImpl.class.getName());
+            Logging.getLogger(ContentAdvertisementImpl.class.getName());
 
     /**
      * ContentID field.

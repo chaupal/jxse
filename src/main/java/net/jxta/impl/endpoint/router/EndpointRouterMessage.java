@@ -65,8 +65,6 @@ import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.jxta.document.AdvertisementFactory;
 import net.jxta.document.MimeMediaType;
@@ -82,9 +80,9 @@ import net.jxta.endpoint.TextDocumentMessageElement;
 import net.jxta.endpoint.WireFormatMessageFactory;
 import net.jxta.impl.membership.pse.PSECredential;
 import net.jxta.impl.membership.pse.PSEMembershipService;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
-import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
 
@@ -94,10 +92,7 @@ import net.jxta.protocol.RouteAdvertisement;
  */
 public class EndpointRouterMessage {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(EndpointRouterMessage.class.getName());
+    private static final Logger LOG = Logging.getLogger(EndpointRouterMessage.class.getName());
 
     public static final String MESSAGE_NS = "jxta";
     public static final String MESSAGE_NAME = "EndpointRouterMsg";
@@ -436,13 +431,13 @@ public class EndpointRouterMessage {
                 ByteArrayMessageElement tempBAME = new ByteArrayMessageElement(MESSAGE_NAME+"-fingerprint", MimeMediaType.AOS, tempBAOS.toByteArray(),null);
                 this.message.replaceMessageElement(MESSAGE_NS, tempBAME);
             } catch (InvalidKeyException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.severe(null, ex);
             } catch (CertificateEncodingException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.severe(null, ex);
             } catch (SignatureException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.severe(null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(EndpointRouterMessage.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.severe(null, ex);
             }
         }
     }

@@ -58,6 +58,7 @@ package net.jxta.peergroup;
 
 import net.jxta.exception.ConfiguratorException;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.platform.IJxtaLoader;
 import net.jxta.protocol.ConfigParams;
@@ -69,8 +70,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.jxta.impl.loader.DynamicJxtaLoader;
 import net.jxta.impl.peergroup.DefaultConfigurator;
@@ -106,10 +105,7 @@ import net.jxta.impl.peergroup.NullConfigurator;
  */
 public final class WorldPeerGroupFactory {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(WorldPeerGroupFactory.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(WorldPeerGroupFactory.class.getName());
 
     private static final Map<String, PeerGroup> worldPeerGroups = new HashMap<String, PeerGroup>();
 
@@ -316,7 +312,7 @@ public final class WorldPeerGroupFactory {
                 return result;
             } catch (RuntimeException e) {
                 // should be all other checked exceptions
-                LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.\n", e);
+                LOG.severe("World Peer Group could not be instantiated.\n", e);
 
                 // cleanup broken instance
                 if (null != result) {
@@ -327,7 +323,7 @@ public final class WorldPeerGroupFactory {
                 throw e;
             } catch (Exception e) {
                 // should be all other checked exceptions
-                LOG.log(Level.SEVERE, "World Peer Group could not be instantiated.\n", e);
+                LOG.severe("World Peer Group could not be instantiated.\n", e);
 
                 // cleanup broken instance
                 if (null != result) {

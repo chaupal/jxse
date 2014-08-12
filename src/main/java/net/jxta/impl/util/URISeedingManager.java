@@ -64,11 +64,13 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,7 +88,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  *  A seeding manager that supports both explicit seed peers and loading of
@@ -94,10 +95,7 @@ import java.util.logging.Logger;
  */
 public class URISeedingManager extends RdvAdvSeedingManager {
 
-    /**
-     *  Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(URISeedingManager.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(URISeedingManager.class.getName());
 
     /**
      *  The minimum amount of time we will wait between attempts to resolve the

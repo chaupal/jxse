@@ -65,7 +65,9 @@ import net.jxta.impl.xindice.core.filer.BTreeException;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.impl.xindice.core.indexer.NameIndexer;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -82,15 +84,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class XIndiceIndexer {
 
-    /**
-     * The logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(XIndiceIndexer.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(XIndiceIndexer.class.getName());
 
     private final static String listFileName = "offsets";
 
@@ -207,7 +204,8 @@ public final class XIndiceIndexer {
 
             Map.Entry<String, NameIndexer> anEntry = eachIndex.next();
 
-            Logging.logCheckedFiner(LOG, "Closing Index :", anEntry.getKey());
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Closing Index :", anEntry.getKey());
 
             try {
 
@@ -225,7 +223,8 @@ public final class XIndiceIndexer {
         // clear just in case.
         indices.clear();
 
-        Logging.logCheckedFiner(LOG, "Closing listDB");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Closing listDB");
 
         listDB.close();
         return true;
@@ -262,7 +261,8 @@ public final class XIndiceIndexer {
          */
         public boolean indexInfo(Value val, long pos) {
 
-            Logging.logCheckedFiner(LOG, "value :", val, " pattern :", pattern);
+        	// LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "value :", val, " pattern :", pattern);
 
             switch (op) {
             case IndexQuery.EW:
@@ -353,10 +353,12 @@ public final class XIndiceIndexer {
             Key indexKey = new Key(indexables.get(name));
             long listPos = writeRecord(listDB, dbKey, pos);
 
-            if (Logging.SHOW_FINER && LOG.isLoggable(Level.FINER)) {
+            // LOGGING: was FINER
+            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
                 StringBuilder message = new StringBuilder().append("Adding a reference at position :").append(listPos).append(" to ").append(name).append(" index, Key: ").append(
                         indexables.get(name));
-                Logging.logCheckedFiner(LOG, message);
+                // LOGGING: was Finer
+                Logging.logCheckedFine(LOG, message);
             }
             indexer.add(indexKey, listPos);
         }
@@ -561,9 +563,9 @@ public final class XIndiceIndexer {
             }
 
             if (offsets != null && !offsets.contains(lpos)) {
-
-                Logging.logCheckedFiner(LOG, "Adding a reference to record at :", lpos);
-                Logging.logCheckedFiner(LOG, "Writing :", offsets.size(), " references");
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Adding a reference to record at :", lpos);
+                Logging.logCheckedFine(LOG, "Writing :", offsets.size(), " references");
                 offsets.add(lpos);
 
             }
@@ -589,7 +591,8 @@ public final class XIndiceIndexer {
          */
         public boolean indexInfo(Value val, long pos) {
 
-            Logging.logCheckedFiner(LOG, "Found ", val.toString(), " at ", pos);
+        	// LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Found ", val.toString(), " at ", pos);
 
             Record record = null;
             Set<Long> offsets = null;
@@ -601,14 +604,16 @@ public final class XIndiceIndexer {
                     record = listDB.readRecord(pos);
                     offsets = readRecord(record);
 
-                    Logging.logCheckedFiner(LOG, "Found ", offsets.size(), " entries");
+                    // LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "Found ", offsets.size(), " entries");
 
                 }
 
                 for (Long lpos : offsets) {
 
                     result &= callback.indexInfo(val, lpos);
-                    Logging.logCheckedFiner(LOG, "Callback result : ", result);
+                    // LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "Callback result : ", result);
 
                 }
 

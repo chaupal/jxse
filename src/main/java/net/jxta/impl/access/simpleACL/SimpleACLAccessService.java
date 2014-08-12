@@ -63,17 +63,17 @@ import net.jxta.document.*;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.service.Service;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implements the {@link net.jxta.access.AccessService} using a simple ACL
@@ -119,10 +119,7 @@ import java.util.logging.Logger;
  */
 public class SimpleACLAccessService implements AccessService {
 
-    /**
-     *  Logger.
-     */
-    private final static Logger LOG = Logger.getLogger(SimpleACLAccessService.class.getName());
+    private final static Logger LOG = Logging.getLogger(SimpleACLAccessService.class.getName());
 
     /**
      * Well known access specification identifier: the simple ACL access service
@@ -353,7 +350,7 @@ public class SimpleACLAccessService implements AccessService {
         this.group = group;
         implAdvertisement = (ModuleImplAdvertisement) implAdv;
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
             StringBuilder configInfo = new StringBuilder("Configuring Access Service : " + assignedID);
 
             configInfo.append("\n\tImplementation:");

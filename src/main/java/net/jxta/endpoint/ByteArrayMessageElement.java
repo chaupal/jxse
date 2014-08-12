@@ -57,6 +57,7 @@
 package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.ByteArrayInputStream;
@@ -65,8 +66,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -82,10 +81,7 @@ import java.util.zip.Checksum;
  */
 public class ByteArrayMessageElement extends MessageElement {
 
-    /**
-     * Logger
-     */
-    private static transient final Logger LOG = Logger.getLogger(ByteArrayMessageElement.class.getName());
+    private static transient final Logger LOG = Logging.getLogger(ByteArrayMessageElement.class.getName());
 
     /**
      * The bytes of this element.
@@ -291,8 +287,9 @@ public class ByteArrayMessageElement extends MessageElement {
             }
         }
 
-        if (LOG.isLoggable(Level.FINER)) {
-            LOG.finer("creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
+        // LOGGING: was FINER
+        if (LOG.isFineEnabled()) {
+            LOG.fine("creating toString of " + getClass().getName() + '@' + Integer.toHexString(hashCode()));
         }
 
         String charset = type.getParameter("charset");

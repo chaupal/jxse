@@ -76,8 +76,7 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -101,6 +100,7 @@ import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.impl.util.SeedingManager;
 import net.jxta.impl.util.TimeUtils;
 import net.jxta.impl.util.URISeedingManager;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -135,10 +135,7 @@ import net.jxta.rendezvous.RendezvousListener;
  */
 public final class PeerView implements EndpointListener, RendezvousListener {
 
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(PeerView.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(PeerView.class.getName());
 
     /**
      * Our service name
@@ -623,7 +620,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         boolean isFromEdge = (msg.getMessageElement(MESSAGE_NAMESPACE, EDGE_ELEMENT_NAME) != null);
         boolean isTrusted = isFromEdge || seedingManager.isAcceptablePeer(radv.getRouteAdv());
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
 
             String srcPeer = srcAddr.toString();
 

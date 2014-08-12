@@ -56,6 +56,7 @@
 package net.jxta.endpoint;
 
 import net.jxta.document.MimeMediaType;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.ByteArrayInputStream;
@@ -76,17 +77,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.util.logging.Logger;
 
 /**
  * A Message Element using character sequences for the element data.
  */
 public class StringMessageElement extends TextMessageElement {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(StringMessageElement.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(StringMessageElement.class.getName());
     /**
      * The MIME media type we will be use for encoding {@code String}s when no
      * encoding is specified.
@@ -280,7 +277,8 @@ public class StringMessageElement extends TextMessageElement {
 
         if (null == cachedBytes) {
 
-            Logging.logCheckedFiner(LOG, "Creating getBytes of ", getClass().getName(), '@', Integer.toHexString(System.identityHashCode(this)));
+        	// LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Creating getBytes of ", getClass().getName(), '@', Integer.toHexString(System.identityHashCode(this)));
 
             String charset = type.getParameter("charset");
 
@@ -335,8 +333,9 @@ public class StringMessageElement extends TextMessageElement {
         }
 
         if (null == cachedChars) {
-
-            Logging.logCheckedFiner(LOG, "creating cachedGetChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
+        	
+        	// LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "creating cachedGetChars of ", getClass().getName(), '@', Integer.toHexString(hashCode()));
 
             if ((data instanceof CharBuffer) && ((CharBuffer) data).hasArray()) {
                 cachedChars = ((CharBuffer) data).array();

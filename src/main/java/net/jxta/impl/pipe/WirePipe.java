@@ -67,6 +67,7 @@ import net.jxta.id.ID;
 import net.jxta.impl.cm.Srdi;
 import net.jxta.impl.id.UUID.UUID;
 import net.jxta.impl.id.UUID.UUIDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -82,7 +83,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.logging.Logger;
 
 /**
  * WirePipe (aka Propagated pipe) is very similar to IGMP, where a creation of an
@@ -92,10 +92,7 @@ import java.util.logging.Logger;
  */
 public class WirePipe implements EndpointListener, InputPipe, PipeRegistrar {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(WirePipe.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(WirePipe.class.getName());
 
     /**
      * The number of message ID we track to eliminate duplicate messages.

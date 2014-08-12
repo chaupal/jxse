@@ -71,13 +71,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Logger;
+
 import net.jxta.credential.Credential;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.protocol.ResolverSrdiMsgImpl;
 import net.jxta.impl.protocol.SrdiMessageImpl;
 import net.jxta.impl.util.JxtaHash;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -120,10 +121,7 @@ import net.jxta.resolver.ResolverService;
  */
 public class SrdiManager implements RendezvousListener {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(SrdiManager.class.getName());
+    private final static Logger LOG = Logging.getLogger(SrdiManager.class.getName());
 
     private PeerGroup group = null;
     private String handlername = null;

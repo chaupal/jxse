@@ -60,10 +60,12 @@ import net.jxta.document.*;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.membership.pse.PSEUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroupID;
 
 import javax.crypto.EncryptedPrivateKeyInfo;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +80,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  *  Contains parameters for configuration of the PSE Membership Service.
@@ -97,10 +98,7 @@ import java.util.logging.Logger;
  */
 public final class PSEConfigAdv extends ExtendableAdvertisement implements Cloneable {
 
-    /**
-     *   Log4J Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(PSEConfigAdv.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PSEConfigAdv.class.getName());
 
     /**
      *  Our DOCTYPE

@@ -80,6 +80,7 @@ import net.jxta.impl.protocol.ResolverResponse;
 import net.jxta.impl.protocol.SrdiMessageImpl;
 import net.jxta.impl.resolver.InternalQueryHandler;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -91,6 +92,7 @@ import net.jxta.rendezvous.RendezvousEvent;
 import net.jxta.rendezvous.RendezvousListener;
 import net.jxta.resolver.ResolverService;
 import net.jxta.resolver.SrdiHandler;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -100,8 +102,6 @@ import java.net.URI;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This Discovery Service implementation provides a mechanism to discover
@@ -125,10 +125,7 @@ import java.util.logging.Logger;
  */
 public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHandler, RendezvousListener, SrdiHandler, SrdiManager.SrdiPushEntriesInterface {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(DiscoveryServiceImpl.class.getName());
+    private final static Logger LOG = Logging.getLogger(DiscoveryServiceImpl.class.getName());
 
     /**
      * adv types
@@ -310,7 +307,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
             StringBuilder query = new StringBuilder("Sending query#" + myQueryID + " for " + threshold + " " + dirname[type] + " advs");
 
             if (attribute != null) {
@@ -398,7 +395,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             throw new IllegalArgumentException("Unknown Advertisement type");
         }
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
 
             StringBuilder query = new StringBuilder("Searching for " + dirname[type] + " advs");
 
@@ -453,7 +450,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
         cm = ((StdPeerGroup) group).getCacheManager();
         cm.setTrackDeltas(!localonly);
 
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring Discovery Service : " + assignedID);
 
@@ -849,7 +846,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             try {
                 dl.discoveryEvent(new DiscoveryEvent(srcAddress, res, response.getQueryId()));
             } catch (Throwable all) {
-                LOG.log(Level.SEVERE, "Uncaught Throwable in listener :" + Thread.currentThread().getName(), all);
+                LOG.severe("Uncaught Throwable in listener :" + Thread.currentThread().getName(), all);
             }
         }
 
@@ -1474,7 +1471,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
                 srdiMsg = new SrdiMessageImpl(localPeerId, 1, // ttl of 1, ensure it is replicated
                         dirname[type], entries);
 
-                Logging.logCheckedFiner(LOG, "Pushing ", entries.size(), (all ? " entries" : " deltas"), " of type ", dirname[type]);
+                // LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Pushing ", entries.size(), (all ? " entries" : " deltas"), " of type ", dirname[type]);
                 srdiManager.pushSrdi(peer, srdiMsg);
 
             } catch (Exception e) {
@@ -1484,8 +1482,8 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             }
 
         } else {
-
-            Logging.logCheckedFiner(LOG, "No", (all ? " entries" : " deltas"), " of type ", dirname[type], " to push");
+        	// LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "No", (all ? " entries" : " deltas"), " of type ", dirname[type], " to push");
         }
 
     }

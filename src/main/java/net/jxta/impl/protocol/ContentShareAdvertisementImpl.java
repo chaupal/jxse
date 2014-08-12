@@ -57,7 +57,8 @@
 package net.jxta.impl.protocol;
 
 import java.util.Enumeration;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -80,11 +81,8 @@ import net.jxta.protocol.ContentShareAdvertisement;
  * to obtain the advertised content.
  */
 public class ContentShareAdvertisementImpl extends ContentShareAdvertisement {
-    /**
-     * Logger.
-     */
     private static final Logger LOG =
-            Logger.getLogger(ContentShareAdvertisementImpl.class.getName());
+            Logging.getLogger(ContentShareAdvertisementImpl.class.getName());
 
     /*
      * XXX 20070911 mcumings: The use of a ContentID tag is a hack that

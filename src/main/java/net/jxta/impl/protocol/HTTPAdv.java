@@ -65,9 +65,9 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.TransportAdvertisement;
-import java.util.logging.Logger;
 
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -77,10 +77,7 @@ import java.util.Enumeration;
  */
 public class HTTPAdv extends TransportAdvertisement {
 
-    /**
-     * Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(HTTPAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(HTTPAdv.class.getName());
 
     private static final String CONFIGMODES[] = { "auto", "manual"};
     private static final String INDEXFIELDS[] = {/* none */};

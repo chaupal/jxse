@@ -81,6 +81,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.IModuleDefinitions;
@@ -107,8 +108,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.jxta.impl.protocol.MulticastAdv;
 
@@ -126,10 +125,7 @@ import net.jxta.impl.protocol.MulticastAdv;
  */
 public class McastTransport implements Runnable, Module, MessagePropagater {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(McastTransport.class.getName());
+    private static final Logger LOG = Logging.getLogger(McastTransport.class.getName());
 
     /**
      * Well known service class identifier: mcast message transport
@@ -423,11 +419,11 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
         } catch (SocketException ignored) {
             // We may not be able to set loopback mode. It is inconsistent
             // whether an error will occur if the set fails.
-            LOG.log(Level.CONFIG, "exception occurred enabling multicastsocket loopbackmode", ignored);
+            LOG.info("exception occurred enabling multicastsocket loopbackmode", ignored);
         }
 
         // Tell tell the world about our configuration.
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring IP Multicast Message Transport : " + assignedID);
 
@@ -459,7 +455,7 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 configInfo.append("\n\t\tUsing Network Interface (from socket): ").append(multicastSocket.getNetworkInterface());
                 configInfo.append("\n\t\tLoopBackMode disabled: ").append(multicastSocket.getLoopbackMode());
             } catch (java.net.SocketException se) {
-                LOG.log(Level.CONFIG, "SocketException handled accessing multicastSocket", se);
+                LOG.info("SocketException handled accessing multicastSocket", se);
             }
 
             configInfo.append("\n\t\tMulticast Server Bind Addr: ").append(multicastSocket.getLocalSocketAddress());
@@ -859,7 +855,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 return;
             }
 
-            Logging.logCheckedFiner(LOG, "Queuing incoming datagram packet : ", packet);
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Queuing incoming datagram packet : ", packet);
 
             // push the datagram
             queue.put(packet);
@@ -889,7 +886,8 @@ public class McastTransport implements Runnable, Module, MessagePropagater {
                 DatagramPacket packet;
 
                 while (!stopped && (null != (packet = queue.poll()))) {
-                    Logging.logCheckedFiner(LOG, "Processing incoming datagram packet : ", packet);
+                	// LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "Processing incoming datagram packet : ", packet);
                     processMulticast(packet);
                 }
 

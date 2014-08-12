@@ -87,7 +87,6 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import net.jxta.credential.Credential;
 import net.jxta.credential.CredentialPCLSupport;
@@ -104,6 +103,7 @@ import net.jxta.exception.PeerGroupException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -157,10 +157,7 @@ import net.jxta.service.Service;
  */
 public final class PSECredential implements Credential, CredentialPCLSupport {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(PSECredential.class.getName());
+    private static final Logger LOG = Logging.getLogger(PSECredential.class.getName());
 
     /**
      * The MembershipService service which generated this credential.

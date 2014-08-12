@@ -65,6 +65,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.StructuredDocumentFactory;
 import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.DiscoveryQueryMsg;
 import net.jxta.protocol.PeerAdvertisement;
@@ -72,7 +73,6 @@ import net.jxta.protocol.PeerAdvertisement;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Implements the Discovery Query Message according to the schema defined by the
@@ -110,7 +110,7 @@ import java.util.logging.Logger;
  */
 public class DiscoveryQuery extends DiscoveryQueryMsg {
 
-    private static final Logger LOG = Logger.getLogger(DiscoveryQuery.class.getName());
+    private static final Logger LOG = Logging.getLogger(DiscoveryQuery.class.getName());
 
     private static final String typeTag = "Type";
     private static final String peerAdvTag = "PeerAdv";

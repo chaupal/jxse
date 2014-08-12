@@ -63,22 +63,17 @@ import net.jxta.impl.cm.srdi.inmemory.PeerIdKey;
 import net.jxta.impl.cm.srdi.inmemory.SearchIndex;
 import net.jxta.impl.cm.srdi.inmemory.SearchKey;
 import net.jxta.impl.util.TimeUtils;
-
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
-
 import net.jxta.peer.PeerID;
-
 import net.jxta.peergroup.PeerGroup;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -98,7 +93,7 @@ import java.util.logging.Logger;
  */
 public class InMemorySrdi implements SrdiAPI {
 
-    private final static transient Logger LOG = Logger.getLogger( InMemorySrdi.class.getName(  ) );
+    private final static transient Logger LOG = Logging.getLogger( InMemorySrdi.class.getName(  ) );
 
     // Store of back end objects in use so we can support the static clear functionality
     private static Hashtable<PeerGroup, List<SrdiAPI>> backends = new Hashtable<PeerGroup, List<SrdiAPI>>(  );
@@ -148,7 +143,7 @@ public class InMemorySrdi implements SrdiAPI {
             this.searchIndex = new SearchIndex( this.indexName );
         }
 
-        if ( Logging.SHOW_INFO && LOG.isLoggable( Level.INFO ) ) {
+        if ( Logging.SHOW_INFO && LOG.isInfoEnabled() ) {
 
             LOG.info( "[" + ( ( group == null ) ? "none" : group.toString(  ) ) + "] : Initialized " + indexName );
         }
@@ -156,7 +151,7 @@ public class InMemorySrdi implements SrdiAPI {
 
     public static void clearSrdi( PeerGroup group ) {
 
-        if ( Logging.SHOW_INFO && LOG.isLoggable( Level.INFO ) ) {
+        if ( Logging.SHOW_INFO && LOG.isInfoEnabled() ) {
 
             LOG.info( "Clearing SRDIs for " + group );
         }
@@ -182,9 +177,9 @@ public class InMemorySrdi implements SrdiAPI {
                     idx.clear(  );
                 } catch ( IOException e ) {
 
-                    if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+                    if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
 
-                        LOG.log( Level.SEVERE, "Failed clearing index for group: " + group.getPeerGroupName(  ), e );
+                        LOG.severe( "Failed clearing index for group: " + group.getPeerGroupName(  ), e );
                     }
                 }
             }
@@ -193,9 +188,9 @@ public class InMemorySrdi implements SrdiAPI {
 
                 if ( null == backends.remove( group ) ) {
 
-                    if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+                    if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
 
-                        LOG.log( Level.SEVERE, "Failed removing index instance: " + group );
+                        LOG.severe( "Failed removing index instance: " + group );
                     }
                 }
             }
@@ -217,7 +212,7 @@ public class InMemorySrdi implements SrdiAPI {
 
         if ( !stopped ) {
 
-            if ( Logging.SHOW_WARNING && LOG.isLoggable( Level.WARNING ) ) {
+            if ( Logging.SHOW_WARNING && LOG.isWarningLoggable( ) ) {
 
                 LOG.warning( "Clearing an index that has not been stopped!" );
             }
@@ -233,9 +228,9 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
 
-                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -270,7 +265,7 @@ public class InMemorySrdi implements SrdiAPI {
                 if ( expiration.compareTo( now ) > 0 ) {
 
                     // This entry is not yet expired, we are done, exit the GC
-                    if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+                    if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
                         LOG.fine( "[" + this.indexName + "] GC: cleared " + counter + " item(s) from the index" );
                     }
@@ -294,7 +289,7 @@ public class InMemorySrdi implements SrdiAPI {
                             // Recover the search key
                             SearchKey searchKey = gcKey.getSearchKey(  );
 
-                            if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+                            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
                                 LOG.fine( "[" + this.indexName + "] GC: using tree key " + searchKey );
                             }
@@ -312,16 +307,17 @@ public class InMemorySrdi implements SrdiAPI {
 
                         // This *is* possible if the index item was removed via a call to add(), below, after we called getAllKeys() but before we
                         // iterated down to the expiration key to process the entry.  Just log it and carry on...
-                        if ( Logging.SHOW_FINER && LOG.isLoggable( Level.FINER ) ) {
+                    	// LOGGING: was FINER
+                        if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
-                            LOG.finer( "[" + this.indexName + "] GC: Removing GC Index using: " + expiration +
+                            LOG.fine( "[" + this.indexName + "] GC: Removing GC Index using: " + expiration +
                                 " returned a null set.  Assuming it's already been removed via a concurrent add()." );
                         }
                     }
                 }
             }
 
-            if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
                 LOG.fine( "[" + this.indexName + "] GC: cleared ALL ( e.g." + counter + " ) item(s) from the index" );
             }
@@ -329,9 +325,9 @@ public class InMemorySrdi implements SrdiAPI {
             printStatus(  );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
 
-                LOG.log( Level.SEVERE, "[" + this.indexName + "] GC: Unexpected exception encountered!", th );
+                LOG.severe( "[" + this.indexName + "] GC: Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -340,7 +336,7 @@ public class InMemorySrdi implements SrdiAPI {
 
     private void printStatus(  ) {
 
-        if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+        if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
             StringBuffer sb = new StringBuffer(  );
 
@@ -384,9 +380,9 @@ public class InMemorySrdi implements SrdiAPI {
             return this.searchIndex.getValueList( new SearchKey( primaryKey, attribute, value ) );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
 
-                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -433,9 +429,9 @@ public class InMemorySrdi implements SrdiAPI {
             return this.searchIndex.search( searchKey, threshold, false );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
 
-                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -462,7 +458,7 @@ public class InMemorySrdi implements SrdiAPI {
 
             if ( entries == null ) { // Nothing to do...
 
-                if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+                if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
                     LOG.fine( "[" + indexName + "]  Did not Remove:  Peer ID " + peerIdKey + ": is not in the index" );
                 }
@@ -495,16 +491,17 @@ public class InMemorySrdi implements SrdiAPI {
                 }
             }
 
-            if ( Logging.SHOW_FINEST && LOG.isLoggable( Level.FINEST ) ) {
+            // LOGGING: was FINEST
+            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
-                LOG.finest( "[" + indexName + "]  Removing  Peer ID '" + peerIdKey + "' led to the expiration of '" + counter +
+                LOG.fine( "[" + indexName + "]  Removing  Peer ID '" + peerIdKey + "' led to the expiration of '" + counter +
                     "' item(s) in the index" );
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
 
-                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -537,9 +534,10 @@ public class InMemorySrdi implements SrdiAPI {
 
             GcKey gcKey = new GcKey( searchKey, peerIdKey );
 
-            if ( Logging.SHOW_FINEST && LOG.isLoggable( Level.FINEST ) ) {
+            // LOGGING: was FINEST
+            if ( Logging.SHOW_FINE && LOG.isFineEnabled() ) {
 
-                LOG.finest( "[" + indexName + "] Adding / Updating " + searchKey + " for " + peerIdKey + " expires in: " +
+                LOG.fine( "[" + indexName + "] Adding / Updating " + searchKey + " for " + peerIdKey + " expires in: " +
                     ( expiration - TimeUtils.timeNow(  ) ) + "ms (at: " + expiration + ")" );
             }
 
@@ -564,9 +562,9 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
 
-                LOG.log( Level.SEVERE, "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );

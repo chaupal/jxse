@@ -65,21 +65,19 @@ import net.jxta.document.Element;
 import net.jxta.document.MimeMediaType;
 import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.TransportAdvertisement;
+
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Provides configuration parameters for the JXTA TCP Message Transport.
  */
 public class TCPAdv extends TransportAdvertisement {
 
-    /**
-     * Logger
-     */
-    private static final Logger LOG = Logger.getLogger(TCPAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(TCPAdv.class.getName());
 
     private static final String CONFIGMODES[] = {"auto", "manual"};
     private static final String INDEXFIELDS[] = {/* none */};

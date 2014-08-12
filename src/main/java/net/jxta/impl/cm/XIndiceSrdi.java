@@ -74,7 +74,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
+
 import net.jxta.id.IDFactory;
 import net.jxta.impl.cm.Srdi.Entry;
 import net.jxta.impl.util.TimeUtils;
@@ -86,6 +86,7 @@ import net.jxta.impl.xindice.core.filer.BTreeCallback;
 import net.jxta.impl.xindice.core.filer.BTreeFiler;
 import net.jxta.impl.xindice.core.indexer.IndexQuery;
 import net.jxta.impl.xindice.core.indexer.NameIndexer;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -95,10 +96,7 @@ import net.jxta.peergroup.PeerGroup;
  */
 public class XIndiceSrdi implements SrdiAPI {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(XIndiceSrdi.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(XIndiceSrdi.class.getName());
 
     private volatile boolean stop = false;
     private final XIndiceIndexer srdiIndexer;
@@ -449,7 +447,8 @@ public class XIndiceSrdi implements SrdiAPI {
                 long t0 = TimeUtils.timeNow();
 
                 Srdi.SrdiIndexRecord rec = readRecord(record);
-                Logging.logCheckedFinest(LOG, "Got result back in : ", (TimeUtils.timeNow() - t0), "ms.");
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Got result back in : ", (TimeUtils.timeNow() - t0), "ms.");
 
                 copyIntoList(results, rec.list, excludeTable, threshold);
 
@@ -619,25 +618,29 @@ public class XIndiceSrdi implements SrdiAPI {
         for (Srdi.Entry entry : from) {
             boolean expired = entry.isExpired();
 
-            Logging.logCheckedFiner(LOG, "Entry peerid : ", entry.peerid, (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
+            // LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Entry peerid : ", entry.peerid, (expired ? " EXPIRED " : (" Expires at : " + entry.expiration)));
 
             if (!to.contains(entry.peerid) && !expired) {
                 if (!table.contains(entry.peerid)) {
-
-                    Logging.logCheckedFiner(LOG, "adding Entry :", entry.peerid, " to list");
+                	
+                	// LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "adding Entry :", entry.peerid, " to list");
 
                     to.add(entry.peerid);
                     if(to.size() >= threshold) return;
 
                 } else {
 
-                    Logging.logCheckedFiner(LOG, "Skipping gc marked entry :", entry.peerid);
+                	// LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "Skipping gc marked entry :", entry.peerid);
 
                 }
 
             } else {
 
-                Logging.logCheckedFiner(LOG, "Skipping expired Entry :", entry.peerid);
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Skipping expired Entry :", entry.peerid);
 
             }
         }

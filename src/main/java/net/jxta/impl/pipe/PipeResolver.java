@@ -74,6 +74,7 @@ import net.jxta.impl.protocol.ResolverQuery;
 import net.jxta.impl.protocol.SrdiMessageImpl;
 import net.jxta.impl.resolver.InternalQueryHandler;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.membership.MembershipService;
 import net.jxta.peer.PeerID;
@@ -108,17 +109,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * This class implements the Resolver interfaces for a PipeServiceImpl.
  */
 class PipeResolver implements SrdiPushEntriesInterface, InternalQueryHandler, SrdiHandler, PipeRegistrar {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(PipeResolver.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(PipeResolver.class.getName());
 
     private final static String PipeResolverName = "JxtaPipeResolver";
     private final static String srdiIndexerFileName = "pipeResolverSrdi";

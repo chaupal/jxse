@@ -58,9 +58,11 @@ package net.jxta.endpoint;
 
 import net.jxta.document.Document;
 import net.jxta.document.MimeMediaType;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.util.CountingOutputStream;
 import net.jxta.util.DevNullOutputStream;
+
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -73,7 +75,7 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
+
 import net.jxta.util.UUIDUtilities;
 
 /**
@@ -120,10 +122,7 @@ import net.jxta.util.UUIDUtilities;
  */
 public abstract class MessageElement implements Document {
 
-    /**
-     * Logger
-     */
-    private static transient final Logger LOG = Logger.getLogger(MessageElement.class.getName());
+    private static transient final Logger LOG = Logging.getLogger(MessageElement.class.getName());
 
     /**
      * The name of this element. May be the empty string ("") if the element is

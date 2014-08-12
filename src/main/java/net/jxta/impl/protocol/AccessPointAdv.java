@@ -66,6 +66,7 @@ import net.jxta.document.StructuredDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroupID;
@@ -76,7 +77,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Associates a set of EndpointAddresses with a PeerID.
@@ -96,10 +96,7 @@ import java.util.logging.Logger;
  */
 public class AccessPointAdv extends AccessPointAdvertisement implements Cloneable {
 
-    /**
-     * Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(AccessPointAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(AccessPointAdv.class.getName());
 
     private static final String PID_TAG = "PID";
     private static final String EA_TAG = "EA";

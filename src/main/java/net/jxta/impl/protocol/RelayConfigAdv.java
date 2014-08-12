@@ -59,12 +59,13 @@ package net.jxta.impl.protocol;
 import net.jxta.document.*;
 import net.jxta.endpoint.EndpointAddress;
 import net.jxta.id.ID;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
+
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Contains parameters for configuration of the Reference Implemenation
@@ -76,10 +77,7 @@ import java.util.logging.Logger;
  */
 public final class RelayConfigAdv extends ExtendableAdvertisement implements Cloneable {
 
-    /**
-     * Log4J Logger
-     */
-    private static final Logger LOG = Logger.getLogger(RelayConfigAdv.class.getName());
+    private static final Logger LOG = Logging.getLogger(RelayConfigAdv.class.getName());
 
     /**
      * Our DOCTYPE

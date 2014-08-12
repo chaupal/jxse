@@ -64,6 +64,7 @@ import net.jxta.endpoint.EndpointAddress;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.impl.endpoint.EndpointServiceImpl;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.InputPipe;
@@ -83,7 +84,6 @@ import java.security.cert.X509Certificate;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import java.util.Set;
 
 /**
@@ -116,7 +116,7 @@ import java.util.Set;
  */
 public class JxtaServerSocket extends ServerSocket implements PipeMsgListener {
 
-    private static final Logger LOG = Logger.getLogger(JxtaServerSocket.class.getName());
+    private static final Logger LOG = Logging.getLogger(JxtaServerSocket.class.getName());
 
     protected static final String MSG_ELEMENT_NAMESPACE = "JXTASOC";
     protected static final String credTag = "Cred";

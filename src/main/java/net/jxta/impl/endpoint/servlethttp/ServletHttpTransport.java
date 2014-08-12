@@ -70,6 +70,7 @@ import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.endpoint.transportMeter.TransportServiceMonitor;
 import net.jxta.impl.meter.MonitorManager;
 import net.jxta.impl.protocol.HTTPAdv;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.meter.MonitorResources;
 import net.jxta.peergroup.PeerGroup;
@@ -85,8 +86,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A JXTA Message Transport
@@ -98,10 +97,7 @@ import java.util.logging.Logger;
  */
 public final class ServletHttpTransport implements Module {
 
-    /**
-     * Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(ServletHttpTransport.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(ServletHttpTransport.class.getName());
 
     /**
      * The name of the protocol
@@ -269,7 +265,7 @@ public final class ServletHttpTransport implements Module {
         publicAddress = publicAddresses.get(0);
 
         // Tell tell the world about our configuration.
-        if (Logging.SHOW_CONFIG && LOG.isLoggable(Level.CONFIG)) {
+        if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {
 
             StringBuilder configInfo = new StringBuilder("Configuring HTTP Message Transport : " + assignedID);
 

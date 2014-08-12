@@ -68,16 +68,17 @@ import net.jxta.impl.rendezvous.RendezVousPropagateMessage;
 import net.jxta.impl.rendezvous.RendezVousServiceImpl;
 import net.jxta.impl.rendezvous.RendezVousServiceProvider;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.rendezvous.RendezvousEvent;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -88,10 +89,7 @@ import java.util.logging.Logger;
  */
 public class AdhocPeerRdvService extends RendezVousServiceProvider {
 
-    /**
-     * Log4J Logger
-     */
-    private final static transient Logger LOG = Logger.getLogger(AdhocPeerRdvService.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(AdhocPeerRdvService.class.getName());
 
     /**
      * Default Maximum TTL. This is minimum needed to bridge networks.

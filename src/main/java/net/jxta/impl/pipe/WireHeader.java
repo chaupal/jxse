@@ -65,22 +65,19 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * This class implements a JXTA-WIRE header.
  */
 public class WireHeader {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(WireHeader.class.getName());
+    private final static Logger LOG = Logging.getLogger(WireHeader.class.getName());
 
     private static final String Name = "JxtaWire";
     private static final String MsgIdTag = "MsgId";

@@ -71,8 +71,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.content.Content;
 import net.jxta.content.ContentID;
@@ -104,16 +104,11 @@ import net.jxta.protocol.ContentAdvertisement;
 import net.jxta.protocol.ContentShareAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
-/**
- *
- */
 public class DefaultContentTransfer extends AbstractContentTransfer
         implements PipeMsgListener {
-    /**
-     * Logger instance.
-     */
-    private static final Logger LOG =
-            Logger.getLogger(DefaultContentTransfer.class.getName());
+
+	private static final Logger LOG =
+            Logging.getLogger(DefaultContentTransfer.class.getName());
 
     /**
      * The number of seconds between source discovery attempts.
@@ -515,7 +510,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                                     criticalEntry();
                                     periodicCheck();
                                 } catch (InterruptedException intx) {
-                                    Logging.logCheckedFinest(LOG, "Periodic check interrupted\n", intx);
+                                    // LOGGING: was Finest
+                                    Logging.logCheckedFine(LOG, "Periodic check interrupted\n", intx);
                                 } finally {
                                     criticalExit();
                                 }
@@ -712,7 +708,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         DataResponse resp;
         byte data[] = null;
 
-        Logging.logCheckedFiner(LOG, "Incoming message: ", msg);
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Incoming message: ", msg);
 
         it = msg.getMessageElementsOfNamespace(DefaultContentProvider.MSG_NAMESPACE);
 
@@ -784,8 +781,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
     private void periodicCheck() throws InterruptedException {
 
         long millis = System.currentTimeMillis();
-
-        Logging.logCheckedFiner(LOG, "Peridiodic check starting");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Peridiodic check starting");
 
         int attempt=0;
         int maxAttempts = outstanding.size();
@@ -793,7 +790,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         while (progress && attempt++ < maxAttempts) {
 
-            Logging.logCheckedFiner(LOG, "Periodic check attempt #", attempt,
+        	// LOGGING: was Finer
+            Logging.logCheckedFine(LOG, "Periodic check attempt #", attempt,
                         " (", maxAttempts, " max)");
 
             progress = false;
@@ -802,16 +800,19 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
             for (Node node : outstanding) {
 
-                Logging.logCheckedFiner(LOG, "Evaluating status of Node #", i, ": ", node);
+            	// LOGGING: was Finer
+                Logging.logCheckedFine(LOG, "Evaluating status of Node #", i, ": ", node);
 
                 if (0 == node.timeStamp) {
 
                     // Node not in use
-                    Logging.logCheckedFiner(LOG, "  Node not in use.");
+                	// LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "  Node not in use.");
 
                     if (prepareRequest(node)) {
 
-                        Logging.logCheckedFiner(LOG, "  Node repurposed for request: ", node);
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "  Node repurposed for request: ", node);
 
                         progress = true;
                         inUse++;
@@ -821,16 +822,19 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
                 } else if (node.data != null) {
 
-                    // Node has data, but data hasnt been written out yet.
-                    Logging.logCheckedFiner(LOG, "  Node awaiting data write-out.");
+                    // Node has data, but data hasn't been written out yet.
+                	// LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "  Node awaiting data write-out.");
 
                     if (checkWrite(node)) {
-
-                        Logging.logCheckedFiner(LOG, "  Data written.");
+                    	
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "  Data written.");
 
                         if (prepareRequest(node)) {
 
-                            Logging.logCheckedFiner(LOG, "  Node repurposed for request: ", node);
+                        	// LOGGING: was Finer
+                            Logging.logCheckedFine(LOG, "  Node repurposed for request: ", node);
 
                             progress = true;
                             inUse++;
@@ -841,7 +845,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                     } else {
 
                         // Cant write yet.
-                        Logging.logCheckedFiner(LOG, "  Can't write yet.");
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "  Can't write yet.");
                         inUse++;
 
                     }
@@ -849,19 +854,22 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                 } else if (millis - node.timeStamp > RESPONSE_TIMEOUT) {
 
                     // Request timed out
-                    Logging.logCheckedFiner(LOG, "  Timeout detected.");
+                	// LOGGING: was Finer
+                    Logging.logCheckedFine(LOG, "  Timeout detected.");
 
                     boolean beyondEOF = (eofOffset >= 0) && (eofOffset <= node.offset);
 
                     if (beyondEOF) {
 
-                        Logging.logCheckedFiner(LOG, "  Request is beyond known EOF. Resetting.");
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "  Request is beyond known EOF. Resetting.");
                         progress = true;
                         node.timeStamp = 0;
 
                     } else {
-
-                        Logging.logCheckedFiner(LOG, "  Resending request.");
+                    	
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "  Resending request.");
                         inUse++;
                         sendRequest(node, i);
 
@@ -872,13 +880,15 @@ public class DefaultContentTransfer extends AbstractContentTransfer
                     // Request outstanding.
                     if (eofOffset >= 0 && eofOffset <= node.offset) {
 
-                        Logging.logCheckedFiner(LOG, "  Request is beyond known EOF. Resetting.");
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "  Request is beyond known EOF. Resetting.");
                         progress = true;
                         node.timeStamp = 0;
 
                     } else {
 
-                        Logging.logCheckedFiner(LOG, "  Request outstanding.");
+                    	// LOGGING: was Finer
+                        Logging.logCheckedFine(LOG, "  Request outstanding.");
                         inUse++;
 
                     }
@@ -912,7 +922,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
             }
         }
 
-        Logging.logCheckedFiner(LOG, "Peridiodic check completed");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Peridiodic check completed");
 
     }
 
@@ -982,12 +993,13 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         msg = new Message();
         msg.addMessageElement(DefaultContentProvider.MSG_NAMESPACE, msge);
 
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            Logging.logCheckedFinest(LOG, "Sending DataRequest (idx=", idx, ", node=", node, "):");
-            Logging.logCheckedFinest(LOG, "   ContentID: ", req.getContentID());
-            Logging.logCheckedFinest(LOG, "   Offset : ", req.getOffset());
-            Logging.logCheckedFinest(LOG, "   Length : ", req.getLength());
-            Logging.logCheckedFinest(LOG, "   QID    : ", req.getQueryID());
+        // LOGGING: was FINEST
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+            Logging.logCheckedFine(LOG, "Sending DataRequest (idx=", idx, ", node=", node, "):");
+            Logging.logCheckedFine(LOG, "   ContentID: ", req.getContentID());
+            Logging.logCheckedFine(LOG, "   Offset : ", req.getOffset());
+            Logging.logCheckedFine(LOG, "   Length : ", req.getLength());
+            Logging.logCheckedFine(LOG, "   QID    : ", req.getQueryID());
         }
 
         try {
@@ -1000,7 +1012,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         }
 
-        Logging.logCheckedFiner(LOG, "Did not send message");
+        // LOGGING: was Finer
+        Logging.logCheckedFine(LOG, "Did not send message");
         node.timeStamp = 1;
 
     }
@@ -1013,20 +1026,22 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         int idx;
         long offs;
 
-        if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-            Logging.logCheckedFinest(LOG, "DataResponse:");
-            Logging.logCheckedFinest(LOG, "   ContentID: ", resp.getContentID());
-            Logging.logCheckedFinest(LOG, "   Offset : ", resp.getOffset());
-            Logging.logCheckedFinest(LOG, "   Length : ", resp.getLength());
-            Logging.logCheckedFinest(LOG, "   QID    : ", resp.getQueryID());
-            Logging.logCheckedFinest(LOG, "   EOF    : ", resp.getEOF());
-            Logging.logCheckedFinest(LOG, "   Bytes  : ", ((data == null) ? 0 : data.length));
+        // LOGGING: was FINEST
+        if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+            Logging.logCheckedFine(LOG, "DataResponse:");
+            Logging.logCheckedFine(LOG, "   ContentID: ", resp.getContentID());
+            Logging.logCheckedFine(LOG, "   Offset : ", resp.getOffset());
+            Logging.logCheckedFine(LOG, "   Length : ", resp.getLength());
+            Logging.logCheckedFine(LOG, "   QID    : ", resp.getQueryID());
+            Logging.logCheckedFine(LOG, "   EOF    : ", resp.getEOF());
+            Logging.logCheckedFine(LOG, "   Bytes  : ", ((data == null) ? 0 : data.length));
         }
 
         if (!resp.getContentID().equals(getTransferContentID())) {
 
             Logging.logCheckedWarning(LOG, "Invalid ContentID.  Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected ContentID: ", getTransferContentID());
+            // LOGGING: was FINEST
+            Logging.logCheckedFine(LOG, "Expected ContentID: ", getTransferContentID());
             return;
 
         }
@@ -1034,7 +1049,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (resp.getLength() != ((data == null) ? 0 : data.length)) {
 
             Logging.logCheckedWarning(LOG, "Data length doesnt match length in header.  Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected length: ", ((data == null) ? 0 : data.length));
+            // LOGGING: was FINEST
+            Logging.logCheckedFine(LOG, "Expected length: ", ((data == null) ? 0 : data.length));
             return;
 
         }
@@ -1044,7 +1060,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (idx >= outstanding.size()) {
 
             Logging.logCheckedWarning(LOG, "Invalid query ID.  Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected max: ", outstanding.size());
+            // LOGGING: was FINEST
+            Logging.logCheckedFine(LOG, "Expected max: ", outstanding.size());
             return;
 
         }
@@ -1063,7 +1080,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (resp.getOffset() != node.offset) {
 
             Logging.logCheckedWarning(LOG, "Invalid offset. Discarding.");
-            Logging.logCheckedFinest(LOG, "Expected offset: ", node.offset);
+            // LOGGING: was FINEST
+            Logging.logCheckedFine(LOG, "Expected offset: ", node.offset);
             return;
 
         }
@@ -1071,7 +1089,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         // We have what appears to be a good packet.
         if (SIMULATE_PACKET_LOSS) {
             if (RANDOM.nextInt(100) < PACKET_LOSS_PERCENT) {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
                     Logging.logCheckedFine(LOG, "Simulating lost packet");
                     return;
                 }
@@ -1095,13 +1113,14 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         couldWrite = checkWrite(node);
         if (couldWrite) {
 
-            if (Logging.SHOW_FINEST && LOG.isLoggable(Level.FINEST)) {
-                Logging.logCheckedFinest(LOG, "Wrote the following to disk:");
-                Logging.logCheckedFinest(LOG, "   Offset : ", resp.getOffset());
-                Logging.logCheckedFinest(LOG, "   Length : ", resp.getLength());
-                Logging.logCheckedFinest(LOG, "   QID    : ", resp.getQueryID());
-                Logging.logCheckedFinest(LOG, "   EOF    : ", resp.getEOF());
-                Logging.logCheckedFinest(LOG, "   Bytes  : ", ((data == null) ? 0 : data.length));
+            // LOGGING: was FINEST
+            if (Logging.SHOW_FINE && LOG.isFineEnabled()) {
+                Logging.logCheckedFine(LOG, "Wrote the following to disk:");
+                Logging.logCheckedFine(LOG, "   Offset : ", resp.getOffset());
+                Logging.logCheckedFine(LOG, "   Length : ", resp.getLength());
+                Logging.logCheckedFine(LOG, "   QID    : ", resp.getQueryID());
+                Logging.logCheckedFine(LOG, "   EOF    : ", resp.getEOF());
+                Logging.logCheckedFine(LOG, "   Bytes  : ", ((data == null) ? 0 : data.length));
             }
 
             if (prepareRequest(node)) {
@@ -1144,7 +1163,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         } catch (IOException iox) {
 
             // We'll implicitly try again later
-            Logging.logCheckedFinest(LOG, "Could not write data\n", iox);
+            // LOGGING: was FINEST
+            Logging.logCheckedFine(LOG, "Could not write data\n", iox);
             return false;
 
         }
@@ -1168,7 +1188,8 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         synchronized(this) {
 
             while (ownerThread != null && ownerThread != me) {
-                Logging.logCheckedFinest(LOG, "Waiting for access to critical section");
+                // LOGGING: was Finest
+                Logging.logCheckedFine(LOG, "Waiting for access to critical section");
                 wait();
             }
 
@@ -1176,19 +1197,21 @@ public class DefaultContentTransfer extends AbstractContentTransfer
 
         }
 
-        Logging.logCheckedFinest(LOG, "Access to critical section granted");
+        // LOGGING: was Finest
+        Logging.logCheckedFine(LOG, "Access to critical section granted");
 
     }
 
     /**
      * Used by the periodic execution and message processing threads to
      * protect access to shared code to help minimize the amount of
-     * synchronizatoin required.  This method releases the lock on the
+     * synchronization required.  This method releases the lock on the
      * shared/critical code section.
      */
     private void criticalExit() {
 
-        Logging.logCheckedFinest(LOG, "Releasing access to critical section");
+        // LOGGING: was Finest
+        Logging.logCheckedFine(LOG, "Releasing access to critical section");
 
         Thread me = Thread.currentThread();
 

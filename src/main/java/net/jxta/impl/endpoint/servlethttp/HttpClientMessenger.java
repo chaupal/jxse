@@ -68,6 +68,7 @@ import net.jxta.impl.endpoint.EndpointServiceImpl;
 import net.jxta.impl.endpoint.transportMeter.TransportBindingMeter;
 import net.jxta.impl.endpoint.transportMeter.TransportMeterBuildSettings;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 
 import java.io.EOFException;
@@ -80,8 +81,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *  Simple messenger that simply posts a message to a URL.
@@ -91,10 +90,7 @@ import java.util.logging.Logger;
  */
 final class HttpClientMessenger extends BlockingMessenger {
 
-    /**
-     *  Logger.
-     */
-    private final static transient Logger LOG = Logger.getLogger(HttpClientMessenger.class.getName());
+    private final static transient Logger LOG = Logging.getLogger(HttpClientMessenger.class.getName());
 
     /**
      *  Minimum amount of time between poll
@@ -498,7 +494,7 @@ final class HttpClientMessenger extends BlockingMessenger {
                 // warning and treat it as OK.71
                 if (responseCode == -1) {
 
-                    if (neverWarned && Logging.SHOW_WARNING && LOG.isLoggable(Level.WARNING)) {
+                    if (neverWarned && Logging.SHOW_WARNING && LOG.isWarningLoggable()) {
                         LOG.warning("Obsolete HTTP proxy does not issue HTTP_OK response. Assuming OK");
                         neverWarned = false;
                     }
@@ -698,7 +694,8 @@ final class HttpClientMessenger extends BlockingMessenger {
 
                         int responseCode = conn.getResponseCode();
 
-                        Logging.logCheckedFiner(LOG,
+                        // LOGGING: was Finer
+                        Logging.logCheckedFine(LOG,
                                     "Response ", responseCode, " for Connection : ", senderURL, "\n\tContent-Type : ",
                                     conn.getHeaderField("Content-Type"), "\tContent-Length : ",
                                     conn.getHeaderField("Content-Length"), "\tTransfer-Encoding : ",

@@ -82,6 +82,7 @@ import net.jxta.impl.rendezvous.rendezvousMeter.ClientConnectionMeter;
 import net.jxta.impl.rendezvous.rendezvousMeter.RendezvousMeterBuildSettings;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.impl.util.TimeUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -90,6 +91,7 @@ import net.jxta.platform.Module;
 import net.jxta.protocol.ConfigParams;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.rendezvous.RendezvousEvent;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -100,7 +102,6 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
  * A JXTA {@link net.jxta.rendezvous.RendezVousService} implementation which
@@ -112,10 +113,7 @@ import java.util.logging.Logger;
  */
 public class RdvPeerRdvService extends StdRendezVousService {
 
-    /**
-     * Logger
-     */
-    private final static Logger LOG = Logger.getLogger(RdvPeerRdvService.class.getName());
+    private final static Logger LOG = Logging.getLogger(RdvPeerRdvService.class.getName());
 
     public static final String RDV_WALK_SVC_NAME = "RdvWalkSvcName";
     public static final String RDV_WALK_SVC_PARAM = "RdvWalkSvcParam";

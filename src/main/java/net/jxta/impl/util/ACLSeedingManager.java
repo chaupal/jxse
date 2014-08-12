@@ -58,15 +58,16 @@ package net.jxta.impl.util;
 
 import net.jxta.impl.access.AccessList;
 import net.jxta.impl.endpoint.EndpointUtils;
+import net.jxta.logging.Logger;
 import net.jxta.logging.Logging;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.RouteAdvertisement;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Logger;
 
 /**
  * Provides support for the optional access control list which determines which
@@ -79,10 +80,7 @@ import java.util.logging.Logger;
 @Deprecated
 public abstract class ACLSeedingManager implements SeedingManager {
 
-    /**
-     * Logger
-     */
-    private static final transient Logger LOG = Logger.getLogger(ACLSeedingManager.class.getName());
+    private static final transient Logger LOG = Logging.getLogger(ACLSeedingManager.class.getName());
 
     /**
      * The interval in milliseconds at which the ACL be refreshed from the
