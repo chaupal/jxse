@@ -55,15 +55,15 @@ public class SLF4JLogger implements Logger {
 		logger.warn(format, params);
 	}
 
-	public void severe(final String message) {
+	public void error(final String message) {
 		logger.error(message);
 	}
 
-	public void severe(final String message, final Throwable t) {
+	public void error(final String message, final Throwable t) {
 		logger.error(message, t);
 	}
 
-	public boolean isSevereLoggable() {
+	public boolean isErrorEnabled() {
 		return logger.isErrorEnabled();
 	}
 

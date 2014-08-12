@@ -81,15 +81,15 @@ public class JavaUtilLoggingLogger implements Logger {
 		return logger.isLoggable(Level.WARNING);
 	}
 
-	public void severe(final String message) {
+	public void error(final String message) {
 		logger.severe(message);
 	}
 	
-	public void severe(final String message, final Throwable t) {
+	public void error(final String message, final Throwable t) {
 		logger.log(Level.SEVERE, message, t);
 	}
 
-	public boolean isSevereLoggable() {
+	public boolean isErrorEnabled() {
 		return logger.isLoggable(Level.SEVERE);
 	}
 

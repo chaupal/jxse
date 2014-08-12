@@ -846,7 +846,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             try {
                 dl.discoveryEvent(new DiscoveryEvent(srcAddress, res, response.getQueryId()));
             } catch (Throwable all) {
-                LOG.severe("Uncaught Throwable in listener :" + Thread.currentThread().getName(), all);
+                LOG.error("Uncaught Throwable in listener :" + Thread.currentThread().getName(), all);
             }
         }
 

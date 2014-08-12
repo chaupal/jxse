@@ -628,7 +628,7 @@ public class EndpointRouter implements EndpointListener, EndpointRoutingTranspor
                             Thread.sleep(delayBeforeRetry);
                         }
                         catch (InterruptedException e) {
-                            LOG.severe(e.getMessage());
+                            LOG.error(e.getMessage());
                         }
                         continue;
                     } else {

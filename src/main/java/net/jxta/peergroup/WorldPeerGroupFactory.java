@@ -157,7 +157,7 @@ public final class WorldPeerGroupFactory {
             configurator.setConfigParams(config);
             configurator.save();
         } catch (ConfiguratorException configFailure) {
-            LOG.severe("Failure while managing World Peer Group configuration");
+            LOG.error("Failure while managing World Peer Group configuration");
 
             throw new PeerGroupException("Failure while managing World Peer Group configuration", configFailure);
         }
@@ -264,12 +264,12 @@ public final class WorldPeerGroupFactory {
      */
     private PeerGroup newWorldPeerGroup(Class worldPeerGroupClass, ConfigParams config, URI storeHome) throws PeerGroupException {
         if (!storeHome.isAbsolute()) {
-            LOG.severe("storeHome must be an absolute URI.");
+            LOG.error("storeHome must be an absolute URI.");
             throw new PeerGroupException("storeHome must be an absolute URI.");
         }
 
         if (storeHome.isOpaque()) {
-            LOG.severe("Opaque storeHome is not currently supported.");
+            LOG.error("Opaque storeHome is not currently supported.");
             throw new PeerGroupException("Opaque storeHome is not currently supported.");
         }
 
@@ -312,7 +312,7 @@ public final class WorldPeerGroupFactory {
                 return result;
             } catch (RuntimeException e) {
                 // should be all other checked exceptions
-                LOG.severe("World Peer Group could not be instantiated.\n", e);
+                LOG.error("World Peer Group could not be instantiated.\n", e);
 
                 // cleanup broken instance
                 if (null != result) {
@@ -323,7 +323,7 @@ public final class WorldPeerGroupFactory {
                 throw e;
             } catch (Exception e) {
                 // should be all other checked exceptions
-                LOG.severe("World Peer Group could not be instantiated.\n", e);
+                LOG.error("World Peer Group could not be instantiated.\n", e);
 
                 // cleanup broken instance
                 if (null != result) {

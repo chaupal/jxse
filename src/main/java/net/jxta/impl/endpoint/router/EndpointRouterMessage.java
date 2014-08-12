@@ -431,13 +431,13 @@ public class EndpointRouterMessage {
                 ByteArrayMessageElement tempBAME = new ByteArrayMessageElement(MESSAGE_NAME+"-fingerprint", MimeMediaType.AOS, tempBAOS.toByteArray(),null);
                 this.message.replaceMessageElement(MESSAGE_NS, tempBAME);
             } catch (InvalidKeyException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
             } catch (CertificateEncodingException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
             } catch (SignatureException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
             } catch (IOException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
             }
         }
     }

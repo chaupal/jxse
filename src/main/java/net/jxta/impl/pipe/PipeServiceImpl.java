@@ -333,7 +333,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 				wirePipe.stopApp();
 			}
 		} catch (Throwable failed) {
-			LOG.severe("Failed to stop wire pipe", failed);
+			LOG.error("Failed to stop wire pipe", failed);
 		} finally {
 			wirePipe = null;
 		}
@@ -343,7 +343,7 @@ public class PipeServiceImpl implements PipeService, PipeResolver.Listener {
 				pipeResolver.stop();
 			}
 		} catch (Throwable failed) {
-			LOG.severe("Failed to stop pipe resolver", failed);
+			LOG.error("Failed to stop pipe resolver", failed);
 		} finally {
 			pipeResolver = null;
 		}

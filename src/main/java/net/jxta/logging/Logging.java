@@ -317,10 +317,10 @@ public final class Logging {
      */
     public static void logCheckedSevere(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_SEVERE && inLog.isSevereLoggable()) {
+        if (Logging.SHOW_SEVERE && inLog.isErrorEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.severe(Msg.toString());
+            inLog.error(Msg.toString());
         }
 
     }
@@ -372,12 +372,12 @@ public final class Logging {
     public static String getCaller(StackTraceElement[] inSTE) {
 
         if ( inSTE == null ) {
-            LOG.severe("Can't get caller: null StackTraceElement");
+            LOG.error("Can't get caller: null StackTraceElement");
             return null;
         }
 
         if ( inSTE.length < 2 ) {
-            LOG.severe("Can't get caller: StackTraceElement length < 2");
+            LOG.error("Can't get caller: StackTraceElement length < 2");
             return null;
         }
 

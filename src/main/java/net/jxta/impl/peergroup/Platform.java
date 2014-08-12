@@ -175,12 +175,12 @@ public class Platform extends StdPeerGroup {
     @Override
     protected synchronized void initFirst(PeerGroup nullParent, ID assignedID, Advertisement impl) throws PeerGroupException {
         if (initComplete) {
-            LOG.severe("You cannot initialize more than one World PeerGroup!");
+            LOG.error("You cannot initialize more than one World PeerGroup!");
             throw new PeerGroupException("You cannot initialize more than one World PeerGroup!");
         }
 
         if (nullParent != null) {
-            LOG.severe("World PeerGroup cannot be instantiated with a parent group!");
+            LOG.error("World PeerGroup cannot be instantiated with a parent group!");
             throw new PeerGroupException("World PeerGroup cannot be instantiated with a parent group!");
         }
 

@@ -177,9 +177,9 @@ public class InMemorySrdi implements SrdiAPI {
                     idx.clear(  );
                 } catch ( IOException e ) {
 
-                    if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
+                    if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
 
-                        LOG.severe( "Failed clearing index for group: " + group.getPeerGroupName(  ), e );
+                        LOG.error( "Failed clearing index for group: " + group.getPeerGroupName(  ), e );
                     }
                 }
             }
@@ -188,9 +188,9 @@ public class InMemorySrdi implements SrdiAPI {
 
                 if ( null == backends.remove( group ) ) {
 
-                    if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
+                    if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
 
-                        LOG.severe( "Failed removing index instance: " + group );
+                        LOG.error( "Failed removing index instance: " + group );
                     }
                 }
             }
@@ -228,9 +228,9 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
 
-                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -325,9 +325,9 @@ public class InMemorySrdi implements SrdiAPI {
             printStatus(  );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable( ) ) {
+            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
 
-                LOG.severe( "[" + this.indexName + "] GC: Unexpected exception encountered!", th );
+                LOG.error( "[" + this.indexName + "] GC: Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -380,9 +380,9 @@ public class InMemorySrdi implements SrdiAPI {
             return this.searchIndex.getValueList( new SearchKey( primaryKey, attribute, value ) );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
+            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
 
-                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -429,9 +429,9 @@ public class InMemorySrdi implements SrdiAPI {
             return this.searchIndex.search( searchKey, threshold, false );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
+            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
 
-                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -499,9 +499,9 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
+            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
 
-                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );
@@ -562,9 +562,9 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isSevereLoggable() ) {
+            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
 
-                LOG.severe( "[" + this.indexName + "] Unexpected exception encountered!", th );
+                LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
 
             throw new IOException( th );

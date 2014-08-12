@@ -288,12 +288,12 @@ public final class PSEMembershipService implements MembershipService {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Failed to retrieve network manager configuration!");
             stringBuilder.append(ex.getLocalizedMessage());
-            LOG.severe(stringBuilder.toString());                                       
+            LOG.error(stringBuilder.toString());                                       
         } catch (KeyStoreException ex) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Key store is not initialized!");
             stringBuilder.append(ex.getLocalizedMessage());
-            LOG.severe(stringBuilder.toString());                                       
+            LOG.error(stringBuilder.toString());                                       
         }                
 
         if (Logging.SHOW_CONFIG && LOG.isConfigEnabled()) {

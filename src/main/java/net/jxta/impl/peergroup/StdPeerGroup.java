@@ -507,7 +507,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         // Uh-oh. Services co-dependency prevented them from starting.
         if (!services.isEmpty()) {
 
-            if (Logging.SHOW_SEVERE && LOG.isSevereLoggable()) {
+            if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
                 StringBuilder failed = new StringBuilder( "No progress is being made in starting services after "
                         + iterations + " iterations. Giving up.");
 
@@ -520,7 +520,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                     failed.append(aService.getValue());
                 }
 
-                LOG.severe(failed.toString());
+                LOG.error(failed.toString());
             }
 
             return -1;
@@ -663,7 +663,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                     StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append("Failed to retrieve network manager!");
                     stringBuilder.append(ex.getLocalizedMessage());
-                    LOG.severe(stringBuilder.toString());                                       
+                    LOG.error(stringBuilder.toString());                                       
                 }                
 
                 tempCred = tempMs.getDefaultCredential();
@@ -709,7 +709,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {                                
-                                LOG.severe("Failed to make PSE membership credential 'ready for join'");
+                                LOG.error("Failed to make PSE membership credential 'ready for join'");
                                 throw new PeerGroupException("Failed to login to this group: " + this.getPeerGroupName() + ". Error=" + tempRes);
                             }
                         }
@@ -749,7 +749,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {
-                                LOG.severe("Failed to make PSE membership credential 'ready for join'");
+                                LOG.error("Failed to make PSE membership credential 'ready for join'");
                                 throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
 //                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
 //                                System.exit(0);
@@ -808,7 +808,7 @@ public class StdPeerGroup extends GenericPeerGroup {
                             }
                             else
                             {
-                                LOG.severe("Failed to make PSE membership credential 'ready for join'");
+                                LOG.error("Failed to make PSE membership credential 'ready for join'");
                                 throw new PeerGroupException("Failed to login to this group: "+this.getPeerGroupName()+". Error="+tempRes);
 //                                javax.swing.JOptionPane.showMessageDialog(null, "Wrong password. Can't proceed to use the system.");
 //                                System.exit(0);
@@ -860,7 +860,7 @@ public class StdPeerGroup extends GenericPeerGroup {
         try {
             checkServices();
         } catch (ServiceNotFoundException e) {
-            LOG.severe("Missing peer group service", e);
+            LOG.error("Missing peer group service", e);
             throw new PeerGroupException("Missing peer group service", e);
         }
 

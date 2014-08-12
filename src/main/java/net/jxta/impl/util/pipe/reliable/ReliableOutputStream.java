@@ -1336,7 +1336,7 @@ public class ReliableOutputStream extends OutputStream implements Incoming {
                     }
                     scheduleReTransmitCheck();
             } catch (Throwable all) {
-                LOG.severe("Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
+                LOG.error("Uncaught Throwable in thread :" + Thread.currentThread().getName(), all);
                 hardClose();
                 Logging.logCheckedInfo(LOG, "STOPPED Retransmit thread");
             }

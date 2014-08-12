@@ -901,7 +901,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                 msg.addMessageElement(JxtaServerSocket.MSG_ELEMENT_NAMESPACE,
                         new ByteArrayMessageElement(JxtaServerSocket.symmetricKeyTag, MimeMediaType.AOS, encryptedEncodedSecretKey, null));
             } catch (Exception failed) {
-                LOG.severe(null, failed);
+                LOG.error(null, failed);
                 IOException failure = new IOException("Could not create or encode secretKey for encryption.");
                 failure.initCause(failed);
                 throw failure;
@@ -1373,7 +1373,7 @@ public class JxtaSocket extends Socket implements PipeMsgListener, OutputPipeLis
                             byte[] encodedSecretKey = PSEUtils.decryptAsymmetric(element.getBytes(false), cipher, pseCredentialBridge.privateKey);
                             remoteSecretKey = PSEUtils.createSecretKey(encodedSecretKey);
                         } catch (Exception ex) {
-                            LOG.severe(null, ex);
+                            LOG.error(null, ex);
                         }
                     }
 

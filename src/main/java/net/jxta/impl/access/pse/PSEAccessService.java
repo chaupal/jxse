@@ -501,7 +501,7 @@ public class PSEAccessService implements AccessService {
         try {
             pseMembership.validateOffererCredential(offerer);
         } catch (CertPathValidatorException ex) {
-            LOG.severe(null, ex);
+            LOG.error(null, ex);
             return AccessResult.DISALLOWED;
         }
 
@@ -537,7 +537,7 @@ public class PSEAccessService implements AccessService {
         try {
             pseMembership.validateOffererCredential(offerer, aliases);
         } catch (CertPathValidatorException ex) {
-            LOG.severe(null, ex);
+            LOG.error(null, ex);
 	        return AccessResult.DISALLOWED;
 	    }
 

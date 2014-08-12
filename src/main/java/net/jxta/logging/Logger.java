@@ -20,10 +20,9 @@ public interface Logger {
 	void warn(String message, Throwable t);
 	void warnParams(String format, Object ... params);
 
-	// TODO rename to error
-	boolean isSevereLoggable(); // TODO rename to ..Enabled
-	void severe(String message);
-	void severe(String message, Throwable t);
+	boolean isErrorEnabled();
+	void error(String message);
+	void error(String message, Throwable t);
 
 	boolean isConfigEnabled();
 	void config(String message);

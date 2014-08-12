@@ -735,13 +735,13 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                             }
                             else
                             {
-                                LOG.severe("EndpointRouterMsg declared src address does not match the sender's address. tempMsgERM.getSrcAddress()="+tempMsgERM.getSrcAddress()+", tempEASuposedToBe="+tempEASuposedToBe);
+                                LOG.error("EndpointRouterMsg declared src address does not match the sender's address. tempMsgERM.getSrcAddress()="+tempMsgERM.getSrcAddress()+", tempEASuposedToBe="+tempEASuposedToBe);
                                 return emptyMsg();
                             }
                         }
                         else
                         {
-                            LOG.severe("EndpointRouterMsg signature cannot be verified.");
+                            LOG.error("EndpointRouterMsg signature cannot be verified.");
                             return emptyMsg();
                         }
                     }
@@ -749,23 +749,23 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 }
                 else
                 {
-                    LOG.severe("The signature of the message from the wire cannot be verified.");
+                    LOG.error("The signature of the message from the wire cannot be verified.");
                     return emptyMsg();
                 }
             } catch (NoSuchAlgorithmException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
                 return emptyMsg();
             } catch (CertificateException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
                 return emptyMsg();
             } catch (InvalidKeyException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
                 return emptyMsg();
             } catch (NoSuchProviderException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
                 return emptyMsg();
             } catch (SignatureException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
                 return emptyMsg();
             }
         }
@@ -805,8 +805,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 try {
                     anElement = readMessageElement(dis, is);
                 } catch (IOException failed) {
-                    if (Logging.SHOW_SEVERE && LOG.isSevereLoggable()) {
-                        LOG.severe("Failure reading element " + eachElement + " of " +
+                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                        LOG.error("Failure reading element " + eachElement + " of " +
                         		elementCnt + " from " + is + " for " + msg,
                                 failed);
                     }
@@ -821,8 +821,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 String namespace = (String) idToNamespace.get(anElement[0]);
 
                 if (null == namespace) {
-                    if (Logging.SHOW_SEVERE && LOG.isSevereLoggable()) {
-                        LOG.severe("Element identified a namespace which was not defined for this message.");
+                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                        LOG.error("Element identified a namespace which was not defined for this message.");
                     }
 
                     throw new IOException("Element identified a namespace which was not defined for this message.");
@@ -895,8 +895,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                         LOG.debugParams("Read element of size {}, [{}] {}", anElement.length, anElement.toString(), buffer.toString());
                     }
                 } catch (IOException failed) {
-                    if (Logging.SHOW_SEVERE && LOG.isSevereLoggable()) {
-                        LOG.severe("Failure reading element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg, failed);
+                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                        LOG.error("Failure reading element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg, failed);
                     }
                     throw failed;
                 }
@@ -908,8 +908,8 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 String namespace = (String) idToNamespace.get(anElement[0]);
 
                 if (null == namespace) {
-                    if (Logging.SHOW_SEVERE && LOG.isSevereLoggable()) {
-                        LOG.severe("Element identified a namespace which was not defined for this message.");
+                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                        LOG.error("Element identified a namespace which was not defined for this message.");
                     }
                     throw new IOException("Element identified a namespace which was not defined for this message.");
                 }
@@ -1095,19 +1095,19 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                 } catch (InvalidKeyException ex){
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 } catch (SignatureException ex) {
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 } catch (CertificateEncodingException ex) {
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 }
 
                 tempDOS.flush();
 
             } catch (IOException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
                 return localByteBuffers;
             }
 
@@ -1193,19 +1193,19 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                 } catch (InvalidKeyException ex){
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 } catch (SignatureException ex) {
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 } catch (CertificateEncodingException ex) {
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 }
 
                 tempDOS.flush();
 
             } catch (IOException ex) {
-                LOG.severe(null, ex);
+                LOG.error(null, ex);
             }
 
             streamParts.add(new ByteArrayInputStream(baos.toByteArray()));
@@ -1280,13 +1280,13 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
                 } catch (InvalidKeyException ex){
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 } catch (SignatureException ex) {
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 } catch (CertificateEncodingException ex) {
                     tempDOS.writeInt(0);
-                    LOG.severe(null, ex);
+                    LOG.error(null, ex);
                 }
 
                 tempDOS.flush();
