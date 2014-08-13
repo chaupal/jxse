@@ -181,7 +181,7 @@ public final class Logging {
     /**
      * Is error logging enabled?
      */
-    public final static boolean SHOW_SEVERE;
+    public final static boolean SHOW_ERROR;
 
     /* Initialize the constants */
     static {
@@ -216,7 +216,7 @@ public final class Logging {
         SHOW_CONFIG = MIN_SHOW_LEVEL.intValue() <= Level.CONFIG.intValue();
         SHOW_INFO = MIN_SHOW_LEVEL.intValue() <= Level.INFO.intValue();
         SHOW_WARNING = MIN_SHOW_LEVEL.intValue() <= Level.WARNING.intValue();
-        SHOW_SEVERE = MIN_SHOW_LEVEL.intValue() <= Level.SEVERE.intValue();
+        SHOW_ERROR = MIN_SHOW_LEVEL.intValue() <= Level.SEVERE.intValue();
 
         logCheckedConfig(LOG, "Logging enabled for level : ", MIN_SHOW_LEVEL);
 
@@ -317,7 +317,7 @@ public final class Logging {
      */
     public static void logCheckedSevere(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_SEVERE && inLog.isErrorEnabled()) {
+        if (Logging.SHOW_ERROR && inLog.isErrorEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.error(Msg.toString());

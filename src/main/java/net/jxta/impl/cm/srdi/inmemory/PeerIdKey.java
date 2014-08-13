@@ -100,7 +100,7 @@ public class PeerIdKey {
 
             String err = "Unable to rebuild the Peer ID from URI '" + strPeerIdKey + "'";
 
-            if ( Logging.SHOW_SEVERE && LOG.isLoggable( Level.SEVERE ) ) {
+            if ( Logging.SHOW_ERROR && LOG.isLoggable( Level.SEVERE ) ) {
 
                 LOG.log( Level.SEVERE, err, e );
             }

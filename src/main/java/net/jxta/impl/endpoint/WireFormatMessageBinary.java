@@ -805,7 +805,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 try {
                     anElement = readMessageElement(dis, is);
                 } catch (IOException failed) {
-                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                    if (Logging.SHOW_ERROR && LOG.isErrorEnabled()) {
                         LOG.error("Failure reading element " + eachElement + " of " +
                         		elementCnt + " from " + is + " for " + msg,
                                 failed);
@@ -821,7 +821,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 String namespace = (String) idToNamespace.get(anElement[0]);
 
                 if (null == namespace) {
-                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                    if (Logging.SHOW_ERROR && LOG.isErrorEnabled()) {
                         LOG.error("Element identified a namespace which was not defined for this message.");
                     }
 
@@ -895,7 +895,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                         LOG.debugParams("Read element of size {}, [{}] {}", anElement.length, anElement.toString(), buffer.toString());
                     }
                 } catch (IOException failed) {
-                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                    if (Logging.SHOW_ERROR && LOG.isErrorEnabled()) {
                         LOG.error("Failure reading element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg, failed);
                     }
                     throw failed;
@@ -908,7 +908,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 String namespace = (String) idToNamespace.get(anElement[0]);
 
                 if (null == namespace) {
-                    if (Logging.SHOW_SEVERE && LOG.isErrorEnabled()) {
+                    if (Logging.SHOW_ERROR && LOG.isErrorEnabled()) {
                         LOG.error("Element identified a namespace which was not defined for this message.");
                     }
                     throw new IOException("Element identified a namespace which was not defined for this message.");

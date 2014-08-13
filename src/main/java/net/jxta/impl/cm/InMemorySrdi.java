@@ -177,7 +177,7 @@ public class InMemorySrdi implements SrdiAPI {
                     idx.clear(  );
                 } catch ( IOException e ) {
 
-                    if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
+                    if ( Logging.SHOW_ERROR && LOG.isErrorEnabled( ) ) {
 
                         LOG.error( "Failed clearing index for group: " + group.getPeerGroupName(  ), e );
                     }
@@ -188,7 +188,7 @@ public class InMemorySrdi implements SrdiAPI {
 
                 if ( null == backends.remove( group ) ) {
 
-                    if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
+                    if ( Logging.SHOW_ERROR && LOG.isErrorEnabled( ) ) {
 
                         LOG.error( "Failed removing index instance: " + group );
                     }
@@ -228,7 +228,7 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
+            if ( Logging.SHOW_ERROR && LOG.isErrorEnabled( ) ) {
 
                 LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
@@ -325,7 +325,7 @@ public class InMemorySrdi implements SrdiAPI {
             printStatus(  );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled( ) ) {
+            if ( Logging.SHOW_ERROR && LOG.isErrorEnabled( ) ) {
 
                 LOG.error( "[" + this.indexName + "] GC: Unexpected exception encountered!", th );
             }
@@ -380,7 +380,7 @@ public class InMemorySrdi implements SrdiAPI {
             return this.searchIndex.getValueList( new SearchKey( primaryKey, attribute, value ) );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
+            if ( Logging.SHOW_ERROR && LOG.isErrorEnabled() ) {
 
                 LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
@@ -429,7 +429,7 @@ public class InMemorySrdi implements SrdiAPI {
             return this.searchIndex.search( searchKey, threshold, false );
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
+            if ( Logging.SHOW_ERROR && LOG.isErrorEnabled() ) {
 
                 LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
@@ -499,7 +499,7 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
+            if ( Logging.SHOW_ERROR && LOG.isErrorEnabled() ) {
 
                 LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }
@@ -562,7 +562,7 @@ public class InMemorySrdi implements SrdiAPI {
             }
         } catch ( Throwable th ) {
 
-            if ( Logging.SHOW_SEVERE && LOG.isErrorEnabled() ) {
+            if ( Logging.SHOW_ERROR && LOG.isErrorEnabled() ) {
 
                 LOG.error( "[" + this.indexName + "] Unexpected exception encountered!", th );
             }

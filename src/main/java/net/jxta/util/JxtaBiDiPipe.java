@@ -930,7 +930,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                     }
                     if (pipeAdv.getType().equals(PipeService.UnicastSecureType) && (CredDoc == null || !checkCred(CredDoc))) {
                         // we're done here
-                        if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                        if (Logging.SHOW_ERROR && LOG.isLoggable(Level.SEVERE)) {
                             LOG.severe("Missing remote credential doc");
                         }
                         return;
@@ -969,7 +969,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                         finalLock.notifyAll();
                     }
                 } catch (IOException e) {
-                    if (Logging.SHOW_SEVERE && LOG.isLoggable(Level.SEVERE)) {
+                    if (Logging.SHOW_ERROR && LOG.isLoggable(Level.SEVERE)) {
                         LOG.log(Level.SEVERE, "failed to process response message", e);
                     }
                 }
