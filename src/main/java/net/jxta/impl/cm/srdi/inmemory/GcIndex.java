@@ -198,7 +198,7 @@ public class GcIndex {
             if ( gcKeys.size(  ) == 0 ) {
 
                 // No more entry to expire... remove entry form the GC Index
-                if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+                if ( Logging.SHOW_DEBUG && LOG.isLoggable( Level.FINE ) ) {
 
                     LOG.fine( "[" + this.indexName + "] GC Index: removing entry '" + expiry + "'" );
                 }

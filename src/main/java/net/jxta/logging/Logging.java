@@ -159,27 +159,27 @@ public final class Logging {
     public final static Level MIN_SHOW_LEVEL;
 
     /**
-     * Is Level.FINE enabled?
+     * Is debug logging enabled?
      */
-    public final static boolean SHOW_FINE;
+    public final static boolean SHOW_DEBUG;
 
     /**
-     * Is Level.CONFIG enabled?
+     * Is configuration logging enabled?
      */
     public final static boolean SHOW_CONFIG;
 
     /**
-     * Is Level.INFO enabled?
+     * Is informational logging enabled?
      */
     public final static boolean SHOW_INFO;
 
     /**
-     * Is Level.WARNING enabled?
+     * Is warning logging enabled?
      */
     public final static boolean SHOW_WARNING;
 
     /**
-     * Is Level.SEVERE enabled?
+     * Is error logging enabled?
      */
     public final static boolean SHOW_SEVERE;
 
@@ -212,7 +212,7 @@ public final class Logging {
         // inherits our default.
         MIN_SHOW_LEVEL = setLevel;
 
-        SHOW_FINE = MIN_SHOW_LEVEL.intValue() <= Level.FINE.intValue();
+        SHOW_DEBUG = MIN_SHOW_LEVEL.intValue() <= Level.FINE.intValue();
         SHOW_CONFIG = MIN_SHOW_LEVEL.intValue() <= Level.CONFIG.intValue();
         SHOW_INFO = MIN_SHOW_LEVEL.intValue() <= Level.INFO.intValue();
         SHOW_WARNING = MIN_SHOW_LEVEL.intValue() <= Level.WARNING.intValue();
@@ -272,8 +272,8 @@ public final class Logging {
     }
 
     /**
-     * This method checks whether {@code SHOW_FINE} is set to {@code true),
-     * and whether the provided logger allows fine messages. If yes, the
+     * This method checks whether {@code SHOW_DEBUG} is set to {@code true),
+     * and whether the provided logger allows debug messages. If yes, the
      * message is logged.
      *
      * @param inLog a logger
@@ -281,7 +281,7 @@ public final class Logging {
      */
     public static void logCheckedDebug(Logger inLog, Object... inMsg) {
 
-        if (Logging.SHOW_FINE && inLog.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && inLog.isDebugEnabled()) {
             StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
             for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
             inLog.debug(Msg.toString());

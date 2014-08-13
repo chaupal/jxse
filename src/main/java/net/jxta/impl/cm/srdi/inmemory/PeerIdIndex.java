@@ -134,7 +134,7 @@ public class PeerIdIndex {
             // If the map is empty, remove the entry
             if ( keysMap.size(  ) == 0 ) {
 
-                if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+                if ( Logging.SHOW_DEBUG && LOG.isLoggable( Level.FINE ) ) {
 
                     LOG.fine( "[" + this.indexName + "] Peer Ids index: removing entry '" + peerIdKey + "' from main Index" );
                 }

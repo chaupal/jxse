@@ -161,7 +161,7 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
 
     private boolean isLoopback(EndpointAddress srcAddr) {
         if (localAddress.equals(srcAddr)) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Loopback message detected");
             }
             return true;
@@ -172,7 +172,7 @@ public class AsynchronousNettyMessenger extends AsynchronousMessenger implements
     private EndpointAddress extractEndpointAddress(Message msg, String elementNamespace, String elementName, String addrType) {
         MessageElement element = msg.getMessageElement(elementNamespace, elementName);
         if(element == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "Message with no " + addrType + " address detected: " + msg);
             }
             return null;

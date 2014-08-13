@@ -160,7 +160,7 @@ class HttpMessageReceiver implements MessageReceiver {
 
         // Configure Jetty Logging
         // LOGGING: was Finer
-        if (!(Logging.SHOW_FINE && LOG.isDebugEnabled())) {
+        if (!(Logging.SHOW_DEBUG && LOG.isDebugEnabled())) {
             Log.instance().disableLog();
         }
 
@@ -190,10 +190,10 @@ class HttpMessageReceiver implements MessageReceiver {
         // SPT - these methods call log internally.  If they are called before we add our JUL as a logSink (above)
         //       then a default STDERR logSink will also be added as default: org.mortbay.util.OutputStreamLogSink
         // LOGGING: was Finer
-        org.mortbay.util.Code.setDebug(Logging.SHOW_FINE && LOG.isDebugEnabled());
+        org.mortbay.util.Code.setDebug(Logging.SHOW_DEBUG && LOG.isDebugEnabled());
         org.mortbay.util.Code.setSuppressWarnings(!(Logging.SHOW_WARNING && LOG.isWarnEnabled()));
         // LOGGING: was Finer
-        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_FINE && LOG.isDebugEnabled()));
+        org.mortbay.util.Code.setSuppressStack(!(Logging.SHOW_DEBUG && LOG.isDebugEnabled()));
 
         // Initialize the Jetty HttpServer
         server = new HttpServer();

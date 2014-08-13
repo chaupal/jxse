@@ -620,7 +620,7 @@ public final class PeerView implements EndpointListener, RendezvousListener {
         boolean isFromEdge = (msg.getMessageElement(MESSAGE_NAMESPACE, EDGE_ELEMENT_NAME) != null);
         boolean isTrusted = isFromEdge || seedingManager.isAcceptablePeer(radv.getRouteAdv());
 
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
 
             String srcPeer = srcAddr.toString();
 

@@ -307,7 +307,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
 
         }
 
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
             StringBuilder query = new StringBuilder("Sending query#" + myQueryID + " for " + threshold + " " + dirname[type] + " advs");
 
             if (attribute != null) {
@@ -395,7 +395,7 @@ public class DiscoveryServiceImpl implements DiscoveryService, InternalQueryHand
             throw new IllegalArgumentException("Unknown Advertisement type");
         }
 
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
 
             StringBuilder query = new StringBuilder("Searching for " + dirname[type] + " advs");
 

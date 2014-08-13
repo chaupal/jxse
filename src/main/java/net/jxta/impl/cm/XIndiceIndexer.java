@@ -354,7 +354,7 @@ public final class XIndiceIndexer {
             long listPos = writeRecord(listDB, dbKey, pos);
 
             // LOGGING: was FINER
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 StringBuilder message = new StringBuilder().append("Adding a reference at position :").append(listPos).append(" to ").append(name).append(" index, Key: ").append(
                         indexables.get(name));
                 // LOGGING: was Finer

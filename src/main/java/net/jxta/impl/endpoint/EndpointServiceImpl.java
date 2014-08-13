@@ -1528,7 +1528,7 @@ public class EndpointServiceImpl implements EndpointService, MessengerEventListe
 
         if (addr == null) throw new IllegalArgumentException("null endpoint address not allowed.");
 
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
 
             Throwable trace = new Throwable("Stack Trace");
             StackTraceElement elements[] = trace.getStackTrace();

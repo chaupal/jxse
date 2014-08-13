@@ -209,7 +209,7 @@ public class HttpMessageServlet extends HttpServlet {
         TransportBindingMeter transportBindingMeter = null;
 
         // LOGGING: was FINEST
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
             printRequest(req);
         }
 

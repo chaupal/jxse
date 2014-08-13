@@ -758,7 +758,7 @@ public abstract class AbstractContentTransfer
 
         synchronized(lockObject) {
 
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 Logging.logCheckedDebug(LOG, "Check transfer state");
                 Logging.logCheckedDebug(LOG, "   Last State: ", lastTransferState);
                 Logging.logCheckedDebug(LOG, "   State     : ", transferState);

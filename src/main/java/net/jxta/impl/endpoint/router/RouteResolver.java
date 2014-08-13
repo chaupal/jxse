@@ -834,7 +834,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
         Collection<PeerID> badHops = routeQuery.getBadHops();
 
         // LOGGING: was FINER
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
             StringBuilder badHopsDump = new StringBuilder("bad Hops :\n");
 
             for (ID aBadHop : badHops) {
@@ -1287,7 +1287,7 @@ class RouteResolver implements Module, QueryHandler, SrdiHandler, SrdiPushEntrie
             // FIXME: Very questionable strategy, because the replica peer may keep
             // outdated information longer than necessary.
 
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 LOG.debug("sending a router SRDI message add route " + id);
             }
             if (peer == null) {

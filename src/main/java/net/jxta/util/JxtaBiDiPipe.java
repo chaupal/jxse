@@ -703,7 +703,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                             (XMLDocument) peerAdv.getSignedDocument(), null));
             return msg;
         } catch (Throwable t) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "error getting element stream", t);
             }
             return null;
@@ -715,7 +715,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     void setBound() {
         bound = true;
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Pipe Bound :true");
         }
     }
@@ -826,7 +826,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
 
                 try {
                     if (!ros.isQueueEmpty()) {
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                             LOG.fine("Waiting for Output stream queue event");
                         }
                         ros.waitQueueEvent(left);
@@ -850,7 +850,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         // close the pipe
         inputPipe.close();
         msgr.close();
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Pipe close complete");
         }
         notifyListeners(PIPE_CLOSED_EVENT);
@@ -864,7 +864,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 stateListener.stateEvent(this, event);
             }
         } catch (Throwable th) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "error during pipe event callback", th);
             }
         }
@@ -885,12 +885,12 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
     public void pipeMsgEvent(PipeMsgEvent event) {
         Message message = event.getMessage();
         if (message == null) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Empty event");
             }
             return;
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Pipe message arrived");
         }
 
@@ -905,7 +905,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                     XMLDocument remotePipeDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
 
                     remotePipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(remotePipeDoc);
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Received a pipe Advertisement :" + remotePipeAdv.getName());
                     }
 
@@ -914,7 +914,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                         XMLDocument remotePeerDoc = (XMLDocument) StructuredDocumentFactory.newStructuredDocument(element);
 
                         remotePeerAdv = (PeerAdvertisement) AdvertisementFactory.newAdvertisement(remotePeerDoc);
-                        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                        if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                             LOG.fine("Recevied an Peer Advertisement :" + remotePeerAdv.getName());
                         }
                     } else {
@@ -958,7 +958,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                         msgr = lightweightOutputPipe(group, remotePipeAdv, remotePeerAdv);
 //                    }
 
-                    if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                    if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                         LOG.fine("Reliability set to :" + isReliable);
                     }
                     if (isReliable && !direct) {
@@ -992,7 +992,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         MessageElement element = message.getMessageElement(JxtaServerPipe.nameSpace, JxtaServerPipe.closeTag);
         if (element != null) {
             try {
-                if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+                if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Received a pipe close request, closing pipes");
                 }
                 if (ros != null) {
@@ -1128,7 +1128,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
         BlockingQueue<PipeMsgEvent> msg_queue = queue;
 
         if (null != msg_queue) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("push message onto queue");
             }
 
@@ -1278,7 +1278,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
             // not a supported type
             return null;
         }
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
             LOG.fine("Creating a lightweightOutputPipe()");
         }
         return endpoint.getMessenger(addr);
@@ -1300,7 +1300,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
      */
     private void sendClose() {
         if (!direct && isReliable && ros.isClosed()) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.fine("ReliableOutputStream is already closed. Skipping close message");
             }
             return;
@@ -1315,7 +1315,7 @@ public class JxtaBiDiPipe implements PipeMsgListener, OutputPipeListener, Reliab
                 ros.close();
             }
         } catch (IOException ie) {
-            if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+            if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.SEVERE, "failed during close", ie);
             }
         }

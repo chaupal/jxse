@@ -777,7 +777,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
         private Message fromWireExternal(InputStream is, MimeMediaType type, MimeMediaType contentEncoding, boolean paramDisableCbjx, PeerGroup paramGroup, boolean isEnforce, boolean isTls) throws IOException {
             Message msg = new Message();
 
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 LOG.debug("Reading " + msg + " from " + is);
             }
 
@@ -788,7 +788,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int elementCnt = dis.readShort();
 
             // LOGGING: was FINER
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 LOG.debug("Message element count " + elementCnt + " from " + is);
             }
 
@@ -796,7 +796,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             do {
             	// LOGGING: was FINER
-                if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                     LOG.debug("Read element " + eachElement + " of " + elementCnt + " from " + is + " for " + msg);
                 }
 
@@ -832,7 +832,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 eachElement++;
 
                 // LOGGING: was FINER
-                if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                     LOG.debug(
                             "Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement
                             + " of #" + elementCnt + " elements from " + dis.toString());
@@ -864,7 +864,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             // FIXME 20020504 bondolo@jxta.org  Ignores type and contentEncoding completely.
             Message msg = new Message();
 
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 LOG.debug("Reading " + msg + " from " + buffer);
             }
 
@@ -873,7 +873,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
             int elementCnt = buffer.getShort();
 
             // LOGGING: was FINER
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 LOG.debug("Message element count " + elementCnt + " from " + buffer);
             }
 
@@ -881,7 +881,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
 
             do {
             	// LOGGING: was FINER
-                if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                     LOG.debug("Read element " + eachElement + " of " + elementCnt + " from " + buffer + " for " + msg);
                 }
 
@@ -891,7 +891,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                     anElement = readMessageElement(buffer);
 
                     // LOGGING: was FINER
-                    if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                    if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                         LOG.debugParams("Read element of size {}, [{}] {}", anElement.length, anElement.toString(), buffer.toString());
                     }
                 } catch (IOException failed) {
@@ -918,7 +918,7 @@ public class WireFormatMessageBinary implements WireFormatMessage {
                 eachElement++;
 
                 // LOGGING: was FINER
-                if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                     LOG.debug("Add element (name=\'" + ((MessageElement) anElement[1]).getElementName() + "\') #" + eachElement+ " of #" + elementCnt + " elements from " + buffer.toString());
                 }
             } while (((0 == elementCnt) || (eachElement < elementCnt)));

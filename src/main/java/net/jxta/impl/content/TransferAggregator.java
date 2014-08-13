@@ -555,7 +555,7 @@ public class TransferAggregator
                 if (oldState != locationState || locationCount != null) {
 
                 	// LOGGING: was FINER
-                    if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                    if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                         Logging.logCheckedDebug(LOG, hashHex(),
                                 ": Location update (location count: ",
                                 locationCount, ")");

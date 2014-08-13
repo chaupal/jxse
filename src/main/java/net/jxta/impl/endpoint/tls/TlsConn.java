@@ -688,7 +688,7 @@ class TlsConn {
 
                     Collection<Principal> allIssuers = Arrays.asList(issuers);
 
-                    if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                    if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
 
                         Logging.logCheckedDebug(LOG, "Looking for : ", cred.getCertificate().getIssuerX500Principal());
                         Logging.logCheckedDebug(LOG, "Issuers : ", allIssuers);

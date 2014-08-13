@@ -225,7 +225,7 @@ class InputPipeImpl implements EndpointListener, InputPipe {
                 }
             }
 
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 synchronized (this) {
                     Logging.logCheckedDebug(LOG, "Queued ", msg, " for ", pipeID);
                 }

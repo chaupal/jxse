@@ -165,7 +165,7 @@ public class SearchIndex {
                 // If the map is empty, remove the entry
                 if ( peerIdsMap.size(  ) == 0 ) {
 
-                    if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+                    if ( Logging.SHOW_DEBUG && LOG.isLoggable( Level.FINE ) ) {
 
                         LOG.fine( "[" + this.indexName + "] Keys Index: removing entry '" + searchKey.getKey(  ) + "'" );
                     }
@@ -217,7 +217,7 @@ public class SearchIndex {
             }
         }
 
-        if ( Logging.SHOW_FINE && LOG.isLoggable( Level.FINE ) ) {
+        if ( Logging.SHOW_DEBUG && LOG.isLoggable( Level.FINE ) ) {
 
             LOG.fine( "[" + this.indexName + "] getRecord on  '" + searchKey + "' returned " + entries.size(  ) +
                 " item(s) from the index" );

@@ -994,7 +994,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         msg.addMessageElement(DefaultContentProvider.MSG_NAMESPACE, msge);
 
         // LOGGING: was FINEST
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
             Logging.logCheckedDebug(LOG, "Sending DataRequest (idx=", idx, ", node=", node, "):");
             Logging.logCheckedDebug(LOG, "   ContentID: ", req.getContentID());
             Logging.logCheckedDebug(LOG, "   Offset : ", req.getOffset());
@@ -1027,7 +1027,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         long offs;
 
         // LOGGING: was FINEST
-        if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+        if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
             Logging.logCheckedDebug(LOG, "DataResponse:");
             Logging.logCheckedDebug(LOG, "   ContentID: ", resp.getContentID());
             Logging.logCheckedDebug(LOG, "   Offset : ", resp.getOffset());
@@ -1089,7 +1089,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         // We have what appears to be a good packet.
         if (SIMULATE_PACKET_LOSS) {
             if (RANDOM.nextInt(100) < PACKET_LOSS_PERCENT) {
-                if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+                if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                     Logging.logCheckedDebug(LOG, "Simulating lost packet");
                     return;
                 }
@@ -1114,7 +1114,7 @@ public class DefaultContentTransfer extends AbstractContentTransfer
         if (couldWrite) {
 
             // LOGGING: was FINEST
-            if (Logging.SHOW_FINE && LOG.isDebugEnabled()) {
+            if (Logging.SHOW_DEBUG && LOG.isDebugEnabled()) {
                 Logging.logCheckedDebug(LOG, "Wrote the following to disk:");
                 Logging.logCheckedDebug(LOG, "   Offset : ", resp.getOffset());
                 Logging.logCheckedDebug(LOG, "   Length : ", resp.getLength());

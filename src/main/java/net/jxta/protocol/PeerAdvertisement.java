@@ -138,7 +138,7 @@ public abstract class PeerAdvertisement extends ExtendableAdvertisement implemen
      */
     protected int incModCount() {
 
-        if (Logging.SHOW_FINE && LOG.isLoggable(Level.FINE)) {
+        if (Logging.SHOW_DEBUG && LOG.isLoggable(Level.FINE)) {
 
             Throwable trace = new Throwable("Stack Trace");
             StackTraceElement elements[] = trace.getStackTrace();

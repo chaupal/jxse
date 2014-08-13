@@ -450,7 +450,7 @@ public class TernarySearchTreeImpl<E> implements TernarySearchTree<E> {
         while ( node != null ) {
 
         	// LOGGING: was Finest
-            if ( Logging.SHOW_FINE && LOG.isDebugEnabled() ) {
+            if ( Logging.SHOW_DEBUG && LOG.isDebugEnabled() ) {
 
                 LOG.debug( "Deleting tree node: " + node );
             }

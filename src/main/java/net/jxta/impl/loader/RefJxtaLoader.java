@@ -964,7 +964,7 @@ public class RefJxtaLoader extends JxtaLoader {
     private void attachDebugListeners(ContentTransfer xfer) {
 
     	// LOGGING: was FINEST
-        if (!(Logging.SHOW_FINE && LOG.isDebugEnabled())) {
+        if (!(Logging.SHOW_DEBUG && LOG.isDebugEnabled())) {
             // Early out.
             return;
         }
