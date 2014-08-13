@@ -253,6 +253,14 @@ public final class Logging {
     	}
     }
 
+	private static String logParametersToString(final Object... inMsg) {
+		final StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
+		for (int i=0;i<inMsg.length;i++) {
+			Msg.append(checkForThrowables(inMsg[i]));
+		}
+		return Msg.toString();
+	}
+
     /**
      * This method checks whether {@code SHOW_CONFIG} is set to {@code true),
      * and whether the provided logger allows config messages. If yes, the
@@ -264,9 +272,7 @@ public final class Logging {
     public static void logCheckedConfig(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_CONFIG && inLog.isConfigEnabled()) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.config(Msg.toString());
+            inLog.config(logParametersToString(inMsg));
         }
 
     }
@@ -282,9 +288,7 @@ public final class Logging {
     public static void logCheckedDebug(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_DEBUG && inLog.isDebugEnabled()) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.debug(Msg.toString());
+            inLog.debug(logParametersToString(inMsg));
         }
 
     }
@@ -300,9 +304,7 @@ public final class Logging {
     public static void logCheckedInfo(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_INFO && inLog.isInfoEnabled()) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.info(Msg.toString());
+            inLog.info(logParametersToString(inMsg));
         }
 
     }
@@ -318,9 +320,7 @@ public final class Logging {
     public static void logCheckedError(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_ERROR && inLog.isErrorEnabled()) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.error(Msg.toString());
+            inLog.error(logParametersToString(inMsg));
         }
 
     }
@@ -336,9 +336,7 @@ public final class Logging {
     public static void logCheckedWarning(Logger inLog, Object... inMsg) {
 
         if (Logging.SHOW_WARNING && inLog.isWarnEnabled()) {
-            StringBuffer Msg = new StringBuffer(getCaller(new Exception().getStackTrace())).append('\n');
-            for (int i=0;i<inMsg.length;i++) Msg.append(checkForThrowables(inMsg[i]));
-            inLog.warn(Msg.toString());
+            inLog.warn(logParametersToString(inMsg));
         }
 
     }
